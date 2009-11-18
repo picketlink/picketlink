@@ -1,0 +1,35 @@
+<ns:jbosspdp xmlns:ns="urn:jboss:xacml:2.0">
+   <ns:Policies>
+      <ns:PolicySet>
+         <ns:Location>xacml/policies/XacmlPolicySet-01-top-level.xml</ns:Location>
+         <ns:PolicySet>
+            <ns:Location>xacml/policies/XacmlPolicySet-02a-CDA.xml</ns:Location>
+         </ns:PolicySet>
+         <ns:PolicySet>
+            <ns:Location>xacml/policies/XacmlPolicySet-02b-N.xml</ns:Location>
+            <ns:PolicySet>
+               <ns:Location>xacml/policies/XacmlPolicySet-03-N-RPS-virt-med-rec-role.xml</ns:Location>
+               <ns:PolicySet>
+                  <ns:Location>xacml/policies/XacmlPolicySet-04-N-PPS-PRD-004.xml</ns:Location>
+               </ns:PolicySet> 
+            </ns:PolicySet>
+         </ns:PolicySet>
+         <ns:PolicySet>
+            <ns:Location>xacml/policies/XacmlPolicySet-02c-N-PermCollections.xml</ns:Location>
+         </ns:PolicySet> 
+         <ns:PolicySet>
+            <ns:Location>xacml/policies/XacmlPolicySet-02d-prog-note.xml</ns:Location>
+         </ns:PolicySet> 
+         <ns:PolicySet>
+            <ns:Location>xacml/policies/XacmlPolicySet-02e-MA.xml</ns:Location>
+         </ns:PolicySet>
+         <ns:PolicySet>
+            <ns:Location>xacml/policies/XacmlPolicySet-02f-emergency.xml</ns:Location>
+         </ns:PolicySet>
+      </ns:PolicySet>
+   </ns:Policies>
+   <ns:Locators>
+      <ns:Locator Name="org.jboss.security.xacml.locators.JBossPolicySetLocator">
+      </ns:Locator>
+   </ns:Locators>
+</ns:jbosspdp>

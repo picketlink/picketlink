@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PolicySet
+    xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os 
+      http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" 
+    PolicySetId="urn:va:xacml:2.0:interop:rsa8:policysetid:emergency"
+    PolicyCombiningAlgId=
+      "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+  <Description>
+      Policy set to allow emergency access for non-facility subjects.
+      Returns Deny if user not from supported facility AND does not have emergency perm
+      Returns Permit if not from supported facility AND not denied access
+      Returns NotApplicable if plain old user from supported facility
+  </Description>
+  <Target/>
+  <Policy
+      PolicyId="urn:va:xacml:2.0:interop:rsa8:policyid:emergency"
+      RuleCombiningAlgId=
+        "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+    <Target/>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:rule:emergency:deny"
+        Effect="Deny">
+      <Description>
+        If the subject is not from a supported facility AND
+.       if the subject does not have emergency permission THEN Deny access.
+      </Description>
+      <Target/>
+      <Condition>
+       <!-- True if subject:locality NOT EQUAL TO ANYOF environment:locality  -->
+       <!--  AND if hl7:pea-001 NOT EQUAL TO ANYOF subject:hl7:permission     -->
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:and">
+        <!-- True if subject:locality NOT EQUAL TO ANYOF environment:locality  -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:any-of">
+          <Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal"/>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+           <SubjectAttributeDesignator
+               AttributeId=
+                 "urn:oasis:names:tc:xacml:1.0:subject:locality"
+               DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </Apply>
+          <EnvironmentAttributeDesignator
+              AttributeId=
+                "urn:va:xacml:2.0:interop:rsa8:environment:locality"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+         </Apply>
+        </Apply>
+        <!-- True if hl7:pea-001 NOT EQUAL TO ANYOF subject:hl7:permission  -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:any-of">
+          <Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal"/>
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+              >urn:va:xacml:2.0:interop:rsa8:hl7:pea-001</AttributeValue>
+            <SubjectAttributeDesignator
+                AttributeId=
+                  "urn:va:xacml:2.0:interop:rsa8:subject:hl7:permission"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+         </Apply>
+        </Apply>
+       </Apply>
+      </Condition>
+    </Rule>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:rule:emergency:permit"
+	     Effect="Permit">
+      <Description>
+      	If a Deny was not obtained above AND subject not part of a supported
+           facility then subject must have emergency permission.
+	   </Description>
+      <Target/>
+      <Condition>
+        <!-- True if subject:locality NOT EQUAL TO ANYOF environment:locality  -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:any-of">
+          <Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal"/>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+           <SubjectAttributeDesignator
+               AttributeId=
+                 "urn:oasis:names:tc:xacml:1.0:subject:locality"
+               DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </Apply>
+          <EnvironmentAttributeDesignator
+              AttributeId=
+                "urn:va:xacml:2.0:interop:rsa8:environment:locality"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+         </Apply>
+        </Apply>
+      </Condition>
+    </Rule>
+    <Obligations>
+      <!-- These obligations provide specific instructions to PEP in the response -->
+      <!-- This obligation informs the PEP user granted emergency access      -->
+      <Obligation
+        ObligationId="urn:va:xacml:2.0:interop:rsa8:obligation:emergency:permit"
+        FulfillOn="Permit"/>
+    </Obligations>
+  </Policy>
+</PolicySet>

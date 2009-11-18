@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PolicySet
+    xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os 
+      http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" 
+    PolicySetId="urn:va:xacml:2.0:interop:rsa8:policysetid:progress-note"
+    PolicyCombiningAlgId=
+      "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+  <Description>
+      Policy set for the business rule for unsigned progress notes.
+  </Description>
+  <Target/>
+  <Policy
+      PolicyId="urn:va:xacml:2.0:interop:rsa8:policyid:progress-note"
+      RuleCombiningAlgId=
+        "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides">
+    <Target/>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:rule:progress-note:sig"
+        Effect="Permit">
+      <Description>
+        If the progress-note is signed allow any user to see it. If not signed
+        then only author may see it.
+      </Description>
+      <Target/>
+      <Condition>
+        <!-- True if resource:hl7:progress-note:signed EQUAL TO True  -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:any-of">
+          <Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal"/>
+          <AttributeValue 
+              DataType="http://www.w3.org/2001/XMLSchema#string"
+                >True</AttributeValue>
+          <ResourceAttributeDesignator
+              AttributeId=
+                "urn:va:xacml:2.0:interop:rsa8:resource:hl7:progress-note:signed"
+              DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </Apply>
+      </Condition>
+    </Rule>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:rule:progress-note:author"
+	     Effect="Permit">
+      <Description>
+      	If a Permit was not obtained then subject must be author.
+	   </Description>
+      <Target/>
+      <Condition>
+        <!-- True if hl7:dissented-subject-id EQUAL TO subject:subject-id  -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:any-of">
+          <Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal"/>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+	         <SubjectAttributeDesignator
+                AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </Apply>
+          <ResourceAttributeDesignator
+           AttributeId=
+            "urn:va:xacml:2.0:interop:rsa8:resource:hl7:progress-note:author-subject-id"
+           DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </Apply>
+      </Condition>
+    </Rule>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:rule:progress-note:deny-sig"
+	     Effect="Deny">
+      <Description>
+      	If a Permit was not obtained above then set Deny by default.
+	   </Description>
+    </Rule>
+    <Obligations>
+      <!-- These obligations provide specific instructions to PEP in the response -->
+      <!-- This obligation informs the PEP access denied unsigned non-author      -->
+      <Obligation
+        ObligationId="urn:va:xacml:2.0:interop:rsa8:obligation:deny:unsigned:non-author"
+        FulfillOn="Deny"/>
+    </Obligations>
+  </Policy>
+</PolicySet>

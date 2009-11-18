@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PolicySet
+    xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os 
+      http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" 
+    PolicySetId="urn:va:xacml:2.0:interop:rsa8:policysetid:N"
+    PolicyCombiningAlgId=
+      "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+  <Description>
+      Policy set for evaluating the subject:role attributes.
+      This implements an RBAC policy. This policy set matches
+      subject roles and refers to permission policy sets.
+  </Description>
+  <Target/>
+  <PolicySet
+      PolicySetId="urn:va:xacml:2.0:interop:rsa8:policysetid:N:RPS:physician"
+	   PolicyCombiningAlgId=
+        "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+    <Target>
+      <Subjects>
+        <Subject>
+          <SubjectMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+              >urn:va:xacml:2.0:interop:rsa8:role:hl7:physician</AttributeValue>
+            <SubjectAttributeDesignator 
+                AttributeId="urn:oasis:names:tc:xacml:2.0:subject:role"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </SubjectMatch>
+        </Subject>
+      </Subjects>
+    </Target>
+    <PolicySetIdReference
+   >urn:va:xacml:2.0:interop:rsa8:policysetid:N:RPS:med-rec-vrole</PolicySetIdReference>
+  </PolicySet>
+</PolicySet>

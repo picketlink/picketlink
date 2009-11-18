@@ -1,0 +1,8 @@
+<JBossIDP xmlns="urn:jboss:identity-federation:config:1.0" 
+  AttributeManager="">
+<IdentityURL>http://localhost:8080/idp/</IdentityURL> 
+<Trust>
+   <Domains>localhost,jboss.com,jboss.org</Domains>
+</Trust>
+
+</JBossIDP>

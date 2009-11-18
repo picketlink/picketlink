@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PolicySet
+    xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os 
+      http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" 
+    PolicySetId="urn:va:xacml:2.0:interop:rsa8:policysetid:N:PPS:PRD-004"
+    PolicyCombiningAlgId=
+      "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+  <Description>
+      Policy set for the PRD-004 permission. This permission allows
+      access to all medical records.
+  </Description>
+  <Target/>
+  <Policy
+      PolicyId="urn:va:xacml:2.0:interop:rsa8:policyid:N:PPS:PRD-004:1"
+      RuleCombiningAlgId=
+        "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:permit-overrides">
+    <Target>
+      <Resources>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:medical-record</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:demographics</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:chart</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:problemlist</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:procedures</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:laboratory</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:radiology</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:medications</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:vitals</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:progress-note</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch
+              MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+            <AttributeValue
+                DataType="http://www.w3.org/2001/XMLSchema#string"
+             >urn:va:xacml:2.0:interop:rsa8:resource:hl7:patientsearch</AttributeValue>
+            <ResourceAttributeDesignator
+                AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </ResourceMatch>
+        </Resource>
+      </Resources>
+    </Target>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:policy:N:PPS:PRD-004:1:rule:1"
+	     Effect="Permit">
+      <Condition>
+
+        <!-- Returns true iff the first argument is a subset of the second argument -->
+        <!-- i.e. the permissions required by the resource must be a                -->
+        <!--      subset of the permissions supplied by the subject                 -->
+
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-subset">
+
+          <!-- 1st argument: returns the values of all Attributes with              -->
+          <!-- DataType="http://www.w3.org/2001/XMLSchema#string" and               -->
+          <!-- AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:permission"  -->
+          <ResourceAttributeDesignator
+              DataType="http://www.w3.org/2001/XMLSchema#string"
+              AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:permission"/>
+
+          <!-- 2nd argument: returns the values of all Attributes with              -->
+          <!-- DataType="http://www.w3.org/2001/XMLSchema#string" and               -->
+          <!-- AttributeId="urn:va:xacml:2.0:interop:rsa8:subject:hl7:permission"   -->
+          <SubjectAttributeDesignator 
+              DataType="http://www.w3.org/2001/XMLSchema#string"
+              AttributeId="urn:va:xacml:2.0:interop:rsa8:subject:hl7:permission"/>
+
+        </Apply>
+      </Condition>
+	 </Rule>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:rule:N:PPS:PRD-004:1:rule:2"
+	     Effect="Deny">
+      <Description>
+      	If a Permit was not obtained above then set Deny by default.
+	   </Description>
+    </Rule>
+  </Policy>
+</PolicySet>

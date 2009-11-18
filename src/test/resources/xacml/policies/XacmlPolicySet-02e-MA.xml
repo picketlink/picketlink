@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PolicySet
+    xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os 
+      http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" 
+    PolicySetId="urn:va:xacml:2.0:interop:rsa8:policysetid:MA"
+    PolicyCombiningAlgId=
+      "urn:oasis:names:tc:xacml:1.0:policy-combining-algorithm:deny-overrides">
+  <Description>
+      Policy set for the MA confidentiality code.
+  </Description>
+  <Target/>
+  <Policy
+      PolicyId="urn:va:xacml:2.0:interop:rsa8:policyid:MA"
+      RuleCombiningAlgId=
+        "urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:deny-overrides">
+    <Target/>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:rule:MA:1"
+        Effect="Deny">
+      <Description>
+        If the access subject is NOT one of those users which consent has
+        been removed, then deny.
+        Note: there is reverse logic here because the Obligation that denies
+        access to the user for this object must be issued when the user has
+        obtained a Permit. So, the caller of this policy must know to reverse
+        sense as well.
+      </Description>
+      <Target/>
+      <Condition>
+       <!-- True if hl7:radiology:dissented-subject-id NOTEQUALTO subject:subject-id --> 
+       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:not">
+        <!-- True if hl7:radiology:dissented-subject-id EQUALTO subject:subject-id   -->
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:any-of">
+          <Function FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal"/>
+          <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+	         <SubjectAttributeDesignator
+                AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+                DataType="http://www.w3.org/2001/XMLSchema#string"/>
+          </Apply>
+          <ResourceAttributeDesignator
+            AttributeId=
+             "urn:va:xacml:2.0:interop:rsa8:resource:hl7:radiology:dissented-subject-id"
+            DataType="http://www.w3.org/2001/XMLSchema#string"/>
+        </Apply>
+       </Apply>
+      </Condition>
+    </Rule>
+    <Rule
+        RuleId="urn:va:xacml:2.0:interop:rsa8:rule:MA:2"
+	     Effect="Permit">
+      <Description>
+      	If a Deny was not obtained above then set Permit by default.
+	   </Description>
+    </Rule>
+    <Obligations>
+      <!-- These obligations provide specific instructions to PEP in the response -->
+      <!-- This obligation instructs the PEP to apply privacy constraints to      -->
+      <!--  user's responsibility for the data.                                   -->
+      <Obligation
+          ObligationId=
+           "urn:va:xacml:2.0:interop:rsa8:obligation:ma:privacy:constraint:radiology"
+          FulfillOn="Permit"/>
+    </Obligations>
+  </Policy>
+</PolicySet>

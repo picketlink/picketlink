@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<samlp:RequestAbstract xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" 
+xsi:type="xacml-samlp:XACMLAuthzDecisionQueryType" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+xmlns:xacml-samlp="urn:oasis:xacml:2.0:saml:protocol:schema:os"  
+xacml-samlp:InputContextOnly="true" 
+xacml-samlp:ReturnContext="true" 
+ID="s2846efb514a944cc3dc5b65ed8a76dde449787617" Version="2.0" 
+IssueInstant="2008-03-19T22:18:42Z" Destination="destination-uri">
+<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">vaPepEntity</saml:Issuer> 
+<xacml-context:Request
+    xmlns="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:xacml-context="urn:oasis:names:tc:xacml:2.0:context:schema:os"
+    xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:context:schema:os 
+      http://docs.oasis-open.org/xacml/access_control-xacml-2.0-context-schema-os.xsd"> 
+
+  <!-- **************************************************************** -->
+  <!-- Test case 1-02: Should be Deny: Dr A missing 2 reqd perms        -->
+  <!-- **************************************************************** -->
+
+  <!-- Sample request. In this case a physician is trying to access   -->
+  <!-- The medical record of a patient. The record has been marked    -->
+  <!-- with both the CDA and N confidentiality codes and              -->
+  <!-- there is a registered consent for the record.                  -->
+  <xacml-context:Subject>
+    <xacml-context:Attribute
+        AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id"
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>Dr. Alice</xacml-context:AttributeValue>
+     </xacml-context:Attribute>
+    <xacml-context:Attribute 
+        AttributeId="urn:oasis:names:tc:xacml:1.0:subject:locality"
+        DataType="http://www.w3.org/2001/XMLSchema#string" >
+      <xacml-context:AttributeValue>Facility A</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+     <xacml-context:Attribute
+         AttributeId="urn:va:xacml:2.0:interop:rsa8:subject:hl7:permission"
+         DataType="http://www.w3.org/2001/XMLSchema#string">
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-003</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-005</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-010</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-012</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-017</xacml-context:AttributeValue>
+     </xacml-context:Attribute>
+  </xacml-context:Subject>
+  <xacml-context:Resource>
+    <xacml-context:Attribute
+        AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id"
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue>Anthony Gurrola</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+     <xacml-context:Attribute
+         AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:permission"
+         DataType="http://www.w3.org/2001/XMLSchema#string">
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-003</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-005</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-006</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-009</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-010</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-012</xacml-context:AttributeValue>
+       <xacml-context:AttributeValue>urn:va:xacml:2.0:interop:rsa8:hl7:prd-017</xacml-context:AttributeValue>
+     </xacml-context:Attribute>
+    <xacml-context:Attribute
+        AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:confidentiality-code"
+         DataType="http://www.w3.org/2001/XMLSchema#string">
+       <xacml-context:AttributeValue>xxx-DummyConfCode</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute
+        AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:dissented-subject-id"
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+            <xacml-context:AttributeValue>Dr. Alice</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+    <xacml-context:Attribute
+        AttributeId="urn:va:xacml:2.0:interop:rsa8:resource:hl7:type"
+        DataType="http://www.w3.org/2001/XMLSchema#string">
+      <xacml-context:AttributeValue
+        >urn:va:xacml:2.0:interop:rsa8:resource:hl7:medical-record</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+  </xacml-context:Resource>
+  <xacml-context:Action/>  
+  <xacml-context:Environment>
+    <xacml-context:Attribute 
+        AttributeId="urn:va:xacml:2.0:interop:rsa8:environment:locality" 
+        DataType="http://www.w3.org/2001/XMLSchema#string" >
+      <xacml-context:AttributeValue>Facility A</xacml-context:AttributeValue>
+    </xacml-context:Attribute>
+  </xacml-context:Environment>
+</xacml-context:Request>
+</samlp:RequestAbstract> 
