@@ -1,16 +1,16 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <parent>
-      <groupId>org.jboss.identity</groupId>
-      <artifactId>jboss-identity-fed-parent</artifactId>
+      <groupId>org.picketlink</groupId>
+      <artifactId>picketlink-fed-parent</artifactId>
       <version>1.0.0.beta3-SNAPSHOT</version>
       <relativePath>../parent</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>jboss-identity-bindings</artifactId>
+   <artifactId>picketlink-bindings</artifactId>
    <packaging>jar</packaging>
-   <name>JBoss Identity Federation Server Bindings</name>
-   <url>http://labs.jboss.org/portal/jbosssecurity/</url>
-   <description>JBoss Identity OpenSAML contains the foundation for Federated Identity Needs.</description>
+   <name>PicketLink Federation Server Bindings</name>
+   <url>http://labs.jboss.org/portal/picketlink/</url>
+   <description>PicketLink contains the foundation for Federated Identity Needs.</description>
    <licenses>
       <license>
          <name>lgpl</name>
@@ -103,18 +103,18 @@
 
    <dependencies>
       <dependency>
-         <groupId>org.jboss.identity</groupId>
-         <artifactId>jboss-identity-fed-model</artifactId>
+         <groupId>org.picketlink</groupId>
+         <artifactId>picketlink-fed-model</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss.identity</groupId>
-         <artifactId>jboss-identity-fed-api</artifactId>
+         <groupId>org.picketlink</groupId>
+         <artifactId>picketlink-fed-api</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
-         <groupId>org.jboss.identity</groupId>
-         <artifactId>jboss-identity-web</artifactId>
+         <groupId>org.picketlink</groupId>
+         <artifactId>picketlink-web</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
