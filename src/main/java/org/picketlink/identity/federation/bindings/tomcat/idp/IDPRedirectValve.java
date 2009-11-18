@@ -19,9 +19,9 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.tomcat.idp;
+package org.picketlink.identity.federation.bindings.tomcat.idp;
 
-import static org.jboss.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,33 +44,33 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.api.saml.v2.request.SAML2Request;
-import org.jboss.identity.federation.api.saml.v2.response.SAML2Response;
-import org.jboss.identity.federation.bindings.tomcat.TomcatRoleGenerator;
-import org.jboss.identity.federation.bindings.util.ValveUtil;
-import org.jboss.identity.federation.core.config.IDPType;
-import org.jboss.identity.federation.core.config.TrustType;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.interfaces.RoleGenerator;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.jboss.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
-import org.jboss.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
-import org.jboss.identity.federation.core.saml.v2.holders.IDPInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.holders.SPInfoHolder;
-import org.jboss.identity.federation.core.saml.v2.util.StatementUtil;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.util.ConfigurationUtil;
-import org.jboss.identity.federation.web.util.HTTPRedirectUtil;
-import org.jboss.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator;
+import org.picketlink.identity.federation.bindings.util.ValveUtil;
+import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.TrustType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.util.ConfigurationUtil;
+import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.xml.sax.SAXException;
 
 /**

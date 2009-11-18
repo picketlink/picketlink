@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.bindings.util;
+package org.picketlink.test.identity.federation.bindings.util;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -27,12 +27,12 @@ import java.security.PublicKey;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
-import org.jboss.identity.federation.core.saml.v2.util.SignatureUtil;
-import org.jboss.identity.federation.core.util.KeyStoreUtil;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.web.util.RedirectBindingSignatureUtil;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
+import org.picketlink.identity.federation.core.util.KeyStoreUtil;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 
 /**
  * Unit Test the redirect binding sig util

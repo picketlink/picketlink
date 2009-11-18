@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.bindings.workflow;
+package org.picketlink.test.identity.federation.bindings.workflow;
 
 import java.net.URL;
 import java.security.Principal;
@@ -29,11 +29,11 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.catalina.realm.GenericPrincipal;
-import org.jboss.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
-import org.jboss.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.util.RedirectBindingUtil;  
-import org.jboss.test.identity.federation.bindings.mock.*;
+import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
+import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;  
+import org.picketlink.test.identity.federation.bindings.mock.*;
 
 /**
  * Unit test for the Workflow for the SAML2 Redirect Binding

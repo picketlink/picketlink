@@ -19,11 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.bindings.util;
+package org.picketlink.test.identity.federation.bindings.util;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.bindings.util.ValveUtil;
+import org.picketlink.identity.federation.bindings.util.ValveUtil;
 
 /**
  * Unit tests for the ValveUtil

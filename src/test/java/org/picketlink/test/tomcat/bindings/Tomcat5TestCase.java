@@ -19,11 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.tomcat.bindings;
+package org.picketlink.test.tomcat.bindings;
 
 import junit.framework.TestCase;
 
-import org.jboss.test.tomcat.helpers.Tomcat5Embedded;
+import org.picketlink.test.tomcat.helpers.Tomcat5Embedded;
 
 /**
  * Tomcat5 Embedded 

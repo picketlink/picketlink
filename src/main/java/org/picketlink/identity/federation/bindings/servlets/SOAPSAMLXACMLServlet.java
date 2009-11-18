@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.servlets;
+package org.picketlink.identity.federation.bindings.servlets;
 
 
 /**
@@ -28,7 +28,7 @@ package org.jboss.identity.federation.bindings.servlets;
  * @author Anil.Saldhana@redhat.com
  * @since Jan 27, 2009
  */
-public class SOAPSAMLXACMLServlet extends org.jboss.identity.federation.web.servlets.saml.SOAPSAMLXACMLServlet
+public class SOAPSAMLXACMLServlet extends org.picketlink.identity.federation.web.servlets.saml.SOAPSAMLXACMLServlet
 { 
    private static final long serialVersionUID = 1L;   
 }

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.bindings.config;
+package org.picketlink.test.identity.federation.bindings.config;
 
 import java.io.InputStream;
 import java.util.List;
@@ -29,11 +29,12 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.core.config.IDPType;
-import org.jboss.identity.federation.core.config.KeyValueType;
-import org.jboss.identity.federation.core.config.MetadataProviderType;
-import org.jboss.identity.federation.core.config.TrustType;
-import org.jboss.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.KeyValueType;
+import org.picketlink.identity.federation.core.config.MetadataProviderType;
+import org.picketlink.identity.federation.core.config.TrustType;
+import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
 
 
 /**
@@ -74,14 +75,14 @@ public class MetadataConfigUnitTestCase extends TestCase
    
    private Object unmarshall(String configFile) throws Exception
    {
-      String schema = "schema/config/jboss-identity-fed.xsd";
+      String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
 
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(configFile);
       assertNotNull("Inputstream not null", is);
 
       Unmarshaller un = 
-         JAXBUtil.getValidatingUnmarshaller("org.jboss.identity.federation.core.config",
+         JAXBUtil.getValidatingUnmarshaller("org.picketlink.identity.federation.core.config",
             schema);
       return un.unmarshal(is);
    }

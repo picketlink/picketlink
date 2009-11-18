@@ -1,6 +1,6 @@
 <JBossIDP xmlns="urn:jboss:identity-federation:config:1.0" 
   AttributeManager=""
-  RoleGenerator="org.jboss.identity.federation.core.impl.EmptyRoleGenerator">
+  RoleGenerator="org.picketlink.identity.federation.core.impl.EmptyRoleGenerator">
 <IdentityURL>http://localhost:8080/idp/</IdentityURL> 
 <Trust>
    <Domains>localhost,jboss.com,jboss.org</Domains>

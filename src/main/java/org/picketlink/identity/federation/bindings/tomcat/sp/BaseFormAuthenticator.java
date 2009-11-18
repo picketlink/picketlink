@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.tomcat.sp;
+package org.picketlink.identity.federation.bindings.tomcat.sp;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,19 +36,19 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.core.config.SPType;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.handler.config.Handlers;
-import org.jboss.identity.federation.core.saml.v2.factories.SAML2HandlerChainFactory;
-import org.jboss.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2Handler;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
-import org.jboss.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
-import org.jboss.identity.federation.core.saml.v2.util.HandlerUtil;
-import org.jboss.identity.federation.core.util.StringUtil;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.util.ConfigurationUtil;
+import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.handler.config.Handlers;
+import org.picketlink.identity.federation.core.saml.v2.factories.SAML2HandlerChainFactory;
+import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 
 /**
  * Base Class for Form Authenticators

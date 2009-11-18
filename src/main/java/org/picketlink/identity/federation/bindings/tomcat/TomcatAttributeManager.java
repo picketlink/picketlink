@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.tomcat;
+package org.picketlink.identity.federation.bindings.tomcat;
 
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jboss.identity.federation.core.interfaces.AttributeManager;
+import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
  * An implementation of attribute manager to get

@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.tomcat.idp;
+package org.picketlink.identity.federation.bindings.tomcat.idp;
 
 import java.io.IOException;
 
@@ -29,7 +29,7 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * Debug Valve on the IDP end that will 

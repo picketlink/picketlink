@@ -19,13 +19,13 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.bindings.util;
+package org.picketlink.test.identity.federation.bindings.util;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jboss.identity.federation.api.soap.SOAPSAMLXACML;
-import org.jboss.identity.federation.api.soap.SOAPSAMLXACML.Result;
+import org.picketlink.identity.federation.api.soap.SOAPSAMLXACML;
+import org.picketlink.identity.federation.api.soap.SOAPSAMLXACML.Result;
 import org.jboss.security.xacml.core.model.context.ActionType;
 import org.jboss.security.xacml.core.model.context.AttributeType;
 import org.jboss.security.xacml.core.model.context.AttributeValueType;

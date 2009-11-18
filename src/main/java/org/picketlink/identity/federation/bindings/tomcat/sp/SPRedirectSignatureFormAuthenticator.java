@@ -19,9 +19,9 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.tomcat.sp;
+package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-import static org.jboss.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -34,21 +34,21 @@ import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.api.saml.v2.response.SAML2Response;
-import org.jboss.identity.federation.core.config.KeyProviderType;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.exceptions.ParsingException;
-import org.jboss.identity.federation.core.exceptions.ProcessingException;
-import org.jboss.identity.federation.core.interfaces.TrustKeyConfigurationException;
-import org.jboss.identity.federation.core.interfaces.TrustKeyManager;
-import org.jboss.identity.federation.core.interfaces.TrustKeyProcessingException;
-import org.jboss.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.jboss.identity.federation.core.saml.v2.util.SignatureUtil;
-import org.jboss.identity.federation.core.util.XMLEncryptionUtil;
-import org.jboss.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
-import org.jboss.identity.federation.web.constants.GeneralConstants;
-import org.jboss.identity.federation.web.util.RedirectBindingSignatureUtil;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
+import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

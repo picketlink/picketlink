@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.test.identity.federation.bindings.servlets;
+package org.picketlink.test.identity.federation.bindings.servlets;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,14 +34,14 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
-import org.jboss.identity.federation.bindings.servlets.SOAPSAMLXACMLServlet;
-import org.jboss.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
-import org.jboss.identity.federation.core.util.JAXBUtil;
-import org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
-import org.jboss.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.bindings.servlets.SOAPSAMLXACMLServlet;
+import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
+import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
+import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.ResultType;
 

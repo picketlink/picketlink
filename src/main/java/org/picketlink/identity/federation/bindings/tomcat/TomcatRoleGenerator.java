@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.tomcat;
+package org.picketlink.identity.federation.bindings.tomcat;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ import java.util.List;
 import org.apache.catalina.Role;
 import org.apache.catalina.User;
 import org.apache.catalina.realm.GenericPrincipal;
-import org.jboss.identity.federation.core.interfaces.RoleGenerator;
+import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 
 /**
  * Generate roles from Tomcat Principal

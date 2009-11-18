@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.tomcat.sp;
+package org.picketlink.identity.federation.bindings.tomcat.sp;
 
 import java.security.Principal;
 import java.util.ArrayList;
@@ -30,21 +30,21 @@ import javax.xml.bind.JAXBElement;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.realm.GenericPrincipal;
-import org.jboss.identity.federation.api.saml.v2.request.SAML2Request;
-import org.jboss.identity.federation.core.exceptions.ConfigurationException;
-import org.jboss.identity.federation.core.saml.v2.common.IDGenerator;
-import org.jboss.identity.federation.core.saml.v2.common.StatementLocal;
-import org.jboss.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.jboss.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
-import org.jboss.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.jboss.identity.federation.saml.v2.assertion.AssertionType;
-import org.jboss.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.jboss.identity.federation.saml.v2.assertion.AttributeType;
-import org.jboss.identity.federation.saml.v2.assertion.NameIDType;
-import org.jboss.identity.federation.saml.v2.assertion.SubjectType;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
-import org.jboss.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
+import org.picketlink.identity.federation.core.saml.v2.common.StatementLocal;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 
 /**
  * Common code useful for a SP

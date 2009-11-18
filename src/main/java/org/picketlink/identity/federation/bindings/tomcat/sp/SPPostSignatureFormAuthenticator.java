@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.jboss.identity.federation.bindings.tomcat.sp;
+package org.picketlink.identity.federation.bindings.tomcat.sp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,18 +35,18 @@ import javax.xml.crypto.dsig.XMLSignatureException;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Response;
 import org.apache.log4j.Logger;
-import org.jboss.identity.federation.api.saml.v2.request.SAML2Request;
-import org.jboss.identity.federation.core.config.KeyProviderType;
-import org.jboss.identity.federation.core.interfaces.TrustKeyConfigurationException;
-import org.jboss.identity.federation.core.interfaces.TrustKeyManager;
-import org.jboss.identity.federation.core.interfaces.TrustKeyProcessingException;
-import org.jboss.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.jboss.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
-import org.jboss.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
-import org.jboss.identity.federation.core.util.XMLSignatureUtil;
-import org.jboss.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.jboss.identity.federation.saml.v2.protocol.ResponseType;
-import org.jboss.identity.federation.web.util.PostBindingUtil;
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
