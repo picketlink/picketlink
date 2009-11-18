@@ -1,6 +1,6 @@
-<JBossSP xmlns="urn:jboss:identity-federation:config:1.0" 
+<PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0" 
   AttributeManager="">
 <IdentityURL>http://localhost:8080/idp/</IdentityURL>
 <ServiceURL>http://localhost:8080/employee/</ServiceURL>  
 
-</JBossSP>
+</PicketLinkSP>

@@ -1,4 +1,4 @@
-<JBossIDP xmlns="urn:jboss:identity-federation:config:1.0" 
+<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0" 
           AssertionValidity="20000"
           RoleGenerator="somefqn"
           Encrypt="true">
@@ -15,4 +15,4 @@
 <MetaDataProvider ClassName="org.jboss.test.somefqn">
   <Option Key="FileName" Value="myfile"/>
 </MetaDataProvider>  
-</JBossIDP>
+</PicketLinkIDP>
