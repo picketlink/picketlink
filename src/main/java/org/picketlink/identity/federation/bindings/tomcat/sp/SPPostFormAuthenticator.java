@@ -295,10 +295,10 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          boolean willSendRequest)
    throws ProcessingException, ConfigurationException, IOException
    {
-       String samlMessage = DocumentUtil.getDocumentAsString(samlDocument); 
-         samlMessage = PostBindingUtil.base64Encode(samlMessage);
-         PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState),
-                response, willSendRequest); 
+      String samlMessage = DocumentUtil.getDocumentAsString(samlDocument); 
+      samlMessage = PostBindingUtil.base64Encode(samlMessage);
+      PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState),
+            response, willSendRequest); 
    }
  
    /**

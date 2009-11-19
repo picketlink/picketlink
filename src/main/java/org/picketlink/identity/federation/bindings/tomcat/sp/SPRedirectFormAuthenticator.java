@@ -122,6 +122,7 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
          try
          {
             ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(false, serviceURL);
+            initializeSAMLProcessor(baseProcessor);
             
             saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
             saml2HandlerResponse.setDestination(identityURL); 
@@ -159,6 +160,11 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
                String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
                String destinationURL = destination + 
                getDestination(base64Request, relayState, saml2HandlerResponse.getSendRequest()); 
+               
+               if(trace)
+               {
+                  log.trace("URL used for sending:" + destinationURL);
+               }
 
                HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, response); 
                return false;
@@ -192,6 +198,8 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
          {
             ServiceProviderSAMLResponseProcessor responseProcessor =
                new ServiceProviderSAMLResponseProcessor(false, serviceURL);
+            initializeSAMLProcessor(responseProcessor);
+            
             SAML2HandlerResponse saml2HandlerResponse = 
                responseProcessor.process(samlResponse, httpContext, handlers, chainLock);
 
@@ -361,6 +369,15 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
       {
          throw new IssuerNotTrustedException(e.getLocalizedMessage(),e);
       }
+   }
+   
+   /**
+    * Initialize the {@code ServiceProviderBaseProcessor}
+    * @param processor
+    */
+   protected void initializeSAMLProcessor(ServiceProviderBaseProcessor processor)
+   {  
+      processor.setConfiguration(spConfiguration);
    }
    
    /**

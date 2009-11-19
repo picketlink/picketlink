@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -170,8 +171,15 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
       {
          throw new RuntimeException(e);
       }
-   }
+   }  
    
+   @Override
+   protected void initializeSAMLProcessor(ServiceProviderBaseProcessor processor)
+   {
+      super.initializeSAMLProcessor(processor);
+      processor.setTrustKeyManager(keyManager);
+   }
+
    @Override
    protected ResponseType decryptAssertion(ResponseType responseType) 
    throws IOException, GeneralSecurityException, ConfigurationException, ParsingException

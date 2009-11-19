@@ -353,13 +353,20 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                   
                   //Set the options on the handler request
                   Map<String, Object> requestOptions = new HashMap<String, Object>();
+                  if(this.ignoreIncomingSignatures)
+                     requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, Boolean.TRUE);
                   requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
                   requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
                   requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
                   
                   if(this.keyManager != null)
                   {
-                     PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, request.getRemoteAddr());
+                     String remoteHost = request.getRemoteAddr();
+                     if(trace)
+                     {
+                        log.trace("Remote Host=" + remoteHost); 
+                     }
+                     PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost );
                      requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
                   }
                   
@@ -374,6 +381,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                   SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
 
                   Set<SAML2Handler> handlers = chain.handlers();
+                  
+                  if(trace)
+                  {
+                     log.trace("Handlers are=" + handlers);
+                  }
                   
                   if(samlObject instanceof RequestAbstractType)
                   {
