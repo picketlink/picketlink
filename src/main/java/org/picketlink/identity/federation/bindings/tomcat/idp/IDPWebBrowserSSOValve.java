@@ -641,14 +641,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                if(trace) log.trace(e);
             } 
          } 
-      }/*
-      else
-      {
-         //User Principal is null
-         
-         //TODO: Send a formal unauthorized message
-         throw new ServletException("Unauthorized");
-      }*/
+      } 
    }
    
    protected void sendErrorResponseToSP(String referrer, Response response, String relayState,
