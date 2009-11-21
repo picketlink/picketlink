@@ -44,6 +44,7 @@ import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
@@ -75,6 +76,10 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
    private boolean jbossEnv = false;
    
    private String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
+   
+   protected boolean supportSignatures = false;
+   
+   protected TrustKeyManager keyManager; 
    
    public SPPostFormAuthenticator()
    {
@@ -262,6 +267,8 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          {
             ServiceProviderSAMLRequestProcessor requestProcessor = 
                new ServiceProviderSAMLRequestProcessor(true, this.serviceURL);
+            requestProcessor.setTrustKeyManager(keyManager);
+            requestProcessor.setSupportSignatures(supportSignatures);
             boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
             
             if(result)
@@ -289,7 +296,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
     * @throws ProcessingException
     * @throws ConfigurationException
     * @throws IOException 
-    */
+    */ 
    protected void sendRequestToIDP( 
          String destination, Document samlDocument,String relayState, Response response,
          boolean willSendRequest)

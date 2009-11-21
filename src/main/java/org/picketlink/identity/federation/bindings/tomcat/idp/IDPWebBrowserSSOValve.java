@@ -51,6 +51,7 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
@@ -120,7 +121,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    
    private TrustKeyManager keyManager;
    
-   private Boolean ignoreIncomingSignatures = true;
+   private Boolean ignoreIncomingSignatures = false;
 
    private Boolean signOutgoingMessages = true;
 
@@ -507,9 +508,23 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                samlObject = (SAML2Object) samlDocumentHolder.getSamlObject();
                
                boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
-               boolean isValid = validate(request.getRemoteAddr(),
-                     request.getQueryString(),
-                     new SessionHolder(samlResponseMessage, signature, sigAlg), isPost);
+               boolean isValid = false;
+               
+               String remoteAddress = request.getRemoteAddr();
+               
+               if(isPost)
+               {
+                  //Validate
+                  SAML2Signature samlSignature = new SAML2Signature();
+                  PublicKey publicKey = keyManager.getValidatingKey(remoteAddress);
+                  isValid = samlSignature.validate(samlDocumentHolder.getSamlDocument(), publicKey);
+               }
+               else
+               { 
+                  isValid = validate(remoteAddress,
+                        request.getQueryString(),
+                        new SessionHolder(samlResponseMessage, signature, sigAlg), isPost); 
+               }
                
                if(!isValid)
                   throw new GeneralSecurityException("Validation check failed");

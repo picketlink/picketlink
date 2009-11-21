@@ -128,7 +128,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase extends TestCase
       assertEquals("Match Employee URL", employee, lor.getIssuer().getValue());
    }
    
-   public void testSAML2LogOutFromIDPServlet() throws Exception
+   public void testSAML2LogOutFromIDP() throws Exception
    { 
       MockCatalinaSession session = new MockCatalinaSession();
       
@@ -145,6 +145,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase extends TestCase
       
       idp.setContainer(catalinaContext);
       idp.setSignOutgoingMessages(false);
+      idp.setIgnoreIncomingSignatures(true);
       idp.start(); 
       
       //Assume that we already have the principal and roles set in the session

@@ -21,34 +21,31 @@
  */
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.PublicKey;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Response;
 import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
-import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * JBID-142: POST form authenticator that can 
@@ -60,8 +57,6 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
 {
    private static Logger log = Logger.getLogger(SPPostSignatureFormAuthenticator.class);
    private boolean trace = log.isTraceEnabled();
-   
-   private TrustKeyManager keyManager; 
    
    private boolean signAssertions = false;
    
@@ -79,6 +74,8 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
    public void start() throws LifecycleException
    {
       super.start();
+      this.supportSignatures = true;
+      
       KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();
       if(keyProvider == null)
          throw new LifecycleException("KeyProvider is null");
@@ -102,19 +99,34 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
       if(trace) log.trace("Key Provider=" + keyProvider.getClassName());
    }
    
-   protected void sendRequestToIDP(AuthnRequestType authnRequest, String relayState, Response response)
-   throws IOException, SAXException, JAXBException, GeneralSecurityException
+   /**
+    * Send the request to the IDP
+    * @param destination idp url
+    * @param samlDocument request or response document
+    * @param relayState
+    * @param response
+    * @param willSendRequest are we sending Request or Response to IDP
+    * @throws ProcessingException
+    * @throws ConfigurationException
+    * @throws IOException 
+    */ 
+   @Override
+   protected void sendRequestToIDP( 
+         String destination, Document samlDocument,String relayState, Response response,
+         boolean willSendRequest)
+   throws ProcessingException, ConfigurationException, IOException
    {
-      SAML2Request saml2Request = new SAML2Request();
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      saml2Request.marshall(authnRequest, baos);
- 
-      String samlMessage = PostBindingUtil.base64Encode(baos.toString());  
-      String destination = authnRequest.getDestination();
+      //Sign the document
+      SAML2Signature samlSignature = new SAML2Signature();
+      KeyPair keypair = keyManager.getSigningKeyPair();
+      samlSignature.signSAMLDocument(samlDocument, keypair); 
       
-      PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState),
-            response, true);
-   } 
+      if(trace)
+         log.trace("Sending to IDP:" +  DocumentUtil.asString(samlDocument));
+      //Let the super class handle the sending
+      super.sendRequestToIDP(destination, samlDocument, relayState, response, willSendRequest); 
+   }
+   
 
    @Override
    protected boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException

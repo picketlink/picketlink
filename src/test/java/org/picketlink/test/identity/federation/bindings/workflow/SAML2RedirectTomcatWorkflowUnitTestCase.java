@@ -105,6 +105,7 @@ public class SAML2RedirectTomcatWorkflowUnitTestCase extends TestCase
       IDPWebBrowserSSOValve idp = new IDPWebBrowserSSOValve();
       
       idp.setSignOutgoingMessages(false);
+      idp.setIgnoreIncomingSignatures(true);
       
       idp.setContainer(context);
       idp.start();
