@@ -229,19 +229,25 @@ public class IDPRedirectValve extends ValveBase implements Lifecycle
       try
       {
          SAML2Response saml2Response = new SAML2Response();
-            ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-            saml2Response.marshall(responseType, baos);
+         ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+         saml2Response.marshall(responseType, baos);
 
-            String urlEncodedResponse = RedirectBindingUtil.deflateBase64URLEncode(baos.toByteArray());
+         String urlEncodedResponse = RedirectBindingUtil.deflateBase64URLEncode(baos.toByteArray());
 
-            String destination = responseType.getDestination();
-            if(trace) log.trace("IDP:Destination=" + destination);
-             
-            if(isNotNull(relayState))
-               relayState = RedirectBindingUtil.urlEncode(relayState);
-            
-            String finalDest = destination + this.getDestination(urlEncodedResponse, relayState);
-            HTTPRedirectUtil.sendRedirectForResponder(finalDest, response);
+         String destinationURL = responseType.getDestination();
+         if(trace) log.trace("IDP:Destination=" + destinationURL);
+
+         if(isNotNull(relayState))
+            relayState = RedirectBindingUtil.urlEncode(relayState);
+
+         StringBuilder finalDest = new StringBuilder(destinationURL);
+         if(destinationURL.contains("?"))
+            finalDest.append("&");
+         else
+            finalDest.append("?");
+         
+         finalDest.append( getDestinationQueryString(urlEncodedResponse, relayState) );
+         HTTPRedirectUtil.sendRedirectForResponder(finalDest.toString(), response);
       }
       catch (JAXBException e)
       {
@@ -264,10 +270,10 @@ public class IDPRedirectValve extends ValveBase implements Lifecycle
     * @param urlEncodedRelayState
     * @return
     */
-   protected String getDestination(String urlEncodedResponse, String urlEncodedRelayState)
+   protected String getDestinationQueryString(String urlEncodedResponse, String urlEncodedRelayState)
    {
       StringBuilder sb = new StringBuilder();
-      sb.append("?SAMLResponse=").append(urlEncodedResponse);
+      sb.append("SAMLResponse=").append(urlEncodedResponse);
       if(isNotNull(urlEncodedRelayState))
          sb.append("&RelayState=").append(urlEncodedRelayState);
       return sb.toString();

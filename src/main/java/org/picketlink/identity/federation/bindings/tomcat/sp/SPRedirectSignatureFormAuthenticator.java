@@ -156,16 +156,14 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
    }
 
    @Override
-   protected String getDestination(String urlEncodedRequest, String urlEncodedRelayState, boolean sendRequest)
+   protected String getDestinationQueryString(String urlEncodedRequest, String urlEncodedRelayState, boolean sendRequest)
    {
       try
       {
          //Get the signing key  
-         PrivateKey signingKey = keyManager.getSigningKey();
-         StringBuffer sb = new StringBuffer();
+         PrivateKey signingKey = keyManager.getSigningKey(); 
          String url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(urlEncodedRequest, urlEncodedRelayState, signingKey);
-         sb.append("?").append(url);
-         return sb.toString();
+         return url;
       }
       catch(Exception e)
       {

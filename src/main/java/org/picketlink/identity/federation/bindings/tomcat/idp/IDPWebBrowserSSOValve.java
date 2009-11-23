@@ -804,7 +804,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
        // Validate and update our current component state
        if (started)
            throw new LifecycleException
-               ("IDPRedirectValve already Started");
+               ("IDPWebBrowserSSOValve already Started");
        lifecycle.fireLifecycleEvent(START_EVENT, null);
        started = true;
        
@@ -927,7 +927,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
        // Validate and update our current component state
        if (!started)
            throw new LifecycleException
-               ("IDPRedirectValve NotStarted");
+               ("IDPWebBrowserSSOValve NotStarted");
        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
        started = false;
    } 

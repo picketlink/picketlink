@@ -149,16 +149,14 @@ public class IDPRedirectWithSignatureValve extends IDPRedirectValve
    }
    
    @Override
-   protected String getDestination(String urlEncodedResponse, String urlEncodedRelayState)
+   protected String getDestinationQueryString(String urlEncodedResponse, String urlEncodedRelayState)
    {
       try
       {
          //Get the signing key  
          PrivateKey signingKey = keyManager.getSigningKey();
-         StringBuffer sb = new StringBuffer();
          String url = RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(urlEncodedResponse, urlEncodedRelayState, signingKey);
-         sb.append("?").append(url);
-         return sb.toString();
+         return url;
       }
       catch(Exception e)
       {

@@ -64,6 +64,7 @@ import org.picketlink.identity.federation.web.process.ServiceProviderSAMLRespons
 import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.ServerDetector;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -157,9 +158,16 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
                if(trace)
                   log.trace("SAML Document=" + samlMsg);
 
+               boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
+               
                String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
-               String destinationURL = destination + 
-               getDestination(base64Request, relayState, saml2HandlerResponse.getSendRequest()); 
+               
+               String destinationQuery = getDestinationQueryString(base64Request, relayState, areWeSendingRequest);
+               
+               RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
+               holder.setDestination(destination).setDestinationQueryString(destinationQuery);
+               
+               String destinationURL = RedirectBindingUtil.getDestinationURL(holder);
                
                if(trace)
                {
@@ -211,11 +219,17 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
             if(destination != null && 
                   samlResponseDocument != null)
             {
+               boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest(); 
                String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
 
-               String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
-               String destinationURL = destination + 
-               getDestination(base64Request, relayState, saml2HandlerResponse.getSendRequest()); 
+               String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8")); 
+               
+               String destinationQuery = getDestinationQueryString(base64Request, relayState, areWeSendingRequest);
+               
+               RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
+               holder.setDestination(destination).setDestinationQueryString(destinationQuery); 
+               
+               String destinationURL = RedirectBindingUtil.getDestinationURL(holder);
 
                HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, response);
             }
@@ -316,24 +330,20 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
       saml2Request.marshall(authnRequest, baos);
  
       String base64Request = RedirectBindingUtil.deflateBase64URLEncode(baos.toByteArray());
-      String destination = authnRequest.getDestination() + getDestination(base64Request, relayState, true); 
-      if(trace)
-         log.trace("Sending to destination="+destination);
-         
-      return destination;
+      String destination = authnRequest.getDestination();
+      
+      String destinationQueryString = getDestinationQueryString(base64Request, relayState, true);
+      
+      RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
+      holder.setDestinationQueryString(destinationQueryString).setDestination(destination);
+      return RedirectBindingUtil.getDestinationURL(holder); 
    }
    
-   protected String getDestination(String urlEncodedRequest, String urlEncodedRelayState,
+   protected String getDestinationQueryString(String urlEncodedRequest, String urlEncodedRelayState,
          boolean sendRequest)
    {
-      StringBuilder sb = new StringBuilder();
-      if(sendRequest)
-        sb.append("?SAMLRequest=").append(urlEncodedRequest);
-      else
-         sb.append("?SAMLResponse=").append(urlEncodedRequest);
-      if(isNotNull(urlEncodedRelayState))
-         sb.append("&RelayState=").append(urlEncodedRelayState);
-      return sb.toString();
+      return RedirectBindingUtil.getDestinationQueryString(urlEncodedRequest, 
+            urlEncodedRelayState, sendRequest); 
    }
    
    protected void isTrusted(String issuer) throws IssuerNotTrustedException
@@ -390,4 +400,6 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
    {
       throw new RuntimeException("This authenticator does not handle encryption");
    }
+   
+   
 }
