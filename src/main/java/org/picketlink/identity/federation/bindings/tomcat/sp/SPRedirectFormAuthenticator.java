@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
@@ -206,9 +207,27 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
                new ServiceProviderSAMLResponseProcessor(false, serviceURL);
             initializeSAMLProcessor(responseProcessor);
             
-            SAML2HandlerResponse saml2HandlerResponse = 
-               responseProcessor.process(samlResponse, httpContext, handlers, chainLock);
-
+            SAML2HandlerResponse saml2HandlerResponse = null;
+            
+            try
+            {
+               saml2HandlerResponse = responseProcessor.process(samlResponse, httpContext, handlers, chainLock);               
+            }
+            catch(ProcessingException pe)
+            {
+               Throwable te = pe.getCause();
+               if(te instanceof AssertionExpiredException)
+               {
+                  //We need to reissue redirect to IDP
+                  ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(false, serviceURL);
+                  initializeSAMLProcessor(baseProcessor);
+                  
+                  saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
+                  saml2HandlerResponse.setDestination(identityURL); 
+               }
+               else
+                  throw pe;
+            }
             Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
             relayState = saml2HandlerResponse.getRelayState();
 
