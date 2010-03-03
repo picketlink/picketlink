@@ -27,7 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -41,7 +40,6 @@ import org.apache.catalina.authenticator.Constants;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
-import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
@@ -258,10 +256,9 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
 
                //Map to JBoss specific principal
                if((new ServerDetector()).isJboss() || jbossEnv)
-               {
-                  GenericPrincipal gp = (GenericPrincipal) principal;
+               { 
                   //Push a context
-                  ServiceProviderSAMLContext.push(username, Arrays.asList(gp.getRoles()));
+                  ServiceProviderSAMLContext.push(username, roles);
                   principal = context.getRealm().authenticate(username, password); 
                   ServiceProviderSAMLContext.clear();
                }
