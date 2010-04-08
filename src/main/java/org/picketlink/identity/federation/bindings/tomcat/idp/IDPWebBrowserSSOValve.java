@@ -516,8 +516,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                {
                   //Validate
                   SAML2Signature samlSignature = new SAML2Signature();
-                  PublicKey publicKey = keyManager.getValidatingKey(remoteAddress);
-                  isValid = samlSignature.validate(samlDocumentHolder.getSamlDocument(), publicKey);
+                  if( ignoreIncomingSignatures == false && signOutgoingMessages == true )
+                  {
+                     PublicKey publicKey = keyManager.getValidatingKey(remoteAddress);
+                     isValid = samlSignature.validate(samlDocumentHolder.getSamlDocument(), publicKey); 
+                  }
+                  else
+                     isValid = true;
                }
                else
                { 
