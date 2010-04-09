@@ -94,6 +94,7 @@ import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.identity.federation.web.util.IDPWebRequestUtil.WebRequestUtilHolder;
 import org.w3c.dom.Document;
 
 
@@ -259,13 +260,25 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
               webRequestUtil.getErrorResponse(referer, 
                   JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
                   this.identityURL, this.signOutgoingMessages); 
+            
+            WebRequestUtilHolder holder = webRequestUtil.getHolder();
+            holder.setResponseDoc(samlErrorResponse).setDestination(referer).setRelayState(relayState).setAreWeSendingRequest(false)
+            .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+            holder.setPostBindingRequested( webRequestUtil.hasSAMLRequestInPostProfile() );
          
             if(this.signOutgoingMessages)
-               webRequestUtil.send(samlErrorResponse, referer, relayState, response, true, 
-                     this.keyManager.getSigningKey(), false);
+            {
+               holder.setSupportSignature(true).setPrivateKey( keyManager.getSigningKey() );
+               webRequestUtil.send(holder);
+               //webRequestUtil.send(samlErrorResponse, referer, relayState, response, true, 
+               //this.keyManager.getSigningKey(), false); 
+            } 
             else
-               webRequestUtil.send(samlErrorResponse, referer,relayState, response, false,null, false);
-            
+            {
+               //  webRequestUtil.send(samlErrorResponse, referer,relayState, response, false,null, false);
+               
+            }
+            webRequestUtil.send(holder);  
          } 
          catch (GeneralSecurityException e)
          {
@@ -320,6 +333,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
          Document samlResponse = null;
          String destination = null;
+         
+         Boolean requestedPostProfile = null;
          
          
          //Send valid saml response after processing the request
@@ -419,6 +434,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                   
                   destination = saml2HandlerResponse.getDestination(); 
                   
+                  requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse(); 
                }
                catch (IssuerNotTrustedException e)
                {
@@ -478,15 +494,26 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                {
                   try
                   {
-                     if(webRequestUtil.hasSAMLRequestInPostProfile())
+                     boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
+                     if( postProfile )
                         recycle(response);
                      
-                     if(this.signOutgoingMessages)
-                        webRequestUtil.send(samlResponse, destination,relayState, response, true, 
-                              this.keyManager.getSigningKey(), willSendRequest);
+
+                     WebRequestUtilHolder holder = webRequestUtil.getHolder();
+                     holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState).setAreWeSendingRequest(willSendRequest)
+                     .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+                     
+                     if( requestedPostProfile != null )
+                        holder.setPostBindingRequested( requestedPostProfile );
                      else
-                        webRequestUtil.send(samlResponse, destination, relayState, response, false,null, 
-                              willSendRequest);
+                        holder.setPostBindingRequested(postProfile);
+                     
+                     if(this.signOutgoingMessages)
+                     { 
+                        holder.setPrivateKey( keyManager.getSigningKey() ).setSupportSignature( true );
+                     } 
+
+                     webRequestUtil.send(holder);
                   }
                   catch (ParsingException e)
                   {
@@ -579,6 +606,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                relayState = saml2HandlerResponse.getRelayState();
                
                destination = saml2HandlerResponse.getDestination();
+               requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
             }
             catch (IssuerNotTrustedException e)
             {
@@ -638,15 +666,25 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             {
                try
                {
-                  if(webRequestUtil.hasSAMLRequestInPostProfile())
+                  boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile(); 
+                  if( postProfile )
                      recycle(response);
                   
-                  if(this.signOutgoingMessages)
-                     webRequestUtil.send(samlResponse, destination,relayState, response, true, 
-                           this.keyManager.getSigningKey(), willSendRequest);
+                  WebRequestUtilHolder holder = webRequestUtil.getHolder();
+                  holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState).setAreWeSendingRequest(willSendRequest)
+                  .setPrivateKey(null).setSupportSignature(false).setServletResponse(response).setPostBindingRequested( requestedPostProfile );
+                  
+                  if( requestedPostProfile != null )
+                     holder.setPostBindingRequested( requestedPostProfile );
                   else
-                     webRequestUtil.send(samlResponse, destination, relayState, response, false,null, 
-                           willSendRequest);
+                     holder.setPostBindingRequested(postProfile);
+                  
+                  
+                  if(this.signOutgoingMessages)
+                  { 
+                     holder.setPrivateKey( keyManager.getSigningKey() ).setSupportSignature( true );
+                  }  
+                  webRequestUtil.send( holder );
                }
                catch (ParsingException e)
                {
@@ -686,14 +724,22 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                this.identityURL, this.signOutgoingMessages);
       try
       {
-         if(webRequestUtil.hasSAMLRequestInPostProfile())
+
+         boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile(); 
+         if( postProfile )
             recycle(response);
          
+
+         WebRequestUtilHolder holder = webRequestUtil.getHolder();
+         holder.setResponseDoc(samlResponse).setDestination(referrer).setRelayState(relayState).setAreWeSendingRequest( false )
+         .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+         holder.setPostBindingRequested(postProfile);
+         
          if(this.signOutgoingMessages)
-            webRequestUtil.send(samlResponse, referrer, relayState, response, true, 
-                  this.keyManager.getSigningKey(), false);
-         else
-            webRequestUtil.send(samlResponse, referrer, relayState, response, false,null, false);
+         { 
+            holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+         } 
+         webRequestUtil.send(holder);
       }
       catch (ParsingException e1)
       {

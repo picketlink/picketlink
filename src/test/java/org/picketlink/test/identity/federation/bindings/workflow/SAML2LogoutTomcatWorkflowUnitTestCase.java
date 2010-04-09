@@ -329,8 +329,8 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase extends TestCase
       IdentityServer server = new IdentityServer();
       server.sessionCreated(new HttpSessionEvent(session));
       
-      server.stack().register(session.getId(), sales);
-      server.stack().register(session.getId(), employee);
+      server.stack().register(session.getId(), sales, false);
+      server.stack().register(session.getId(), employee, false);
       return server;
    }  
 }
