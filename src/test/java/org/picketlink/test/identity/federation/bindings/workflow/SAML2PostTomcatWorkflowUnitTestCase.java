@@ -28,7 +28,7 @@ import java.net.URL;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
- 
+
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 
@@ -38,22 +38,22 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.api.util.Base64;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPPostFormAuthenticator;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
-import org.picketlink.identity.federation.web.util.PostBindingUtil; 
+import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContextClassLoader;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRealm;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaResponse;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession; 
+import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
