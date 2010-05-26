@@ -53,6 +53,7 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator;
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -907,7 +908,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
           try
           {
              this.keyManager = CoreConfigUtil.getTrustKeyManager(keyProvider);
-             keyManager.setAuthProperties(keyProvider.getAuth());
+             
+             List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
+             keyManager.setAuthProperties( authProperties ); 
              keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
           }
           catch(Exception e)

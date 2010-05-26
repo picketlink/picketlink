@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.List;
 
 import javax.xml.bind.JAXBException;
 
@@ -35,6 +36,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -44,6 +46,7 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
+import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
@@ -88,7 +91,9 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
          
          Class<?> clazz = tcl.loadClass(keyManagerClassName);
          this.keyManager = (TrustKeyManager) clazz.newInstance();
-         keyManager.setAuthProperties(keyProvider.getAuth());
+         
+         List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
+         keyManager.setAuthProperties( authProperties ); 
          keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
       }
       catch(Exception e)

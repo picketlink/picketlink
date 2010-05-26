@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.util.List;
 
 import javax.xml.crypto.MarshalException;
 import javax.xml.crypto.dsig.XMLSignatureException;
@@ -34,6 +35,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Response;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -43,6 +45,7 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingExce
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
@@ -88,7 +91,9 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
          
          Class<?> clazz = tcl.loadClass(keyManagerClassName);
          this.keyManager = (TrustKeyManager) clazz.newInstance();
-         keyManager.setAuthProperties(keyProvider.getAuth());
+         
+         List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
+         keyManager.setAuthProperties( authProperties ); 
          keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
       }
       catch(Exception e)
