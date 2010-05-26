@@ -25,7 +25,6 @@ import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +35,6 @@ import org.apache.catalina.authenticator.Constants;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
-import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
 import org.picketlink.identity.federation.bindings.util.ValveUtil;
@@ -232,9 +230,8 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
                //Map to JBoss specific principal
                if((new ServerDetector()).isJboss() || jbossEnv)
                {
-                  GenericPrincipal gp = (GenericPrincipal) principal;
                   //Push a context
-                  ServiceProviderSAMLContext.push(username, Arrays.asList(gp.getRoles()));
+                  ServiceProviderSAMLContext.push(username, roles);
                   principal = context.getRealm().authenticate(username, password); 
                   ServiceProviderSAMLContext.clear();
                }
