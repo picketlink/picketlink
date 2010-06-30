@@ -43,7 +43,6 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
@@ -78,6 +77,12 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
    protected boolean supportSignatures = false;
    
    protected TrustKeyManager keyManager; 
+   
+   /**
+    * A flag to indicate that we are going to validate signature
+    * for saml responses from IDP
+    */
+   protected boolean validateSignature = false;
    
    public SPPostFormAuthenticator()
    {
@@ -187,6 +192,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          {
             ServiceProviderSAMLResponseProcessor responseProcessor =
                new ServiceProviderSAMLResponseProcessor(true, serviceURL);
+            responseProcessor.setValidateSignature( validateSignature );
             SAML2HandlerResponse saml2HandlerResponse = 
                responseProcessor.process(samlResponse, httpContext, handlers, chainLock);
 
@@ -337,17 +343,5 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
    protected ResponseType decryptAssertion(ResponseType responseType)
    {
       throw new RuntimeException("This authenticator does not handle encryption");
-   } 
-    
-   /**
-    * Verify Signature
-    * @param samlDocumentHolder
-    * @return
-    * @throws IssuerNotTrustedException
-    */
-   protected boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException
-   {
-      //this authenticator does not deal with signatures.
-      return true;
-   } 
+   }  
 }

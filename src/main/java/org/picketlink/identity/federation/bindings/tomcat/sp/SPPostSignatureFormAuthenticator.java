@@ -22,14 +22,8 @@
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.KeyPair;
-import java.security.PublicKey;
 import java.util.List;
-
-import javax.xml.crypto.MarshalException;
-import javax.xml.crypto.dsig.XMLSignatureException;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Response;
@@ -39,15 +33,9 @@ import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
 
 /**
@@ -61,7 +49,15 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
    private static Logger log = Logger.getLogger(SPPostSignatureFormAuthenticator.class);
    private boolean trace = log.isTraceEnabled();
    
-   private boolean signAssertions = false;
+   /**
+    * Flag to indicate whether we want to sign the assertions
+    */
+   protected boolean signAssertions = false;
+   
+   public SPPostSignatureFormAuthenticator()
+   {
+      this.validateSignature = true;
+   }
    
    public boolean isSignAssertions()
    {
@@ -130,54 +126,5 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
          log.trace("Sending to IDP:" +  DocumentUtil.asString(samlDocument));
       //Let the super class handle the sending
       super.sendRequestToIDP(destination, samlDocument, relayState, response, willSendRequest); 
-   }
-   
-
-   @Override
-   protected boolean verifySignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException
-   {   
-      Document samlResponse = samlDocumentHolder.getSamlDocument();
-      ResponseType response = (ResponseType) samlDocumentHolder.getSamlObject();
-      
-      String issuerID = response.getIssuer().getValue();
-      
-      if(issuerID == null)
-         throw new IssuerNotTrustedException("Issue missing");
-      
-      URL issuerURL;
-      try
-      {
-         issuerURL = new URL(issuerID);
-      }
-      catch (MalformedURLException e1)
-      {
-         throw new IssuerNotTrustedException(e1);
-      }
-      
-      try
-      {
-         PublicKey publicKey = keyManager.getValidatingKey(issuerURL.getHost());
-         if(trace) log.trace("Going to verify signature in the saml response from IDP"); 
-         boolean sigResult =  XMLSignatureUtil.validate(samlResponse, publicKey);
-         if(trace) log.trace("Signature verification="+sigResult);
-         return sigResult;
-      }
-      catch (TrustKeyConfigurationException e)
-      {
-         log.error("Unable to verify signature",e);
-      }
-      catch (TrustKeyProcessingException e)
-      {
-         log.error("Unable to verify signature",e);
-      }
-      catch (MarshalException e)
-      {
-         log.error("Unable to verify signature",e);
-      }
-      catch (XMLSignatureException e)
-      {
-         log.error("Unable to verify signature",e);
-      }
-      return false;
    }  
 }
