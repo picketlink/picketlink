@@ -40,6 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
@@ -135,6 +136,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    private Context context = null;
    
    private transient String samlHandlerChainClass = null;  
+   
+
+   protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
    
    /**
     * A Lock for Handler operations in the chain
@@ -544,6 +548,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                {
                   //Validate
                   SAML2Signature samlSignature = new SAML2Signature();
+                  samlSignature.setCanonicalizationMethod(canonicalizationMethod);
+                  
                   if( ignoreIncomingSignatures == false && signOutgoingMessages == true )
                   {
                      PublicKey publicKey = keyManager.getValidatingKey(remoteAddress);
@@ -885,6 +891,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
           this.identityURL = idpConfiguration.getIdentityURL(); 
           if(trace) log.trace("Identity Provider URL=" + this.identityURL); 
           this.assertionValidity = idpConfiguration.getAssertionValidity();
+          this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
+          
           //Get the attribute manager
           String attributeManager = idpConfiguration.getAttributeManager();
           if(attributeManager != null && !"".equals(attributeManager))
@@ -931,10 +939,12 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
           Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
           chainConfigOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
           chainConfigOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
+          chainConfigOptions.put( GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod );
           if(this.keyManager != null)
             chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
           
           SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
+          
           Set<SAML2Handler> samlHandlers = chain.handlers();
           
           for(SAML2Handler handler: samlHandlers)

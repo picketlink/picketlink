@@ -107,7 +107,7 @@ public class IDPRedirectWithSignatureValve extends IDPRedirectValve
          List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
          keyManager.setAuthProperties( authProperties ); 
          
-         keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
+         keyManager.setValidatingAlias(keyProvider.getValidatingAlias()); 
       }
       catch(Exception e)
       {

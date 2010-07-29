@@ -67,7 +67,7 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
    public void setSignAssertions(boolean signAssertions)
    {
       this.signAssertions = signAssertions;
-   }  
+   } 
 
    @Override
    public void start() throws LifecycleException
@@ -120,6 +120,8 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
       //Sign the document
       SAML2Signature samlSignature = new SAML2Signature();
       KeyPair keypair = keyManager.getSigningKeyPair();
+      
+      samlSignature.setCanonicalizationMethod( this.canonicalizationMethod );
       samlSignature.signSAMLDocument(samlDocument, keypair); 
       
       if(trace)

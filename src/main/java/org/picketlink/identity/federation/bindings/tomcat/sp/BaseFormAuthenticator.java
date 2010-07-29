@@ -31,6 +31,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletContext;
+import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.authenticator.FormAuthenticator;
@@ -78,6 +79,9 @@ public class BaseFormAuthenticator extends FormAuthenticator
     * A Lock for Handler operations in the chain
     */
    protected Lock chainLock = new ReentrantLock();
+   
+
+   protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
     
    public BaseFormAuthenticator()
    {
@@ -152,6 +156,8 @@ public class BaseFormAuthenticator extends FormAuthenticator
          spConfiguration = ConfigurationUtil.getSPConfiguration(is);
          this.identityURL = spConfiguration.getIdentityURL();
          this.serviceURL = spConfiguration.getServiceURL();
+         this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
+         
          if(trace) log.trace("Identity Provider URL=" + this.identityURL); 
       }
       catch (Exception e)
@@ -180,6 +186,7 @@ public class BaseFormAuthenticator extends FormAuthenticator
    {
       populateChainConfig();
       SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
+      
       Set<SAML2Handler> samlHandlers = chain.handlers();
       
       for(SAML2Handler handler: samlHandlers)
@@ -192,6 +199,7 @@ public class BaseFormAuthenticator extends FormAuthenticator
    throws ConfigurationException, ProcessingException
    {
       chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
+      chainConfigOptions.put( GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod );
       chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); //No validator as tomcat realm does validn   
    }
 }
