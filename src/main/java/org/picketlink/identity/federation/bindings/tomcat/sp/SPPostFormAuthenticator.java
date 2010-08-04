@@ -193,6 +193,8 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
             ServiceProviderSAMLResponseProcessor responseProcessor =
                new ServiceProviderSAMLResponseProcessor(true, serviceURL);
             responseProcessor.setValidateSignature( validateSignature );
+            responseProcessor.setTrustKeyManager(keyManager);
+            
             SAML2HandlerResponse saml2HandlerResponse = 
                responseProcessor.process(samlResponse, httpContext, handlers, chainLock);
 
