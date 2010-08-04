@@ -86,6 +86,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.H
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
@@ -547,8 +548,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                if(isPost)
                {
                   //Validate
-                  SAML2Signature samlSignature = new SAML2Signature();
-                  samlSignature.setCanonicalizationMethod(canonicalizationMethod);
+                  SAML2Signature samlSignature = new SAML2Signature(); 
                   
                   if( ignoreIncomingSignatures == false && signOutgoingMessages == true )
                   {
@@ -892,6 +892,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
           if(trace) log.trace("Identity Provider URL=" + this.identityURL); 
           this.assertionValidity = idpConfiguration.getAssertionValidity();
           this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
+          log.info( "IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"  + canonicalizationMethod );
+          XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
           
           //Get the attribute manager
           String attributeManager = idpConfiguration.getAttributeManager();

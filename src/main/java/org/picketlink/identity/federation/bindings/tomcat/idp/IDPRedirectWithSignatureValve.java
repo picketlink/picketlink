@@ -55,6 +55,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
@@ -108,6 +109,10 @@ public class IDPRedirectWithSignatureValve extends IDPRedirectValve
          keyManager.setAuthProperties( authProperties ); 
          
          keyManager.setValidatingAlias(keyProvider.getValidatingAlias()); 
+         String canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
+
+         log.info( "IDPRedirectWithSignatureValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"  + canonicalizationMethod );
+         XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
       }
       catch(Exception e)
       {

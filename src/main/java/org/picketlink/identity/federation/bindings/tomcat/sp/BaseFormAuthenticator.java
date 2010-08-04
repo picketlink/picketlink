@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCh
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 
@@ -157,6 +158,9 @@ public class BaseFormAuthenticator extends FormAuthenticator
          this.identityURL = spConfiguration.getIdentityURL();
          this.serviceURL = spConfiguration.getServiceURL();
          this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
+
+         log.info( "BaseFormAuthenticator:: Setting the CanonicalizationMethod on XMLSignatureUtil::"  + canonicalizationMethod );
+         XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
          
          if(trace) log.trace("Identity Provider URL=" + this.identityURL); 
       }
