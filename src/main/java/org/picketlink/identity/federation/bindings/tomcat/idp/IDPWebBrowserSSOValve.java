@@ -169,6 +169,16 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    {
       this.ignoreIncomingSignatures = ignoreIncomingSignature;
    }
+   
+   /**
+    * IDP should not do any attributes such as generation of roles etc
+    * @param ignoreAttributes
+    */
+   public void setIgnoreAttributesGeneration(Boolean ignoreAttributes)
+   {
+      if( ignoreAttributes == Boolean.TRUE )
+         this.attribManager = null; 
+   }
 
    public Boolean getSignOutgoingMessages()
    {
@@ -902,7 +912,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
              ClassLoader tcl = SecurityActions.getContextClassLoader();
              AttributeManager delegate = (AttributeManager) tcl.loadClass(attributeManager).newInstance();
              this.attribManager.setDelegate(delegate);
-          } 
+          }  
        }
        catch (Exception e)
        {
