@@ -31,11 +31,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
+import org.apache.catalina.deploy.LoginConfig;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -115,6 +118,25 @@ public class BaseFormAuthenticator extends FormAuthenticator
    protected boolean validate(Request request) throws IOException, GeneralSecurityException
    {
       return request.getParameter("SAMLResponse") != null; 
+   }
+   
+   /**
+    * Authenticate the request
+    * @param request
+    * @param response
+    * @param config
+    * @return
+    * @throws IOException
+    * @throws {@link RuntimeException} when the response is not of type catalina response object
+    */
+   public boolean authenticate( Request  request, HttpServletResponse response, LoginConfig config) throws IOException
+   {
+      if( response instanceof Response )
+      {
+         Response catalinaResponse = (Response) response;
+         return authenticate(request, catalinaResponse, config); 
+      }
+      throw new RuntimeException( "Response was not of type catalina response" );
    }
    
    @Override
