@@ -298,6 +298,7 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
          }
          catch (Exception e)
          {
+            e.printStackTrace();
             if(trace)
                log.trace("Server Exception:", e);
             throw new IOException("Server Exception:"+ e.getLocalizedMessage());
