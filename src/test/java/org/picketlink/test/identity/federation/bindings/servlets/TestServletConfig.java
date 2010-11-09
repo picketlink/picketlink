@@ -27,11 +27,11 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
 
-@SuppressWarnings("unchecked")
 /**
  * @author Anil.Saldhana@redhat.com
  * @since Jan 28, 2009
  */
+@SuppressWarnings({"rawtypes"})
 public class TestServletConfig implements ServletConfig
 { 
    private ServletContext sc;

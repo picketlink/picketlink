@@ -69,7 +69,7 @@ import org.apache.tomcat.util.http.mapper.Mapper;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 20, 2009
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({ "unchecked", "rawtypes"})
 public class MockCatalinaContext  
 implements Context, Container, ServletContext
 { 

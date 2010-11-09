@@ -37,12 +37,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-
-@SuppressWarnings("unchecked")
+ 
 /**
  * @author Anil.Saldhana@redhat.com
  * @since Jan 28, 2009
  */
+@SuppressWarnings({ "rawtypes"})
 public class TestServletRequest implements HttpServletRequest
 {
    private BufferedInputStream is = null;

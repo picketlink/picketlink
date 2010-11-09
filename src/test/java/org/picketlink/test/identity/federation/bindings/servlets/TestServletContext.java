@@ -33,12 +33,12 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-
-@SuppressWarnings("unchecked")
+ 
 /**
  * @author Anil.Saldhana@redhat.com
  * @since Jan 28, 2009
  */
+@SuppressWarnings({ "rawtypes"})
 public class TestServletContext implements ServletContext
 {
    private HashMap<String,String> params = new HashMap<String,String>();

@@ -42,7 +42,7 @@ import org.apache.catalina.SessionListener;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 20, 2009
  */
-@SuppressWarnings({"deprecation", "unchecked"}) 
+@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
 public class MockCatalinaSession implements Session, HttpSession
 {
    private Map<String, Object> notes = new HashMap<String,Object>(); 
