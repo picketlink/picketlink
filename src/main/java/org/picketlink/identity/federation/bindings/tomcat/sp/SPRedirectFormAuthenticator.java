@@ -33,7 +33,6 @@ import java.util.StringTokenizer;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
-import javax.xml.bind.JAXBException;
 
 import org.apache.catalina.Session;
 import org.apache.catalina.authenticator.Constants;
@@ -53,8 +52,8 @@ import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrust
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
@@ -62,10 +61,9 @@ import org.picketlink.identity.federation.web.process.ServiceProviderSAMLRequest
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLResponseProcessor;
 import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
-import org.picketlink.identity.federation.web.util.ServerDetector;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
+import org.picketlink.identity.federation.web.util.ServerDetector;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * Authenticator at the Service Provider
@@ -332,7 +330,7 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
    } 
 
    protected String createSAMLRequestMessage(String relayState, Response response) 
-   throws ServletException, ConfigurationException, SAXException, JAXBException, IOException
+   throws ServletException, ConfigurationException,  IOException, ProcessingException
    {
       //create a saml request
       if(this.serviceURL == null)
@@ -347,7 +345,7 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
       saml2Request.marshall(authnRequest, baos);
  
       String base64Request = RedirectBindingUtil.deflateBase64URLEncode(baos.toByteArray());
-      String destination = authnRequest.getDestination();
+      String destination = authnRequest.getDestination().toASCIIString();
       
       String destinationQueryString = getDestinationQueryString(base64Request, relayState, true);
       
@@ -416,7 +414,5 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
    throws IOException, GeneralSecurityException, ConfigurationException, ParsingException
    {
       throw new RuntimeException("This authenticator does not handle encryption");
-   }
-   
-   
+   } 
 }

@@ -33,7 +33,6 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
@@ -62,16 +61,15 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
-import org.xml.sax.SAXException;
 
 /**
  * Valve at the IDP that supports the HTTP/Redirect Binding
@@ -248,15 +246,7 @@ public class IDPRedirectValve extends ValveBase implements Lifecycle
          
          finalDest.append( getDestinationQueryString(urlEncodedResponse, relayState) );
          HTTPRedirectUtil.sendRedirectForResponder(finalDest.toString(), response);
-      }
-      catch (JAXBException e)
-      {
-         throw new ParsingException(e);
-      }
-      catch (SAXException e)
-      {
-         throw new ParsingException(e);
-      }
+      } 
       catch (IOException e)
       {
          throw new ProcessingException(e);
@@ -322,37 +312,16 @@ public class IDPRedirectValve extends ValveBase implements Lifecycle
       InputStream is = RedirectBindingUtil.base64DeflateDecode(samlMessage); 
       SAML2Request saml2Request = new SAML2Request();
       
-      AuthnRequestType authnRequestType = null;
-      try
-      {
-         authnRequestType = saml2Request.getAuthnRequestType(is);
-      }
-      catch (JAXBException e2)
-      {
-         throw new ParsingException(e2);
-      }
-      catch (SAXException e2)
-      {
-         throw new ParsingException(e2);
-      }
+      AuthnRequestType authnRequestType = saml2Request.getAuthnRequestType(is);
+      
       if(authnRequestType == null)
          throw new IllegalStateException("AuthnRequest is null"); 
 
       if(log.isTraceEnabled())
       {
          StringWriter sw = new StringWriter();
-         try
-         {
-            saml2Request.marshall(authnRequestType, sw);
-         }
-         catch (SAXException e)
-         {
-            log.trace(e);
-         }
-         catch (JAXBException e)
-         {
-            log.trace(e);
-         }
+         saml2Request.marshall(authnRequestType, sw);
+         
          log.trace("IDPRedirectValve::AuthnRequest="+sw.toString()); 
       }
       SAML2Response saml2Response = new SAML2Response();
@@ -368,14 +337,14 @@ public class IDPRedirectValve extends ValveBase implements Lifecycle
       idp.setNameIDFormat(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
 
       SPInfoHolder sp = new SPInfoHolder();
-      sp.setResponseDestinationURI(authnRequestType.getAssertionConsumerServiceURL());
+      sp.setResponseDestinationURI( authnRequestType.getAssertionConsumerServiceURL().toASCIIString() );
       responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
       //Add information on the roles
       List<String> roles = rg.generateRoles(userPrincipal);
-      AssertionType assertion = (AssertionType) responseType.getAssertionOrEncryptedAssertion().get(0);
+      AssertionType assertion = (AssertionType) responseType.getAssertions().get(0).getAssertion();
 
       AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
-      assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().add(attrStatement);
+      assertion.addStatement( attrStatement );
       
       //Add timed conditions
       try
@@ -391,18 +360,8 @@ public class IDPRedirectValve extends ValveBase implements Lifecycle
       if(log.isTraceEnabled())
       {
          StringWriter sw = new StringWriter();
-         try
-         {
-            saml2Response.marshall(responseType, sw);
-         }
-         catch (JAXBException e)
-         {
-            log.trace(e);
-         }
-         catch (SAXException e)
-         {
-            log.trace(e);
-         }
+         saml2Response.marshall(responseType, sw);
+          
          log.trace("IDPRedirectValve::Response="+sw.toString()); 
       }
 

@@ -35,7 +35,6 @@ import java.security.PublicKey;
 import java.util.List;
 
 import javax.crypto.SecretKey;
-import javax.xml.bind.JAXBException;
 import javax.xml.namespace.QName;
 
 import org.apache.catalina.LifecycleException;
@@ -56,12 +55,12 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedAssertionType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
 
 
 /**
@@ -214,21 +213,13 @@ public class IDPRedirectWithSignatureValve extends IDPRedirectValve
                             publicKey, sk, keyLength, assertionQName, true);
             
             
-            EncryptedElementType eet = saml2Response.getEncryptedAssertion(DocumentUtil.getNodeAsStream(encAssertion));
-            responseType.getAssertionOrEncryptedAssertion().set(0, eet);
+            EncryptedAssertionType eet = saml2Response.getEncryptedAssertion(DocumentUtil.getNodeAsStream(encAssertion));
+            responseType.addAssertion( new RTChoiceType( eet ));
          }
          catch (MalformedURLException e)
          {
             throw new ParsingException(e);
-         }
-         catch (JAXBException e)
-         {
-            throw new ParsingException(e);
-         }
-         catch (SAXException e)
-         {
-            throw new ParsingException(e);
-         } 
+         }  
          catch (Exception e)
          {
             throw new ProcessingException(e);
@@ -238,18 +229,8 @@ public class IDPRedirectWithSignatureValve extends IDPRedirectValve
       if(log.isTraceEnabled())
       {
          StringWriter sw = new StringWriter();
-         try
-         {
-            saml2Response.marshall(responseType, sw);
-         }
-         catch (JAXBException e)
-         {
-            if(trace) log.trace(e);
-         }
-         catch (SAXException e)
-         {
-            if(trace) log.trace(e);
-         }
+         saml2Response.marshall(responseType, sw);
+          
          log.trace("IDPRedirectValveWithSignature::Response="+sw.toString()); 
       }
       return responseType;

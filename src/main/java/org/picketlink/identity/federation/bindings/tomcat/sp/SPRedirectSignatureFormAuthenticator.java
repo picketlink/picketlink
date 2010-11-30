@@ -29,8 +29,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.List;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
@@ -48,8 +46,8 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
-import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.assertion.EncryptedElementType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
@@ -192,17 +190,13 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
          SAML2Response saml2Response = new SAML2Response();
          PrivateKey privateKey = keyManager.getSigningKey(); 
          
-         EncryptedElementType myEET = (EncryptedElementType) responseType.getAssertionOrEncryptedAssertion().get(0);
+         EncryptedElementType myEET = (EncryptedElementType) responseType.getAssertions().get(0).getEncryptedAssertion();
          Document eetDoc = saml2Response.convert(myEET); 
          
          Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,privateKey);
          
          //Let us use the encrypted doc element to decrypt it
          return  saml2Response.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));    
-      } 
-      catch (JAXBException e)
-      {
-         throw new ConfigurationException(e);
       } 
       catch (Exception e)
       {
