@@ -56,6 +56,9 @@ public class MockCatalinaContextClassLoader extends URLClassLoader
    {
       if(profile == null)
          throw new RuntimeException("null profile");
-      return delegate.getResourceAsStream(profile + "/" + name);
+      InputStream is = delegate.getResourceAsStream(profile + "/" + name);
+      if( is == null )
+         is = super.getResourceAsStream(name);
+      return is;
    }
 }

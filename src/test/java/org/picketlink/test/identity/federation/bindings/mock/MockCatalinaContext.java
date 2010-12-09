@@ -899,7 +899,8 @@ implements Context, Container, ServletContext
 
    public InputStream getResourceAsStream(String arg0)
    {
-      return Thread.currentThread().getContextClassLoader().getResourceAsStream(arg0);
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader(); 
+      return tcl.getResourceAsStream( arg0 );
    }
 
    public Set getResourcePaths(String arg0)

@@ -21,6 +21,8 @@
  */
 package org.picketlink.test.identity.federation.bindings.workflow;
 
+import static org.junit.Assert.*;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -37,12 +39,13 @@ import junit.framework.TestCase;
 
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.realm.GenericPrincipal;
+import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.LogoutRequestType; 
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
@@ -60,10 +63,10 @@ import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession
  * @since Oct 21, 2009
  */
 @SuppressWarnings("unused")
-public class SAML2LogoutTomcatWorkflowUnitTestCase extends TestCase
+public class SAML2LogoutTomcatWorkflowUnitTestCase
 {
    private String profile = "saml2/logout";
-   private ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+   private ClassLoader tcl;
 
    private String IDP = "http://localhost:8080/idp/"; 
    private String employee = "http://localhost:8080/employee/"; 
@@ -80,6 +83,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase extends TestCase
     * @see {@code GeneralConstants#GLOBAL_LOGOUT}
     * @throws Exception
     */
+   @Test
    public void testSPLogOutRequestGeneration() throws Exception
    { 
       MockCatalinaSession session = new MockCatalinaSession();
@@ -128,8 +132,10 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase extends TestCase
       assertEquals("Match Employee URL", employee, lor.getIssuer().getValue());
    }
    
+
+   @Test
    public void testSAML2LogOutFromIDP() throws Exception
-   { 
+   {  
       MockCatalinaSession session = new MockCatalinaSession();
       
       MockCatalinaContextClassLoader mclIDP = setupTCL(profile + "/idp");
@@ -305,6 +311,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase extends TestCase
 
    private MockCatalinaContextClassLoader setupTCL(String resource)
    {
+      tcl = Thread.currentThread().getContextClassLoader();
       URL[] urls = new URL[] {tcl.getResource(resource)};
       
       MockCatalinaContextClassLoader mcl = new MockCatalinaContextClassLoader(urls);
