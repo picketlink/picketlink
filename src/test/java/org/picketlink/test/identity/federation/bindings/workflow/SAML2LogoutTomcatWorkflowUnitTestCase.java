@@ -206,7 +206,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase extends TestCase
       LogoutRequestType lor = 
          (LogoutRequestType) saml2Request.getRequestType(stream);
       assertEquals("Match Employee URL", employee, destination);
-      assertEquals("Destination exists", employee, lor.getDestination());
+      assertEquals("Destination exists", employee, lor.getDestination().toString());
       
       //Let us feed the LogOutRequest to the SPFilter
       MockCatalinaContextClassLoader mclSPEmp = setupTCL(profile + "/sp/employee");
