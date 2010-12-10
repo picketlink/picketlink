@@ -44,12 +44,14 @@ import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACML
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.ResultType;
+import org.junit.Ignore;
 
 /**
  * Unit Test the SOAP SAML XACML Servlet
  * @author Anil.Saldhana@redhat.com
  * @since Jan 28, 2009
  */
+@Ignore
 public class SOAPSAMLXACMLServletUnitTestCase extends TestCase
 { 
    public void testPermit() throws Exception
