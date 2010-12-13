@@ -39,9 +39,8 @@ import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+//import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType; 
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.ResultType;
 import org.junit.Ignore;
@@ -99,7 +98,8 @@ public class SOAPSAMLXACMLServletUnitTestCase extends TestCase
    @SuppressWarnings("unchecked")
    private void validate(String requestFile, String value) throws Exception
    {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      throw new RuntimeException();
+      /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
       
       SOAPSAMLXACMLServlet servlet = new SOAPSAMLXACMLServlet();
       servlet.init(new TestServletConfig(getServletContext()));
@@ -129,7 +129,7 @@ public class SOAPSAMLXACMLServletUnitTestCase extends TestCase
       ResultType resultType = xacmlResponse.getResult().get(0);
       DecisionType decision = resultType.getDecision();
       assertNotNull("Decision is not null", decision);
-      assertEquals(value, decision.value()); 
+      assertEquals(value, decision.value());*/ 
    }
    
    private ServletContext getServletContext()

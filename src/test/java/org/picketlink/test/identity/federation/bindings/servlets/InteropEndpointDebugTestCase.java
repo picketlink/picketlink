@@ -33,12 +33,12 @@ import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+//import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType; 
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResultType;
@@ -110,7 +110,9 @@ public class InteropEndpointDebugTestCase extends TestCase
    
    private void check(Envelope env, boolean permit)
    {
-      JAXBElement<?> samlResponse = (JAXBElement<?>) env.getBody().getAny().get(0);
+      throw new RuntimeException();
+      
+      /*JAXBElement<?> samlResponse = (JAXBElement<?>) env.getBody().getAny().get(0);
       Object response = samlResponse.getValue();
       if(response instanceof Fault)
       {
@@ -127,7 +129,7 @@ public class InteropEndpointDebugTestCase extends TestCase
       if(permit)
         assertEquals(DecisionType.PERMIT, dt);
       else
-         assertEquals(DecisionType.DENY, dt);
+         assertEquals(DecisionType.DENY, dt);*/
    }
    
    private JAXBElement<?> getResponse(String fileName) throws Exception
