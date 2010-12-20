@@ -22,27 +22,17 @@
 package org.picketlink.test.identity.federation.bindings.servlets;
 
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
+import org.jboss.security.xacml.core.model.context.RequestType;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
-import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
-//import org.picketlink.identity.federation.saml.v2.assertion.AssertionType; 
 import org.w3c.dom.Document;
-import org.jboss.security.xacml.core.model.context.DecisionType;
-import org.jboss.security.xacml.core.model.context.RequestType;
-import org.jboss.security.xacml.core.model.context.ResultType;
 
 
 /**
