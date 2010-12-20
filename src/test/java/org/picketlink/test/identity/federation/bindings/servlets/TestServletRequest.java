@@ -74,14 +74,12 @@ public class TestServletRequest implements HttpServletRequest
    }
 
    public String getHeader(String name)
-   {
-      
+   { 
       return null;
    }
 
    public Enumeration getHeaderNames()
-   {
-      
+   { 
       return null;
    }
 

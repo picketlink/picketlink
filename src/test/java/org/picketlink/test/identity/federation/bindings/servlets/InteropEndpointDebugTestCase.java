@@ -31,14 +31,15 @@ import javax.xml.bind.Unmarshaller;
 
 import junit.framework.TestCase;
 
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Envelope;
 import org.picketlink.identity.federation.org.xmlsoap.schemas.soap.envelope.Fault;
-//import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
-import org.picketlink.identity.federation.saml.v2.profiles.xacml.protocol.XACMLAuthzDecisionQueryType; 
+//import org.picketlink.identity.federation.saml.v2.assertion.AssertionType; 
+import org.w3c.dom.Document;
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResultType;
@@ -78,31 +79,19 @@ public class InteropEndpointDebugTestCase extends TestCase
      }
    }
    
-   public void testHimss() throws Exception
-   {
-      if(endpoint != null)
-      {  
-         JAXBElement<?> jb = getResponse("xacml/requests/himss-soap-request.xml");
-         Envelope env = (Envelope) jb.getValue();
-         Marshaller marshaller = JAXBUtil.getMarshaller(SOAPSAMLXACMLUtil.getPackage());
-         marshaller.setProperty( Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE );
-         marshaller.marshal(jb, System.out);
-         
-         check(env, false);
-      }
-   } 
-   
    public void testSAMLXACML() throws Exception
    {
       //Read the saml request from the file
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = tcl.getResourceAsStream("xacml/requests/samlxacml.xml"); 
       
-      Unmarshaller um = JAXBUtil.getUnmarshaller(SOAPSAMLXACMLUtil.getPackage());
+      Document doc = DocumentUtil.getDocument(is);
+      
+      /*Unmarshaller um = JAXBUtil.getUnmarshaller(SOAPSAMLXACMLUtil.getPackage());
       um.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
 
-      JAXBElement<?> obj = (JAXBElement<?>) um.unmarshal(is);
-      XACMLAuthzDecisionQueryType xat = (XACMLAuthzDecisionQueryType) obj.getValue(); 
+      JAXBElement<?> obj = (JAXBElement<?>) um.unmarshal(is);*/
+      XACMLAuthzDecisionQueryType xat = SOAPSAMLXACMLUtil.getXACMLQueryType(doc.getDocumentElement() ); 
       assertNotNull(xat);
       RequestType requestType = xat.getRequest();
       assertTrue(requestType.getEnvironment().getAttribute().size() > 0); 
@@ -134,7 +123,8 @@ public class InteropEndpointDebugTestCase extends TestCase
    
    private JAXBElement<?> getResponse(String fileName) throws Exception
    {
-      //Read the saml request from the file
+      throw new RuntimeException( "FIX" );
+      /*//Read the saml request from the file
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(fileName); 
       
@@ -149,6 +139,6 @@ public class InteropEndpointDebugTestCase extends TestCase
       m.marshal(soapRequest, System.out);
       m.marshal(soapRequest, conn.getOutputStream());
       
-      return (JAXBElement<?>) um.unmarshal(conn.getInputStream()); 
+      return (JAXBElement<?>) um.unmarshal(conn.getInputStream()); */
    }
 }
