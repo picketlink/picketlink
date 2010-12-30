@@ -78,26 +78,27 @@ import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerC
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.HANDLER_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
+import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
+import org.picketlink.identity.federation.web.util.IDPWebRequestUtil.WebRequestUtilHolder;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
-import org.picketlink.identity.federation.web.util.IDPWebRequestUtil.WebRequestUtilHolder;
 import org.w3c.dom.Document;
 
 
@@ -918,6 +919,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
        {
           throw new RuntimeException(e);
        }
+       
+       //Ensure that the Core STS has the SAML20 Token Provider
+       PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+       sts.installDefaultConfiguration(); 
        
        if(this.signOutgoingMessages)
        {

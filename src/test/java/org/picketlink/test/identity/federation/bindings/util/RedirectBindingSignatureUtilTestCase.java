@@ -27,8 +27,8 @@ import java.security.PublicKey;
 
 import junit.framework.TestCase;
 
+import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.util.KeyStoreUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
@@ -47,7 +47,9 @@ public class RedirectBindingSignatureUtilTestCase extends TestCase
     */
    public void testSigUseCase() throws Exception
    {
-      AuthnRequestType authnRequest = JBossSAMLAuthnRequestFactory.createAuthnRequestType( 
+      SAML2Request samlRequest = new SAML2Request();
+      
+      AuthnRequestType authnRequest = samlRequest.createAuthnRequestType( 
             IDGenerator.create("ID_"), "http://sp", "http://idp", "http://sp");  
       
       KeyPair kp = KeyStoreUtil.generateKeyPair("RSA");

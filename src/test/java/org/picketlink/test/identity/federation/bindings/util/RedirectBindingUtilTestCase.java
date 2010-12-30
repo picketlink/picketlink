@@ -29,7 +29,6 @@ import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnRequestFactory;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
@@ -47,7 +46,7 @@ public class RedirectBindingUtilTestCase extends TestCase
     */
    public void testRegularRedirectBindingUseCaseWithStringWriter() throws Exception
    { 
-      AuthnRequestType authnRequest = JBossSAMLAuthnRequestFactory.createAuthnRequestType( 
+      AuthnRequestType authnRequest = (new SAML2Request()).createAuthnRequestType( 
             IDGenerator.create("ID_"), "http://sp", "http://idp", "http://sp");  
       
       StringWriter sw = new StringWriter();
@@ -69,7 +68,7 @@ public class RedirectBindingUtilTestCase extends TestCase
     */
    public void testRegularRedirectBindingUseCaseWithByteArray() throws Exception
    { 
-      AuthnRequestType authnRequest = JBossSAMLAuthnRequestFactory.createAuthnRequestType( 
+      AuthnRequestType authnRequest = (new SAML2Request()).createAuthnRequestType( 
             IDGenerator.create("ID_"), "http://sp", "http://idp", "http://sp");  
       
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
