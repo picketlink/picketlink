@@ -384,6 +384,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                            HANDLER_TYPE.IDP);
                   saml2HandlerRequest.setRelayState(relayState);
                   
+                  String assertionID = (String) session.getSession().getAttribute( GeneralConstants.ASSERTION_ID );
+                  
                   //Set the options on the handler request
                   Map<String, Object> requestOptions = new HashMap<String, Object>();
                   if(this.ignoreIncomingSignatures)
@@ -391,6 +393,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                   requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
                   requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
                   requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
+                  if( assertionID != null )
+                     requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID );
                   
                   if(this.keyManager != null)
                   {
