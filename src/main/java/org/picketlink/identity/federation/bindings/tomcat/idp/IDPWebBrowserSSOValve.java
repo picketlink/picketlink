@@ -926,7 +926,12 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
        
        //Ensure that the Core STS has the SAML20 Token Provider
        PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-       sts.installDefaultConfiguration(); 
+       //Let us look for a file
+       String configPath = context.getServletContext().getRealPath( "/WEB-INF/picketlink-sts.xml" );
+       if( configPath == null )
+          sts.installDefaultConfiguration();
+       else
+          sts.installDefaultConfiguration( configPath );
        
        if(this.signOutgoingMessages)
        {

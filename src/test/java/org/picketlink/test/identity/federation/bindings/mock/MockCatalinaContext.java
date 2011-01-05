@@ -874,7 +874,7 @@ implements Context, Container, ServletContext
 
    public String getRealPath(String arg0)
    { 
-      throw new RuntimeException("NYI");
+      return null;
    }
 
    public RequestDispatcher getRequestDispatcher(String arg0)
