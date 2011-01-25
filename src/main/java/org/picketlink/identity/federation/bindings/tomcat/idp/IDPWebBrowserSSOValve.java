@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.bindings.tomcat.idp;
 
 import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -928,8 +929,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
        PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
        //Let us look for a file
        String configPath = context.getServletContext().getRealPath( "/WEB-INF/picketlink-sts.xml" );
-       if( configPath == null )
-          sts.installDefaultConfiguration();
+       File stsTokenConfigFile = configPath != null  ? new File( configPath ) : null ;
+       
+       if( stsTokenConfigFile == null || stsTokenConfigFile.exists() == false )
+       {
+          log.info( "Did not find picketlink-sts.xml. We will install default configuration" );
+          sts.installDefaultConfiguration(); 
+       }
        else
           sts.installDefaultConfiguration( configPath );
        
