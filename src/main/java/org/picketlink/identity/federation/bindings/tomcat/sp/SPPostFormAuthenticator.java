@@ -125,6 +125,9 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          try
          {
             ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(true, serviceURL);
+            if( issuerID != null )
+               baseProcessor.setIssuer( issuerID );
+            
             baseProcessor.setIdentityURL( identityURL );
             
             saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock); 

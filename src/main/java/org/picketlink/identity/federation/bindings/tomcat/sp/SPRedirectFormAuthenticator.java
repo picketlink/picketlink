@@ -119,7 +119,8 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
          SAML2HandlerResponse saml2HandlerResponse = null;
          try
          {
-            ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(false, serviceURL);
+            ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(false, serviceURL); 
+            
             initializeSAMLProcessor(baseProcessor);
             
             saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
@@ -412,6 +413,9 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
     */
    protected void initializeSAMLProcessor(ServiceProviderBaseProcessor processor)
    {  
+      if( issuerID != null )
+         processor.setIssuer( issuerID );
+      
       processor.setConfiguration(spConfiguration);
    }
    

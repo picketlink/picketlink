@@ -69,6 +69,8 @@ public class BaseFormAuthenticator extends FormAuthenticator
    
    protected String serviceURL = null;
    protected String identityURL = null;
+   
+   protected String issuerID = null;
 
    protected String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
    
@@ -113,6 +115,15 @@ public class BaseFormAuthenticator extends FormAuthenticator
    public void setSaveRestoreRequest(boolean saveRestoreRequest)
    {
       this.saveRestoreRequest = saveRestoreRequest;
+   }
+   
+   /**
+    * Set a separate issuer id
+    * @param issuerID
+    */
+   public void setIssuerID(String issuerID)
+   {
+      this.issuerID = issuerID;
    }
 
    /**
