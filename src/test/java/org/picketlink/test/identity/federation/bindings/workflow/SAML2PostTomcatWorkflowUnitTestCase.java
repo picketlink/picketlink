@@ -82,7 +82,7 @@ public class SAML2PostTomcatWorkflowUnitTestCase extends TestCase
       //First we go to the employee application
       MockCatalinaContextClassLoader mclSPEmp = setupTCL(profile + "/sp/employee");
       Thread.currentThread().setContextClassLoader(mclSPEmp);
-      SPPostFormAuthenticator spEmpl = new SPPostFormAuthenticator();  
+      SPPostFormAuthenticator spEmpl = new SPPostFormAuthenticator();
       
       MockCatalinaContext context = new MockCatalinaContext();
       spEmpl.setContainer(context);

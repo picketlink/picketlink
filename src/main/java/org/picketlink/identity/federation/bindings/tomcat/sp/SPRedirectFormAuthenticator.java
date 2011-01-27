@@ -171,6 +171,11 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
                   log.trace("URL used for sending:" + destinationURL);
                }
 
+               if( saveRestoreRequest )
+               {
+                  this.saveRequest(request, session); 
+               }
+               
                HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, response); 
                return false;
             }
@@ -289,6 +294,11 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
                session.setNote(Constants.SESS_USERNAME_NOTE, username);
                session.setNote(Constants.SESS_PASSWORD_NOTE, password);
                request.setUserPrincipal(principal);
+               
+               if( saveRestoreRequest )
+               {
+                  this.restoreRequest(request, session); 
+               }
                register(request, response, principal, Constants.FORM_METHOD, username, password); 
 
                return true; 

@@ -78,6 +78,8 @@ public class BaseFormAuthenticator extends FormAuthenticator
    
    protected Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
    
+   //Whether the authenticator has to to save and restore request
+   protected boolean saveRestoreRequest = true;
    
    /**
     * A Lock for Handler operations in the chain
@@ -106,8 +108,13 @@ public class BaseFormAuthenticator extends FormAuthenticator
    public void setSamlHandlerChainClass(String samlHandlerChainClass)
    {
       this.samlHandlerChainClass = samlHandlerChainClass;
-   }
+   } 
    
+   public void setSaveRestoreRequest(boolean saveRestoreRequest)
+   {
+      this.saveRestoreRequest = saveRestoreRequest;
+   }
+
    /**
     * Perform validation os the request object
     * @param request
@@ -149,6 +156,7 @@ public class BaseFormAuthenticator extends FormAuthenticator
    //Mock test purpose
    public void testStart() throws LifecycleException
    { 
+      this.saveRestoreRequest = false;
       processStart();
    }  
    

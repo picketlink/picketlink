@@ -76,7 +76,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
    
    protected boolean supportSignatures = false;
    
-   protected TrustKeyManager keyManager; 
+   protected TrustKeyManager keyManager;  
    
    /**
     * A flag to indicate that we are going to validate signature
@@ -89,7 +89,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
       super(); 
       ServerDetector detector = new ServerDetector(); 
       jbossEnv = detector.isJboss();
-   } 
+   }  
 
    @Override
    public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException
@@ -157,6 +157,10 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          {
             try
             { 
+               if( saveRestoreRequest )
+               {
+                  this.saveRequest(request, session); 
+               }
                sendRequestToIDP(destination, samlResponseDocument, relayState, response,
                      willSendRequest);
                return false;
@@ -252,6 +256,11 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
                session.setNote(Constants.SESS_USERNAME_NOTE, username);
                session.setNote(Constants.SESS_PASSWORD_NOTE, password);
                request.setUserPrincipal(principal);
+               //Get the original saved request
+               if( saveRestoreRequest )
+               {
+                  this.restoreRequest(request, session); 
+               }
                register(request, response, principal, Constants.FORM_METHOD, username, password); 
 
                return true; 
