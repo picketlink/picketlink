@@ -24,17 +24,13 @@ package org.picketlink.test.identity.federation.bindings.config;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.Unmarshaller;
-
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.MetadataProviderType;
 import org.picketlink.identity.federation.core.config.TrustType;
-import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
-import org.picketlink.identity.federation.core.util.JAXBUtil;
+import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
 
 
 /**
@@ -45,14 +41,12 @@ import org.picketlink.identity.federation.core.util.JAXBUtil;
 public class MetadataConfigUnitTestCase extends TestCase
 {
    String config = "config/test-metadata-config-";
-   
-   @SuppressWarnings("unchecked")
+    
    public void testMetadata() throws Exception
    {
       Object object = this.unmarshall(config + "1.xml");
-      assertNotNull("IDP is not null", object);
-      assertTrue(object instanceof JAXBElement);
-      IDPType idp = ((JAXBElement<IDPType>) object).getValue();
+      assertNotNull("IDP is not null", object); 
+      IDPType idp =  (IDPType) object;
       assertEquals("20000", 20000L, idp.getAssertionValidity());
       assertEquals("somefqn", idp.getRoleGenerator());
 
@@ -75,15 +69,12 @@ public class MetadataConfigUnitTestCase extends TestCase
    
    private Object unmarshall(String configFile) throws Exception
    {
-      String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
+      //String schema = PicketLinkFederationConstants.SCHEMA_IDFED;
 
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
       InputStream is = tcl.getResourceAsStream(configFile);
       assertNotNull("Inputstream not null", is);
 
-      Unmarshaller un = 
-         JAXBUtil.getValidatingUnmarshaller("org.picketlink.identity.federation.core.config",
-            schema);
-      return un.unmarshal(is);
+      return (new SAMLConfigParser()).parse( is );
    }
 }
