@@ -193,9 +193,7 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
          EncryptedElementType myEET = (EncryptedElementType) responseType.getAssertions().get(0).getEncryptedAssertion();
          Document eetDoc = saml2Response.convert(myEET); 
          
-         Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,privateKey);
-         
-         //Let us use the encrypted doc element to decrypt it
+         Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,privateKey); 
          return  saml2Response.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));    
       } 
       catch (Exception e)

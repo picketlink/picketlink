@@ -395,7 +395,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                   requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
                   requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
                   if( assertionID != null )
-                     requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID );
+                     requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID ); 
                   
                   if(this.keyManager != null)
                   {
@@ -406,6 +406,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                      }
                      PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost );
                      requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
+                     requestOptions.put( GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey() );
                   }
                   
                   Map<String,Object> attribs  = this.attribManager.getAttributes(userPrincipal, attributeKeys);
