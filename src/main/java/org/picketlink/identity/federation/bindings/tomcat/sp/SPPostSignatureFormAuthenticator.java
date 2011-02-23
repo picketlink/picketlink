@@ -117,6 +117,8 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
          boolean willSendRequest)
    throws ProcessingException, ConfigurationException, IOException
    {
+      if( keyManager == null )
+         throw new IllegalStateException( "Key Manager is null" );
       //Sign the document
       SAML2Signature samlSignature = new SAML2Signature();
       KeyPair keypair = keyManager.getSigningKeyPair();

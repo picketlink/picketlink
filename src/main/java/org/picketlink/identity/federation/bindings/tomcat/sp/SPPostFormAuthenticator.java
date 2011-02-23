@@ -25,6 +25,7 @@ import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -241,7 +242,9 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
 
                String username = principal.getName();
                String password = ServiceProviderSAMLContext.EMPTY_PASSWORD;
-
+               if( trace )
+                  log.trace( "Roles determined for username=" + username + "=" + Arrays.toString( roles.toArray() ) );
+                
                //Map to JBoss specific principal
                if((new ServerDetector()).isJboss() || jbossEnv)
                {
@@ -251,9 +254,9 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
                   ServiceProviderSAMLContext.clear();
                }
                else
-               {
+               { 
                   //tomcat env    
-                  principal = spUtil.createGenericPrincipal(request, principal.getName(), roles);
+                  principal = spUtil.createGenericPrincipal(request, username, roles);
                }
 
                session.setNote(Constants.SESS_USERNAME_NOTE, username);
