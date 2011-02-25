@@ -94,6 +94,7 @@ import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusRespon
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
+import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
@@ -142,6 +143,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    
 
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
+   
+   /**
+    * If the user wants to set a particular {@link IdentityParticipantStack}
+    */
+   protected String identityParticipantStack = null;
    
    /**
     * A Lock for Handler operations in the chain
@@ -208,6 +214,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    public void setSamlHandlerChainClass(String samlHandlerChainClass)
    {
       this.samlHandlerChainClass = samlHandlerChainClass;
+   }
+   
+   public void setIdentityParticipantStack( String fqn )
+   {
+      this.identityParticipantStack = fqn;
    }
 
    @Override
@@ -1006,7 +1017,27 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
        if(identityServer == null)
        {
           identityServer = new IdentityServer();
-          context.getServletContext().setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer); 
+          context.getServletContext().setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer);
+          if( StringUtil.isNotNull( this.identityParticipantStack ))
+          {
+             try
+            {
+               Class<?> stackClass = SecurityActions.getContextClassLoader().loadClass( this.identityParticipantStack );
+               identityServer.setStack( (IdentityParticipantStack) stackClass.newInstance() );
+            }
+            catch (ClassNotFoundException e)
+            { 
+               log.error( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+            }
+            catch (InstantiationException e)
+            {
+               log.error( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+            }
+            catch (IllegalAccessException e)
+            {
+               log.error( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+            }
+          }
        } 
    }
 
