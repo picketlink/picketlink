@@ -44,11 +44,12 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil; 
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
@@ -67,58 +68,60 @@ import org.w3c.dom.Document;
  * @author Anil.Saldhana@redhat.com
  * @since Dec 12, 2008
  */
-public class SPPostFormAuthenticator extends BaseFormAuthenticator 
-{    
+public class SPPostFormAuthenticator extends BaseFormAuthenticator
+{
    private static Logger log = Logger.getLogger(SPPostFormAuthenticator.class);
-   private boolean trace = log.isTraceEnabled();
+
+   private final boolean trace = log.isTraceEnabled();
+
    private boolean jbossEnv = false;
-   
-   private String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
-   
+
+   private final String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
+
    protected boolean supportSignatures = false;
-   
-   protected TrustKeyManager keyManager;  
-   
+
+   protected TrustKeyManager keyManager;
+
    /**
     * A flag to indicate that we are going to validate signature
     * for saml responses from IDP
     */
    protected boolean validateSignature = false;
-   
+
    public SPPostFormAuthenticator()
    {
-      super(); 
-      ServerDetector detector = new ServerDetector(); 
+      super();
+      ServerDetector detector = new ServerDetector();
       jbossEnv = detector.isJboss();
-   }  
+   }
 
    @Override
    public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException
    {
-      SPUtil spUtil = new SPUtil(); 
-      
+      SPUtil spUtil = new SPUtil();
+
       //Eagerly look for Global LogOut
       String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
       boolean logOutRequest = isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
-     
+
       String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
-      String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY); 
-       
+      String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+
       Principal principal = request.getUserPrincipal();
-      
+
       //If we have already authenticated the user and there is no request from IDP or logout from user
-      if(principal != null && !(logOutRequest || isNotNull(samlRequest) || isNotNull(samlResponse) ) )
-         return true; 
-      
+      if (principal != null && !(logOutRequest || isNotNull(samlRequest) || isNotNull(samlResponse)))
+         return true;
+
       Session session = request.getSessionInternal(true);
       String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
 
       boolean willSendRequest = false;
       HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
       Set<SAML2Handler> handlers = chain.handlers();
-      
+
       //General User Request
-      if(!isNotNull(samlRequest) && !isNotNull(samlResponse))
+      if (!isNotNull(samlRequest) && !isNotNull(samlResponse))
       {
          //Neither saml request nor response from IDP
          //So this is a user request
@@ -126,14 +129,14 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          try
          {
             ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(true, serviceURL);
-            if( issuerID != null )
-               baseProcessor.setIssuer( issuerID );
-            
-            baseProcessor.setIdentityURL( identityURL );
-            
-            saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock); 
+            if (issuerID != null)
+               baseProcessor.setIssuer(issuerID);
+
+            baseProcessor.setIdentityURL(identityURL);
+
+            saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
          }
-         catch(ProcessingException pe)
+         catch (ProcessingException pe)
          {
             log.error("Processing Exception:", pe);
             throw new RuntimeException(pe);
@@ -147,39 +150,37 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          {
             log.error("Config Exception:", pe);
             throw new RuntimeException(pe);
-         } 
-         
+         }
+
          willSendRequest = saml2HandlerResponse.getSendRequest();
-         
+
          Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
          relayState = saml2HandlerResponse.getRelayState();
 
          String destination = saml2HandlerResponse.getDestination();
 
-         if(destination != null && 
-               samlResponseDocument != null)
+         if (destination != null && samlResponseDocument != null)
          {
             try
-            { 
-               if( saveRestoreRequest )
+            {
+               if (saveRestoreRequest)
                {
-                  this.saveRequest(request, session); 
+                  this.saveRequest(request, session);
                }
-               sendRequestToIDP(destination, samlResponseDocument, relayState, response,
-                     willSendRequest);
+               sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
                return false;
             }
             catch (Exception e)
             {
-               if(trace)
-                  log.trace("Exception:",e);
+               if (trace)
+                  log.trace("Exception:", e);
                throw new IOException("Server Error");
-            } 
-         } 
+            }
+         }
       }
 
       //Handle a SAML Response from IDP
-      if(isNotNull(samlResponse) )
+      if (isNotNull(samlResponse))
       {
          boolean isValid = false;
          try
@@ -188,23 +189,22 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          }
          catch (Exception e)
          {
-            log.error("Exception:",e);
+            log.error("Exception:", e);
             throw new IOException();
          }
-         if(!isValid)
+         if (!isValid)
             throw new IOException("Validity check failed");
-         
-         
+
          //deal with SAML response from IDP 
          try
          {
-            ServiceProviderSAMLResponseProcessor responseProcessor =
-               new ServiceProviderSAMLResponseProcessor(true, serviceURL);
-            responseProcessor.setValidateSignature( validateSignature );
+            ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(true,
+                  serviceURL);
+            responseProcessor.setValidateSignature(validateSignature);
             responseProcessor.setTrustKeyManager(keyManager);
-            
-            SAML2HandlerResponse saml2HandlerResponse = 
-               responseProcessor.process(samlResponse, httpContext, handlers, chainLock);
+
+            SAML2HandlerResponse saml2HandlerResponse = responseProcessor.process(samlResponse, httpContext, handlers,
+                  chainLock);
 
             Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
             relayState = saml2HandlerResponse.getRelayState();
@@ -212,10 +212,8 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
             String destination = saml2HandlerResponse.getDestination();
 
             willSendRequest = saml2HandlerResponse.getSendRequest();
-            
 
-            if(destination != null && 
-                  samlResponseDocument != null)
+            if (destination != null && samlResponseDocument != null)
             {
                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
             }
@@ -223,38 +221,38 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
             {
                //See if the session has been invalidated
 
-               boolean sessionValidity = session.isValid(); 
-               if(!sessionValidity)
+               boolean sessionValidity = session.isValid();
+               if (!sessionValidity)
                {
                   //we are invalidated.
-                  RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.logOutPage); 
-                  if(dispatch == null)
+                  RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.logOutPage);
+                  if (dispatch == null)
                      log.error("Cannot dispatch to the logout page: no request dispatcher:" + this.logOutPage);
                   else
                      dispatch.forward(request, response);
-                  return false;  
-               }  
+                  return false;
+               }
 
                //We got a response with the principal
                List<String> roles = saml2HandlerResponse.getRoles();
-               if(principal == null)
+               if (principal == null)
                   principal = (Principal) session.getSession().getAttribute(GeneralConstants.PRINCIPAL_ID);
 
                String username = principal.getName();
                String password = ServiceProviderSAMLContext.EMPTY_PASSWORD;
-               if( trace )
-                  log.trace( "Roles determined for username=" + username + "=" + Arrays.toString( roles.toArray() ) );
-                
+               if (trace)
+                  log.trace("Roles determined for username=" + username + "=" + Arrays.toString(roles.toArray()));
+
                //Map to JBoss specific principal
-               if((new ServerDetector()).isJboss() || jbossEnv)
+               if ((new ServerDetector()).isJboss() || jbossEnv)
                {
                   //Push a context
                   ServiceProviderSAMLContext.push(username, roles);
-                  principal = context.getRealm().authenticate(username, password); 
+                  principal = context.getRealm().authenticate(username, password);
                   ServiceProviderSAMLContext.clear();
                }
                else
-               { 
+               {
                   //tomcat env    
                   principal = spUtil.createGenericPrincipal(request, username, roles);
                }
@@ -263,49 +261,55 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
                session.setNote(Constants.SESS_PASSWORD_NOTE, password);
                request.setUserPrincipal(principal);
                //Get the original saved request
-               if( saveRestoreRequest )
+               if (saveRestoreRequest)
                {
-                  this.restoreRequest(request, session); 
+                  this.restoreRequest(request, session);
                }
-               register(request, response, principal, Constants.FORM_METHOD, username, password); 
+               register(request, response, principal, Constants.FORM_METHOD, username, password);
 
-               return true; 
-            }  
+               return true;
+            }
          }
          catch (Exception e)
          {
-            if(trace)
+            if (trace)
                log.trace("Server Exception:", e);
             throw new IOException("Server Exception");
-         }  
-      } 
-      
+         }
+      }
+
       //Handle SAML Requests from IDP
-      if(isNotNull(samlRequest))
-      { 
+      if (isNotNull(samlRequest))
+      {
          try
          {
-            ServiceProviderSAMLRequestProcessor requestProcessor = 
-               new ServiceProviderSAMLRequestProcessor(true, this.serviceURL);
+            ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(true,
+                  this.serviceURL);
             requestProcessor.setTrustKeyManager(keyManager);
             requestProcessor.setSupportSignatures(supportSignatures);
             boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
-            
-            if(result)
+
+            if (result)
                return result;
          }
          catch (Exception e)
          {
-            if(trace)
+            if (trace)
                log.trace("Server Exception:", e);
             throw new IOException("Server Exception");
-         }   
+         }
       }//end if   
 
       //fallback
-      return super.authenticate(request, response, loginConfig); 
-   }  
-   
+      return super.authenticate(request, response, loginConfig);
+   }
+
+   @Override
+   protected String getBinding()
+   {
+      return JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get();
+   }
+
    /**
     * Send the request to the IDP
     * @param destination idp url
@@ -316,18 +320,16 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
     * @throws ProcessingException
     * @throws ConfigurationException
     * @throws IOException 
-    */ 
-   protected void sendRequestToIDP( 
-         String destination, Document samlDocument,String relayState, Response response,
-         boolean willSendRequest)
-   throws ProcessingException, ConfigurationException, IOException
+    */
+   protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
+         boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException
    {
-      String samlMessage = DocumentUtil.getDocumentAsString(samlDocument); 
+      String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
       samlMessage = PostBindingUtil.base64Encode(samlMessage);
-      PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState),
-            response, willSendRequest); 
+      PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState), response,
+            willSendRequest);
    }
- 
+
    /**
     * Trust handling
     * @param issuer
@@ -338,20 +340,20 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
       try
       {
          String issuerDomain = ValveUtil.getDomain(issuer);
-         TrustType idpTrust =  spConfiguration.getTrust();
-         if(idpTrust != null)
+         TrustType idpTrust = spConfiguration.getTrust();
+         if (idpTrust != null)
          {
             String domainsTrusted = idpTrust.getDomains();
-            if(domainsTrusted.indexOf(issuerDomain) < 0)
-               throw new IssuerNotTrustedException(issuer); 
+            if (domainsTrusted.indexOf(issuerDomain) < 0)
+               throw new IssuerNotTrustedException(issuer);
          }
       }
       catch (Exception e)
       {
-         throw new IssuerNotTrustedException(e.getLocalizedMessage(),e);
+         throw new IssuerNotTrustedException(e.getLocalizedMessage(), e);
       }
    }
-   
+
    /**
     * Subclasses should provide the implementation
     * @param responseType ResponseType that contains the encrypted assertion
@@ -360,5 +362,5 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
    protected ResponseType decryptAssertion(ResponseType responseType)
    {
       throw new RuntimeException("This authenticator does not handle encryption");
-   }  
+   }
 }
