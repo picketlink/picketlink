@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Session;
 import org.apache.catalina.authenticator.Constants;
@@ -89,6 +90,25 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
       super();
       ServerDetector detector = new ServerDetector();
       jbossEnv = detector.isJboss();
+   }
+
+   /**
+    * Authenticate the request
+    * @param request
+    * @param response
+    * @param config
+    * @return
+    * @throws IOException
+    * @throws {@link RuntimeException} when the response is not of type catalina response object
+    */
+   public boolean authenticate(Request request, HttpServletResponse response, LoginConfig config) throws IOException
+   {
+      if (response instanceof Response)
+      {
+         Response catalinaResponse = (Response) response;
+         return authenticate(request, catalinaResponse, config);
+      }
+      throw new RuntimeException("Response was not of type catalina response");
    }
 
    @Override

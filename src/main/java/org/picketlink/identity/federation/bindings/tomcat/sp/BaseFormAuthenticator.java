@@ -23,7 +23,9 @@ package org.picketlink.identity.federation.bindings.tomcat.sp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
+import java.security.Principal;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
@@ -37,10 +39,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.authenticator.AuthenticatorBase;
 import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
-import org.apache.catalina.deploy.LoginConfig;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataExtractor;
 import org.picketlink.identity.federation.core.config.SPType;
@@ -110,6 +112,20 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
 
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
+   /**
+    * Servlet3 related changes forced Tomcat to change the authenticate method
+    * signature in the FormAuthenticator. For now, we use reflection for forward
+    * compatibility.  This has to be changed in future.
+    */
+   private Method theSuperRegisterMethod = null;
+
+   /**
+    * If it is determined that we are running in a Tomcat6/JBAS5 environment,
+    * there is no need to seek the super.register method that conforms to
+    * the servlet3 spec changes
+    */
+   private boolean seekSuperRegisterMethod = true;
+
    public BaseFormAuthenticator()
    {
       super();
@@ -161,25 +177,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
       return request.getParameter("SAMLResponse") != null;
    }
 
-   /**
-    * Authenticate the request
-    * @param request
-    * @param response
-    * @param config
-    * @return
-    * @throws IOException
-    * @throws {@link RuntimeException} when the response is not of type catalina response object
-    */
-   public boolean authenticate(Request request, HttpServletResponse response, LoginConfig config) throws IOException
-   {
-      if (response instanceof Response)
-      {
-         Response catalinaResponse = (Response) response;
-         return authenticate(request, catalinaResponse, config);
-      }
-      throw new RuntimeException("Response was not of type catalina response");
-   }
-
    @Override
    public void start() throws LifecycleException
    {
@@ -204,6 +201,48 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
    public X509Certificate getIdpCertificate()
    {
       return idpCertificate;
+   }
+
+   /**
+    * This method is a hack!!!
+    * Tomcat on account of Servlet3 changed their authenticator method signatures
+    * We utilize Java Reflection to identify the super register method on the first
+    * call and save it. Subsquent invocations utilize the saved {@link Method}
+    * @see org.apache.catalina.authenticator.AuthenticatorBase#register(org.apache.catalina.connector.Request, org.apache.catalina.connector.Response, java.security.Principal, java.lang.String, java.lang.String, java.lang.String)
+    */
+   @Override
+   protected void register(Request request, Response response, Principal principal, String arg3, String arg4,
+         String arg5)
+   {
+      //Try the JBossAS6 version
+      if (theSuperRegisterMethod == null && seekSuperRegisterMethod)
+      {
+         Class<?>[] args = new Class[]
+         {Request.class, HttpServletResponse.class, Principal.class, String.class, String.class, String.class};
+         Class<?> superClass = getAuthenticatorBaseClass();
+         theSuperRegisterMethod = SecurityActions.getMethod(superClass, "register", args);
+      }
+      try
+      {
+         if (theSuperRegisterMethod != null)
+         {
+            Object[] callArgs = new Object[]
+            {request, response, principal, arg3, arg4, arg5};
+            theSuperRegisterMethod.invoke(this, callArgs);
+         }
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+
+      //Try the older version
+      if (theSuperRegisterMethod == null)
+      {
+         seekSuperRegisterMethod = false; //Don't try to seek super register method on next invocation
+         super.register(request, response, principal, arg3, arg4, arg5);
+         return;
+      }
    }
 
    //Mock test purpose
@@ -409,5 +448,16 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
       chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
       chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
       chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); //No validator as tomcat realm does validn   
+   }
+
+   private Class<?> getAuthenticatorBaseClass()
+   {
+      Class<?> myClass = getClass();
+      do
+      {
+         myClass = myClass.getSuperclass();
+      }
+      while (myClass != AuthenticatorBase.class);
+      return myClass;
    }
 }
