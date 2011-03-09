@@ -249,7 +249,18 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
                   if (dispatch == null)
                      log.error("Cannot dispatch to the logout page: no request dispatcher:" + this.logOutPage);
                   else
-                     dispatch.forward(request, response);
+                  {
+                     session.expire();
+                     try
+                     {
+                        dispatch.forward(request, response);
+                     }
+                     catch (Exception e)
+                     {
+                        //JBAS5.1 and 6 quirkiness
+                        dispatch.forward(request.getRequest(), response);
+                     }
+                  }
                   return false;
                }
 
@@ -292,8 +303,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          }
          catch (Exception e)
          {
-            if (trace)
-               log.trace("Server Exception:", e);
+            log.error("Server Exception:", e);
             throw new IOException("Server Exception");
          }
       }
@@ -320,6 +330,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          }
       }//end if   
 
+      log.error("Did not find any SAML Request/Response. Falling back on local Form Authentication if available");
       //fallback
       return super.authenticate(request, response, loginConfig);
    }
