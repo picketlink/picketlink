@@ -103,7 +103,6 @@ import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.w3c.dom.Document;
 
-
 /**
  * Generic Web Browser SSO valve for the IDP
  * 
@@ -115,59 +114,60 @@ import org.w3c.dom.Document;
  */
 public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 {
-   private static Logger log =  Logger.getLogger(IDPWebBrowserSSOValve.class); 
-   private boolean trace = log.isTraceEnabled();
-   
+   private static Logger log = Logger.getLogger(IDPWebBrowserSSOValve.class);
+
+   private final boolean trace = log.isTraceEnabled();
+
    protected IDPType idpConfiguration = null;
-   
+
    private RoleGenerator roleGenerator = new TomcatRoleGenerator();
 
    private long assertionValidity = 5000; // 5 seconds in miliseconds
-   
+
    private String identityURL = null;
-   
+
    private TrustKeyManager keyManager;
-   
+
    private Boolean ignoreIncomingSignatures = false;
 
    private Boolean signOutgoingMessages = true;
 
    private transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
-   private List<String> attributeKeys = new ArrayList<String>();
-   
+
+   private final List<String> attributeKeys = new ArrayList<String>();
+
    private transient SAML2HandlerChain chain = null;
-   
+
    private Context context = null;
-   
-   private transient String samlHandlerChainClass = null;  
-   
+
+   private transient String samlHandlerChainClass = null;
 
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
-   
+
    /**
     * If the user wants to set a particular {@link IdentityParticipantStack}
     */
    protected String identityParticipantStack = null;
-   
+
    /**
     * A Lock for Handler operations in the chain
     */
-   private Lock chainLock = new ReentrantLock();
-   
+   private final Lock chainLock = new ReentrantLock();
+
    //Set a list of attributes we are interested in separated by comma
    public void setAttributeList(String attribList)
-   { 
-      if(attribList != null && !"".equals(attribList))
+   {
+      if (attribList != null && !"".equals(attribList))
       {
          this.attributeKeys.clear();
-         StringTokenizer st = new StringTokenizer(attribList,",");
-         while(st != null && st.hasMoreTokens())
+         StringTokenizer st = new StringTokenizer(attribList, ",");
+         while (st != null && st.hasMoreTokens())
          {
             this.attributeKeys.add(st.nextToken());
          }
       }
    }
-   
+
    public Boolean getIgnoreIncomingSignatures()
    {
       return ignoreIncomingSignatures;
@@ -177,15 +177,15 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    {
       this.ignoreIncomingSignatures = ignoreIncomingSignature;
    }
-   
+
    /**
     * IDP should not do any attributes such as generation of roles etc
     * @param ignoreAttributes
     */
    public void setIgnoreAttributesGeneration(Boolean ignoreAttributes)
    {
-      if( ignoreAttributes == Boolean.TRUE )
-         this.attribManager = null; 
+      if (ignoreAttributes == Boolean.TRUE)
+         this.attribManager = null;
    }
 
    public Boolean getSignOutgoingMessages()
@@ -197,7 +197,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    {
       this.signOutgoingMessages = signOutgoingMessages;
    }
-   
+
    public void setRoleGenerator(String rgName)
    {
       try
@@ -208,15 +208,15 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       catch (Exception e)
       {
          throw new RuntimeException(e);
-      } 
-   } 
-   
+      }
+   }
+
    public void setSamlHandlerChainClass(String samlHandlerChainClass)
    {
       this.samlHandlerChainClass = samlHandlerChainClass;
    }
-   
-   public void setIdentityParticipantStack( String fqn )
+
+   public void setIdentityParticipantStack(String fqn)
    {
       this.identityParticipantStack = fqn;
    }
@@ -224,99 +224,91 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    @Override
    public void invoke(Request request, Response response) throws IOException, ServletException
    {
-      String referer = request.getHeader("Referer"); 
+      String referer = request.getHeader("Referer");
       String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
 
-      if(isNotNull(relayState))
+      if (isNotNull(relayState))
          relayState = RedirectBindingUtil.urlDecode(relayState);
-      
+
       String samlRequestMessage = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
       String samlResponseMessage = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
 
       String signature = request.getParameter("Signature");
-      String sigAlg = request.getParameter("SigAlg"); 
-      
-      boolean containsSAMLRequestMessage =  isNotNull(samlRequestMessage);
-      boolean containsSAMLResponseMessage =  isNotNull(samlResponseMessage);
-      
-      Session session = request.getSessionInternal(); 
-      
-      if(containsSAMLRequestMessage || containsSAMLResponseMessage)
+      String sigAlg = request.getParameter("SigAlg");
+
+      boolean containsSAMLRequestMessage = isNotNull(samlRequestMessage);
+      boolean containsSAMLResponseMessage = isNotNull(samlResponseMessage);
+
+      Session session = request.getSessionInternal();
+
+      if (containsSAMLRequestMessage || containsSAMLResponseMessage)
       {
-         if(trace) log.trace("Storing the SAMLRequest/SAMLResponse and RelayState in session");
-         if(isNotNull(samlRequestMessage))
-           session.setNote(GeneralConstants.SAML_REQUEST_KEY, samlRequestMessage);
-         if(isNotNull(samlResponseMessage))
-            session.setNote(GeneralConstants.SAML_RESPONSE_KEY, samlResponseMessage); 
-         if(isNotNull(relayState))
+         if (trace)
+            log.trace("Storing the SAMLRequest/SAMLResponse and RelayState in session");
+         if (isNotNull(samlRequestMessage))
+            session.setNote(GeneralConstants.SAML_REQUEST_KEY, samlRequestMessage);
+         if (isNotNull(samlResponseMessage))
+            session.setNote(GeneralConstants.SAML_RESPONSE_KEY, samlResponseMessage);
+         if (isNotNull(relayState))
             session.setNote(GeneralConstants.RELAY_STATE, relayState.trim());
-         if(isNotNull(signature))
+         if (isNotNull(signature))
             session.setNote("Signature", signature.trim());
-         if(isNotNull(sigAlg))
+         if (isNotNull(sigAlg))
             session.setNote("sigAlg", sigAlg.trim());
-      } 
-      
+      }
+
       //Lets check if the user has been authenticated
       Principal userPrincipal = request.getPrincipal();
-      if(userPrincipal == null)
+      if (userPrincipal == null)
       {
          try
          {
             //Next in the invocation chain
-            getNext().invoke(request, response);  
+            getNext().invoke(request, response);
          }
          finally
          {
             userPrincipal = request.getPrincipal();
             referer = request.getHeader("Referer");
-            if(trace)
-               log.trace("Referer in finally block="+ referer + ":user principal=" + userPrincipal); 
+            if (trace)
+               log.trace("Referer in finally block=" + referer + ":user principal=" + userPrincipal);
          }
       }
-      
-      
+
       IDPWebRequestUtil webRequestUtil = new IDPWebRequestUtil(request, idpConfiguration, keyManager);
-      webRequestUtil.setAttributeManager(this.attribManager);
-      webRequestUtil.setAttributeKeys(attributeKeys);
-      
+
       Document samlErrorResponse = null;
       //Look for unauthorized status
-      if(response.getStatus() == HttpServletResponse.SC_FORBIDDEN)
+      if (response.getStatus() == HttpServletResponse.SC_FORBIDDEN)
       {
          try
          {
-            samlErrorResponse =
-              webRequestUtil.getErrorResponse(referer, 
-                  JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                  this.identityURL, this.signOutgoingMessages); 
-            
+            samlErrorResponse = webRequestUtil.getErrorResponse(referer,
+                  JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), this.identityURL, this.signOutgoingMessages);
+
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
-            holder.setResponseDoc(samlErrorResponse).setDestination(referer).setRelayState(relayState).setAreWeSendingRequest(false)
-            .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
-            holder.setPostBindingRequested( webRequestUtil.hasSAMLRequestInPostProfile() );
-         
-            if(this.signOutgoingMessages)
+            holder.setResponseDoc(samlErrorResponse).setDestination(referer).setRelayState(relayState)
+                  .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false)
+                  .setServletResponse(response);
+            holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
+
+            if (this.signOutgoingMessages)
             {
-               holder.setSupportSignature(true).setPrivateKey( keyManager.getSigningKey() );
+               holder.setSupportSignature(true).setPrivateKey(keyManager.getSigningKey());
                webRequestUtil.send(holder);
                //webRequestUtil.send(samlErrorResponse, referer, relayState, response, true, 
                //this.keyManager.getSigningKey(), false); 
-            } 
-            else
-            {
-               //  webRequestUtil.send(samlErrorResponse, referer,relayState, response, false,null, false);
-               
             }
-            webRequestUtil.send(holder);  
-         } 
+            webRequestUtil.send(holder);
+         }
          catch (GeneralSecurityException e)
          {
             throw new ServletException(e);
-         }  
+         }
          return;
-      }  
-      
-      if(userPrincipal != null)
+      }
+
+      if (userPrincipal != null)
       {
          /**
           * Since the container has finished the authentication,
@@ -329,30 +321,30 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
          signature = (String) session.getNote("Signature");
          sigAlg = (String) session.getNote("sigAlg");
-         
-         if(trace) 
+
+         if (trace)
          {
             StringBuilder builder = new StringBuilder();
             builder.append("Retrieved saml messages and relay state from session");
             builder.append("saml Request message=").append(samlRequestMessage);
             builder.append("::").append("SAMLResponseMessage=");
             builder.append(samlResponseMessage).append(":").append("relay state=").append(relayState);
-            
+
             builder.append("Signature=").append(signature).append("::sigAlg=").append(sigAlg);
             log.trace(builder.toString());
          }
-         
-         if(isNotNull(samlRequestMessage))
-           session.removeNote(GeneralConstants.SAML_REQUEST_KEY);
-         if(isNotNull(samlResponseMessage))
+
+         if (isNotNull(samlRequestMessage))
+            session.removeNote(GeneralConstants.SAML_REQUEST_KEY);
+         if (isNotNull(samlResponseMessage))
             session.removeNote(GeneralConstants.SAML_RESPONSE_KEY);
-          
-         if(isNotNull(relayState))
+
+         if (isNotNull(relayState))
             session.removeNote(GeneralConstants.RELAY_STATE);
-         
-         if(isNotNull(signature))
+
+         if (isNotNull(signature))
             session.removeNote("Signature");
-         if(isNotNull(sigAlg))
+         if (isNotNull(sigAlg))
             session.removeNote("sigAlg");
 
          boolean willSendRequest = false;
@@ -362,262 +354,250 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
          Document samlResponse = null;
          String destination = null;
-         
+
          Boolean requestedPostProfile = null;
-         
-         
+
          //Send valid saml response after processing the request
-         if(samlRequestMessage != null)
+         if (samlRequestMessage != null)
          {
             //Get the SAML Request Message
-            RequestAbstractType requestAbstractType =  null; 
-            
+            RequestAbstractType requestAbstractType = null;
+
+            try
+            {
+               samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
+               samlObject = samlDocumentHolder.getSamlObject();
+
+               boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
+               boolean isValid = validate(request.getRemoteAddr(), request.getQueryString(), new SessionHolder(
+                     samlRequestMessage, signature, sigAlg), isPost);
+
+               if (!isValid)
+                  throw new GeneralSecurityException("Validation check failed");
+
+               String issuer = null;
+               IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
+               ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
+               //Create the request/response
+               SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
+                     idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
+               saml2HandlerRequest.setRelayState(relayState);
+
+               String assertionID = (String) session.getSession().getAttribute(GeneralConstants.ASSERTION_ID);
+
+               //Set the options on the handler request
+               Map<String, Object> requestOptions = new HashMap<String, Object>();
+               if (this.ignoreIncomingSignatures)
+                  requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, Boolean.TRUE);
+               requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
+               requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
+               requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
+               if (assertionID != null)
+                  requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID);
+
+               if (this.keyManager != null)
+               {
+                  String remoteHost = request.getRemoteAddr();
+                  if (trace)
+                  {
+                     log.trace("Remote Host=" + remoteHost);
+                  }
+                  PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost);
+                  requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
+                  requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+               }
+
+               Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
+               requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+
+               saml2HandlerRequest.setOptions(requestOptions);
+
+               List<String> roles = roleGenerator.generateRoles(userPrincipal);
+               session.getSession().setAttribute(GeneralConstants.ROLES_ID, roles);
+
+               SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
+
+               Set<SAML2Handler> handlers = chain.handlers();
+
+               if (trace)
+               {
+                  log.trace("Handlers are=" + handlers);
+               }
+
+               if (samlObject instanceof RequestAbstractType)
+               {
+                  requestAbstractType = (RequestAbstractType) samlObject;
+                  issuer = requestAbstractType.getIssuer().getValue();
+                  webRequestUtil.isTrusted(issuer);
+
+                  if (handlers != null)
+                  {
+                     try
+                     {
+                        chainLock.lock();
+                        for (SAML2Handler handler : handlers)
+                        {
+                           handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
+                           willSendRequest = saml2HandlerResponse.getSendRequest();
+                        }
+                     }
+                     finally
+                     {
+                        chainLock.unlock();
+                     }
+                  }
+               }
+               else
+                  throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
+
+               samlResponse = saml2HandlerResponse.getResultingDocument();
+               relayState = saml2HandlerResponse.getRelayState();
+
+               destination = saml2HandlerResponse.getDestination();
+
+               requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
+            }
+            catch (IssuerNotTrustedException e)
+            {
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer,
+                     JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get(), this.identityURL, this.signOutgoingMessages);
+            }
+            catch (ParsingException e)
+            {
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
+            }
+            catch (ConfigurationException e)
+            {
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
+            }
+            catch (IssueInstantMissingException e)
+            {
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
+            }
+            catch (GeneralSecurityException e)
+            {
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
+            }
+            catch (Exception e)
+            {
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
+            }
+            finally
+            {
                try
                {
-                  samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
-                  samlObject = (SAML2Object) samlDocumentHolder.getSamlObject();
-                  
-                  
-                  boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
-                  boolean isValid = validate(request.getRemoteAddr(),
-                        request.getQueryString(),
-                        new SessionHolder(samlRequestMessage, signature, sigAlg), isPost);
-                  
-                  if(!isValid)
-                     throw new GeneralSecurityException("Validation check failed");
+                  boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
+                  if (postProfile)
+                     recycle(response);
 
-                  String issuer = null;
-                  IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
-                  ProtocolContext protocolContext = new HTTPContext(request,response, context.getServletContext());
-                  //Create the request/response
-                  SAML2HandlerRequest saml2HandlerRequest = 
-                     new DefaultSAML2HandlerRequest(protocolContext,
-                           idpIssuer.getIssuer(), samlDocumentHolder, 
-                           HANDLER_TYPE.IDP);
-                  saml2HandlerRequest.setRelayState(relayState);
-                  
-                  String assertionID = (String) session.getSession().getAttribute( GeneralConstants.ASSERTION_ID );
-                  
-                  //Set the options on the handler request
-                  Map<String, Object> requestOptions = new HashMap<String, Object>();
-                  if(this.ignoreIncomingSignatures)
-                     requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, Boolean.TRUE);
-                  requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-                  requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
-                  requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
-                  if( assertionID != null )
-                     requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID ); 
-                  
-                  if(this.keyManager != null)
-                  {
-                     String remoteHost = request.getRemoteAddr();
-                     if(trace)
-                     {
-                        log.trace("Remote Host=" + remoteHost); 
-                     }
-                     PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost );
-                     requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
-                     requestOptions.put( GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey() );
-                  }
-                  
-                  Map<String,Object> attribs  = this.attribManager.getAttributes(userPrincipal, attributeKeys);
-                  requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
-                  
-                  saml2HandlerRequest.setOptions(requestOptions); 
-                  
-                  List<String> roles =  roleGenerator.generateRoles(userPrincipal); 
-                  session.getSession().setAttribute(GeneralConstants.ROLES_ID, roles);
-                  
-                  SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
+                  WebRequestUtilHolder holder = webRequestUtil.getHolder();
+                  holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
+                        .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
+                        .setServletResponse(response);
 
-                  Set<SAML2Handler> handlers = chain.handlers();
-                  
-                  if(trace)
-                  {
-                     log.trace("Handlers are=" + handlers);
-                  }
-                  
-                  if(samlObject instanceof RequestAbstractType)
-                  {
-                     requestAbstractType = (RequestAbstractType) samlObject;
-                     issuer = requestAbstractType.getIssuer().getValue();
-                     webRequestUtil.isTrusted(issuer);
-                     
-                     if(handlers != null)
-                     { 
-                        try
-                        {
-                           chainLock.lock();
-                           for(SAML2Handler handler: handlers)
-                           {
-                              handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
-                              willSendRequest = saml2HandlerResponse.getSendRequest();
-                           } 
-                        }
-                        finally
-                        {
-                           chainLock.unlock();
-                        } 
-                     } 
-                  } 
+                  if (requestedPostProfile != null)
+                     holder.setPostBindingRequested(requestedPostProfile);
                   else
-                     throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
+                     holder.setPostBindingRequested(postProfile);
 
-                  samlResponse = saml2HandlerResponse.getResultingDocument();
-                  relayState = saml2HandlerResponse.getRelayState();
-                  
-                  destination = saml2HandlerResponse.getDestination(); 
-                  
-                  requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse(); 
-               }
-               catch (IssuerNotTrustedException e)
-               {
-                  if(trace) log.trace("Exception in processing request:",e);
-                   
-                  samlResponse =
-                        webRequestUtil.getErrorResponse(referer, 
-                            JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get(), 
-                            this.identityURL, this.signOutgoingMessages);  
+                  if (this.signOutgoingMessages)
+                  {
+                     holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+                  }
+
+                  webRequestUtil.send(holder);
                }
                catch (ParsingException e)
                {
-                  if(trace) log.trace("Exception in processing request:",e);
-                   
-                  samlResponse =
-                     webRequestUtil.getErrorResponse(referer, 
-                         JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                         this.identityURL, this.signOutgoingMessages); 
+                  if (trace)
+                     log.trace("Parsing exception:", e);
                }
-               catch (ConfigurationException e)
+               catch (GeneralSecurityException e)
                {
-                  if(trace) log.trace("Exception in processing request:",e);
-                   
-                  samlResponse =
-                     webRequestUtil.getErrorResponse(referer, 
-                         JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                         this.identityURL, this.signOutgoingMessages);
+                  if (trace)
+                     log.trace("Security Exception:", e);
                }
-               catch (IssueInstantMissingException e)
-               {
-                  if(trace) log.trace("Exception in processing request:",e); 
-                  
-                  samlResponse =
-                     webRequestUtil.getErrorResponse(referer, 
-                         JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                         this.identityURL, this.signOutgoingMessages); 
-               } 
-               catch(GeneralSecurityException e)
-               {
-                  if(trace) log.trace("Exception in processing request:", e);
-                  
-                  samlResponse =
-                     webRequestUtil.getErrorResponse(referer, 
-                         JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                         this.identityURL, this.signOutgoingMessages); 
-               }
-               catch(Exception e)
-               {
-                  if(trace) log.trace("Exception in processing request:",e);
-                  
-                  samlResponse =
-                     webRequestUtil.getErrorResponse(referer, 
-                         JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                         this.identityURL, this.signOutgoingMessages); 
-               }
-               finally
-               {
-                  try
-                  {
-                     boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-                     if( postProfile )
-                        recycle(response);
-                     
-
-                     WebRequestUtilHolder holder = webRequestUtil.getHolder();
-                     holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState).setAreWeSendingRequest(willSendRequest)
-                     .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
-                     
-                     if( requestedPostProfile != null )
-                        holder.setPostBindingRequested( requestedPostProfile );
-                     else
-                        holder.setPostBindingRequested(postProfile);
-                     
-                     if(this.signOutgoingMessages)
-                     { 
-                        holder.setPrivateKey( keyManager.getSigningKey() ).setSupportSignature( true );
-                     } 
-
-                     webRequestUtil.send(holder);
-                  }
-                  catch (ParsingException e)
-                  {
-                     if(trace) log.trace("Parsing exception:", e);
-                  } 
-                  catch (GeneralSecurityException e)
-                  {
-                     if(trace) log.trace("Security Exception:",e);
-                  }
-               } 
+            }
             return;
          }
-         else if(isNotNull(samlResponseMessage))
+         else if (isNotNull(samlResponseMessage))
          {
             StatusResponseType statusResponseType = null;
             try
             {
                samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlResponseMessage);
-               samlObject = (SAML2Object) samlDocumentHolder.getSamlObject();
-               
+               samlObject = samlDocumentHolder.getSamlObject();
+
                boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
                boolean isValid = false;
-               
+
                String remoteAddress = request.getRemoteAddr();
-               
-               if(isPost)
+
+               if (isPost)
                {
                   //Validate
-                  SAML2Signature samlSignature = new SAML2Signature(); 
-                  
-                  if( ignoreIncomingSignatures == false && signOutgoingMessages == true )
+                  SAML2Signature samlSignature = new SAML2Signature();
+
+                  if (ignoreIncomingSignatures == false && signOutgoingMessages == true)
                   {
                      PublicKey publicKey = keyManager.getValidatingKey(remoteAddress);
-                     isValid = samlSignature.validate(samlDocumentHolder.getSamlDocument(), publicKey); 
+                     isValid = samlSignature.validate(samlDocumentHolder.getSamlDocument(), publicKey);
                   }
                   else
                      isValid = true;
                }
                else
-               { 
-                  isValid = validate(remoteAddress,
-                        request.getQueryString(),
-                        new SessionHolder(samlResponseMessage, signature, sigAlg), isPost); 
+               {
+                  isValid = validate(remoteAddress, request.getQueryString(), new SessionHolder(samlResponseMessage,
+                        signature, sigAlg), isPost);
                }
-               
-               if(!isValid)
+
+               if (!isValid)
                   throw new GeneralSecurityException("Validation check failed");
 
                String issuer = null;
                IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
-               ProtocolContext protocolContext = new HTTPContext(request,response, context.getServletContext());
+               ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
                //Create the request/response
-               SAML2HandlerRequest saml2HandlerRequest = 
-                  new DefaultSAML2HandlerRequest(protocolContext,
-                        idpIssuer.getIssuer(), samlDocumentHolder, 
-                        HANDLER_TYPE.IDP);
+               SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
+                     idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
                saml2HandlerRequest.setRelayState(relayState);
-               
-               SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse(); 
+
+               SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
                Set<SAML2Handler> handlers = chain.handlers();
-               
-               if(samlObject instanceof StatusResponseType)
+
+               if (samlObject instanceof StatusResponseType)
                {
                   statusResponseType = (StatusResponseType) samlObject;
                   issuer = statusResponseType.getIssuer().getValue();
                   webRequestUtil.isTrusted(issuer);
-                  
-                  if(handlers != null)
-                  { 
+
+                  if (handlers != null)
+                  {
                      try
                      {
                         chainLock.lock();
@@ -631,149 +611,147 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                      finally
                      {
                         chainLock.unlock();
-                     } 
-                  }  
+                     }
+                  }
                }
                else
                   throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
 
                samlResponse = saml2HandlerResponse.getResultingDocument();
                relayState = saml2HandlerResponse.getRelayState();
-               
+
                destination = saml2HandlerResponse.getDestination();
                requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
             }
             catch (IssuerNotTrustedException e)
             {
-               if(trace) log.trace("Exception in processing request:",e);
-                
-               samlResponse =
-                     webRequestUtil.getErrorResponse(referer, 
-                         JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get(), 
-                         this.identityURL, this.signOutgoingMessages);  
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer,
+                     JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get(), this.identityURL, this.signOutgoingMessages);
             }
             catch (ParsingException e)
             {
-               if(trace) log.trace("Exception in processing request:",e);
-                
-               samlResponse =
-                  webRequestUtil.getErrorResponse(referer, 
-                      JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                      this.identityURL, this.signOutgoingMessages); 
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
             }
             catch (ConfigurationException e)
             {
-               if(trace) log.trace("Exception in processing request:",e);
-                
-               samlResponse =
-                  webRequestUtil.getErrorResponse(referer, 
-                      JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                      this.identityURL, this.signOutgoingMessages);
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
             }
             catch (IssueInstantMissingException e)
             {
-               if(trace) log.trace("Exception in processing request:",e); 
-               
-               samlResponse =
-                  webRequestUtil.getErrorResponse(referer, 
-                      JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                      this.identityURL, this.signOutgoingMessages); 
-            } 
-            catch(GeneralSecurityException e)
-            {
-               if(trace) log.trace("Exception in processing request:", e);
-               
-               samlResponse =
-                  webRequestUtil.getErrorResponse(referer, 
-                      JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                      this.identityURL, this.signOutgoingMessages); 
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
             }
-            catch(Exception e)
+            catch (GeneralSecurityException e)
             {
-               if(trace) log.trace("Exception in processing request:",e);
-               
-               samlResponse =
-                  webRequestUtil.getErrorResponse(referer, 
-                      JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(), 
-                      this.identityURL, this.signOutgoingMessages); 
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
+            }
+            catch (Exception e)
+            {
+               if (trace)
+                  log.trace("Exception in processing request:", e);
+
+               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
+                     this.identityURL, this.signOutgoingMessages);
             }
             finally
             {
                try
                {
-                  boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile(); 
-                  if( postProfile )
+                  boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
+                  if (postProfile)
                      recycle(response);
-                  
+
                   WebRequestUtilHolder holder = webRequestUtil.getHolder();
-                  holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState).setAreWeSendingRequest(willSendRequest)
-                  .setPrivateKey(null).setSupportSignature(false).setServletResponse(response).setPostBindingRequested( requestedPostProfile );
-                  
-                  if( requestedPostProfile != null )
-                     holder.setPostBindingRequested( requestedPostProfile );
+                  holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
+                        .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
+                        .setServletResponse(response).setPostBindingRequested(requestedPostProfile);
+
+                  if (requestedPostProfile != null)
+                     holder.setPostBindingRequested(requestedPostProfile);
                   else
                      holder.setPostBindingRequested(postProfile);
-                  
-                  
-                  if(this.signOutgoingMessages)
-                  { 
-                     holder.setPrivateKey( keyManager.getSigningKey() ).setSupportSignature( true );
-                  }  
-                  webRequestUtil.send( holder );
+
+                  if (this.signOutgoingMessages)
+                  {
+                     holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+                  }
+                  webRequestUtil.send(holder);
                }
                catch (ParsingException e)
                {
-                  if(trace) log.trace("Parsing exception:", e);
-               } 
+                  if (trace)
+                     log.trace("Parsing exception:", e);
+               }
                catch (GeneralSecurityException e)
                {
-                  if(trace) log.trace("Security Exception:",e);
+                  if (trace)
+                     log.trace("Security Exception:", e);
                }
-            } 
-         return;
+            }
+            return;
          }
          else
          {
             log.error("No SAML Request or Response Message");
-            if(trace) log.trace("Referer="+referer);
-            
+            if (trace)
+               log.trace("Referer=" + referer);
+
             try
             {
                sendErrorResponseToSP(referer, response, relayState, webRequestUtil);
             }
             catch (ConfigurationException e)
             {
-               if(trace) log.trace(e);
-            } 
-         } 
-      } 
+               if (trace)
+                  log.trace(e);
+            }
+         }
+      }
    }
-   
+
    protected void sendErrorResponseToSP(String referrer, Response response, String relayState,
          IDPWebRequestUtil webRequestUtil) throws ServletException, IOException, ConfigurationException
    {
-      if(trace) log.trace("About to send error response to SP:" + referrer);
-      
-      Document samlResponse =   
-         webRequestUtil.getErrorResponse(referrer, JBossSAMLURIConstants.STATUS_RESPONDER.get(),
-               this.identityURL, this.signOutgoingMessages);
+      if (trace)
+         log.trace("About to send error response to SP:" + referrer);
+
+      Document samlResponse = webRequestUtil.getErrorResponse(referrer, JBossSAMLURIConstants.STATUS_RESPONDER.get(),
+            this.identityURL, this.signOutgoingMessages);
       try
       {
 
-         boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile(); 
-         if( postProfile )
+         boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
+         if (postProfile)
             recycle(response);
-         
 
          WebRequestUtilHolder holder = webRequestUtil.getHolder();
-         holder.setResponseDoc(samlResponse).setDestination(referrer).setRelayState(relayState).setAreWeSendingRequest( false )
-         .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+         holder.setResponseDoc(samlResponse).setDestination(referrer).setRelayState(relayState)
+               .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false)
+               .setServletResponse(response);
          holder.setPostBindingRequested(postProfile);
-         
-         if(this.signOutgoingMessages)
-         { 
+
+         if (this.signOutgoingMessages)
+         {
             holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
-         } 
+         }
          webRequestUtil.send(holder);
       }
       catch (ParsingException e1)
@@ -781,15 +759,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          throw new ServletException(e1);
       }
       catch (GeneralSecurityException e)
-      { 
+      {
          throw new ServletException(e);
-      } 
+      }
    }
-   
-   protected boolean validate(String remoteAddress, 
-         String queryString,
-         SessionHolder holder, boolean isPost) throws IOException, GeneralSecurityException
-   {   
+
+   protected boolean validate(String remoteAddress, String queryString, SessionHolder holder, boolean isPost)
+         throws IOException, GeneralSecurityException
+   {
       if (!isNotNull(holder.samlRequest))
       {
          return false;
@@ -803,12 +780,12 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             log.error("Signature received from SP is null:" + remoteAddress);
             return false;
          }
-         
+
          //Check if there is a signature   
          byte[] sigValue = RedirectBindingSignatureUtil.getSignatureValueFromSignedURL(queryString);
-         if(sigValue == null)
+         if (sigValue == null)
             return false;
-         
+
          PublicKey validatingKey;
          try
          {
@@ -822,7 +799,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          {
             throw new GeneralSecurityException(e.getCause());
          }
-         
+
          return RedirectBindingSignatureUtil.validateSignature(queryString, validatingKey, sigValue);
       }
       else
@@ -831,7 +808,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          return true;
       }
    }
-   
+
    //***************Lifecycle
    /**
     * The lifecycle event support for this component.
@@ -848,32 +825,29 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
     *
     * @param listener The listener to add
     */
-   public void addLifecycleListener(LifecycleListener listener) 
+   public void addLifecycleListener(LifecycleListener listener)
    {
-       lifecycle.addLifecycleListener(listener);
+      lifecycle.addLifecycleListener(listener);
    }
-
 
    /**
     * Get the lifecycle listeners associated with this lifecycle. If this
     * Lifecycle has no listeners registered, a zero-length array is returned.
     */
-   public LifecycleListener[] findLifecycleListeners() 
+   public LifecycleListener[] findLifecycleListeners()
    {
-       return lifecycle.findLifecycleListeners();
+      return lifecycle.findLifecycleListeners();
    }
-
 
    /**
     * Remove a lifecycle event listener from this component.
     *
     * @param listener The listener to add
     */
-   public void removeLifecycleListener(LifecycleListener listener) 
+   public void removeLifecycleListener(LifecycleListener listener)
    {
-       lifecycle.removeLifecycleListener(listener);
+      lifecycle.removeLifecycleListener(listener);
    }
-
 
    /**
     * Prepare for the beginning of active use of the public methods of this
@@ -886,17 +860,16 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    public void start() throws LifecycleException
    {
       Handlers handlers = null;
-      
-       // Validate and update our current component state
-       if (started)
-           throw new LifecycleException
-               ("IDPWebBrowserSSOValve already Started");
-       lifecycle.fireLifecycleEvent(START_EVENT, null);
-       started = true;
-       
-       //Get the chain from config
-       if(StringUtil.isNullOrEmpty(samlHandlerChainClass))
-          chain = SAML2HandlerChainFactory.createChain();
+
+      // Validate and update our current component state
+      if (started)
+         throw new LifecycleException("IDPWebBrowserSSOValve already Started");
+      lifecycle.fireLifecycleEvent(START_EVENT, null);
+      started = true;
+
+      //Get the chain from config
+      if (StringUtil.isNullOrEmpty(samlHandlerChainClass))
+         chain = SAML2HandlerChainFactory.createChain();
       else
          try
          {
@@ -906,141 +879,143 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          {
             throw new LifecycleException(e1);
          }
-       
-       String configFile = GeneralConstants.CONFIG_FILE_LOCATION; 
-       
-       context = (Context) getContainer();
-       InputStream is = context.getServletContext().getResourceAsStream(configFile);
-       if(is == null)
-          throw new RuntimeException(configFile + " missing");
-       try
-       {
-          idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
-          this.identityURL = idpConfiguration.getIdentityURL(); 
-          if(trace) log.trace("Identity Provider URL=" + this.identityURL); 
-          this.assertionValidity = idpConfiguration.getAssertionValidity();
-          this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
-          log.info( "IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"  + canonicalizationMethod );
-          XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
-          
-          //Get the attribute manager
-          String attributeManager = idpConfiguration.getAttributeManager();
-          if(attributeManager != null && !"".equals(attributeManager))
-          {
-             ClassLoader tcl = SecurityActions.getContextClassLoader();
-             AttributeManager delegate = (AttributeManager) tcl.loadClass(attributeManager).newInstance();
-             this.attribManager.setDelegate(delegate);
-          }  
-       }
-       catch (Exception e)
-       {
-          throw new RuntimeException(e);
-       }
-       
-       //Ensure that the Core STS has the SAML20 Token Provider
-       PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-       //Let us look for a file
-       String configPath = context.getServletContext().getRealPath( "/WEB-INF/picketlink-sts.xml" );
-       File stsTokenConfigFile = configPath != null  ? new File( configPath ) : null ;
-       
-       if( stsTokenConfigFile == null || stsTokenConfigFile.exists() == false )
-       {
-          log.info( "Did not find picketlink-sts.xml. We will install default configuration" );
-          sts.installDefaultConfiguration(); 
-       }
-       else
-          sts.installDefaultConfiguration( configPath );
-       
-       if(this.signOutgoingMessages)
-       {
-          KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
-          if(keyProvider == null)
-             throw new LifecycleException("Key Provider is null for context=" + context.getName());
-          
-          try
-          {
-             this.keyManager = CoreConfigUtil.getTrustKeyManager(keyProvider);
-             
-             List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
-             keyManager.setAuthProperties( authProperties ); 
-             keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
-          }
-          catch(Exception e)
-          {
-             log.error("Exception reading configuration:",e);
-             throw new LifecycleException(e.getLocalizedMessage());
-          }
-          if(trace) log.trace("Key Provider=" + keyProvider.getClassName()); 
-       }
-       
-       try
-       {
-          //Get the handlers
-          String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-          handlers = ConfigurationUtil.getHandlers(context.getServletContext().getResourceAsStream(handlerConfigFileName));
-          chain.addAll(HandlerUtil.getHandlers(handlers)); 
-          
-          Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
-          chainConfigOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-          chainConfigOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
-          chainConfigOptions.put( GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod );
-          if(this.keyManager != null)
+
+      String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
+
+      context = (Context) getContainer();
+      InputStream is = context.getServletContext().getResourceAsStream(configFile);
+      if (is == null)
+         throw new RuntimeException(configFile + " missing");
+      try
+      {
+         idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
+         this.identityURL = idpConfiguration.getIdentityURL();
+         if (trace)
+            log.trace("Identity Provider URL=" + this.identityURL);
+         this.assertionValidity = idpConfiguration.getAssertionValidity();
+         this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
+         log.info("IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
+               + canonicalizationMethod);
+         XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
+
+         //Get the attribute manager
+         String attributeManager = idpConfiguration.getAttributeManager();
+         if (attributeManager != null && !"".equals(attributeManager))
+         {
+            ClassLoader tcl = SecurityActions.getContextClassLoader();
+            AttributeManager delegate = (AttributeManager) tcl.loadClass(attributeManager).newInstance();
+            this.attribManager.setDelegate(delegate);
+         }
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
+
+      //Ensure that the Core STS has the SAML20 Token Provider
+      PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+      //Let us look for a file
+      String configPath = context.getServletContext().getRealPath("/WEB-INF/picketlink-sts.xml");
+      File stsTokenConfigFile = configPath != null ? new File(configPath) : null;
+
+      if (stsTokenConfigFile == null || stsTokenConfigFile.exists() == false)
+      {
+         log.info("Did not find picketlink-sts.xml. We will install default configuration");
+         sts.installDefaultConfiguration();
+      }
+      else
+         sts.installDefaultConfiguration(configPath);
+
+      if (this.signOutgoingMessages)
+      {
+         KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
+         if (keyProvider == null)
+            throw new LifecycleException("Key Provider is null for context=" + context.getName());
+
+         try
+         {
+            this.keyManager = CoreConfigUtil.getTrustKeyManager(keyProvider);
+
+            List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
+            keyManager.setAuthProperties(authProperties);
+            keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
+         }
+         catch (Exception e)
+         {
+            log.error("Exception reading configuration:", e);
+            throw new LifecycleException(e.getLocalizedMessage());
+         }
+         if (trace)
+            log.trace("Key Provider=" + keyProvider.getClassName());
+      }
+
+      try
+      {
+         //Get the handlers
+         String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
+         handlers = ConfigurationUtil.getHandlers(context.getServletContext()
+               .getResourceAsStream(handlerConfigFileName));
+         chain.addAll(HandlerUtil.getHandlers(handlers));
+
+         Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
+         chainConfigOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
+         chainConfigOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
+         chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
+         if (this.keyManager != null)
             chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
-          
-          SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
-          
-          Set<SAML2Handler> samlHandlers = chain.handlers();
-          
-          for(SAML2Handler handler: samlHandlers)
-          {
-             handler.initChainConfig(handlerChainConfig);
-          }  
-       }
-       catch(Exception e)
-       {
-          log.error("Exception dealing with handler configuration:",e);
-          throw new LifecycleException(e.getLocalizedMessage());
-       }
-       
-       //Add some keys to the attibutes
-       String[] ak = new String[] {"mail","cn","commonname","givenname",
-             "surname","employeeType",
-             "employeeNumber",
-             "facsimileTelephoneNumber"};
-       
-       this.attributeKeys.addAll(Arrays.asList(ak));
-       
-       //The Identity Server on the servlet context gets set
-       //in the implementation of IdentityServer
-       //Create an Identity Server and set it on the context
-       IdentityServer identityServer = (IdentityServer) context.getServletContext().getAttribute(GeneralConstants.IDENTITY_SERVER);
-       if(identityServer == null)
-       {
-          identityServer = new IdentityServer();
-          context.getServletContext().setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer);
-          if( StringUtil.isNotNull( this.identityParticipantStack ))
-          {
-             try
+
+         SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
+
+         Set<SAML2Handler> samlHandlers = chain.handlers();
+
+         for (SAML2Handler handler : samlHandlers)
+         {
+            handler.initChainConfig(handlerChainConfig);
+         }
+      }
+      catch (Exception e)
+      {
+         log.error("Exception dealing with handler configuration:", e);
+         throw new LifecycleException(e.getLocalizedMessage());
+      }
+
+      //Add some keys to the attibutes
+      String[] ak = new String[]
+      {"mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber", "facsimileTelephoneNumber"};
+
+      this.attributeKeys.addAll(Arrays.asList(ak));
+
+      //The Identity Server on the servlet context gets set
+      //in the implementation of IdentityServer
+      //Create an Identity Server and set it on the context
+      IdentityServer identityServer = (IdentityServer) context.getServletContext().getAttribute(
+            GeneralConstants.IDENTITY_SERVER);
+      if (identityServer == null)
+      {
+         identityServer = new IdentityServer();
+         context.getServletContext().setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer);
+         if (StringUtil.isNotNull(this.identityParticipantStack))
+         {
+            try
             {
-               Class<?> stackClass = SecurityActions.getContextClassLoader().loadClass( this.identityParticipantStack );
-               identityServer.setStack( (IdentityParticipantStack) stackClass.newInstance() );
+               Class<?> stackClass = SecurityActions.getContextClassLoader().loadClass(this.identityParticipantStack);
+               identityServer.setStack((IdentityParticipantStack) stackClass.newInstance());
             }
             catch (ClassNotFoundException e)
-            { 
-               log.error( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+            {
+               log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
             }
             catch (InstantiationException e)
             {
-               log.error( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+               log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
             }
             catch (IllegalAccessException e)
             {
-               log.error( "Unable to set the Identity Participant Stack Class. Will just use the default", e );
+               log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
             }
-          }
-       } 
+         }
+      }
    }
-
 
    /**
     * Gracefully terminate the active use of the public methods of this
@@ -1050,31 +1025,33 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
     * @exception LifecycleException if this component detects a fatal error
     *  that needs to be reported
     */
-   public void stop() throws LifecycleException 
+   public void stop() throws LifecycleException
    {
-       // Validate and update our current component state
-       if (!started)
-           throw new LifecycleException
-               ("IDPWebBrowserSSOValve NotStarted");
-       lifecycle.fireLifecycleEvent(STOP_EVENT, null);
-       started = false;
-   } 
+      // Validate and update our current component state
+      if (!started)
+         throw new LifecycleException("IDPWebBrowserSSOValve NotStarted");
+      lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+      started = false;
+   }
+
    //Private Methods 
-   
+
    protected static class SessionHolder
    {
       String samlRequest;
+
       String signature;
-      String sigAlg; 
-      
+
+      String sigAlg;
+
       public SessionHolder(String req, String sig, String alg)
       {
          this.samlRequest = req;
          this.signature = sig;
-         this.sigAlg = alg; 
+         this.sigAlg = alg;
       }
    }
-   
+
    private void recycle(Response response)
    {
       /**
