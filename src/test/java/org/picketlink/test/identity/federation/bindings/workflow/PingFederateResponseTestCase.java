@@ -21,6 +21,7 @@
  */
 package org.picketlink.test.identity.federation.bindings.workflow;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.catalina.deploy.LoginConfig;
 import org.junit.Test;
@@ -52,72 +55,81 @@ import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession
  */
 public class PingFederateResponseTestCase
 {
-   private String profile = "saml2/post";
-   private ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-   
+   private final String profile = "saml2/post";
+
+   private final ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+
+   @SuppressWarnings("unchecked")
    @Test
    public void testSP() throws Exception
-   { 
+   {
       MockCatalinaSession session = new MockCatalinaSession();
       //First we go to the employee application
       MockCatalinaContextClassLoader mclSPEmp = setupTCL(profile + "/ping");
       Thread.currentThread().setContextClassLoader(mclSPEmp);
       SPPostFormAuthenticator spEmpl = new SPPostFormAuthenticator();
-      
+
       MockCatalinaContext context = new MockCatalinaContext();
       spEmpl.setContainer(context);
-      spEmpl.testStart();  
-      
+      spEmpl.testStart();
 
       MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
       catalinaRequest.setSession(session);
       catalinaRequest.setContext(context);
-      
-      String idpResponse = PostBindingUtil.base64Encode( new String( readIDPResponse()) );
-      
-      catalinaRequest.setParameter( GeneralConstants.SAML_RESPONSE_KEY, idpResponse  );
-     
+
+      String idpResponse = PostBindingUtil.base64Encode(new String(readIDPResponse()));
+
+      catalinaRequest.setParameter(GeneralConstants.SAML_RESPONSE_KEY, idpResponse);
+
       MockCatalinaResponse catalinaResponse = new MockCatalinaResponse();
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       catalinaResponse.setWriter(new PrintWriter(baos));
-      
+
       LoginConfig loginConfig = new LoginConfig();
-      assertTrue( spEmpl.authenticate(catalinaRequest, catalinaResponse, loginConfig) );
+      assertTrue(spEmpl.authenticate(catalinaRequest, catalinaResponse, loginConfig));
+
+      Map<String, List<Object>> sessionMap = (Map<String, List<Object>>) session
+            .getAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP);
+      assertNotNull(sessionMap);
+      assertEquals("asptest_email", sessionMap.get("email").get(0));
+      assertEquals("asptest_zipcode", sessionMap.get("zipcode").get(0));
    }
-   
+
    private byte[] readIDPResponse() throws IOException
    {
-      File file = new File( tcl.getResource("responseIDP/pingidp.xml").getPath() );
-      InputStream is = new FileInputStream( file );
-      assertNotNull( is );
-       
+      File file = new File(tcl.getResource("responseIDP/pingidp.xml").getPath());
+      InputStream is = new FileInputStream(file);
+      assertNotNull(is);
+
       long length = file.length();
 
       // Create the byte array to hold the data
-      byte[] bytes = new byte[(int)length];
+      byte[] bytes = new byte[(int) length];
 
       // Read in the bytes
       int offset = 0;
       int numRead = 0;
-      while (offset < bytes.length
-             && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
-          offset += numRead;
+      while (offset < bytes.length && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0)
+      {
+         offset += numRead;
       }
 
       // Ensure all the bytes have been read in
-      if (offset < bytes.length) {
-          throw new IOException("Could not completely read file "+file.getName());
+      if (offset < bytes.length)
+      {
+         throw new IOException("Could not completely read file " + file.getName());
       }
 
       // Close the input stream and return bytes
       is.close();
-      return bytes; 
+      return bytes;
    }
-   
+
    private MockCatalinaContextClassLoader setupTCL(String resource)
    {
-      URL[] urls = new URL[] {tcl.getResource(resource)};
-      
+      URL[] urls = new URL[]
+      {tcl.getResource(resource)};
+
       MockCatalinaContextClassLoader mcl = new MockCatalinaContextClassLoader(urls);
       mcl.setDelegate(tcl);
       mcl.setProfile(resource);
