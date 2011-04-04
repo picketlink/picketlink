@@ -680,6 +680,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                      recycle(response);
 
                   WebRequestUtilHolder holder = webRequestUtil.getHolder();
+                  if (destination == null)
+                     throw new ServletException("Destination is null");
                   holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                         .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
                         .setServletResponse(response).setPostBindingRequested(requestedPostProfile);
