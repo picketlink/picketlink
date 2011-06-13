@@ -35,7 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -157,14 +156,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    //Set a list of attributes we are interested in separated by comma
    public void setAttributeList(String attribList)
    {
-      if (attribList != null && !"".equals(attribList))
+      if (StringUtil.isNotNull(attribList))
       {
          this.attributeKeys.clear();
-         StringTokenizer st = new StringTokenizer(attribList, ",");
-         while (st != null && st.hasMoreTokens())
-         {
-            this.attributeKeys.add(st.nextToken());
-         }
+         this.attributeKeys.addAll(StringUtil.tokenize(attribList));
       }
    }
 
