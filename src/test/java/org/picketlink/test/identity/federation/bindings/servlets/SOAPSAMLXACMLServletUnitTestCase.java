@@ -33,7 +33,6 @@ import java.util.HashMap;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPMessage;
@@ -45,6 +44,7 @@ import org.junit.Test;
 import org.picketlink.identity.federation.bindings.servlets.SOAPSAMLXACMLServlet;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
+import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -88,7 +88,7 @@ public class SOAPSAMLXACMLServletUnitTestCase
 
       bis = new ByteArrayInputStream(baos.toByteArray());
 
-      SOAPMessage soapMessage = SOAPSAMLXACMLUtil.getSOAPMessage(bis);
+      SOAPMessage soapMessage = SOAPUtil.getSOAPMessage(bis);
       Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
       assertTrue(xacmlNode instanceof Element);
       Element xacmlElement = (Element) xacmlNode;
@@ -129,7 +129,7 @@ public class SOAPSAMLXACMLServletUnitTestCase
 
       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
 
-      SOAPMessage soapMessage = SOAPSAMLXACMLUtil.getSOAPMessage(bis);
+      SOAPMessage soapMessage = SOAPUtil.getSOAPMessage(bis);
 
       Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
       XACMLAuthzDecisionStatementType xacmlStatement = SOAPSAMLXACMLUtil.getDecisionStatement(xacmlNode);
@@ -169,8 +169,7 @@ public class SOAPSAMLXACMLServletUnitTestCase
 
    private InputStream getSOAPStream(InputStream dataStream) throws Exception
    {
-      MessageFactory messageFactory = MessageFactory.newInstance();
-      SOAPMessage message = messageFactory.createMessage();
+      SOAPMessage message = SOAPUtil.create();
       SOAPPart soapPart = message.getSOAPPart();
       SOAPEnvelope envelope = soapPart.getEnvelope();
       SOAPBody body = envelope.getBody();
