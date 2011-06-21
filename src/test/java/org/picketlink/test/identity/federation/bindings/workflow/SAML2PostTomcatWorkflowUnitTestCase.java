@@ -43,8 +43,8 @@ import org.picketlink.identity.federation.bindings.tomcat.sp.SPPostFormAuthentic
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;

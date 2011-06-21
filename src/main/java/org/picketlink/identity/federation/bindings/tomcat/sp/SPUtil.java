@@ -35,16 +35,16 @@ import org.picketlink.identity.federation.core.saml.v2.common.StatementLocal;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.AttributeType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.NameIDType;
-import org.picketlink.identity.federation.newmodel.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.ResponseType.RTChoiceType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
+import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
+import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
 
 /**
  * Common code useful for a SP

@@ -29,8 +29,8 @@ import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.AuthnRequestType;
-import org.picketlink.identity.federation.newmodel.saml.v2.protocol.RequestAbstractType;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 
 /**

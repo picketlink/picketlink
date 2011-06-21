@@ -61,11 +61,11 @@ import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EndpointType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntitiesDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.IDPSSODescriptorType;
-import org.picketlink.identity.federation.newmodel.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 

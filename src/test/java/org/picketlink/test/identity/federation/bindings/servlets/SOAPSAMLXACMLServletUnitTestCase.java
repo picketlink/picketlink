@@ -45,7 +45,7 @@ import org.picketlink.identity.federation.bindings.servlets.SOAPSAMLXACMLServlet
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.identity.federation.newmodel.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.profiles.xacml.assertion.XACMLAuthzDecisionStatementType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
