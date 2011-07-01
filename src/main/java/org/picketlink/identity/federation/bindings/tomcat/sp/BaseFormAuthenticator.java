@@ -47,7 +47,6 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataExtractor;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -57,6 +56,7 @@ import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerC
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChain;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -68,6 +68,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
+import org.w3c.dom.Document;
 
 /**
  * Base Class for Service Provider Form Authenticators
@@ -313,13 +314,14 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
       if (is == null)
          return;
 
-      SAMLParser parser = new SAMLParser();
       Object metadata = null;
       try
       {
-         metadata = parser.parse(is);
+         Document samlDocument = DocumentUtil.getDocument(is);
+         SAMLParser parser = new SAMLParser();
+         metadata = parser.parse(DocumentUtil.getNodeAsStream(samlDocument));
       }
-      catch (ParsingException e)
+      catch (Exception e)
       {
          throw new RuntimeException(e);
       }
