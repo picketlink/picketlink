@@ -87,6 +87,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
@@ -863,6 +864,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          throw new LifecycleException("IDPWebBrowserSSOValve already Started");
       lifecycle.fireLifecycleEvent(START_EVENT, null);
       started = true;
+
+      SystemPropertiesUtil.ensure();
 
       //Get the chain from config
       if (StringUtil.isNullOrEmpty(samlHandlerChainClass))
