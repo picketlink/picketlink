@@ -70,7 +70,6 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAML2HandlerChainFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
@@ -453,53 +452,17 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
                requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
             }
-            catch (IssuerNotTrustedException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer,
-                     JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get(), this.identityURL, this.signOutgoingMessages);
-            }
-            catch (ParsingException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
-            }
-            catch (ConfigurationException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
-            }
-            catch (IssueInstantMissingException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
-            }
-            catch (GeneralSecurityException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
-            }
             catch (Exception e)
             {
+               String status = JBossSAMLURIConstants.STATUS_AUTHNFAILED.get();
+               if (e instanceof IssuerNotTrustedException)
+               {
+                  status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
+               }
                if (trace)
                   log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
+               samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL,
+                     this.signOutgoingMessages);
             }
             finally
             {
@@ -619,53 +582,15 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                destination = saml2HandlerResponse.getDestination();
                requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
             }
-            catch (IssuerNotTrustedException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer,
-                     JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get(), this.identityURL, this.signOutgoingMessages);
-            }
-            catch (ParsingException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
-            }
-            catch (ConfigurationException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
-            }
-            catch (IssueInstantMissingException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
-            }
-            catch (GeneralSecurityException e)
-            {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
-            }
             catch (Exception e)
             {
-               if (trace)
-                  log.trace("Exception in processing request:", e);
-
-               samlResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                     this.identityURL, this.signOutgoingMessages);
+               String status = JBossSAMLURIConstants.STATUS_AUTHNFAILED.get();
+               if (e instanceof IssuerNotTrustedException)
+               {
+                  status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
+               }
+               samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL,
+                     this.signOutgoingMessages);
             }
             finally
             {
