@@ -459,8 +459,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                {
                   status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
                }
-               if (trace)
-                  log.trace("Exception in processing request:", e);
+               log.error("Exception in processing request:", e);
                samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL,
                      this.signOutgoingMessages);
             }
@@ -589,6 +588,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                {
                   status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
                }
+               log.error("Exception in processing request:", e);
                samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL,
                      this.signOutgoingMessages);
             }
