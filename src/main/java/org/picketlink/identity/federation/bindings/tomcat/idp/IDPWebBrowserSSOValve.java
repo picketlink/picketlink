@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
@@ -100,6 +99,9 @@ import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SAML11SubjectTypeChoice;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
@@ -364,9 +366,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             }
             else
             {
-               //Send it to the hosted page
-               RequestDispatcher dispatch = request.getRequestDispatcher("/hosted/");
-               dispatch.forward(request, response);
+               getNext().invoke(request, response);
             }
             /*log.error("No SAML Request or Response Message");
             if (trace)
@@ -390,6 +390,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    {
       try
       {
+         Principal userPrincipal = request.getPrincipal();
+
          String target = request.getParameter(SAML11Constants.TARGET);
 
          Session session = request.getSessionInternal();
@@ -397,6 +399,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          if (saml11Assertion == null)
          {
             SAML11ProtocolContext saml11Protocol = new SAML11ProtocolContext();
+            saml11Protocol.setIssuerID(this.identityURL);
+            SAML11SubjectType subject = new SAML11SubjectType();
+            SAML11SubjectTypeChoice subjectChoice = new SAML11SubjectTypeChoice(new SAML11NameIdentifierType(
+                  userPrincipal.getName()));
+            subject.setChoice(subjectChoice);
+            saml11Protocol.setSubjectType(subject);
+
             PicketLinkCoreSTS.instance().issueToken(saml11Protocol);
             saml11Assertion = saml11Protocol.getIssuedAssertion();
             session.setNote("SAML11", saml11Assertion);
