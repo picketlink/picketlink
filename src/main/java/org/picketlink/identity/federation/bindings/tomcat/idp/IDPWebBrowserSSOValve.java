@@ -329,307 +329,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             log.trace(builder.toString());
          }
 
-         if (isNotNull(samlRequestMessage))
-            session.removeNote(GeneralConstants.SAML_REQUEST_KEY);
-         if (isNotNull(samlResponseMessage))
-            session.removeNote(GeneralConstants.SAML_RESPONSE_KEY);
-
-         if (isNotNull(relayState))
-            session.removeNote(GeneralConstants.RELAY_STATE);
-
-         if (isNotNull(signature))
-            session.removeNote("Signature");
-         if (isNotNull(sigAlg))
-            session.removeNote("sigAlg");
-
-         boolean willSendRequest = false;
-
-         SAMLDocumentHolder samlDocumentHolder = null;
-         SAML2Object samlObject = null;
-
-         Document samlResponse = null;
-         String destination = null;
-
-         Boolean requestedPostProfile = null;
-
          //Send valid saml response after processing the request
          if (samlRequestMessage != null)
          {
-            //Get the SAML Request Message
-            RequestAbstractType requestAbstractType = null;
-
-            try
-            {
-               samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
-               samlObject = samlDocumentHolder.getSamlObject();
-
-               boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
-               boolean isValid = validate(request.getRemoteAddr(), request.getQueryString(), new SessionHolder(
-                     samlRequestMessage, signature, sigAlg), isPost);
-
-               if (!isValid)
-                  throw new GeneralSecurityException("Validation check failed");
-
-               String issuer = null;
-               IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
-               ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
-               //Create the request/response
-               SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
-                     idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
-               saml2HandlerRequest.setRelayState(relayState);
-
-               String assertionID = (String) session.getSession().getAttribute(GeneralConstants.ASSERTION_ID);
-
-               //Set the options on the handler request
-               Map<String, Object> requestOptions = new HashMap<String, Object>();
-               if (this.ignoreIncomingSignatures)
-                  requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, Boolean.TRUE);
-               requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-               requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
-               requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
-               if (assertionID != null)
-                  requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID);
-
-               if (this.keyManager != null)
-               {
-                  String remoteHost = request.getRemoteAddr();
-                  if (trace)
-                  {
-                     log.trace("Remote Host=" + remoteHost);
-                  }
-                  PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost);
-                  requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
-                  requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
-               }
-
-               Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
-               requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
-
-               saml2HandlerRequest.setOptions(requestOptions);
-
-               List<String> roles = roleGenerator.generateRoles(userPrincipal);
-               session.getSession().setAttribute(GeneralConstants.ROLES_ID, roles);
-
-               SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
-
-               Set<SAML2Handler> handlers = chain.handlers();
-
-               if (trace)
-               {
-                  log.trace("Handlers are=" + handlers);
-               }
-
-               if (samlObject instanceof RequestAbstractType)
-               {
-                  requestAbstractType = (RequestAbstractType) samlObject;
-                  issuer = requestAbstractType.getIssuer().getValue();
-                  webRequestUtil.isTrusted(issuer);
-
-                  if (handlers != null)
-                  {
-                     try
-                     {
-                        chainLock.lock();
-                        for (SAML2Handler handler : handlers)
-                        {
-                           handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
-                           willSendRequest = saml2HandlerResponse.getSendRequest();
-                        }
-                     }
-                     finally
-                     {
-                        chainLock.unlock();
-                     }
-                  }
-               }
-               else
-                  throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
-
-               samlResponse = saml2HandlerResponse.getResultingDocument();
-               relayState = saml2HandlerResponse.getRelayState();
-
-               destination = saml2HandlerResponse.getDestination();
-
-               requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
-            }
-            catch (Exception e)
-            {
-               String status = JBossSAMLURIConstants.STATUS_AUTHNFAILED.get();
-               if (e instanceof IssuerNotTrustedException)
-               {
-                  status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
-               }
-               log.error("Exception in processing request:", e);
-               samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL,
-                     this.signOutgoingMessages);
-            }
-            finally
-            {
-               try
-               {
-                  boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-                  if (postProfile)
-                     recycle(response);
-
-                  WebRequestUtilHolder holder = webRequestUtil.getHolder();
-                  holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
-                        .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
-                        .setServletResponse(response);
-
-                  if (requestedPostProfile != null)
-                     holder.setPostBindingRequested(requestedPostProfile);
-                  else
-                     holder.setPostBindingRequested(postProfile);
-
-                  if (this.signOutgoingMessages)
-                  {
-                     holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
-                  }
-
-                  webRequestUtil.send(holder);
-               }
-               catch (ParsingException e)
-               {
-                  if (trace)
-                     log.trace("Parsing exception:", e);
-               }
-               catch (GeneralSecurityException e)
-               {
-                  if (trace)
-                     log.trace("Security Exception:", e);
-               }
-            }
-            return;
+            processSAMLRequestMessage(webRequestUtil, request, response);
          }
          else if (isNotNull(samlResponseMessage))
          {
-            StatusResponseType statusResponseType = null;
-            try
-            {
-               samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlResponseMessage);
-               samlObject = samlDocumentHolder.getSamlObject();
-
-               boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
-               boolean isValid = false;
-
-               String remoteAddress = request.getRemoteAddr();
-
-               if (isPost)
-               {
-                  //Validate
-                  SAML2Signature samlSignature = new SAML2Signature();
-
-                  if (ignoreIncomingSignatures == false && signOutgoingMessages == true)
-                  {
-                     PublicKey publicKey = keyManager.getValidatingKey(remoteAddress);
-                     isValid = samlSignature.validate(samlDocumentHolder.getSamlDocument(), publicKey);
-                  }
-                  else
-                     isValid = true;
-               }
-               else
-               {
-                  isValid = validate(remoteAddress, request.getQueryString(), new SessionHolder(samlResponseMessage,
-                        signature, sigAlg), isPost);
-               }
-
-               if (!isValid)
-                  throw new GeneralSecurityException("Validation check failed");
-
-               String issuer = null;
-               IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
-               ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
-               //Create the request/response
-               SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
-                     idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
-               saml2HandlerRequest.setRelayState(relayState);
-
-               SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
-
-               Set<SAML2Handler> handlers = chain.handlers();
-
-               if (samlObject instanceof StatusResponseType)
-               {
-                  statusResponseType = (StatusResponseType) samlObject;
-                  issuer = statusResponseType.getIssuer().getValue();
-                  webRequestUtil.isTrusted(issuer);
-
-                  if (handlers != null)
-                  {
-                     try
-                     {
-                        chainLock.lock();
-                        for (SAML2Handler handler : handlers)
-                        {
-                           handler.reset();
-                           handler.handleStatusResponseType(saml2HandlerRequest, saml2HandlerResponse);
-                           willSendRequest = saml2HandlerResponse.getSendRequest();
-                        }
-                     }
-                     finally
-                     {
-                        chainLock.unlock();
-                     }
-                  }
-               }
-               else
-                  throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
-
-               samlResponse = saml2HandlerResponse.getResultingDocument();
-               relayState = saml2HandlerResponse.getRelayState();
-
-               destination = saml2HandlerResponse.getDestination();
-               requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
-            }
-            catch (Exception e)
-            {
-               String status = JBossSAMLURIConstants.STATUS_AUTHNFAILED.get();
-               if (e instanceof IssuerNotTrustedException)
-               {
-                  status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
-               }
-               log.error("Exception in processing request:", e);
-               samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL,
-                     this.signOutgoingMessages);
-            }
-            finally
-            {
-               try
-               {
-                  boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
-                  if (postProfile)
-                     recycle(response);
-
-                  WebRequestUtilHolder holder = webRequestUtil.getHolder();
-                  if (destination == null)
-                     throw new ServletException("Destination is null");
-                  holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
-                        .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
-                        .setServletResponse(response).setPostBindingRequested(requestedPostProfile);
-
-                  if (requestedPostProfile != null)
-                     holder.setPostBindingRequested(requestedPostProfile);
-                  else
-                     holder.setPostBindingRequested(postProfile);
-
-                  if (this.signOutgoingMessages)
-                  {
-                     holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
-                  }
-                  webRequestUtil.send(holder);
-               }
-               catch (ParsingException e)
-               {
-                  if (trace)
-                     log.trace("Parsing exception:", e);
-               }
-               catch (GeneralSecurityException e)
-               {
-                  if (trace)
-                     log.trace("Security Exception:", e);
-               }
-            }
-            return;
+            processSAMLResponseMessage(webRequestUtil, request, response);
          }
          else
          {
@@ -648,6 +355,369 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             }
          }
       }
+   }
+
+   protected void processSAMLRequestMessage(IDPWebRequestUtil webRequestUtil, Request request, Response response)
+         throws IOException
+   {
+      Principal userPrincipal = request.getPrincipal();
+      Session session = request.getSessionInternal();
+      SAMLDocumentHolder samlDocumentHolder = null;
+      SAML2Object samlObject = null;
+
+      Document samlResponse = null;
+      String destination = null;
+
+      Boolean requestedPostProfile = null;
+
+      //Get the SAML Request Message
+      RequestAbstractType requestAbstractType = null;
+      String samlRequestMessage = (String) session.getNote(GeneralConstants.SAML_REQUEST_KEY);
+
+      String relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
+      String signature = (String) session.getNote("Signature");
+      String sigAlg = (String) session.getNote("sigAlg");
+
+      boolean willSendRequest = false;
+
+      String referer = request.getHeader("Referer");
+
+      cleanUpSessionNote(request);
+
+      try
+      {
+         samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
+         samlObject = samlDocumentHolder.getSamlObject();
+
+         boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
+         boolean isValid = validate(request.getRemoteAddr(), request.getQueryString(), new SessionHolder(
+               samlRequestMessage, signature, sigAlg), isPost);
+
+         if (!isValid)
+            throw new GeneralSecurityException("Validation check failed");
+
+         String issuer = null;
+         IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
+         ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
+         //Create the request/response
+         SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
+               idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
+         saml2HandlerRequest.setRelayState(relayState);
+
+         String assertionID = (String) session.getSession().getAttribute(GeneralConstants.ASSERTION_ID);
+
+         //Set the options on the handler request
+         Map<String, Object> requestOptions = new HashMap<String, Object>();
+         if (this.ignoreIncomingSignatures)
+            requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, Boolean.TRUE);
+         requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
+         requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
+         requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
+         if (assertionID != null)
+            requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID);
+
+         if (this.keyManager != null)
+         {
+            String remoteHost = request.getRemoteAddr();
+            if (trace)
+            {
+               log.trace("Remote Host=" + remoteHost);
+            }
+            PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost);
+            requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
+            requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+         }
+
+         Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
+         requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+
+         saml2HandlerRequest.setOptions(requestOptions);
+
+         List<String> roles = roleGenerator.generateRoles(userPrincipal);
+         session.getSession().setAttribute(GeneralConstants.ROLES_ID, roles);
+
+         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
+
+         Set<SAML2Handler> handlers = chain.handlers();
+
+         if (trace)
+         {
+            log.trace("Handlers are=" + handlers);
+         }
+
+         if (samlObject instanceof RequestAbstractType)
+         {
+            requestAbstractType = (RequestAbstractType) samlObject;
+            issuer = requestAbstractType.getIssuer().getValue();
+            webRequestUtil.isTrusted(issuer);
+
+            if (handlers != null)
+            {
+               try
+               {
+                  chainLock.lock();
+                  for (SAML2Handler handler : handlers)
+                  {
+                     handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
+                     willSendRequest = saml2HandlerResponse.getSendRequest();
+                  }
+               }
+               finally
+               {
+                  chainLock.unlock();
+               }
+            }
+         }
+         else
+            throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
+
+         samlResponse = saml2HandlerResponse.getResultingDocument();
+         relayState = saml2HandlerResponse.getRelayState();
+
+         destination = saml2HandlerResponse.getDestination();
+
+         requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
+      }
+      catch (Exception e)
+      {
+         String status = JBossSAMLURIConstants.STATUS_AUTHNFAILED.get();
+         if (e instanceof IssuerNotTrustedException)
+         {
+            status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
+         }
+         log.error("Exception in processing request:", e);
+         samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL, this.signOutgoingMessages);
+      }
+      finally
+      {
+         try
+         {
+            boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
+            if (postProfile)
+               recycle(response);
+
+            WebRequestUtilHolder holder = webRequestUtil.getHolder();
+            holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
+                  .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
+                  .setServletResponse(response);
+
+            if (requestedPostProfile != null)
+               holder.setPostBindingRequested(requestedPostProfile);
+            else
+               holder.setPostBindingRequested(postProfile);
+
+            if (this.signOutgoingMessages)
+            {
+               holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+            }
+
+            webRequestUtil.send(holder);
+         }
+         catch (ParsingException e)
+         {
+            if (trace)
+               log.trace("Parsing exception:", e);
+         }
+         catch (GeneralSecurityException e)
+         {
+            if (trace)
+               log.trace("Security Exception:", e);
+         }
+      }
+      return;
+   }
+
+   protected void processSAMLResponseMessage(IDPWebRequestUtil webRequestUtil, Request request, Response response)
+         throws ServletException, IOException
+   {
+      Session session = request.getSessionInternal();
+      SAMLDocumentHolder samlDocumentHolder = null;
+      SAML2Object samlObject = null;
+
+      Document samlResponse = null;
+      String destination = null;
+
+      Boolean requestedPostProfile = null;
+
+      //Get the SAML Response Message 
+      String samlResponseMessage = (String) session.getNote(GeneralConstants.SAML_RESPONSE_KEY);
+      String relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
+      String signature = (String) session.getNote("Signature");
+      String sigAlg = (String) session.getNote("sigAlg");
+
+      boolean willSendRequest = false;
+
+      String referer = request.getHeader("Referer");
+
+      cleanUpSessionNote(request);
+
+      StatusResponseType statusResponseType = null;
+      try
+      {
+         samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlResponseMessage);
+         samlObject = samlDocumentHolder.getSamlObject();
+
+         boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
+         boolean isValid = false;
+
+         String remoteAddress = request.getRemoteAddr();
+
+         if (isPost)
+         {
+            //Validate
+            SAML2Signature samlSignature = new SAML2Signature();
+
+            if (ignoreIncomingSignatures == false && signOutgoingMessages == true)
+            {
+               PublicKey publicKey = keyManager.getValidatingKey(remoteAddress);
+               isValid = samlSignature.validate(samlDocumentHolder.getSamlDocument(), publicKey);
+            }
+            else
+               isValid = true;
+         }
+         else
+         {
+            isValid = validate(remoteAddress, request.getQueryString(), new SessionHolder(samlResponseMessage,
+                  signature, sigAlg), isPost);
+         }
+
+         if (!isValid)
+            throw new GeneralSecurityException("Validation check failed");
+
+         String issuer = null;
+         IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
+         ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
+         //Create the request/response
+         SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
+               idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
+         saml2HandlerRequest.setRelayState(relayState);
+
+         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
+
+         Set<SAML2Handler> handlers = chain.handlers();
+
+         if (samlObject instanceof StatusResponseType)
+         {
+            statusResponseType = (StatusResponseType) samlObject;
+            issuer = statusResponseType.getIssuer().getValue();
+            webRequestUtil.isTrusted(issuer);
+
+            if (handlers != null)
+            {
+               try
+               {
+                  chainLock.lock();
+                  for (SAML2Handler handler : handlers)
+                  {
+                     handler.reset();
+                     handler.handleStatusResponseType(saml2HandlerRequest, saml2HandlerResponse);
+                     willSendRequest = saml2HandlerResponse.getSendRequest();
+                  }
+               }
+               finally
+               {
+                  chainLock.unlock();
+               }
+            }
+         }
+         else
+            throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
+
+         samlResponse = saml2HandlerResponse.getResultingDocument();
+         relayState = saml2HandlerResponse.getRelayState();
+
+         destination = saml2HandlerResponse.getDestination();
+         requestedPostProfile = saml2HandlerResponse.isPostBindingForResponse();
+      }
+      catch (Exception e)
+      {
+         String status = JBossSAMLURIConstants.STATUS_AUTHNFAILED.get();
+         if (e instanceof IssuerNotTrustedException)
+         {
+            status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
+         }
+         log.error("Exception in processing request:", e);
+         samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL, this.signOutgoingMessages);
+      }
+      finally
+      {
+         try
+         {
+            boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
+            if (postProfile)
+               recycle(response);
+
+            WebRequestUtilHolder holder = webRequestUtil.getHolder();
+            if (destination == null)
+               throw new ServletException("Destination is null");
+            holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
+                  .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
+                  .setServletResponse(response).setPostBindingRequested(requestedPostProfile);
+
+            if (requestedPostProfile != null)
+               holder.setPostBindingRequested(requestedPostProfile);
+            else
+               holder.setPostBindingRequested(postProfile);
+
+            if (this.signOutgoingMessages)
+            {
+               holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+            }
+            webRequestUtil.send(holder);
+         }
+         catch (ParsingException e)
+         {
+            if (trace)
+               log.trace("Parsing exception:", e);
+         }
+         catch (GeneralSecurityException e)
+         {
+            if (trace)
+               log.trace("Security Exception:", e);
+         }
+      }
+      return;
+   }
+
+   protected void cleanUpSessionNote(Request request)
+   {
+      Session session = request.getSessionInternal();
+      /**
+       * Since the container has finished the authentication,
+       * we can retrieve the original saml message as well as
+       * any relay state from the SP
+       */
+      String samlRequestMessage = (String) session.getNote(GeneralConstants.SAML_REQUEST_KEY);
+
+      String samlResponseMessage = (String) session.getNote(GeneralConstants.SAML_RESPONSE_KEY);
+      String relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
+      String signature = (String) session.getNote("Signature");
+      String sigAlg = (String) session.getNote("sigAlg");
+
+      if (trace)
+      {
+         StringBuilder builder = new StringBuilder();
+         builder.append("Retrieved saml messages and relay state from session");
+         builder.append("saml Request message=").append(samlRequestMessage);
+         builder.append("::").append("SAMLResponseMessage=");
+         builder.append(samlResponseMessage).append(":").append("relay state=").append(relayState);
+
+         builder.append("Signature=").append(signature).append("::sigAlg=").append(sigAlg);
+         log.trace(builder.toString());
+      }
+
+      if (isNotNull(samlRequestMessage))
+         session.removeNote(GeneralConstants.SAML_REQUEST_KEY);
+      if (isNotNull(samlResponseMessage))
+         session.removeNote(GeneralConstants.SAML_RESPONSE_KEY);
+
+      if (isNotNull(relayState))
+         session.removeNote(GeneralConstants.RELAY_STATE);
+
+      if (isNotNull(signature))
+         session.removeNote("Signature");
+      if (isNotNull(sigAlg))
+         session.removeNote("sigAlg");
    }
 
    protected void sendErrorResponseToSP(String referrer, Response response, String relayState,
