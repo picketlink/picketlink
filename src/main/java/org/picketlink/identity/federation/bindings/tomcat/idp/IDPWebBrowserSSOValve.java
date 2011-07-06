@@ -23,6 +23,8 @@ package org.picketlink.identity.federation.bindings.tomcat.idp;
 
 import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +40,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
@@ -68,6 +71,10 @@ import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
+import org.picketlink.identity.federation.core.saml.v1.SAML11ProtocolContext;
+import org.picketlink.identity.federation.core.saml.v1.writers.SAML11ResponseWriter;
+import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
@@ -82,12 +89,19 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCh
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
+import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
@@ -341,7 +355,20 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          else
          {
             //TODO: PLFED-193
-            log.error("No SAML Request or Response Message");
+            String target = request.getParameter(SAML11Constants.TARGET);
+            if (isNotNull(target))
+            {
+               //We have SAML 1.1 IDP first scenario. Now we need to create a SAMLResponse and send back
+               //to SP as per target
+               handleSAML11(webRequestUtil, request, response);
+            }
+            else
+            {
+               //Send it to the hosted page
+               RequestDispatcher dispatch = request.getRequestDispatcher("/hosted/");
+               dispatch.forward(request, response);
+            }
+            /*log.error("No SAML Request or Response Message");
             if (trace)
                log.trace("Referer=" + referer);
 
@@ -353,8 +380,56 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             {
                if (trace)
                   log.trace(e);
+            }*/
+         }
+      }
+   }
+
+   protected void handleSAML11(IDPWebRequestUtil webRequestUtil, Request request, Response response)
+         throws ServletException, IOException
+   {
+      try
+      {
+         String target = request.getParameter(SAML11Constants.TARGET);
+
+         Session session = request.getSessionInternal();
+         SAML11AssertionType saml11Assertion = (SAML11AssertionType) session.getNote("SAML11");
+         if (saml11Assertion == null)
+         {
+            SAML11ProtocolContext saml11Protocol = new SAML11ProtocolContext();
+            PicketLinkCoreSTS.instance().issueToken(saml11Protocol);
+            saml11Assertion = saml11Protocol.getIssuedAssertion();
+            session.setNote("SAML11", saml11Assertion);
+
+            if (AssertionUtil.hasExpired(saml11Assertion))
+            {
+               saml11Protocol.setIssuedAssertion(saml11Assertion);
+               PicketLinkCoreSTS.instance().renewToken(saml11Protocol);
+               saml11Assertion = saml11Protocol.getIssuedAssertion();
+               session.setNote("SAML11", saml11Assertion);
             }
          }
+         //Send it as SAMLResponse
+         String id = IDGenerator.create("ID_");
+         SAML11ResponseType saml11Response = new SAML11ResponseType(id, XMLTimeUtil.getIssueInstant());
+         saml11Response.add(saml11Assertion);
+         saml11Response.setStatus(SAML11StatusType.successType());
+
+         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+         SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+         writer.write(saml11Response);
+
+         Document samlResponse = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+
+         WebRequestUtilHolder holder = webRequestUtil.getHolder();
+         holder.setResponseDoc(samlResponse).setDestination(target).setRelayState("").setAreWeSendingRequest(false)
+               .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+         webRequestUtil.send(holder);
+      }
+      catch (GeneralSecurityException e)
+      {
+         log.error("Exception handling saml 11 use case:", e);
+         throw new ServletException();
       }
    }
 
