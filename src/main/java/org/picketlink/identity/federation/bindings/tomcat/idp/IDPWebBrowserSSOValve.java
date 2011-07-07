@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
@@ -366,7 +367,18 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             }
             else
             {
-               getNext().invoke(request, response);
+               if (trace)
+                  log.trace("SAML 1.1::Proceeding to IDP index page");
+               RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher("/hosted/");
+               try
+               {
+                  dispatch.forward(request, response);
+               }
+               catch (Exception e)
+               {
+                  //JBAS5.1 and 6 quirkiness
+                  dispatch.forward(request.getRequest(), response);
+               }
             }
             /*log.error("No SAML Request or Response Message");
             if (trace)
