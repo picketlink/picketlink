@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.security.PublicKey;
@@ -52,6 +53,7 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Session;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.log4j.Logger;
@@ -100,6 +102,8 @@ import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
+import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11NameIdentifierType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SAML11SubjectTypeChoice;
@@ -416,6 +420,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                session.setNote("SAML11", saml11Assertion);
             }
          }
+         GenericPrincipal genericPrincipal = (GenericPrincipal) userPrincipal;
+         String[] roles = genericPrincipal.getRoles();
+         SAML11AttributeStatementType attributeStatement = this.createAttributeStatement(Arrays.asList(roles));
+         saml11Assertion.add(attributeStatement);
+
          //Send it as SAMLResponse
          String id = IDGenerator.create("ID_");
          SAML11ResponseType saml11Response = new SAML11ResponseType(id, XMLTimeUtil.getIssueInstant());
@@ -1139,5 +1148,22 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
        * created as part of the HTTP/POST binding
        */
       response.recycle();
+   }
+
+   /**
+    * Given a set of roles, create an attribute statement
+    * @param roles
+    * @return
+    */
+   private SAML11AttributeStatementType createAttributeStatement(List<String> roles)
+   {
+      SAML11AttributeStatementType attrStatement = new SAML11AttributeStatementType();
+      for (String role : roles)
+      {
+         SAML11AttributeType attr = new SAML11AttributeType("Role", URI.create("urn:picketlink:role"));
+         attr.add(role);
+         attrStatement.add(attr);
+      }
+      return attrStatement;
    }
 }

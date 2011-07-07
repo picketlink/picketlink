@@ -78,9 +78,9 @@ import org.w3c.dom.Document;
  */
 public abstract class BaseFormAuthenticator extends FormAuthenticator
 {
-   private static Logger log = Logger.getLogger(BaseFormAuthenticator.class);
+   protected static Logger log = Logger.getLogger(BaseFormAuthenticator.class);
 
-   private final boolean trace = log.isTraceEnabled();
+   protected final boolean trace = log.isTraceEnabled();
 
    protected SPType spConfiguration = null;
 

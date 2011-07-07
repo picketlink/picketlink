@@ -77,11 +77,9 @@ import org.w3c.dom.Document;
  */
 public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
 {
-   private static Logger log = Logger.getLogger(SPRedirectFormAuthenticator.class);
+   protected static Logger log = Logger.getLogger(SPRedirectFormAuthenticator.class);
 
-   private final boolean trace = log.isTraceEnabled();
-
-   private boolean jbossEnv = false;
+   protected boolean jbossEnv = false;
 
    private final String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
 
