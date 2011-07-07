@@ -357,7 +357,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          }
          else
          {
-            //TODO: PLFED-193
             String target = request.getParameter(SAML11Constants.TARGET);
             if (isNotNull(target))
             {
@@ -380,19 +379,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                   dispatch.forward(request.getRequest(), response);
                }
             }
-            /*log.error("No SAML Request or Response Message");
-            if (trace)
-               log.trace("Referer=" + referer);
-
-            try
-            {
-               sendErrorResponseToSP(referer, response, relayState, webRequestUtil);
-            }
-            catch (ConfigurationException e)
-            {
-               if (trace)
-                  log.trace(e);
-            }*/
          }
       }
    }
