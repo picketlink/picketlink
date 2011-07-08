@@ -32,17 +32,40 @@ import java.security.PrivilegedAction;
  */
 class SecurityActions
 {
-   /**
-    * Get the Thread Context ClassLoader
-    * @return
-    */
-   static ClassLoader getContextClassLoader()
+
+   static Class<?> loadClass(final Class<?> theClass, final String fqn)
    {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
+      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
       {
-         public ClassLoader run()
+         public Class<?> run()
          {
-            return Thread.currentThread().getContextClassLoader();
+            ClassLoader classLoader = theClass.getClassLoader();
+
+            Class<?> clazz = loadClass(classLoader, fqn);
+            if (clazz == null)
+            {
+               classLoader = Thread.currentThread().getContextClassLoader();
+               clazz = loadClass(classLoader, fqn);
+            }
+            return clazz;
+         }
+      });
+   }
+
+   static Class<?> loadClass(final ClassLoader cl, final String fqn)
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
+      {
+         public Class<?> run()
+         {
+            try
+            {
+               return cl.loadClass(fqn);
+            }
+            catch (ClassNotFoundException e)
+            {
+            }
+            return null;
          }
       });
    }

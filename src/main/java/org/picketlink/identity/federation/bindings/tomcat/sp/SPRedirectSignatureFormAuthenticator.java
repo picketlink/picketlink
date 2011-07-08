@@ -60,47 +60,50 @@ import org.w3c.dom.Element;
  * @since Jan 12, 2009
  */
 public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenticator
-{ 
+{
    private static Logger log = Logger.getLogger(SPRedirectSignatureFormAuthenticator.class);
-   private boolean trace = log.isTraceEnabled();
-   
-   private TrustKeyManager keyManager; 
+
+   private final boolean trace = log.isTraceEnabled();
+
+   private TrustKeyManager keyManager;
 
    public SPRedirectSignatureFormAuthenticator()
    {
-      super(); 
+      super();
    }
-   
+
    @Override
    public void start() throws LifecycleException
    {
       super.start();
       Context context = (Context) getContainer();
-      
+
       KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();
-      if(keyProvider == null)
-         throw new LifecycleException("KeyProvider is null for context="+ context.getName());
+      if (keyProvider == null)
+         throw new LifecycleException("KeyProvider is null for context=" + context.getName());
       try
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
          String keyManagerClassName = keyProvider.getClassName();
-         if(keyManagerClassName == null)
+         if (keyManagerClassName == null)
             throw new RuntimeException("KeyManager class name is null");
-         
-         Class<?> clazz = tcl.loadClass(keyManagerClassName);
+
+         Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
+         if (clazz == null)
+            throw new ClassNotFoundException("Unable to load class:" + keyManagerClassName);
          this.keyManager = (TrustKeyManager) clazz.newInstance();
-         
+
          List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
-         keyManager.setAuthProperties( authProperties ); 
+         keyManager.setAuthProperties(authProperties);
          keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-         log.error("Exception reading configuration:",e);
+         log.error("Exception reading configuration:", e);
          throw new LifecycleException(e.getLocalizedMessage());
       }
-      if(trace) log.trace("Key Provider=" + keyProvider.getClassName());
-      
+      if (trace)
+         log.trace("Key Provider=" + keyProvider.getClassName());
+
       //Initialize the handler chain again, mainly for the signing pair
       try
       {
@@ -108,39 +111,38 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
          super.initializeHandlerChain();
       }
       catch (Exception e)
-      {  
-         log.error("Exception reading configuration:",e);
-         throw new LifecycleException(e.getLocalizedMessage()); 
-      } 
+      {
+         log.error("Exception reading configuration:", e);
+         throw new LifecycleException(e.getLocalizedMessage());
+      }
    }
-   
+
    protected boolean validate(Request request) throws IOException, GeneralSecurityException
    {
       boolean result = super.validate(request);
-      if( result == false)
+      if (result == false)
          return result;
-      
+
       String queryString = request.getQueryString();
       //Check if there is a signature   
       byte[] sigValue = RedirectBindingSignatureUtil.getSignatureValueFromSignedURL(queryString);
-      if(sigValue == null)
+      if (sigValue == null)
          return false;
-      
+
       //Construct the url again
-      String reqFromURL = RedirectBindingSignatureUtil.getTokenValue(queryString, "SAMLResponse"); 
-      String relayStateFromURL = RedirectBindingSignatureUtil.getTokenValue(queryString, 
-            GeneralConstants.RELAY_STATE);
-      String sigAlgFromURL = RedirectBindingSignatureUtil.getTokenValue(queryString, "SigAlg"); 
+      String reqFromURL = RedirectBindingSignatureUtil.getTokenValue(queryString, "SAMLResponse");
+      String relayStateFromURL = RedirectBindingSignatureUtil.getTokenValue(queryString, GeneralConstants.RELAY_STATE);
+      String sigAlgFromURL = RedirectBindingSignatureUtil.getTokenValue(queryString, "SigAlg");
 
       StringBuilder sb = new StringBuilder();
       sb.append("SAMLResponse=").append(reqFromURL);
-       
-      if(isNotNull(relayStateFromURL))
+
+      if (isNotNull(relayStateFromURL))
       {
          sb.append("&RelayState=").append(relayStateFromURL);
       }
       sb.append("&SigAlg=").append(sigAlgFromURL);
-      
+
       PublicKey validatingKey;
       try
       {
@@ -155,7 +157,7 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
          throw new GeneralSecurityException(e.getCause());
       }
       boolean isValid = SignatureUtil.validate(sb.toString().getBytes("UTF-8"), sigValue, validatingKey);
-      return isValid;     
+      return isValid;
    }
 
    @Override
@@ -164,16 +166,17 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
       try
       {
          //Get the signing key  
-         PrivateKey signingKey = keyManager.getSigningKey(); 
-         String url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(urlEncodedRequest, urlEncodedRelayState, signingKey);
+         PrivateKey signingKey = keyManager.getSigningKey();
+         String url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(urlEncodedRequest,
+               urlEncodedRelayState, signingKey);
          return url;
       }
-      catch(Exception e)
+      catch (Exception e)
       {
          throw new RuntimeException(e);
       }
-   }  
-   
+   }
+
    @Override
    protected void initializeSAMLProcessor(ServiceProviderBaseProcessor processor)
    {
@@ -182,36 +185,35 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
    }
 
    @Override
-   protected ResponseType decryptAssertion(ResponseType responseType) 
-   throws IOException, GeneralSecurityException, ConfigurationException, ParsingException
+   protected ResponseType decryptAssertion(ResponseType responseType) throws IOException, GeneralSecurityException,
+         ConfigurationException, ParsingException
    {
       try
       {
          SAML2Response saml2Response = new SAML2Response();
-         PrivateKey privateKey = keyManager.getSigningKey(); 
-         
-         EncryptedElementType myEET = (EncryptedElementType) responseType.getAssertions().get(0).getEncryptedAssertion();
-         Document eetDoc = saml2Response.convert(myEET); 
-         
-         Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc,privateKey); 
-         return  saml2Response.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));    
-      } 
+         PrivateKey privateKey = keyManager.getSigningKey();
+
+         EncryptedElementType myEET = responseType.getAssertions().get(0).getEncryptedAssertion();
+         Document eetDoc = saml2Response.convert(myEET);
+
+         Element decryptedDocumentElement = XMLEncryptionUtil.decryptElementInDocument(eetDoc, privateKey);
+         return saml2Response.getResponseType(DocumentUtil.getNodeAsStream(decryptedDocumentElement));
+      }
       catch (Exception e)
       {
          throw new GeneralSecurityException(e);
-      } 
-   }   
-   
+      }
+   }
+
    @Override
-   protected void populateChainConfig()
-   throws ConfigurationException, ProcessingException
-   {   
+   protected void populateChainConfig() throws ConfigurationException, ProcessingException
+   {
       super.populateChainConfig();
-      if(this.keyManager != null)
+      if (this.keyManager != null)
       {
-         if(trace)
+         if (trace)
             log.trace("Adding Keypair to the chain config");
          chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
-      }  
+      }
    }
 }

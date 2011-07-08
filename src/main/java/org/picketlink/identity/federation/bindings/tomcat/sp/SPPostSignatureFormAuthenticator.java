@@ -47,18 +47,19 @@ import org.w3c.dom.Document;
 public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
 {
    private static Logger log = Logger.getLogger(SPPostSignatureFormAuthenticator.class);
-   private boolean trace = log.isTraceEnabled();
-   
+
+   private final boolean trace = log.isTraceEnabled();
+
    /**
     * Flag to indicate whether we want to sign the assertions
     */
    protected boolean signAssertions = false;
-   
+
    public SPPostSignatureFormAuthenticator()
    {
       this.validateSignature = true;
    }
-   
+
    public boolean isSignAssertions()
    {
       return signAssertions;
@@ -67,39 +68,42 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
    public void setSignAssertions(boolean signAssertions)
    {
       this.signAssertions = signAssertions;
-   } 
+   }
 
    @Override
    public void start() throws LifecycleException
    {
       super.start();
       this.supportSignatures = true;
-      
+
       KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();
-      if(keyProvider == null)
+      if (keyProvider == null)
          throw new LifecycleException("KeyProvider is null");
       try
       {
-         ClassLoader tcl = SecurityActions.getContextClassLoader();
          String keyManagerClassName = keyProvider.getClassName();
-         if(keyManagerClassName == null)
+         if (keyManagerClassName == null)
             throw new RuntimeException("KeyManager class name is null");
-         
-         Class<?> clazz = tcl.loadClass(keyManagerClassName);
+
+         Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
+         if (clazz == null)
+            throw new RuntimeException("Unable to load class:" + keyManagerClassName);
+
          this.keyManager = (TrustKeyManager) clazz.newInstance();
-         
+
          List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
-         keyManager.setAuthProperties( authProperties ); 
+         keyManager.setAuthProperties(authProperties);
          keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-         log.error("Exception reading configuration:",e);
+         log.error("Exception reading configuration:", e);
          throw new LifecycleException(e.getLocalizedMessage());
       }
-      if(trace) log.trace("Key Provider=" + keyProvider.getClassName());
+      if (trace)
+         log.trace("Key Provider=" + keyProvider.getClassName());
    }
-   
+
    /**
     * Send the request to the IDP
     * @param destination idp url
@@ -110,23 +114,21 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
     * @throws ProcessingException
     * @throws ConfigurationException
     * @throws IOException 
-    */ 
+    */
    @Override
-   protected void sendRequestToIDP( 
-         String destination, Document samlDocument,String relayState, Response response,
-         boolean willSendRequest)
-   throws ProcessingException, ConfigurationException, IOException
+   protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
+         boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException
    {
-      if( keyManager == null )
-         throw new IllegalStateException( "Key Manager is null" );
+      if (keyManager == null)
+         throw new IllegalStateException("Key Manager is null");
       //Sign the document
       SAML2Signature samlSignature = new SAML2Signature();
       KeyPair keypair = keyManager.getSigningKeyPair();
-      samlSignature.signSAMLDocument(samlDocument, keypair); 
-      
-      if(trace)
-         log.trace("Sending to IDP:" +  DocumentUtil.asString(samlDocument));
+      samlSignature.signSAMLDocument(samlDocument, keypair);
+
+      if (trace)
+         log.trace("Sending to IDP:" + DocumentUtil.asString(samlDocument));
       //Let the super class handle the sending
-      super.sendRequestToIDP(destination, samlDocument, relayState, response, willSendRequest); 
-   }  
+      super.sendRequestToIDP(destination, samlDocument, relayState, response, willSendRequest);
+   }
 }

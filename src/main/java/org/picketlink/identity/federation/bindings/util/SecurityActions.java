@@ -32,21 +32,6 @@ import java.security.PrivilegedAction;
 class SecurityActions
 {
    /**
-    * Get the Thread Context ClassLoader
-    * @return
-    */
-   static ClassLoader getContextClassLoader()
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-      {
-         public ClassLoader run()
-         {
-            return Thread.currentThread().getContextClassLoader();
-         }
-      });
-   }
-   
-   /**
     * Get the system property
     * @param key
     * @param defaultValue

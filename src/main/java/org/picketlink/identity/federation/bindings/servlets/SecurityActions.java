@@ -31,7 +31,7 @@ import java.security.PrivilegedAction;
  */
 class SecurityActions
 {
-   static void setSystemProperty( final String key, final String value)
+   static void setSystemProperty(final String key, final String value)
    {
       AccessController.doPrivileged(new PrivilegedAction<Object>()
       {
@@ -40,18 +40,6 @@ class SecurityActions
             System.setProperty(key, value);
             return null;
          }
-      }); 
-   }
-   
-   static ClassLoader getContextClassLoader()
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-      {
-         public ClassLoader run() 
-         {
-            return Thread.currentThread().getContextClassLoader();
-         }
       });
    }
-
 }

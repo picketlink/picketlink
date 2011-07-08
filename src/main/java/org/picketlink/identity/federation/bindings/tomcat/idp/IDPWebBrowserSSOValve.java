@@ -218,7 +218,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    {
       try
       {
-         Class<?> clazz = SecurityActions.getContextClassLoader().loadClass(rgName);
+         Class<?> clazz = SecurityActions.loadClass(getClass(), rgName);
+         if (clazz == null)
+            throw new RuntimeException("Unable to load class:" + rgName);
          roleGenerator = (RoleGenerator) clazz.newInstance();
       }
       catch (Exception e)
@@ -989,8 +991,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          String attributeManager = idpConfiguration.getAttributeManager();
          if (attributeManager != null && !"".equals(attributeManager))
          {
-            ClassLoader tcl = SecurityActions.getContextClassLoader();
-            AttributeManager delegate = (AttributeManager) tcl.loadClass(attributeManager).newInstance();
+            Class<?> clazz = SecurityActions.loadClass(getClass(), attributeManager);
+            if (clazz == null)
+               throw new RuntimeException("Unable to load class:" + attributeManager);
+            AttributeManager delegate = (AttributeManager) clazz.newInstance();
             this.attribManager.setDelegate(delegate);
          }
       }
@@ -1085,8 +1089,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          {
             try
             {
-               Class<?> stackClass = SecurityActions.getContextClassLoader().loadClass(this.identityParticipantStack);
-               identityServer.setStack((IdentityParticipantStack) stackClass.newInstance());
+               Class<?> clazz = SecurityActions.loadClass(getClass(), this.identityParticipantStack);
+               if (clazz == null)
+                  throw new ClassNotFoundException("Unable to load class:" + this.identityParticipantStack);
+
+               identityServer.setStack((IdentityParticipantStack) clazz.newInstance());
             }
             catch (ClassNotFoundException e)
             {
