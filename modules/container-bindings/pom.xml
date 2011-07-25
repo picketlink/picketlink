@@ -124,8 +124,25 @@
          <optional>true</optional>
       </dependency>
       <dependency>
+         <groupId>org.jboss.security</groupId>
+         <artifactId>jbossxacml</artifactId>
+         <version>2.0.4</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>log4j</groupId>
+         <artifactId>log4j</artifactId>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
          <groupId>org.apache.tomcat</groupId>
          <artifactId>catalina</artifactId>
+         <version>6.0.18</version>
+         <optional>true</optional>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.tomcat</groupId>
+         <artifactId>juli</artifactId>
          <version>6.0.18</version>
          <optional>true</optional>
       </dependency>
