@@ -37,6 +37,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
@@ -46,6 +47,7 @@ import org.apache.catalina.authenticator.AuthenticatorBase;
 import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.catalina.deploy.LoginConfig;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataExtractor;
 import org.picketlink.identity.federation.core.config.SPType;
@@ -253,54 +255,42 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
       }
    }
 
-   //Mock test purpose
-   public void testStart() throws LifecycleException
+   /**
+    * Fall back on local authentication at the service provider side
+    * @param request
+    * @param response
+    * @param loginConfig
+    * @return
+    * @throws IOException
+    */
+   protected boolean localAuthentication(Request request, Response response, LoginConfig loginConfig)
+         throws IOException
    {
-      this.saveRestoreRequest = false;
-      if (context == null)
-         throw new RuntimeException("Catalina Context not set up");
-      processStart();
-   }
-
-   private void processStart() throws LifecycleException
-   {
-      Handlers handlers = null;
-
-      //Get the chain from config 
-      if (StringUtil.isNullOrEmpty(samlHandlerChainClass))
+      if (request.getUserPrincipal() == null)
       {
-         chain = SAML2HandlerChainFactory.createChain();
-      }
-      else
-      {
+         log.error("Falling back on local Form Authentication if available");//fallback
          try
          {
-            chain = SAML2HandlerChainFactory.createChain(this.samlHandlerChainClass);
+            return super.authenticate(request, response, loginConfig);
          }
-         catch (ProcessingException e1)
+         catch (NoSuchMethodError e)
          {
-            throw new LifecycleException(e1);
+            //Use Reflection
+            try
+            {
+               Method method = super.getClass().getMethod("authenticate", new Class[]
+               {HttpServletRequest.class, HttpServletResponse.class, LoginConfig.class});
+               return (Boolean) method.invoke(this, new Object[]
+               {request.getRequest(), response.getResponse(), loginConfig});
+            }
+            catch (Exception ex)
+            {
+               throw new IOException("Unable to fallback on local auth", ex);
+            }
          }
       }
-
-      ServletContext servletContext = context.getServletContext();
-
-      this.processConfiguration();
-
-      try
-      {
-         //Get the handlers
-         String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-         handlers = ConfigurationUtil.getHandlers(servletContext.getResourceAsStream(handlerConfigFileName));
-         chain.addAll(HandlerUtil.getHandlers(handlers));
-
-         this.populateChainConfig();
-         this.initializeHandlerChain();
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
+      else
+         return true;
    }
 
    /**
@@ -478,6 +468,56 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
             //JBAS5.1 and 6 quirkiness
             dispatch.forward(request.getRequest(), response);
          }
+      }
+   }
+
+   //Mock test purpose
+   public void testStart() throws LifecycleException
+   {
+      this.saveRestoreRequest = false;
+      if (context == null)
+         throw new RuntimeException("Catalina Context not set up");
+      processStart();
+   }
+
+   private void processStart() throws LifecycleException
+   {
+      Handlers handlers = null;
+
+      //Get the chain from config 
+      if (StringUtil.isNullOrEmpty(samlHandlerChainClass))
+      {
+         chain = SAML2HandlerChainFactory.createChain();
+      }
+      else
+      {
+         try
+         {
+            chain = SAML2HandlerChainFactory.createChain(this.samlHandlerChainClass);
+         }
+         catch (ProcessingException e1)
+         {
+            throw new LifecycleException(e1);
+         }
+      }
+
+      ServletContext servletContext = context.getServletContext();
+
+      this.processConfiguration();
+
+      try
+      {
+         //Get the handlers
+         String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
+         handlers = ConfigurationUtil.getHandlers(servletContext.getResourceAsStream(handlerConfigFileName));
+         chain.addAll(HandlerUtil.getHandlers(handlers));
+
+         this.populateChainConfig();
+         this.initializeHandlerChain();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
       }
    }
 

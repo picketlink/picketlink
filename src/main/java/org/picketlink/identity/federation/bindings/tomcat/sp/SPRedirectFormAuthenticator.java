@@ -141,42 +141,120 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
       if (principal != null && !(logOutRequest || isNotNull(samlRequest) || isNotNull(samlResponse)))
          return true;
 
-      String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
+      //General User Request
+      if (!isNotNull(samlRequest) && !isNotNull(samlResponse))
+      {
+         return generalUserRequest(request, response, loginConfig);
+      }
+
+      //See if we got a response from IDP
+      if (isNotNull(samlResponse))
+      {
+         return handleSAMLResponse(request, response, loginConfig);
+      }
+
+      //Handle SAML Requests from IDP
+      if (isNotNull(samlRequest))
+      {
+         return handleSAMLRequest(request, response, loginConfig);
+      }//end if
+
+      return localAuthentication(request, response, loginConfig);
+   }
+
+   /**
+    * Handle the SAML Request message from IDP
+    * @param request
+    * @param response
+    * @param loginConfig
+    * @return
+    * @throws IOException
+    */
+   protected boolean handleSAMLRequest(Request request, Response response, LoginConfig loginConfig) throws IOException
+   {
+      String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
       HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
 
       Set<SAML2Handler> handlers = chain.handlers();
 
-      //General User Request
-      if (!isNotNull(samlRequest) && !isNotNull(samlResponse))
+      //we got a logout request
+      try
       {
-         //Neither saml request nor response from IDP
-         //So this is a user request
+         ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(false,
+               this.serviceURL);
+         boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
+
+         if (result)
+            return result;
+      }
+      catch (Exception e)
+      {
+         log.error("Server Exception:", e);
+         throw new IOException("Server Exception");
+      }
+      return localAuthentication(request, response, loginConfig);
+   }
+
+   /**
+    * Handle the IDP Response
+    * @param request
+    * @param response
+    * @param loginConfig
+    * @return
+    * @throws IOException
+    */
+   protected boolean handleSAMLResponse(Request request, Response response, LoginConfig loginConfig) throws IOException
+   {
+      Session session = request.getSessionInternal(true);
+
+      String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+
+      Principal principal = request.getUserPrincipal();
+
+      String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
+      HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
+
+      Set<SAML2Handler> handlers = chain.handlers();
+      boolean isValid = false;
+      try
+      {
+         isValid = this.validate(request);
+      }
+      catch (Exception e)
+      {
+         log.error("Exception:", e);
+         throw new IOException();
+      }
+      if (!isValid)
+         throw new IOException("Validity check failed");
+
+      try
+      {
+         ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(false,
+               serviceURL);
+         initializeSAMLProcessor(responseProcessor);
+
          SAML2HandlerResponse saml2HandlerResponse = null;
+
          try
          {
-            ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(false, serviceURL);
-
-            initializeSAMLProcessor(baseProcessor);
-
-            saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
-            saml2HandlerResponse.setDestination(identityURL);
+            saml2HandlerResponse = responseProcessor.process(samlResponse, httpContext, handlers, chainLock);
          }
          catch (ProcessingException pe)
          {
-            log.error("Processing Exception:", pe);
-            throw new RuntimeException(pe);
-         }
-         catch (ParsingException pe)
-         {
-            log.error("Parsing Exception:", pe);
-            throw new RuntimeException(pe);
-         }
-         catch (ConfigurationException pe)
-         {
-            log.error("Config Exception:", pe);
-            throw new RuntimeException(pe);
-         }
+            Throwable te = pe.getCause();
+            if (te instanceof AssertionExpiredException)
+            {
+               //We need to reissue redirect to IDP
+               ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(false, serviceURL);
+               initializeSAMLProcessor(baseProcessor);
 
+               saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
+               saml2HandlerResponse.setDestination(identityURL);
+            }
+            else
+               throw pe;
+         }
          Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
          relayState = saml2HandlerResponse.getRelayState();
 
@@ -184,188 +262,175 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
 
          if (destination != null && samlResponseDocument != null)
          {
-            try
+            boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
+            String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
+
+            String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
+
+            String destinationQuery = getDestinationQueryString(base64Request, relayState, areWeSendingRequest);
+
+            RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
+            holder.setDestination(destination).setDestinationQueryString(destinationQuery);
+
+            String destinationURL = RedirectBindingUtil.getDestinationURL(holder);
+
+            HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, response);
+         }
+         else
+         {
+            //See if the session has been invalidated 
+            boolean sessionValidity = session.isValid();
+            if (!sessionValidity)
             {
-               String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
-               if (trace)
-                  log.trace("SAML Document=" + samlMsg);
-
-               boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
-
-               String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
-
-               String destinationQuery = getDestinationQueryString(base64Request, relayState, areWeSendingRequest);
-
-               RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
-               holder.setDestination(destination).setDestinationQueryString(destinationQuery);
-
-               String destinationURL = RedirectBindingUtil.getDestinationURL(holder);
-
-               if (trace)
-               {
-                  log.trace("URL used for sending:" + destinationURL);
-               }
-
-               if (saveRestoreRequest)
-               {
-                  this.saveRequest(request, session);
-               }
-
-               HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, response);
+               sendToLogoutPage(request, response, session);
                return false;
             }
-            catch (Exception e)
+
+            //We got a response with the principal
+            List<String> roles = saml2HandlerResponse.getRoles();
+            if (principal == null)
+               principal = (Principal) session.getSession().getAttribute(GeneralConstants.PRINCIPAL_ID);
+
+            String username = principal.getName();
+            String password = ServiceProviderSAMLContext.EMPTY_PASSWORD;
+
+            //Map to JBoss specific principal
+            if ((new ServerDetector()).isJboss() || jbossEnv)
             {
-               if (trace)
-                  log.trace("Exception:", e);
-               throw new IOException("Server Error");
-            }
-         }
-      }
-
-      //See if we got a response from IDP
-      if (isNotNull(samlResponse))
-      {
-         boolean isValid = false;
-         try
-         {
-            isValid = this.validate(request);
-         }
-         catch (Exception e)
-         {
-            log.error("Exception:", e);
-            throw new IOException();
-         }
-         if (!isValid)
-            throw new IOException("Validity check failed");
-
-         try
-         {
-            ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(false,
-                  serviceURL);
-            initializeSAMLProcessor(responseProcessor);
-
-            SAML2HandlerResponse saml2HandlerResponse = null;
-
-            try
-            {
-               saml2HandlerResponse = responseProcessor.process(samlResponse, httpContext, handlers, chainLock);
-            }
-            catch (ProcessingException pe)
-            {
-               Throwable te = pe.getCause();
-               if (te instanceof AssertionExpiredException)
-               {
-                  //We need to reissue redirect to IDP
-                  ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(false, serviceURL);
-                  initializeSAMLProcessor(baseProcessor);
-
-                  saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
-                  saml2HandlerResponse.setDestination(identityURL);
-               }
-               else
-                  throw pe;
-            }
-            Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
-            relayState = saml2HandlerResponse.getRelayState();
-
-            String destination = saml2HandlerResponse.getDestination();
-
-            if (destination != null && samlResponseDocument != null)
-            {
-               boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
-               String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
-
-               String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
-
-               String destinationQuery = getDestinationQueryString(base64Request, relayState, areWeSendingRequest);
-
-               RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
-               holder.setDestination(destination).setDestinationQueryString(destinationQuery);
-
-               String destinationURL = RedirectBindingUtil.getDestinationURL(holder);
-
-               HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, response);
+               //Push a context
+               ServiceProviderSAMLContext.push(username, roles);
+               principal = context.getRealm().authenticate(username, password);
+               ServiceProviderSAMLContext.clear();
             }
             else
             {
-               //See if the session has been invalidated 
-               boolean sessionValidity = session.isValid();
-               if (!sessionValidity)
-               {
-                  sendToLogoutPage(request, response, session);
-                  return false;
-               }
-
-               //We got a response with the principal
-               List<String> roles = saml2HandlerResponse.getRoles();
-               if (principal == null)
-                  principal = (Principal) session.getSession().getAttribute(GeneralConstants.PRINCIPAL_ID);
-
-               String username = principal.getName();
-               String password = ServiceProviderSAMLContext.EMPTY_PASSWORD;
-
-               //Map to JBoss specific principal
-               if ((new ServerDetector()).isJboss() || jbossEnv)
-               {
-                  //Push a context
-                  ServiceProviderSAMLContext.push(username, roles);
-                  principal = context.getRealm().authenticate(username, password);
-                  ServiceProviderSAMLContext.clear();
-               }
-               else
-               {
-                  //tomcat env   
-                  SPUtil spUtil = new SPUtil();
-                  principal = spUtil.createGenericPrincipal(request, principal.getName(), roles);
-               }
-
-               session.setNote(Constants.SESS_USERNAME_NOTE, username);
-               session.setNote(Constants.SESS_PASSWORD_NOTE, password);
-               request.setUserPrincipal(principal);
-
-               if (saveRestoreRequest)
-               {
-                  this.restoreRequest(request, session);
-               }
-               register(request, response, principal, Constants.FORM_METHOD, username, password);
-
-               return true;
+               //tomcat env   
+               SPUtil spUtil = new SPUtil();
+               principal = spUtil.createGenericPrincipal(request, principal.getName(), roles);
             }
-         }
-         catch (Exception e)
-         {
-            e.printStackTrace();
-            if (trace)
-               log.trace("Server Exception:", e);
-            throw new IOException("Server Exception:" + e.getLocalizedMessage());
+
+            session.setNote(Constants.SESS_USERNAME_NOTE, username);
+            session.setNote(Constants.SESS_PASSWORD_NOTE, password);
+            request.setUserPrincipal(principal);
+
+            if (saveRestoreRequest)
+            {
+               this.restoreRequest(request, session);
+            }
+            register(request, response, principal, Constants.FORM_METHOD, username, password);
+
+            return true;
          }
       }
-
-      //Handle SAML Requests from IDP
-      if (isNotNull(samlRequest))
+      catch (ProcessingException pe)
       {
-         //we got a logout request
+         Throwable t = pe.getCause();
+         if (t != null && t instanceof AssertionExpiredException)
+         {
+            log.error("Assertion has expired. Asking IDP for reissue");
+            //Just issue a fresh request back to IDP
+            return generalUserRequest(request, response, loginConfig);
+         }
+         throw new IOException("Server Exception:" + pe.getLocalizedMessage());
+      }
+      catch (Exception e)
+      {
+         if (trace)
+            log.trace("Server Exception:", e);
+         throw new IOException("Server Exception:" + e.getLocalizedMessage());
+      }
+      return localAuthentication(request, response, loginConfig);
+   }
+
+   /**
+    * Handle the user invocation for the first time
+    * @param request
+    * @param response
+    * @param loginConfig
+    * @return
+    * @throws IOException
+    */
+   protected boolean generalUserRequest(Request request, Response response, LoginConfig loginConfig) throws IOException
+   {
+      Session session = request.getSessionInternal(true);
+      HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
+      Set<SAML2Handler> handlers = chain.handlers();
+
+      String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
+
+      //Neither saml request nor response from IDP
+      //So this is a user request
+      SAML2HandlerResponse saml2HandlerResponse = null;
+      try
+      {
+         ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(false, serviceURL);
+
+         initializeSAMLProcessor(baseProcessor);
+
+         saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
+         saml2HandlerResponse.setDestination(identityURL);
+      }
+      catch (ProcessingException pe)
+      {
+         log.error("Processing Exception:", pe);
+         throw new RuntimeException(pe);
+      }
+      catch (ParsingException pe)
+      {
+         log.error("Parsing Exception:", pe);
+         throw new RuntimeException(pe);
+      }
+      catch (ConfigurationException pe)
+      {
+         log.error("Config Exception:", pe);
+         throw new RuntimeException(pe);
+      }
+
+      Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
+      relayState = saml2HandlerResponse.getRelayState();
+
+      String destination = saml2HandlerResponse.getDestination();
+
+      if (destination != null && samlResponseDocument != null)
+      {
          try
          {
-            ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(false,
-                  this.serviceURL);
-            boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
+            String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
+            if (trace)
+               log.trace("SAML Document=" + samlMsg);
 
-            if (result)
-               return result;
+            boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
+
+            String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
+
+            String destinationQuery = getDestinationQueryString(base64Request, relayState, areWeSendingRequest);
+
+            RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
+            holder.setDestination(destination).setDestinationQueryString(destinationQuery);
+
+            String destinationURL = RedirectBindingUtil.getDestinationURL(holder);
+
+            if (trace)
+            {
+               log.trace("URL used for sending:" + destinationURL);
+            }
+
+            if (saveRestoreRequest)
+            {
+               this.saveRequest(request, session);
+            }
+
+            HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, response);
+            return false;
          }
          catch (Exception e)
          {
-            log.error("Server Exception:", e);
-            throw new IOException("Server Exception");
+            if (trace)
+               log.trace("Exception:", e);
+            throw new IOException("Server Error");
          }
-
-      }//end if
-
-      log.error("Did not find any SAML Request/Response. Falling back on local Form Authentication if available");
-      //fallback
-      return super.authenticate(request, response, loginConfig);
+      }
+      return localAuthentication(request, response, loginConfig);
    }
 
    protected String createSAMLRequestMessage(String relayState, Response response) throws ServletException,
