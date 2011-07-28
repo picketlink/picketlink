@@ -30,8 +30,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.naming.directory.DirContext;
 import javax.servlet.RequestDispatcher;
@@ -42,10 +42,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 
 import org.apache.catalina.Cluster;
-import org.apache.catalina.Context;
-
 import org.apache.catalina.Container;
 import org.apache.catalina.ContainerListener;
+import org.apache.catalina.Context;
 import org.apache.catalina.Loader;
 import org.apache.catalina.Manager;
 import org.apache.catalina.Pipeline;
@@ -62,20 +61,21 @@ import org.apache.catalina.deploy.NamingResources;
 import org.apache.catalina.deploy.SecurityConstraint;
 import org.apache.catalina.util.CharsetMapper;
 import org.apache.juli.logging.Log;
-import org.apache.tomcat.util.http.mapper.Mapper; 
+import org.apache.tomcat.util.http.mapper.Mapper;
 
 /**
  * Mock Catalina Context
  * @author Anil.Saldhana@redhat.com
  * @since Oct 20, 2009
  */
-@SuppressWarnings({ "unchecked", "rawtypes"})
-public class MockCatalinaContext  
-implements Context, Container, ServletContext
-{ 
+@SuppressWarnings(
+{"unchecked", "rawtypes"})
+public class MockCatalinaContext implements Context, Container, ServletContext
+{
    private Realm realm;
+
    public void addChild(Container arg0)
-   { 
+   {
    }
 
    public void addContainerListener(ContainerListener arg0)
@@ -97,136 +97,136 @@ implements Context, Container, ServletContext
 
    public Container[] findChildren()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public ContainerListener[] findContainerListeners()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public int getBackgroundProcessorDelay()
    {
-      
+
       return 0;
    }
 
    public Cluster getCluster()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public String getInfo()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public Loader getLoader()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public Log getLogger()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public Manager getManager()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public Object getMappingObject()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public String getName()
-   { 
+   {
       throw new RuntimeException("NYI");
    }
 
    public String getObjectName()
    {
-      
+
       throw new RuntimeException("NYI");
    }
 
    public Container getParent()
-   { 
+   {
       return this;
    }
 
    public ClassLoader getParentClassLoader()
-   { 
+   {
       throw new RuntimeException("NYI");
    }
 
    public Pipeline getPipeline()
-   { 
+   {
       throw new RuntimeException("NYI");
    }
 
    public DirContext getResources()
-   { 
+   {
       throw new RuntimeException("NYI");
    }
 
    public void invoke(Request arg0, Response arg1) throws IOException, ServletException
-   { 
+   {
    }
 
    public void removeChild(Container arg0)
-   {  
+   {
    }
 
    public void removeContainerListener(ContainerListener arg0)
-   { 
+   {
    }
 
    public void removePropertyChangeListener(PropertyChangeListener arg0)
-   { 
+   {
    }
 
    public void setBackgroundProcessorDelay(int arg0)
-   { 
+   {
    }
 
    public void setCluster(Cluster arg0)
-   { 
+   {
    }
 
    public void setLoader(Loader arg0)
-   { 
+   {
    }
 
    public void setManager(Manager arg0)
-   { 
+   {
    }
 
    public void setName(String arg0)
-   { 
+   {
    }
 
    public void setParent(Container arg0)
-   { 
+   {
    }
 
    public void setParentClassLoader(ClassLoader arg0)
-   {  
+   {
    }
 
    public void setRealm(Realm arg0)
-   { 
-      this.realm = arg0; 
+   {
+      this.realm = arg0;
    }
 
    public void setResources(DirContext arg0)
@@ -526,7 +526,9 @@ implements Context, Container, ServletContext
 
    public LoginConfig getLoginConfig()
    {
-      throw new RuntimeException("NYI");
+      LoginConfig loginConfig = new LoginConfig();
+      loginConfig.setAuthMethod("BASIC");
+      return loginConfig;
    }
 
    public Mapper getMapper()
@@ -757,54 +759,54 @@ implements Context, Container, ServletContext
    }
 
    public void setSessionTimeout(int arg0)
-   {   
+   {
    }
 
    public void setSwallowOutput(boolean arg0)
-   { 
+   {
    }
 
    public void setTldNamespaceAware(boolean arg0)
-   { 
+   {
    }
 
    public void setTldValidation(boolean arg0)
-   { 
+   {
    }
 
    public void setWrapperClass(String arg0)
-   { 
+   {
    }
 
    public void setXmlNamespaceAware(boolean arg0)
-   { 
+   {
    }
 
    public void setXmlValidation(boolean arg0)
    {
    }
- 
+
    public Realm getRealm()
-   {   
+   {
       return realm;
    }
 
-  
-    //Copied from MockServletContext
-   private Map params =  new HashMap();
-   private Map attribs = new HashMap();
-   
+   //Copied from MockServletContext
+   private final Map params = new HashMap();
+
+   private final Map attribs = new HashMap();
+
    public Object getAttribute(String arg0)
-   { 
+   {
       return attribs.get(arg0);
    }
 
    public Enumeration getAttributeNames()
-   { 
-      return new Enumeration() 
+   {
+      return new Enumeration()
       {
-         private Iterator iter = attribs.entrySet().iterator();
-         
+         private final Iterator iter = attribs.entrySet().iterator();
+
          public boolean hasMoreElements()
          {
             return iter.hasNext();
@@ -812,33 +814,33 @@ implements Context, Container, ServletContext
 
          public Object nextElement()
          {
-            Entry<String,Object> entry =  (Entry<String, Object>) iter.next();
+            Entry<String, Object> entry = (Entry<String, Object>) iter.next();
             return entry.getValue();
          }
       };
    }
 
    public ServletContext getContext(String arg0)
-   { 
+   {
       throw new RuntimeException("NYI");
    }
 
    public String getContextPath()
-   { 
+   {
       throw new RuntimeException("NYI");
    }
 
    public String getInitParameter(String arg0)
-   { 
+   {
       return (String) params.get(arg0);
    }
 
    public Enumeration getInitParameterNames()
-   { 
-      return new Enumeration() 
+   {
+      return new Enumeration()
       {
-         private Iterator iter = params.entrySet().iterator();
-         
+         private final Iterator iter = params.entrySet().iterator();
+
          public boolean hasMoreElements()
          {
             return iter.hasNext();
@@ -846,85 +848,85 @@ implements Context, Container, ServletContext
 
          public Object nextElement()
          {
-            Entry<String,Object> entry =  (Entry<String, Object>) iter.next();
+            Entry<String, Object> entry = (Entry<String, Object>) iter.next();
             return entry.getKey();
          }
       };
    }
 
    public int getMajorVersion()
-   { 
+   {
       return 0;
    }
 
    public String getMimeType(String arg0)
-   { 
+   {
       throw new RuntimeException("NYI");
    }
 
    public int getMinorVersion()
-   { 
+   {
       return 0;
    }
 
    public RequestDispatcher getNamedDispatcher(String arg0)
-   {  
+   {
       throw new RuntimeException("NYI");
    }
 
    public String getRealPath(String arg0)
-   { 
+   {
       return null;
    }
 
    public RequestDispatcher getRequestDispatcher(String arg0)
-   { 
+   {
       return new RequestDispatcher()
       {
-         
+
          public void include(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException
-         {   
+         {
          }
-         
+
          public void forward(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException
-         {   
+         {
          }
       };
    }
 
    public URL getResource(String arg0) throws MalformedURLException
-   { 
+   {
       throw new RuntimeException("NYI");
    }
 
    public InputStream getResourceAsStream(String arg0)
    {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader(); 
-      return tcl.getResourceAsStream( arg0 );
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      return tcl.getResourceAsStream(arg0);
    }
 
    public Set getResourcePaths(String arg0)
-   {      
+   {
       throw new RuntimeException("NYI");
    }
 
    public String getServerInfo()
-   {  
+   {
       throw new RuntimeException("NYI");
    }
 
    public Servlet getServlet(String arg0) throws ServletException
-   {  
+   {
       throw new RuntimeException("NYI");
    }
 
    public String getServletContextName()
-   {  
+   {
       throw new RuntimeException("NYI");
    }
 
    public Enumeration getServletNames()
-   {  
+   {
       throw new RuntimeException("NYI");
    }
 
@@ -934,15 +936,15 @@ implements Context, Container, ServletContext
    }
 
    public void log(String arg0)
-   { 
+   {
    }
 
    public void log(Exception arg0, String arg1)
-   { 
+   {
    }
 
    public void log(String arg0, Throwable arg1)
-   { 
+   {
    }
 
    public void removeAttribute(String arg0)
@@ -951,7 +953,7 @@ implements Context, Container, ServletContext
    }
 
    public void setAttribute(String arg0, Object arg1)
-   { 
+   {
       this.attribs.put(arg0, arg1);
    }
 }

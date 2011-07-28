@@ -53,6 +53,7 @@ import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.Session;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
+import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.valves.ValveBase;
@@ -478,6 +479,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
       cleanUpSessionNote(request);
 
+      //Determine the transport mechanism
+      boolean isSecure = request.isSecure();
+      String loginType = determineLoginType(isSecure);
+
       try
       {
          samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
@@ -497,6 +502,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext,
                idpIssuer.getIssuer(), samlDocumentHolder, HANDLER_TYPE.IDP);
          saml2HandlerRequest.setRelayState(relayState);
+         if (StringUtil.isNotNull(loginType))
+         {
+            saml2HandlerRequest.addOption(GeneralConstants.LOGIN_TYPE, loginType);
+         }
 
          String assertionID = (String) session.getSession().getAttribute(GeneralConstants.ASSERTION_ID);
 
@@ -972,6 +981,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
 
       context = (Context) getContainer();
+
       InputStream is = context.getServletContext().getResourceAsStream(configFile);
       if (is == null)
          throw new RuntimeException(configFile + " missing");
@@ -1155,6 +1165,25 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
        * created as part of the HTTP/POST binding
        */
       response.recycle();
+   }
+
+   protected String determineLoginType(boolean isSecure)
+   {
+      String result = JBossSAMLURIConstants.AC_PASSWORD.get();
+      LoginConfig loginConfig = context.getLoginConfig();
+      if (loginConfig != null)
+      {
+         String auth = loginConfig.getAuthMethod();
+         if (StringUtil.isNotNull(auth))
+         {
+            if ("CLIENT-CERT".equals(auth))
+               result = JBossSAMLURIConstants.AC_TLS_CLIENT.get();
+            else if (isSecure)
+               result = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
+         }
+      }
+
+      return result;
    }
 
    /**
