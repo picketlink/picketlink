@@ -34,11 +34,14 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Session;
 import org.apache.catalina.authenticator.AuthenticatorBase;
 import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.connector.Request;
@@ -113,6 +116,8 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
    protected Lock chainLock = new ReentrantLock();
 
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
+
+   protected final String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
 
    /**
     * Servlet3 related changes forced Tomcat to change the authenticate method
@@ -452,6 +457,28 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
       chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
       chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
       chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); //No validator as tomcat realm does validn   
+   }
+
+   protected void sendToLogoutPage(Request request, Response response, Session session) throws IOException,
+         ServletException
+   {
+      //we are invalidated.
+      RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.logOutPage);
+      if (dispatch == null)
+         log.error("Cannot dispatch to the logout page: no request dispatcher:" + this.logOutPage);
+      else
+      {
+         session.expire();
+         try
+         {
+            dispatch.forward(request, response);
+         }
+         catch (Exception e)
+         {
+            //JBAS5.1 and 6 quirkiness
+            dispatch.forward(request.getRequest(), response);
+         }
+      }
    }
 
    private Class<?> getAuthenticatorBaseClass()

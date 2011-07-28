@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Session;
@@ -77,8 +77,6 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
 
    private boolean jbossEnv = false;
 
-   private final String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
-
    protected boolean supportSignatures = false;
 
    protected TrustKeyManager keyManager;
@@ -118,7 +116,26 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
    @Override
    public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException
    {
+      Session session = request.getSessionInternal(true);
+
       SPUtil spUtil = new SPUtil();
+
+      //Eagerly look for Local LogOut
+      String lloStr = request.getParameter(GeneralConstants.LOCAL_LOGOUT);
+      boolean localLogout = isNotNull(lloStr) && "true".equalsIgnoreCase(lloStr);
+      if (localLogout)
+      {
+         try
+         {
+            sendToLogoutPage(request, response, session);
+         }
+         catch (ServletException e)
+         {
+            log.error("Exception in logout::", e);
+            throw new IOException(e);
+         }
+         return false;
+      }
 
       //Eagerly look for Global LogOut
       String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
@@ -133,7 +150,6 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
       if (principal != null && !(logOutRequest || isNotNull(samlRequest) || isNotNull(samlResponse)))
          return true;
 
-      Session session = request.getSessionInternal(true);
       String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
 
       boolean willSendRequest = false;
@@ -244,23 +260,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
                boolean sessionValidity = session.isValid();
                if (!sessionValidity)
                {
-                  //we are invalidated.
-                  RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.logOutPage);
-                  if (dispatch == null)
-                     log.error("Cannot dispatch to the logout page: no request dispatcher:" + this.logOutPage);
-                  else
-                  {
-                     session.expire();
-                     try
-                     {
-                        dispatch.forward(request, response);
-                     }
-                     catch (Exception e)
-                     {
-                        //JBAS5.1 and 6 quirkiness
-                        dispatch.forward(request.getRequest(), response);
-                     }
-                  }
+                  sendToLogoutPage(request, response, session);
                   return false;
                }
 
