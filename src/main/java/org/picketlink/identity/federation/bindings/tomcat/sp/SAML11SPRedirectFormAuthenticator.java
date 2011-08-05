@@ -35,6 +35,7 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
@@ -80,7 +81,7 @@ public class SAML11SPRedirectFormAuthenticator extends SPRedirectFormAuthenticat
             throw new IOException();
          }
          if (!isValid)
-            throw new IOException("Validity check failed");
+            throw new IOException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
          try
          {

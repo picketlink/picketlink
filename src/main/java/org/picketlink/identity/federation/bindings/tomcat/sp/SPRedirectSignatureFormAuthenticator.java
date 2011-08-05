@@ -34,6 +34,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Request;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -80,16 +81,16 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
 
       KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();
       if (keyProvider == null)
-         throw new LifecycleException("KeyProvider is null for context=" + context.getName());
+         throw new LifecycleException(ErrorCodes.NULL_VALUE + "KeyProvider is null for context=" + context.getName());
       try
       {
          String keyManagerClassName = keyProvider.getClassName();
          if (keyManagerClassName == null)
-            throw new RuntimeException("KeyManager class name is null");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
 
          Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
          if (clazz == null)
-            throw new ClassNotFoundException("Unable to load class:" + keyManagerClassName);
+            throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + keyManagerClassName);
          this.keyManager = (TrustKeyManager) clazz.newInstance();
 
          List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);

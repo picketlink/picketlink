@@ -29,6 +29,7 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Response;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -78,16 +79,16 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
 
       KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();
       if (keyProvider == null)
-         throw new LifecycleException("KeyProvider is null");
+         throw new LifecycleException(ErrorCodes.NULL_VALUE + "KeyProvider");
       try
       {
          String keyManagerClassName = keyProvider.getClassName();
          if (keyManagerClassName == null)
-            throw new RuntimeException("KeyManager class name is null");
+            throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
 
          Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
          if (clazz == null)
-            throw new RuntimeException("Unable to load class:" + keyManagerClassName);
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + keyManagerClassName);
 
          this.keyManager = (TrustKeyManager) clazz.newInstance();
 
@@ -120,7 +121,7 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
          boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException
    {
       if (keyManager == null)
-         throw new IllegalStateException("Key Manager is null");
+         throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Key Manager");
       //Sign the document
       SAML2Signature samlSignature = new SAML2Signature();
       KeyPair keypair = keyManager.getSigningKeyPair();

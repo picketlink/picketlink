@@ -40,6 +40,7 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
 import org.picketlink.identity.federation.bindings.util.ValveUtil;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -111,7 +112,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          Response catalinaResponse = (Response) response;
          return authenticate(request, catalinaResponse, config);
       }
-      throw new RuntimeException("Response was not of type catalina response");
+      throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_NOT_CATALINA_RESPONSE);
    }
 
    @Override
@@ -199,7 +200,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
       {
          if (trace)
             log.trace("Server Exception:", e);
-         throw new IOException("Server Exception");
+         throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
       }
       return localAuthentication(request, response, loginConfig);
    }
@@ -235,7 +236,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          throw new IOException();
       }
       if (!isValid)
-         throw new IOException("Validity check failed");
+         throw new IOException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
       //deal with SAML response from IDP 
       try
@@ -316,12 +317,12 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
             //Just issue a fresh request back to IDP
             return generalUserRequest(request, response, loginConfig);
          }
-         throw new IOException("Server Exception:" + pe.getLocalizedMessage());
+         throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + pe.getLocalizedMessage());
       }
       catch (Exception e)
       {
          log.error("Server Exception:", e);
-         throw new IOException("Server Exception");
+         throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
       }
       return localAuthentication(request, response, loginConfig);
    }
@@ -394,7 +395,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          {
             if (trace)
                log.trace("Exception:", e);
-            throw new IOException("Server Error");
+            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
          }
       }
 
@@ -458,6 +459,6 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
     */
    protected ResponseType decryptAssertion(ResponseType responseType)
    {
-      throw new RuntimeException("This authenticator does not handle encryption");
+      throw new RuntimeException(ErrorCodes.AUTHENTICATOR_DOES_NOT_HANDLE_ENC);
    }
 }

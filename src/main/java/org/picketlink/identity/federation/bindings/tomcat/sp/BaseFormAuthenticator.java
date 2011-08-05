@@ -50,6 +50,7 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataExtractor;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -285,7 +286,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
             }
             catch (Exception ex)
             {
-               throw new IOException("Unable to fallback on local auth", ex);
+               throw new IOException(ErrorCodes.UNABLE_LOCAL_AUTH, ex);
             }
          }
       }
@@ -361,7 +362,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
       ServletContext servletContext = context.getServletContext();
       InputStream is = servletContext.getResourceAsStream(configFile);
       if (is == null)
-         throw new RuntimeException(configFile + " missing");
+         throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile);
       try
       {
          spConfiguration = ConfigurationUtil.getSPConfiguration(is);

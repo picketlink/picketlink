@@ -60,6 +60,7 @@ import org.apache.catalina.valves.ValveBase;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
@@ -221,7 +222,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       {
          Class<?> clazz = SecurityActions.loadClass(getClass(), rgName);
          if (clazz == null)
-            throw new RuntimeException("Unable to load class:" + rgName);
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + rgName);
          roleGenerator = (RoleGenerator) clazz.newInstance();
       }
       catch (Exception e)
@@ -493,7 +494,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                samlRequestMessage, signature, sigAlg), isPost);
 
          if (!isValid)
-            throw new GeneralSecurityException("Validation check failed");
+            throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
          String issuer = null;
          IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
@@ -572,7 +573,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             }
          }
          else
-            throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
+            throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
 
          samlResponse = saml2HandlerResponse.getResultingDocument();
          relayState = saml2HandlerResponse.getRelayState();
@@ -685,7 +686,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          }
 
          if (!isValid)
-            throw new GeneralSecurityException("Validation check failed");
+            throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
          String issuer = null;
          IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
@@ -724,7 +725,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             }
          }
          else
-            throw new RuntimeException("Unknown type:" + samlObject.getClass().getName());
+            throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
 
          samlResponse = saml2HandlerResponse.getResultingDocument();
          relayState = saml2HandlerResponse.getRelayState();
@@ -752,7 +753,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
             if (destination == null)
-               throw new ServletException("Destination is null");
+               throw new ServletException(ErrorCodes.NULL_VALUE + "Destination");
             holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                   .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
                   .setServletResponse(response).setPostBindingRequested(requestedPostProfile);
@@ -959,7 +960,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
       // Validate and update our current component state
       if (started)
-         throw new LifecycleException("IDPWebBrowserSSOValve already Started");
+         throw new LifecycleException(ErrorCodes.IDP_WEBBROWSER_VALVE_ALREADY_STARTED);
       lifecycle.fireLifecycleEvent(START_EVENT, null);
       started = true;
 
@@ -984,7 +985,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
       InputStream is = context.getServletContext().getResourceAsStream(configFile);
       if (is == null)
-         throw new RuntimeException(configFile + " missing");
+         throw new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
       try
       {
          idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
@@ -1003,7 +1004,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          {
             Class<?> clazz = SecurityActions.loadClass(getClass(), attributeManager);
             if (clazz == null)
-               throw new RuntimeException("Unable to load class:" + attributeManager);
+               throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + attributeManager);
             AttributeManager delegate = (AttributeManager) clazz.newInstance();
             this.attribManager.setDelegate(delegate);
          }
@@ -1031,7 +1032,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       {
          KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
          if (keyProvider == null)
-            throw new LifecycleException("Key Provider is null for context=" + context.getName());
+            throw new LifecycleException(ErrorCodes.NULL_VALUE + "Key Provider is null for context="
+                  + context.getName());
 
          try
          {
@@ -1101,7 +1103,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             {
                Class<?> clazz = SecurityActions.loadClass(getClass(), this.identityParticipantStack);
                if (clazz == null)
-                  throw new ClassNotFoundException("Unable to load class:" + this.identityParticipantStack);
+                  throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + this.identityParticipantStack);
 
                identityServer.setStack((IdentityParticipantStack) clazz.newInstance());
             }
@@ -1133,7 +1135,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    {
       // Validate and update our current component state
       if (!started)
-         throw new LifecycleException("IDPWebBrowserSSOValve NotStarted");
+         throw new LifecycleException(ErrorCodes.IDP_WEBBROWSER_VALVE_NOT_STARTED);
       lifecycle.fireLifecycleEvent(STOP_EVENT, null);
       started = false;
    }

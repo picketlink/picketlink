@@ -30,6 +30,7 @@ import java.util.List;
 import org.apache.catalina.Role;
 import org.apache.catalina.User;
 import org.apache.catalina.realm.GenericPrincipal;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 
 /**
@@ -38,7 +39,7 @@ import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
  * @since Jan 21, 2009
  */
 public class TomcatRoleGenerator implements RoleGenerator
-{ 
+{
    /**
     * @see RoleGenerator#generateRoles(Principal)
     * @throws IllegalArgumentException if principal is not of type GenericPrincipal or User
@@ -46,30 +47,28 @@ public class TomcatRoleGenerator implements RoleGenerator
    public List<String> generateRoles(Principal principal)
    {
       String className = principal.getClass().getCanonicalName();
-      
-      if(principal instanceof GenericPrincipal == false &&
-            principal instanceof User == false)
-         throw new IllegalArgumentException("principal is not tomcat principal:"+ className);
+
+      if (principal instanceof GenericPrincipal == false && principal instanceof User == false)
+         throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "principal is not tomcat principal:" + className);
       List<String> userRoles = new ArrayList<String>();
 
-      if(principal instanceof GenericPrincipal)
+      if (principal instanceof GenericPrincipal)
       {
          GenericPrincipal gp = (GenericPrincipal) principal;
          String[] roles = gp.getRoles();
-         if(roles.length > 0)
+         if (roles.length > 0)
             userRoles.addAll(Arrays.asList(roles));
       }
-      else
-         if(principal instanceof User)
+      else if (principal instanceof User)
+      {
+         User tomcatUser = (User) principal;
+         Iterator<?> iter = tomcatUser.getRoles();
+         while (iter.hasNext())
          {
-            User tomcatUser = (User) principal;
-            Iterator<?> iter = tomcatUser.getRoles();
-            while(iter.hasNext())
-            {
-               Role tomcatRole = (Role) iter.next();
-               userRoles.add(tomcatRole.getRolename());
-            }
+            Role tomcatRole = (Role) iter.next();
+            userRoles.add(tomcatRole.getRolename());
          }
-      return userRoles; 
+      }
+      return userRoles;
    }
 }
