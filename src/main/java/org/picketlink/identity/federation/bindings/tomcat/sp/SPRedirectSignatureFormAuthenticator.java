@@ -69,16 +69,20 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
 
    private TrustKeyManager keyManager;
 
-   protected String validatingAlias = null;
+   protected String idpAddress = null;
 
    public SPRedirectSignatureFormAuthenticator()
    {
       super();
    }
 
-   public void setValidatingAlias(String validatingAlias)
+   /**
+    * If the request.getRemoteAddr is not exactly the IDP address that you have keyed
+    * in your deployment descriptor for keystore alias, you can set it here explicitly
+    */
+   public void setIdpAddress(String idpAddress)
    {
-      this.validatingAlias = validatingAlias;
+      this.idpAddress = idpAddress;
    }
 
    @Override
@@ -104,6 +108,16 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
          List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
          keyManager.setAuthProperties(authProperties);
          keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
+
+         /**
+          * Since the user has explicitly configured the idp address, we need
+          * to add an option on the keymanager such that users of keymanager
+          * can choose the proper idp key for validation
+          */
+         if (StringUtil.isNotNull(idpAddress))
+         {
+            keyManager.addAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY, this.idpAddress);
+         }
       }
       catch (Exception e)
       {
@@ -155,11 +169,11 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
       PublicKey validatingKey;
       try
       {
-         if (StringUtil.isNullOrEmpty(validatingAlias))
+         if (StringUtil.isNullOrEmpty(idpAddress))
          {
-            validatingAlias = request.getRemoteAddr();
+            idpAddress = request.getRemoteAddr();
          }
-         validatingKey = keyManager.getValidatingKey(validatingAlias);
+         validatingKey = keyManager.getValidatingKey(idpAddress);
       }
       catch (TrustKeyConfigurationException e)
       {
