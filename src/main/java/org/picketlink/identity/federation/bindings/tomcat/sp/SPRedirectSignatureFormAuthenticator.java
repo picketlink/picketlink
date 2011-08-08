@@ -46,6 +46,7 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingExce
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
@@ -68,9 +69,16 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
 
    private TrustKeyManager keyManager;
 
+   protected String validatingAlias = null;
+
    public SPRedirectSignatureFormAuthenticator()
    {
       super();
+   }
+
+   public void setValidatingAlias(String validatingAlias)
+   {
+      this.validatingAlias = validatingAlias;
    }
 
    @Override
@@ -147,7 +155,11 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
       PublicKey validatingKey;
       try
       {
-         validatingKey = keyManager.getValidatingKey(request.getRemoteAddr());
+         if (StringUtil.isNullOrEmpty(validatingAlias))
+         {
+            validatingAlias = request.getRemoteAddr();
+         }
+         validatingKey = keyManager.getValidatingKey(validatingAlias);
       }
       catch (TrustKeyConfigurationException e)
       {
