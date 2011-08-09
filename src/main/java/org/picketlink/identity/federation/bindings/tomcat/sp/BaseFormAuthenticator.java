@@ -75,6 +75,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
+import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 import org.w3c.dom.Document;
 
 /**
@@ -123,6 +124,11 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
    protected final String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
 
    /**
+    * The user can inject a fully qualified name of a {@link SAMLConfigurationProvider}
+    */
+   protected SAMLConfigurationProvider configProvider = null;
+
+   /**
     * Servlet3 related changes forced Tomcat to change the authenticate method
     * signature in the FormAuthenticator. For now, we use reflection for forward
     * compatibility.  This has to be changed in future.
@@ -164,6 +170,23 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
    public void setSaveRestoreRequest(boolean saveRestoreRequest)
    {
       this.saveRestoreRequest = saveRestoreRequest;
+   }
+
+   public void setConfigProvider(String cp)
+   {
+      if (cp == null)
+         throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
+      Class<?> clazz = SecurityActions.loadClass(getClass(), cp);
+      if (clazz == null)
+         throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + cp);
+      try
+      {
+         configProvider = (SAMLConfigurationProvider) clazz.newInstance();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
+      }
    }
 
    /**
@@ -365,7 +388,14 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
          throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile);
       try
       {
-         spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+         if (configProvider != null)
+         {
+            spConfiguration = configProvider.getSPConfiguration();
+         }
+         else
+         {
+            spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+         }
 
          if (StringUtil.isNotNull(spConfiguration.getIdpMetadataFile()))
          {

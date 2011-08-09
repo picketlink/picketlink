@@ -123,6 +123,7 @@ import org.picketlink.identity.federation.web.util.IDPWebRequestUtil;
 import org.picketlink.identity.federation.web.util.IDPWebRequestUtil.WebRequestUtilHolder;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 import org.w3c.dom.Document;
 
 /**
@@ -167,6 +168,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
    /**
+    * The user can inject a fully qualified name of a {@link SAMLConfigurationProvider}
+    */
+   protected SAMLConfigurationProvider configProvider = null;
+
+   /**
     * If the user wants to set a particular {@link IdentityParticipantStack}
     */
    protected String identityParticipantStack = null;
@@ -183,6 +189,23 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       {
          this.attributeKeys.clear();
          this.attributeKeys.addAll(StringUtil.tokenize(attribList));
+      }
+   }
+
+   public void setConfigProvider(String cp)
+   {
+      if (cp == null)
+         throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
+      Class<?> clazz = SecurityActions.loadClass(getClass(), cp);
+      if (clazz == null)
+         throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + cp);
+      try
+      {
+         configProvider = (SAMLConfigurationProvider) clazz.newInstance();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
       }
    }
 
@@ -970,6 +993,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       if (StringUtil.isNullOrEmpty(samlHandlerChainClass))
          chain = SAML2HandlerChainFactory.createChain();
       else
+      {
          try
          {
             chain = SAML2HandlerChainFactory.createChain(this.samlHandlerChainClass);
@@ -978,17 +1002,45 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          {
             throw new LifecycleException(e1);
          }
+      }
+
+      //Work on the IDP Configuration
+      if (configProvider != null)
+      {
+         try
+         {
+            idpConfiguration = configProvider.getIDPConfiguration();
+         }
+         catch (ProcessingException e)
+         {
+            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + e.getLocalizedMessage());
+         }
+      }
 
       String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
 
       context = (Context) getContainer();
 
-      InputStream is = context.getServletContext().getResourceAsStream(configFile);
-      if (is == null)
-         throw new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
+      if (idpConfiguration == null)
+      {
+
+         InputStream is = context.getServletContext().getResourceAsStream(configFile);
+         if (is == null)
+            throw new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
+
+         try
+         {
+            idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
+         }
+         catch (ParsingException e)
+         {
+            if (trace)
+               log.trace(e);
+            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+         }
+      }
       try
       {
-         idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
          this.identityURL = idpConfiguration.getIdentityURL();
          if (trace)
             log.trace("Identity Provider URL=" + this.identityURL);
@@ -1011,7 +1063,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       }
       catch (Exception e)
       {
-         throw new RuntimeException(e);
+         throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
       }
 
       //Ensure that the Core STS has the SAML20 Token Provider
@@ -1107,15 +1159,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
                identityServer.setStack((IdentityParticipantStack) clazz.newInstance());
             }
-            catch (ClassNotFoundException e)
-            {
-               log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
-            }
-            catch (InstantiationException e)
-            {
-               log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
-            }
-            catch (IllegalAccessException e)
+            catch (Exception e)
             {
                log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
             }
@@ -1184,7 +1228,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                result = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
          }
       }
-
       return result;
    }
 
