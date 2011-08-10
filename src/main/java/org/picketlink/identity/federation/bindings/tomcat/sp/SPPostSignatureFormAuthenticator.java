@@ -37,6 +37,8 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
 import org.w3c.dom.Document;
 
 /**
@@ -51,24 +53,15 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
 
    private final boolean trace = log.isTraceEnabled();
 
+   protected String idpAddress = null;
+
    /**
-    * Flag to indicate whether we want to sign the assertions
+    * If the request.getRemoteAddr is not exactly the IDP address that you have keyed
+    * in your deployment descriptor for keystore alias, you can set it here explicitly
     */
-   protected boolean signAssertions = false;
-
-   public SPPostSignatureFormAuthenticator()
+   public void setIdpAddress(String idpAddress)
    {
-      this.validateSignature = true;
-   }
-
-   public boolean isSignAssertions()
-   {
-      return signAssertions;
-   }
-
-   public void setSignAssertions(boolean signAssertions)
-   {
-      this.signAssertions = signAssertions;
+      this.idpAddress = idpAddress;
    }
 
    @Override
@@ -95,6 +88,16 @@ public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator
          List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
          keyManager.setAuthProperties(authProperties);
          keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
+
+         /**
+          * Since the user has explicitly configured the idp address, we need
+          * to add an option on the keymanager such that users of keymanager
+          * can choose the proper idp key for validation
+          */
+         if (StringUtil.isNotNull(idpAddress))
+         {
+            keyManager.addAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY, this.idpAddress);
+         }
       }
       catch (Exception e)
       {
