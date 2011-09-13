@@ -23,9 +23,17 @@ package org.picketlink.identity.federation.bindings.tomcat;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.security.auth.Subject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Realm;
-import org.apache.catalina.authenticator.AuthenticatorBase;
+import org.apache.catalina.Session;
+import org.apache.catalina.authenticator.Constants;
+import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
@@ -40,26 +48,28 @@ import org.apache.log4j.Logger;
  * @author Anil.Saldhana@redhat.com
  * @since Apr 11, 2011
  */
-public class PicketLinkAuthenticator extends AuthenticatorBase
+public class PicketLinkAuthenticator extends FormAuthenticator
 {
    protected static Logger log = Logger.getLogger(PicketLinkAuthenticator.class);
 
    protected boolean trace = log.isTraceEnabled();
 
    /**
-    * The {@link Realm} requires an user name
-    */
-   protected String userName = "custom-authenticator-user";
-
-   /**
-    * The {@link Realm} requires a password
-    */
-   protected String password = "custom-authenticator-password";
-
-   /**
     * This is the auth method used in the register method
     */
    protected String authMethod = "SECURITY_DOMAIN";
+
+   /**
+    * The authenticator may not be aware of the user name until after
+    * the underlying security exercise is complete. The Subject
+    * will have the proper user name. Hence we may need to perform
+    * an additional authentication now with the user name we have obtained.
+    */
+   protected boolean needSubjectPrincipalSubstitution = true;
+
+   protected SubjectSecurityInteraction subjectInteraction = null;
+
+   protected String subjectInteractionClassName = "org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkJBossSubjectInteraction";
 
    public PicketLinkAuthenticator()
    {
@@ -67,24 +77,6 @@ public class PicketLinkAuthenticator extends AuthenticatorBase
       {
          log.trace("PicketLinkAuthenticator Created");
       }
-   }
-
-   /**
-    * Set the user name via WEB-INF/context.xml (JBoss AS)
-    * @param defaultUserName
-    */
-   public void setUserName(String defaultUserName)
-   {
-      this.userName = defaultUserName;
-   }
-
-   /**
-    * Set the password via WEB-INF/context.xml (JBoss AS)
-    * @param defaultPassword
-    */
-   public void setPassword(String defaultPassword)
-   {
-      this.password = defaultPassword;
    }
 
    /**
@@ -96,18 +88,94 @@ public class PicketLinkAuthenticator extends AuthenticatorBase
       this.authMethod = authMethod;
    }
 
-   @Override
-   protected boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException
+   public void setNeedSubjectPrincipalSubstitution(String needSubjectPrincipalSubstitutionVal)
    {
+      this.needSubjectPrincipalSubstitution = Boolean.valueOf(needSubjectPrincipalSubstitutionVal);
+   }
+
+   /**
+    * Set this if you want to override the default {@link SubjectSecurityInteraction}
+    * @param subjectRetrieverClassName
+    */
+   public void setSubjectInteractionClassName(String subjectRetrieverClassName)
+   {
+      this.subjectInteractionClassName = subjectRetrieverClassName;
+   }
+
+   @Override
+   public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException
+   {
+      log.trace("Authenticating user");
+
+      Principal principal = request.getUserPrincipal();
+      if (principal != null)
+      {
+         if (trace)
+            log.trace("Already authenticated '" + principal.getName() + "'");
+         return true;
+      }
+
+      Session session = request.getSessionInternal(true);
+      String userName = UUID.randomUUID().toString();
+      String password = userName;
       Realm realm = context.getRealm();
 
-      Principal principal = realm.authenticate(this.userName, this.password);
+      principal = realm.authenticate(userName, password);
+      Principal originalPrincipal = principal;
 
       if (principal != null)
       {
-         register(request, response, principal, this.authMethod, null, null);
+         if (needSubjectPrincipalSubstitution)
+         {
+            principal = getSubjectPrincipal();
+            if (principal == null)
+               throw new RuntimeException("Principal from subject is null");
+            principal = realm.authenticate(principal.getName(), password);
+         }
+         session.setNote(Constants.SESS_USERNAME_NOTE, principal.getName());
+         session.setNote(Constants.SESS_PASSWORD_NOTE, password);
+         request.setUserPrincipal(principal);
+         register(request, response, principal, this.authMethod, principal.getName(), password);
+         if (originalPrincipal != null && needSubjectPrincipalSubstitution)
+         {
+            subjectInteraction.cleanup(originalPrincipal);
+         }
+         return true;
       }
 
-      return true;
+      return false;
+   }
+
+   public boolean authenticate(HttpServletRequest request, HttpServletResponse response, LoginConfig loginConfig)
+         throws IOException
+   {
+      return authenticate((Request) request, (Response) response, loginConfig);
+   }
+
+   protected Principal getSubjectPrincipal()
+   {
+      if (subjectInteraction == null)
+      {
+         Class<?> clazz = SecurityActions.loadClass(getClass(), subjectInteractionClassName);
+         try
+         {
+            subjectInteraction = (SubjectSecurityInteraction) clazz.newInstance();
+         }
+         catch (Exception e)
+         {
+            throw new RuntimeException(e);
+         }
+      }
+
+      Subject subject = subjectInteraction.get();
+      if (subject != null)
+      {
+         Set<Principal> principals = subject.getPrincipals();
+         if (!principals.isEmpty())
+         {
+            return subject.getPrincipals().iterator().next();
+         }
+      }
+      return null;
    }
 }
