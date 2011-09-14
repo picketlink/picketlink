@@ -156,7 +156,7 @@ public class PicketLinkAuthenticator extends FormAuthenticator
    {
       if (subjectInteraction == null)
       {
-         Class<?> clazz = SecurityActions.loadClass(getClass(), subjectInteractionClassName);
+         Class<?> clazz = ClassLoadingSecurityActions.loadClass(getClass(), subjectInteractionClassName);
          try
          {
             subjectInteraction = (SubjectSecurityInteraction) clazz.newInstance();
