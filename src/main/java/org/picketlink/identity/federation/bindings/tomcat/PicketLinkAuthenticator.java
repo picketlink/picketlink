@@ -22,7 +22,9 @@
 package org.picketlink.identity.federation.bindings.tomcat;
 
 import java.io.IOException;
+import java.security.AccessController;
 import java.security.Principal;
+import java.security.PrivilegedAction;
 import java.util.Set;
 import java.util.UUID;
 
@@ -156,7 +158,7 @@ public class PicketLinkAuthenticator extends FormAuthenticator
    {
       if (subjectInteraction == null)
       {
-         Class<?> clazz = ClassLoadingSecurityActions.loadClass(getClass(), subjectInteractionClassName);
+         Class<?> clazz = loadClass(getClass(), subjectInteractionClassName);
          try
          {
             subjectInteraction = (SubjectSecurityInteraction) clazz.newInstance();
@@ -177,5 +179,42 @@ public class PicketLinkAuthenticator extends FormAuthenticator
          }
       }
       return null;
+   }
+
+   Class<?> loadClass(final Class<?> theClass, final String fqn)
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
+      {
+         public Class<?> run()
+         {
+            ClassLoader classLoader = theClass.getClassLoader();
+
+            Class<?> clazz = loadClass(classLoader, fqn);
+            if (clazz == null)
+            {
+               classLoader = Thread.currentThread().getContextClassLoader();
+               clazz = loadClass(classLoader, fqn);
+            }
+            return clazz;
+         }
+      });
+   }
+
+   Class<?> loadClass(final ClassLoader cl, final String fqn)
+   {
+      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
+      {
+         public Class<?> run()
+         {
+            try
+            {
+               return cl.loadClass(fqn);
+            }
+            catch (ClassNotFoundException e)
+            {
+            }
+            return null;
+         }
+      });
    }
 }
