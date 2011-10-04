@@ -33,7 +33,6 @@
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.4.3</version>
           <configuration>
               <printSummary>true</printSummary>
               <disableXmlReport>false</disableXmlReport>
@@ -43,7 +42,7 @@
               </excludes>
               <forkMode>pertest</forkMode>
               <argLine>${surefire.jvm.args}</argLine>
-         .    <useFile>false</useFile>
+              <useFile>false</useFile>
              <trimStackTrace>false</trimStackTrace>
            </configuration>
           </plugin>
@@ -60,7 +59,6 @@
       <plugins>
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.4.3</version>
           <configuration>
               <childDelegation>true</childDelegation>
               <printSummary>true</printSummary>
@@ -71,7 +69,7 @@
               </includes>
               <forkMode>pertest</forkMode>
               <argLine>${surefire.jvm.args}</argLine>
-         .    <useFile>false</useFile>
+              <useFile>false</useFile>
              <trimStackTrace>false</trimStackTrace>
            </configuration>
           </plugin>
@@ -84,7 +82,6 @@
      <plugins>
        <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.4.3</version>
           <configuration>
             <printSummary>true</printSummary>
             <disableXmlReport>false</disableXmlReport>
