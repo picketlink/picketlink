@@ -198,8 +198,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
       }
       catch (Exception e)
       {
-         if (trace)
-            log.trace("Server Exception:", e);
+         log.error("Server Exception:", e);
          throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
       }
       return localAuthentication(request, response, loginConfig);
@@ -317,6 +316,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
             //Just issue a fresh request back to IDP
             return generalUserRequest(request, response, loginConfig);
          }
+         log.error("Server Exception:", pe);
          throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + pe.getLocalizedMessage());
       }
       catch (Exception e)
@@ -393,8 +393,7 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          }
          catch (Exception e)
          {
-            if (trace)
-               log.trace("Exception:", e);
+            log.error("Server Exception:", e);
             throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
          }
       }

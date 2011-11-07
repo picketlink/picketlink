@@ -332,12 +332,12 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
             //Just issue a fresh request back to IDP
             return generalUserRequest(request, response, loginConfig);
          }
+         log.error("Server Exception:", pe);
          throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + pe.getLocalizedMessage());
       }
       catch (Exception e)
       {
-         if (trace)
-            log.trace("Server Exception:", e);
+         log.error("Server Exception:", e);
          throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + e.getLocalizedMessage());
       }
       return localAuthentication(request, response, loginConfig);
@@ -426,8 +426,7 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
          }
          catch (Exception e)
          {
-            if (trace)
-               log.trace("Exception:", e);
+            log.error("Server Exception:", e);
             throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
          }
       }
