@@ -140,6 +140,56 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase
       sendSPRequest(request, true, idpAddress);
    }
 
+   private MockCatalinaResponse sendIDPRequest(MockCatalinaRequest request, boolean validatingAliasToTokenIssuer)
+         throws LifecycleException, IOException, ServletException
+   {
+      MockCatalinaContextClassLoader mclIDP = setupTCL(IDP_PROFILE);
+      Thread.currentThread().setContextClassLoader(mclIDP);
+
+      IDPWebBrowserSSOValve idp = new IDPWebBrowserSSOValve();
+      
+      idp.setSignOutgoingMessages(true);
+      idp.setIgnoreIncomingSignatures(false);
+      idp.setValidatingAliasToTokenIssuer(validatingAliasToTokenIssuer);
+      
+      idp.setContainer(request.getContext());
+      idp.start();
+      
+      MockCatalinaResponse response = new MockCatalinaResponse();
+      
+      idp.invoke(request, response);
+      
+      return response;
+   }
+
+   private MockCatalinaResponse sendSPRequest(MockCatalinaRequest request, boolean validateAuthentication, String idpAddress)
+         throws LifecycleException, IOException
+   {
+      MockCatalinaContextClassLoader mclSPEmp = setupTCL(SP_PROFILE);
+      Thread.currentThread().setContextClassLoader(mclSPEmp); 
+      
+      SPRedirectSignatureFormAuthenticator sp = new SPRedirectSignatureFormAuthenticator();
+      
+      sp.setIdpAddress(idpAddress);
+      
+      request.setParameter(GeneralConstants.RELAY_STATE, null);
+      
+      MockCatalinaLoginConfig loginConfig = new MockCatalinaLoginConfig();
+      
+      sp.setContainer(request.getContext());
+      sp.testStart();
+      
+      MockCatalinaResponse response = new MockCatalinaResponse();
+      
+      if (validateAuthentication) {
+         Assert.assertTrue("Employee app succesfully authenticated.", sp.authenticate(request, response, loginConfig));
+      } else {
+         sp.authenticate(request, response, loginConfig);
+      }
+      
+      return response;
+   }
+   
    private MockCatalinaRequest createRequest(String userAddress)
    {
       MockCatalinaRequest request = new MockCatalinaRequest();
@@ -194,56 +244,6 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase
             return "user";
          }
       });
-   }
-
-   private MockCatalinaResponse sendIDPRequest(MockCatalinaRequest request, boolean validatingAliasToTokenIssuer)
-         throws LifecycleException, IOException, ServletException
-   {
-      MockCatalinaContextClassLoader mclIDP = setupTCL(IDP_PROFILE);
-      Thread.currentThread().setContextClassLoader(mclIDP);
-
-      IDPWebBrowserSSOValve idp = new IDPWebBrowserSSOValve();
-      
-      idp.setSignOutgoingMessages(true);
-      idp.setIgnoreIncomingSignatures(false);
-      idp.setValidatingAliasToTokenIssuer(validatingAliasToTokenIssuer);
-      
-      idp.setContainer(request.getContext());
-      idp.start();
-      
-      MockCatalinaResponse response = new MockCatalinaResponse();
-      
-      idp.invoke(request, response);
-      
-      return response;
-   }
-
-   private MockCatalinaResponse sendSPRequest(MockCatalinaRequest request, boolean validateAuthentication, String idpAddress)
-         throws LifecycleException, IOException
-   {
-      MockCatalinaContextClassLoader mclSPEmp = setupTCL(SP_PROFILE);
-      Thread.currentThread().setContextClassLoader(mclSPEmp); 
-      
-      SPRedirectSignatureFormAuthenticator sp = new SPRedirectSignatureFormAuthenticator();
-      
-      sp.setIdpAddress(idpAddress);
-      
-      request.setParameter(GeneralConstants.RELAY_STATE, null);
-      
-      MockCatalinaLoginConfig loginConfig = new MockCatalinaLoginConfig();
-      
-      sp.setContainer(request.getContext());
-      sp.testStart();
-      
-      MockCatalinaResponse response = new MockCatalinaResponse();
-      
-      if (validateAuthentication) {
-         Assert.assertTrue("Employee app succesfully authenticated.", sp.authenticate(request, response, loginConfig));
-      } else {
-         sp.authenticate(request, response, loginConfig);
-      }
-      
-      return response;
    }
    
    private MockCatalinaContextClassLoader setupTCL(String resource)
