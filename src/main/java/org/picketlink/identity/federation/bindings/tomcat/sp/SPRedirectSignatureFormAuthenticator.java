@@ -84,11 +84,23 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
    {
       this.idpAddress = idpAddress;
    }
-
+   
+   @Override
+   public void testStart() throws LifecycleException
+   {
+      super.testStart();
+      this.init();
+   }
+   
    @Override
    public void start() throws LifecycleException
    {
       super.start();
+      this.init();
+   }
+
+   private void init() throws LifecycleException
+   {
       Context context = (Context) getContainer();
 
       KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();

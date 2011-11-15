@@ -28,7 +28,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.security.PublicKey;
@@ -154,6 +156,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    private Boolean ignoreIncomingSignatures = false;
 
    private Boolean signOutgoingMessages = true;
+   
+   /**
+    * Defines how the token's signature will be validated. If true is used the token's issuer, otherwise the request.getRemoteAddr. Default false. 
+    */
+   private Boolean validatingAliasToTokenIssuer = false;
 
    private transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
 
@@ -217,6 +224,20 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    public void setIgnoreIncomingSignatures(Boolean ignoreIncomingSignature)
    {
       this.ignoreIncomingSignatures = ignoreIncomingSignature;
+   }
+
+   /**
+    * PLFED-248
+    * Allows to validate the token's signature against the keystore using the token's issuer.
+    */
+   public void setValidatingAliasToTokenIssuer(Boolean validatingAliasToTokenIssuer)
+   {
+      this.validatingAliasToTokenIssuer = validatingAliasToTokenIssuer;
+   }
+   
+   public Boolean getValidatingAliasToTokenIssuer() 
+   {
+	   return validatingAliasToTokenIssuer;
    }
 
    /**
@@ -489,8 +510,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
       Boolean requestedPostProfile = null;
 
-      //Get the SAML Request Message
-      RequestAbstractType requestAbstractType = null;
       String samlRequestMessage = (String) session.getNote(GeneralConstants.SAML_REQUEST_KEY);
 
       String relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
@@ -511,15 +530,23 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       {
          samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
          samlObject = samlDocumentHolder.getSamlObject();
+         
+         if (!(samlObject instanceof RequestAbstractType)) {
+            throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
+         }
+
+         //Get the SAML Request Message
+         RequestAbstractType requestAbstractType = (RequestAbstractType) samlObject;
+         String issuer = requestAbstractType.getIssuer().getValue();
 
          boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
-         boolean isValid = validate(request.getRemoteAddr(), request.getQueryString(), new SessionHolder(
+         String tokenSignatureValidatingAlias = getTokenSignatureValidatingAlias(request, issuer);
+         boolean isValid = validate(tokenSignatureValidatingAlias, request.getQueryString(), new SessionHolder(
                samlRequestMessage, signature, sigAlg), isPost);
 
          if (!isValid)
             throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
-         String issuer = null;
          IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
          ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
          //Create the request/response
@@ -545,12 +572,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
          if (this.keyManager != null)
          {
-            String remoteHost = request.getRemoteAddr();
             if (trace)
             {
-               log.trace("Remote Host=" + remoteHost);
+               log.trace("Remote Host=" + request.getRemoteAddr());
+               log.trace("Validating Alias=" + tokenSignatureValidatingAlias);
             }
-            PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, remoteHost);
+            
+            PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, tokenSignatureValidatingAlias);
             requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
             requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
          }
@@ -572,31 +600,24 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             log.trace("Handlers are=" + handlers);
          }
 
-         if (samlObject instanceof RequestAbstractType)
-         {
-            requestAbstractType = (RequestAbstractType) samlObject;
-            issuer = requestAbstractType.getIssuer().getValue();
-            webRequestUtil.isTrusted(issuer);
+         webRequestUtil.isTrusted(issuer);
 
-            if (handlers != null)
+         if (handlers != null)
+         {
+            try
             {
-               try
+               chainLock.lock();
+               for (SAML2Handler handler : handlers)
                {
-                  chainLock.lock();
-                  for (SAML2Handler handler : handlers)
-                  {
-                     handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
-                     willSendRequest = saml2HandlerResponse.getSendRequest();
-                  }
-               }
-               finally
-               {
-                  chainLock.unlock();
+                  handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
+                  willSendRequest = saml2HandlerResponse.getSendRequest();
                }
             }
+            finally
+            {
+               chainLock.unlock();
+            }
          }
-         else
-            throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
 
          samlResponse = saml2HandlerResponse.getResultingDocument();
          relayState = saml2HandlerResponse.getRelayState();
@@ -654,6 +675,34 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       return;
    }
 
+   /**
+    * Returns the alias to be used for the token's signature verification.
+    * If <code>validatingAliasToTokenIssuer</code> is true the token issuer will be returned.
+    * 
+    * @param request
+    * @param issuer
+    * @return
+    */
+   private String getTokenSignatureValidatingAlias(Request request, String issuer)
+   {
+      String issuerHost = request.getRemoteAddr();
+      
+      if (this.validatingAliasToTokenIssuer) {
+         try
+         {
+            issuerHost = new URL(issuer).getHost();
+         }
+         catch (MalformedURLException e)
+         {
+            if (trace) {
+               log.trace("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
+            }
+         }
+      }
+      
+      return issuerHost;
+   }
+
    protected void processSAMLResponseMessage(IDPWebRequestUtil webRequestUtil, Request request, Response response)
          throws ServletException, IOException
    {
@@ -678,17 +727,22 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
       cleanUpSessionNote(request);
 
-      StatusResponseType statusResponseType = null;
       try
       {
          samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlResponseMessage);
          samlObject = samlDocumentHolder.getSamlObject();
-
+         
+         if (!(samlObject instanceof StatusResponseType))
+         {
+            throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
+         }
+         
          boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
          boolean isValid = false;
-
-         String remoteAddress = request.getRemoteAddr();
-
+         StatusResponseType statusResponseType = (StatusResponseType) samlObject;
+         String issuer = statusResponseType.getIssuer().getValue();
+         String tokenValidatingAlias = getTokenSignatureValidatingAlias(request, issuer);
+         
          if (isPost)
          {
             //Validate
@@ -696,7 +750,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
             if (ignoreIncomingSignatures == false && signOutgoingMessages == true)
             {
-               PublicKey publicKey = keyManager.getValidatingKey(remoteAddress);
+               PublicKey publicKey = keyManager.getValidatingKey(tokenValidatingAlias);
                isValid = samlSignature.validate(samlDocumentHolder.getSamlDocument(), publicKey);
             }
             else
@@ -704,14 +758,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          }
          else
          {
-            isValid = validate(remoteAddress, request.getQueryString(), new SessionHolder(samlResponseMessage,
+            isValid = validate(tokenValidatingAlias, request.getQueryString(), new SessionHolder(samlResponseMessage,
                   signature, sigAlg), isPost);
          }
 
          if (!isValid)
             throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
-         String issuer = null;
          IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
          ProtocolContext protocolContext = new HTTPContext(request, response, context.getServletContext());
          //Create the request/response
@@ -723,32 +776,25 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
          Set<SAML2Handler> handlers = chain.handlers();
 
-         if (samlObject instanceof StatusResponseType)
-         {
-            statusResponseType = (StatusResponseType) samlObject;
-            issuer = statusResponseType.getIssuer().getValue();
-            webRequestUtil.isTrusted(issuer);
+         webRequestUtil.isTrusted(issuer);
 
-            if (handlers != null)
+         if (handlers != null)
+         {
+            try
             {
-               try
+               chainLock.lock();
+               for (SAML2Handler handler : handlers)
                {
-                  chainLock.lock();
-                  for (SAML2Handler handler : handlers)
-                  {
-                     handler.reset();
-                     handler.handleStatusResponseType(saml2HandlerRequest, saml2HandlerResponse);
-                     willSendRequest = saml2HandlerResponse.getSendRequest();
-                  }
-               }
-               finally
-               {
-                  chainLock.unlock();
+                  handler.reset();
+                  handler.handleStatusResponseType(saml2HandlerRequest, saml2HandlerResponse);
+                  willSendRequest = saml2HandlerResponse.getSendRequest();
                }
             }
+            finally
+            {
+               chainLock.unlock();
+            }
          }
-         else
-            throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
 
          samlResponse = saml2HandlerResponse.getResultingDocument();
          relayState = saml2HandlerResponse.getRelayState();

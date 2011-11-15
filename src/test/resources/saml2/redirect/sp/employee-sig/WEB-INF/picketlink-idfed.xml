@@ -1,0 +1,26 @@
+<PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0"
+	ServerEnvironment="jboss">
+	<IdentityURL>${idp-sig.url::http://192.168.1.1:8080/idp/}</IdentityURL>
+	<ServiceURL>${employee-post-sig.url::http://192.168.1.2:8080/employee/}
+	</ServiceURL>
+	<KeyProvider
+		ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
+		<Auth Key="KeyStoreURL" Value="saml2/redirect/sp/employee-sig/WEB-INF/jbid_test_keystore.jks" />
+		<Auth Key="KeyStorePass" Value="MASK-O1P+U1Domeec8lCaoIkTGg==" />
+		<Auth Key="SigningKeyPass" Value="MASK-AJbh4WmHwy8=" />
+		<Auth Key="SigningKeyAlias" Value="servercert" />
+		<Auth Key="salt" Value="18273645" />
+		<Auth Key="iterationCount" Value="11" />
+		<ValidatingAlias Key="192.168.1.1" Value="servercert" />
+	</KeyProvider>
+<!-- 	<KeyProvider -->
+<!-- 		ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager"> -->
+<!-- 		<Auth Key="KeyStoreURL" -->
+<!-- 			Value="saml2/redirect/sp/employee-sig/WEB-INF/jbid_test_keystore.jks" /> -->
+<!-- 		<Auth Key="KeyStorePass" Value="servercert" /> -->
+<!-- 		<Auth Key="SigningKeyPass" Value="servercert" /> -->
+<!-- 		<Auth Key="SigningKeyAlias" Value="172.16.2.123" /> -->
+<!-- 		<ValidatingAlias Key="172.16.2.123" Value="172.16.2.123" /> -->
+<!-- 	</KeyProvider> -->
+
+</PicketLinkSP>
