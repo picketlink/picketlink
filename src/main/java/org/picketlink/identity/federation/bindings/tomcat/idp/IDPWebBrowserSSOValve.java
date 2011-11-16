@@ -1123,9 +1123,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          log.info("Did not find picketlink-sts.xml. We will install default configuration");
          sts.installDefaultConfiguration();
       }
-      else
-         sts.installDefaultConfiguration(configPath);
-
+      else 
+         sts.installDefaultConfiguration(stsTokenConfigFile.toURI().toString());
+      
       if (this.signOutgoingMessages)
       {
          KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
