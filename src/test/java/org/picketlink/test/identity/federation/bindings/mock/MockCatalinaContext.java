@@ -879,7 +879,7 @@ public class MockCatalinaContext implements Context, Container, ServletContext
       return null;
    }
 
-   public RequestDispatcher getRequestDispatcher(String arg0)
+   public RequestDispatcher getRequestDispatcher(final String path)
    {
       return new RequestDispatcher()
       {
@@ -890,6 +890,11 @@ public class MockCatalinaContext implements Context, Container, ServletContext
 
          public void forward(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException
          {
+            if (arg0 instanceof MockCatalinaRequest) {
+               MockCatalinaRequest mockRequest = (MockCatalinaRequest) arg0;
+               
+               mockRequest.setForwardPath(path);
+            }
          }
       };
    }

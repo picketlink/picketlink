@@ -44,6 +44,7 @@ public class MockCatalinaRequest extends Request
    private String method;
    private String remotee;
    private String queryString;
+   private String forwardPath;
 
    
    @Override
@@ -153,5 +154,15 @@ public class MockCatalinaRequest extends Request
    {
       this.params.clear();
       this.session = null;
+   }
+
+   public String getForwardPath()
+   {
+      return this.forwardPath;
+   }
+
+   public void setForwardPath(String path)
+   {
+      this.forwardPath = path;
    }
 }
