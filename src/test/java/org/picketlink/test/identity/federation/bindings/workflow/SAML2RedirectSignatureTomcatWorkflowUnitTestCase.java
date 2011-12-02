@@ -21,68 +21,55 @@
  */
 package org.picketlink.test.identity.federation.bindings.workflow;
 
-
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
-import java.net.URL;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.ServletException;
 
 import junit.framework.Assert;
 
 import org.apache.catalina.LifecycleException;
-import org.apache.catalina.realm.GenericPrincipal;
 import org.junit.Test;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectSignatureFormAuthenticator;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
-import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContextClassLoader;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaLoginConfig;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRealm;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaResponse;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession;
 
 /**
  * <p>
  *  This {@code TestCase} tests the interaction between the SP and the IDP in a scenario where token signature is used. 
  * </p>
  * <p>
- *  This class also tests the use of the {@code SPRedirectSignatureFormAuthenticator.idpAddress} and the {@code IDPWebBrowserSSOValve.validatingAliasToTokenIssuer} properties.
- *  <br/>
+ *  This class also tests the use of the {@code SPRedirectSignatureFormAuthenticator.idpAddress} and the {@code IDPWebBrowserSSOValve.validatingAliasToTokenIssuer} properties 
+ *  during the token's signature validation process.
+ * </p>
+ * <p>
  *  The objective is test the following scenarios:
- *  <br/><br/>
- *      1) User's machine is the same of the SP and the IDP. (testSAML2RedirectWithSameConsumerAndProvider)
- *      <br/>
- *      2) User's machine is different of the SP and the IDP. (testSAML2RedirectWithSifferentConsumerAndProvider)
+ *      <ul>
+ *      <li>User's machine is the same of the SP and the IDP. (testSAML2RedirectWithSameConsumerAndProvider)</li>
+ *      <li> User's machine is different of the SP and the IDP. (testSAML2RedirectWithSifferentConsumerAndProvider)
+ *          <br/>
  *          192.168.1.1 -> IDP Address (IDP_PROFILE/WEB-INF/picketlink-idfed.xml)
+ *          <br/>
  *          192.168.1.2 -> SP Address (SP_PROFILE/WEB-INF/picketlink-idfed.xml)
+ *          <br/>
  *          192.168.1.3 -> End User Address
+ *      </li>
+ *      <ul>
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Igor</a>
  * @since Nov 14, 2011
  */
-public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase
+public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSAML2RedirectWithSignatureTestCase
 {
-   private static final String profile = "saml2/redirect";
 
-   private static final String IDP_PROFILE = profile + "/idp-sig/";
+   private static final String SP_EMPLOYEE_PROFILE = BASE_PROFILE + "/sp/employee-sig";
 
-   private static final String SP_PROFILE = profile + "/sp/employee-sig";
+   private SPRedirectSignatureFormAuthenticator employeeServiceProvider;
 
-   private final ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-   
-   private String SAML_REQUEST_KEY = "SAMLRequest=";
-
-   private String SAML_RESPONSE_KEY = "SAMLResponse=";
-   
    /**
     * Tests the token's signatures validations when the requester and the SP/IDP as on the same host.
     * The keyprovider is configured with the same ValidatingAlias for all of them.
@@ -92,168 +79,94 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase
    @Test
    public void testSAML2RedirectWithSameConsumerAndProvider() throws Exception
    {
-      testWorkflow("192.168.1.1", "192.168.1.1", false);
-   }
-   
-   /**
-    * Tests the token's signatures validations when the requester is in a differente host than the SP and IDP.
-    * The keyprovider is configured with a ValidatingAlias for specific for the SP (192.168.1.2) that is different from the IDP (localhost) and the user (192.168.1.1).
-    */
-   @Test
-   public void testSAML2RedirectWithSifferentConsumerAndProvider() throws Exception
-   {
-      testWorkflow("192.168.1.3", "192.168.1.1", true);
+      testWorkflow("192.168.1.1", "192.168.1.1");
    }
 
-   private void testWorkflow(String userAddress, String idpAddress, boolean validatingAliasToTokenIssuer) throws LifecycleException, IOException, ServletException
+   /**
+    * Tests the token's signatures validations when the requester is in a differente host than the SP and IDP.
+    * <br/>
+    * The keyprovider is configured with a ValidatingAlias for a specific SP (192.168.1.2) that is different from the IDP (192.168.1.1) and the user (192.168.1.3).
+    * <br/>
+    * Test fails if:
+    *   <ul>
+    *       <li>If you change the IDP address the test will fail because the SP's keystore and SPRedirectSignatureFormAuthenticator.idpAddress is configured to use a validating alias with value 192.168.1.1.</li> 
+    *       <li>If you change the SP address (SP_PROFILE/WEB-INF/picketlink-idfed.xml) the test will fail because the IDP's keystore is only configured to use a validating alias with value 192.168.1.2.</li>
+    *       <li>If you ommit the SPRedirectSignatureFormAuthenticator.idpAddress because the user's address will be used to validate the token. His address is not in the keystore.</li>
+    *       <li>If you ommit the IDPWebBrowserSSOValve.validatingAliasToTokenIssuer because the user's address will be used to validate the token. His address is not in the keystore.</li>
+    *   </ul>
+    */
+   @Test
+   public void testSAML2RedirectWithDifferentConsumerAndProvider() throws Exception
    {
-      MockCatalinaRequest request = createRequest(userAddress);
-      
+      testWorkflow("192.168.1.3", "192.168.1.1");
+   }
+
+   private void testWorkflow(String userAddress, String idpAddress)
+         throws LifecycleException, IOException, ServletException
+   {
+      MockCatalinaRequest request = createRequest(userAddress, false);
+
       // Sends a initial request to the SP. Requesting a resource ...
       MockCatalinaResponse idpAuthRequest = sendSPRequest(request, false, idpAddress);
-      
+
       assertNotNull("Redirect String can not be null.", idpAuthRequest.redirectString);
-      
+
       // Sends a auth request to the IDP
-      request = createRequest(userAddress);
-      
-      request.setParameter("SAMLRequest", RedirectBindingUtil.urlDecode(getSAMLRequest(idpAuthRequest)));
-      request.setParameter("SigAlg", RedirectBindingUtil.urlDecode(getSAMLSigAlg(idpAuthRequest)));
-      request.setParameter("Signature", RedirectBindingUtil.urlDecode(getSAMLSignature(idpAuthRequest)));
-      request.setQueryString(SAML_REQUEST_KEY + getSAMLRequest(idpAuthRequest) + "&SigAlg=" + getSAMLSigAlg(idpAuthRequest) + "&Signature=" + getSAMLSignature(idpAuthRequest));
-      
-      request.setUserPrincipal(new GenericPrincipal(createRealm(), "user", "user", getRoles()) );
-      
-      MockCatalinaResponse idpAuthResponse = sendIDPRequest(request, validatingAliasToTokenIssuer); 
-      
+      request = createRequest(userAddress, true);
+
+      setQueryStringFromResponse(idpAuthRequest, request);
+
+      MockCatalinaResponse idpAuthResponse = sendIDPRequest(request);
+
       assertNotNull("Redirect String can not be null.", idpAuthResponse.redirectString);
-      
+
       // Sends the IDP response to the SP. Now the user is succesfully authenticated and access for the requested resource is granted...    
-      request = createRequest(userAddress);
-      request.getContext().setRealm(createRealm());
-      
-      request.setParameter("SAMLResponse", RedirectBindingUtil.urlDecode(getSAMLResponse(idpAuthResponse)));
-      request.setParameter("SigAlg", RedirectBindingUtil.urlDecode(getSAMLSigAlg(idpAuthResponse)));
-      request.setParameter("Signature", RedirectBindingUtil.urlDecode(getSAMLSignature(idpAuthResponse)));
-      request.setQueryString(SAML_RESPONSE_KEY + getSAMLResponse(idpAuthResponse) + "&SigAlg=" + getSAMLSigAlg(idpAuthResponse) + "&Signature=" + getSAMLSignature(idpAuthResponse));
-      
+      request = createRequest(userAddress, false);
+
+      setQueryStringFromResponse(idpAuthResponse, request);
+
       sendSPRequest(request, true, idpAddress);
    }
 
-   private MockCatalinaResponse sendIDPRequest(MockCatalinaRequest request, boolean validatingAliasToTokenIssuer)
+   private MockCatalinaResponse sendIDPRequest(MockCatalinaRequest request)
          throws LifecycleException, IOException, ServletException
    {
-      MockCatalinaContextClassLoader mclIDP = setupTCL(IDP_PROFILE);
-      Thread.currentThread().setContextClassLoader(mclIDP);
+      IDPWebBrowserSSOValve idp = createIdentityProvider();
 
-      IDPWebBrowserSSOValve idp = new IDPWebBrowserSSOValve();
-      
-      idp.setSignOutgoingMessages(true);
-      idp.setIgnoreIncomingSignatures(false);
-      idp.setValidatingAliasToTokenIssuer(validatingAliasToTokenIssuer);
-      
-      idp.setContainer(request.getContext());
-      idp.start();
-      
       MockCatalinaResponse response = new MockCatalinaResponse();
-      
+
       idp.invoke(request, response);
-      
+
       return response;
    }
 
-   private MockCatalinaResponse sendSPRequest(MockCatalinaRequest request, boolean validateAuthentication, String idpAddress)
-         throws LifecycleException, IOException
+   private MockCatalinaResponse sendSPRequest(MockCatalinaRequest request, boolean validateAuthentication,
+         String idpAddress) throws LifecycleException, IOException
    {
-      MockCatalinaContextClassLoader mclSPEmp = setupTCL(SP_PROFILE);
-      Thread.currentThread().setContextClassLoader(mclSPEmp); 
-      
-      SPRedirectSignatureFormAuthenticator sp = new SPRedirectSignatureFormAuthenticator();
-      
-      sp.setIdpAddress(idpAddress);
-      
-      request.setParameter(GeneralConstants.RELAY_STATE, null);
-      
-      MockCatalinaLoginConfig loginConfig = new MockCatalinaLoginConfig();
-      
-      sp.setContainer(request.getContext());
-      sp.testStart();
-      
+
       MockCatalinaResponse response = new MockCatalinaResponse();
-      
-      if (validateAuthentication) {
-         Assert.assertTrue("Employee app succesfully authenticated.", sp.authenticate(request, response, loginConfig));
-      } else {
-         sp.authenticate(request, response, loginConfig);
+
+      if (validateAuthentication)
+      {
+         Assert.assertTrue("Employee app succesfully authenticated.",
+               getEmployeeServiceProvider().authenticate(request, response, new MockCatalinaLoginConfig()));
       }
-      
+      else
+      {
+         getEmployeeServiceProvider().authenticate(request, response, new MockCatalinaLoginConfig());
+      }
+
       return response;
    }
-   
-   private MockCatalinaRequest createRequest(String userAddress)
+
+   public SPRedirectSignatureFormAuthenticator getEmployeeServiceProvider()
    {
-      MockCatalinaRequest request = new MockCatalinaRequest();
-      
-      request = new MockCatalinaRequest();
-      request.setMethod("GET");
-      request.setRemoteAddr(userAddress);
-      request.setSession(new MockCatalinaSession());
-      request.setContext(new MockCatalinaContext());
-      
-      return request;
+      if (this.employeeServiceProvider == null)
+      {
+         this.employeeServiceProvider = createServiceProvider(SP_EMPLOYEE_PROFILE);
+      }
+
+      return this.employeeServiceProvider;
    }
 
-   private String getSAMLResponse(MockCatalinaResponse response)
-   {
-      return response.redirectString.substring(response.redirectString.indexOf(SAML_RESPONSE_KEY) +
-            SAML_RESPONSE_KEY.length(), response.redirectString.indexOf("&SigAlg="));
-   }
-
-   private String getSAMLSignature(MockCatalinaResponse response)
-   {
-      return response.redirectString.substring(response.redirectString.indexOf("&Signature=") +
-            "&Signature=".length());
-   }
-
-   private String getSAMLSigAlg(MockCatalinaResponse response)
-   {
-      return response.redirectString.substring(response.redirectString.indexOf("&SigAlg=") +
-            "&SigAlg=".length(), response.redirectString.lastIndexOf("&Signature="));
-   }
-
-   private String getSAMLRequest(MockCatalinaResponse response)
-   {
-      return response.redirectString.substring(response.redirectString.indexOf(SAML_REQUEST_KEY) +
-            SAML_REQUEST_KEY.length(), response.redirectString.indexOf("&SigAlg="));
-   }
-
-   private List<String> getRoles()
-   {
-      List<String> roles = new ArrayList<String>();
-      roles.add("manager");
-      roles.add("employee");
-      return roles;
-   }
-
-   private MockCatalinaRealm createRealm()
-   {
-      return new MockCatalinaRealm("user", "user", new Principal()
-      {   
-         public String getName()
-         { 
-            return "user";
-         }
-      });
-   }
-   
-   private MockCatalinaContextClassLoader setupTCL(String resource)
-   {
-      URL[] urls = new URL[] {tcl.getResource(resource)};
-      
-      MockCatalinaContextClassLoader mcl = new MockCatalinaContextClassLoader(urls);
-      mcl.setDelegate(tcl);
-      mcl.setProfile(resource);
-      return mcl;
-   }
-   
 }
