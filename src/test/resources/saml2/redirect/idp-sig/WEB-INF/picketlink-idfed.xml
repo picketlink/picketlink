@@ -2,7 +2,7 @@
 	<IdentityURL>${idp-sig.url::http://192.168.1.1:8080/idp-sig/}
 	</IdentityURL>
 	<Trust>
-		<Domains>192.168.1.1, 192.168.1.2</Domains>
+		<Domains>192.168.1.1, 192.168.1.2, 192.168.1.4</Domains>
 	</Trust>
 	<KeyProvider
 		ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
@@ -14,6 +14,7 @@
 		<Auth Key="iterationCount" Value="11" />
 		<ValidatingAlias Key="192.168.1.1" Value="servercert" />
 		<ValidatingAlias Key="192.168.1.2" Value="servercert" />
+		<ValidatingAlias Key="192.168.1.4" Value="servercert" />
 	</KeyProvider>
 <!-- 	<KeyProvider -->
 <!-- 		ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager"> -->
