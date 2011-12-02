@@ -206,8 +206,25 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
       {
          //Get the signing key  
          PrivateKey signingKey = keyManager.getSigningKey();
-         String url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(urlEncodedRequest,
-               urlEncodedRelayState, signingKey);
+         
+         if (signingKey == null) {
+            log.error("Signing key is null. Check your KeyStore configuration.");
+            throw new RuntimeException(ErrorCodes.SIGNING_PROCESS_FAILURE);
+         }
+         
+         String url = null;
+
+         if (sendRequest)
+         {
+            url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(urlEncodedRequest, urlEncodedRelayState,
+                  signingKey);
+         }
+         else
+         {
+            url = RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(urlEncodedRequest, urlEncodedRelayState,
+                  signingKey);
+         }
+
          return url;
       }
       catch (Exception e)
