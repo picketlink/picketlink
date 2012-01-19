@@ -29,6 +29,8 @@ import java.util.Map;
 
 import org.apache.catalina.connector.Response;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Mock catalina response
  * @author Anil.Saldhana@redhat.com
@@ -75,7 +77,14 @@ public class MockCatalinaResponse extends Response
    {
       return false;
    }
-   
+
+   @Override
+   public boolean isAppCommitted()
+   {
+      boolean redirected = getStatus() == HttpServletResponse.SC_MOVED_TEMPORARILY;
+      return redirected;
+   }
+
    public void setWriter(Writer w)
    {
       this.mywriter = (PrintWriter) w;

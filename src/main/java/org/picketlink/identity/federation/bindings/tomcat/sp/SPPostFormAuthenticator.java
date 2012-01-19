@@ -193,6 +193,10 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
          requestProcessor.setSupportSignatures(supportSignatures);
          boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
 
+         // If response is already commited, we need to stop with processing of HTTP request
+         if (response.isCommitted() || response.isAppCommitted())
+            return false;
+
          if (result)
             return result;
       }
