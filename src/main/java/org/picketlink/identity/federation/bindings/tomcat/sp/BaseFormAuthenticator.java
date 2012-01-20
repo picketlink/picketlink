@@ -121,7 +121,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
 
    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
-   protected final String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
+   protected String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
 
    /**
     * The user can inject a fully qualified name of a {@link SAMLConfigurationProvider}
@@ -196,6 +196,11 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
    public void setIssuerID(String issuerID)
    {
       this.issuerID = issuerID;
+   }
+
+   public void setLogOutPage(String logOutPage)
+   {
+      this.logOutPage = logOutPage;
    }
 
    /**
