@@ -156,7 +156,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    private Boolean ignoreIncomingSignatures = false;
 
    private Boolean signOutgoingMessages = true;
-   
+
    /**
     * Defines how the token's signature will be validated. If true is used the token's issuer, otherwise the request.getRemoteAddr. Default false. 
     */
@@ -234,10 +234,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    {
       this.validatingAliasToTokenIssuer = validatingAliasToTokenIssuer;
    }
-   
-   public Boolean getValidatingAliasToTokenIssuer() 
+
+   public Boolean getValidatingAliasToTokenIssuer()
    {
-	   return validatingAliasToTokenIssuer;
+      return validatingAliasToTokenIssuer;
    }
 
    /**
@@ -530,8 +530,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       {
          samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlRequestMessage);
          samlObject = samlDocumentHolder.getSamlObject();
-         
-         if (!(samlObject instanceof RequestAbstractType)) {
+
+         if (!(samlObject instanceof RequestAbstractType))
+         {
             throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
          }
 
@@ -577,7 +578,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                log.trace("Remote Host=" + request.getRemoteAddr());
                log.trace("Validating Alias=" + tokenSignatureValidatingAlias);
             }
-            
+
             PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, tokenSignatureValidatingAlias);
             requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
             requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
@@ -686,20 +687,22 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
    private String getTokenSignatureValidatingAlias(Request request, String issuer)
    {
       String issuerHost = request.getRemoteAddr();
-      
-      if (this.validatingAliasToTokenIssuer) {
+
+      if (this.validatingAliasToTokenIssuer)
+      {
          try
          {
             issuerHost = new URL(issuer).getHost();
          }
          catch (MalformedURLException e)
          {
-            if (trace) {
+            if (trace)
+            {
                log.trace("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
             }
          }
       }
-      
+
       return issuerHost;
    }
 
@@ -713,7 +716,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       Document samlResponse = null;
       String destination = null;
 
-      Boolean requestedPostProfile = null;
+      boolean requestedPostProfile = false;
 
       //Get the SAML Response Message 
       String samlResponseMessage = (String) session.getNote(GeneralConstants.SAML_RESPONSE_KEY);
@@ -731,18 +734,18 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       {
          samlDocumentHolder = webRequestUtil.getSAMLDocumentHolder(samlResponseMessage);
          samlObject = samlDocumentHolder.getSamlObject();
-         
+
          if (!(samlObject instanceof StatusResponseType))
          {
             throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
          }
-         
+
          boolean isPost = webRequestUtil.hasSAMLRequestInPostProfile();
          boolean isValid = false;
          StatusResponseType statusResponseType = (StatusResponseType) samlObject;
          String issuer = statusResponseType.getIssuer().getValue();
          String tokenValidatingAlias = getTokenSignatureValidatingAlias(request, issuer);
-         
+
          if (isPost)
          {
             //Validate
@@ -827,7 +830,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                   .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
                   .setServletResponse(response).setPostBindingRequested(requestedPostProfile);
 
-            if (requestedPostProfile != null)
+            if (requestedPostProfile)
                holder.setPostBindingRequested(requestedPostProfile);
             else
                holder.setPostBindingRequested(postProfile);
@@ -1123,9 +1126,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          log.info("Did not find picketlink-sts.xml. We will install default configuration");
          sts.installDefaultConfiguration();
       }
-      else 
+      else
          sts.installDefaultConfiguration(stsTokenConfigFile.toURI().toString());
-      
+
       if (this.signOutgoingMessages)
       {
          KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
