@@ -830,10 +830,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                   .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
                   .setServletResponse(response).setPostBindingRequested(requestedPostProfile);
 
-            if (requestedPostProfile)
+            /*if (requestedPostProfile)
                holder.setPostBindingRequested(requestedPostProfile);
             else
-               holder.setPostBindingRequested(postProfile);
+               holder.setPostBindingRequested(postProfile);*/
 
             if (this.signOutgoingMessages)
             {
