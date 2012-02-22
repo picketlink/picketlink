@@ -116,6 +116,7 @@ import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
+import org.picketlink.identity.federation.web.config.AbstractSAMLConfigurationProvider;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
@@ -1053,27 +1054,36 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          }
       }
 
+      String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
+      context = (Context) getContainer();
+
+      InputStream is = context.getServletContext().getResourceAsStream(configFile);
+
       //Work on the IDP Configuration
       if (configProvider != null)
       {
          try
          {
             idpConfiguration = configProvider.getIDPConfiguration();
+
+            //Additionally parse the config file
+            if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider)
+            {
+               ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+            }
          }
          catch (ProcessingException e)
          {
             throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + e.getLocalizedMessage());
          }
+         catch (ParsingException e)
+         {
+            throw new RuntimeException(ErrorCodes.PARSING_ERROR + e.getLocalizedMessage());
+         }
       }
-
-      String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
-
-      context = (Context) getContainer();
 
       if (idpConfiguration == null)
       {
-
-         InputStream is = context.getServletContext().getResourceAsStream(configFile);
          if (is == null)
             throw new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
 

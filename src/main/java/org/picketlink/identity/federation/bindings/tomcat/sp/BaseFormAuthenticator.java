@@ -73,6 +73,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorTyp
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
+import org.picketlink.identity.federation.web.config.AbstractSAMLConfigurationProvider;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
@@ -396,6 +397,10 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
          if (configProvider != null)
          {
             spConfiguration = configProvider.getSPConfiguration();
+            if (configProvider instanceof AbstractSAMLConfigurationProvider)
+            {
+               ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+            }
          }
          else
          {
