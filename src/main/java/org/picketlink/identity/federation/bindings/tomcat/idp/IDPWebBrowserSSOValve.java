@@ -189,6 +189,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
     * A Lock for Handler operations in the chain
     */
    private final Lock chainLock = new ReentrantLock();
+   
+   /**
+    * SAML Web Browser SSO Profile has a requirement that the IDP does not respond
+    * back in Redirect Binding. Set this to true if you want the IDP to adhere to
+    * this requirement via 
+    */
+   private boolean strictPostBinding = false;
 
    //Set a list of attributes we are interested in separated by comma
    public void setAttributeList(String attribList)
@@ -215,6 +222,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
       {
          throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
       }
+   }
+
+   public void setStrictPostBinding(Boolean strictPostBinding)
+   {
+      this.strictPostBinding = strictPostBinding;
    }
 
    public Boolean getIgnoreIncomingSignatures()
@@ -360,10 +372,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             if (this.signOutgoingMessages)
             {
                holder.setSupportSignature(true).setPrivateKey(keyManager.getSigningKey());
-               webRequestUtil.send(holder);
-               //webRequestUtil.send(samlErrorResponse, referer, relayState, response, true, 
-               //this.keyManager.getSigningKey(), false); 
             }
+
+            if(strictPostBinding)
+               holder.setStrictPostBinding(true);
             webRequestUtil.send(holder);
          }
          catch (GeneralSecurityException e)
@@ -650,6 +662,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                   .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
                   .setServletResponse(response);
+            
+            if(strictPostBinding)
+               holder.setStrictPostBinding(true);
 
             if (requestedPostProfile != null)
                holder.setPostBindingRequested(requestedPostProfile);
@@ -661,6 +676,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
                holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
             }
 
+            if(strictPostBinding)
+               holder.setStrictPostBinding(true);
             webRequestUtil.send(holder);
          }
          catch (ParsingException e)
@@ -840,6 +857,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             {
                holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
             }
+
+            if(strictPostBinding)
+               holder.setStrictPostBinding(true);
             webRequestUtil.send(holder);
          }
          catch (ParsingException e)
@@ -922,6 +942,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
          {
             holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
          }
+
+         if(strictPostBinding)
+            holder.setStrictPostBinding(true);
          webRequestUtil.send(holder);
       }
       catch (ParsingException e1)

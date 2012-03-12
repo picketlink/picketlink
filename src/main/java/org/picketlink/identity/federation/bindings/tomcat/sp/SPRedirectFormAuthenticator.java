@@ -80,6 +80,22 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
    protected static Logger log = Logger.getLogger(SPRedirectFormAuthenticator.class);
 
    protected boolean jbossEnv = false;
+   
+   /**
+    * The SAML Web Browser SSO Profile says that the IDP cannot send
+    * response back in Redirect Binding.  The user should use this
+    * parameter to adhere to that requirement.
+    */
+   protected boolean idpPostBinding = false;
+   
+   /**
+    * Set the Authenticator to expect a post response from IDP
+    * @param idpPostBinding
+    */
+   public void setIdpPostBinding(Boolean idpPostBinding)
+   {
+      this.idpPostBinding = idpPostBinding;
+   }
 
    public SPRedirectFormAuthenticator()
    {
@@ -237,6 +253,8 @@ public class SPRedirectFormAuthenticator extends BaseFormAuthenticator
       {
          ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(false,
                serviceURL);
+         if(idpPostBinding)
+            responseProcessor.setIdpPostBinding(true);
          initializeSAMLProcessor(responseProcessor);
 
          SAML2HandlerResponse saml2HandlerResponse = null;
