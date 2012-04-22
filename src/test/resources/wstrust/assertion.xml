@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_74414f7f-1339-4f80-b29a-c947d9177445" IssueInstant="2009-09-10T13:49:30.422Z" Version="2.0">
+    <Issuer>PicketLinkSTS</Issuer>
+    <Subject>
+        <NameID NameQualifier="urn:picketlink:identity-federation">beve</NameID>
+        <SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+    </Subject>
+    <Conditions NotBefore="2009-09-10T13:49:30.422Z" NotOnOrAfter="2009-09-10T15:49:30.422Z"/>
+    <dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+        <dsig:SignedInfo><dsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"/>
+            <dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"/>
+            <dsig:Reference URI="#ID_74414f7f-1339-4f80-b29a-c947d9177445" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+                <dsig:Transforms xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+                    <dsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"/>
+                </dsig:Transforms>
+                <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"/>
+                    <dsig:DigestValue xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">so9bv09wxSnauPiq6iC2zs6ubrQ=</dsig:DigestValue>
+            </dsig:Reference>
+        </dsig:SignedInfo>
+        <dsig:SignatureValue>Lf4DYODLtVxSVmd23HJzHTy61ZYDnpaJRTVbRLR2i2zU7v9mskYCVbXY8gm5PYY2V+iYvi+dJ3QlWP9dQu+DHK9rVJSGxSmzfPjrnMC84HH9j2BZBEdKVCpNCAFJQRL+E1jlRB194sjCiuxoMnlR927uMiNcHJRoBSi03kP5tOw=</dsig:SignatureValue>
+            <dsig:KeyInfo>
+                <dsig:KeyValue xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+                    <dsig:RSAKeyValue xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+                        <dsig:Modulus xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJns2qVnMuRK19ju2dxpKwlYGGtrP5VQv00dfNPbs=
+                        </dsig:Modulus>
+                        <dsig:Exponent xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">AQAB</dsig:Exponent>
+                    </dsig:RSAKeyValue>
+            </dsig:KeyValue>
+        </dsig:KeyInfo>
+    </dsig:Signature>
+</Assertion>

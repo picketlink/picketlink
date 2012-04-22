@@ -1,0 +1,24 @@
+<PicketLinkSTS xmlns="urn:picketlink:identity-federation:config:1.0"
+	STSName="Test STS" TokenTimeout="7200" EncryptToken="true">
+	<KeyProvider ClassName="SomeClass"> 
+  		<ValidatingAlias Key="localhost" Value="localhostalias"/> 
+  		<ValidatingAlias Key="jboss.com" Value="jbossalias"/>
+  		<SigningAlias>issueralias</SigningAlias>
+	</KeyProvider>
+	<RequestHandler>org.picketlink.identity.federation.wstrust.Handler</RequestHandler>
+	<TokenProviders>
+		<TokenProvider 
+		    ProviderClass="org.jboss.SpecialTokenProvider" 
+		    TokenType="specialToken" 
+			TokenElement="SpecialToken" 
+			TokenElementNS="http://www.tokens.org">
+			<Property Key="Property1" Value="Value1"/>
+			<Property Key="Property2" Value="Value2"/>
+		</TokenProvider>
+	</TokenProviders>
+	<ServiceProviders>
+		<ServiceProvider Endpoint="http://provider.endpoint/provider" 
+		     TokenType="specialToken"
+			 TruststoreAlias="providerAlias"/>
+	</ServiceProviders>
+</PicketLinkSTS>

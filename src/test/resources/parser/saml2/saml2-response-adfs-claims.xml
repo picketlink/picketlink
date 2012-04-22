@@ -1,0 +1,66 @@
+<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+	Consent="urn:oasis:names:tc:SAML:2.0:consent:unspecified" 
+	Destination="https://something"
+	ID="_48db7f2f-a2d2-4e45-94bc-bb680a47d073" InResponseTo="CPSID_47811a63-caf3-4e4e-84cb-fa872cafff05"
+	IssueInstant="2011-07-19T21:23:42.077Z" Version="2.0">
+	<Issuer xmlns="urn:oasis:names:tc:SAML:2.0:assertion">urn:adfs:services:trust
+	</Issuer>
+	<samlp:Status>
+		<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
+	</samlp:Status>
+	<Assertion xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="_334b1e3d-8783-4ea6-b5a9-0dd6317999d2"
+		IssueInstant="2011-07-19T21:23:42.077Z" Version="2.0">
+		<Issuer>urn:adfs:services:trust</Issuer>
+		<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+			<ds:SignedInfo>
+				<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				<ds:SignatureMethod
+					Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256" />
+				<ds:Reference URI="#_334b1e3d-8783-4ea6-b5a9-0dd6317999d2">
+					<ds:Transforms>
+						<ds:Transform
+							Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+						<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+					</ds:Transforms>
+					<ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256" />
+					<ds:DigestValue>6UvO3uhEz2ErtcrijZ4WfvhrPGEoP+fdmiMOg0mOeMQ=
+					</ds:DigestValue>
+				</ds:Reference>
+			</ds:SignedInfo>
+			<ds:SignatureValue>JGR4KOgUKksRKGn0c2OvyVhCIbOX5rafDiaXezTyGPsQJnVhbYUa6xDnDEb1kMXefL3IxAWL2o1PgYlnrrGfuP3QgAeF1B+w9JlO4/H7DTeumMWz7ZvpsmUMARrcFBJjsOXgIZxDU3UY1yzn6IMZonQRz2CO6kVo2q3zemlb8TAssZttj71Wl/fceRDlkV/+suQChaaXeDWVW2T+ITnt2JSJY2GL6PpT8K+hHAyfS0PgC9o3RedAwIZT73ZiCQugZYxBgjQbZXT72x6arh8phWVtENCr6JEcXFUrAGnYzOn3/48M6w9MQ2GhHB4XqgWAQrrpcG6nw47q+Z4zn+9Wig==
+			</ds:SignatureValue>
+			<KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+				<ds:X509Data>
+					<ds:X509Certificate>MIIC7jCCAdagAwIBAgIQXp/JPRE5SaJCiQcYG8wqBzANBgkqhkiG9w0BAQsFADAzMTEwLwYDVQQDEyhBREZTIFNpZ25pbmcgLSBDUFMtRVhULUZTLmV4dC5zdy5yaW0ubmV0MB4XDTExMDUwODIyMDQ1OVoXDTEyMDUwNzIyMDQ1OVowMzExMC8GA1UEAxMoQURGUyBTaWduaW5nIC0gQ1BTLUVYVC1GUy5leHQuc3cucmltLm5ldDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANN57C+4eyqeB44BiUB4xmyTcUMhJR55yjnJWWse8KllXJYnFzZzJPvVC1SPlACz2EzuATT5gWFhHyhqolgqAR5a0pke1wXVN4aHKOkUzmDhdd2JfOGFoJRIV9wgkX1bbA2FS+kJMl0ewdgxKdjOlKM+LXNmFteqRYZq2+0ss7vtZJ8/ls9t6cRNd2qI+7zJvPqvs1Beaiia9P45oXn7YPK4TJKIR3aq4vmI1q2cSFK1a1b76YDvzYYAASCpeGJ+20lh3j81/5D408MrjaDb1pMXWhK01okcypQeNwaGoEQwlFm8M5eQCRgnJbHzASE8NMdV+2NW2vn+GNbp327gOk0CAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAkYq2FmFTkP9NRXJn/J3XU+9Idv4h76vNdIT4hvfnzhlKGqVZANgIVgXk6aIzSv22x3vxkjSvMDQkhINHLEcKzabWdpAtwUUiqBUykwg+MvzolLkuG6yNT59KrUPbteqxQrhK5O+VCsDIaxjWjvSW0O7ACuPgQFPcnDZDcVXJWOCy6sUmnMSuD1kMmCJ6ubu72IrlnPKWp1obfVl1EV1GOWwx6LSn/WyZ0+ca4bkOLhMku5v+7myQLMWxS5sqb9578ZG51qrfJRde3wCOGAfRBCUa/8H/6xvkp7T6j0Fx4uHj8XBn8wjL8epgWSyH381owGepLRJ+evRIjtbYVEAs7w==
+					</ds:X509Certificate>
+				</ds:X509Data>
+			</KeyInfo>
+		</ds:Signature>
+		<Subject>
+			<SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+				<SubjectConfirmationData
+					InResponseTo="CPSID_47811a63-caf3-4e4e-84cb-fa872cafff05"
+					NotOnOrAfter="2011-07-19T21:28:42.077Z" Recipient="https://somebody" />
+			</SubjectConfirmation>
+		</Subject>
+		<Conditions NotBefore="2011-07-19T21:23:42.077Z"
+			NotOnOrAfter="2011-07-19T22:23:42.077Z">
+			<AudienceRestriction>
+				<Audience>https://somebody</Audience>
+			</AudienceRestriction>
+		</Conditions>
+		<AttributeStatement>
+			<Attribute Name="http://schemas.xmlsoap.org/claims/EmailAddress">
+				<AttributeValue>admin@test.net</AttributeValue>
+			</Attribute>
+			<Attribute Name="http://schemas.xmlsoap.org/claims/PUID">
+				<AttributeValue>1004567899</AttributeValue>
+			</Attribute>
+		</AttributeStatement>
+		<AuthnStatement AuthnInstant="2011-07-19T21:10:57.923Z">
+			<AuthnContext>
+				<AuthnContextClassRef>urn:federation:authentication:windows</AuthnContextClassRef>
+			</AuthnContext>
+		</AuthnStatement>
+	</Assertion>
+</samlp:Response>

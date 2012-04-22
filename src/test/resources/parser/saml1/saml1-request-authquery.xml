@@ -1,0 +1,11 @@
+<samlp:Request xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol" 
+   RequestID="aaf23196-1773-2113-474a-fe114412ab72"
+       MajorVersion="1" MinorVersion="1"
+   IssueInstant="2006-07-17T22:26:40Z">
+	<samlp:AuthenticationQuery>
+		<saml:Subject xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion">
+			<saml:NameIdentifier
+				Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">myusername</saml:NameIdentifier>
+		</saml:Subject>
+	</samlp:AuthenticationQuery>
+</samlp:Request>

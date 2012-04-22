@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns3:Response xmlns="urn:oasis:names:tc:SAML:2.0:assertion"
+	xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" xmlns:ns3="urn:oasis:names:tc:SAML:2.0:protocol"
+	xmlns:ns4="http://www.w3.org/2001/04/xmlenc#" IssueInstant="2009-05-26T14:06:26.362-05:00"
+	Version="2.0" ID="ID_1164e0fc-576d-4797-b11c-3d049520f566">
+	<Issuer>testIssuer</Issuer>
+	<ns3:Status>
+		<ns3:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
+	</ns3:Status>
+	<Assertion IssueInstant="2009-05-26T14:06:26.362-05:00"
+		ID="ID_0be488d8-7089-4892-8aeb-83594c800706" Version="2.0">
+		<Issuer>testIssuer</Issuer>
+		<AuthnStatement AuthnInstant="2009-05-26T14:06:26.359-05:00">
+			<AuthnContext>
+				<AuthnContextDeclRef>
+					urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+				</AuthnContextDeclRef>
+			</AuthnContext>
+		</AuthnStatement>
+	</Assertion>
+	<Assertion IssueInstant="2009-05-26T14:06:26.363-05:00"
+		ID="ID_976d8310-658a-450d-be39-f33c73c8afa6" Version="2.0">
+		<Issuer>testIssuer</Issuer>
+		<AuthnStatement AuthnInstant="2009-05-26T14:06:26.359-05:00">
+		    <SubjectLocality Address="127.0.0.1"/>
+			<AuthnContext>
+				<AuthnContextDeclRef>
+					urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport
+				</AuthnContextDeclRef>
+			</AuthnContext>
+		</AuthnStatement>
+	</Assertion>
+</ns3:Response>

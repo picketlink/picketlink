@@ -1,0 +1,18 @@
+<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0" 
+          AssertionValidity="20000"
+          RoleGenerator="somefqn"
+          Encrypt="true">
+<IdentityURL>http://localhost:8080/idp</IdentityURL>
+<Trust>
+  <Domains>localhost,jboss.com,jboss.org</Domains>
+</Trust>
+<KeyProvider ClassName="SomeClass"> 
+  <Auth Key="SomeKey" Value="SomeValue" /> 
+  <Auth Key="DBURL" Value="SomeDBURL" /> 
+  <ValidatingAlias Key="localhost" Value="localhostalias"/> 
+  <ValidatingAlias Key="jboss.com" Value="jbossalias"/>
+</KeyProvider>
+<MetaDataProvider ClassName="org.jboss.test.somefqn">
+  <Option Key="FileName" Value="myfile"/>
+</MetaDataProvider>  
+</PicketLinkIDP>
