@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<definitions name="AuthenticationService"
+            targetNamespace="urn:liberty:sa:2006-08"
+            xmlns:tns="urn:liberty:sa:2006-08"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:S="http://schemas.xmlsoap.org/wsdl/soap/"
+            xmlns="http://schemas.xmlsoap.org/wsdl/"
+            xmlns:sa="urn:liberty:sa:2006-08"
+            xmlns:wsaw="http://www.w3.org/2006/02/addressing/wsdl"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/
+                                http://schemas.xmlsoap.org/wsdl/
+                http://www.w3.org/2006/02/addressing/wsdl
+                http://www.w3.org/2006/02/addressing/wsdl/ws-addr-wsdl.xsd">
+
+    <xsd:documentation>
+The source code in this WSDL file was excerpted verbatim from:
+
+Liberty ID-WSF Liberty ID-WSF Authentication, Single Sign-On, and Identity Mapping Services Specification
+Version 2.0-errata-v1.0
+28 November, 2006
+
+Copyright (c) 2007 Liberty Alliance participants, see
+http://projectliberty.org/resource_center/specifications/liberty_alliance_id_wsf_2_0_specifications/idwsf_feb_copyrights
+
+    </xsd:documentation>
+
+    <types>
+        <xs:schema>
+            <xs:import namespace="urn:liberty:sa:2006-08"
+                   schemaLocation="liberty-idwsf-authn-svc-v2.0.xsd"/>
+        </xs:schema>
+    </types>
+
+    <message name="AuthenticationSoapRequest">
+        <part name="parameters" element="sa:SASLRequest"/>
+    </message>
+    <message name="AuthenticationSoapResponse">
+        <part name="parameters" element="sa:SASLResponse"/>
+    </message>
+    
+    <portType name="AuthServicePortType">
+        <operation name="Authenticate">
+            <input  message="sa:AuthenticationSoapRequest"
+                wsaw:Action="urn:liberty:sa:2006-08:SASLRequest"/>
+            <output message="sa:AuthenticationSoapResponse"
+                wsaw:Action="urn:liberty:sa:2006-08:SASLResponse"/>
+        </operation>
+    </portType>
+    <binding name="AuthenticationSoapBinding" type="sa:AuthServicePortType">
+        <S:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <operation name="Authenticate">
+            <input>
+                <S:body use="literal"/>
+            </input>
+            <output>
+                <S:body use="literal"/>
+            </output>
+        </operation>
+    </binding>
+    <service name="AuthenticationService">
+        <port name="AuthServicePortType" binding="sa:AuthenticationSoapBinding">
+            <S:address location="http://example.com/authentication"/>
+        </port>
+    </service>
+</definitions>

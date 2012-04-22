@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<saml:EncryptedAssertion xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+	<xenc:EncryptedData xmlns:xenc="http://www.w3.org/2001/04/xmlenc#"
+		Type="http://www.w3.org/2001/04/xmlenc#Element">
+		<xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#aes128-cbc"
+			xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" />
+		<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+			<xenc:EncryptedKey xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
+				<xenc:EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-1_5"
+					xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" />
+				<xenc:CipherData xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
+					<xenc:CipherValue xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
+						Y9X5QW+M4gCrvkYo6v0CkDm9lR5/+mF+UxXCgge/KmkFXSHrHhmEHL0kmcPgnYXkufENNOGZkNsT
+						MTF0sHVEAC+rbf+ZyOgl44jZUD4KtBo+Fgl6ddLBgIcTTFGQ3WscdJForQPYp2rekHyw4YlbLDSq
+						5/di4fDS7BVz6mKdEBM=</xenc:CipherValue>
+				</xenc:CipherData>
+			</xenc:EncryptedKey>
+		</ds:KeyInfo>
+		<xenc:CipherData xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
+			<xenc:CipherValue xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
+				MNLeaBXwfU4vtuhEUEKH190Z46OIdNBmK4yjaKh2QR0DH7xksoQAX+OjU4CJhVB6fZRxitn0Sau0
+				zejUE2U5igLHpyrjONmwLh9imubqFZHMzLbiqDWlyjMHnVF .....
+				ZPHNjad9sON9QtSnW7uApjUdkcPPpRlE0K2gX3xG07EmRIcWLsMo0AwtYXYW4CFq1rXWF22pfgVv
+				Bcw1XvGUevgAcgMOtK7aFm6y5QZgIypIGs90GeLKwH6xZGaFg1xFDo+kiLA+KFg1vHVYxqcKcSgy
+				ZtnthwhqWdxHTBWar7aY+QC9lEV3FAp0deSNOGl78SyvKw==</xenc:CipherValue>
+		</xenc:CipherData>
+	</xenc:EncryptedData>
+</saml:EncryptedAssertion>

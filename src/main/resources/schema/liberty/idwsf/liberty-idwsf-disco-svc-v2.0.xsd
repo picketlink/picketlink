@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="urn:liberty:disco:2006-08" 
+    xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" 
+    xmlns:sb="urn:liberty:sb:2006-08" 
+    xmlns:sbf="urn:liberty:sb" 
+    xmlns:sec="urn:liberty:security:2006-08" 
+    xmlns:lu="urn:liberty:util:2006-08"
+    xmlns:wsa="http://www.w3.org/2005/08/addressing" 
+    xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+    xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+
+    xmlns="urn:liberty:disco:2006-08" 
+    elementFormDefault="qualified" 
+    attributeFormDefault="unqualified"
+>
+
+   <xs:import namespace="urn:liberty:util:2006-08"
+    schemaLocation="liberty-idwsf-utility-v2.0.xsd"/>
+
+   <xs:import namespace="urn:liberty:sb:2006-08"
+    schemaLocation="liberty-idwsf-soap-binding-v2.0.xsd"/>
+
+   <xs:import namespace="urn:liberty:sb"
+    schemaLocation="liberty-idwsf-soap-binding.xsd"/>
+
+   <xs:import namespace="http://www.w3.org/2005/08/addressing" 
+    schemaLocation="ws-addr-1.0.xsd"/>
+
+   <xs:import namespace="urn:oasis:names:tc:SAML:2.0:metadata" 
+    schemaLocation="saml-schema-metadata-2.0.xsd"/>
+
+   <xs:import namespace="urn:liberty:security:2006-08" 
+    schemaLocation="liberty-idwsf-security-mechanisms-v2.0.xsd"/>
+
+   <xs:import 
+     namespace="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+     schemaLocation="wss-secext-1.0.xsd"/>
+
+   <xs:import 
+     namespace="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+     schemaLocation="wss-util-1.0.xsd"/> 
+
+    <xs:annotation>
+        <xs:documentation>
+The source code in this schema file was excerpted verbatim from:
+
+Liberty ID-WSF Discovery Service Specification
+Version 2.0-errata-v1.0
+29 November, 2006
+
+Copyright (c) 2007 Liberty Alliance participants, see
+http://projectliberty.org/resource_center/specifications/liberty_alliance_id_wsf_2_0_specifications/idwsf_feb_copyrights
+
+      </xs:documentation> 
+   </xs:annotation>
+
+ 
+   <!-- **** Discovery Service Data Elements & Types **** -->
+
+   <!--  The data elements and types in this section are used to
+         embellish WS-Addressing Endpoint References (EPRs). 
+         They are placed in the /wsa:EndpointReference/Metadata 
+         element. Specific usage and cardinalities are stipulated 
+         in the Discovery Service v2.0 Specification.  --> 
+
+   <!-- Abstract: natural-language description of service  -->  
+
+   <xs:element name="Abstract" type="xs:string"/>
+
+   <!-- Provider ID  -->
+
+   <xs:element name="ProviderID" type="xs:anyURI"/>
+
+   <!-- Service Type --> 
+
+   <xs:element name="ServiceType" type="xs:anyURI"/>
+
+   <!-- Framework Description -->
+
+   <xs:element name="Framework" type="sbf:FrameworkType" />
+
+   <!-- EPR Expiration Timestamp  -->
+
+   <xs:attribute name="notOnOrAfter" type="xs:dateTime"/>
+
+   <!--  Security Context Container  -->
+
+   <xs:element name="SecurityContext">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="SecurityMechID"
+                        minOccurs="1"
+                        maxOccurs="unbounded"/>
+
+            <xs:element ref="sec:Token"
+                        minOccurs="0"
+                        maxOccurs="unbounded"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <!-- Security Mechanism ID -->
+
+   <xs:element name="SecurityMechID" type="xs:anyURI"/>
+
+   <!-- Options -->
+
+   <xs:element name="Options" type="OptionsType"/>
+
+   <xs:element name="Option" type="xs:anyURI" />
+
+   <xs:complexType name="OptionsType">
+      <xs:sequence>
+         <xs:element ref="Option" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- Address -->
+
+   <xs:element name="Address" type="xs:anyURI"/>
+
+   <!-- Action(s) - the interfaces available at this service -->
+
+   <xs:element name="Action" type="xs:anyURI"  />
+    <!-- Keys Element - For use in ModifyResponse --> 
+
+    <xs:element name="Keys" type="KeysType"/>
+
+    <xs:complexType name="KeysType">
+       <xs:sequence>
+         <xs:element ref="md:KeyDescriptor" 
+                     minOccurs="1" 
+                     maxOccurs="unbounded"/>
+       </xs:sequence>
+    </xs:complexType>
+
+   <!-- Service Metadata (SvcMD) - metadata about service instance --> 
+
+   <xs:element name="SvcMD" type="SvcMetadataType"/>
+   <xs:complexType name="SvcMetadataType">
+      <xs:sequence>
+         <xs:element ref="Abstract"                              />
+         <xs:element ref="ProviderID"                            />
+         <xs:element ref="ServiceContext"  maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="svcMDID" type="xs:string" use="optional" />
+   </xs:complexType>
+
+   <!-- ServiceContext - describes service type/option/endpoint context -->
+   <xs:element name="ServiceContext" type="ServiceContextType"/>
+   <xs:complexType name="ServiceContextType">
+      <xs:sequence>
+         <xs:element ref="ServiceType"     maxOccurs="unbounded" />
+         <xs:element ref="Options"         minOccurs="0"
+                                           maxOccurs="unbounded" />
+         <xs:element ref="EndpointContext" maxOccurs="unbounded" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- EndpointContext - describes endpoints used to access service -->
+   <xs:element name="EndpointContext" type="EndpointContextType" />
+   <xs:complexType name="EndpointContextType">
+      <xs:sequence>
+         <xs:element ref="Address"        maxOccurs="unbounded" />
+         <xs:element ref="sbf:Framework"  maxOccurs="unbounded" />
+         <xs:element ref="SecurityMechID" maxOccurs="unbounded" />
+         <xs:element ref="Action"         minOccurs="0" 
+                                          maxOccurs="unbounded" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <!-- SvcMD ID element used to refer to Service Metadata elements -->
+   <xs:element name="SvcMDID" type="xs:string" />
+ 
+   <!-- **** Discovery Service Protocol Messages Elements & Types **** -->
+
+   <!-- Query Message Element & Type -->
+
+   <xs:element name="Query" type="QueryType"/>
+
+   <xs:complexType name="QueryType">
+      <xs:sequence>
+         <xs:element name="RequestedService"
+                     type="RequestedServiceType"
+                     minOccurs="0" 
+                     maxOccurs="unbounded"/>
+      </xs:sequence>
+
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <xs:complexType name="RequestedServiceType">
+      <xs:sequence>
+         <xs:element ref="ServiceType" minOccurs="0" maxOccurs="unbounded" />
+
+         <xs:element ref="ProviderID" minOccurs="0" maxOccurs="unbounded" />
+
+         <xs:element ref="Options" minOccurs="0" maxOccurs="unbounded"/>
+
+         <xs:element ref="SecurityMechID" minOccurs="0" maxOccurs="unbounded"/>
+
+         <xs:element ref="Framework" minOccurs="0" maxOccurs="unbounded"/>
+
+         <xs:element ref="Action" minOccurs="0" maxOccurs="unbounded"/>
+
+         <xs:any namespace="##other"
+                     processContents="lax" 
+                     minOccurs="0"
+                     maxOccurs="unbounded"/>
+
+      </xs:sequence>
+
+      <xs:attribute name="reqID" type="xs:string" use="optional" />
+      <xs:attribute name="resultsType" type="xs:string" use="optional" />
+
+   </xs:complexType>
+
+   <!-- QueryResponse Message Element & Type --> 
+
+   <xs:element name="QueryResponse" type="QueryResponseType"/>
+
+   <xs:complexType name="QueryResponseType">
+      <xs:sequence>
+         <xs:element ref="lu:Status"/>
+
+         <xs:element ref="wsa:EndpointReference" 
+                     minOccurs="0" 
+                     maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+
+   <!--                                               --> 
+   <!-- DS Interfaces for SvcMD Associations          -->
+   <!--                                               -->
+   <!-- These interfaces support the adding, deleting,-->
+   <!-- querying SvcMD Associations for a principal.  -->
+   <!--                                               -->
+
+   <!-- SvcMDAssociationAdd operation -->
+
+   <xs:element name="SvcMDAssociationAdd" type="SvcMDAssociationAddType"/>
+
+   <xs:complexType name="SvcMDAssociationAddType">
+      <xs:sequence>
+         <xs:element ref="SvcMDID" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!-- Response for SvcMDAssociationAdd operation --> 
+
+   <xs:element name="SvcMDAssociationAddResponse"
+               type="SvcMDAssociationAddResponseType"/>
+
+   <xs:complexType name="SvcMDAssociationAddResponseType">
+      <xs:sequence>
+         <xs:element ref="lu:Status" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <!-- SvcMDAssociationDelete operation -->
+
+   <xs:element name="SvcMDAssociationDelete" type="SvcMDAssociationDeleteType"/>
+
+   <xs:complexType name="SvcMDAssociationDeleteType">
+      <xs:sequence>
+         <xs:element ref="SvcMDID" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <!-- Response for SvcMDAssociationDelete operation --> 
+
+   <xs:element name="SvcMDAssociationDeleteResponse" 
+               type="SvcMDAssociationDeleteResponseType"/>
+
+   <xs:complexType name="SvcMDAssociationDeleteResponseType">
+      <xs:sequence>
+         <xs:element ref="lu:Status" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <!-- SvcMDAssociationQuery operation -->
+
+   <xs:element name="SvcMDAssociationQuery" type="SvcMDAssociationQueryType"/>
+
+   <xs:complexType name="SvcMDAssociationQueryType">
+      <xs:sequence>
+         <xs:element ref="SvcMDID" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+   <!-- Response for SvcMDAssociationQuery operation -->
+
+   <xs:element name="SvcMDAssociationQueryResponse"
+               type="SvcMDAssociationQueryResponseType"/>
+
+   <xs:complexType name="SvcMDAssociationQueryResponseType">
+      <xs:sequence>
+         <xs:element ref="lu:Status" />
+         <xs:element ref="SvcMDID" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!--                                               --> 
+   <!-- DS Interfaces for Service Metadata Management -->
+   <!--                                               -->
+   <!-- These interfaces document a create, replace,  -->
+   <!-- delete, and query interface for the service    -->
+   <!-- metadata which is later associated with a     -->
+   <!-- principal.                                    -->
+   <!--                                               -->
+
+   <!-- Register operation for Service Metadata --> 
+
+   <xs:element name="SvcMDRegister" type="SvcMDRegisterType"/>
+
+   <xs:complexType name="SvcMDRegisterType">
+      <xs:sequence>
+         <xs:element ref="SvcMD" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!-- Response for SvcMDRegister operation --> 
+
+   <xs:element name="SvcMDRegisterResponse"
+               type="SvcMDRegisterResponseType"/>
+
+   <xs:complexType name="SvcMDRegisterResponseType">
+      <xs:sequence>
+
+         <xs:element ref="lu:Status" />
+         <xs:element ref="SvcMDID"   minOccurs="0" maxOccurs="unbounded" />
+         <xs:element ref="Keys"      minOccurs="0" maxOccurs="unbounded" />
+
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!-- Delete operation on Service Metadata --> 
+
+   <xs:element name="SvcMDDelete" type="SvcMDDeleteType"/>
+
+   <xs:complexType name="SvcMDDeleteType">
+      <xs:sequence>
+         <xs:element ref="SvcMDID" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!-- Response for delete operation on Service Metadata --> 
+
+   <xs:element name="SvcMDDeleteResponse" type="SvcMDDeleteResponseType"/>
+
+   <xs:complexType name="SvcMDDeleteResponseType">
+      <xs:sequence>
+         <xs:element ref="lu:Status" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!-- Query operation on Service Metadata --> 
+
+   <xs:element name="SvcMDQuery" type="SvcMDQueryType"/>
+
+   <xs:complexType name="SvcMDQueryType">
+      <xs:sequence>
+         <xs:element ref="SvcMDID"
+                     minOccurs="0" 
+                     maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!-- Response for Query operation on Service Metadata --> 
+
+   <xs:element name="SvcMDQueryResponse" type="SvcMDQueryResponseType"/>
+
+   <xs:complexType name="SvcMDQueryResponseType">
+      <xs:sequence>
+         <xs:element ref="lu:Status" />
+         <xs:element ref="SvcMD" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!-- Replace operation on Service Metadata --> 
+
+   <xs:element name="SvcMDReplace" type="SvcMDReplaceType"/>
+
+   <xs:complexType name="SvcMDReplaceType">
+      <xs:sequence>
+         <xs:element ref="SvcMD" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+   <!-- Response for SvcMDReplace operation --> 
+
+   <xs:element name="SvcMDReplaceResponse" type="SvcMDReplaceResponseType"/>
+
+   <xs:complexType name="SvcMDReplaceResponseType">
+      <xs:sequence>
+         <xs:element ref="lu:Status" />
+      </xs:sequence>
+      <xs:anyAttribute namespace="##other" processContents="lax"/>
+   </xs:complexType>
+
+</xs:schema> 

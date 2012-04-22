@@ -1,0 +1,68 @@
+<!-- Picked up from http://wiki.eclipse.org/SAML2_IdP_Overview -->
+<samlp:AuthnRequest
+	AssertionConsumerServiceURL="http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint"
+	Destination="http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint"
+	ID="a2sffdlgdhgfg32fdldsdghdsgdgfdglgx"
+	IssueInstant="2007-12-17T18:40:52.203Z"
+	ProtocolBinding="urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect"
+	ProviderName="Test SAML2 SP" Version="2.0"
+	xmlns="urn:oasis:names:tc:SAML:2.0:assertion"
+	xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+	xmlns:xenc="http://www.w3.org/2001/04/xmlenc#">
+	
+	<Issuer>Test SAML2 SP</Issuer>
+	
+	<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+		<SignedInfo>
+			<CanonicalizationMethod
+				Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments" />
+			<SignatureMethod
+				Algorithm="http://www.w3.org/2000/09/xmldsig#dsa-sha1" />
+			<Reference URI="#ccocfkmlnocbajegpiheahonbcambbapiibggije">
+				<Transforms>
+					<Transform
+						Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+				</Transforms>
+				<DigestMethod
+					Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+				<DigestValue>N1Aze93QqDxax3cmBgPmKFNdM8U=</DigestValue>
+			</Reference>
+		</SignedInfo>
+		<SignatureValue>
+			KjfZwX9RkNrr3Epo/yRfDiFhqBeJCO5lFe/Ni/leBvBH8FRCT3p+2w==
+		</SignatureValue>
+		<KeyInfo>
+			<KeyValue>
+				<DSAKeyValue>
+					<P>
+						vzIPsacspz2XUcXP0hmWx2u56y9t/nTZRKGyFcVi1K/bao0C+0KjvXKkAPNhBb9TzYsCZbtZNH3a
+						OSVvsw1XVYHCeneHAircY/oJ0BqfBBg4gQe1H/CPXwixI+zjBSF5pMOBq4etcsH+SD/JYj1NsRwn
+						/2yQccUjUKeapbHn8TVNwVRYwg5QZL9AQ4b/pGoqO+df3kIqUL7lVyW+l6XprtVQU9jen47c4KQ1
+						sodHHPwgoXmT27hLAedC0cu4UUYFjwgbEoS1UBUoNajmGFNFeMpEtj1j4cHRoiZIxwYgEqzanp2f
+						Lgq7LlMa07vIuZBk6jyrw77Mza7TqxFNoVO89w==
+					</P>
+					<Q>j/ukaZe37ncVwe4c/+GQex1Kqic=</Q>
+					<G>
+						fu8RMe0ijgLi4Pw/KY57HdIBjmBge4XG1fX8IoT2wxv4QFO+FmijCqCcOiWk3osVyJIjqGJyH4kq
+						RwvSZl6pd8FAdP1HfZDMwBP9ML6NpE5WAe+MP+b3ydoUqI25JqCS2H9DypUIHxqN+NaLTDm67O9m
+						tTSckEMbXiARccwgnEgyNCFFulmm8vh8L6iT+56pesCyykMp6PDDo8AI2U9SR5EzUAQe5Yl39fCp
+						lb7H+tbOBclal00OUXezRGNh5c6JlM5J6YpY/gll2D0nv3VtubVOlc104LIpvFzphF7x5hv5HvI+
+						jUemrFIx0I8C3lv+8Xndwe8YwszLRrxvNe0jPQ==
+					</G>
+					<Y>
+						vM9EhHB8cKakhExdDZ/1pnWFeZOBKgC/c1/OoY1wGh4yAz5zDkkZPg/dXpEOkWuz241WXipcUbym
+						L+lZXcT+bTs8CQdIkw738vopoJfT0r75fKd85lT1pRH/nQ4i82J+vHrqOrfFc5CryxxqCRkZP4DW
+						B5t62LBoIMMsrdsMVKpzCJmUgnnIY8B4maJe2BYVRBBhISGoBnTKSWxObUg30fIfRlVFFxtTeWq8
+						tPS9u+MI3HuFn0MPVL+TgBw24ufSWPEEUiZU0eDdjzF51/yTVqUCHYNJH7gG7kugrQ8LdKes7rfD
+						c9glkilm1iAcSCfNvqsktKcN+BCOaCdsQhT5yw==
+					</Y>
+				</DSAKeyValue>
+			</KeyValue>
+		</KeyInfo>
+	</Signature>
+	
+	<samlp:NameIDPolicy Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified"
+	              AllowCreate="true"
+		 />
+	
+</samlp:AuthnRequest>
