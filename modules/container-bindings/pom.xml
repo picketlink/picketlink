@@ -101,17 +101,7 @@
    <dependencies>
       <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-fed-model</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-fed-api</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-web</artifactId>
+         <artifactId>picketlink-core</artifactId>
          <version>${project.version}</version>
       </dependency>
       <dependency>
