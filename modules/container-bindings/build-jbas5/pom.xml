@@ -1,0 +1,90 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.picketlink</groupId>
+    <artifactId>picketlink-fed-parent</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
+    <relativePath>../parent</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.picketlink.distribution</groupId>
+  <artifactId>picketlink-jbas5</artifactId>
+  <packaging>pom</packaging>
+  <name>PicketLink Federation- Assembly - JBoss 5/6</name>
+  <url>http://www.picketlink.org/</url>
+  <description>PicketLink Federation</description>
+  <licenses>
+    <license>
+      <name>lgpl</name>
+      <url>http://repository.jboss.com/licenses/lgpl.txt</url>
+    </license>
+  </licenses>
+  <organization>
+    <name>JBoss Inc.</name>
+    <url>http://www.jboss.org</url>
+  </organization>
+    
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.1</version>
+        <executions>
+          <execution>
+           <id>create-binary</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attached</goal>
+            </goals>
+            <configuration>
+              <appendAssemblyId>false</appendAssemblyId>
+              <archive>
+                <manifestEntries>
+                  <Specification-Title>PicketLink</Specification-Title>
+                  <Specification-Version>${project.version}</Specification-Version>
+                  <Specification-Vendor>Red Hat Inc</Specification-Vendor>
+                  <Implementation-Title>PicketLink</Implementation-Title>
+                  <Implementation-Version>${project.version}</Implementation-Version>
+                  <Implementation-VendorId>org.picketlink</Implementation-VendorId>
+                  <Implementation-Vendor>Red Hat Inc</Implementation-Vendor>
+                  <Implementation-URL>http://jboss.org/picketlink</Implementation-URL>
+                </manifestEntries>
+              </archive>
+              <descriptors>
+                <descriptor>bin.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+
+          <execution>
+             <id>create-source-file</id>
+             <phase>package</phase>
+             <goals>
+               <goal>assembly</goal>
+             </goals>
+
+             <configuration>
+              <archive>
+               <manifestEntries>
+                 <Specification-Title>PicketLink</Specification-Title>
+                 <Specification-Version>${project.version}</Specification-Version>
+                 <Specification-Vendor>Red Hat Inc</Specification-Vendor>
+                 <Implementation-Title>PicketLink</Implementation-Title>
+                 <Implementation-Version>${project.version}</Implementation-Version>
+                 <Implementation-VendorId>org.picketlink</Implementation-VendorId>
+                 <Implementation-Vendor>Red Hat Inc</Implementation-Vendor>
+                 <Implementation-URL>http://jboss.org/picketlink</Implementation-URL>
+                </manifestEntries>
+              </archive>
+              <descriptors>
+                <descriptor>sources.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+        <inherited>false</inherited>
+      </plugin>
+    </plugins>
+  </build>
+  
+</project>
