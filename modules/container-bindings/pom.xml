@@ -6,173 +6,36 @@
       <relativePath>../parent</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>picketlink-bindings</artifactId>
-   <packaging>jar</packaging>
-   <name>PicketLink Federation Server Bindings</name>
+   <groupId>org.picketlink</groupId>
+   <artifactId>picketlink-fed-bindings-pom</artifactId>
+   <packaging>pom</packaging>
+   <name>PicketLink Federation- Aggregator</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
-   <description>PicketLink contains the foundation for Federated Identity Needs.</description>
-   <licenses>
-      <license>
-         <name>lgpl</name>
-         <url>http://repository.jboss.com/licenses/lgpl.txt</url>
-      </license>
-   </licenses>
-   <organization>
-      <name>JBoss Inc.</name>
-      <url>http://www.jboss.org</url>
-   </organization>
+   <description>PicketLink Federation is the federated identity project for JEMS projects</description>
 
-   <!-- Profile to exclude the integration tests that take long time -->
-   <profiles>
-    <profile>
-      <id>exclude-long-tests</id>
-     <activation>
-       <activeByDefault>true</activeByDefault>
-     </activation>
-     <build>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-              <printSummary>true</printSummary>
-              <disableXmlReport>false</disableXmlReport>
-              <testFailureIgnore>false</testFailureIgnore>
-              <excludes>
-                <exclude>**/integration/*TestCase.java</exclude>
-              </excludes>
-              <forkMode>pertest</forkMode>
-              <argLine>${surefire.jvm.args}</argLine>
-              <useFile>false</useFile>
-             <trimStackTrace>false</trimStackTrace>
-           </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
+   <modules>
+     <module>picketlink-tomcat-common</module>
+     <module>picketlink-tomcat5</module>
+     <module>picketlink-tomcat7</module>
+     <module>picketlink-jbas-common</module>
+     <module>picketlink-jbas5</module>
+     <module>picketlink-jbas7</module>
+     <module>build-tomcat5</module>
+     <module>build-tomcat7</module>
+     <module>build-jbas5</module>
+     <module>build-jbas7</module>
+   </modules>
 
-    <profile>
-      <id>long-tests</id>
-     <activation>
-       <activeByDefault>false</activeByDefault>
-     </activation>
-     <build>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-              <childDelegation>true</childDelegation>
-              <printSummary>true</printSummary>
-              <disableXmlReport>false</disableXmlReport>
-              <testFailureIgnore>false</testFailureIgnore>
-              <includes>
-                <include>**/integration/*TestCase.java</include>
-              </includes>
-              <forkMode>pertest</forkMode>
-              <argLine>${surefire.jvm.args}</argLine>
-              <useFile>false</useFile>
-             <trimStackTrace>false</trimStackTrace>
-           </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-   </profiles>
-
-   <build>
+   <reporting>
      <plugins>
        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <printSummary>true</printSummary>
-            <disableXmlReport>false</disableXmlReport>
-            <testFailureIgnore>false</testFailureIgnore>
-            <includes>
-              <include>**/**TestCase.java</include>
-            </includes>
-            <forkMode>pertest</forkMode>
-            <argLine>-Djava.endorsed.dirs=${basedir}/src/test/resources/endorsed</argLine>
-            <useFile>false</useFile>
-            <trimStackTrace>false</trimStackTrace>
-          </configuration>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-javadoc-plugin</artifactId>
+         <configuration>
+           <aggregate>true</aggregate>
+         </configuration>
         </plugin>
      </plugins>
-  </build>
+   </reporting>
 
-   <dependencies>
-      <dependency>
-         <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-core</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>javax.servlet</groupId>
-         <artifactId>servlet-api</artifactId>
-         <version>2.4</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.security</groupId>
-         <artifactId>jbossxacml</artifactId>
-         <version>2.0.4</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>log4j</groupId>
-         <artifactId>log4j</artifactId>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>catalina</artifactId>
-         <version>6.0.18</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>juli</artifactId>
-         <version>6.0.18</version>
-         <optional>true</optional>
-      </dependency>
-      <dependency>
-         <groupId>org.apache.tomcat</groupId>
-         <artifactId>coyote</artifactId>
-         <version>6.0.18</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <scope>test</scope>
-      </dependency>
-   </dependencies>
-   
-   <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <doclet>org.jboss.apiviz.APIviz</doclet>
-          <docletArtifact>
-            <groupId>org.jboss.apiviz</groupId>
-            <artifactId>apiviz</artifactId>
-            <version>1.2.5.GA</version>
-          </docletArtifact>
-          <additionalparam>
-            -charset UTF-8
-            -docencoding UTF-8
-            -version
-            -author
-            -breakiterator
-            -windowtitle "${project.name} ${project.version} API Reference"
-            -doctitle "${project.name} ${project.version} API Reference"
-            -bottom "Copyright © ${project.inceptionYear}-Present ${project.organization.name}. All Rights Reserved."
-            -link http://java.sun.com/javase/6/docs/api/
-            -sourceclasspath ${project.build.outputDirectory}
-          </additionalparam>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>
