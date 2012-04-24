@@ -49,11 +49,13 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementTy
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextDeclRefType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextDeclType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectLocalityType;
+import org.w3c.dom.Element;
 
 /**
  * Utility methods for SAML Parser
@@ -302,34 +304,74 @@ public class SAMLParserUtil
 
       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       StaxParserUtil.validate(startElement, JBossSAMLConstants.AUTHN_CONTEXT.get());
-
-      //Get the next start element
-      startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      String tag = startElement.getName().getLocalPart();
-
-      if (JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF.get().equals(tag))
+      
+      while (xmlEventReader.hasNext())
       {
-         String text = StaxParserUtil.getElementText(xmlEventReader);
+         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+         if (xmlEvent == null)
+            break;
 
-         AuthnContextDeclRefType aAuthnContextDeclType = new AuthnContextDeclRefType(URI.create(text));
-         authnContextType.addURIType(aAuthnContextDeclType);
-         EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-         StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get());
+         if (xmlEvent instanceof EndElement)
+         {
+            xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
+            EndElement endElement = (EndElement) xmlEvent;
+            String endElementTag = StaxParserUtil.getEndElementName(endElement);
+            if (endElementTag.equals(JBossSAMLConstants.AUTHN_CONTEXT.get()))
+               break;
+            else
+               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
+         }
+         startElement = null;
+
+         if (xmlEvent instanceof StartElement)
+         {
+            startElement = (StartElement) xmlEvent;
+         }
+         else
+         {
+            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+         }
+         if (startElement == null)
+            break;
+
+         String tag = StaxParserUtil.getStartElementName(startElement);
+         
+         if (JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION.get().equals(tag))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            
+            Element dom = StaxParserUtil.getDOMElement(xmlEventReader);
+
+            AuthnContextDeclType authnContextDecl = new AuthnContextDeclType(dom);
+            AuthnContextTypeSequence authnContextSequence = authnContextType.new AuthnContextTypeSequence();
+            authnContextSequence.setAuthnContextDecl(authnContextDecl);
+            authnContextType.setSequence(authnContextSequence);
+            
+            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+            StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION.get());
+         }
+         else if (JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF.get().equals(tag))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            String text = StaxParserUtil.getElementText(xmlEventReader);
+
+            AuthnContextDeclRefType aAuthnContextDeclType = new AuthnContextDeclRefType(URI.create(text));
+            authnContextType.addURIType(aAuthnContextDeclType);
+         }
+         else if (JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get().equals(tag))
+         {
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            String text = StaxParserUtil.getElementText(xmlEventReader);
+
+            AuthnContextClassRefType aAuthnContextClassRefType = new AuthnContextClassRefType(URI.create(text));
+            AuthnContextTypeSequence authnContextSequence = authnContextType.new AuthnContextTypeSequence();
+            authnContextSequence.setClassRef(aAuthnContextClassRefType);
+
+            authnContextType.setSequence(authnContextSequence);
+         }
+         else
+            throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
       }
-      else if (JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get().equals(tag))
-      {
-         String text = StaxParserUtil.getElementText(xmlEventReader);
-
-         AuthnContextClassRefType aAuthnContextClassRefType = new AuthnContextClassRefType(URI.create(text));
-         AuthnContextTypeSequence authnContextSequence = authnContextType.new AuthnContextTypeSequence();
-         authnContextSequence.setClassRef(aAuthnContextClassRefType);
-
-         authnContextType.setSequence(authnContextSequence);
-         EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-         StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT.get());
-      }
-      else
-         throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
 
       return authnContextType;
    }

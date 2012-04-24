@@ -467,7 +467,7 @@ public class StaxParserUtil
    {
       String elementTag = getEndElementName(endElement);
       if (!tag.equals(elementTag))
-         throw new RuntimeException(EXPECTED_END_TAG + tag + ">.  Found </" + elementTag + ">");
+         throw new RuntimeException(EXPECTED_END_TAG + "</" + tag + ">.  Found </" + elementTag + ">");
    }
 
    /**

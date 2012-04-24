@@ -22,25 +22,24 @@
 package org.picketlink.identity.federation.saml.v2.assertion;
 
 import java.io.Serializable;
-import java.net.URI;
 
 /**
  * Type that represents an AuthnContextDecl
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public class AuthnContextDeclType implements URIType, Serializable
+public class AuthnContextDeclType implements Serializable
 {
    private static final long serialVersionUID = 1L;
 
-   private URI value;
+   private Object value;
 
-   public AuthnContextDeclType( URI value )
+   public AuthnContextDeclType( Object value )
    { 
       this.value = value;
    }
 
-   public URI getValue()
+   public Object getValue()
    {
       return value;
    }

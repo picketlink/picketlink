@@ -313,4 +313,17 @@ public class SAMLResponseParserTestCase extends AbstractParserTest
       ResponseType response = (ResponseType) parser.parse(configStream);
       assertNotNull("ResponseType is not null", response);
    }
+   
+   @Test
+   public void testNonStandardExtensions() throws Exception
+   {
+	   String fileName = "parser/saml2/saml2-response-nonstandardextension.xml";
+	   ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+	   InputStream configStream = tcl.getResourceAsStream(fileName);
+	   /*validateSchema(configStream);
+	   configStream = tcl.getResourceAsStream(fileName);*/
+	   SAMLParser parser = new SAMLParser();
+	   ResponseType response = (ResponseType) parser.parse(configStream);
+	   assertNotNull("ResponseType is not null", response);
+   }
 }

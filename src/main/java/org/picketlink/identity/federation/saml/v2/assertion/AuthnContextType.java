@@ -175,6 +175,8 @@ public class AuthnContextType implements Serializable
       private static final long serialVersionUID = 1L;
 
       private AuthnContextClassRefType classRef;
+      
+      private AuthnContextDeclType authnContextDecl;
 
       private final Set<URIType> URITypes = new HashSet<URIType>();
 
@@ -205,7 +207,17 @@ public class AuthnContextType implements Serializable
 
       public Set<URIType> getURIType()
       {
-         return Collections.unmodifiableSet(URITypes);
+    	 return Collections.unmodifiableSet(URITypes);
+      }
+
+      public AuthnContextDeclType getAuthnContextDecl() 
+      {
+    	 return authnContextDecl;
+      }
+
+      public void setAuthnContextDecl(AuthnContextDeclType authnContextDecl) 
+      {
+    	 this.authnContextDecl = authnContextDecl;
       }
    }
 }

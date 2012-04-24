@@ -1,0 +1,81 @@
+<samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" 
+         xmlns:ds="http://www.w3.org/2000/09/xmldsig#" 
+         xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" 
+         xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" 
+         Destination="https://xyx/zponf/priv/anmelden.jsf" 
+         ID="cbced004-80ba-443d-bcad-add8209c4bf2" 
+         InResponseTo="ID_3e97af7c-610b-445b-af20-b2a3720a3a0b" 
+         IssueInstant="2012-04-12T16:11:04.417+02:00" Version="2.0">
+<saml:Issuer>SAFE-Test-NRW</saml:Issuer>
+<samlp:Status>
+<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+</samlp:Status>
+<saml:Assertion xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" 
+xmlns:safeac="urn:de:egov:names:safe:1.0:authenticationcontext" 
+xmlns:safeacxss="urn:de:egov:names:safe:1.0:ac:X509-SelfSigned" 
+xmlns:samlacpass="urn:oasis:names:tc:SAML:2.0:ac:classes:Password" 
+xmlns:samlacsmpki="urn:oasis:names:tc:SAML:2.0:ac:classes:SmartcardPKI" 
+xmlns:samlacx509="urn:oasis:names:tc:SAML:2.0:ac:classes:X509" 
+xmlns="" 
+ID="uuid-bf1a57b0-5c64-4ebc-b57d-c8f2ebcda695" IssueInstant="2012-04-12T14:11:04.416Z" Version="2.0">
+<saml:Issuer>SAFE-Test-NRW</saml:Issuer>
+<saml:Subject>
+<saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent" 
+NameQualifier="uri:de:nrw:safe:st1">safe-st1-1334129683657-011039769</saml:NameID>
+<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+</saml:Subject>
+<saml:Conditions NotBefore="2012-04-12T14:11:04.416Z" NotOnOrAfter="2012-04-12T14:16:04.416Z">
+<saml:AudienceRestriction>
+<saml:Audience>
+https://ref.lv.zenvg.nrw.de/zponf/priv/anmelden.jsf
+</saml:Audience>
+</saml:AudienceRestriction>
+</saml:Conditions>
+<saml:AuthnStatement AuthnInstant="2012-04-12T14:11:04.416Z">
+<saml:AuthnContext>
+<saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password</saml:AuthnContextClassRef>
+<saml:AuthnContextDecl xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="safeac:AuthnContextDeclType">
+<samlacpass:AuthenticationContextDeclaration>
+<samlacpass:Identification nym="verinymity">
+<samlacpass:Extension>
+<safeac:NoVerification/>
+</samlacpass:Extension>
+</samlacpass:Identification>
+<samlacpass:Extension>
+<safeac:SecurityLevel>
+<safeac:Authentication>urn:de:egov:names:fim:1.0:securitylevel:normal</safeac:Authentication>
+<safeac:Registration>urn:de:egov:names:safe:1.0:securitylevel:low</safeac:Registration>
+</safeac:SecurityLevel>
+</samlacpass:Extension>
+</samlacpass:AuthenticationContextDeclaration>
+</saml:AuthnContextDecl>
+</saml:AuthnContext>
+</saml:AuthnStatement>
+</saml:Assertion>
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+<SignedInfo>
+<CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/>
+<SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+<Reference URI="">
+<Transforms>
+<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+</Transforms>
+<DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+<DigestValue>gnKnRY9U2li7xq/aY9xcY5s6TI8=</DigestValue>
+</Reference>
+</SignedInfo>
+<SignatureValue>
+LsAV3X8cKhLCGlBaS1HZCHeJ7+e/AQBuSVqXPe7To4+4YMI53JC8ITU3ME0X0WynAvJtnLfenVFa n0tO2LZO3G8aNs9zxnyhcPZbE1V7bvqHLRapUN0tZzED3qUSsfvJV5vNBNBm0juk2EwtpBYTyq9P GmEVIvGgmQmGne2G6QymF4PB1wFvsNw043d+OhLkrh0r8qjwKmgQW33a7nVjRcFqz9OPfwcmB2Oy S/zr2cB5PtE7jPsE5P7c3W039VDPmeQvXhOnoNJByMDWrr0I4S7JvNz8RMZ3RWU4bfo1WevQ6iqR AvbGQ3gopD0w5ojLCOXk9sIswV6ZSuRnbs3I7Q==
+</SignatureValue>
+<KeyInfo>
+<KeyValue>
+<RSAKeyValue>
+<Modulus>
+kHATCzVzHPURZoohyig0O/2pmj9ZoyTN5P/KVMAvcMWRFbQZjl36AyZS3OXkKhjmAwE+ua/iQYR0 xiPQ9fZ1ZwmsPMGpjW4cm4iHMAXUTKiIlU3SRYLOg9vQ77Tc+R/VwzjguZUUtFscBc4mEyBPYHEM sKEIcJLKSund7dVMrVzTm7oDl8IkSXq1TO39nzPB9yFNF2ghNoKJ8J9X8E3pUAVCUwsp+fM4XFL7 rtVOySA+hPm4e0eWIMqcoXP4rsFV9EREKJO9iH4dtdSS2oYs4wZQpklUuFdp/naw7IuOV/WYyQof VgWelkuxauqLMbhW3936V2XKJmIwdjY2pUkG1Q==
+</Modulus>
+<Exponent>AQAB</Exponent>
+</RSAKeyValue>
+</KeyValue>
+</KeyInfo>
+</Signature>
+</samlp:Response>
