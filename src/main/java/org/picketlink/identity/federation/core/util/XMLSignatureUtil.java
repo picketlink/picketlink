@@ -99,8 +99,9 @@ public class XMLSignatureUtil
       }
       catch (Exception err)
       {
-         // JDK5
-         xsf = XMLSignatureFactory.getInstance("DOM", new org.jcp.xml.dsig.internal.dom.XMLDSigRI());
+    	 throw new RuntimeException("XMLSignatureUtil:Please move to JDK6 and above");
+         /*// JDK5
+         xsf = XMLSignatureFactory.getInstance("DOM", new org.jcp.xml.dsig.internal.dom.XMLDSigRI());*/
       }
       return xsf;
    }
