@@ -27,7 +27,7 @@ NameQualifier="uri:de:nrw:safe:st1">safe-st1-1334129683657-011039769</saml:NameI
 <saml:Conditions NotBefore="2012-04-12T14:11:04.416Z" NotOnOrAfter="2012-04-12T14:16:04.416Z">
 <saml:AudienceRestriction>
 <saml:Audience>
-https://ref.lv.zenvg.nrw.de/zponf/priv/anmelden.jsf
+https://yyz/zponf/priv/anmelden.jsf
 </saml:Audience>
 </saml:AudienceRestriction>
 </saml:Conditions>

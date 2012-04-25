@@ -52,7 +52,7 @@ public class STSConfigParser extends AbstractParser
    private static final String CONFIG_NS = "urn:picketlink:identity-federation:config:1.0";
 
    // XML configuration elements.
-   private static final String ROOT_ELEMENT = "PicketLinkSTS";
+   public static final String ROOT_ELEMENT = "PicketLinkSTS";
 
    private static final String KEY_PROVIDER_ELEMENT = "KeyProvider";
 
