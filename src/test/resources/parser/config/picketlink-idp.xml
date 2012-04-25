@@ -1,11 +1,11 @@
-<PicketLink xmlns="urn:picketlink:identity-federation:config:1.0">
-	<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0">
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+	<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:2.1">
 		<IdentityURL>${idp.url::http://localhost:8080/idp/}</IdentityURL>
 		<Trust>
 			<Domains>localhost,jboss.com,jboss.org,amazonaws.com</Domains>
 		</Trust>
 	</PicketLinkIDP>
-	<Handlers xmlns="urn:picketlink:identity-federation:handler:config:1.0">
+	<Handlers xmlns="urn:picketlink:identity-federation:handler:config:2.1">
 		<Handler
 			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler" />
 		<Handler

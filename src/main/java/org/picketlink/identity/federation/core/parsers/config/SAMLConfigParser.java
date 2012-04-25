@@ -50,6 +50,8 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
  */
 public class SAMLConfigParser extends AbstractParser
 {
+   public static final String BINDING_TYPE = "BindingType";
+   
    public static final String IDP = "PicketLinkIDP";
 
    public static final String SP = "PicketLinkSP";
@@ -95,6 +97,10 @@ public class SAMLConfigParser extends AbstractParser
    public static final String HANDLER = "Handler";
 
    public static final String OPTION = "Option";
+
+   public static final String RELAY_STATE = "RelayState";
+   
+   public static final String SERVER_ENVIRONMENT = "ServerEnvironment";
 
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
@@ -238,6 +244,24 @@ public class SAMLConfigParser extends AbstractParser
       Attribute attribute = startElement.getAttributeByName(attributeQName);
       if (attribute != null)
          sp.setCanonicalizationMethod(StaxParserUtil.getAttributeValue(attribute));
+      
+      attributeQName = new QName("", SERVER_ENVIRONMENT);
+      attribute = startElement.getAttributeByName(attributeQName);
+      if (attribute != null){
+          sp.setServerEnvironment(StaxParserUtil.getAttributeValue(attribute));   
+      }
+      
+      attributeQName = new QName("", BINDING_TYPE);
+      attribute = startElement.getAttributeByName(attributeQName);
+      if (attribute != null){
+          sp.setBindingType(StaxParserUtil.getAttributeValue(attribute));   
+      }
+      
+      attributeQName = new QName("", RELAY_STATE);
+      attribute = startElement.getAttributeByName(attributeQName);
+      if (attribute != null){
+          sp.setRelayState(StaxParserUtil.getAttributeValue(attribute));   
+      }
 
       while (xmlEventReader.hasNext())
       {

@@ -1,5 +1,6 @@
 package org.picketlink.test.identity.federation.core.config;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
@@ -40,6 +41,9 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         PicketLinkType picketlink = (PicketLinkType) result;
         SPType sp = (SPType) picketlink.getIdpOrSP();
         assertNotNull(sp);
+        assertEquals("REDIRECT", sp.getBindingType());
+        assertEquals("tomcat", sp.getServerEnvironment());
+        assertEquals("someURL", sp.getRelayState());
     }
     
     @Test

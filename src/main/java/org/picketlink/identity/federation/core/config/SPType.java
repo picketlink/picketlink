@@ -45,51 +45,78 @@ package org.picketlink.identity.federation.core.config;
  */
 public class SPType extends ProviderType
 {
-   protected String serviceURL;
+    protected String serviceURL;
 
-   protected String idpMetadataFile;
+    protected String idpMetadataFile;
 
-   /**
-    * Gets the value of the serviceURL property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getServiceURL()
-   {
-      return serviceURL;
-   }
+    /**
+     * HTTP Redirect or HTTP Post Binding
+     */
+    protected String bindingType = "POST";
+    
+    protected String relayState;
 
-   /**
-    * Sets the value of the serviceURL property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setServiceURL(String value)
-   {
-      this.serviceURL = value;
-   }
+    /**
+     * Gets the value of the serviceURL property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getServiceURL()
+    {
+        return serviceURL;
+    }
 
-   /**
-    * Get the IDP metadata file String
-    * @return
-    */
-   public String getIdpMetadataFile()
-   {
-      return idpMetadataFile;
-   }
+    /**
+     * Sets the value of the serviceURL property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setServiceURL(String value)
+    {
+        this.serviceURL = value;
+    }
 
-   /**
-    * Set the IDP Metadata file String
-    * @param idpMetadataFile
-    */
-   public void setIdpMetadataFile(String idpMetadataFile)
-   {
-      this.idpMetadataFile = idpMetadataFile;
-   }
+    /**
+     * Get the IDP metadata file String
+     * @return
+     */
+    public String getIdpMetadataFile()
+    {
+        return idpMetadataFile;
+    }
+
+    /**
+     * Set the IDP Metadata file String
+     * @param idpMetadataFile
+     */
+    public void setIdpMetadataFile(String idpMetadataFile)
+    {
+        this.idpMetadataFile = idpMetadataFile;
+    }
+
+    public String getBindingType() {
+        return bindingType;
+    }
+
+    public void setBindingType(String bindingType) {
+        if(bindingType.equals("POST")|| bindingType.equals("REDIRECT")){
+            this.bindingType = bindingType;
+        } else {
+            throw new IllegalArgumentException();
+        }
+    }
+
+    public String getRelayState() {
+        return relayState;
+    }
+
+    public void setRelayState(String relayState) {
+        this.relayState = relayState;
+    }
 }
