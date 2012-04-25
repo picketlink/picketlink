@@ -66,6 +66,7 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -1104,21 +1105,37 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
             throw new RuntimeException(ErrorCodes.PARSING_ERROR + e.getLocalizedMessage());
          }
       }
+      
+      PicketLinkType picketLinkConfiguration = null;
 
       if (idpConfiguration == null)
       {
-         if (is == null)
-            throw new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
-
-         try
-         {
-            idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
+         if(is != null) {
+             try {
+                picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
+                idpConfiguration = (IDPType) picketLinkConfiguration.getIdpOrSP();
+             }
+             catch (ParsingException e)
+             {
+                if (trace)
+                   log.trace(e);
+                throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+             }
          }
-         catch (ParsingException e)
-         {
-            if (trace)
-               log.trace(e);
-            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+         if (is == null) {
+             //Try the older version
+             is = context.getServletContext().getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+             if(is == null)
+                 throw new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
+             try {
+                 idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
+              }
+              catch (ParsingException e)
+              {
+                 if (trace)
+                    log.trace(e);
+                 throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+              }
          }
       }
       try
@@ -1188,10 +1205,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle
 
       try
       {
-         //Get the handlers
-         String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-         handlers = ConfigurationUtil.getHandlers(context.getServletContext()
-               .getResourceAsStream(handlerConfigFileName));
+         if(picketLinkConfiguration != null ){
+             handlers = picketLinkConfiguration.getHandlers();
+         } else {
+             //Get the handlers
+             String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
+             handlers = ConfigurationUtil.getHandlers(context.getServletContext()
+                   .getResourceAsStream(handlerConfigFileName));
+         }
          chain.addAll(HandlerUtil.getHandlers(handlers));
 
          Map<String, Object> chainConfigOptions = new HashMap<String, Object>();

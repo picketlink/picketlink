@@ -51,8 +51,10 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataExtractor;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -91,6 +93,8 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
    protected final boolean trace = log.isTraceEnabled();
 
    protected SPType spConfiguration = null;
+   
+   protected PicketLinkType picketLinkConfiguration = null;
 
    protected String serviceURL = null;
 
@@ -390,8 +394,8 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
    {
       ServletContext servletContext = context.getServletContext();
       InputStream is = servletContext.getResourceAsStream(configFile);
-      if (is == null)
-         throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile);
+      
+      
       try
       {
          if (configProvider != null)
@@ -404,7 +408,23 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
          }
          else
          {
-            spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+             if(is != null) {
+                 try {
+                    picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
+                    spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
+                 }
+                 catch (ParsingException e)
+                 {
+                    if (trace)
+                       log.trace(e);
+                    throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+                 }
+             } else {
+                 is = servletContext.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+                 if (is == null)
+                     throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile);
+                 spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+             }
          }
 
          if (StringUtil.isNotNull(spConfiguration.getIdpMetadataFile()))
@@ -548,9 +568,14 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator
 
       try
       {
-         //Get the handlers
-         String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-         handlers = ConfigurationUtil.getHandlers(servletContext.getResourceAsStream(handlerConfigFileName));
+         if(picketLinkConfiguration != null){
+             handlers = picketLinkConfiguration.getHandlers();
+         } else {
+             //Get the handlers
+             String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
+             handlers = ConfigurationUtil.getHandlers(servletContext.getResourceAsStream(handlerConfigFileName));
+         }
+         
          chain.addAll(HandlerUtil.getHandlers(handlers));
 
          this.populateChainConfig();
