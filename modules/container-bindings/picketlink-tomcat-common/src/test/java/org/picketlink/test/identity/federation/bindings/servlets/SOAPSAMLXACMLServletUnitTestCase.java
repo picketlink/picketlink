@@ -106,6 +106,44 @@ public class SOAPSAMLXACMLServletUnitTestCase
    {
       validate("xacml/requests/interop-request.xml", DecisionType.PERMIT.value(), false);
    }
+   
+   @Test
+   public void testCXFRequest() throws Exception{
+       boolean needSOAPWrapping = false;
+       InputStream is = getInputStream("xacml/requests/cxf-soap-request.xml");
+       if (is == null)
+          throw new IllegalArgumentException("Input Stream to request file is null");
+
+       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+       SOAPSAMLXACMLServlet servlet = new SOAPSAMLXACMLServlet();
+
+       HashMap<String, String> map = new HashMap<String, String>();
+       map.put("soapVersion", "1.2");
+       map.put("policyConfigFileName", "xacml/policies/config/rsaConfPolicyConfig.xml");
+       ServletContext sc = new TestServletContext(map);
+       
+       servlet.init(new TestServletConfig(sc));
+
+       if (needSOAPWrapping)
+          is = getSOAPStream(is);
+
+       ServletRequest sreq = new TestServletRequest(is);
+       ServletResponse sresp = new TestServletResponse(baos);
+       servlet.service(sreq, sresp);
+
+       sresp.flushBuffer(); //Flush the servlet response ServletOutputStream to our baos
+
+       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+
+       SOAPMessage soapMessage = SOAPUtil.getSOAP12Message(bis);
+
+       soapMessage.writeTo(System.out);
+
+       Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
+       XACMLAuthzDecisionStatementType xacmlStatement = SOAPSAMLXACMLUtil.getDecisionStatement(xacmlNode);
+       assertNotNull(xacmlStatement);
+   }
 
    private void validate(String requestFile, String value, boolean needSOAPWrapping) throws Exception
    {
