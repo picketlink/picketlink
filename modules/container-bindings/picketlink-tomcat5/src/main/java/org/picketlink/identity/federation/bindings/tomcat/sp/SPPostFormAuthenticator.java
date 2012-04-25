@@ -53,6 +53,7 @@ import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHo
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
@@ -346,7 +347,11 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
       HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
       Set<SAML2Handler> handlers = chain.handlers();
 
+      //This is the first time, the user is accessing. Get the relay state from the configuration
       String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
+      if(StringUtil.isNotNull(relayState)){
+          relayState = spConfiguration.getRelayState();
+      }
 
       //Neither saml request nor response from IDP
       //So this is a user request
