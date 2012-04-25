@@ -54,11 +54,12 @@ import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Servlet that can read SOAP 1.1 messages that contain
+ * Servlet that can read SOAP messages that contain
  * an XACML query in saml payload
  * @author Anil.Saldhana@redhat.com
  * @since Jan 27, 2009
@@ -80,6 +81,8 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
    boolean debug = false;
 
    private transient PolicyDecisionPoint pdp = null;
+   
+   private String soapVersion = "1.1";
 
    public void init(ServletConfig config) throws ServletException
    {
@@ -95,6 +98,11 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
       if (policyConfigFileName == null)
          policyConfigFileName = "policyConfig.xml";
 
+      String soap = config.getInitParameter("soapVersion");
+      if(soap != null){
+          soapVersion = soap;
+      }
+      
       String debugStr = config.getInitParameter("debug");
       try
       {
@@ -138,7 +146,12 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
       {
          try
          {
-            SOAPMessage soapMessage = SOAPUtil.getSOAPMessage(req.getInputStream());
+             SOAPMessage soapMessage = null;
+            if(soapVersion.equals("1.2")){
+                soapMessage = SOAPUtil.getSOAP12Message(req.getInputStream());
+            } else {
+                soapMessage = SOAPUtil.getSOAPMessage(req.getInputStream());
+            }
             SOAPEnvelope soapEnvelope = soapMessage.getSOAPPart().getEnvelope();
             SOAPBody soapBody = soapEnvelope.getBody();
             NodeList nl = soapBody.getChildNodes();
@@ -149,6 +162,10 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
             {
                Node n = nl.item(i);
                String localName = n.getLocalName();
+               if(localName != null && localName.equals("MessageBody")){
+                   n = getFirstElement(n);
+                   localName = n.getLocalName();
+               }
                if (localName != null
                      && (localName.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get()) || localName
                            .contains(JBossSAMLConstants.REQUEST_ABSTRACT.get())))
@@ -272,7 +289,11 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
          samlResponseWriter.write(samlResponseType);
          Document responseDocument = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
 
-         returnSOAPMessage = SOAPUtil.create();
+         if(soapVersion.equals("1.2")){
+             returnSOAPMessage = SOAPUtil.createSOAP12();
+         } else {
+             returnSOAPMessage = SOAPUtil.create();
+         }
          SOAPBody returnSOAPBody = returnSOAPMessage.getSOAPBody();
          returnSOAPBody.addDocument(responseDocument);
       }
@@ -283,7 +304,11 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
          log.error(id + "::Exception:", e);
          try
          {
-            returnSOAPMessage = SOAPUtil.createFault("Server Error");
+            if( soapVersion.equals("1.2")){
+                returnSOAPMessage = SOAPUtil.createFault12("Server Error");
+            } else {
+                returnSOAPMessage = SOAPUtil.createFault("Server Error");
+            }
          }
          catch (SOAPException e1)
          {
@@ -312,5 +337,16 @@ public class SOAPSAMLXACMLServlet extends HttpServlet
       if (is == null)
          throw new IllegalStateException(ErrorCodes.RESOURCE_NOT_FOUND + policyConfigFileName + " could not be located");
       return new JBossPDP(is);
+   }
+   
+   private Node getFirstElement( Node node) throws Exception{
+       NodeList nodeList = node.getChildNodes();
+       int len = nodeList.getLength();
+       for(int i = 0 ; i < len; i++){
+           Node n = nodeList.item(i);
+           if(n instanceof Element)
+               return n;
+       }
+       return null;
    }
 }

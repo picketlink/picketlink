@@ -79,15 +79,6 @@ public class SOAPSAMLXACMLUtil
       XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(samlRequest));
       SAMLXACMLRequestParser samlXACMLRequestParser = new SAMLXACMLRequestParser();
       return (XACMLAuthzDecisionQueryType) samlXACMLRequestParser.parse(xmlEventReader);
-
-      /*Unmarshaller um = JAXBUtil.getUnmarshaller(collectivePackage);
-      um.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
-
-      JAXBElement<?> obj = (JAXBElement<?>) um.unmarshal(new StringReader(elementString));
-      Object xacmlObject = obj.getValue();
-      if(xacmlObject instanceof XACMLAuthzDecisionQueryType == false)
-         throw new RuntimeException("Unsupported type:" + xacmlObject);
-      return (XACMLAuthzDecisionQueryType)xacmlObject;  */
    }
 
    public static XACMLAuthzDecisionStatementType getDecisionStatement(Node samlResponse) throws ConfigurationException,

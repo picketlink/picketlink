@@ -50,8 +50,12 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
 {
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+      StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
       String tag = StaxParserUtil.getStartElementName(startElement);
+      if(tag.equalsIgnoreCase("MessageBody")){
+          startElement = StaxParserUtil.getNextStartElement(xmlEventReader); //Lets skip
+      }
+      startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
       if (tag.equals(JBossSAMLConstants.REQUEST_ABSTRACT.get()))
       {
          String xsiTypeValue = StaxParserUtil.getXSITypeValue(startElement);

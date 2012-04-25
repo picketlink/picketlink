@@ -27,6 +27,7 @@ import java.security.GeneralSecurityException;
 
 import javax.xml.soap.MessageFactory;
 import javax.xml.soap.SOAPBody;
+import javax.xml.soap.SOAPConstants;
 import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
@@ -55,6 +56,17 @@ public class SOAPUtil
       SOAPMessage soapMessage = messageFactory.createMessage();
       return soapMessage;
    }
+   
+   /**
+    * Create a SOAP 1.2 Message
+    * @return
+    * @throws SOAPException
+    */
+   public static SOAPMessage createSOAP12() throws SOAPException{
+       MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+       SOAPMessage soapMessage = messageFactory.createMessage();
+       return soapMessage;
+   }
 
    /**
     * Given a stream of {@link SOAPMessage}, construct the {@link SOAPMessage}
@@ -70,6 +82,19 @@ public class SOAPUtil
    }
 
    /**
+    * Given a stream of {@link SOAPMessage} that is SOAP 1.2, construct the {@link SOAPMessage}
+    * @param is
+    * @return
+    * @throws IOException
+    * @throws SOAPException
+    */
+   public static SOAPMessage getSOAP12Message(InputStream is) throws IOException, SOAPException
+   {
+      MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
+      return messageFactory.createMessage(null, is);
+   }
+   
+   /**
     * Given a string message, create a {@link SOAPFault}
     * @param message
     * @return
@@ -78,6 +103,25 @@ public class SOAPUtil
    public static SOAPMessage createFault(String message) throws SOAPException
    {
       MessageFactory messageFactory = MessageFactory.newInstance();
+      SOAPMessage msg = messageFactory.createMessage();
+      SOAPEnvelope envelope = msg.getSOAPPart().getEnvelope();
+      SOAPBody body = envelope.getBody();
+      SOAPFault fault = body.addFault();
+      fault.setFaultCode("Server");
+      fault.setFaultActor("urn:picketlink");
+      fault.setFaultString(message);
+      return msg;
+   }
+   
+   /**
+    * Given a string message, create a {@link SOAPFault} that is SOAP 1.2
+    * @param message
+    * @return
+    * @throws SOAPException
+    */
+   public static SOAPMessage createFault12(String message) throws SOAPException
+   {
+      MessageFactory messageFactory = MessageFactory.newInstance(SOAPConstants.SOAP_1_2_PROTOCOL);
       SOAPMessage msg = messageFactory.createMessage();
       SOAPEnvelope envelope = msg.getSOAPPart().getEnvelope();
       SOAPBody body = envelope.getBody();
