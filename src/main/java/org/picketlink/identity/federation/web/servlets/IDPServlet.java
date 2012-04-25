@@ -49,6 +49,7 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
@@ -108,6 +109,8 @@ public class IDPServlet extends HttpServlet
    private final boolean trace = log.isTraceEnabled();
 
    protected transient IDPType idpConfiguration = null;
+   
+   protected transient PicketLinkType picketLinkConfiguration = null;
 
    protected transient RoleGenerator roleGenerator = new DefaultRoleGenerator();
 
@@ -190,16 +193,22 @@ public class IDPServlet extends HttpServlet
       if (idpConfiguration == null)
       {
          InputStream is = context.getResourceAsStream(configFile);
-         if (is == null)
-            throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + configFile + " missing");
-
-         try
-         {
-            idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
-         }
-         catch (ParsingException e)
-         {
-            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+         if(is != null){
+             try {
+               picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
+               idpConfiguration = (IDPType) picketLinkConfiguration.getIdpOrSP();
+           } catch (ParsingException e) {
+               throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+           }
+         } else {
+             is = context.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+             if (is == null)
+                 throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile + " missing");
+             try {
+                 idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
+           } catch (ParsingException e) {
+               throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+           } 
          }
       }
 
@@ -228,7 +237,11 @@ public class IDPServlet extends HttpServlet
 
          //Get the handlers
          String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-         handlers = ConfigurationUtil.getHandlers(context.getResourceAsStream(handlerConfigFileName));
+         if(picketLinkConfiguration != null){
+             handlers = picketLinkConfiguration.getHandlers();
+         } else {
+             handlers = ConfigurationUtil.getHandlers(context.getResourceAsStream(handlerConfigFileName));
+         }
          chain.addAll(HandlerUtil.getHandlers(handlers));
 
          Map<String, Object> chainConfigOptions = new HashMap<String, Object>();

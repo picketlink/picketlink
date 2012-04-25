@@ -25,9 +25,11 @@ import java.io.InputStream;
 
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
+import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
 
 /**
@@ -37,6 +39,14 @@ import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
  */
 public class ConfigurationUtil
 {
+   public static PicketLinkType getConfiguration(InputStream is) throws ParsingException{
+       if (is == null)
+           throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+       PicketLinkConfigParser parser = new PicketLinkConfigParser();
+       PicketLinkType picketLinkType =  (PicketLinkType) parser.parse(is);
+       return picketLinkType;
+   }
+   
    /**
     * Get the IDP Configuration
     * from the passed configuration

@@ -61,9 +61,11 @@ import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
@@ -128,6 +130,8 @@ public class SPFilter implements Filter
    private final boolean trace = log.isTraceEnabled();
 
    protected SPType spConfiguration = null;
+   
+   protected PicketLinkType picketLinkConfiguration = null;
 
    protected String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
 
@@ -442,11 +446,27 @@ public class SPFilter implements Filter
    {
       this.context = filterConfig.getServletContext();
       InputStream is = context.getResourceAsStream(configFile);
-      if (is == null)
-         throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile + " missing");
+      
+      if(is != null){
+          try {
+            picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
+            spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
+        } catch (ParsingException e) {
+            throw new RuntimeException(e);
+        }
+      } else {
+          is = context.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+          if (is == null)
+              throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile + " missing");
+          try {
+            spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+        } catch (ParsingException e) {
+            throw new RuntimeException(e);
+        } 
+      }
+      
       try
-      {
-         spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+      { 
          this.identityURL = spConfiguration.getIdentityURL();
          this.serviceURL = spConfiguration.getServiceURL();
          this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
@@ -504,7 +524,12 @@ public class SPFilter implements Filter
       {
          //Get the handlers
          String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-         Handlers handlers = ConfigurationUtil.getHandlers(context.getResourceAsStream(handlerConfigFileName));
+         Handlers handlers = null;
+         if(picketLinkConfiguration != null){
+             handlers = picketLinkConfiguration.getHandlers();
+         } else {
+             handlers = ConfigurationUtil.getHandlers(context.getResourceAsStream(handlerConfigFileName));
+         }
          chain.addAll(HandlerUtil.getHandlers(handlers));
 
          Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
