@@ -23,6 +23,7 @@ import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -95,12 +96,22 @@ public class XMLSignatureUtil
 
       try
       {
-         xsf = XMLSignatureFactory.getInstance("DOM");
+          xsf = XMLSignatureFactory.getInstance("DOM");
       }
       catch (Exception err)
       {
-    	 throw new RuntimeException("XMLSignatureUtil:Please move to JDK6 and above");
-         /*// JDK5
+          Class<?> clazz = SecurityActions.loadClass(XMLSignatureUtil.class, "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
+          if(clazz == null)
+              throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
+
+          Provider provider = null;
+          try {
+              provider = (Provider) clazz.newInstance();
+          } catch (Exception e) {
+              throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + e.getLocalizedMessage());
+          }
+          xsf = XMLSignatureFactory.getInstance("DOM", provider);
+          /*// JDK5
          xsf = XMLSignatureFactory.getInstance("DOM", new org.jcp.xml.dsig.internal.dom.XMLDSigRI());*/
       }
       return xsf;
