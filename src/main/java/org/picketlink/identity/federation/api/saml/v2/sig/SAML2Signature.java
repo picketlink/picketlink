@@ -38,13 +38,10 @@ import javax.xml.xpath.XPathException;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -155,9 +152,7 @@ public class SAML2Signature
    {
       String referenceURI = "#" + referenceID;
       
-      // Estabilish the IDness of the ID attribute. 
-      // Santuario 1.5.1 does not assumes IDness based on attribute names anymore.
-      doc.getDocumentElement().setIdAttribute("ID", true); 
+      configureIdAttribute(doc);
       
       return XMLSignatureUtil.sign(doc, keypair, digestMethod, signatureMethod, referenceURI);
    }
@@ -244,6 +239,7 @@ public class SAML2Signature
    {
       try
       {
+         configureIdAttribute(signedDocument);
          return XMLSignatureUtil.validate(signedDocument, publicKey);
       }
       catch (MarshalException me)
@@ -255,4 +251,20 @@ public class SAML2Signature
          throw new ProcessingException(xse.getLocalizedMessage());
       }
    }
+   
+   /**
+    * <p>
+    * Sets the IDness of the ID attribute.
+    * Santuario 1.5.1 does not assumes IDness based on attribute names anymore.
+    * This method should be called before signing/validating a saml document.
+    * </p>
+    * 
+    * @param signedDocument SAML document to have its ID attribute configured.
+    */
+   private void configureIdAttribute(Document signedDocument)
+       {
+       // Estabilish the IDness of the ID attribute.
+       signedDocument.getDocumentElement().setIdAttribute("ID", true);
+   }
+
 }
