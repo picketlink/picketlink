@@ -3,7 +3,7 @@
       <groupId>org.picketlink</groupId>
       <artifactId>picketlink-fed-parent</artifactId>
       <version>2.1.0.Final</version>
-      <relativePath>../parent</relativePath>
+      <relativePath>../../parent</relativePath>
    </parent>
    <modelVersion>4.0.0</modelVersion>
    <artifactId>picketlink-tomcat5-single</artifactId>
