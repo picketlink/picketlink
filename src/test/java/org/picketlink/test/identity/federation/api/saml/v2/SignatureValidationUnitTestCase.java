@@ -193,7 +193,7 @@ public class SignatureValidationUnitTestCase
 
       // Let us just validate the signature of the assertion
       Document validatingDoc = DocumentUtil.createDocument();
-      Node importedSignedNode = validatingDoc.importNode(signedNode, true);
+      Node importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
       validatingDoc.appendChild(importedSignedNode);
 
       // Validate the signature 
@@ -213,7 +213,7 @@ public class SignatureValidationUnitTestCase
 
       // The client creates a validating document, importing the signed assertion.
       validatingDoc = DocumentUtil.createDocument();
-      importedSignedNode = validatingDoc.importNode(signedNode, true);
+      importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
       validatingDoc.appendChild(importedSignedNode);
 
       // The client re-validates the signature.  
