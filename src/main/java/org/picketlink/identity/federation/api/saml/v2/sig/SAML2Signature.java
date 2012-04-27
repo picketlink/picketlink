@@ -113,9 +113,7 @@ public class SAML2Signature
       Document doc = saml2Request.convert(request);
       doc.normalize();
 
-      String referenceURI = "#" + request.getID();
-
-      return XMLSignatureUtil.sign(doc, keypair, digestMethod, signatureMethod, referenceURI);
+      return sign(doc, request.getID(), keypair);
    }
 
    /**
@@ -156,7 +154,11 @@ public class SAML2Signature
          GeneralSecurityException, MarshalException, XMLSignatureException
    {
       String referenceURI = "#" + referenceID;
-
+      
+      // Estabilish the IDness of the ID attribute. 
+      // Santuario 1.5.1 does not assumes IDness based on attribute names anymore.
+      doc.getDocumentElement().setIdAttribute("ID", true); 
+      
       return XMLSignatureUtil.sign(doc, keypair, digestMethod, signatureMethod, referenceURI);
    }
 
@@ -205,10 +207,10 @@ public class SAML2Signature
          TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
    {
 
-      Node assertionNode = DocumentUtil.getNodeWithAttribute(doc, JBossSAMLURIConstants.ASSERTION_NSURI.get(),
-            "Assertion", "ID", idValueOfAssertion);
+//      Node assertionNode = DocumentUtil.getNodeWithAttribute(doc, JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+//            "Assertion", "ID", idValueOfAssertion);
 
-      return XMLSignatureUtil.sign(doc, assertionNode, keypair, digestMethod, signatureMethod, referenceURI);
+      return sign(doc, idValueOfAssertion, keypair);
    }
 
    /**
