@@ -54,7 +54,16 @@ public class SPType extends ProviderType
      */
     protected String bindingType = "POST";
     
+    /**
+     * User can configure a relay state
+     */
     protected String relayState;
+    
+    /**
+     * User can configure an error page where
+     * the SP will redirect on encountering errors.
+     */
+    protected String errorPage;
 
     /**
      * Gets the value of the serviceURL property.
@@ -118,5 +127,13 @@ public class SPType extends ProviderType
 
     public void setRelayState(String relayState) {
         this.relayState = relayState;
+    }
+
+    public String getErrorPage() {
+        return errorPage;
+    }
+
+    public void setErrorPage(String errorPage) {
+        this.errorPage = errorPage;
     }
 }

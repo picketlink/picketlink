@@ -150,6 +150,7 @@
 					</simpleType>
 				</attribute>
 				<attribute name="RelayState" use="optional" type="string"/>
+				<attribute name="ErrorPage" use="optional" type="string"/>
 			</extension>
 		</complexContent>
 	</complexType>

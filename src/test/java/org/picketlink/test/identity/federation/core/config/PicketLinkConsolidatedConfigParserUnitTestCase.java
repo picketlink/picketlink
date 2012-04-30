@@ -44,6 +44,7 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         assertEquals("REDIRECT", sp.getBindingType());
         assertEquals("tomcat", sp.getServerEnvironment());
         assertEquals("someURL", sp.getRelayState());
+        assertEquals("/someerror.jsp", sp.getErrorPage());
     }
     
     @Test

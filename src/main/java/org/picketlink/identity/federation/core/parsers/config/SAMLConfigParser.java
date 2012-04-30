@@ -52,6 +52,8 @@ public class SAMLConfigParser extends AbstractParser
 {
    public static final String BINDING_TYPE = "BindingType";
    
+   public static final String ERROR_PAGE = "ErrorPage";
+   
    public static final String IDP = "PicketLinkIDP";
 
    public static final String SP = "PicketLinkSP";
@@ -261,6 +263,12 @@ public class SAMLConfigParser extends AbstractParser
       attribute = startElement.getAttributeByName(attributeQName);
       if (attribute != null){
           sp.setRelayState(StaxParserUtil.getAttributeValue(attribute));   
+      }
+      
+      attributeQName = new QName("", ERROR_PAGE);
+      attribute = startElement.getAttributeByName(attributeQName);
+      if (attribute != null){
+          sp.setErrorPage(StaxParserUtil.getAttributeValue(attribute));   
       }
 
       while (xmlEventReader.hasNext())
