@@ -83,518 +83,431 @@ import org.w3c.dom.Document;
 
 /**
  * Base Class for Service Provider Form Authenticators
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Jun 9, 2009
  */
-public abstract class BaseFormAuthenticator extends FormAuthenticator
-{
-   protected static Logger log = Logger.getLogger(BaseFormAuthenticator.class);
+public abstract class BaseFormAuthenticator extends FormAuthenticator {
+    protected static Logger log = Logger.getLogger(BaseFormAuthenticator.class);
 
-   protected final boolean trace = log.isTraceEnabled();
+    protected final boolean trace = log.isTraceEnabled();
 
-   protected SPType spConfiguration = null;
-   
-   protected PicketLinkType picketLinkConfiguration = null;
+    protected SPType spConfiguration = null;
 
-   protected String serviceURL = null;
+    protected PicketLinkType picketLinkConfiguration = null;
 
-   protected String identityURL = null;
+    protected String serviceURL = null;
 
-   protected String issuerID = null;
+    protected String identityURL = null;
 
-   protected String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
+    protected String issuerID = null;
 
-   /**
-    * If the service provider is configured with an IDP metadata file,
-    * then this certificate can be picked up from the metadata
-    */
-   protected transient X509Certificate idpCertificate = null;
+    protected String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
 
-   protected transient SAML2HandlerChain chain = null;
+    /**
+     * If the service provider is configured with an IDP metadata file, then this certificate can be picked up from the metadata
+     */
+    protected transient X509Certificate idpCertificate = null;
 
-   protected transient String samlHandlerChainClass = null;
+    protected transient SAML2HandlerChain chain = null;
 
-   protected Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
+    protected transient String samlHandlerChainClass = null;
 
-   //Whether the authenticator has to to save and restore request
-   protected boolean saveRestoreRequest = true;
+    protected Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
 
-   /**
-    * A Lock for Handler operations in the chain
-    */
-   protected Lock chainLock = new ReentrantLock();
+    // Whether the authenticator has to to save and restore request
+    protected boolean saveRestoreRequest = true;
 
-   protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
+    /**
+     * A Lock for Handler operations in the chain
+     */
+    protected Lock chainLock = new ReentrantLock();
 
-   protected String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
+    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
-   /**
-    * The user can inject a fully qualified name of a {@link SAMLConfigurationProvider}
-    */
-   protected SAMLConfigurationProvider configProvider = null;
+    protected String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
 
-   /**
-    * Servlet3 related changes forced Tomcat to change the authenticate method
-    * signature in the FormAuthenticator. For now, we use reflection for forward
-    * compatibility.  This has to be changed in future.
-    */
-   private Method theSuperRegisterMethod = null;
+    /**
+     * The user can inject a fully qualified name of a {@link SAMLConfigurationProvider}
+     */
+    protected SAMLConfigurationProvider configProvider = null;
 
-   /**
-    * If it is determined that we are running in a Tomcat6/JBAS5 environment,
-    * there is no need to seek the super.register method that conforms to
-    * the servlet3 spec changes
-    */
-   private boolean seekSuperRegisterMethod = true;
+    /**
+     * Servlet3 related changes forced Tomcat to change the authenticate method signature in the FormAuthenticator. For now, we
+     * use reflection for forward compatibility. This has to be changed in future.
+     */
+    private Method theSuperRegisterMethod = null;
 
-   public BaseFormAuthenticator()
-   {
-      super();
-   }
+    /**
+     * If it is determined that we are running in a Tomcat6/JBAS5 environment, there is no need to seek the super.register
+     * method that conforms to the servlet3 spec changes
+     */
+    private boolean seekSuperRegisterMethod = true;
 
-   public String getConfigFile()
-   {
-      return configFile;
-   }
+    public BaseFormAuthenticator() {
+        super();
+    }
 
-   public void setConfigFile(String configFile)
-   {
-      this.configFile = configFile;
-   }
+    public String getConfigFile() {
+        return configFile;
+    }
 
-   public void setSamlHandlerChainClass(String samlHandlerChainClass)
-   {
-      this.samlHandlerChainClass = samlHandlerChainClass;
-   }
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
+    }
 
-   public void setServiceURL(String serviceURL)
-   {
-      this.serviceURL = serviceURL;
-   }
+    public void setSamlHandlerChainClass(String samlHandlerChainClass) {
+        this.samlHandlerChainClass = samlHandlerChainClass;
+    }
 
-   public void setSaveRestoreRequest(boolean saveRestoreRequest)
-   {
-      this.saveRestoreRequest = saveRestoreRequest;
-   }
+    public void setServiceURL(String serviceURL) {
+        this.serviceURL = serviceURL;
+    }
 
-   public void setConfigProvider(String cp)
-   {
-      if (cp == null)
-         throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
-      Class<?> clazz = SecurityActions.loadClass(getClass(), cp);
-      if (clazz == null)
-         throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + cp);
-      try
-      {
-         configProvider = (SAMLConfigurationProvider) clazz.newInstance();
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
-      }
-   }
+    public void setSaveRestoreRequest(boolean saveRestoreRequest) {
+        this.saveRestoreRequest = saveRestoreRequest;
+    }
 
-   /**
-    * Set a separate issuer id
-    * @param issuerID
-    */
-   public void setIssuerID(String issuerID)
-   {
-      this.issuerID = issuerID;
-   }
+    public void setConfigProvider(String cp) {
+        if (cp == null)
+            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
+        Class<?> clazz = SecurityActions.loadClass(getClass(), cp);
+        if (clazz == null)
+            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + cp);
+        try {
+            configProvider = (SAMLConfigurationProvider) clazz.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
+        }
+    }
 
-   public void setLogOutPage(String logOutPage)
-   {
-      this.logOutPage = logOutPage;
-   }
+    /**
+     * Set a separate issuer id
+     * 
+     * @param issuerID
+     */
+    public void setIssuerID(String issuerID) {
+        this.issuerID = issuerID;
+    }
 
-   /**
-    * Perform validation os the request object
-    * @param request
-    * @return
-    * @throws IOException
-    * @throws GeneralSecurityException
-    */
-   protected boolean validate(Request request) throws IOException, GeneralSecurityException
-   {
-      return request.getParameter("SAMLResponse") != null;
-   }
+    public void setLogOutPage(String logOutPage) {
+        this.logOutPage = logOutPage;
+    }
 
-   @Override
-   public void start() throws LifecycleException
-   {
-      super.start();
-      SystemPropertiesUtil.ensure();
-      processStart();
-   }
+    /**
+     * Perform validation os the request object
+     * 
+     * @param request
+     * @return
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    protected boolean validate(Request request) {
+        return request.getParameter("SAMLResponse") != null;
+    }
 
-   /**
-    * Get the Identity URL
-    * @return
-    */
-   public String getIdentityURL()
-   {
-      return identityURL;
-   }
+    @Override
+    public void start() throws LifecycleException {
+        super.start();
+        SystemPropertiesUtil.ensure();
+        processStart();
+    }
 
-   /**
-    * Get the {@link X509Certificate} of the IDP
-    * if provided via the IDP metadata file
-    * @return {@link X509Certificate} or null
-    */
-   public X509Certificate getIdpCertificate()
-   {
-      return idpCertificate;
-   }
+    /**
+     * Get the Identity URL
+     * 
+     * @return
+     */
+    public String getIdentityURL() {
+        return identityURL;
+    }
 
-   /**
-    * This method is a hack!!!
-    * Tomcat on account of Servlet3 changed their authenticator method signatures
-    * We utilize Java Reflection to identify the super register method on the first
-    * call and save it. Subsquent invocations utilize the saved {@link Method}
-    * @see org.apache.catalina.authenticator.AuthenticatorBase#register(org.apache.catalina.connector.Request, org.apache.catalina.connector.Response, java.security.Principal, java.lang.String, java.lang.String, java.lang.String)
-    */
-   @Override
-   protected void register(Request request, Response response, Principal principal, String arg3, String arg4,
-         String arg5)
-   {
-      //Try the JBossAS6 version
-      if (theSuperRegisterMethod == null && seekSuperRegisterMethod)
-      {
-         Class<?>[] args = new Class[]
-         {Request.class, HttpServletResponse.class, Principal.class, String.class, String.class, String.class};
-         Class<?> superClass = getAuthenticatorBaseClass();
-         theSuperRegisterMethod = SecurityActions.getMethod(superClass, "register", args);
-      }
-      try
-      {
-         if (theSuperRegisterMethod != null)
-         {
-            Object[] callArgs = new Object[]
-            {request, response, principal, arg3, arg4, arg5};
-            theSuperRegisterMethod.invoke(this, callArgs);
-         }
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
+    /**
+     * Get the {@link X509Certificate} of the IDP if provided via the IDP metadata file
+     * 
+     * @return {@link X509Certificate} or null
+     */
+    public X509Certificate getIdpCertificate() {
+        return idpCertificate;
+    }
 
-      //Try the older version
-      if (theSuperRegisterMethod == null)
-      {
-         seekSuperRegisterMethod = false; //Don't try to seek super register method on next invocation
-         super.register(request, response, principal, arg3, arg4, arg5);
-         return;
-      }
-   }
-
-   /**
-    * Fall back on local authentication at the service provider side
-    * @param request
-    * @param response
-    * @param loginConfig
-    * @return
-    * @throws IOException
-    */
-   protected boolean localAuthentication(Request request, Response response, LoginConfig loginConfig)
-         throws IOException
-   {
-      if (request.getUserPrincipal() == null)
-      {
-         log.error("Falling back on local Form Authentication if available");//fallback
-         try
-         {
-            return super.authenticate(request, response, loginConfig);
-         }
-         catch (NoSuchMethodError e)
-         {
-            //Use Reflection
-            try
-            {
-               Method method = super.getClass().getMethod("authenticate", new Class[]
-               {HttpServletRequest.class, HttpServletResponse.class, LoginConfig.class});
-               return (Boolean) method.invoke(this, new Object[]
-               {request.getRequest(), response.getResponse(), loginConfig});
+    /**
+     * This method is a hack!!! Tomcat on account of Servlet3 changed their authenticator method signatures We utilize Java
+     * Reflection to identify the super register method on the first call and save it. Subsquent invocations utilize the saved
+     * {@link Method}
+     * 
+     * @see org.apache.catalina.authenticator.AuthenticatorBase#register(org.apache.catalina.connector.Request,
+     *      org.apache.catalina.connector.Response, java.security.Principal, java.lang.String, java.lang.String,
+     *      java.lang.String)
+     */
+    @Override
+    protected void register(Request request, Response response, Principal principal, String arg3, String arg4, String arg5) {
+        // Try the JBossAS6 version
+        if (theSuperRegisterMethod == null && seekSuperRegisterMethod) {
+            Class<?>[] args = new Class[] { Request.class, HttpServletResponse.class, Principal.class, String.class,
+                    String.class, String.class };
+            Class<?> superClass = getAuthenticatorBaseClass();
+            theSuperRegisterMethod = SecurityActions.getMethod(superClass, "register", args);
+        }
+        try {
+            if (theSuperRegisterMethod != null) {
+                Object[] callArgs = new Object[] { request, response, principal, arg3, arg4, arg5 };
+                theSuperRegisterMethod.invoke(this, callArgs);
             }
-            catch (Exception ex)
-            {
-               throw new IOException(ErrorCodes.UNABLE_LOCAL_AUTH, ex);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        // Try the older version
+        if (theSuperRegisterMethod == null) {
+            seekSuperRegisterMethod = false; // Don't try to seek super register method on next invocation
+            super.register(request, response, principal, arg3, arg4, arg5);
+            return;
+        }
+    }
+
+    /**
+     * Fall back on local authentication at the service provider side
+     * 
+     * @param request
+     * @param response
+     * @param loginConfig
+     * @return
+     * @throws IOException
+     */
+    protected boolean localAuthentication(Request request, Response response, LoginConfig loginConfig) throws IOException {
+        if (request.getUserPrincipal() == null) {
+            log.error("Falling back on local Form Authentication if available");// fallback
+            try {
+                return super.authenticate(request, response, loginConfig);
+            } catch (NoSuchMethodError e) {
+                // Use Reflection
+                try {
+                    Method method = super.getClass().getMethod("authenticate",
+                            new Class[] { HttpServletRequest.class, HttpServletResponse.class, LoginConfig.class });
+                    return (Boolean) method.invoke(this, new Object[] { request.getRequest(), response.getResponse(),
+                            loginConfig });
+                } catch (Exception ex) {
+                    throw new IOException(ErrorCodes.UNABLE_LOCAL_AUTH, ex);
+                }
             }
-         }
-      }
-      else
-         return true;
-   }
+        } else
+            return true;
+    }
 
-   /**
-    * Return the SAML Binding that this authenticator supports
-    * @see {@link JBossSAMLURIConstants#SAML_HTTP_POST_BINDING}
-    * @see {@link JBossSAMLURIConstants#SAML_HTTP_REDIRECT_BINDING}
-    * @return
-    */
-   protected abstract String getBinding();
+    /**
+     * Return the SAML Binding that this authenticator supports
+     * 
+     * @see {@link JBossSAMLURIConstants#SAML_HTTP_POST_BINDING}
+     * @see {@link JBossSAMLURIConstants#SAML_HTTP_REDIRECT_BINDING}
+     * @return
+     */
+    protected abstract String getBinding();
 
-   /**
-    * Attempt to process a metadata file available locally 
-    */
-   protected void processIDPMetadataFile(String idpMetadataFile)
-   {
-      ServletContext servletContext = context.getServletContext();
-      InputStream is = servletContext.getResourceAsStream(idpMetadataFile);
-      if (is == null)
-         return;
+    /**
+     * Attempt to process a metadata file available locally
+     */
+    protected void processIDPMetadataFile(String idpMetadataFile) {
+        ServletContext servletContext = context.getServletContext();
+        InputStream is = servletContext.getResourceAsStream(idpMetadataFile);
+        if (is == null)
+            return;
 
-      Object metadata = null;
-      try
-      {
-         Document samlDocument = DocumentUtil.getDocument(is);
-         SAMLParser parser = new SAMLParser();
-         metadata = parser.parse(DocumentUtil.getNodeAsStream(samlDocument));
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
-      IDPSSODescriptorType idpSSO = null;
-      if (metadata instanceof EntitiesDescriptorType)
-      {
-         EntitiesDescriptorType entities = (EntitiesDescriptorType) metadata;
-         idpSSO = handleMetadata(entities);
-      }
-      else
-      {
-         idpSSO = handleMetadata((EntityDescriptorType) metadata);
-      }
-      if (idpSSO == null)
-      {
-         log.error("Unable to obtain the IDP SSO Descriptor from metadata");
-         return;
-      }
-      List<EndpointType> endpoints = idpSSO.getSingleSignOnService();
-      for (EndpointType endpoint : endpoints)
-      {
-         if (getBinding().equals(endpoint.getBinding().toString()))
-         {
-            identityURL = endpoint.getLocation().toString();
-            break;
-         }
-      }
-      List<KeyDescriptorType> keyDescriptors = idpSSO.getKeyDescriptor();
-      if (keyDescriptors.size() > 0)
-      {
-         this.idpCertificate = MetaDataExtractor.getCertificate(keyDescriptors.get(0));
-      }
-   }
-
-   /**
-    * Process the configuration from the configuration file
-    */
-   protected void processConfiguration()
-   {
-      ServletContext servletContext = context.getServletContext();
-      InputStream is = servletContext.getResourceAsStream(configFile);
-      
-      
-      try
-      {
-         if (configProvider != null)
-         {
-            spConfiguration = configProvider.getSPConfiguration();
-            if (configProvider instanceof AbstractSAMLConfigurationProvider)
-            {
-               ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+        Object metadata = null;
+        try {
+            Document samlDocument = DocumentUtil.getDocument(is);
+            SAMLParser parser = new SAMLParser();
+            metadata = parser.parse(DocumentUtil.getNodeAsStream(samlDocument));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        IDPSSODescriptorType idpSSO = null;
+        if (metadata instanceof EntitiesDescriptorType) {
+            EntitiesDescriptorType entities = (EntitiesDescriptorType) metadata;
+            idpSSO = handleMetadata(entities);
+        } else {
+            idpSSO = handleMetadata((EntityDescriptorType) metadata);
+        }
+        if (idpSSO == null) {
+            log.error("Unable to obtain the IDP SSO Descriptor from metadata");
+            return;
+        }
+        List<EndpointType> endpoints = idpSSO.getSingleSignOnService();
+        for (EndpointType endpoint : endpoints) {
+            if (getBinding().equals(endpoint.getBinding().toString())) {
+                identityURL = endpoint.getLocation().toString();
+                break;
             }
-         }
-         else
-         {
-             if(is != null) {
-                 try {
-                    picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
-                    spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
-                 }
-                 catch (ParsingException e)
-                 {
-                    if (trace)
-                       log.trace(e);
-                    throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
-                 }
-             } else {
-                 is = servletContext.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
-                 if (is == null)
-                     throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile);
-                 spConfiguration = ConfigurationUtil.getSPConfiguration(is);
-             }
-         }
+        }
+        List<KeyDescriptorType> keyDescriptors = idpSSO.getKeyDescriptor();
+        if (keyDescriptors.size() > 0) {
+            this.idpCertificate = MetaDataExtractor.getCertificate(keyDescriptors.get(0));
+        }
+    }
 
-         if (StringUtil.isNotNull(spConfiguration.getIdpMetadataFile()))
-         {
-            processIDPMetadataFile(spConfiguration.getIdpMetadataFile());
-         }
-         else
-         {
-            this.identityURL = spConfiguration.getIdentityURL();
-         }
-         this.serviceURL = spConfiguration.getServiceURL();
-         this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
+    /**
+     * Process the configuration from the configuration file
+     */
+    protected void processConfiguration() {
+        ServletContext servletContext = context.getServletContext();
+        InputStream is = servletContext.getResourceAsStream(configFile);
 
-         log.info("BaseFormAuthenticator:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
-               + canonicalizationMethod);
-         XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
+        try {
+            if (configProvider != null) {
+                spConfiguration = configProvider.getSPConfiguration();
+                if (configProvider instanceof AbstractSAMLConfigurationProvider) {
+                    ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+                }
+            } else {
+                if (is != null) {
+                    try {
+                        picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
+                        spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
+                    } catch (ParsingException e) {
+                        if (trace)
+                            log.trace(e);
+                        throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+                    }
+                } else {
+                    is = servletContext.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+                    if (is == null)
+                        throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile);
+                    spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+                }
+            }
 
-         if (trace)
-            log.trace("Identity Provider URL=" + this.identityURL);
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
+            if (StringUtil.isNotNull(spConfiguration.getIdpMetadataFile())) {
+                processIDPMetadataFile(spConfiguration.getIdpMetadataFile());
+            } else {
+                this.identityURL = spConfiguration.getIdentityURL();
+            }
+            this.serviceURL = spConfiguration.getServiceURL();
+            this.canonicalizationMethod = spConfiguration.getCanonicalizationMethod();
 
-   protected IDPSSODescriptorType handleMetadata(EntitiesDescriptorType entities)
-   {
-      IDPSSODescriptorType idpSSO = null;
+            log.info("BaseFormAuthenticator:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
+                    + canonicalizationMethod);
+            XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
 
-      List<Object> entityDescs = entities.getEntityDescriptor();
-      for (Object entityDescriptor : entityDescs)
-      {
-         if (entityDescriptor instanceof EntitiesDescriptorType)
-         {
-            idpSSO = getIDPSSODescriptor(entities);
-         }
-         else
-            idpSSO = handleMetadata((EntityDescriptorType) entityDescriptor);
-         if (idpSSO != null)
-            break;
-      }
-      return idpSSO;
-   }
+            if (trace)
+                log.trace("Identity Provider URL=" + this.identityURL);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-   protected IDPSSODescriptorType handleMetadata(EntityDescriptorType entityDescriptor)
-   {
-      return CoreConfigUtil.getIDPDescriptor(entityDescriptor);
-   }
+    protected IDPSSODescriptorType handleMetadata(EntitiesDescriptorType entities) {
+        IDPSSODescriptorType idpSSO = null;
 
-   protected IDPSSODescriptorType getIDPSSODescriptor(EntitiesDescriptorType entities)
-   {
-      List<Object> entityDescs = entities.getEntityDescriptor();
-      for (Object entityDescriptor : entityDescs)
-      {
+        List<Object> entityDescs = entities.getEntityDescriptor();
+        for (Object entityDescriptor : entityDescs) {
+            if (entityDescriptor instanceof EntitiesDescriptorType) {
+                idpSSO = getIDPSSODescriptor(entities);
+            } else
+                idpSSO = handleMetadata((EntityDescriptorType) entityDescriptor);
+            if (idpSSO != null)
+                break;
+        }
+        return idpSSO;
+    }
 
-         if (entityDescriptor instanceof EntitiesDescriptorType)
-         {
-            return getIDPSSODescriptor((EntitiesDescriptorType) entityDescriptor);
-         }
-         return CoreConfigUtil.getIDPDescriptor((EntityDescriptorType) entityDescriptor);
-      }
-      return null;
-   }
+    protected IDPSSODescriptorType handleMetadata(EntityDescriptorType entityDescriptor) {
+        return CoreConfigUtil.getIDPDescriptor(entityDescriptor);
+    }
 
-   protected void initializeHandlerChain() throws ConfigurationException, ProcessingException
-   {
-      populateChainConfig();
-      SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
+    protected IDPSSODescriptorType getIDPSSODescriptor(EntitiesDescriptorType entities) {
+        List<Object> entityDescs = entities.getEntityDescriptor();
+        for (Object entityDescriptor : entityDescs) {
 
-      Set<SAML2Handler> samlHandlers = chain.handlers();
+            if (entityDescriptor instanceof EntitiesDescriptorType) {
+                return getIDPSSODescriptor((EntitiesDescriptorType) entityDescriptor);
+            }
+            return CoreConfigUtil.getIDPDescriptor((EntityDescriptorType) entityDescriptor);
+        }
+        return null;
+    }
 
-      for (SAML2Handler handler : samlHandlers)
-      {
-         handler.initChainConfig(handlerChainConfig);
-      }
-   }
+    protected void initializeHandlerChain() throws ConfigurationException, ProcessingException {
+        populateChainConfig();
+        SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
 
-   protected void populateChainConfig() throws ConfigurationException, ProcessingException
-   {
-      chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
-      chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
-      chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); //No validator as tomcat realm does validn   
-   }
+        Set<SAML2Handler> samlHandlers = chain.handlers();
 
-   protected void sendToLogoutPage(Request request, Response response, Session session) throws IOException,
-         ServletException
-   {
-      //we are invalidated.
-      RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.logOutPage);
-      if (dispatch == null)
-         log.error("Cannot dispatch to the logout page: no request dispatcher:" + this.logOutPage);
-      else
-      {
-         session.expire();
-         try
-         {
-            dispatch.forward(request, response);
-         }
-         catch (Exception e)
-         {
-            //JBAS5.1 and 6 quirkiness
-            dispatch.forward(request.getRequest(), response);
-         }
-      }
-   }
+        for (SAML2Handler handler : samlHandlers) {
+            handler.initChainConfig(handlerChainConfig);
+        }
+    }
 
-   //Mock test purpose
-   public void testStart() throws LifecycleException
-   {
-      this.saveRestoreRequest = false;
-      if (context == null)
-         throw new RuntimeException("Catalina Context not set up");
-      processStart();
-   }
+    protected void populateChainConfig() throws ConfigurationException, ProcessingException {
+        chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
+        chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
+        chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); // No validator as tomcat realm does validn
+    }
 
-   private void processStart() throws LifecycleException
-   {
-      Handlers handlers = null;
+    protected void sendToLogoutPage(Request request, Response response, Session session) throws IOException, ServletException {
+        // we are invalidated.
+        RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.logOutPage);
+        if (dispatch == null)
+            log.error("Cannot dispatch to the logout page: no request dispatcher:" + this.logOutPage);
+        else {
+            session.expire();
+            try {
+                dispatch.forward(request, response);
+            } catch (Exception e) {
+                // JBAS5.1 and 6 quirkiness
+                dispatch.forward(request.getRequest(), response);
+            }
+        }
+    }
 
-      //Get the chain from config 
-      if (StringUtil.isNullOrEmpty(samlHandlerChainClass))
-      {
-         chain = SAML2HandlerChainFactory.createChain();
-      }
-      else
-      {
-         try
-         {
-            chain = SAML2HandlerChainFactory.createChain(this.samlHandlerChainClass);
-         }
-         catch (ProcessingException e1)
-         {
-            throw new LifecycleException(e1);
-         }
-      }
+    // Mock test purpose
+    public void testStart() throws LifecycleException {
+        this.saveRestoreRequest = false;
+        if (context == null)
+            throw new RuntimeException("Catalina Context not set up");
+        processStart();
+    }
 
-      ServletContext servletContext = context.getServletContext();
+    protected void processStart() throws LifecycleException {
+        Handlers handlers = null;
 
-      this.processConfiguration();
+        // Get the chain from config
+        if (StringUtil.isNullOrEmpty(samlHandlerChainClass)) {
+            chain = SAML2HandlerChainFactory.createChain();
+        } else {
+            try {
+                chain = SAML2HandlerChainFactory.createChain(this.samlHandlerChainClass);
+            } catch (ProcessingException e1) {
+                throw new LifecycleException(e1);
+            }
+        }
 
-      try
-      {
-         if(picketLinkConfiguration != null){
-             handlers = picketLinkConfiguration.getHandlers();
-         } else {
-             //Get the handlers
-             String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
-             handlers = ConfigurationUtil.getHandlers(servletContext.getResourceAsStream(handlerConfigFileName));
-         }
-         
-         chain.addAll(HandlerUtil.getHandlers(handlers));
+        ServletContext servletContext = context.getServletContext();
 
-         this.populateChainConfig();
-         this.initializeHandlerChain();
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
+        this.processConfiguration();
 
-   private Class<?> getAuthenticatorBaseClass()
-   {
-      Class<?> myClass = getClass();
-      do
-      {
-         myClass = myClass.getSuperclass();
-      }
-      while (myClass != AuthenticatorBase.class);
-      return myClass;
-   }
+        try {
+            if (picketLinkConfiguration != null) {
+                handlers = picketLinkConfiguration.getHandlers();
+            } else {
+                // Get the handlers
+                String handlerConfigFileName = GeneralConstants.HANDLER_CONFIG_FILE_LOCATION;
+                handlers = ConfigurationUtil.getHandlers(servletContext.getResourceAsStream(handlerConfigFileName));
+            }
+
+            chain.addAll(HandlerUtil.getHandlers(handlers));
+
+            this.populateChainConfig();
+            this.initializeHandlerChain();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Class<?> getAuthenticatorBaseClass() {
+        Class<?> myClass = getClass();
+        do {
+            myClass = myClass.getSuperclass();
+        } while (myClass != AuthenticatorBase.class);
+        return myClass;
+    }
 }

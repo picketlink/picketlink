@@ -110,8 +110,6 @@ public abstract class AbstractSAML2RedirectWithSignatureTestCase
 
       SPRedirectSignatureFormAuthenticator sp = new SPRedirectSignatureFormAuthenticator();
 
-      sp.setIdpAddress("192.168.1.1");
-
       sp.setContainer(new MockCatalinaContext());
 
       try

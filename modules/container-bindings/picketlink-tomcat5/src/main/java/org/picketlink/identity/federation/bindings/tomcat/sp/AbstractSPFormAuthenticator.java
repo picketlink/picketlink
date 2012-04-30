@@ -1,0 +1,493 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2012, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
+package org.picketlink.identity.federation.bindings.tomcat.sp;
+
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+
+import java.io.IOException;
+import java.net.URL;
+import java.security.Principal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.Session;
+import org.apache.catalina.authenticator.Constants;
+import org.apache.catalina.connector.Request;
+import org.apache.catalina.connector.Response;
+import org.apache.catalina.deploy.LoginConfig;
+import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
+import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.config.AuthPropertyType;
+import org.picketlink.identity.federation.core.config.KeyProviderType;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
+import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.core.HTTPContext;
+import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
+import org.picketlink.identity.federation.web.process.ServiceProviderSAMLRequestProcessor;
+import org.picketlink.identity.federation.web.process.ServiceProviderSAMLResponseProcessor;
+import org.picketlink.identity.federation.web.util.ServerDetector;
+import org.w3c.dom.Document;
+
+/**
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * 
+ */
+public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator {
+
+    protected Logger log = Logger.getLogger(getClass());
+
+    protected final boolean trace = log.isTraceEnabled();
+
+    protected boolean jbossEnv = false;
+
+    protected TrustKeyManager keyManager;
+
+    public AbstractSPFormAuthenticator() {
+        super();
+        ServerDetector detector = new ServerDetector();
+        jbossEnv = detector.isJboss();
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#processStart()
+     */
+    @Override
+    protected void processStart() throws LifecycleException {
+        super.processStart();
+        initKeyProvider(context);
+    }
+
+    /**
+     * <p>
+     * Initialize the KeyProvider configurations. This configurations are to be used during signing and validation of SAML
+     * assertions.
+     * </p>
+     * 
+     * @param context
+     * @throws LifecycleException
+     */
+    private void initKeyProvider(Context context) throws LifecycleException {
+        if (!doSupportSignature()) {
+            return;
+        }
+
+        KeyProviderType keyProvider = this.spConfiguration.getKeyProvider();
+
+        if (keyProvider == null && doSupportSignature())
+            throw new LifecycleException(ErrorCodes.NULL_VALUE + "KeyProvider is null for context=" + context.getName());
+
+        try {
+            String keyManagerClassName = keyProvider.getClassName();
+            if (keyManagerClassName == null)
+                throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
+
+            Class<?> clazz = SecurityActions.loadClass(getClass(), keyManagerClassName);
+
+            if (clazz == null)
+                throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + keyManagerClassName);
+            this.keyManager = (TrustKeyManager) clazz.newInstance();
+
+            List<AuthPropertyType> authProperties = CoreConfigUtil.getKeyProviderProperties(keyProvider);
+
+            keyManager.setAuthProperties(authProperties);
+            keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
+
+            String identityURL = this.spConfiguration.getIdentityURL();
+
+            keyManager.addAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY, new URL(identityURL).getHost());
+        } catch (Exception e) {
+            log.error("Exception reading configuration:", e);
+            throw new LifecycleException(e.getLocalizedMessage());
+        }
+
+        if (trace)
+            log.trace("Key Provider=" + keyProvider.getClassName());
+    }
+
+    /**
+     * <p>
+     * Indicates if digital signatures/validation of SAML assertions are enabled. Subclasses that supports signature should
+     * override this method.
+     * </p>
+     * 
+     * @return
+     */
+    protected boolean doSupportSignature() {
+        return false;
+    }
+
+    /**
+     * Authenticate the request
+     * 
+     * @param request
+     * @param response
+     * @param config
+     * @return
+     * @throws IOException
+     * @throws {@link RuntimeException} when the response is not of type catalina response object
+     */
+    public boolean authenticate(Request request, HttpServletResponse response, LoginConfig config) throws IOException {
+        if (response instanceof Response) {
+            Response catalinaResponse = (Response) response;
+            return authenticate(request, catalinaResponse, config);
+        }
+        throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_NOT_CATALINA_RESPONSE);
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.apache.catalina.authenticator.FormAuthenticator#authenticate(org.apache.catalina.connector.Request,
+     * org.apache.catalina.connector.Response, org.apache.catalina.deploy.LoginConfig)
+     */
+    @Override
+    public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException {
+        try {
+            Session session = request.getSessionInternal(true);
+
+            // Eagerly look for Local LogOut
+            boolean localLogout = isLocalLogout(request);
+
+            if (localLogout) {
+                try {
+                    sendToLogoutPage(request, response, session);
+                } catch (ServletException e) {
+                    log.error("Exception in logout::", e);
+                    throw new IOException(e);
+                }
+                return false;
+            }
+
+            String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
+            String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+
+            Principal principal = request.getUserPrincipal();
+
+            // If we have already authenticated the user and there is no request from IDP or logout from user
+            if (principal != null && !(isGlobalLogout(request) || isNotNull(samlRequest) || isNotNull(samlResponse)))
+                return true;
+
+            // General User Request
+            if (!isNotNull(samlRequest) && !isNotNull(samlResponse)) {
+                return generalUserRequest(request, response, loginConfig);
+            }
+
+            // Handle a SAML Response from IDP
+            if (isNotNull(samlResponse)) {
+                return handleSAMLResponse(request, response, loginConfig);
+            }
+
+            // Handle SAML Requests from IDP
+            if (isNotNull(samlRequest)) {
+                return handleSAMLRequest(request, response, loginConfig);
+            }// end if
+
+            return localAuthentication(request, response, loginConfig);
+        } catch (IOException e) {
+            if (StringUtil.isNotNull(spConfiguration.getErrorPage())) {
+                try {
+                    request.getRequestDispatcher(spConfiguration.getErrorPage()).forward(request.getRequest(), response);
+                } catch (ServletException e1) {
+                    log.error(ErrorCodes.FILE_NOT_LOCATED, e1);
+                }
+                return false;
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    /**
+     * <p>
+     * Indicates if the current request is a GlobalLogout request.
+     * </p>
+     * 
+     * @param request
+     * @return
+     */
+    private boolean isGlobalLogout(Request request) {
+        String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
+        return isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
+    }
+
+    /**
+     * <p>
+     * Indicates if the current request is a LocalLogout request.
+     * </p>
+     * 
+     * @param request
+     * @return
+     */
+    private boolean isLocalLogout(Request request) {
+        String lloStr = request.getParameter(GeneralConstants.LOCAL_LOGOUT);
+        return isNotNull(lloStr) && "true".equalsIgnoreCase(lloStr);
+    }
+
+    /**
+     * Handle the IDP Request
+     * 
+     * @param request
+     * @param response
+     * @param loginConfig
+     * @return
+     * @throws IOException
+     */
+    protected boolean handleSAMLRequest(Request request, Response response, LoginConfig loginConfig) throws IOException {
+        String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
+        HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
+        Set<SAML2Handler> handlers = chain.handlers();
+
+        try {
+            ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(
+                    isPOSTBindingResponse(), this.serviceURL);
+            requestProcessor.setTrustKeyManager(keyManager);
+            requestProcessor.setSupportSignatures(doSupportSignature());
+            boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
+
+            // If response is already commited, we need to stop with processing of HTTP request
+            if (response.isCommitted() || response.isAppCommitted())
+                return false;
+
+            if (result)
+                return result;
+        } catch (Exception e) {
+            log.error("Server Exception:", e);
+            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+        }
+
+        return localAuthentication(request, response, loginConfig);
+    }
+
+    /**
+     * Handle IDP Response
+     * 
+     * @param request
+     * @param response
+     * @param loginConfig
+     * @return
+     * @throws IOException
+     */
+    protected boolean handleSAMLResponse(Request request, Response response, LoginConfig loginConfig) throws IOException {
+        SPUtil spUtil = new SPUtil();
+        Session session = request.getSessionInternal(true);
+        String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+
+        String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
+        boolean willSendRequest = false;
+        HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
+        Set<SAML2Handler> handlers = chain.handlers();
+
+        Principal principal = request.getUserPrincipal();
+
+        if (!super.validate(request)) {
+            throw new IOException(ErrorCodes.VALIDATION_CHECK_FAILED);
+        }
+
+        // deal with SAML response from IDP
+        try {
+            ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(
+                    isPOSTBindingResponse(), serviceURL);
+            responseProcessor.setValidateSignature(doSupportSignature());
+            responseProcessor.setTrustKeyManager(keyManager);
+
+            SAML2HandlerResponse saml2HandlerResponse = responseProcessor.process(samlResponse, httpContext, handlers,
+                    chainLock);
+
+            Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
+            relayState = saml2HandlerResponse.getRelayState();
+
+            String destination = saml2HandlerResponse.getDestination();
+
+            willSendRequest = saml2HandlerResponse.getSendRequest();
+
+            if (destination != null && samlResponseDocument != null) {
+                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
+            } else {
+                // See if the session has been invalidated
+
+                boolean sessionValidity = session.isValid();
+
+                if (!sessionValidity) {
+                    sendToLogoutPage(request, response, session);
+                    return false;
+                }
+
+                // We got a response with the principal
+                List<String> roles = saml2HandlerResponse.getRoles();
+                if (principal == null)
+                    principal = (Principal) session.getSession().getAttribute(GeneralConstants.PRINCIPAL_ID);
+
+                String username = principal.getName();
+                String password = ServiceProviderSAMLContext.EMPTY_PASSWORD;
+
+                if (trace)
+                    log.trace("Roles determined for username=" + username + "=" + Arrays.toString(roles.toArray()));
+
+                // Map to JBoss specific principal
+                if ((new ServerDetector()).isJboss() || jbossEnv) {
+                    // Push a context
+                    ServiceProviderSAMLContext.push(username, roles);
+                    principal = context.getRealm().authenticate(username, password);
+                    ServiceProviderSAMLContext.clear();
+                } else {
+                    // tomcat env
+                    principal = spUtil.createGenericPrincipal(request, username, roles);
+                }
+
+                session.setNote(Constants.SESS_USERNAME_NOTE, username);
+                session.setNote(Constants.SESS_PASSWORD_NOTE, password);
+                request.setUserPrincipal(principal);
+                // Get the original saved request
+                if (saveRestoreRequest) {
+                    this.restoreRequest(request, session);
+                }
+
+                register(request, response, principal, Constants.FORM_METHOD, username, password);
+
+                return true;
+            }
+        } catch (ProcessingException pe) {
+            Throwable t = pe.getCause();
+            if (t != null && t instanceof AssertionExpiredException) {
+                log.error("Assertion has expired. Asking IDP for reissue");
+                // Just issue a fresh request back to IDP
+                return generalUserRequest(request, response, loginConfig);
+            }
+            log.error("Server Exception:", pe);
+            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + pe.getLocalizedMessage());
+        } catch (Exception e) {
+            log.error("Server Exception:", e);
+            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+        }
+        
+        return localAuthentication(request, response, loginConfig);
+    }
+
+    /**
+     * <p>
+     * Indicates if the response from the IDP is using the HTTP POST method.
+     * </p>
+     * 
+     * @return
+     */
+    protected abstract boolean isPOSTBindingResponse();
+
+    /**
+     * Handle the user invocation for the first time
+     * 
+     * @param request
+     * @param response
+     * @param loginConfig
+     * @return
+     * @throws IOException
+     */
+    protected boolean generalUserRequest(Request request, Response response, LoginConfig loginConfig) throws IOException {
+        Session session = request.getSessionInternal(true);
+        boolean willSendRequest = false;
+        HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
+        Set<SAML2Handler> handlers = chain.handlers();
+
+        // This is the first time, the user is accessing. Get the relay state from the configuration
+        String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
+        if (StringUtil.isNotNull(relayState)) {
+            relayState = spConfiguration.getRelayState();
+        }
+
+        // Neither saml request nor response from IDP
+        // So this is a user request
+        SAML2HandlerResponse saml2HandlerResponse = null;
+        try {
+            ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(true, serviceURL);
+            if (issuerID != null)
+                baseProcessor.setIssuer(issuerID);
+
+            baseProcessor.setIdentityURL(identityURL);
+
+            saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
+        } catch (ProcessingException pe) {
+            log.error("Processing Exception:", pe);
+            throw new RuntimeException(pe);
+        } catch (ParsingException pe) {
+            log.error("Parsing Exception:", pe);
+            throw new RuntimeException(pe);
+        } catch (ConfigurationException pe) {
+            log.error("Config Exception:", pe);
+            throw new RuntimeException(pe);
+        }
+
+        willSendRequest = saml2HandlerResponse.getSendRequest();
+
+        Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
+        relayState = saml2HandlerResponse.getRelayState();
+
+        String destination = saml2HandlerResponse.getDestination();
+
+        if (destination != null && samlResponseDocument != null) {
+            try {
+                if (saveRestoreRequest) {
+                    this.saveRequest(request, session);
+                }
+                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
+                return false;
+            } catch (Exception e) {
+                log.error("Server Exception:", e);
+                throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+            }
+        }
+
+        return localAuthentication(request, response, loginConfig);
+    }
+
+    /**
+     * Send the request to the IDP
+     * 
+     * @param destination idp url
+     * @param samlDocument request or response document
+     * @param relayState
+     * @param response
+     * @param willSendRequest are we sending Request or Response to IDP
+     * @throws ProcessingException
+     * @throws ConfigurationException
+     * @throws IOException
+     */
+    protected abstract void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
+            boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException;
+
+}
