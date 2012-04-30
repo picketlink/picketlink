@@ -63,7 +63,7 @@ public class SPType extends ProviderType
      * User can configure an error page where
      * the SP will redirect on encountering errors.
      */
-    protected String errorPage;
+    protected String errorPage = "/error.jsp";
 
     /**
      * Gets the value of the serviceURL property.
