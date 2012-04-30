@@ -119,57 +119,71 @@ public class SPPostFormAuthenticator extends BaseFormAuthenticator
    @Override
    public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException
    {
-      Session session = request.getSessionInternal(true);
+      try {
+        Session session = request.getSessionInternal(true);
 
-      //Eagerly look for Local LogOut
-      String lloStr = request.getParameter(GeneralConstants.LOCAL_LOGOUT);
-      boolean localLogout = isNotNull(lloStr) && "true".equalsIgnoreCase(lloStr);
-      if (localLogout)
-      {
-         try
-         {
-            sendToLogoutPage(request, response, session);
-         }
-         catch (ServletException e)
-         {
-            log.error("Exception in logout::", e);
-            throw new IOException(e);
-         }
-         return false;
-      }
+          //Eagerly look for Local LogOut
+          String lloStr = request.getParameter(GeneralConstants.LOCAL_LOGOUT);
+          boolean localLogout = isNotNull(lloStr) && "true".equalsIgnoreCase(lloStr);
+          if (localLogout)
+          {
+             try
+             {
+                sendToLogoutPage(request, response, session);
+             }
+             catch (ServletException e)
+             {
+                log.error("Exception in logout::", e);
+                throw new IOException(e);
+             }
+             return false;
+          }
 
-      //Eagerly look for Global LogOut
-      String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
-      boolean logOutRequest = isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
+          //Eagerly look for Global LogOut
+          String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
+          boolean logOutRequest = isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
 
-      String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
-      String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
+          String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
+          String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
 
-      Principal principal = request.getUserPrincipal();
+          Principal principal = request.getUserPrincipal();
 
-      //If we have already authenticated the user and there is no request from IDP or logout from user
-      if (principal != null && !(logOutRequest || isNotNull(samlRequest) || isNotNull(samlResponse)))
-         return true;
+          //If we have already authenticated the user and there is no request from IDP or logout from user
+          if (principal != null && !(logOutRequest || isNotNull(samlRequest) || isNotNull(samlResponse)))
+             return true;
 
-      //General User Request
-      if (!isNotNull(samlRequest) && !isNotNull(samlResponse))
-      {
-         return generalUserRequest(request, response, loginConfig);
-      }
+          //General User Request
+          if (!isNotNull(samlRequest) && !isNotNull(samlResponse))
+          {
+             return generalUserRequest(request, response, loginConfig);
+          }
 
-      //Handle a SAML Response from IDP
-      if (isNotNull(samlResponse))
-      {
-         return handleSAMLResponse(request, response, loginConfig);
-      }
+          //Handle a SAML Response from IDP
+          if (isNotNull(samlResponse))
+          {
+             return handleSAMLResponse(request, response, loginConfig);
+          }
 
-      //Handle SAML Requests from IDP
-      if (isNotNull(samlRequest))
-      {
-         return handleSAMLRequest(request, response, loginConfig);
-      }//end if   
+          //Handle SAML Requests from IDP
+          if (isNotNull(samlRequest))
+          {
+             return handleSAMLRequest(request, response, loginConfig);
+          }//end if   
 
-      return localAuthentication(request, response, loginConfig);
+          return localAuthentication(request, response, loginConfig);
+    } catch (IOException e) {
+        if(StringUtil.isNotNull(spConfiguration.getErrorPage())){
+            try {
+                request.getRequestDispatcher(spConfiguration.getErrorPage()).forward(request, response);
+            } catch (ServletException e1) {
+                log.error(ErrorCodes.FILE_NOT_LOCATED,e1);
+            }
+            return false;
+        }
+        else {
+            throw e;
+        }
+    }
    }
 
    /**
