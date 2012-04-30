@@ -1239,6 +1239,11 @@ public class RequestSecurityToken implements BaseRequestSecurityToken
    {
       this.rstDocument = rstDocument;
    }
+   
+   public void addExtensionElement(Object element)
+   {
+       this.extensionElements.add(element);
+   }
 
    @Override
    public String toString()

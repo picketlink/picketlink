@@ -90,7 +90,8 @@ public class SAMLUtil
       SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
       writer.write(assertion);
 
-      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+      byte[] assertionBytes = baos.toByteArray();
+      ByteArrayInputStream bis = new ByteArrayInputStream(assertionBytes);
       Document document = DocumentUtil.getDocument(bis);
 
       if (trace)

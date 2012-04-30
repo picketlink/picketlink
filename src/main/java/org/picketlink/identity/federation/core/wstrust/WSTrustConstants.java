@@ -147,6 +147,8 @@ public interface WSTrustConstants
    String CANCEL_TARGET = "CancelTarget";
 
    String RENEW_TARGET = "RenewTarget";
+   
+   String SECONDARY_PARAMETERS = "SecondaryParameters";
 
    String VALIDATE_TARGET = "ValidateTarget";
 

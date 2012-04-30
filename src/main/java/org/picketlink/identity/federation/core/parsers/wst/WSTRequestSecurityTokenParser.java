@@ -36,9 +36,11 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserController;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants.XMLDSig;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
@@ -53,6 +55,7 @@ import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.w3c.dom.Element;
 
 /**
@@ -98,6 +101,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
             String endElementTag = StaxParserUtil.getEndElementName(endElement);
             if (endElementTag.equals(WSTrustConstants.RST))
                break;
+            else if (endElementTag.equals(WSTrustConstants.SECONDARY_PARAMETERS))
+               continue;
+            else if (endElementTag.equals(WSTrustConstants.USE_KEY))
+                continue;
             else
                throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementTag);
          }
@@ -272,6 +279,10 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                StaxParserUtil.validate(endElement, WSTrustConstants.ISSUER);
             }
+            else if (tag.equals(WSTrustConstants.SECONDARY_PARAMETERS))
+            {
+                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+            }
             else if (tag.equals(WSTrustConstants.USE_KEY))
             {
                subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -297,6 +308,17 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport
 
                   EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                   StaxParserUtil.validate(endElement, WSTrustConstants.USE_KEY);
+               }
+               else if(StaxParserUtil.matches(subEvent, XMLDSig.KEYINFO))
+               {
+                  KeyInfoType keyInfo = SAMLParserUtil.parseKeyInfo(xmlEventReader);
+                  useKeyType = requestToken.getUseKey();
+                  if(useKeyType == null)
+                  {
+                      useKeyType = new UseKeyType();
+                  }
+                  useKeyType.add(keyInfo);
+                  requestToken.setUseKey(useKeyType);
                }
                else
                   throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + StaxParserUtil.getStartElementName(subEvent));

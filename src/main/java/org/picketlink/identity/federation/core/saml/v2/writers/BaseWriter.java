@@ -39,7 +39,6 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
@@ -51,9 +50,6 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.federation.saml.v2.metadata.LocalizedNameType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
-import org.w3c.dom.Element;
 
 /**
  * Base Class for the Stax writers for SAML
@@ -335,7 +331,8 @@ public class BaseWriter
       {
          KeyInfoConfirmationDataType kicd = (KeyInfoConfirmationDataType) subjectConfirmationData;
          KeyInfoType keyInfo = (KeyInfoType) kicd.getAnyType();
-         if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0)
+         StaxUtil.writeKeyInfo(writer, keyInfo);
+         /*if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0)
             throw new ProcessingException(ErrorCodes.WRITER_INVALID_KEYINFO_NULL_CONTENT);
          StaxUtil.writeStartElement(this.writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
                WSTrustConstants.XMLDSig.KEYINFO, WSTrustConstants.XMLDSig.DSIG_NS);
@@ -370,7 +367,7 @@ public class BaseWriter
             }
             StaxUtil.writeEndElement(this.writer);
          }
-         StaxUtil.writeEndElement(this.writer);
+         StaxUtil.writeEndElement(this.writer);*/
       }
 
       StaxUtil.writeEndElement(writer);

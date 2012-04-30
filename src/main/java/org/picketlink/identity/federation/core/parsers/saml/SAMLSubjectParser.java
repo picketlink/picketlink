@@ -40,10 +40,6 @@ import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationT
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Element;
 
 /**
@@ -213,7 +209,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
          String tag = StaxParserUtil.getStartElementName(startElement);
          if (tag.equals(WSTrustConstants.XMLDSig.KEYINFO))
          {
-            KeyInfoType keyInfo = parseKeyInfo(xmlEventReader);
+            KeyInfoType keyInfo = SAMLParserUtil.parseKeyInfo(xmlEventReader);
             subjectConfirmationData.setAnyType(keyInfo);
          }
          else if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY))
@@ -228,124 +224,5 @@ public class SAMLSubjectParser implements ParserNamespaceSupport
       EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
       StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get());
       return subjectConfirmationData;
-   }
-
-   private KeyInfoType parseKeyInfo(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      KeyInfoType keyInfo = new KeyInfoType();
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.KEYINFO);
-
-      XMLEvent xmlEvent = null;
-      String tag = null;
-
-      while (xmlEventReader.hasNext())
-      {
-         xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent instanceof EndElement)
-         {
-            tag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
-            if (tag.equals(WSTrustConstants.XMLDSig.KEYINFO))
-            {
-               xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
-               break;
-            }
-            else
-               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
-         }
-         startElement = (StartElement) xmlEvent;
-         tag = StaxParserUtil.getStartElementName(startElement);
-         if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY))
-         {
-            keyInfo.addContent(StaxParserUtil.getDOMElement(xmlEventReader));
-         }
-         else if (tag.equals(WSTrustConstants.XMLDSig.X509DATA))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            X509DataType x509 = new X509DataType();
-
-            // Let us go for the X509 certificate
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.X509CERT);
-
-            X509CertificateType cert = new X509CertificateType();
-            String certValue = StaxParserUtil.getElementText(xmlEventReader);
-            cert.setEncodedCertificate(certValue.getBytes());
-            x509.add(cert);
-
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.X509DATA);
-            keyInfo.addContent(x509);
-         }
-         else if (tag.equals(WSTrustConstants.XMLDSig.KEYVALUE))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            KeyValueType keyValue = new KeyValueType();
-
-            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-            tag = StaxParserUtil.getStartElementName(startElement);
-            if (tag.equals(WSTrustConstants.XMLDSig.RSA_KEYVALUE))
-            {
-               keyValue.getContent().add(this.parseRSAKeyValue(xmlEventReader));
-            }
-            else if (tag.equals(WSTrustConstants.XMLDSig.DSA_KEYVALUE))
-            {
-               // TODO: parse the DSA key contents.
-            }
-            else
-               throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
-
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.KEYVALUE);
-
-            keyInfo.addContent(keyValue);
-         }
-      }
-      return keyInfo;
-   }
-
-   private RSAKeyValueType parseRSAKeyValue(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.RSA_KEYVALUE);
-
-      XMLEvent xmlEvent = null;
-      String tag = null;
-
-      RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
-
-      while (xmlEventReader.hasNext())
-      {
-         xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent instanceof EndElement)
-         {
-            tag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
-            if (tag.equals(WSTrustConstants.XMLDSig.RSA_KEYVALUE))
-            {
-               xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
-               break;
-            }
-            else
-               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
-         }
-
-         startElement = (StartElement) xmlEvent;
-         tag = StaxParserUtil.getStartElementName(startElement);
-         if (tag.equals(WSTrustConstants.XMLDSig.MODULUS))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            String text = StaxParserUtil.getElementText(xmlEventReader);
-            rsaKeyValue.setModulus(text.getBytes());
-         }
-         else if (tag.equals(WSTrustConstants.XMLDSig.EXPONENT))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            String text = StaxParserUtil.getElementText(xmlEventReader);
-            rsaKeyValue.setExponent(text.getBytes());
-         }
-         else
-            throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
-      }
-      return rsaKeyValue;
    }
 }

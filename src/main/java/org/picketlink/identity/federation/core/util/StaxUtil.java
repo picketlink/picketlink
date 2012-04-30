@@ -28,7 +28,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Attr;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -503,5 +508,46 @@ public class StaxUtil
       {
          throw new ProcessingException(e);
       }
+   }
+   
+   public static void writeKeyInfo(XMLStreamWriter writer, KeyInfoType keyInfo) throws ProcessingException
+   {
+       if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0)
+           throw new ProcessingException(ErrorCodes.WRITER_INVALID_KEYINFO_NULL_CONTENT);
+        StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
+              WSTrustConstants.XMLDSig.KEYINFO, WSTrustConstants.XMLDSig.DSIG_NS);
+        StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.DSIG_NS);
+        // write the keyInfo content.
+        Object content = keyInfo.getContent().get(0);
+        if (content instanceof Element)
+        {
+           Element element = (Element) keyInfo.getContent().get(0);
+           StaxUtil.writeDOMNode(writer, element);
+        }
+        else if (content instanceof X509DataType)
+        {
+           X509DataType type = (X509DataType) content;
+           if (type.getDataObjects().size() == 0)
+              throw new ProcessingException(ErrorCodes.WRITER_NULL_VALUE + "X509Data");
+           StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
+                 WSTrustConstants.XMLDSig.X509DATA, WSTrustConstants.XMLDSig.DSIG_NS);
+           Object obj = type.getDataObjects().get(0);
+           if (obj instanceof Element)
+           {
+              Element element = (Element) obj;
+              StaxUtil.writeDOMElement(writer, element);
+           }
+           else if (obj instanceof X509CertificateType)
+           {
+              X509CertificateType cert = (X509CertificateType) obj;
+              StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX,
+                    WSTrustConstants.XMLDSig.X509CERT, WSTrustConstants.XMLDSig.DSIG_NS);
+              StaxUtil.writeCharacters(writer, new String(cert.getEncodedCertificate()));
+              StaxUtil.writeEndElement(writer);
+           }
+           StaxUtil.writeEndElement(writer);
+        }
+
+        StaxUtil.writeEndElement(writer);
    }
 }
