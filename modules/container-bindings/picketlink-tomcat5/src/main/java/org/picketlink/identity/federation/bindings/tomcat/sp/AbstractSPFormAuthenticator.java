@@ -64,6 +64,11 @@ import org.picketlink.identity.federation.web.util.ServerDetector;
 import org.w3c.dom.Document;
 
 /**
+ * <p>
+ * Abstract class to be extended by Service Provider valves to handle SAML requests and responses.
+ * </p>
+ * 
+ * @author <a href="mailto:asaldhan@redhat.com">Anil Saldhana</a>
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
@@ -476,7 +481,10 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
     }
 
     /**
-     * Send the request to the IDP
+     * <p>
+     * Send the request to the IDP.
+     * Subclasses should override this method to implement how requests must be sent to the IDP.
+     * </p>
      * 
      * @param destination idp url
      * @param samlDocument request or response document
