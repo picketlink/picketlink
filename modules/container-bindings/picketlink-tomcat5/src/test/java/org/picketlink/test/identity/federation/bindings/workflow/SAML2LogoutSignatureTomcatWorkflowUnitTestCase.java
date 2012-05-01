@@ -22,6 +22,7 @@
 package org.picketlink.test.identity.federation.bindings.workflow;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -80,8 +81,8 @@ public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML
     */
    @Test
    public void testSAML2LogOutFromSP() throws LifecycleException, IOException, ServletException
-   {
-
+   { 
+      System.setProperty("picketlink.schema.validate", "true");
       // requests a GLO logout to the Employee SP
       MockCatalinaRequest originalEmployeeLogoutRequest = createRequest(employeeHttpSession, true);
 
@@ -89,6 +90,8 @@ public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML
 
       MockCatalinaResponse originalEmployeeLogoutResponse = sendSPRequest(originalEmployeeLogoutRequest,
             getEmployeeServiceProvider());
+      
+      assertNotNull(originalEmployeeLogoutResponse);
 
       // sends the LogoutRequest to the IDP
       MockCatalinaRequest idpLogoutRequest = createIDPRequest(true);
@@ -137,6 +140,7 @@ public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML
          IOException, ServletException
    {
       MockCatalinaResponse response = new MockCatalinaResponse();
+      response.setWriter(new PrintWriter(new ByteArrayOutputStream()));
 
       sp.authenticate(request, response, new MockCatalinaLoginConfig());
 
@@ -174,7 +178,7 @@ public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML
    public SPRedirectSignatureFormAuthenticator getEmployeeServiceProvider() {
       if (this.employeeServiceProvider == null)
       {
-         this.employeeServiceProvider = createServiceProvider(SP_EMPLOYEE_PROFILE);
+         this.employeeServiceProvider = (SPRedirectSignatureFormAuthenticator) createServiceProvider(SP_EMPLOYEE_PROFILE);
       }
 
       return this.employeeServiceProvider;
@@ -183,7 +187,7 @@ public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML
    public SPRedirectSignatureFormAuthenticator getSalesServiceProvider() {
       if (this.salesServiceProvider == null)
       {
-         this.salesServiceProvider = createServiceProvider(SP_SALES_PROFILE);
+         this.salesServiceProvider = (SPRedirectSignatureFormAuthenticator) createServiceProvider(SP_SALES_PROFILE);
       }
 
       return this.salesServiceProvider;

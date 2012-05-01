@@ -72,6 +72,7 @@ public class SAML2PostTomcatWorkflowUnitTestCase extends TestCase
    
    public void testSAML2Post() throws Exception
    {
+      System.setProperty("picketlink.schema.validate", "true");
       String id = IDGenerator.create("ID_");
       SAML2Request saml2Request = new SAML2Request();
       AuthnRequestType art = saml2Request.createAuthnRequestType(id, 

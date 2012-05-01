@@ -42,6 +42,7 @@ public class SPPostFormAuthenticatorUnitTestCase
    @Test
    public void testIDPMetadataFile() throws Exception
    {
+      System.setProperty("picketlink.schema.validate", "true");
       MockCatalinaContext ctx = new MockCatalinaContext();
       SPPostFormAuthenticator auth = new SPPostFormAuthenticator();
       auth.setContainer(ctx);

@@ -33,6 +33,7 @@ import org.apache.catalina.LifecycleException;
 import org.junit.Test;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectSignatureFormAuthenticator;
+import org.picketlink.identity.federation.bindings.tomcat.sp.ServiceProviderAuthenticator;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaLoginConfig;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaResponse;
@@ -104,6 +105,7 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSA
    private void testWorkflow(String userAddress, String idpAddress)
          throws LifecycleException, IOException, ServletException
    {
+      System.setProperty("picketlink.schema.validate", "true");
       MockCatalinaRequest request = createRequest(userAddress, false);
 
       // Sends a initial request to the SP. Requesting a resource ...
@@ -159,11 +161,11 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSA
       return response;
    }
 
-   public SPRedirectSignatureFormAuthenticator getEmployeeServiceProvider()
+   public ServiceProviderAuthenticator getEmployeeServiceProvider()
    {
       if (this.employeeServiceProvider == null)
       {
-         this.employeeServiceProvider = createServiceProvider(SP_EMPLOYEE_PROFILE);
+         this.employeeServiceProvider = (SPRedirectSignatureFormAuthenticator) createServiceProvider(SP_EMPLOYEE_PROFILE);
       }
 
       return this.employeeServiceProvider;

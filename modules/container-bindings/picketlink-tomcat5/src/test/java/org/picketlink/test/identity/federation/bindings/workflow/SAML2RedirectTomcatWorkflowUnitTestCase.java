@@ -52,6 +52,7 @@ public class SAML2RedirectTomcatWorkflowUnitTestCase extends TestCase
    
    public void testSAML2Redirect() throws Exception
    {
+      System.setProperty("picketlink.schema.validate", "true");
       MockCatalinaContextClassLoader mclSPEmp = setupTCL(profile + "/sp/employee");
       Thread.currentThread().setContextClassLoader(mclSPEmp); 
       

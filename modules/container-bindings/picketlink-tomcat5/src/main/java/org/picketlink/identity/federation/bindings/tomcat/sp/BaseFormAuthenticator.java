@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
+import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Session;
 import org.apache.catalina.authenticator.AuthenticatorBase;
@@ -57,6 +58,7 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.factories.SAML2HandlerChainFactory;
@@ -91,6 +93,8 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
     protected static Logger log = Logger.getLogger(BaseFormAuthenticator.class);
 
     protected final boolean trace = log.isTraceEnabled();
+
+    protected TrustKeyManager keyManager;
 
     protected SPType spConfiguration = null;
 
@@ -147,7 +151,18 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
     public BaseFormAuthenticator() {
         super();
     }
+        
+    protected String idpAddress = null;
 
+    /**
+     * If the request.getRemoteAddr is not exactly the IDP address that you have keyed
+     * in your deployment descriptor for keystore alias, you can set it here explicitly
+     */
+    public void setIdpAddress(String idpAddress)
+    {
+       this.idpAddress = idpAddress;
+    }
+    
     public String getConfigFile() {
         return configFile;
     }
@@ -441,6 +456,10 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
         chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
         chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); // No validator as tomcat realm does validn
+        
+        if(doSupportSignature()){
+            chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());   
+        }
     }
 
     protected void sendToLogoutPage(Request request, Response response, Session session) throws IOException, ServletException {
@@ -496,11 +515,29 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
             chain.addAll(HandlerUtil.getHandlers(handlers));
 
+            this.initKeyProvider(context);
             this.populateChainConfig();
             this.initializeHandlerChain();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    
+
+
+    /**
+     * <p>
+     * Indicates if digital signatures/validation of SAML assertions are enabled. Subclasses that supports signature should
+     * override this method.
+     * </p>
+     * 
+     * @return
+     */
+    protected boolean doSupportSignature() {
+        if(spConfiguration != null){
+            return spConfiguration.isSupportsSignature();
+        }
+        return false;
     }
 
     private Class<?> getAuthenticatorBaseClass() {
@@ -510,4 +547,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         } while (myClass != AuthenticatorBase.class);
         return myClass;
     }
+    
+    protected abstract void initKeyProvider(Context context) throws LifecycleException;
 }

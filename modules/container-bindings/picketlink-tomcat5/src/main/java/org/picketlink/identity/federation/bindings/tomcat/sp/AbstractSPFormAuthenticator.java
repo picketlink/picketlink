@@ -60,6 +60,7 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLRequestProcessor;
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLResponseProcessor;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.ServerDetector;
 import org.w3c.dom.Document;
 
@@ -79,8 +80,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
     protected final boolean trace = log.isTraceEnabled();
 
     protected boolean jbossEnv = false;
-
-    protected TrustKeyManager keyManager;
 
     public AbstractSPFormAuthenticator() {
         super();
@@ -108,7 +107,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @param context
      * @throws LifecycleException
      */
-    private void initKeyProvider(Context context) throws LifecycleException {
+    protected void initKeyProvider(Context context) throws LifecycleException {
         if (!doSupportSignature()) {
             return;
         }
@@ -144,18 +143,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
         if (trace)
             log.trace("Key Provider=" + keyProvider.getClassName());
-    }
-
-    /**
-     * <p>
-     * Indicates if digital signatures/validation of SAML assertions are enabled. Subclasses that supports signature should
-     * override this method.
-     * </p>
-     * 
-     * @return
-     */
-    protected boolean doSupportSignature() {
-        return false;
     }
 
     /**
@@ -329,6 +316,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         try {
             ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(
                     isPOSTBindingResponse(), serviceURL);
+            responseProcessor.setConfiguration(spConfiguration);
             responseProcessor.setValidateSignature(doSupportSignature());
             responseProcessor.setTrustKeyManager(keyManager);
 
@@ -497,5 +485,8 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      */
     protected abstract void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
             boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException;
-
+    
+    protected String getDestinationQueryString(String urlEncodedRequest, String urlEncodedRelayState, boolean sendRequest) {
+        return RedirectBindingUtil.getDestinationQueryString(urlEncodedRequest, urlEncodedRelayState, sendRequest);
+    }
 }

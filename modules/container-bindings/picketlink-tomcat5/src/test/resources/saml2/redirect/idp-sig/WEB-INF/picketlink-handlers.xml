@@ -1,6 +1,8 @@
 <Handlers xmlns="urn:picketlink:identity-federation:handler:config:1.0"> 
-  <Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler"/> 
+  <Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler"/>  
+  <Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler"/>
   <Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler"/> 
   <Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler"/>     
-   <Handler class="org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler"/>
+   <Handler class="org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler"/> 
+  <Handler class="org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler"/>
 </Handlers>

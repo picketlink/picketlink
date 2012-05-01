@@ -27,10 +27,6 @@ import org.apache.catalina.connector.Response;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
-import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
-import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.w3c.dom.Document;
 
 /**
@@ -39,7 +35,7 @@ import org.w3c.dom.Document;
  * @author Anil.Saldhana@redhat.com
  * @since Dec 12, 2008
  */
-public class SPRedirectFormAuthenticator extends AbstractSPFormAuthenticator {
+public class SPRedirectFormAuthenticator extends ServiceProviderAuthenticator {
     /**
      * The SAML Web Browser SSO Profile says that the IDP cannot send response back in Redirect Binding. The user should use
      * this parameter to adhere to that requirement.
@@ -71,30 +67,9 @@ public class SPRedirectFormAuthenticator extends AbstractSPFormAuthenticator {
         return this.idpPostBinding;
     }
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.identity.federation.bindings.tomcat.sp.AbstractSPFormAuthenticator#sendRequestToIDP(java.lang.String,
-     * org.w3c.dom.Document, java.lang.String, org.apache.catalina.connector.Response, boolean)
-     */
-    @Override
     protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
             boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException {
-        String samlMsg = DocumentUtil.getDocumentAsString(samlDocument);
-
-        String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
-
-        String destinationQuery = getDestinationQueryString(base64Request, relayState, willSendRequest);
-
-        RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
-        holder.setDestination(destination).setDestinationQueryString(destinationQuery);
-
-        String destinationURL = RedirectBindingUtil.getDestinationURL(holder);
-
-        HTTPRedirectUtil.sendRedirectForRequestor(destinationURL, response);
-    }
-
-    protected String getDestinationQueryString(String urlEncodedRequest, String urlEncodedRelayState, boolean sendRequest) {
-        return RedirectBindingUtil.getDestinationQueryString(urlEncodedRequest, urlEncodedRelayState, sendRequest);
+        this.spConfiguration.setBindingType("REDIRECT");
+        super.sendRequestToIDP(destination, samlDocument, relayState, response, willSendRequest);
     }
 }

@@ -714,6 +714,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             // Create the request/response
             SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, idpIssuer.getIssuer(),
                     samlDocumentHolder, HANDLER_TYPE.IDP);
+            Map<String,Object> options = new HashMap<String,Object>();
+            if (ignoreIncomingSignatures == false && signOutgoingMessages == true) {
+                PublicKey publicKey = keyManager.getValidatingKey(tokenValidatingAlias);
+                options.put(GeneralConstants.SENDER_PUBLIC_KEY, publicKey);
+            }
+            
+            saml2HandlerRequest.setOptions(options);
             saml2HandlerRequest.setRelayState(relayState);
 
             SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();

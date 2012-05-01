@@ -62,6 +62,7 @@ public class SPRedirectFormAuthenticatorResponseTestCase
    @Test
    public void testSP() throws Exception
    {
+      System.setProperty("picketlink.schema.validate", "true");
       MockCatalinaSession session = new MockCatalinaSession();
       //First we go to the employee application
       MockCatalinaContextClassLoader mclSPEmp = setupTCL(profile + "/responses");

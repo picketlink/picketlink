@@ -36,6 +36,7 @@ import org.apache.catalina.Session;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectSignatureFormAuthenticator;
+import org.picketlink.identity.federation.bindings.tomcat.sp.ServiceProviderAuthenticator;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
@@ -104,7 +105,7 @@ public abstract class AbstractSAML2RedirectWithSignatureTestCase
       return (IdentityServer) ((MockCatalinaContext) idp.getContainer()).getAttribute("IDENTITY_SERVER");
    }
 
-   protected SPRedirectSignatureFormAuthenticator createServiceProvider(String spProfile)
+   protected ServiceProviderAuthenticator createServiceProvider(String spProfile)
    {
       Thread.currentThread().setContextClassLoader(setupTCL(spProfile));
 
