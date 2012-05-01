@@ -64,6 +64,8 @@ public class SAMLConfigParser extends AbstractParser
 
    public static final String IDP_METADATA_FILE = "IDPMetadataFile";
 
+   public static final String IDP_USES_POST_BINDING = "IDPUsesPostBinding";
+
    public static final String TRUST = "Trust";
 
    public static final String DOMAINS = "Domains";
@@ -103,6 +105,8 @@ public class SAMLConfigParser extends AbstractParser
    public static final String RELAY_STATE = "RelayState";
    
    public static final String SERVER_ENVIRONMENT = "ServerEnvironment";
+
+   public static final String SUPPORTS_SIGNATURES = "SupportsSignatures";
 
    public Object parse(XMLEventReader xmlEventReader) throws ParsingException
    {
@@ -269,6 +273,18 @@ public class SAMLConfigParser extends AbstractParser
       attribute = startElement.getAttributeByName(attributeQName);
       if (attribute != null){
           sp.setErrorPage(StaxParserUtil.getAttributeValue(attribute));   
+      }
+      
+      attributeQName = new QName("", IDP_USES_POST_BINDING);
+      attribute = startElement.getAttributeByName(attributeQName);
+      if (attribute != null){
+          sp.setIdpUsesPostBinding(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));   
+      }
+      
+      attributeQName = new QName("", SUPPORTS_SIGNATURES);
+      attribute = startElement.getAttributeByName(attributeQName);
+      if (attribute != null){
+          sp.setSupportsSignature(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));   
       }
 
       while (xmlEventReader.hasNext())

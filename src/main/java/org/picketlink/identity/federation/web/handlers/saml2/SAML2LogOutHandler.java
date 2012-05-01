@@ -236,7 +236,8 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
             throws ProcessingException
       {
          HTTPContext httpContext = (HTTPContext) request.getContext();
-         HttpSession session = httpContext.getRequest().getSession(false);
+         HttpServletRequest httpServletRequest = httpContext.getRequest();
+         HttpSession session = httpServletRequest.getSession(false);
          String sessionID = session.getId();
 
          String relayState = httpContext.getRequest().getParameter(GeneralConstants.RELAY_STATE);
@@ -291,6 +292,14 @@ public class SAML2LogOutHandler extends BaseSAML2Handler
                response.setPostBindingForResponse(isPost);
 
                LogoutRequestType lort = saml2Request.createLogoutRequest(request.getIssuer().getValue());
+
+               Principal userPrincipal = httpServletRequest.getUserPrincipal();
+               if(userPrincipal == null){
+                   throw new ProcessingException(ErrorCodes.PRINCIPAL_NOT_FOUND);
+               }
+               NameIDType nameID = new NameIDType();
+               nameID.setValue(userPrincipal.getName());
+               lort.setNameID(nameID);
 
                long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
 

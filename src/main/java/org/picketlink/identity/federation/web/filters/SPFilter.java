@@ -115,6 +115,7 @@ import org.picketlink.identity.federation.web.roles.DefaultRoleValidator;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 /**
@@ -627,6 +628,10 @@ public class SPFilter implements Filter
       {
          SAML2Signature samlSignature = new SAML2Signature();
 
+         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
+         if(nextSibling != null){
+             samlSignature.setNextSibling(nextSibling);
+         }
          KeyPair keypair = keyManager.getSigningKeyPair();
          samlSignature.signSAMLDocument(samlDocument, keypair);
       }

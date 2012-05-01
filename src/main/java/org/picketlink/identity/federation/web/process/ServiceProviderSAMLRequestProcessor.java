@@ -47,6 +47,7 @@ import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * Utility Class to handle processing of
@@ -166,8 +167,10 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
    {
       if(this.supportSignatures)
       {
-         SAML2Signature ss = new SAML2Signature();
-         ss.signSAMLDocument(samlDocument, keyManager.getSigningKeyPair());
+         SAML2Signature samlSignature = new SAML2Signature();
+         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
+         samlSignature.setNextSibling(nextSibling);
+         samlSignature.signSAMLDocument(samlDocument, keyManager.getSigningKeyPair());
       }
       
       String samlMessage = DocumentUtil.getDocumentAsString(samlDocument); 

@@ -2,6 +2,7 @@ package org.picketlink.test.identity.federation.core.config;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 
@@ -45,6 +46,7 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         assertEquals("tomcat", sp.getServerEnvironment());
         assertEquals("someURL", sp.getRelayState());
         assertEquals("/someerror.jsp", sp.getErrorPage());
+        assertTrue(sp.isSupportsSignature());
     }
     
     @Test

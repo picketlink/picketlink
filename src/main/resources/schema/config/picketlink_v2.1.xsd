@@ -151,6 +151,8 @@
 				</attribute>
 				<attribute name="RelayState" use="optional" type="string"/>
 				<attribute name="ErrorPage" use="optional" type="string"/>
+				<attribute name="IDPUsesPostBinding" use="optional" type="boolean" default="true"/>
+				<attribute name="SupportsSignature" use="optional" type="boolean" default="false"/>
 			</extension>
 		</complexContent>
 	</complexType>

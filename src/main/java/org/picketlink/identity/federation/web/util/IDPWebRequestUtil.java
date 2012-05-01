@@ -60,6 +60,7 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * Request Util
@@ -258,6 +259,8 @@ public class IDPWebRequestUtil
             //Sign the document
             SAML2Signature samlSignature = new SAML2Signature();
 
+            Node nextSibling = samlSignature.getNextSiblingOfIssuer(responseDoc);
+            samlSignature.setNextSibling(nextSibling);
             KeyPair keypair = keyManager.getSigningKeyPair();
             samlSignature.signSAMLDocument(responseDoc, keypair);
 

@@ -306,7 +306,7 @@ public class SAML2Signature
        signedDocument.getDocumentElement().setIdAttribute("ID", true);
    }
    
-   private Node getNextSiblingOfIssuer(Document doc)
+   public Node getNextSiblingOfIssuer(Document doc)
    {
      //Find the sibling of Issuer
        NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());

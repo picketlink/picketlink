@@ -4,6 +4,8 @@
         BindingType="REDIRECT"
         RelayState="someURL"
         ErrorPage="/someerror.jsp"
+        IDPUsesPostBinding="true"
+        SupportsSignatures="true"
         >
 		<IdentityURL>${idp.url::http://localhost:8080/idp/}</IdentityURL>
 		<ServiceURL>${employee.url::http://localhost:8080/employee/}</ServiceURL>

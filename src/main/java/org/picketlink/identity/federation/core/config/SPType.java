@@ -64,6 +64,13 @@ public class SPType extends ProviderType
      * the SP will redirect on encountering errors.
      */
     protected String errorPage = "/error.jsp";
+    
+    /**
+     * Is the IDP sending POST binding request/response
+     */
+    protected boolean idpUsesPostBinding = true;
+    
+    protected boolean supportsSignature = false;
 
     /**
      * Gets the value of the serviceURL property.
@@ -135,5 +142,21 @@ public class SPType extends ProviderType
 
     public void setErrorPage(String errorPage) {
         this.errorPage = errorPage;
+    }
+
+    public boolean isIdpUsesPostBinding() {
+        return idpUsesPostBinding;
+    }
+
+    public void setIdpUsesPostBinding(boolean idpPostBinding) {
+        this.idpUsesPostBinding = idpPostBinding;
+    }
+
+    public boolean isSupportsSignature() {
+        return supportsSignature;
+    }
+
+    public void setSupportsSignature(boolean supportsSignature) {
+        this.supportsSignature = supportsSignature;
     }
 }

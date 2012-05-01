@@ -31,6 +31,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 /**
  * Handles SAML2 Signature
@@ -108,6 +109,8 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
    private void sign(Document samlDocument, KeyPair keypair) throws ProcessingException
    {
       SAML2Signature samlSignature = new SAML2Signature();
+      Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
+      samlSignature.setNextSibling(nextSibling);
       samlSignature.signSAMLDocument(samlDocument, keypair);
    }
 }
