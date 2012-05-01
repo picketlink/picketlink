@@ -91,13 +91,14 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
    public void testSPLogOutRequestGeneration() throws Exception
    {
       MockCatalinaSession session = new MockCatalinaSession();
-      session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal()
+      Principal principal = new Principal()
       {
-         public String getName()
-         {
-            return "anil";
-         }
-      });
+          public String getName()
+          {
+             return "anil";
+          }
+       };
+      session.setAttribute(GeneralConstants.PRINCIPAL_ID, principal); 
       List<String> rolesList = new ArrayList<String>();
       rolesList.add("manager");
       session.setAttribute(GeneralConstants.ROLES_ID, rolesList);
@@ -114,6 +115,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
       sp.testStart();
 
       MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
+      catalinaRequest.setUserPrincipal(principal);
       MockCatalinaResponse response = new MockCatalinaResponse();
       MockCatalinaLoginConfig loginConfig = new MockCatalinaLoginConfig();
 
