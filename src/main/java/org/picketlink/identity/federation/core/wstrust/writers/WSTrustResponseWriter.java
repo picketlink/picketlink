@@ -35,6 +35,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.ComputedKeyType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
+import org.picketlink.identity.federation.ws.trust.RenewingType;
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
@@ -281,7 +282,9 @@ public class WSTrustResponseWriter
                   BinarySecretType binarySecret = (BinarySecretType) entropyObj;
                   StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.BINARY_SECRET,
                         WSTrustConstants.BASE_NAMESPACE);
-                  StaxUtil.writeAttribute(this.writer, WSTrustConstants.TYPE, binarySecret.getType());
+                  if(binarySecret.getType() != null ){
+                      StaxUtil.writeAttribute(this.writer, WSTrustConstants.TYPE, binarySecret.getType());   
+                  }
                   StaxUtil.writeCharacters(this.writer, new String(binarySecret.getValue()));
                   StaxUtil.writeEndElement(this.writer);
                }
@@ -324,6 +327,17 @@ public class WSTrustResponseWriter
          StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.REQUESTED_TOKEN_CANCELLED,
                WSTrustConstants.BASE_NAMESPACE);
          StaxUtil.writeEndElement(this.writer);
+      }
+      
+      if(response.getRenewing() != null)
+      {
+          RenewingType renewingType = response.getRenewing();
+          StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.RENEWING,
+                  WSTrustConstants.BASE_NAMESPACE);
+
+          StaxUtil.writeAttribute(this.writer, WSTrustConstants.ALLOW, ""+ renewingType.isAllow());
+          StaxUtil.writeAttribute(this.writer, WSTrustConstants.OK, "" + renewingType.isOK());
+          StaxUtil.writeEndElement(this.writer);
       }
 
       // write the response end element.

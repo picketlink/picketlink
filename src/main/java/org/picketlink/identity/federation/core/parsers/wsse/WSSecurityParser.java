@@ -36,6 +36,7 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
+import org.picketlink.identity.federation.ws.wss.secext.ReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
 
@@ -154,6 +155,11 @@ public class WSSecurityParser extends AbstractParser
                endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                break;
             }
+            else if (tag.equals(WSTrustConstants.WSSE.REFERENCE))
+            {
+                endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                continue;
+            }
             else
                throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
          }
@@ -171,6 +177,22 @@ public class WSSecurityParser extends AbstractParser
             keyIdentifierType.setValue(StaxParserUtil.getElementText(xmlEventReader));
             securityTokenRef.addAny(keyIdentifierType);
          }
+         else if(tag.equals(WSTrustConstants.WSSE.REFERENCE))
+         {
+             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+             ReferenceType referenceType = new ReferenceType();
+             
+             Attribute valueTypeAttr = startElement.getAttributeByName(new QName(WSTrustConstants.VALUE_TYPE));
+             if (valueTypeAttr != null){
+                 referenceType.setValueType(StaxParserUtil.getAttributeValue(valueTypeAttr));
+             }
+             
+             Attribute uriAttr = startElement.getAttributeByName(new QName(WSTrustConstants.WSSE.URI));
+             if (uriAttr != null){
+                 referenceType.setURI(StaxParserUtil.getAttributeValue(uriAttr));
+             }
+             securityTokenRef.addAny(referenceType);
+          }
       }
 
       return securityTokenRef;

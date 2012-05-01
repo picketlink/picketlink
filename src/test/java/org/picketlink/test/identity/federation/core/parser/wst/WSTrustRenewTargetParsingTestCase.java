@@ -22,6 +22,7 @@
 package org.picketlink.test.identity.federation.core.parser.wst;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +35,9 @@ import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
+import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
+import org.picketlink.identity.federation.core.wstrust.writers.WSTrustResponseWriter;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
@@ -76,6 +79,28 @@ public class WSTrustRenewTargetParsingTestCase
       rstWriter.write(requestToken);
 
       Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+   }
+   
+   @Test
+   public void testWST_ResponseRenew() throws Exception
+   {
+      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-response-renew.xml");
+
+      WSTrustParser parser = new WSTrustParser();
+      RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) parser.parse(configStream);
+      assertNotNull(responseCollection);
+      
+      //Now for the writing part
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      WSTrustResponseWriter rstrWriter = new WSTrustResponseWriter(baos);
+
+      rstrWriter.write(responseCollection);
+
+      byte[] data = baos.toByteArray();
+      System.out.println(new String(data));
+      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(data));
       JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
    }
 }

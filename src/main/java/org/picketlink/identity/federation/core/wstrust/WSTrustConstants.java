@@ -123,6 +123,8 @@ public interface WSTrustConstants
    String KEY_TYPE = "KeyType";
 
    String LIFETIME = "Lifetime";
+   
+   String RENEWING = "Renewing";
 
    String RST = "RequestSecurityToken";
 
@@ -161,6 +163,10 @@ public interface WSTrustConstants
    String REASON = "Reason";
 
    //Attribute Names
+   String ALLOW = "Allow";
+   
+   String OK = "OK";
+   
    String RST_CONTEXT = "Context";
 
    String TYPE = "Type";
@@ -205,6 +211,8 @@ public interface WSTrustConstants
 
       String KEY_IDENTIFIER_VALUETYPE_SAML = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID";
 
+      String REFERENCE = "Reference";
+      
       String PREFIX_11 = "wsse11";
 
       //http://www.ws-i.org/Profiles/KerberosTokenProfile-1.0.html#Kerberos_Security_Token_URI
@@ -216,6 +224,8 @@ public interface WSTrustConstants
 
       String USERNAME_TOKEN = "UsernameToken";
 
+      String URI = "URI";
+      
       String VALUE_TYPE = "ValueType";
    }
 }

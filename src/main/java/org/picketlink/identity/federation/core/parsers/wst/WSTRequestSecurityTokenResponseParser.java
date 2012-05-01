@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.ws.trust.ComputedKeyType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.LifetimeType;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
+import org.picketlink.identity.federation.ws.trust.RenewingType;
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.RequestedSecurityTokenType;
@@ -212,7 +213,9 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                {
                   BinarySecretType binarySecret = new BinarySecretType();
                   Attribute typeAttribute = subEvent.getAttributeByName(new QName("", "Type"));
-                  binarySecret.setType(StaxParserUtil.getAttributeValue(typeAttribute));
+                  if(typeAttribute != null){
+                      binarySecret.setType(StaxParserUtil.getAttributeValue(typeAttribute));   
+                  }
 
                   if (!StaxParserUtil.hasTextAhead(xmlEventReader))
                      throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "binary secret value");
@@ -295,6 +298,11 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
             else if (tag.equals(WSTrustConstants.STATUS))
             {
                responseToken.setStatus(this.parseStatusType(xmlEventReader));
+            }
+
+            else if (tag.equals(WSTrustConstants.RENEWING))
+            {
+               responseToken.setRenewing(this.parseRenewingType(xmlEventReader));
             }
             else
             {
@@ -426,5 +434,29 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
       StaxParserUtil.validate(endElement, WSTrustConstants.REQUESTED_ATTACHED_REFERENCE);
 
       return ref;
+   }
+   
+   private RenewingType parseRenewingType(XMLEventReader xmlEventReader) throws ParsingException
+   {
+       RenewingType renewingType = new RenewingType();
+       
+       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+       StaxParserUtil.validate(startElement, WSTrustConstants.RENEWING);
+       
+
+       Attribute allowAttribute = startElement.getAttributeByName(new QName(WSTrustConstants.ALLOW));
+       if(allowAttribute != null){
+           renewingType.setAllow(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(allowAttribute)));
+       }
+       
+       Attribute okAttribute = startElement.getAttributeByName(new QName(WSTrustConstants.OK));
+       if(allowAttribute != null){
+           renewingType.setOK(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(okAttribute)));
+       }
+       
+
+       EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+       StaxParserUtil.validate(endElement, WSTrustConstants.RENEWING);
+       return renewingType;
    }
 }
