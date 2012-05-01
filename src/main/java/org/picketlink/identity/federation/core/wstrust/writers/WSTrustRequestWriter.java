@@ -38,6 +38,7 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
 import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
@@ -54,6 +55,7 @@ import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.w3c.dom.Element;
@@ -143,7 +145,10 @@ public class WSTrustRequestWriter
       StaxUtil.writeStartElement(writer, PREFIX, RST, BASE_NAMESPACE);
       StaxUtil.writeNameSpace(writer, PREFIX, BASE_NAMESPACE);
       String context = requestToken.getContext();
-      StaxUtil.writeAttribute(writer, RST_CONTEXT, context);
+      if(StringUtil.isNotNull(context))
+      {
+          StaxUtil.writeAttribute(writer, RST_CONTEXT, context);
+      }
 
       URI requestType = requestToken.getRequestType();
       if (requestType != null)
@@ -296,31 +301,13 @@ public class WSTrustRequestWriter
          {
             writeKeyValueType((KeyValueType) useKeyTypeValue);
          }
+         else if(useKeyTypeValue instanceof KeyInfoType)
+         { 
+             StaxUtil.writeKeyInfo(writer, (KeyInfoType) useKeyTypeValue);
+         }
          else
             throw new RuntimeException(ErrorCodes.WRITER_UNKNOWN_TYPE + useKeyTypeValue.getClass().getName());
-
       }
-      /*Object useKeyTypeValue = useKeyType.getAny();
-      if (useKeyTypeValue instanceof Element)
-      {
-         Element domElement = (Element) useKeyTypeValue;
-         StaxUtil.writeDOMElement(writer, domElement);
-      }
-      else if (useKeyTypeValue instanceof byte[])
-      {
-         byte[] certificate = (byte[]) useKeyTypeValue;
-         StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.X509CERT,
-               WSTrustConstants.DSIG_NS);
-         StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
-         StaxUtil.writeCharacters(writer, new String(certificate));
-         StaxUtil.writeEndElement(writer);
-      }
-      else if (useKeyTypeValue instanceof KeyValueType)
-      {
-         writeKeyValueType((KeyValueType) useKeyTypeValue);
-      }
-      else
-         throw new RuntimeException(" Unknown use key type:" + useKeyTypeValue.getClass().getName());*/
 
       StaxUtil.writeEndElement(writer);
    }
