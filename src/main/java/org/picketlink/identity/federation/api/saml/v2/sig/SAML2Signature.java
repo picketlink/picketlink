@@ -38,10 +38,15 @@ import javax.xml.xpath.XPathException;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.transfer.SignatureUtilTransferObject;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -54,6 +59,8 @@ public class SAML2Signature
    private String signatureMethod = SignatureMethod.RSA_SHA1;
 
    private String digestMethod = DigestMethod.SHA1;
+
+   private Node sibling;
 
    public String getSignatureMethod()
    {
@@ -73,6 +80,11 @@ public class SAML2Signature
    public void setDigestMethod(String digestMethod)
    {
       this.digestMethod = digestMethod;
+   }
+   
+   public void setNextSibling(Node sibling)
+   {
+       this.sibling = sibling;
    }
 
    /**
@@ -109,6 +121,12 @@ public class SAML2Signature
       SAML2Request saml2Request = new SAML2Request();
       Document doc = saml2Request.convert(request);
       doc.normalize();
+      
+      Node theSibling = getNextSiblingOfIssuer(doc);
+      if(theSibling != null)
+      {
+          this.sibling = theSibling;
+      }
 
       return sign(doc, request.getID(), keypair);
    }
@@ -131,6 +149,12 @@ public class SAML2Signature
       SAML2Response saml2Request = new SAML2Response();
       Document doc = saml2Request.convert(response);
       doc.normalize();
+      
+      Node theSibling = getNextSiblingOfIssuer(doc);
+      if(theSibling != null)
+      {
+          this.sibling = theSibling;
+      }
 
       return sign(doc, response.getID(), keypair);
    }
@@ -138,7 +162,7 @@ public class SAML2Signature
    /**
     * Sign an Document at the root
     * @param response
-    * @param keypair Key Pair 
+    * @param keyPair Key Pair 
     * @param digestMethod (Example: DigestMethod.SHA1)
     * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
     * @return 
@@ -147,14 +171,26 @@ public class SAML2Signature
     * @throws MarshalException 
     * @throws GeneralSecurityException 
     */
-   public Document sign(Document doc, String referenceID, KeyPair keypair) throws ParserConfigurationException,
+   public Document sign(Document doc, String referenceID, KeyPair keyPair) throws ParserConfigurationException,
          GeneralSecurityException, MarshalException, XMLSignatureException
    {
       String referenceURI = "#" + referenceID;
       
       configureIdAttribute(doc);
       
-      return XMLSignatureUtil.sign(doc, keypair, digestMethod, signatureMethod, referenceURI);
+      if(sibling != null)
+      {
+          SignatureUtilTransferObject dto = new SignatureUtilTransferObject();
+          dto.setDocumentToBeSigned(doc);
+          dto.setKeyPair(keyPair);
+          dto.setDigestMethod(digestMethod);
+          dto.setSignatureMethod(signatureMethod);
+          dto.setReferenceURI(referenceURI);
+          dto.setNextSibling(sibling);
+          
+          return XMLSignatureUtil.sign(dto);
+      }
+      return XMLSignatureUtil.sign(doc, keyPair, digestMethod, signatureMethod, referenceURI);
    }
 
    /**
@@ -178,6 +214,13 @@ public class SAML2Signature
    {
       SAML2Response saml2Response = new SAML2Response();
       Document doc = saml2Response.convert(response);
+      doc.normalize();
+      
+      Node theSibling = getNextSiblingOfIssuer(doc);
+      if(theSibling != null)
+      {
+          this.sibling = theSibling;
+      }
 
       return sign(doc, idValueOfAssertion, keypair, referenceURI);
    }
@@ -201,10 +244,6 @@ public class SAML2Signature
          throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError,
          TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
    {
-
-//      Node assertionNode = DocumentUtil.getNodeWithAttribute(doc, JBossSAMLURIConstants.ASSERTION_NSURI.get(),
-//            "Assertion", "ID", idValueOfAssertion);
-
       return sign(doc, idValueOfAssertion, keypair);
    }
 
@@ -266,5 +305,17 @@ public class SAML2Signature
        // Estabilish the IDness of the ID attribute.
        signedDocument.getDocumentElement().setIdAttribute("ID", true);
    }
-
+   
+   private Node getNextSiblingOfIssuer(Document doc)
+   {
+     //Find the sibling of Issuer
+       NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
+       if(nl.getLength() > 0 )
+       {
+           Node issuer = nl.item(0);
+           
+           return issuer.getNextSibling(); 
+       } 
+       return null;
+   }
 }

@@ -23,6 +23,8 @@ package org.picketlink.identity.federation.core;
 
 /**
  * Error Codes for PicketLink
+ * https://docs.jboss.org/author/display/PLINK/PicketLink+Error+Codes
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Aug 4, 2011
  */
@@ -108,6 +110,8 @@ public interface ErrorCodes
 
    String PARSING_ERROR = "PL00074: Parsing Error:";
 
+   String PRINCIPAL_NOT_FOUND = "PL00022: Principal Not Found";
+   
    String PROCESSING_EXCEPTION = "PL00102: Processing Exception:";
 
    String REQD_ATTRIBUTE = "PL00063: Parser: Required attribute missing: ";

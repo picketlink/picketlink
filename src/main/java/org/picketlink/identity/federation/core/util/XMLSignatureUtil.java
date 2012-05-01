@@ -61,6 +61,7 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.transfer.SignatureUtilTransferObject;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
 import org.w3c.dom.Document;
@@ -276,6 +277,71 @@ public class XMLSignatureUtil
       PublicKey publicKey = keyPair.getPublic();
 
       DOMSignContext dsc = new DOMSignContext(signingKey, doc.getDocumentElement());
+      dsc.setDefaultNamespacePrefix("dsig");
+
+      DigestMethod digestMethodObj = fac.newDigestMethod(digestMethod, null);
+      Transform transform1 = fac.newTransform(Transform.ENVELOPED, (TransformParameterSpec) null);
+      Transform transform2 = fac.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#", (TransformParameterSpec) null);
+
+      List<Transform> transformList = new ArrayList<Transform>();
+      transformList.add(transform1);
+      transformList.add(transform2);
+
+      Reference ref = fac.newReference(referenceURI, digestMethodObj, transformList, null, null);
+
+      CanonicalizationMethod canonicalizationMethod = fac.newCanonicalizationMethod(canonicalizationMethodType,
+            (C14NMethodParameterSpec) null);
+
+      List<Reference> referenceList = Collections.singletonList(ref);
+      SignatureMethod signatureMethodObj = fac.newSignatureMethod(signatureMethod, null);
+      SignedInfo si = fac.newSignedInfo(canonicalizationMethod, signatureMethodObj, referenceList);
+
+      KeyInfoFactory kif = fac.getKeyInfoFactory();
+      KeyValue kv = kif.newKeyValue(publicKey);
+      KeyInfo ki = kif.newKeyInfo(Collections.singletonList(kv));
+
+      if (!includeKeyInfoInSignature)
+      {
+         ki = null;
+      }
+      XMLSignature signature = fac.newXMLSignature(si, ki);
+
+      signature.sign(dsc);
+
+      return doc;
+   }
+   
+   /**
+    * Sign the root element
+    * 
+    * @param doc
+    * @param signingKey
+    * @param publicKey
+    * @param digestMethod
+    * @param signatureMethod
+    * @param referenceURI
+    * @return
+    * @throws GeneralSecurityException
+    * @throws XMLSignatureException
+    * @throws MarshalException
+    */
+   public static Document sign(SignatureUtilTransferObject dto) throws GeneralSecurityException, MarshalException, XMLSignatureException
+   {
+      Document doc = dto.getDocumentToBeSigned();
+      KeyPair keyPair = dto.getKeyPair();
+      Node nextSibling = dto.getNextSibling();
+      String digestMethod = dto.getDigestMethod();
+      String referenceURI = dto.getReferenceURI();
+      String signatureMethod = dto.getSignatureMethod();
+      
+      if (trace)
+      {
+         log.trace("Document to be signed=" + DocumentUtil.asString(doc));
+      }
+      PrivateKey signingKey = keyPair.getPrivate();
+      PublicKey publicKey = keyPair.getPublic();
+
+      DOMSignContext dsc = new DOMSignContext(signingKey, doc.getDocumentElement(), nextSibling);
       dsc.setDefaultNamespacePrefix("dsig");
 
       DigestMethod digestMethodObj = fac.newDigestMethod(digestMethod, null);

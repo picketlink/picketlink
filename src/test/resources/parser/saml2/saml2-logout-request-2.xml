@@ -1,0 +1,35 @@
+<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+	xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_4b24ff47-3672-4152-815e-26875cbcbe97"
+	IssueInstant="2012-04-30T13:19:50.900-03:00" Version="2.0">
+	<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">http://localhost:8080/sales-post-sig/
+	</saml:Issuer>
+	<dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+		<dsig:SignedInfo>
+			<dsig:CanonicalizationMethod
+				Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" />
+			<dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+			<dsig:Reference URI="#ID_4b24ff47-3672-4152-815e-26875cbcbe97">
+				<dsig:Transforms>
+					<dsig:Transform
+						Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+					<dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</dsig:Transforms>
+				<dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+				<dsig:DigestValue>e+Gbplf6ghhT1+Kvn3xu6njepNQ=</dsig:DigestValue>
+			</dsig:Reference>
+		</dsig:SignedInfo>
+		<dsig:SignatureValue>VzdOSaLPL7+S8jVJVKgHhsKiYyP/9YGnkliauPZVMqraHDn9a55uQaH1n9inxojNpcnQVUy/xuYsi78dUaNDPY6fugZTs7ADbrFMWr1L6+Qug+2BpGYea0dmsbbGt745GvexmY8zppP/ngjeYVmVzPLWrPiPmHsQmfgsFvBg7zc=
+		</dsig:SignatureValue>
+		<dsig:KeyInfo>
+			<dsig:KeyValue>
+				<dsig:RSAKeyValue>
+					<dsig:Modulus>7KiaO7wWGffrZcXyLcY3syZ7TWVE5wBzU08/DvglTvvSQeotmJDKBTea8N8Kf8SKqdBANH8dnYT0wRXkedAQ+97YwwWKiwTz+EHYvfwBWQaV3BBu2kLVe9w+hykXPmEEIQzXXbfoBt9xi5pworDsjJJROifK5+eUtjIK2jkGzKM=
+					</dsig:Modulus>
+					<dsig:Exponent>AQAB</dsig:Exponent>
+				</dsig:RSAKeyValue>
+			</dsig:KeyValue>
+		</dsig:KeyInfo>
+	</dsig:Signature>
+	<saml:NameID  xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">anil</saml:NameID>
+	
+</samlp:LogoutRequest>

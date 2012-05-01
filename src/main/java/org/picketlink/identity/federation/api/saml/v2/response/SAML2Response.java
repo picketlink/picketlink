@@ -60,7 +60,9 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthzDecisionStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.DecisionType;
@@ -113,6 +115,11 @@ public class SAML2Response
       AuthnContextType act = new AuthnContextType();
       String authContextDeclRef = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
       act.addAuthenticatingAuthority(URI.create(authContextDeclRef));
+      
+      AuthnContextTypeSequence sequence = act.new AuthnContextTypeSequence();
+      sequence.setClassRef(new AuthnContextClassRefType(URI.create(JBossSAMLURIConstants.AC_PASSWORD.get())));
+      act.setSequence(sequence);
+      
       authnStatement.setAuthnContext(act);
       return authnStatement;
    }

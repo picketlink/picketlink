@@ -199,9 +199,12 @@ public class MockHttpServletRequest implements HttpServletRequest
     }
 
     public Principal getUserPrincipal()
-    {
-
-        throw new RuntimeException("NYI");
+    { 
+        return new Principal(){
+            public String getName() {
+                return "testuser";
+            }
+        };
     }
 
     public boolean isRequestedSessionIdFromCookie()

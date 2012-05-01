@@ -40,6 +40,7 @@ import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
@@ -81,6 +82,8 @@ public class SignatureValidationUnitTestCase
       Document signedDoc = ss.sign(authnRequest, kp);
 
       System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
+      
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
       // Validate the signature
       boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
@@ -114,6 +117,8 @@ public class SignatureValidationUnitTestCase
       Document signedDoc = ss.sign(authnRequest, kp);
 
       System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
+      
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
       // Validate the signature
       boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
@@ -152,6 +157,9 @@ public class SignatureValidationUnitTestCase
       SAML2Signature ss = new SAML2Signature();
       ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
       Document signedDoc = ss.sign(responseType, kp);
+      
+      System.out.println(DocumentUtil.asString(signedDoc));
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
       // Validate the signature
       boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
@@ -188,6 +196,8 @@ public class SignatureValidationUnitTestCase
       SAML2Signature ss = new SAML2Signature();
       Document signedDoc = ss.sign(responseType, id, kp, referenceURI);
 
+      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
+      
       Node signedNode = DocumentUtil.getNodeWithAttribute(signedDoc, "urn:oasis:names:tc:SAML:2.0:assertion",
             "Assertion", "ID", id);
 
@@ -196,6 +206,8 @@ public class SignatureValidationUnitTestCase
       Node importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
       validatingDoc.appendChild(importedSignedNode);
 
+      
+      
       // Validate the signature 
       boolean isValid = XMLSignatureUtil.validate(validatingDoc, kp.getPublic());
       assertTrue("Signature is valid:", isValid);

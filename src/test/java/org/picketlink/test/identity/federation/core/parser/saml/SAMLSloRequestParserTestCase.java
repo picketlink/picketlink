@@ -33,6 +33,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
@@ -74,5 +75,34 @@ public class SAMLSloRequestParserTestCase extends AbstractParserTest
       String writtenString = new String(baos.toByteArray());
       System.out.println(writtenString);
       validateSchema(writtenString);
+   }
+   
+   @Test 
+   public void testSAMLSLOParsing() throws Exception{
+       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+       InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request-2.xml");
+
+       JAXPValidationUtil.validate(configStream);
+       configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request-2.xml");
+       
+       SAMLParser parser = new SAMLParser();
+       LogoutRequestType lotRequest = (LogoutRequestType) parser.parse(configStream);
+       assertNotNull(lotRequest); 
+       
+       //Try out writing
+       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+       SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+       writer.write(lotRequest);
+
+       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+       DocumentUtil.getDocument(bis); //throws exceptions
+
+       baos = new ByteArrayOutputStream();
+       //Lets do the writing
+       writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+       writer.write(lotRequest);
+       String writtenString = new String(baos.toByteArray());
+       System.out.println(writtenString);
+       validateSchema(writtenString);
    }
 }
