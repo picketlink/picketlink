@@ -86,8 +86,8 @@ public class WSTrustRenewTargetParsingTestCase
    public void testWST_ResponseRenew() throws Exception
    {
       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-response-renew.xml");
-
+      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-response-renew.xml"); 
+      
       WSTrustParser parser = new WSTrustParser();
       RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) parser.parse(configStream);
       assertNotNull(responseCollection);
