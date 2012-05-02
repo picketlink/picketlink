@@ -161,6 +161,8 @@ public interface ErrorCodes
    String STS_UNABLE_TO_CONSTRUCT_KEYMGR = "PL00007: Unable to construct the key manager:";
 
    String SYSTEM_PROPERTY_MISSING = "PL00087: System Property missing:";
+   
+   String TRUST_MANAGER_MISSING = "PL000023: Trust Key Manager Missing";
 
    String UNABLE_PARSING_NULL_TOKEN = "PL00073: Parser: Unable to parse token request: security token is null";
 

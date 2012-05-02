@@ -43,7 +43,7 @@ import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerR
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
@@ -124,9 +124,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
             requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
 
             if (keyManager != null) {
-                String idpKey = (String) keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
-
-                PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, idpKey);
+                PublicKey validatingKey = getIDPPublicKey();
 
                 requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
                 requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
@@ -200,7 +198,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      */
     private void verifyRedirectBindingSignature(HTTPContext httpContext) throws IssuerNotTrustedException, ProcessingException {
         if (keyManager == null) {
-            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "Key Manager");
+            throw new IllegalStateException(ErrorCodes.TRUST_MANAGER_MISSING);
         }
 
         boolean isValidSignature = false;
@@ -239,8 +237,15 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      * @throws TrustKeyProcessingException
      */
     private PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
-        String idpValidatingAlias = this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY).toString();
+        if(this.keyManager == null){
+            throw new TrustKeyConfigurationException(ErrorCodes.TRUST_MANAGER_MISSING);
+        }
+        String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
 
+        if(StringUtil.isNullOrEmpty(idpValidatingAlias)){
+            idpValidatingAlias = safeURL(spConfiguration.getIdentityURL()).getHost();
+        }
+            
         return keyManager.getValidatingKey(idpValidatingAlias);
     }
 
@@ -255,7 +260,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
     private void verifyPostBindingSignature(SAMLDocumentHolder samlDocumentHolder) throws IssuerNotTrustedException,
             ProcessingException {
         if (keyManager == null) {
-            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "Key Manager");
+            throw new IllegalStateException(ErrorCodes.TRUST_MANAGER_MISSING);
         }
 
         boolean sigResult = false;
@@ -277,6 +282,5 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
         if (!sigResult) {
             throw new IssuerNotTrustedException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed");
         }
-
     }
 }

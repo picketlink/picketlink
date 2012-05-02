@@ -24,6 +24,7 @@ package org.picketlink.identity.federation.web.process;
 import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -207,5 +208,16 @@ public class ServiceProviderBaseProcessor
       HttpServletRequest request = httpContext.getRequest();
       String gloStr = request.getParameter(GeneralConstants.GLOBAL_LOGOUT);
       return isNotNull(gloStr) && "true".equalsIgnoreCase(gloStr);
+   }
+   
+   protected URL safeURL(String urlString)
+   {
+       try
+       {
+           return new URL(urlString);
+       }catch(Exception e)
+       {   
+       }
+       return null;
    }
 }
