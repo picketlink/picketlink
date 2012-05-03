@@ -21,7 +21,8 @@
  */
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.apache.catalina.LifecycleException;
+
 
 /**
  * Authenticator at the Service Provider that handles HTTP/Post binding of SAML 2 but falls back on Form Authentication
@@ -32,19 +33,12 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 public class SPPostFormAuthenticator extends ServiceProviderAuthenticator {
     
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#getBinding()
+     * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#start()
      */
     @Override
-    protected String getBinding() {
-        return JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get();
+    public void start() throws LifecycleException {
+        super.start();
+        this.spConfiguration.setBindingType("POST");
     }
     
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.bindings.tomcat.sp.AbstractSPFormAuthenticator#isPOSTBindingResponse()
-     */
-    @Override
-    protected boolean isPOSTBindingResponse() {
-        return true;
-    }
-
 }

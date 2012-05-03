@@ -60,7 +60,6 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLRequestProcessor;
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLResponseProcessor;
-import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.ServerDetector;
 import org.w3c.dom.Document;
 
@@ -261,7 +260,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @return
      * @throws IOException
      */
-    protected boolean handleSAMLRequest(Request request, Response response, LoginConfig loginConfig) throws IOException {
+    private boolean handleSAMLRequest(Request request, Response response, LoginConfig loginConfig) throws IOException {
         String samlRequest = request.getParameter(GeneralConstants.SAML_REQUEST_KEY);
         HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
         Set<SAML2Handler> handlers = chain.handlers();
@@ -296,7 +295,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @return
      * @throws IOException
      */
-    protected boolean handleSAMLResponse(Request request, Response response, LoginConfig loginConfig) throws IOException {
+    private boolean handleSAMLResponse(Request request, Response response, LoginConfig loginConfig) throws IOException {
         SPUtil spUtil = new SPUtil();
         Session session = request.getSessionInternal(true);
         String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
@@ -393,14 +392,35 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         return localAuthentication(request, response, loginConfig);
     }
 
+    protected boolean isPOSTBindingResponse() {
+        return spConfiguration.isIdpUsesPostBinding();
+    }
+
     /**
      * <p>
-     * Indicates if the response from the IDP is using the HTTP POST method.
+     * Send the request to the IDP.
+     * Subclasses should override this method to implement how requests must be sent to the IDP.
      * </p>
      * 
-     * @return
+     * @param destination idp url
+     * @param samlDocument request or response document
+     * @param relayState
+     * @param response
+     * @param willSendRequest are we sending Request or Response to IDP
+     * @throws ProcessingException
+     * @throws ConfigurationException
+     * @throws IOException
      */
-    protected abstract boolean isPOSTBindingResponse();
+    protected abstract void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
+            boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException;
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#getBinding()
+     */
+    @Override
+    protected String getBinding() {
+        return spConfiguration.getBindingType();
+    }
 
     /**
      * Handle the user invocation for the first time
@@ -411,7 +431,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @return
      * @throws IOException
      */
-    protected boolean generalUserRequest(Request request, Response response, LoginConfig loginConfig) throws IOException {
+    private boolean generalUserRequest(Request request, Response response, LoginConfig loginConfig) throws IOException {
         Session session = request.getSessionInternal(true);
         boolean willSendRequest = false;
         HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
@@ -470,23 +490,13 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
     /**
      * <p>
-     * Send the request to the IDP.
-     * Subclasses should override this method to implement how requests must be sent to the IDP.
+     * Indicates if the SP is configure with HTTP POST Binding.
      * </p>
      * 
-     * @param destination idp url
-     * @param samlDocument request or response document
-     * @param relayState
-     * @param response
-     * @param willSendRequest are we sending Request or Response to IDP
-     * @throws ProcessingException
-     * @throws ConfigurationException
-     * @throws IOException
+     * @return
      */
-    protected abstract void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
-            boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException;
-    
-    protected String getDestinationQueryString(String urlEncodedRequest, String urlEncodedRelayState, boolean sendRequest) {
-        return RedirectBindingUtil.getDestinationQueryString(urlEncodedRequest, urlEncodedRelayState, sendRequest);
+    protected boolean isHttpPostBinding() {
+        return getBinding().equalsIgnoreCase("POST");
     }
+
 }

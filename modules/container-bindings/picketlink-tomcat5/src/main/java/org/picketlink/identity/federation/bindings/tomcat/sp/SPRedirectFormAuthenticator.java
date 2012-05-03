@@ -21,13 +21,7 @@
  */
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-import java.io.IOException;
-
-import org.apache.catalina.connector.Response;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.w3c.dom.Document;
+import org.apache.catalina.LifecycleException;
 
 /**
  * Authenticator at the Service Provider that handles HTTP/Redirect binding of SAML 2 but falls back on Form Authentication
@@ -36,40 +30,14 @@ import org.w3c.dom.Document;
  * @since Dec 12, 2008
  */
 public class SPRedirectFormAuthenticator extends ServiceProviderAuthenticator {
-    /**
-     * The SAML Web Browser SSO Profile says that the IDP cannot send response back in Redirect Binding. The user should use
-     * this parameter to adhere to that requirement.
-     */
-    protected boolean idpPostBinding = false;
-
-    /**
-     * Set the Authenticator to expect a post response from IDP
-     * 
-     * @param idpPostBinding
-     */
-    public void setIdpPostBinding(Boolean idpPostBinding) {
-        this.idpPostBinding = idpPostBinding;
-    }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#getBinding()
+     * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#start()
      */
     @Override
-    protected String getBinding() {
-        return JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get();
-    }
-    
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.bindings.tomcat.sp.AbstractSPFormAuthenticator#isPOSTBindingResponse()
-     */
-    @Override
-    protected boolean isPOSTBindingResponse() {
-        return this.idpPostBinding;
-    }
-    
-    protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
-            boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException {
+    public void start() throws LifecycleException {
+        super.start();
         this.spConfiguration.setBindingType("REDIRECT");
-        super.sendRequestToIDP(destination, samlDocument, relayState, response, willSendRequest);
     }
+    
 }

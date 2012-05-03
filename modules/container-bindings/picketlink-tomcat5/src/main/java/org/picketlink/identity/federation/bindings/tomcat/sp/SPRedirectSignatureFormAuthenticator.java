@@ -21,10 +21,6 @@
  */
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-import java.security.PrivateKey;
-
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 
 /**
  * Tomcat Authenticator for the HTTP/Redirect binding with Signature support
@@ -42,38 +38,4 @@ public class SPRedirectSignatureFormAuthenticator extends SPRedirectFormAuthenti
         return true;
     }
     
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectFormAuthenticator#getDestinationQueryString(java.lang
-     * .String, java.lang.String, boolean)
-     */
-    @Override
-    protected String getDestinationQueryString(String urlEncodedRequest, String urlEncodedRelayState, boolean sendRequest) {
-        try {
-            // Get the signing key
-            PrivateKey signingKey = keyManager.getSigningKey();
-
-            if (signingKey == null) {
-                log.error("Signing key is null. Check your KeyStore configuration.");
-                throw new RuntimeException(ErrorCodes.SIGNING_PROCESS_FAILURE);
-            }
-
-            String url = null;
-
-            if (sendRequest) {
-                url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(urlEncodedRequest, urlEncodedRelayState,
-                        signingKey);
-            } else {
-                url = RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(urlEncodedRequest, urlEncodedRelayState,
-                        signingKey);
-            }
-
-            return url;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }
