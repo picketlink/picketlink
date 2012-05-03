@@ -259,22 +259,13 @@ public class StandardRequestHandler implements WSTrustRequestHandler
                   keyInfo.addContent(value);
                   requestContext.setProofTokenInfo(keyInfo);
                }
-            }
-            /*Object value = useKeyType.getAny();
-            if (value instanceof Element)
-            {
-               String elementName = ((Element) value).getLocalName();
-               // if the specified key is a X509 certificate we must insert it into a X509Data element.
-               if (elementName.equals("X509Certificate"))
+               else if(value instanceof KeyInfoType)
                {
-                  X509DataType data = new X509DataType();
-                  data.add(value);
-                  value = data;
+                   requestContext.setProofTokenInfo((KeyInfoType) value);
                }
-               KeyInfoType keyInfo = new KeyInfoType();
-               keyInfo.addContent(value);
-               requestContext.setProofTokenInfo(keyInfo);
-            }*/
+               else
+                   throw new WSTrustException(ErrorCodes.UNSUPPORTED_TYPE + value);
+            }
          }
          else
             throw new WSTrustException(ErrorCodes.STS_CLIENT_PUBLIC_KEY_ERROR);
