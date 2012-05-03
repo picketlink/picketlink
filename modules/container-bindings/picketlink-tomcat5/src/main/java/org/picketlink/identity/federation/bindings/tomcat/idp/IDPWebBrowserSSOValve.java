@@ -197,7 +197,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
      * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to true
      * if you want the IDP to adhere to this requirement via
      */
-    private boolean strictPostBinding = false;
+    private boolean strictPostBinding = true;
 
     // Set a list of attributes we are interested in separated by comma
     public void setAttributeList(String attribList) {
