@@ -379,6 +379,35 @@ public class PicketLinkSTSUnitTestCase
       // validate the security token response.
       this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
    }
+   
+   /**
+    * Use SOAP12
+    * @see #testInvokeSAML20()
+    * @throws Exception
+    */
+   @Test
+   public void testInvokeSAML20WithSOAP12() throws Exception
+   {
+      // create a simple token request, asking for a SAMLv2.0 token.
+      RequestSecurityToken request = this.createRequest("testcontext", WSTrustConstants.ISSUE_REQUEST,
+            SAMLUtil.SAML2_TOKEN_TYPE, null);
+      Source requestMessage = this.createSourceFromRequest(request);
+
+      this.tokenService.setSoap12(true); //Set to SOAP12
+      try
+      {
+          // invoke the token service.
+          Source responseMessage = this.tokenService.invoke(requestMessage);
+          InputStream is = DocumentUtil.getSourceAsStream(responseMessage);
+          BaseRequestSecurityTokenResponse baseResponse = (BaseRequestSecurityTokenResponse) new WSTrustParser().parse(is);
+          // validate the security token response.
+          this.validateSAMLAssertionResponse(baseResponse, "testcontext", "jduke", SAMLUtil.SAML2_BEARER_URI);
+      }
+      finally
+      {
+          this.tokenService.setSoap12(false);
+      }
+   }
 
    /**
     * <p>
@@ -1783,6 +1812,7 @@ public class PicketLinkSTSUnitTestCase
    class TestSTS extends PicketLinkSTS
    {
       private String configFileName = "sts/picketlink-sts.xml";
+      private boolean soap12 = false;
 
       TestSTS()
       {
@@ -1792,12 +1822,26 @@ public class PicketLinkSTSUnitTestCase
       {
          this.configFileName = configFileName;
       }
+      
+      TestSTS(String configFileName, boolean useSOAP12)
+      {
+         this.configFileName = configFileName;
+         this.soap12  = useSOAP12;
+      }
 
       public Source invoke(Source source)
       {
          try
          {
-            SOAPMessage request = SOAPUtil.create();
+            SOAPMessage request = null;
+            if(soap12)
+            {
+                request = SOAPUtil.createSOAP12();
+            }
+            else
+            {
+                request = SOAPUtil.create();
+            }
             SOAPUtil.addData(source, request);
             SOAPMessage response = super.invoke(request);
             return new DOMSource(SOAPUtil.getSOAPData(response));
@@ -1829,6 +1873,10 @@ public class PicketLinkSTSUnitTestCase
       public void setContext(WebServiceContext context)
       {
          super.context = context;
+      }
+
+      public void setSoap12(boolean soap12) {
+          this.soap12 = soap12;
       }
    }
 

@@ -100,9 +100,12 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
    {
       String valueType = null;
       Node binaryToken = null;
+      boolean soap12 = false;
+      
       //Check headers
       try
       {
+         soap12 = SOAPUtil.isSOAP12(request);
          SOAPHeader soapHeader = request.getSOAPHeader();
          binaryToken = getBinaryToken(soapHeader);
          if (binaryToken != null)
@@ -161,21 +164,30 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
             req.setBinaryValueType(URI.create(valueType));
          }
          Source theResponse = this.handleTokenRequest(req);
-         return convert(theResponse);
+         return convert(theResponse, soap12);
       }
       else if (baseRequest instanceof RequestSecurityTokenCollection)
       {
-         return convert(this.handleTokenRequestCollection((RequestSecurityTokenCollection) baseRequest));
+         return convert(this.handleTokenRequestCollection((RequestSecurityTokenCollection) baseRequest), soap12);
       }
       else
          throw new WebServiceException(ErrorCodes.STS_INVALID_TOKEN_REQUEST);
    }
-
-   private SOAPMessage convert(Source theResponse)
+   
+   private SOAPMessage convert(Source theResponse, boolean wantSOAP12)
    {
       try
       {
-         SOAPMessage response = SOAPUtil.create();
+         SOAPMessage response = null;
+         
+         if(wantSOAP12)
+         {
+             response = SOAPUtil.createSOAP12();
+         }
+         else
+         {
+             response = SOAPUtil.create();
+         }
          Document theResponseDoc = (Document) DocumentUtil.getNodeFromSource(theResponse);
          response.getSOAPBody().addDocument(theResponseDoc);
          return response;

@@ -32,6 +32,7 @@ import javax.xml.soap.SOAPEnvelope;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFault;
 import javax.xml.soap.SOAPMessage;
+import javax.xml.soap.SOAPPart;
 import javax.xml.transform.Source;
 
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -141,6 +142,21 @@ public class SOAPUtil
    public static Document getSOAPData(SOAPMessage soapMessage) throws SOAPException
    {
       return soapMessage.getSOAPBody().extractContentAsDocument();
+   }
+   
+   /**
+    * Determine if a SOAPMessage is SOAP 1.2
+    * @param soapMessage
+    * @return
+    * @throws SOAPException
+    */
+   public static boolean isSOAP12(SOAPMessage soapMessage) throws SOAPException
+   {
+       SOAPPart soapPart = soapMessage.getSOAPPart();
+       SOAPEnvelope soapEnvelope = soapPart.getEnvelope();
+       if(SOAPConstants.URI_NS_SOAP_1_2_ENVELOPE.equals(soapEnvelope.getNamespaceURI()))
+           return true;
+       return false;
    }
 
    /**
