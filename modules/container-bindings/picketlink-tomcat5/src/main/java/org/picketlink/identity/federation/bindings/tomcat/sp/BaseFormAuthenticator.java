@@ -195,6 +195,10 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
             throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
         }
     }
+    
+    public SPType getConfiguration(){
+        return spConfiguration;
+    }
 
     /**
      * Set a separate issuer id
@@ -349,7 +353,12 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         }
         List<EndpointType> endpoints = idpSSO.getSingleSignOnService();
         for (EndpointType endpoint : endpoints) {
-            if (getBinding().equals(endpoint.getBinding().toString())) {
+            String endpointBinding = endpoint.getBinding().toString();
+            if(endpointBinding.contains("HTTP-POST"))
+                endpointBinding = "POST";
+            else if(endpointBinding.contains("HTTP-Redirect"))
+                endpointBinding = "REDIRECT";
+            if (getBinding().equals(endpointBinding)) {
                 identityURL = endpoint.getLocation().toString();
                 break;
             }

@@ -40,4 +40,8 @@ public class SPRedirectFormAuthenticator extends ServiceProviderAuthenticator {
         this.spConfiguration.setBindingType("REDIRECT");
     }
     
+    public void testStart() throws LifecycleException{
+        super.testStart();
+        this.spConfiguration.setBindingType("REDIRECT");
+    }
 }

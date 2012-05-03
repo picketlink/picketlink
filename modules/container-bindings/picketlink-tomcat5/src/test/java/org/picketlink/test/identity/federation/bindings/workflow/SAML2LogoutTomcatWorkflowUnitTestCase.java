@@ -117,6 +117,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
       SPRedirectFormAuthenticator sp = new SPRedirectFormAuthenticator();
       sp.setContainer(context);
       sp.testStart();
+      sp.getConfiguration().setIdpUsesPostBinding(false);
 
       MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
       catalinaRequest.setUserPrincipal(principal);
@@ -158,6 +159,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
       idp.setContainer(catalinaContext);
       idp.setSignOutgoingMessages(false);
       idp.setIgnoreIncomingSignatures(true);
+      idp.setStrictPostBinding(false);
       idp.start();
 
       //Assume that we already have the principal and roles set in the session
@@ -223,6 +225,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase
       SPRedirectFormAuthenticator sp = new SPRedirectFormAuthenticator();
       sp.setContainer(context);
       sp.testStart();
+      sp.getConfiguration().setIdpUsesPostBinding(false);
 
       request = new MockCatalinaRequest();
       request.setSession(session);

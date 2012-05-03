@@ -151,6 +151,7 @@ public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML
          ServletException
    {
       IDPWebBrowserSSOValve idp = getIDPWebBrowserSSOValve();
+      idp.setStrictPostBinding(false);
 
       MockCatalinaResponse response = new MockCatalinaResponse();
 

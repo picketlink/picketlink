@@ -41,4 +41,9 @@ public class SPPostFormAuthenticator extends ServiceProviderAuthenticator {
         this.spConfiguration.setBindingType("POST");
     }
     
+    public void testStart() throws LifecycleException{
+        super.testStart();
+        this.spConfiguration.setBindingType("POST");
+    }
+    
 }

@@ -72,6 +72,7 @@ public class SPRedirectFormAuthenticatorResponseTestCase
       MockCatalinaContext context = new MockCatalinaContext();
       spEmpl.setContainer(context);
       spEmpl.testStart();
+      spEmpl.getConfiguration().setIdpUsesPostBinding(false);
 
       MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
       catalinaRequest.setSession(session);

@@ -23,7 +23,9 @@ package org.picketlink.test.identity.federation.bindings.workflow;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 
@@ -134,9 +136,13 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSA
          throws LifecycleException, IOException, ServletException
    {
       IDPWebBrowserSSOValve idp = createIdentityProvider();
+      idp.setStrictPostBinding(false);
 
       MockCatalinaResponse response = new MockCatalinaResponse();
 
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      response.setWriter(new PrintWriter(baos));
+      
       idp.invoke(request, response);
 
       return response;
@@ -167,8 +173,9 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSA
       {
          this.employeeServiceProvider = (SPRedirectSignatureFormAuthenticator) createServiceProvider(SP_EMPLOYEE_PROFILE);
       }
+      
+      employeeServiceProvider.getConfiguration().setIdpUsesPostBinding(false);
 
       return this.employeeServiceProvider;
    }
-
 }

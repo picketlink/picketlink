@@ -116,6 +116,7 @@ public abstract class AbstractSAML2RedirectWithSignatureTestCase
       try
       {
          sp.testStart();
+         sp.getConfiguration().setIdpUsesPostBinding(false);
       }
       catch (LifecycleException e)
       {

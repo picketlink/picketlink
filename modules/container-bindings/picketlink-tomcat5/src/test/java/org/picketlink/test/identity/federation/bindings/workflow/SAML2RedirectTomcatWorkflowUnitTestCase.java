@@ -21,6 +21,8 @@
  */
 package org.picketlink.test.identity.federation.bindings.workflow;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintWriter;
 import java.net.URL;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -65,6 +67,10 @@ public class SAML2RedirectTomcatWorkflowUnitTestCase extends TestCase
       
       MockCatalinaResponse response = new MockCatalinaResponse();
       MockCatalinaLoginConfig loginConfig = new MockCatalinaLoginConfig();
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      response.setWriter(new PrintWriter(baos));
+
+      MockCatalinaSession session = new MockCatalinaSession(); 
       
       sp.setContainer(context);
       sp.testStart();
@@ -76,7 +82,6 @@ public class SAML2RedirectTomcatWorkflowUnitTestCase extends TestCase
       String saml = redirectStr.substring(redirectStr.indexOf(SAML_REQUEST_KEY) +
             SAML_REQUEST_KEY.length());
    
-      MockCatalinaSession session = new MockCatalinaSession();
       
       //Now send it to IDP 
       MockCatalinaRealm realm = new MockCatalinaRealm("anil", "test", new Principal()
@@ -102,17 +107,20 @@ public class SAML2RedirectTomcatWorkflowUnitTestCase extends TestCase
       request.setMethod("GET");
       
       response = new MockCatalinaResponse();
+      response.setWriter(new PrintWriter(baos));
       
       IDPWebBrowserSSOValve idp = new IDPWebBrowserSSOValve();
       
       idp.setSignOutgoingMessages(false);
       idp.setIgnoreIncomingSignatures(true);
+      idp.setStrictPostBinding(false);
       
       idp.setContainer(context);
       idp.start();
       idp.invoke(request, response); 
       
       redirectStr = response.redirectString;
+      assertNotNull(redirectStr);
       String samlResponse = RedirectBindingUtil.urlDecode(redirectStr.substring(redirectStr.indexOf(SAML_RESPONSE_KEY) +
             SAML_RESPONSE_KEY.length()));
       
@@ -120,7 +128,6 @@ public class SAML2RedirectTomcatWorkflowUnitTestCase extends TestCase
       Thread.currentThread().setContextClassLoader(mclSPEmp); 
       
       sp = new SPRedirectFormAuthenticator();
-      
       context = new MockCatalinaContext();
       
       context.setRealm(realm);
@@ -137,6 +144,7 @@ public class SAML2RedirectTomcatWorkflowUnitTestCase extends TestCase
       
       sp.setContainer(context);
       sp.testStart();
+      sp.getConfiguration().setIdpUsesPostBinding(false);
       
       assertTrue("Employee app auth success", sp.authenticate(request, response, loginConfig) ); 
    }

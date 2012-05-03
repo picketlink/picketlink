@@ -443,11 +443,13 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             relayState = spConfiguration.getRelayState();
         }
 
+        boolean postBinding = spConfiguration.getBindingType().equals("POST");
+        
         // Neither saml request nor response from IDP
         // So this is a user request
         SAML2HandlerResponse saml2HandlerResponse = null;
         try {
-            ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(true, serviceURL);
+            ServiceProviderBaseProcessor baseProcessor = new ServiceProviderBaseProcessor(postBinding, serviceURL);
             if (issuerID != null)
                 baseProcessor.setIssuer(issuerID);
 
