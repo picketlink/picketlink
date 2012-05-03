@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,13 +24,13 @@ package org.picketlink.identity.federation.saml.v2.assertion;
 
 import java.io.Serializable;
 
-
-
 /**
- * <p>Java class for SubjectConfirmationType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for SubjectConfirmationType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="SubjectConfirmationType">
  *   &lt;complexContent>
@@ -48,135 +48,114 @@ import java.io.Serializable;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class SubjectConfirmationType implements Serializable
-{ 
-   private static final long serialVersionUID = 1L;
-   protected BaseIDAbstractType baseID; 
-   protected NameIDType nameID; 
-   protected EncryptedElementType encryptedID; 
-   protected SubjectConfirmationDataType subjectConfirmationData; 
-   protected String method;
+ *
+ *
+ */
+public class SubjectConfirmationType implements Serializable {
+    private static final long serialVersionUID = 1L;
+    protected BaseIDAbstractType baseID;
+    protected NameIDType nameID;
+    protected EncryptedElementType encryptedID;
+    protected SubjectConfirmationDataType subjectConfirmationData;
+    protected String method;
 
-   /**
-    * Gets the value of the baseID property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link BaseIDAbstractType }
-    *     
-    */
-   public BaseIDAbstractType getBaseID() {
-      return baseID;
-   }
+    /**
+     * Gets the value of the baseID property.
+     *
+     * @return possible object is {@link BaseIDAbstractType }
+     *
+     */
+    public BaseIDAbstractType getBaseID() {
+        return baseID;
+    }
 
-   /**
-    * Sets the value of the baseID property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link BaseIDAbstractType }
-    *     
-    */
-   public void setBaseID(BaseIDAbstractType value) {
-      this.baseID = value;
-   }
+    /**
+     * Sets the value of the baseID property.
+     *
+     * @param value allowed object is {@link BaseIDAbstractType }
+     *
+     */
+    public void setBaseID(BaseIDAbstractType value) {
+        this.baseID = value;
+    }
 
-   /**
-    * Gets the value of the nameID property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link NameIDType }
-    *     
-    */
-   public NameIDType getNameID() {
-      return nameID;
-   }
+    /**
+     * Gets the value of the nameID property.
+     *
+     * @return possible object is {@link NameIDType }
+     *
+     */
+    public NameIDType getNameID() {
+        return nameID;
+    }
 
-   /**
-    * Sets the value of the nameID property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link NameIDType }
-    *     
-    */
-   public void setNameID(NameIDType value) {
-      this.nameID = value;
-   }
+    /**
+     * Sets the value of the nameID property.
+     *
+     * @param value allowed object is {@link NameIDType }
+     *
+     */
+    public void setNameID(NameIDType value) {
+        this.nameID = value;
+    }
 
-   /**
-    * Gets the value of the encryptedID property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link EncryptedElementType }
-    *     
-    */
-   public EncryptedElementType getEncryptedID() {
-      return encryptedID;
-   }
+    /**
+     * Gets the value of the encryptedID property.
+     *
+     * @return possible object is {@link EncryptedElementType }
+     *
+     */
+    public EncryptedElementType getEncryptedID() {
+        return encryptedID;
+    }
 
-   /**
-    * Sets the value of the encryptedID property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link EncryptedElementType }
-    *     
-    */
-   public void setEncryptedID(EncryptedElementType value) {
-      this.encryptedID = value;
-   }
+    /**
+     * Sets the value of the encryptedID property.
+     *
+     * @param value allowed object is {@link EncryptedElementType }
+     *
+     */
+    public void setEncryptedID(EncryptedElementType value) {
+        this.encryptedID = value;
+    }
 
-   /**
-    * Gets the value of the subjectConfirmationData property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link SubjectConfirmationDataType }
-    *     
-    */
-   public SubjectConfirmationDataType getSubjectConfirmationData() {
-      return subjectConfirmationData;
-   }
+    /**
+     * Gets the value of the subjectConfirmationData property.
+     *
+     * @return possible object is {@link SubjectConfirmationDataType }
+     *
+     */
+    public SubjectConfirmationDataType getSubjectConfirmationData() {
+        return subjectConfirmationData;
+    }
 
-   /**
-    * Sets the value of the subjectConfirmationData property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link SubjectConfirmationDataType }
-    *     
-    */
-   public void setSubjectConfirmationData(SubjectConfirmationDataType value) {
-      this.subjectConfirmationData = value;
-   }
+    /**
+     * Sets the value of the subjectConfirmationData property.
+     *
+     * @param value allowed object is {@link SubjectConfirmationDataType }
+     *
+     */
+    public void setSubjectConfirmationData(SubjectConfirmationDataType value) {
+        this.subjectConfirmationData = value;
+    }
 
-   /**
-    * Gets the value of the method property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getMethod() {
-      return method;
-   }
+    /**
+     * Gets the value of the method property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getMethod() {
+        return method;
+    }
 
-   /**
-    * Sets the value of the method property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setMethod(String value) {
-      this.method = value;
-   }
+    /**
+     * Sets the value of the method property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setMethod(String value) {
+        this.method = value;
+    }
 }

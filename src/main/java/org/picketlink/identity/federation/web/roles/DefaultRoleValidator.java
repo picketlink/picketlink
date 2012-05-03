@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -35,39 +35,31 @@ import org.picketlink.identity.federation.web.interfaces.IRoleValidator;
  * @author Anil.Saldhana@redhat.com
  * @since Aug 21, 2009
  */
-public class DefaultRoleValidator implements IRoleValidator
-{
-   private static Logger log = Logger.getLogger(DefaultRoleValidator.class);
-   private boolean trace = log.isTraceEnabled();
-   
-   private Set<String> roleNames = new HashSet<String>();
-   
-   public void intialize(Map<String, String> options)
-   {
-      String csv = options.get("ROLES");
-      if(csv == null)
-      {
-         if(trace)
-            log.trace("There is no ROLES config");
-      }
-      else
-      {
-         //Get the comma separated role names 
-         StringTokenizer st = new StringTokenizer(csv,",");
-         while(st != null && st.hasMoreTokens())
-         {
-            roleNames.add(st.nextToken());
-         }  
-      }
-   }
+public class DefaultRoleValidator implements IRoleValidator {
+    private static Logger log = Logger.getLogger(DefaultRoleValidator.class);
+    private boolean trace = log.isTraceEnabled();
 
-   public boolean userInRole(Principal userPrincipal, List<String> roles)
-   {
-      for(String roleName: roles)
-      {
-         if(roleNames.contains(roleName))
-            return true;
-      }
-      return false;
-   }
+    private Set<String> roleNames = new HashSet<String>();
+
+    public void intialize(Map<String, String> options) {
+        String csv = options.get("ROLES");
+        if (csv == null) {
+            if (trace)
+                log.trace("There is no ROLES config");
+        } else {
+            // Get the comma separated role names
+            StringTokenizer st = new StringTokenizer(csv, ",");
+            while (st != null && st.hasMoreTokens()) {
+                roleNames.add(st.nextToken());
+            }
+        }
+    }
+
+    public boolean userInRole(Principal userPrincipal, List<String> roles) {
+        for (String roleName : roles) {
+            if (roleNames.contains(roleName))
+                return true;
+        }
+        return false;
+    }
 }

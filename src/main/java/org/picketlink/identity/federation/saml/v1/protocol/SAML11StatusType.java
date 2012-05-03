@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,62 +26,50 @@ import java.io.Serializable;
 import org.picketlink.identity.federation.saml.common.CommonStatusDetailType;
 
 /**
- * <complexType name="StatusType">
-        <sequence>
-            <element ref="samlp:StatusCode"/>
-            <element ref="samlp:StatusMessage" minOccurs="0"/>
-            <element ref="samlp:StatusDetail" minOccurs="0"/>
-        </sequence>
-
-    </complexType>
-    
+ * <complexType name="StatusType"> <sequence> <element ref="samlp:StatusCode"/> <element ref="samlp:StatusMessage"
+ * minOccurs="0"/> <element ref="samlp:StatusDetail" minOccurs="0"/> </sequence>
+ *
+ * </complexType>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
-public class SAML11StatusType implements Serializable
-{
-   private static final long serialVersionUID = 1L;
+public class SAML11StatusType implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-   protected SAML11StatusCodeType statusCode;
+    protected SAML11StatusCodeType statusCode;
 
-   protected String statusMessage;
+    protected String statusMessage;
 
-   protected CommonStatusDetailType statusDetail;
+    protected CommonStatusDetailType statusDetail;
 
-   public SAML11StatusCodeType getStatusCode()
-   {
-      return statusCode;
-   }
+    public SAML11StatusCodeType getStatusCode() {
+        return statusCode;
+    }
 
-   public void setStatusCode(SAML11StatusCodeType statusCode)
-   {
-      this.statusCode = statusCode;
-   }
+    public void setStatusCode(SAML11StatusCodeType statusCode) {
+        this.statusCode = statusCode;
+    }
 
-   public String getStatusMessage()
-   {
-      return statusMessage;
-   }
+    public String getStatusMessage() {
+        return statusMessage;
+    }
 
-   public void setStatusMessage(String statusMessage)
-   {
-      this.statusMessage = statusMessage;
-   }
+    public void setStatusMessage(String statusMessage) {
+        this.statusMessage = statusMessage;
+    }
 
-   public CommonStatusDetailType getStatusDetail()
-   {
-      return statusDetail;
-   }
+    public CommonStatusDetailType getStatusDetail() {
+        return statusDetail;
+    }
 
-   public void setStatusDetail(CommonStatusDetailType statusDetail)
-   {
-      this.statusDetail = statusDetail;
-   }
+    public void setStatusDetail(CommonStatusDetailType statusDetail) {
+        this.statusDetail = statusDetail;
+    }
 
-   public static SAML11StatusType successType()
-   {
-      SAML11StatusType success = new SAML11StatusType();
-      success.setStatusCode(SAML11StatusCodeType.SUCCESS);
-      return success;
-   }
+    public static SAML11StatusType successType() {
+        SAML11StatusType success = new SAML11StatusType();
+        success.setStatusCode(SAML11StatusCodeType.SUCCESS);
+        return success;
+    }
 }

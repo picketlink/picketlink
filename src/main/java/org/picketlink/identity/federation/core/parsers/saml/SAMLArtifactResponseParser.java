@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -41,86 +41,73 @@ import org.w3c.dom.Element;
 
 /**
  * Parse the SAML Response
+ *
  * @author Anil.Saldhana@redhat.com
  * @since July 1, 2011
  */
-public class SAMLArtifactResponseParser extends SAMLStatusResponseTypeParser implements ParserNamespaceSupport
-{
-   private final String ARTIFACT_RESPONSE = JBossSAMLConstants.ARTIFACT_RESPONSE.get();
+public class SAMLArtifactResponseParser extends SAMLStatusResponseTypeParser implements ParserNamespaceSupport {
+    private final String ARTIFACT_RESPONSE = JBossSAMLConstants.ARTIFACT_RESPONSE.get();
 
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      //Get the startelement
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, ARTIFACT_RESPONSE);
+    /**
+     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     */
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        // Get the startelement
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, ARTIFACT_RESPONSE);
 
-      ArtifactResponseType response = (ArtifactResponseType) parseBaseAttributes(startElement);
+        ArtifactResponseType response = (ArtifactResponseType) parseBaseAttributes(startElement);
 
-      while (xmlEventReader.hasNext())
-      {
-         //Let us peek at the next start element
-         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         if (startElement == null)
-            break;
-         String elementName = StaxParserUtil.getStartElementName(startElement);
+        while (xmlEventReader.hasNext()) {
+            // Let us peek at the next start element
+            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            if (startElement == null)
+                break;
+            String elementName = StaxParserUtil.getStartElementName(startElement);
 
-         if (JBossSAMLConstants.ISSUER.get().equals(elementName))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            NameIDType issuer = new NameIDType();
-            issuer.setValue(StaxParserUtil.getElementText(xmlEventReader));
-            response.setIssuer(issuer);
-         }
-         else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName))
-         {
-            Element sig = StaxParserUtil.getDOMElement(xmlEventReader);
-            response.setSignature(sig);
-         }
-         else if (JBossSAMLConstants.AUTHN_REQUEST.get().equals(elementName))
-         {
-            SAMLAuthNRequestParser authnParser = new SAMLAuthNRequestParser();
-            AuthnRequestType authn = (AuthnRequestType) authnParser.parse(xmlEventReader);
-            response.setAny(authn);
-         }
-         else if (JBossSAMLConstants.RESPONSE.get().equals(elementName))
-         {
-            SAMLResponseParser authnParser = new SAMLResponseParser();
-            ResponseType authn = (ResponseType) authnParser.parse(xmlEventReader);
-            response.setAny(authn);
-         }
-         else if (JBossSAMLConstants.STATUS.get().equals(elementName))
-         {
-            response.setStatus(parseStatus(xmlEventReader));
-         }
-         else
-            throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
-                  + startElement.getLocation());
-      }
+            if (JBossSAMLConstants.ISSUER.get().equals(elementName)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                NameIDType issuer = new NameIDType();
+                issuer.setValue(StaxParserUtil.getElementText(xmlEventReader));
+                response.setIssuer(issuer);
+            } else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName)) {
+                Element sig = StaxParserUtil.getDOMElement(xmlEventReader);
+                response.setSignature(sig);
+            } else if (JBossSAMLConstants.AUTHN_REQUEST.get().equals(elementName)) {
+                SAMLAuthNRequestParser authnParser = new SAMLAuthNRequestParser();
+                AuthnRequestType authn = (AuthnRequestType) authnParser.parse(xmlEventReader);
+                response.setAny(authn);
+            } else if (JBossSAMLConstants.RESPONSE.get().equals(elementName)) {
+                SAMLResponseParser authnParser = new SAMLResponseParser();
+                ResponseType authn = (ResponseType) authnParser.parse(xmlEventReader);
+                response.setAny(authn);
+            } else if (JBossSAMLConstants.STATUS.get().equals(elementName)) {
+                response.setStatus(parseStatus(xmlEventReader));
+            } else
+                throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
+                        + startElement.getLocation());
+        }
 
-      return response;
-   }
+        return response;
+    }
 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
-   public boolean supports(QName qname)
-   {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI())
-            && ARTIFACT_RESPONSE.equals(qname.getLocalPart());
-   }
+    /**
+     * @see {@link ParserNamespaceSupport#supports(QName)}
+     */
+    public boolean supports(QName qname) {
+        return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI())
+                && ARTIFACT_RESPONSE.equals(qname.getLocalPart());
+    }
 
-   /**
-    * Parse the attributes at the response element
-    * @param startElement
-    * @return
-    * @throws ConfigurationException
-    */
-   protected StatusResponseType parseBaseAttributes(StartElement startElement) throws ParsingException
-   {
-      ArtifactResponseType response = new ArtifactResponseType(super.parseBaseAttributes(startElement));
-      return response;
-   }
+    /**
+     * Parse the attributes at the response element
+     *
+     * @param startElement
+     * @return
+     * @throws ConfigurationException
+     */
+    protected StatusResponseType parseBaseAttributes(StartElement startElement) throws ParsingException {
+        ArtifactResponseType response = new ArtifactResponseType(super.parseBaseAttributes(startElement));
+        return response;
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,10 +24,12 @@ package org.picketlink.identity.federation.saml.v2.protocol;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
- * <p>Java class for ArtifactResolveType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ArtifactResolveType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ArtifactResolveType">
  *   &lt;complexContent>
@@ -39,44 +41,36 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class ArtifactResolveType extends RequestAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class ArtifactResolveType extends RequestAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected String artifact;
+    protected String artifact;
 
-   public ArtifactResolveType(String id, XMLGregorianCalendar instant)
-   {
-      super(id, instant);
-   }
+    public ArtifactResolveType(String id, XMLGregorianCalendar instant) {
+        super(id, instant);
+    }
 
-   /**
-    * Gets the value of the artifact property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getArtifact()
-   {
-      return artifact;
-   }
+    /**
+     * Gets the value of the artifact property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getArtifact() {
+        return artifact;
+    }
 
-   /**
-    * Sets the value of the artifact property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setArtifact(String value)
-   {
-      this.artifact = value;
-   }
+    /**
+     * Sets the value of the artifact property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setArtifact(String value) {
+        this.artifact = value;
+    }
 
 }

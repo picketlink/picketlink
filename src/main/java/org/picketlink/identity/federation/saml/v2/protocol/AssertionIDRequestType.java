@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,10 +28,12 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
- * <p>Java class for AssertionIDRequestType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for AssertionIDRequestType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="AssertionIDRequestType">
  *   &lt;complexContent>
@@ -43,44 +45,41 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class AssertionIDRequestType extends RequestAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class AssertionIDRequestType extends RequestAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected List<String> assertionIDRef = new ArrayList<String>();
+    protected List<String> assertionIDRef = new ArrayList<String>();
 
-   public AssertionIDRequestType(String id, XMLGregorianCalendar instant)
-   {
-      super(id, instant);
-   }
+    public AssertionIDRequestType(String id, XMLGregorianCalendar instant) {
+        super(id, instant);
+    }
 
-   /**
-    * Add assertion id reference
-    * @param id
-    */
-   public void addAssertionIDRef(String id)
-   {
-      assertionIDRef.add(id);
-   }
+    /**
+     * Add assertion id reference
+     *
+     * @param id
+     */
+    public void addAssertionIDRef(String id) {
+        assertionIDRef.add(id);
+    }
 
-   /**
-    * remove assertion id reference
-    * @param id
-    */
-   public void removeAssertionIDRef(String id)
-   {
-      assertionIDRef.remove(id);
-   }
+    /**
+     * remove assertion id reference
+     *
+     * @param id
+     */
+    public void removeAssertionIDRef(String id) {
+        assertionIDRef.remove(id);
+    }
 
-   /**
-    * Gets the value of the assertionIDRef property.
-    *  
-    */
-   public List<String> getAssertionIDRef()
-   {
-      return Collections.unmodifiableList(this.assertionIDRef);
-   }
+    /**
+     * Gets the value of the assertionIDRef property.
+     *
+     */
+    public List<String> getAssertionIDRef() {
+        return Collections.unmodifiableList(this.assertionIDRef);
+    }
 }

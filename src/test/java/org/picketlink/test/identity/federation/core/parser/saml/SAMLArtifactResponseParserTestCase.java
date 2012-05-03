@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -44,74 +44,72 @@ import org.w3c.dom.Document;
 
 /**
  * Unit test the parsing of {@link ArtifactResponseType}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jul 1, 2011
  */
-public class SAMLArtifactResponseParserTestCase
-{
-   @Test
-   public void testSAMLArtifactResponseWithAuthnRequestParse() throws Exception
-   {
-      String file = "parser/saml2/saml2-artifact-response-authnrequest.xml";
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream(file);
+public class SAMLArtifactResponseParserTestCase {
+    @Test
+    public void testSAMLArtifactResponseWithAuthnRequestParse() throws Exception {
+        String file = "parser/saml2/saml2-artifact-response-authnrequest.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream(file);
 
-      JAXPValidationUtil.validate(configStream);
-      configStream = tcl.getResourceAsStream(file);
+        JAXPValidationUtil.validate(configStream);
+        configStream = tcl.getResourceAsStream(file);
 
-      SAMLParser parser = new SAMLParser();
-      ArtifactResponseType artifactResponse = (ArtifactResponseType) parser.parse(configStream);
-      assertNotNull("ArtifactResponseType is not null", artifactResponse);
+        SAMLParser parser = new SAMLParser();
+        ArtifactResponseType artifactResponse = (ArtifactResponseType) parser.parse(configStream);
+        assertNotNull("ArtifactResponseType is not null", artifactResponse);
 
-      assertEquals("ID_d84a49e5958803dedcff4c984c2b0d95", artifactResponse.getID());
-      assertEquals(XMLTimeUtil.parse("2004-12-05T09:21:59Z"), artifactResponse.getIssueInstant());
-      assertEquals("ID_cce4ee769ed970b501d680f697989d14", artifactResponse.getInResponseTo());
-      assertTrue(artifactResponse.getAny() instanceof AuthnRequestType);
+        assertEquals("ID_d84a49e5958803dedcff4c984c2b0d95", artifactResponse.getID());
+        assertEquals(XMLTimeUtil.parse("2004-12-05T09:21:59Z"), artifactResponse.getIssueInstant());
+        assertEquals("ID_cce4ee769ed970b501d680f697989d14", artifactResponse.getInResponseTo());
+        assertTrue(artifactResponse.getAny() instanceof AuthnRequestType);
 
-      StatusType status = artifactResponse.getStatus();
-      assertNotNull(status);
-      assertEquals("urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue().toString());
+        StatusType status = artifactResponse.getStatus();
+        assertNotNull(status);
+        assertEquals("urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue().toString());
 
-      //Try out writing
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
-      writer.write(artifactResponse);
+        // Try out writing
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(artifactResponse);
 
-      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
-      Document doc = DocumentUtil.getDocument(bis); //throws exceptions
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+        Document doc = DocumentUtil.getDocument(bis); // throws exceptions
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 
-   @Test
-   public void testSAMLArtifactResponseWithResponseParse() throws Exception
-   {
-      String file = "parser/saml2/saml2-artifact-response-response.xml";
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream(file);
+    @Test
+    public void testSAMLArtifactResponseWithResponseParse() throws Exception {
+        String file = "parser/saml2/saml2-artifact-response-response.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream(file);
 
-      JAXPValidationUtil.validate(configStream);
-      configStream = tcl.getResourceAsStream(file);
+        JAXPValidationUtil.validate(configStream);
+        configStream = tcl.getResourceAsStream(file);
 
-      SAMLParser parser = new SAMLParser();
-      ArtifactResponseType artifactResponse = (ArtifactResponseType) parser.parse(configStream);
-      assertNotNull("ArtifactResponseType is not null", artifactResponse);
+        SAMLParser parser = new SAMLParser();
+        ArtifactResponseType artifactResponse = (ArtifactResponseType) parser.parse(configStream);
+        assertNotNull("ArtifactResponseType is not null", artifactResponse);
 
-      assertEquals("ID_d84a49e5958803dedcff4c984c2b0d95", artifactResponse.getID());
-      assertEquals(XMLTimeUtil.parse("2004-12-05T09:21:59Z"), artifactResponse.getIssueInstant());
-      assertEquals("ID_cce4ee769ed970b501d680f697989d14", artifactResponse.getInResponseTo());
-      assertTrue(artifactResponse.getAny() instanceof ResponseType);
+        assertEquals("ID_d84a49e5958803dedcff4c984c2b0d95", artifactResponse.getID());
+        assertEquals(XMLTimeUtil.parse("2004-12-05T09:21:59Z"), artifactResponse.getIssueInstant());
+        assertEquals("ID_cce4ee769ed970b501d680f697989d14", artifactResponse.getInResponseTo());
+        assertTrue(artifactResponse.getAny() instanceof ResponseType);
 
-      StatusType status = artifactResponse.getStatus();
-      assertNotNull(status);
-      assertEquals("urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue().toString());
+        StatusType status = artifactResponse.getStatus();
+        assertNotNull(status);
+        assertEquals("urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue().toString());
 
-      //Try out writing
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
-      writer.write(artifactResponse);
+        // Try out writing
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(artifactResponse);
 
-      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
-      Document doc = DocumentUtil.getDocument(bis); //throws exceptions
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+        Document doc = DocumentUtil.getDocument(bis); // throws exceptions
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 }

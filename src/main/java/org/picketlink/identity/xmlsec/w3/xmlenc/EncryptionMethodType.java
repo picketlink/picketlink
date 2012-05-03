@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,13 +23,13 @@ package org.picketlink.identity.xmlsec.w3.xmlenc;
 
 import java.math.BigInteger;
 
-
-
 /**
- * <p>Java class for EncryptionMethodType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for EncryptionMethodType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="EncryptionMethodType">
  *   &lt;complexContent>
@@ -44,64 +44,51 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class EncryptionMethodType 
-{
-   protected String algorithm; 
+ *
+ *
+ */
+public class EncryptionMethodType {
+    protected String algorithm;
 
-   protected EncryptionMethod encryptionMethod;
-   
-   public static class EncryptionMethod
-   {
-      protected BigInteger keySize;
-      protected byte[] OAEPparams;
-      public EncryptionMethod(BigInteger bigInteger, byte[] oAEPparams)
-      { 
-         this.keySize = bigInteger;
-         OAEPparams = oAEPparams;
-      }
-      public BigInteger getKeySize()
-      {
-         return keySize;
-      }
-      public byte[] getOAEPparams()
-      {
-         return OAEPparams;
-      } 
-   }
+    protected EncryptionMethod encryptionMethod;
 
-   public EncryptionMethodType( String algo )
-   {
-      this.algorithm = algo;
-   }
+    public static class EncryptionMethod {
+        protected BigInteger keySize;
+        protected byte[] OAEPparams;
 
-   
+        public EncryptionMethod(BigInteger bigInteger, byte[] oAEPparams) {
+            this.keySize = bigInteger;
+            OAEPparams = oAEPparams;
+        }
 
-   public EncryptionMethod getEncryptionMethod()
-   {
-      return encryptionMethod;
-   }
+        public BigInteger getKeySize() {
+            return keySize;
+        }
 
+        public byte[] getOAEPparams() {
+            return OAEPparams;
+        }
+    }
 
+    public EncryptionMethodType(String algo) {
+        this.algorithm = algo;
+    }
 
-   public void setEncryptionMethod(EncryptionMethod encryptionMethod)
-   {
-      this.encryptionMethod = encryptionMethod;
-   }
+    public EncryptionMethod getEncryptionMethod() {
+        return encryptionMethod;
+    }
 
+    public void setEncryptionMethod(EncryptionMethod encryptionMethod) {
+        this.encryptionMethod = encryptionMethod;
+    }
 
-
-   /**
-    * Gets the value of the algorithm property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getAlgorithm() {
-      return algorithm;
-   }
+    /**
+     * Gets the value of the algorithm property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getAlgorithm() {
+        return algorithm;
+    }
 }

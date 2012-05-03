@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -35,66 +35,57 @@ import org.picketlink.identity.federation.saml.v2.protocol.ArtifactResolveType;
 
 /**
  * Parse the {@link ArtifactResolveType}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jul 1, 2011
  */
-public class SAMLArtifactResolveParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport
-{
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      //Get the startelement
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.ARTIFACT_RESOLVE.get());
+public class SAMLArtifactResolveParser extends SAMLRequestAbstractParser implements ParserNamespaceSupport {
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        // Get the startelement
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, JBossSAMLConstants.ARTIFACT_RESOLVE.get());
 
-      ArtifactResolveType artifactResolve = parseBaseAttributes(startElement);
+        ArtifactResolveType artifactResolve = parseBaseAttributes(startElement);
 
-      while (xmlEventReader.hasNext())
-      {
-         //Let us peek at the next start element
-         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         if (startElement == null)
-            break;
-         super.parseCommonElements(startElement, xmlEventReader, artifactResolve);
-         String elementName = StaxParserUtil.getStartElementName(startElement);
+        while (xmlEventReader.hasNext()) {
+            // Let us peek at the next start element
+            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            if (startElement == null)
+                break;
+            super.parseCommonElements(startElement, xmlEventReader, artifactResolve);
+            String elementName = StaxParserUtil.getStartElementName(startElement);
 
-         if (JBossSAMLConstants.ARTIFACT.get().equals(elementName))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            artifactResolve.setArtifact(StaxParserUtil.getElementText(xmlEventReader));
-         }
-         else if (JBossSAMLConstants.ISSUER.get().equals(elementName))
-         {
-            continue;
-         }
-         else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName))
-         {
-            continue;
-         }
-         else
-            throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
-                  + startElement.getLocation());
-      }
-      return artifactResolve;
-   }
+            if (JBossSAMLConstants.ARTIFACT.get().equals(elementName)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                artifactResolve.setArtifact(StaxParserUtil.getElementText(xmlEventReader));
+            } else if (JBossSAMLConstants.ISSUER.get().equals(elementName)) {
+                continue;
+            } else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName)) {
+                continue;
+            } else
+                throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
+                        + startElement.getLocation());
+        }
+        return artifactResolve;
+    }
 
-   public boolean supports(QName qname)
-   {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI());
-   }
+    public boolean supports(QName qname) {
+        return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI());
+    }
 
-   /**
-    * Parse the attributes at the authnrequesttype element
-    * @param startElement
-    * @return 
-    * @throws ParsingException 
-    */
-   private ArtifactResolveType parseBaseAttributes(StartElement startElement) throws ParsingException
-   {
-      super.parseRequiredAttributes(startElement);
-      ArtifactResolveType authnRequest = new ArtifactResolveType(id, issueInstant);
-      //Let us get the attributes
-      super.parseBaseAttributes(startElement, authnRequest);
+    /**
+     * Parse the attributes at the authnrequesttype element
+     *
+     * @param startElement
+     * @return
+     * @throws ParsingException
+     */
+    private ArtifactResolveType parseBaseAttributes(StartElement startElement) throws ParsingException {
+        super.parseRequiredAttributes(startElement);
+        ArtifactResolveType authnRequest = new ArtifactResolveType(id, issueInstant);
+        // Let us get the attributes
+        super.parseBaseAttributes(startElement, authnRequest);
 
-      return authnRequest;
-   }
+        return authnRequest;
+    }
 }

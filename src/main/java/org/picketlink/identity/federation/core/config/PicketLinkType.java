@@ -4,6 +4,7 @@ import org.picketlink.identity.federation.core.handler.config.Handlers;
 
 /**
  * Overall consolidated config holder type
+ *
  * @author anil saldhana
  */
 public class PicketLinkType {

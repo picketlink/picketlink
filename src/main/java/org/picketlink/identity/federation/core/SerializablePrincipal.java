@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2011, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,22 +26,20 @@ import java.security.Principal;
 
 /**
  * An instance of {@link Principal} that is {@link Serializable}
+ *
  * @author Anil Saldhana
  * @since Feb 21, 2012
  */
-public class SerializablePrincipal implements Principal, Serializable
-{
-   private static final long serialVersionUID = -4732505034437816312L;
+public class SerializablePrincipal implements Principal, Serializable {
+    private static final long serialVersionUID = -4732505034437816312L;
 
-   private final String name;
+    private final String name;
 
-   public SerializablePrincipal(String name)
-   {
-      this.name = name;
-   }
+    public SerializablePrincipal(String name) {
+        this.name = name;
+    }
 
-   public String getName()
-   {
-      return name;
-   }
+    public String getName() {
+        return name;
+    }
 }

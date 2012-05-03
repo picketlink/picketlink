@@ -2,15 +2,16 @@ package org.picketlink.identity.federation.core.handler.config;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List; 
+import java.util.List;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 
-
 /**
- * <p>Java class for Handler complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for Handler complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="Handler">
  *   &lt;complexContent>
@@ -24,44 +25,39 @@ import org.picketlink.identity.federation.core.config.KeyValueType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class Handler {
 
     protected List<KeyValueType> option = new ArrayList<KeyValueType>();
     protected String name;
     protected String clazz;
 
-    public void add( KeyValueType kv )
-    {
-       this.option.add(kv);
+    public void add(KeyValueType kv) {
+        this.option.add(kv);
     }
-    
-    public void remove( KeyValueType kv )
-    {
-       this.option.remove(kv);
+
+    public void remove(KeyValueType kv) {
+        this.option.remove(kv);
     }
-    
+
     /**
      * Gets the value of the option property.
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link KeyValueType }
-     * 
-     * 
+     * Objects of the following type(s) are allowed in the list {@link KeyValueType }
+     *
+     *
      */
-    public List<KeyValueType> getOption() { 
-        return Collections.unmodifiableList( this.option );
+    public List<KeyValueType> getOption() {
+        return Collections.unmodifiableList(this.option);
     }
 
     /**
      * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getName() {
         return name;
@@ -69,11 +65,9 @@ public class Handler {
 
     /**
      * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setName(String value) {
         this.name = value;
@@ -81,11 +75,9 @@ public class Handler {
 
     /**
      * Gets the value of the clazz property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getClazz() {
         return clazz;
@@ -93,11 +85,9 @@ public class Handler {
 
     /**
      * Sets the value of the clazz property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setClazz(String value) {
         this.clazz = value;

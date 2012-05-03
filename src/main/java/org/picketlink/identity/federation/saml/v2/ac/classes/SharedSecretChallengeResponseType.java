@@ -1,17 +1,17 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
-
 /**
- * 
- *         This element indicates that the Principal has been
- *         authenticated by a challenge-response protocol utilizing shared secret
- *         keys and symmetric cryptography.
- *       
- * 
- * <p>Java class for SharedSecretChallengeResponseType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
+ * This element indicates that the Principal has been authenticated by a challenge-response protocol utilizing shared secret
+ * keys and symmetric cryptography.
+ *
+ *
+ * <p>
+ * Java class for SharedSecretChallengeResponseType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="SharedSecretChallengeResponseType">
  *   &lt;complexContent>
@@ -24,21 +24,18 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class SharedSecretChallengeResponseType extends ExtensionListType {
-  
-    protected String method;
 
+    protected String method;
 
     /**
      * Gets the value of the method property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getMethod() {
         return method;
@@ -46,11 +43,9 @@ public class SharedSecretChallengeResponseType extends ExtensionListType {
 
     /**
      * Sets the value of the method property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setMethod(String value) {
         this.method = value;

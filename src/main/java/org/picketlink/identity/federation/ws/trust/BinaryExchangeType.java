@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,10 +24,12 @@ package org.picketlink.identity.federation.ws.trust;
 import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
 
 /**
- * <p>Java class for BinaryExchangeType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for BinaryExchangeType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="BinaryExchangeType">
  *   &lt;simpleContent>
@@ -38,92 +40,73 @@ import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class BinaryExchangeType extends BaseAddressingType
-{
-   protected String value;
+public class BinaryExchangeType extends BaseAddressingType {
+    protected String value;
 
-   protected String valueType;
+    protected String valueType;
 
-   protected String encodingType;
+    protected String encodingType;
 
-   /**
-    * Gets the value of the value property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getValue()
-   {
-      return value;
-   }
+    /**
+     * Gets the value of the value property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getValue() {
+        return value;
+    }
 
-   /**
-    * Sets the value of the value property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setValue(String value)
-   {
-      this.value = value;
-   }
+    /**
+     * Sets the value of the value property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-   /**
-    * Gets the value of the valueType property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getValueType()
-   {
-      return valueType;
-   }
+    /**
+     * Gets the value of the valueType property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getValueType() {
+        return valueType;
+    }
 
-   /**
-    * Sets the value of the valueType property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setValueType(String value)
-   {
-      this.valueType = value;
-   }
+    /**
+     * Sets the value of the valueType property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setValueType(String value) {
+        this.valueType = value;
+    }
 
-   /**
-    * Gets the value of the encodingType property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getEncodingType()
-   {
-      return encodingType;
-   }
+    /**
+     * Gets the value of the encodingType property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getEncodingType() {
+        return encodingType;
+    }
 
-   /**
-    * Sets the value of the encodingType property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setEncodingType(String value)
-   {
-      this.encodingType = value;
-   }
+    /**
+     * Sets the value of the encodingType property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setEncodingType(String value) {
+        this.encodingType = value;
+    }
 }

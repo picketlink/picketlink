@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -38,108 +38,87 @@ import org.apache.log4j.Logger;
  * <p>
  * Primarily used to expire the SAML Principal in the JAAS Subject cached in the JBoss Auth Cache.
  * </p>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 7, 2011
  */
-public class JBossAuthCacheInvalidationFactory
-{
-   /**
-    * Get an instance of {@link TimeCacheExpiry}
-    * @return
-    */
-   public static TimeCacheExpiry getCacheExpiry()
-   {
-      return ExpiringPrincipalCacheInvalidation.get();
-   }
+public class JBossAuthCacheInvalidationFactory {
+    /**
+     * Get an instance of {@link TimeCacheExpiry}
+     *
+     * @return
+     */
+    public static TimeCacheExpiry getCacheExpiry() {
+        return ExpiringPrincipalCacheInvalidation.get();
+    }
 
-   public interface TimeCacheExpiry
-   {
-      /**
-       * Register a Principal that has an expiry at {@link Date}
-       * @param securityDomain the security domain under which the principal may be cached in a subject
-       * @param expiry when to expire the principal and hence the subject
-       * @param principal the principal which needs to be expired
-       */
-      void register(String securityDomain, Date expiry, Principal principal);
-   }
+    public interface TimeCacheExpiry {
+        /**
+         * Register a Principal that has an expiry at {@link Date}
+         *
+         * @param securityDomain the security domain under which the principal may be cached in a subject
+         * @param expiry when to expire the principal and hence the subject
+         * @param principal the principal which needs to be expired
+         */
+        void register(String securityDomain, Date expiry, Principal principal);
+    }
 
-   protected static class ExpiringPrincipalCacheInvalidation implements TimeCacheExpiry
-   {
-      private static Logger log = Logger.getLogger(ExpiringPrincipalCacheInvalidation.class);
+    protected static class ExpiringPrincipalCacheInvalidation implements TimeCacheExpiry {
+        private static Logger log = Logger.getLogger(ExpiringPrincipalCacheInvalidation.class);
 
-      private final boolean trace = log.isTraceEnabled();
+        private final boolean trace = log.isTraceEnabled();
 
-      protected static ExpiringPrincipalCacheInvalidation _instance = null;
+        protected static ExpiringPrincipalCacheInvalidation _instance = null;
 
-      protected static String objectName = "jboss.security:service=JaasSecurityManager";
+        protected static String objectName = "jboss.security:service=JaasSecurityManager";
 
-      protected static Timer timer = new Timer();
+        protected static Timer timer = new Timer();
 
-      protected ExpiringPrincipalCacheInvalidation()
-      {
-      }
+        protected ExpiringPrincipalCacheInvalidation() {
+        }
 
-      protected static ExpiringPrincipalCacheInvalidation get()
-      {
-         if (_instance == null)
-            _instance = new ExpiringPrincipalCacheInvalidation();
-         return _instance;
-      }
+        protected static ExpiringPrincipalCacheInvalidation get() {
+            if (_instance == null)
+                _instance = new ExpiringPrincipalCacheInvalidation();
+            return _instance;
+        }
 
-      protected static void setObjectName(String oName)
-      {
-         objectName = oName;
-      }
+        protected static void setObjectName(String oName) {
+            objectName = oName;
+        }
 
-      public void register(final String securityDomain, final Date expiry, final Principal principal)
-      {
-         try
-         {
-            timer.purge();
-         }
-         catch (Exception e)
-         {
-            if (trace)
-            {
-               log.trace("Exception in purging timer tasks:", e);
+        public void register(final String securityDomain, final Date expiry, final Principal principal) {
+            try {
+                timer.purge();
+            } catch (Exception e) {
+                if (trace) {
+                    log.trace("Exception in purging timer tasks:", e);
+                }
             }
-         }
-         try
-         {
-            timer.schedule(new TimerTask()
-            {
-               @Override
-               public void run()
-               {
-                  try
-                  {
-                     ObjectName on = new ObjectName(objectName);
-                     MBeanServer server = SecurityActions.getJBossMBeanServer();
-                     Object[] obj = new Object[]
-                     {securityDomain, principal};
-                     String[] sig = new String[]
-                     {"java.lang.String", "java.security.Principal"};
+            try {
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        try {
+                            ObjectName on = new ObjectName(objectName);
+                            MBeanServer server = SecurityActions.getJBossMBeanServer();
+                            Object[] obj = new Object[] { securityDomain, principal };
+                            String[] sig = new String[] { "java.lang.String", "java.security.Principal" };
 
-                     //Flush the Authentication Cache
-                     server.invoke(on, "flushAuthenticationCache", obj, sig);
-                  }
-                  catch (Exception e)
-                  {
-                     if (trace)
-                     {
-                        log.trace("Exception in scheduling timer:", e);
-                     }
-                  }
-               }
-            }, expiry);
-         }
-         catch (Exception e)
-         {
-            if (trace)
-            {
-               log.trace("Exception in scheduling timer:", e);
+                            // Flush the Authentication Cache
+                            server.invoke(on, "flushAuthenticationCache", obj, sig);
+                        } catch (Exception e) {
+                            if (trace) {
+                                log.trace("Exception in scheduling timer:", e);
+                            }
+                        }
+                    }
+                }, expiry);
+            } catch (Exception e) {
+                if (trace) {
+                    log.trace("Exception in scheduling timer:", e);
+                }
             }
-         }
-      }
-   }
+        }
+    }
 }

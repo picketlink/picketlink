@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,18 +25,18 @@ import javax.security.auth.login.LoginException;
 
 /**
  * Handle authentication
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 18, 2009
  */
-public interface ILoginHandler
-{
-   /**
-    * Authenticate the user
-    * @param username username
-    * @param credential credential
-    * @return true - authenticated
-    * @throws LoginException
-    */
-   public boolean authenticate(String username, Object credential) 
-   throws LoginException; 
+public interface ILoginHandler {
+    /**
+     * Authenticate the user
+     *
+     * @param username username
+     * @param credential credential
+     * @return true - authenticated
+     * @throws LoginException
+     */
+    public boolean authenticate(String username, Object credential) throws LoginException;
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -45,442 +45,397 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 
 /**
  * Parse the SAML IDP/SP config as well as the handlers
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 4, 2011
  */
-public class SAMLConfigParser extends AbstractParser
-{
-   public static final String BINDING_TYPE = "BindingType";
-   
-   public static final String ERROR_PAGE = "ErrorPage";
-   
-   public static final String IDP = "PicketLinkIDP";
+public class SAMLConfigParser extends AbstractParser {
+    public static final String BINDING_TYPE = "BindingType";
 
-   public static final String SP = "PicketLinkSP";
+    public static final String ERROR_PAGE = "ErrorPage";
 
-   public static final String IDENTITY_URL = "IdentityURL";
+    public static final String IDP = "PicketLinkIDP";
 
-   public static final String SERVICE_URL = "ServiceURL";
+    public static final String SP = "PicketLinkSP";
 
-   public static final String IDP_METADATA_FILE = "IDPMetadataFile";
+    public static final String IDENTITY_URL = "IdentityURL";
 
-   public static final String IDP_USES_POST_BINDING = "IDPUsesPostBinding";
+    public static final String SERVICE_URL = "ServiceURL";
 
-   public static final String TRUST = "Trust";
+    public static final String IDP_METADATA_FILE = "IDPMetadataFile";
 
-   public static final String DOMAINS = "Domains";
+    public static final String IDP_USES_POST_BINDING = "IDPUsesPostBinding";
 
-   public static final String KEY_PROVIDER = "KeyProvider";
+    public static final String TRUST = "Trust";
 
-   public static final String META_PROVIDER = "MetaDataProvider";
+    public static final String DOMAINS = "Domains";
 
-   public static final String CLASS_NAME = "ClassName";
+    public static final String KEY_PROVIDER = "KeyProvider";
 
-   public static final String CLASS = "class";
+    public static final String META_PROVIDER = "MetaDataProvider";
 
-   public static final String AUTH = "Auth";
+    public static final String CLASS_NAME = "ClassName";
 
-   public static final String KEY = "Key";
+    public static final String CLASS = "class";
 
-   public static final String VALUE = "Value";
+    public static final String AUTH = "Auth";
 
-   public static final String VALIDATING_ALIAS = "ValidatingAlias";
+    public static final String KEY = "Key";
 
-   public static final String ASSERTION_VALIDITY = "AssertionValidity";
+    public static final String VALUE = "Value";
 
-   public static final String ROLE_GENERATOR = "RoleGenerator";
+    public static final String VALIDATING_ALIAS = "ValidatingAlias";
 
-   public static final String ENCRYPT = "Encrypt";
+    public static final String ASSERTION_VALIDITY = "AssertionValidity";
 
-   public static final String ATTRIBUTE_MANAGER = "AttributeManager";
+    public static final String ROLE_GENERATOR = "RoleGenerator";
 
-   public static final String CANONICALIZATION_METHOD = "CanonicalizationMethod";
+    public static final String ENCRYPT = "Encrypt";
 
-   public static final String HANDLERS = "Handlers";
+    public static final String ATTRIBUTE_MANAGER = "AttributeManager";
 
-   public static final String HANDLER = "Handler";
+    public static final String CANONICALIZATION_METHOD = "CanonicalizationMethod";
 
-   public static final String OPTION = "Option";
+    public static final String HANDLERS = "Handlers";
 
-   public static final String RELAY_STATE = "RelayState";
-   
-   public static final String SERVER_ENVIRONMENT = "ServerEnvironment";
+    public static final String HANDLER = "Handler";
 
-   public static final String SUPPORTS_SIGNATURES = "SupportsSignatures";
+    public static final String OPTION = "Option";
 
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+    public static final String RELAY_STATE = "RelayState";
 
-      if (StaxParserUtil.getStartElementName(startElement).equals(IDP))
-         return parseIDPConfiguration(xmlEventReader);
-      if (StaxParserUtil.getStartElementName(startElement).equals(SP))
-         return parseSPConfiguration(xmlEventReader);
+    public static final String SERVER_ENVIRONMENT = "ServerEnvironment";
 
-      return parseHandlers(xmlEventReader);
-   }
+    public static final String SUPPORTS_SIGNATURES = "SupportsSignatures";
 
-   public boolean supports(QName qname)
-   {
-      return false;
-   }
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
 
-   protected Handlers parseHandlers(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      Handlers handlers = new Handlers();
+        if (StaxParserUtil.getStartElementName(startElement).equals(IDP))
+            return parseIDPConfiguration(xmlEventReader);
+        if (StaxParserUtil.getStartElementName(startElement).equals(SP))
+            return parseSPConfiguration(xmlEventReader);
 
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, HANDLERS);
+        return parseHandlers(xmlEventReader);
+    }
 
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
-            String endElementName = StaxParserUtil.getEndElementName(endElement);
-            if (endElementName.equals(HANDLERS))
-               break;
-            else
-               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
-         }
+    public boolean supports(QName qname) {
+        return false;
+    }
 
-         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-         if (startElement == null)
-            break;
-         String elementName = StaxParserUtil.getStartElementName(startElement);
-         if (elementName.equals(HANDLER))
-         {
-            Handler handler = parseHandler(xmlEventReader, startElement);
-            handlers.add(handler);
-         }
-      }
+    protected Handlers parseHandlers(XMLEventReader xmlEventReader) throws ParsingException {
+        Handlers handlers = new Handlers();
 
-      return handlers;
-   }
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, HANDLERS);
 
-   protected IDPType parseIDPConfiguration(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      IDPType idp = new IDPType();
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, IDP);
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+                String endElementName = StaxParserUtil.getEndElementName(endElement);
+                if (endElementName.equals(HANDLERS))
+                    break;
+                else
+                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+            }
 
-      // parse and set the root element attributes.
-      QName attributeQName = new QName("", ASSERTION_VALIDITY);
-      Attribute attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         idp.setAssertionValidity(Long.parseLong(StaxParserUtil.getAttributeValue(attribute)));
-
-      attributeQName = new QName("", ROLE_GENERATOR);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         idp.setRoleGenerator(StaxParserUtil.getAttributeValue(attribute));
-
-      attributeQName = new QName("", ENCRYPT);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         idp.setEncrypt(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
-
-      attributeQName = new QName("", CANONICALIZATION_METHOD);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         idp.setCanonicalizationMethod(StaxParserUtil.getAttributeValue(attribute));
-
-      attributeQName = new QName("", ATTRIBUTE_MANAGER);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         idp.setAttributeManager(StaxParserUtil.getAttributeValue(attribute));
-
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
-            String endElementName = StaxParserUtil.getEndElementName(endElement);
-            if (endElementName.equals(IDP))
-               break;
-            else
-               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
-         }
-
-         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-         if (startElement == null)
-            break;
-         String elementName = StaxParserUtil.getStartElementName(startElement);
-         if (elementName.equals(IDENTITY_URL))
-         {
-            idp.setIdentityURL(StaxParserUtil.getElementText(xmlEventReader));
-         }
-         else if (elementName.equals(TRUST))
-         {
-            TrustType trustType = new TrustType();
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            StaxParserUtil.validate(startElement, DOMAINS);
-            trustType.setDomains(StaxParserUtil.getElementText(xmlEventReader));
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate(endElement, TRUST);
-            idp.setTrust(trustType);
-         }
-         else if (elementName.equals(KEY_PROVIDER))
-         {
-            KeyProviderType keyProviderType = this.parseKeyProvider(xmlEventReader, startElement);
-            idp.setKeyProvider(keyProviderType);
-         }
-         else if (elementName.equals(META_PROVIDER))
-         {
-            MetadataProviderType mdProviderType = parseMDProvider(xmlEventReader, startElement);
-            idp.setMetaDataProvider(mdProviderType);
-         }
-      }
-      return idp;
-   }
+            if (startElement == null)
+                break;
+            String elementName = StaxParserUtil.getStartElementName(startElement);
+            if (elementName.equals(HANDLER)) {
+                Handler handler = parseHandler(xmlEventReader, startElement);
+                handlers.add(handler);
+            }
+        }
 
-   protected SPType parseSPConfiguration(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      SPType sp = new SPType();
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, SP);
+        return handlers;
+    }
 
-      QName attributeQName = new QName("", CANONICALIZATION_METHOD);
-      Attribute attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         sp.setCanonicalizationMethod(StaxParserUtil.getAttributeValue(attribute));
-      
-      attributeQName = new QName("", SERVER_ENVIRONMENT);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null){
-          sp.setServerEnvironment(StaxParserUtil.getAttributeValue(attribute));   
-      }
-      
-      attributeQName = new QName("", BINDING_TYPE);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null){
-          sp.setBindingType(StaxParserUtil.getAttributeValue(attribute));   
-      }
-      
-      attributeQName = new QName("", RELAY_STATE);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null){
-          sp.setRelayState(StaxParserUtil.getAttributeValue(attribute));   
-      }
-      
-      attributeQName = new QName("", ERROR_PAGE);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null){
-          sp.setErrorPage(StaxParserUtil.getAttributeValue(attribute));   
-      }
-      
-      attributeQName = new QName("", IDP_USES_POST_BINDING);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null){
-          sp.setIdpUsesPostBinding(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));   
-      }
-      
-      attributeQName = new QName("", SUPPORTS_SIGNATURES);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null){
-          sp.setSupportsSignature(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));   
-      }
+    protected IDPType parseIDPConfiguration(XMLEventReader xmlEventReader) throws ParsingException {
+        IDPType idp = new IDPType();
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, IDP);
 
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
-            String endElementName = StaxParserUtil.getEndElementName(endElement);
-            if (endElementName.equals(SP))
-               break;
-            else
-               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
-         }
+        // parse and set the root element attributes.
+        QName attributeQName = new QName("", ASSERTION_VALIDITY);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            idp.setAssertionValidity(Long.parseLong(StaxParserUtil.getAttributeValue(attribute)));
 
-         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-         if (startElement == null)
-            break;
-         String elementName = StaxParserUtil.getStartElementName(startElement);
-         if (elementName.equals(IDENTITY_URL))
-         {
-            sp.setIdentityURL(StaxParserUtil.getElementText(xmlEventReader));
-         }
-         else if (elementName.equals(SERVICE_URL))
-         {
-            sp.setServiceURL(StaxParserUtil.getElementText(xmlEventReader));
-         }
-         else if (elementName.equals(IDP_METADATA_FILE))
-         {
-            sp.setIdpMetadataFile(StaxParserUtil.getElementText(xmlEventReader));
-         }
-         else if (elementName.equals(TRUST))
-         {
-            TrustType trustType = new TrustType();
+        attributeQName = new QName("", ROLE_GENERATOR);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            idp.setRoleGenerator(StaxParserUtil.getAttributeValue(attribute));
+
+        attributeQName = new QName("", ENCRYPT);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            idp.setEncrypt(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+
+        attributeQName = new QName("", CANONICALIZATION_METHOD);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            idp.setCanonicalizationMethod(StaxParserUtil.getAttributeValue(attribute));
+
+        attributeQName = new QName("", ATTRIBUTE_MANAGER);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            idp.setAttributeManager(StaxParserUtil.getAttributeValue(attribute));
+
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+                String endElementName = StaxParserUtil.getEndElementName(endElement);
+                if (endElementName.equals(IDP))
+                    break;
+                else
+                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+            }
+
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            StaxParserUtil.validate(startElement, DOMAINS);
-            trustType.setDomains(StaxParserUtil.getElementText(xmlEventReader));
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate(endElement, TRUST);
-            sp.setTrust(trustType);
-         }
-         else if (elementName.equals(KEY_PROVIDER))
-         {
-            KeyProviderType keyProviderType = parseKeyProvider(xmlEventReader, startElement);
-            sp.setKeyProvider(keyProviderType);
-         }
-         else if (elementName.equals(META_PROVIDER))
-         {
-            MetadataProviderType mdProviderType = parseMDProvider(xmlEventReader, startElement);
-            sp.setMetaDataProvider(mdProviderType);
-         }
-      }
-      return sp;
-   }
+            if (startElement == null)
+                break;
+            String elementName = StaxParserUtil.getStartElementName(startElement);
+            if (elementName.equals(IDENTITY_URL)) {
+                idp.setIdentityURL(StaxParserUtil.getElementText(xmlEventReader));
+            } else if (elementName.equals(TRUST)) {
+                TrustType trustType = new TrustType();
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                StaxParserUtil.validate(startElement, DOMAINS);
+                trustType.setDomains(StaxParserUtil.getElementText(xmlEventReader));
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(endElement, TRUST);
+                idp.setTrust(trustType);
+            } else if (elementName.equals(KEY_PROVIDER)) {
+                KeyProviderType keyProviderType = this.parseKeyProvider(xmlEventReader, startElement);
+                idp.setKeyProvider(keyProviderType);
+            } else if (elementName.equals(META_PROVIDER)) {
+                MetadataProviderType mdProviderType = parseMDProvider(xmlEventReader, startElement);
+                idp.setMetaDataProvider(mdProviderType);
+            }
+        }
+        return idp;
+    }
 
-   protected KeyProviderType parseKeyProvider(XMLEventReader xmlEventReader, StartElement startElement)
-         throws ParsingException
-   {
-      XMLEvent xmlEvent = null;
-      KeyProviderType keyProviderType = new KeyProviderType();
+    protected SPType parseSPConfiguration(XMLEventReader xmlEventReader) throws ParsingException {
+        SPType sp = new SPType();
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, SP);
 
-      // parse and set the ClassName element attributes.
-      QName attributeQName = new QName("", CLASS_NAME);
-      Attribute attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         keyProviderType.setClassName(StaxParserUtil.getAttributeValue(attribute));
+        QName attributeQName = new QName("", CANONICALIZATION_METHOD);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            sp.setCanonicalizationMethod(StaxParserUtil.getAttributeValue(attribute));
 
-      while (xmlEventReader.hasNext())
-      {
-         xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            String endElementName = StaxParserUtil.getEndElementName(endElement);
-            if (endElementName.equals(KEY_PROVIDER))
-               break;
-            else
-               continue;
-         }
-         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-         String startElementName = StaxParserUtil.getStartElementName(startElement);
-         if (startElementName.equals(AUTH))
-         {
-            AuthPropertyType auth = new AuthPropertyType();
-            populateKeyValueType(auth, startElement);
+        attributeQName = new QName("", SERVER_ENVIRONMENT);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setServerEnvironment(StaxParserUtil.getAttributeValue(attribute));
+        }
 
-            keyProviderType.add(auth);
-         }
-         else if (startElementName.equals(VALIDATING_ALIAS))
-         {
-            KeyValueType auth = new KeyValueType();
-            populateKeyValueType(auth, startElement);
+        attributeQName = new QName("", BINDING_TYPE);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setBindingType(StaxParserUtil.getAttributeValue(attribute));
+        }
 
-            keyProviderType.add(auth);
-         }
-      }
-      return keyProviderType;
-   }
+        attributeQName = new QName("", RELAY_STATE);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setRelayState(StaxParserUtil.getAttributeValue(attribute));
+        }
 
-   protected Handler parseHandler(XMLEventReader xmlEventReader, StartElement startElement) throws ParsingException
-   {
-      XMLEvent xmlEvent = null;
-      Handler handlerType = new Handler();
+        attributeQName = new QName("", ERROR_PAGE);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setErrorPage(StaxParserUtil.getAttributeValue(attribute));
+        }
 
-      // parse and set the ClassName element attributes.
-      QName attributeQName = new QName("", CLASS);
-      Attribute attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         handlerType.setClazz(StaxParserUtil.getAttributeValue(attribute));
+        attributeQName = new QName("", IDP_USES_POST_BINDING);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setIdpUsesPostBinding(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        }
 
-      while (xmlEventReader.hasNext())
-      {
-         xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            String endElementName = StaxParserUtil.getEndElementName(endElement);
-            if (endElementName.equals(HANDLER))
-               break;
-            else
-               continue;
-         }
-         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-         String startElementName = StaxParserUtil.getStartElementName(startElement);
+        attributeQName = new QName("", SUPPORTS_SIGNATURES);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setSupportsSignature(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        }
 
-         if (startElementName.equals(OPTION))
-         {
-            KeyValueType auth = new KeyValueType();
-            populateKeyValueType(auth, startElement);
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+                String endElementName = StaxParserUtil.getEndElementName(endElement);
+                if (endElementName.equals(SP))
+                    break;
+                else
+                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+            }
 
-            handlerType.add(auth);
-         }
-      }
-      return handlerType;
-   }
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            if (startElement == null)
+                break;
+            String elementName = StaxParserUtil.getStartElementName(startElement);
+            if (elementName.equals(IDENTITY_URL)) {
+                sp.setIdentityURL(StaxParserUtil.getElementText(xmlEventReader));
+            } else if (elementName.equals(SERVICE_URL)) {
+                sp.setServiceURL(StaxParserUtil.getElementText(xmlEventReader));
+            } else if (elementName.equals(IDP_METADATA_FILE)) {
+                sp.setIdpMetadataFile(StaxParserUtil.getElementText(xmlEventReader));
+            } else if (elementName.equals(TRUST)) {
+                TrustType trustType = new TrustType();
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                StaxParserUtil.validate(startElement, DOMAINS);
+                trustType.setDomains(StaxParserUtil.getElementText(xmlEventReader));
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(endElement, TRUST);
+                sp.setTrust(trustType);
+            } else if (elementName.equals(KEY_PROVIDER)) {
+                KeyProviderType keyProviderType = parseKeyProvider(xmlEventReader, startElement);
+                sp.setKeyProvider(keyProviderType);
+            } else if (elementName.equals(META_PROVIDER)) {
+                MetadataProviderType mdProviderType = parseMDProvider(xmlEventReader, startElement);
+                sp.setMetaDataProvider(mdProviderType);
+            }
+        }
+        return sp;
+    }
 
-   protected MetadataProviderType parseMDProvider(XMLEventReader xmlEventReader, StartElement startElement)
-         throws ParsingException
-   {
-      XMLEvent xmlEvent = null;
-      MetadataProviderType metaProviderType = new MetadataProviderType();
+    protected KeyProviderType parseKeyProvider(XMLEventReader xmlEventReader, StartElement startElement)
+            throws ParsingException {
+        XMLEvent xmlEvent = null;
+        KeyProviderType keyProviderType = new KeyProviderType();
 
-      // parse and set the ClassName element attributes.
-      QName attributeQName = new QName("", CLASS_NAME);
-      Attribute attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         metaProviderType.setClassName(StaxParserUtil.getAttributeValue(attribute));
+        // parse and set the ClassName element attributes.
+        QName attributeQName = new QName("", CLASS_NAME);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            keyProviderType.setClassName(StaxParserUtil.getAttributeValue(attribute));
 
-      while (xmlEventReader.hasNext())
-      {
-         xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            String endElementName = StaxParserUtil.getEndElementName(endElement);
-            if (endElementName.equals(META_PROVIDER))
-               break;
-            else
-               continue;
-         }
-         startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-         String startElementName = StaxParserUtil.getStartElementName(startElement);
-         if (startElementName.equals(OPTION))
-         {
-            KeyValueType auth = new KeyValueType();
-            populateKeyValueType(auth, startElement);
+        while (xmlEventReader.hasNext()) {
+            xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                String endElementName = StaxParserUtil.getEndElementName(endElement);
+                if (endElementName.equals(KEY_PROVIDER))
+                    break;
+                else
+                    continue;
+            }
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            String startElementName = StaxParserUtil.getStartElementName(startElement);
+            if (startElementName.equals(AUTH)) {
+                AuthPropertyType auth = new AuthPropertyType();
+                populateKeyValueType(auth, startElement);
 
-            metaProviderType.add(auth);
-         }
-      }
-      return metaProviderType;
-   }
+                keyProviderType.add(auth);
+            } else if (startElementName.equals(VALIDATING_ALIAS)) {
+                KeyValueType auth = new KeyValueType();
+                populateKeyValueType(auth, startElement);
 
-   protected void populateKeyValueType(KeyValueType kvt, StartElement startElement)
-   {
-      QName attributeQName = new QName("", KEY);
-      Attribute attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         kvt.setKey(StaxParserUtil.getAttributeValue(attribute));
+                keyProviderType.add(auth);
+            }
+        }
+        return keyProviderType;
+    }
 
-      attributeQName = new QName("", OPTION);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         kvt.setKey(StaxParserUtil.getAttributeValue(attribute));
+    protected Handler parseHandler(XMLEventReader xmlEventReader, StartElement startElement) throws ParsingException {
+        XMLEvent xmlEvent = null;
+        Handler handlerType = new Handler();
 
-      attributeQName = new QName("", VALUE);
-      attribute = startElement.getAttributeByName(attributeQName);
-      if (attribute != null)
-         kvt.setValue(StaxParserUtil.getAttributeValue(attribute));
-   }
+        // parse and set the ClassName element attributes.
+        QName attributeQName = new QName("", CLASS);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            handlerType.setClazz(StaxParserUtil.getAttributeValue(attribute));
+
+        while (xmlEventReader.hasNext()) {
+            xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                String endElementName = StaxParserUtil.getEndElementName(endElement);
+                if (endElementName.equals(HANDLER))
+                    break;
+                else
+                    continue;
+            }
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            String startElementName = StaxParserUtil.getStartElementName(startElement);
+
+            if (startElementName.equals(OPTION)) {
+                KeyValueType auth = new KeyValueType();
+                populateKeyValueType(auth, startElement);
+
+                handlerType.add(auth);
+            }
+        }
+        return handlerType;
+    }
+
+    protected MetadataProviderType parseMDProvider(XMLEventReader xmlEventReader, StartElement startElement)
+            throws ParsingException {
+        XMLEvent xmlEvent = null;
+        MetadataProviderType metaProviderType = new MetadataProviderType();
+
+        // parse and set the ClassName element attributes.
+        QName attributeQName = new QName("", CLASS_NAME);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            metaProviderType.setClassName(StaxParserUtil.getAttributeValue(attribute));
+
+        while (xmlEventReader.hasNext()) {
+            xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                String endElementName = StaxParserUtil.getEndElementName(endElement);
+                if (endElementName.equals(META_PROVIDER))
+                    break;
+                else
+                    continue;
+            }
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            String startElementName = StaxParserUtil.getStartElementName(startElement);
+            if (startElementName.equals(OPTION)) {
+                KeyValueType auth = new KeyValueType();
+                populateKeyValueType(auth, startElement);
+
+                metaProviderType.add(auth);
+            }
+        }
+        return metaProviderType;
+    }
+
+    protected void populateKeyValueType(KeyValueType kvt, StartElement startElement) {
+        QName attributeQName = new QName("", KEY);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            kvt.setKey(StaxParserUtil.getAttributeValue(attribute));
+
+        attributeQName = new QName("", OPTION);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            kvt.setKey(StaxParserUtil.getAttributeValue(attribute));
+
+        attributeQName = new QName("", VALUE);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            kvt.setValue(StaxParserUtil.getAttributeValue(attribute));
+    }
 }

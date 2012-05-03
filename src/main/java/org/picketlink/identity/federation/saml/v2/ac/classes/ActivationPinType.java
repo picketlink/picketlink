@@ -1,13 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
-
-
-
 /**
- * <p>Java class for ActivationPinType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ActivationPinType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ActivationPinType">
  *   &lt;complexContent>
@@ -23,23 +22,21 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class ActivationPinType extends ExtensionListType {
- 
-    protected LengthType length; 
-    protected AlphabetType alphabet; 
-    protected Generation generation; 
-    protected ActivationLimitType activationLimit;  
+
+    protected LengthType length;
+    protected AlphabetType alphabet;
+    protected Generation generation;
+    protected ActivationLimitType activationLimit;
 
     /**
      * Gets the value of the length property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link LengthType }
-     *     
+     *
+     * @return possible object is {@link LengthType }
+     *
      */
     public LengthType getLength() {
         return length;
@@ -47,11 +44,9 @@ public class ActivationPinType extends ExtensionListType {
 
     /**
      * Sets the value of the length property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link LengthType }
-     *     
+     *
+     * @param value allowed object is {@link LengthType }
+     *
      */
     public void setLength(LengthType value) {
         this.length = value;
@@ -59,11 +54,9 @@ public class ActivationPinType extends ExtensionListType {
 
     /**
      * Gets the value of the alphabet property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link AlphabetType }
-     *     
+     *
+     * @return possible object is {@link AlphabetType }
+     *
      */
     public AlphabetType getAlphabet() {
         return alphabet;
@@ -71,11 +64,9 @@ public class ActivationPinType extends ExtensionListType {
 
     /**
      * Sets the value of the alphabet property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link AlphabetType }
-     *     
+     *
+     * @param value allowed object is {@link AlphabetType }
+     *
      */
     public void setAlphabet(AlphabetType value) {
         this.alphabet = value;
@@ -83,11 +74,9 @@ public class ActivationPinType extends ExtensionListType {
 
     /**
      * Gets the value of the generation property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Generation }
-     *     
+     *
+     * @return possible object is {@link Generation }
+     *
      */
     public Generation getGeneration() {
         return generation;
@@ -95,11 +84,9 @@ public class ActivationPinType extends ExtensionListType {
 
     /**
      * Sets the value of the generation property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Generation }
-     *     
+     *
+     * @param value allowed object is {@link Generation }
+     *
      */
     public void setGeneration(Generation value) {
         this.generation = value;
@@ -107,11 +94,9 @@ public class ActivationPinType extends ExtensionListType {
 
     /**
      * Gets the value of the activationLimit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ActivationLimitType }
-     *     
+     *
+     * @return possible object is {@link ActivationLimitType }
+     *
      */
     public ActivationLimitType getActivationLimit() {
         return activationLimit;
@@ -119,11 +104,9 @@ public class ActivationPinType extends ExtensionListType {
 
     /**
      * Sets the value of the activationLimit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ActivationLimitType }
-     *     
+     *
+     * @param value allowed object is {@link ActivationLimitType }
+     *
      */
     public void setActivationLimit(ActivationLimitType value) {
         this.activationLimit = value;

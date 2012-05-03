@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,10 +26,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <p>Java class for SignedInfoType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for SignedInfoType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="SignedInfoType">
  *   &lt;complexContent>
@@ -44,11 +46,10 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class SignedInfoType 
-{
+ *
+ *
+ */
+public class SignedInfoType {
     protected CanonicalizationMethodType canonicalizationMethod;
     protected SignatureMethodType signatureMethod;
     protected List<ReferenceType> reference = new ArrayList<ReferenceType>();
@@ -56,11 +57,9 @@ public class SignedInfoType
 
     /**
      * Gets the value of the canonicalizationMethod property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link CanonicalizationMethodType }
-     *     
+     *
+     * @return possible object is {@link CanonicalizationMethodType }
+     *
      */
     public CanonicalizationMethodType getCanonicalizationMethod() {
         return canonicalizationMethod;
@@ -68,11 +67,9 @@ public class SignedInfoType
 
     /**
      * Sets the value of the canonicalizationMethod property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link CanonicalizationMethodType }
-     *     
+     *
+     * @param value allowed object is {@link CanonicalizationMethodType }
+     *
      */
     public void setCanonicalizationMethod(CanonicalizationMethodType value) {
         this.canonicalizationMethod = value;
@@ -80,11 +77,9 @@ public class SignedInfoType
 
     /**
      * Gets the value of the signatureMethod property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SignatureMethodType }
-     *     
+     *
+     * @return possible object is {@link SignatureMethodType }
+     *
      */
     public SignatureMethodType getSignatureMethod() {
         return signatureMethod;
@@ -92,46 +87,39 @@ public class SignedInfoType
 
     /**
      * Sets the value of the signatureMethod property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SignatureMethodType }
-     *     
+     *
+     * @param value allowed object is {@link SignatureMethodType }
+     *
      */
     public void setSignatureMethod(SignatureMethodType value) {
         this.signatureMethod = value;
     }
 
-    public void add( ReferenceType ref )
-    {
-       this.reference.add( ref );
+    public void add(ReferenceType ref) {
+        this.reference.add(ref);
     }
-    
-    public void remove( ReferenceType ref )
-    {
-       this.reference.remove( ref );
+
+    public void remove(ReferenceType ref) {
+        this.reference.remove(ref);
     }
-    
+
     /**
-     * Gets the value of the reference property. 
-     * 
+     * Gets the value of the reference property.
+     *
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link ReferenceType }
-     * 
-     * 
+     * Objects of the following type(s) are allowed in the list {@link ReferenceType }
+     *
+     *
      */
-    public List<ReferenceType> getReference() { 
-        return Collections.unmodifiableList( this.reference );
+    public List<ReferenceType> getReference() {
+        return Collections.unmodifiableList(this.reference);
     }
 
     /**
      * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getId() {
         return id;
@@ -139,11 +127,9 @@ public class SignedInfoType
 
     /**
      * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setId(String value) {
         this.id = value;

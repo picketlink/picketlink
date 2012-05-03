@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -38,83 +38,70 @@ import org.w3c.dom.Document;
 
 /**
  * Validates Signatures inside the SAML payload
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 13, 2009
  */
-public class SAML2SignatureValidationHandler extends BaseSAML2Handler
-{
-   private static Logger log = Logger.getLogger(SAML2SignatureValidationHandler.class);
+public class SAML2SignatureValidationHandler extends BaseSAML2Handler {
+    private static Logger log = Logger.getLogger(SAML2SignatureValidationHandler.class);
 
-   private final boolean trace = log.isTraceEnabled();
+    private final boolean trace = log.isTraceEnabled();
 
-   /**
-    * @see {@code SAML2Handler#handleRequestType(SAML2HandlerRequest, SAML2HandlerResponse)}
-    */
-   public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
-   {
-      Map<String, Object> requestOptions = request.getOptions();
-      Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
-      if (ignoreSignatures == Boolean.TRUE)
-         return;
+    /**
+     * @see {@code SAML2Handler#handleRequestType(SAML2HandlerRequest, SAML2HandlerResponse)}
+     */
+    public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
+        Map<String, Object> requestOptions = request.getOptions();
+        Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
+        if (ignoreSignatures == Boolean.TRUE)
+            return;
 
-      Document signedDocument = request.getRequestDocument();
+        Document signedDocument = request.getRequestDocument();
 
-      if (trace)
-      {
-         log.trace("Will validate :" + DocumentUtil.asString(signedDocument));
-      }
-      PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
-      try
-      {
-         boolean isValid = this.validateSender(signedDocument, publicKey);
-         if (!isValid)
+        if (trace) {
+            log.trace("Will validate :" + DocumentUtil.asString(signedDocument));
+        }
+        PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
+        try {
+            boolean isValid = this.validateSender(signedDocument, publicKey);
+            if (!isValid)
+                throw constructSignatureException();
+        } catch (ProcessingException pe) {
+            response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, "Signature Validation Failed");
+            throw pe;
+        }
+    }
+
+    @Override
+    public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
+        Map<String, Object> requestOptions = request.getOptions();
+        Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
+        if (ignoreSignatures == Boolean.TRUE)
+            return;
+
+        Document signedDocument = request.getRequestDocument();
+        if (trace) {
+            log.trace("Document for validation=" + DocumentUtil.asString(signedDocument));
+        }
+
+        PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
+        boolean isValid = this.validateSender(signedDocument, publicKey);
+        if (!isValid)
             throw constructSignatureException();
-      }
-      catch (ProcessingException pe)
-      {
-         response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, "Signature Validation Failed");
-         throw pe;
-      }
-   }
+    }
 
-   @Override
-   public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
-         throws ProcessingException
-   {
-      Map<String, Object> requestOptions = request.getOptions();
-      Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
-      if (ignoreSignatures == Boolean.TRUE)
-         return;
+    private boolean validateSender(Document signedDocument, PublicKey publicKey) throws ProcessingException {
+        try {
+            return XMLSignatureUtil.validate(signedDocument, publicKey);
+        } catch (Exception e) {
+            log.error("Error validating signature:", e);
+            throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Error validating signature.");
+        }
+    }
 
-      Document signedDocument = request.getRequestDocument();
-      if (trace)
-      {
-         log.trace("Document for validation=" + DocumentUtil.asString(signedDocument));
-      }
-
-      PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
-      boolean isValid = this.validateSender(signedDocument, publicKey);
-      if (!isValid)
-         throw constructSignatureException();
-   }
-
-   private boolean validateSender(Document signedDocument, PublicKey publicKey) throws ProcessingException
-   {
-      try
-      {
-         return XMLSignatureUtil.validate(signedDocument, publicKey);
-      }
-      catch (Exception e)
-      {
-         log.error("Error validating signature:", e);
-         throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Error validating signature.");
-      }
-   }
-
-   private ProcessingException constructSignatureException()
-   {
-      SignatureValidationException sv = new SignatureValidationException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
-            + "Signature Validation Failed");
-      return new ProcessingException(sv);
-   }
+    private ProcessingException constructSignatureException() {
+        SignatureValidationException sv = new SignatureValidationException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
+                + "Signature Validation Failed");
+        return new ProcessingException(sv);
+    }
 }

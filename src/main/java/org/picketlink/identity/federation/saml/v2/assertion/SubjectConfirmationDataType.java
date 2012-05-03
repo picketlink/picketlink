@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -30,10 +30,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 /**
- * <p>Java class for SubjectConfirmationDataType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for SubjectConfirmationDataType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="SubjectConfirmationDataType">
  *   &lt;complexContent>
@@ -50,198 +52,162 @@ import javax.xml.namespace.QName;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class SubjectConfirmationDataType implements Serializable
-{
-   private static final long serialVersionUID = 7695748370849965158L;
+public class SubjectConfirmationDataType implements Serializable {
+    private static final long serialVersionUID = 7695748370849965158L;
 
-   protected XMLGregorianCalendar notBefore;
+    protected XMLGregorianCalendar notBefore;
 
-   protected XMLGregorianCalendar notOnOrAfter;
+    protected XMLGregorianCalendar notOnOrAfter;
 
-   protected String recipient;
+    protected String recipient;
 
-   protected String inResponseTo;
+    protected String inResponseTo;
 
-   protected String address;
+    protected String address;
 
-   private final Map<QName, String> otherAttributes = new HashMap<QName, String>();
+    private final Map<QName, String> otherAttributes = new HashMap<QName, String>();
 
-   private Object anyType;
+    private Object anyType;
 
-   public Object getAnyType()
-   {
-      return anyType;
-   }
+    public Object getAnyType() {
+        return anyType;
+    }
 
-   public void setAnyType(Object anyType)
-   {
-      this.anyType = anyType;
-   }
+    public void setAnyType(Object anyType) {
+        this.anyType = anyType;
+    }
 
-   /**
-    * Gets the value of the notBefore property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getNotBefore()
-   {
-      return notBefore;
-   }
+    /**
+     * Gets the value of the notBefore property.
+     *
+     * @return possible object is {@link XMLGregorianCalendar }
+     *
+     */
+    public XMLGregorianCalendar getNotBefore() {
+        return notBefore;
+    }
 
-   /**
-    * Sets the value of the notBefore property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public void setNotBefore(XMLGregorianCalendar value)
-   {
-      this.notBefore = value;
-   }
+    /**
+     * Sets the value of the notBefore property.
+     *
+     * @param value allowed object is {@link XMLGregorianCalendar }
+     *
+     */
+    public void setNotBefore(XMLGregorianCalendar value) {
+        this.notBefore = value;
+    }
 
-   /**
-    * Gets the value of the notOnOrAfter property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getNotOnOrAfter()
-   {
-      return notOnOrAfter;
-   }
+    /**
+     * Gets the value of the notOnOrAfter property.
+     *
+     * @return possible object is {@link XMLGregorianCalendar }
+     *
+     */
+    public XMLGregorianCalendar getNotOnOrAfter() {
+        return notOnOrAfter;
+    }
 
-   /**
-    * Sets the value of the notOnOrAfter property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public void setNotOnOrAfter(XMLGregorianCalendar value)
-   {
-      this.notOnOrAfter = value;
-   }
+    /**
+     * Sets the value of the notOnOrAfter property.
+     *
+     * @param value allowed object is {@link XMLGregorianCalendar }
+     *
+     */
+    public void setNotOnOrAfter(XMLGregorianCalendar value) {
+        this.notOnOrAfter = value;
+    }
 
-   /**
-    * Gets the value of the recipient property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getRecipient()
-   {
-      return recipient;
-   }
+    /**
+     * Gets the value of the recipient property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getRecipient() {
+        return recipient;
+    }
 
-   /**
-    * Sets the value of the recipient property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setRecipient(String value)
-   {
-      this.recipient = value;
-   }
+    /**
+     * Sets the value of the recipient property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setRecipient(String value) {
+        this.recipient = value;
+    }
 
-   /**
-    * Gets the value of the inResponseTo property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getInResponseTo()
-   {
-      return inResponseTo;
-   }
+    /**
+     * Gets the value of the inResponseTo property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getInResponseTo() {
+        return inResponseTo;
+    }
 
-   /**
-    * Sets the value of the inResponseTo property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setInResponseTo(String value)
-   {
-      this.inResponseTo = value;
-   }
+    /**
+     * Sets the value of the inResponseTo property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setInResponseTo(String value) {
+        this.inResponseTo = value;
+    }
 
-   /**
-    * Gets the value of the address property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getAddress()
-   {
-      return address;
-   }
+    /**
+     * Gets the value of the address property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getAddress() {
+        return address;
+    }
 
-   /**
-    * Sets the value of the address property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setAddress(String value)
-   {
-      this.address = value;
-   }
+    /**
+     * Sets the value of the address property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setAddress(String value) {
+        this.address = value;
+    }
 
-   /**
-    * Gets a map that contains attributes that aren't bound to any typed property on this class.
-    * 
-    * <p>
-    * the map is keyed by the name of the attribute and 
-    * the value is the string value of the attribute.
-    * 
-    * @return
-    *     always non-null
-    */
-   public Map<QName, String> getOtherAttributes()
-   {
-      return Collections.unmodifiableMap(otherAttributes);
-   }
+    /**
+     * Gets a map that contains attributes that aren't bound to any typed property on this class.
+     *
+     * <p>
+     * the map is keyed by the name of the attribute and the value is the string value of the attribute.
+     *
+     * @return always non-null
+     */
+    public Map<QName, String> getOtherAttributes() {
+        return Collections.unmodifiableMap(otherAttributes);
+    }
 
-   /**
-    * Add an other attribute
-    * @param qname
-    * @param str
-    */
-   public void addOtherAttribute(QName qname, String str)
-   {
-      otherAttributes.put(qname, str);
-   }
+    /**
+     * Add an other attribute
+     *
+     * @param qname
+     * @param str
+     */
+    public void addOtherAttribute(QName qname, String str) {
+        otherAttributes.put(qname, str);
+    }
 
-   /**
-    * Remove an other attribute
-    * @param qname {@link QName} of the attribute to be removed
-    */
-   public void removeOtherAttribute(QName qname)
-   {
-      otherAttributes.remove(qname);
-   }
+    /**
+     * Remove an other attribute
+     *
+     * @param qname {@link QName} of the attribute to be removed
+     */
+    public void removeOtherAttribute(QName qname) {
+        otherAttributes.remove(qname);
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,14 +26,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 
- * 				The service providers specify the token type expected by each service provider.
- * 			
- * 
- * <p>Java class for ServiceProvidersType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
+ * The service providers specify the token type expected by each service provider.
+ *
+ *
+ * <p>
+ * Java class for ServiceProvidersType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ServiceProvidersType">
  *   &lt;complexContent>
@@ -45,36 +47,31 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class ServiceProvidersType
-{
+public class ServiceProvidersType {
 
-   protected List<ServiceProviderType> serviceProvider = new ArrayList<ServiceProviderType>();
+    protected List<ServiceProviderType> serviceProvider = new ArrayList<ServiceProviderType>();
 
-   public void add(ServiceProviderType sp)
-   {
-      this.serviceProvider.add(sp);
-   }
+    public void add(ServiceProviderType sp) {
+        this.serviceProvider.add(sp);
+    }
 
-   public void remove(ServiceProviderType sp)
-   {
-      this.serviceProvider.remove(sp);
-   }
+    public void remove(ServiceProviderType sp) {
+        this.serviceProvider.remove(sp);
+    }
 
-   /**
-    * Gets the value of the serviceProvider property.
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ServiceProviderType }
-    * 
-    * 
-    */
-   public List<ServiceProviderType> getServiceProvider()
-   {
-      return Collections.unmodifiableList(this.serviceProvider);
-   }
+    /**
+     * Gets the value of the serviceProvider property.
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link ServiceProviderType }
+     *
+     *
+     */
+    public List<ServiceProviderType> getServiceProvider() {
+        return Collections.unmodifiableList(this.serviceProvider);
+    }
 
 }

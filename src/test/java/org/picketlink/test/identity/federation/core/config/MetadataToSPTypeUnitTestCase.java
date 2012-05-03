@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -36,25 +36,24 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * Given an IDP metadata, construct {@link SPType}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 28, 2011
  */
-public class MetadataToSPTypeUnitTestCase
-{
-   private final String idpMetadata = "saml2/metadata/testshib.org.idp-metadata.xml";
+public class MetadataToSPTypeUnitTestCase {
+    private final String idpMetadata = "saml2/metadata/testshib.org.idp-metadata.xml";
 
-   @Test
-   public void testMetadataToSP() throws Exception
-   {
-      InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(idpMetadata);
-      assertNotNull(is);
-      SAMLParser parser = new SAMLParser();
-      EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
-      assertNotNull(entities);
+    @Test
+    public void testMetadataToSP() throws Exception {
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(idpMetadata);
+        assertNotNull(is);
+        SAMLParser parser = new SAMLParser();
+        EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
+        assertNotNull(entities);
 
-      SPType sp = CoreConfigUtil.getSPConfiguration((EntityDescriptorType) entities.getEntityDescriptor().get(0),
-            JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get());
-      assertNotNull(sp);
-      assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", sp.getIdentityURL());
-   }
+        SPType sp = CoreConfigUtil.getSPConfiguration((EntityDescriptorType) entities.getEntityDescriptor().get(0),
+                JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get());
+        assertNotNull(sp);
+        assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", sp.getIdentityURL());
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -31,32 +31,26 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Jun 16, 2011
  */
-public class SimpleAnyType implements SimpleCollectionUsage<Object>
-{
-   protected List<Object> any = new ArrayList<Object>();
+public class SimpleAnyType implements SimpleCollectionUsage<Object> {
+    protected List<Object> any = new ArrayList<Object>();
 
-   /**
-    * Gets the value of the any property. 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link Object }
-    * {@link Element }
-    * 
-    */
-   public List<Object> getAny()
-   {
-      return Collections.unmodifiableList(this.any);
-   }
+    /**
+     * Gets the value of the any property.
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link Object } {@link Element }
+     *
+     */
+    public List<Object> getAny() {
+        return Collections.unmodifiableList(this.any);
+    }
 
-   public void add(Object t)
-   {
-      this.any.add(t);
-   }
+    public void add(Object t) {
+        this.any.add(t);
+    }
 
-   public boolean remove(Object t)
-   {
-      return any.remove(t);
+    public boolean remove(Object t) {
+        return any.remove(t);
 
-   }
+    }
 }

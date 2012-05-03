@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,10 +24,12 @@ package org.picketlink.identity.federation.saml.v2.protocol;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 /**
- * <p>Java class for AuthnQueryType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for AuthnQueryType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="AuthnQueryType">
  *   &lt;complexContent>
@@ -40,71 +42,57 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class AuthnQueryType extends SubjectQueryAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class AuthnQueryType extends SubjectQueryAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected RequestedAuthnContextType requestedAuthnContext;
+    protected RequestedAuthnContextType requestedAuthnContext;
 
-   protected String sessionIndex;
+    protected String sessionIndex;
 
-   public AuthnQueryType(String id, XMLGregorianCalendar instant)
-   {
-      super(id, instant);
-   }
+    public AuthnQueryType(String id, XMLGregorianCalendar instant) {
+        super(id, instant);
+    }
 
-   /**
-    * Gets the value of the requestedAuthnContext property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link RequestedAuthnContextType }
-    *     
-    */
-   public RequestedAuthnContextType getRequestedAuthnContext()
-   {
-      return requestedAuthnContext;
-   }
+    /**
+     * Gets the value of the requestedAuthnContext property.
+     *
+     * @return possible object is {@link RequestedAuthnContextType }
+     *
+     */
+    public RequestedAuthnContextType getRequestedAuthnContext() {
+        return requestedAuthnContext;
+    }
 
-   /**
-    * Sets the value of the requestedAuthnContext property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link RequestedAuthnContextType }
-    *     
-    */
-   public void setRequestedAuthnContext(RequestedAuthnContextType value)
-   {
-      this.requestedAuthnContext = value;
-   }
+    /**
+     * Sets the value of the requestedAuthnContext property.
+     *
+     * @param value allowed object is {@link RequestedAuthnContextType }
+     *
+     */
+    public void setRequestedAuthnContext(RequestedAuthnContextType value) {
+        this.requestedAuthnContext = value;
+    }
 
-   /**
-    * Gets the value of the sessionIndex property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getSessionIndex()
-   {
-      return sessionIndex;
-   }
+    /**
+     * Gets the value of the sessionIndex property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getSessionIndex() {
+        return sessionIndex;
+    }
 
-   /**
-    * Sets the value of the sessionIndex property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setSessionIndex(String value)
-   {
-      this.sessionIndex = value;
-   }
+    /**
+     * Sets the value of the sessionIndex property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setSessionIndex(String value) {
+        this.sessionIndex = value;
+    }
 }

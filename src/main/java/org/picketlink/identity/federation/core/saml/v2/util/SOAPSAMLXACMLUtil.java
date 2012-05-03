@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -55,102 +55,93 @@ import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQue
 import org.w3c.dom.Node;
 
 /**
- * Utility associated with SOAP 1.1 Envelope,
- * SAML2 and XACML2
+ * Utility associated with SOAP 1.1 Envelope, SAML2 and XACML2
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 28, 2009
  */
-public class SOAPSAMLXACMLUtil
-{
-   /**
-    * Parse the XACML Authorization Decision Query from the Dom Element
-    * @param samlRequest
-    * @return 
-    * @throws ProcessingException 
-    * @throws ConfigurationException  
-    * @throws ParsingException
-    */
-   public static XACMLAuthzDecisionQueryType getXACMLQueryType(Node samlRequest) throws ParsingException,
-         ConfigurationException, ProcessingException
-   {
-      //We reparse it because the document may have issues with namespaces
-      //String elementString = DocumentUtil.getDOMElementAsString(samlRequest);
+public class SOAPSAMLXACMLUtil {
+    /**
+     * Parse the XACML Authorization Decision Query from the Dom Element
+     *
+     * @param samlRequest
+     * @return
+     * @throws ProcessingException
+     * @throws ConfigurationException
+     * @throws ParsingException
+     */
+    public static XACMLAuthzDecisionQueryType getXACMLQueryType(Node samlRequest) throws ParsingException,
+            ConfigurationException, ProcessingException {
+        // We reparse it because the document may have issues with namespaces
+        // String elementString = DocumentUtil.getDOMElementAsString(samlRequest);
 
-      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(samlRequest));
-      SAMLXACMLRequestParser samlXACMLRequestParser = new SAMLXACMLRequestParser();
-      return (XACMLAuthzDecisionQueryType) samlXACMLRequestParser.parse(xmlEventReader);
-   }
+        XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(samlRequest));
+        SAMLXACMLRequestParser samlXACMLRequestParser = new SAMLXACMLRequestParser();
+        return (XACMLAuthzDecisionQueryType) samlXACMLRequestParser.parse(xmlEventReader);
+    }
 
-   public static XACMLAuthzDecisionStatementType getDecisionStatement(Node samlResponse) throws ConfigurationException,
-         ProcessingException, ParsingException
-   {
-      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(samlResponse));
-      SAMLParser samlParser = new SAMLParser();
+    public static XACMLAuthzDecisionStatementType getDecisionStatement(Node samlResponse) throws ConfigurationException,
+            ProcessingException, ParsingException {
+        XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(samlResponse));
+        SAMLParser samlParser = new SAMLParser();
 
-      JAXPValidationUtil.checkSchemaValidation(samlResponse);
+        JAXPValidationUtil.checkSchemaValidation(samlResponse);
 
-      org.picketlink.identity.federation.saml.v2.protocol.ResponseType response = (org.picketlink.identity.federation.saml.v2.protocol.ResponseType) samlParser
-            .parse(xmlEventReader);
-      List<RTChoiceType> choices = response.getAssertions();
-      for (RTChoiceType rst : choices)
-      {
-         AssertionType assertion = rst.getAssertion();
-         if (assertion == null)
-            continue;
-         Set<StatementAbstractType> stats = assertion.getStatements();
-         for (StatementAbstractType stat : stats)
-         {
-            if (stat instanceof XACMLAuthzDecisionStatementType)
-            {
-               return (XACMLAuthzDecisionStatementType) stat;
+        org.picketlink.identity.federation.saml.v2.protocol.ResponseType response = (org.picketlink.identity.federation.saml.v2.protocol.ResponseType) samlParser
+                .parse(xmlEventReader);
+        List<RTChoiceType> choices = response.getAssertions();
+        for (RTChoiceType rst : choices) {
+            AssertionType assertion = rst.getAssertion();
+            if (assertion == null)
+                continue;
+            Set<StatementAbstractType> stats = assertion.getStatements();
+            for (StatementAbstractType stat : stats) {
+                if (stat instanceof XACMLAuthzDecisionStatementType) {
+                    return (XACMLAuthzDecisionStatementType) stat;
+                }
             }
-         }
-      }
+        }
 
-      throw new RuntimeException("Not found XACMLAuthzDecisionStatementType");
-   }
+        throw new RuntimeException("Not found XACMLAuthzDecisionStatementType");
+    }
 
-   public synchronized static org.picketlink.identity.federation.saml.v2.protocol.ResponseType handleXACMLQuery(
-         PolicyDecisionPoint pdp, String issuer, XACMLAuthzDecisionQueryType xacmlRequest) throws ProcessingException,
-         ConfigurationException
-   {
-      RequestType requestType = xacmlRequest.getRequest();
+    public synchronized static org.picketlink.identity.federation.saml.v2.protocol.ResponseType handleXACMLQuery(
+            PolicyDecisionPoint pdp, String issuer, XACMLAuthzDecisionQueryType xacmlRequest) throws ProcessingException,
+            ConfigurationException {
+        RequestType requestType = xacmlRequest.getRequest();
 
-      RequestContext requestContext = new JBossRequestContext();
-      try
-      {
-         requestContext.setRequest(requestType);
-      }
-      catch (IOException e)
-      {
-         throw new ProcessingException(e);
-      }
+        RequestContext requestContext = new JBossRequestContext();
+        try {
+            requestContext.setRequest(requestType);
+        } catch (IOException e) {
+            throw new ProcessingException(e);
+        }
 
-      //pdp evaluation is thread safe
-      ResponseContext responseContext = pdp.evaluate(requestContext);
+        // pdp evaluation is thread safe
+        ResponseContext responseContext = pdp.evaluate(requestContext);
 
-      ResponseType responseType = new ResponseType();
-      ResultType resultType = responseContext.getResult();
-      responseType.getResult().add(resultType);
+        ResponseType responseType = new ResponseType();
+        ResultType resultType = responseContext.getResult();
+        responseType.getResult().add(resultType);
 
-      XACMLAuthzDecisionStatementType xacmlStatement = XACMLContextFactory.createXACMLAuthzDecisionStatementType(
-            requestType, responseType);
+        XACMLAuthzDecisionStatementType xacmlStatement = XACMLContextFactory.createXACMLAuthzDecisionStatementType(requestType,
+                responseType);
 
-      //Place the xacml statement in an assertion
-      //Then the assertion goes inside a SAML Response
+        // Place the xacml statement in an assertion
+        // Then the assertion goes inside a SAML Response
 
-      String ID = IDGenerator.create("ID_");
-      IssuerInfoHolder issuerInfo = new IssuerInfoHolder(issuer);
+        String ID = IDGenerator.create("ID_");
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder(issuer);
 
-      List<StatementAbstractType> statements = new ArrayList<StatementAbstractType>();
-      statements.add(xacmlStatement);
+        List<StatementAbstractType> statements = new ArrayList<StatementAbstractType>();
+        statements.add(xacmlStatement);
 
-      AssertionType assertion = SAMLAssertionFactory.createAssertion(ID, issuerInfo.getIssuer(),
-            XMLTimeUtil.getIssueInstant(), null, null, statements);
+        AssertionType assertion = SAMLAssertionFactory.createAssertion(ID, issuerInfo.getIssuer(),
+                XMLTimeUtil.getIssueInstant(), null, null, statements);
 
-      org.picketlink.identity.federation.saml.v2.protocol.ResponseType samlResponseType = JBossSAMLAuthnResponseFactory
-            .createResponseType(ID, issuerInfo, assertion);
+        org.picketlink.identity.federation.saml.v2.protocol.ResponseType samlResponseType = JBossSAMLAuthnResponseFactory
+                .createResponseType(ID, issuerInfo, assertion);
 
-      return samlResponseType;
-   }
+        return samlResponseType;
+    }
 }

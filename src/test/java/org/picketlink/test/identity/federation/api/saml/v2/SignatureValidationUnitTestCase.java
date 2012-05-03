@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -51,207 +51,194 @@ import org.w3c.dom.Node;
 
 /**
  * Signatures related unit test cases
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Dec 15, 2008
  */
-public class SignatureValidationUnitTestCase
-{
-   /**
-    * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature
-    * with a public key
-    * 
-    * @throws Exception
-    */
-   @Test
-   public void testAuthnRequestCreationWithSignature() throws Exception
-   {
-      SAML2Request saml2Request = new SAML2Request();
-      String id = IDGenerator.create("ID_");
-      String assertionConsumerURL = "http://sp";
-      String destination = "http://idp";
-      String issuerValue = "http://sp";
-      AuthnRequestType authnRequest = saml2Request.createAuthnRequestType(id, assertionConsumerURL, destination,
-            issuerValue);
+public class SignatureValidationUnitTestCase {
+    /**
+     * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature with a
+     * public key
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testAuthnRequestCreationWithSignature() throws Exception {
+        SAML2Request saml2Request = new SAML2Request();
+        String id = IDGenerator.create("ID_");
+        String assertionConsumerURL = "http://sp";
+        String destination = "http://idp";
+        String issuerValue = "http://sp";
+        AuthnRequestType authnRequest = saml2Request.createAuthnRequestType(id, assertionConsumerURL, destination, issuerValue);
 
-      KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
-      KeyPair kp = kpg.genKeyPair();
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
+        KeyPair kp = kpg.genKeyPair();
 
-      SAML2Signature ss = new SAML2Signature();
-      ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
-      Document signedDoc = ss.sign(authnRequest, kp);
+        SAML2Signature ss = new SAML2Signature();
+        ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
+        Document signedDoc = ss.sign(authnRequest, kp);
 
-      System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
-      
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
+        System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
 
-      // Validate the signature
-      boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
-      assertTrue(isValid);
-   }
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
-   /**
-    * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature
-    * with a public key. We test that the signature does not contain the keyinfo
-    * 
-    * @throws Exception
-    */
-   @Test
-   public void testNoKeyInfo() throws Exception
-   {
-      SAML2Request saml2Request = new SAML2Request();
-      String id = IDGenerator.create("ID_");
-      String assertionConsumerURL = "http://sp";
-      String destination = "http://idp";
-      String issuerValue = "http://sp";
-      AuthnRequestType authnRequest = saml2Request.createAuthnRequestType(id, assertionConsumerURL, destination,
-            issuerValue);
+        // Validate the signature
+        boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
+        assertTrue(isValid);
+    }
 
-      KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
-      KeyPair kp = kpg.genKeyPair();
+    /**
+     * Test the creation of AuthnRequestType with signature creation with a private key and then validate the signature with a
+     * public key. We test that the signature does not contain the keyinfo
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testNoKeyInfo() throws Exception {
+        SAML2Request saml2Request = new SAML2Request();
+        String id = IDGenerator.create("ID_");
+        String assertionConsumerURL = "http://sp";
+        String destination = "http://idp";
+        String issuerValue = "http://sp";
+        AuthnRequestType authnRequest = saml2Request.createAuthnRequestType(id, assertionConsumerURL, destination, issuerValue);
 
-      SAML2Signature ss = new SAML2Signature();
-      ss.setSignatureIncludeKeyInfo(false);
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
+        KeyPair kp = kpg.genKeyPair();
 
-      ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
-      Document signedDoc = ss.sign(authnRequest, kp);
+        SAML2Signature ss = new SAML2Signature();
+        ss.setSignatureIncludeKeyInfo(false);
 
-      System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
-      
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
+        ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
+        Document signedDoc = ss.sign(authnRequest, kp);
 
-      // Validate the signature
-      boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
-      assertTrue(isValid);
-      XMLSignatureUtil.setIncludeKeyInfoInSignature(true);
-   }
+        System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
 
-   /**
-    * Test the signature for ResponseType
-    * 
-    * @throws Exception
-    */
-   @Test
-   public void testSigningResponse() throws Exception
-   {
-      IssuerInfoHolder issuerInfo = new IssuerInfoHolder("testIssuer");
-      String id = IDGenerator.create("ID_");
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
-      SAML2Response response = new SAML2Response();
+        // Validate the signature
+        boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
+        assertTrue(isValid);
+        XMLSignatureUtil.setIncludeKeyInfoInSignature(true);
+    }
 
-      String authnContextDeclRef = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
+    /**
+     * Test the signature for ResponseType
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testSigningResponse() throws Exception {
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("testIssuer");
+        String id = IDGenerator.create("ID_");
 
-      AuthnStatementType authnStatement = response.createAuthnStatement(authnContextDeclRef,
-            XMLTimeUtil.getIssueInstant());
+        SAML2Response response = new SAML2Response();
 
-      // Create an assertion
-      AssertionType assertion = response.createAssertion(id, issuerInfo.getIssuer());
-      assertion.addStatement(authnStatement);
+        String authnContextDeclRef = JBossSAMLURIConstants.AC_PASSWORD_PROTECTED_TRANSPORT.get();
 
-      KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
-      KeyPair kp = kpg.genKeyPair();
+        AuthnStatementType authnStatement = response.createAuthnStatement(authnContextDeclRef, XMLTimeUtil.getIssueInstant());
 
-      id = IDGenerator.create("ID_"); // regenerate
-      ResponseType responseType = response.createResponseType(id, issuerInfo, assertion);
+        // Create an assertion
+        AssertionType assertion = response.createAssertion(id, issuerInfo.getIssuer());
+        assertion.addStatement(authnStatement);
 
-      SAML2Signature ss = new SAML2Signature();
-      ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
-      Document signedDoc = ss.sign(responseType, kp);
-      
-      System.out.println(DocumentUtil.asString(signedDoc));
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
+        KeyPair kp = kpg.genKeyPair();
 
-      // Validate the signature
-      boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
-      assertTrue(isValid);
-   }
+        id = IDGenerator.create("ID_"); // regenerate
+        ResponseType responseType = response.createResponseType(id, issuerInfo, assertion);
 
-   @Test
-   public void testSigningAnAssertionWithinResponse() throws Exception
-   {
-      SAML2Response response = new SAML2Response();
-      String fileName = "xml/dom/saml-response-2-assertions.xml";
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = tcl.getResourceAsStream(fileName);
-      if (is == null)
-         throw new RuntimeException("InputStream is null");
+        SAML2Signature ss = new SAML2Signature();
+        ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
+        Document signedDoc = ss.sign(responseType, kp);
 
-      ResponseType responseType = response.getResponseType(is);
+        System.out.println(DocumentUtil.asString(signedDoc));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
-      Document doc = response.convert(responseType);
+        // Validate the signature
+        boolean isValid = XMLSignatureUtil.validate(signedDoc, kp.getPublic());
+        assertTrue(isValid);
+    }
 
-      KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-      KeyPair kp = kpg.genKeyPair();
+    @Test
+    public void testSigningAnAssertionWithinResponse() throws Exception {
+        SAML2Response response = new SAML2Response();
+        String fileName = "xml/dom/saml-response-2-assertions.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(fileName);
+        if (is == null)
+            throw new RuntimeException("InputStream is null");
 
-      // String id = "ID_0be488d8-7089-4892-8aeb-83594c800706";
-      String id = "ID_976d8310-658a-450d-be39-f33c73c8afa6";
+        ResponseType responseType = response.getResponseType(is);
 
-      // Get the second assertion
-      Node assert2 = DocumentUtil.getNodeWithAttribute(doc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "ID",
-            id);
+        Document doc = response.convert(responseType);
 
-      String referenceURI = "#" + id;
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        KeyPair kp = kpg.genKeyPair();
 
-      assertNotNull("Found assertion?", assert2);
-      SAML2Signature ss = new SAML2Signature();
-      Document signedDoc = ss.sign(responseType, id, kp, referenceURI);
+        // String id = "ID_0be488d8-7089-4892-8aeb-83594c800706";
+        String id = "ID_976d8310-658a-450d-be39-f33c73c8afa6";
 
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
-      
-      Node signedNode = DocumentUtil.getNodeWithAttribute(signedDoc, "urn:oasis:names:tc:SAML:2.0:assertion",
-            "Assertion", "ID", id);
+        // Get the second assertion
+        Node assert2 = DocumentUtil.getNodeWithAttribute(doc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "ID", id);
 
-      // Let us just validate the signature of the assertion
-      Document validatingDoc = DocumentUtil.createDocument();
-      Node importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
-      validatingDoc.appendChild(importedSignedNode);
+        String referenceURI = "#" + id;
 
-      
-      
-      // Validate the signature 
-      boolean isValid = XMLSignatureUtil.validate(validatingDoc, kp.getPublic());
-      assertTrue("Signature is valid:", isValid);
+        assertNotNull("Found assertion?", assert2);
+        SAML2Signature ss = new SAML2Signature();
+        Document signedDoc = ss.sign(responseType, id, kp, referenceURI);
 
-      /**
-       * Now the signed document is marshalled across the wire using dom
-       * write
-       */
-      //Binder<Node> binder = response.getBinder();
-      //We have to parse the dom coming from the stream and feed to binder
-      Document readDoc = DocumentUtil.getDocument(DocumentUtil.getNodeAsStream(signedDoc));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
-      signedNode = DocumentUtil.getNodeWithAttribute(readDoc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion",
-            "ID", id);
+        Node signedNode = DocumentUtil.getNodeWithAttribute(signedDoc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion",
+                "ID", id);
 
-      // The client creates a validating document, importing the signed assertion.
-      validatingDoc = DocumentUtil.createDocument();
-      importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
-      validatingDoc.appendChild(importedSignedNode);
+        // Let us just validate the signature of the assertion
+        Document validatingDoc = DocumentUtil.createDocument();
+        Node importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
+        validatingDoc.appendChild(importedSignedNode);
 
-      // The client re-validates the signature.  
-      assertTrue("Signature is valid:", XMLSignatureUtil.validate(validatingDoc, kp.getPublic()));
+        // Validate the signature
+        boolean isValid = XMLSignatureUtil.validate(validatingDoc, kp.getPublic());
+        assertTrue("Signature is valid:", isValid);
 
-      /*JAXBElement<ResponseType> jaxbresponseType = (JAXBElement<ResponseType>) binder.unmarshal(readDoc);
-      responseType = jaxbresponseType.getValue();
-      assertNotNull(responseType); */
-   }
+        /**
+         * Now the signed document is marshalled across the wire using dom write
+         */
+        // Binder<Node> binder = response.getBinder();
+        // We have to parse the dom coming from the stream and feed to binder
+        Document readDoc = DocumentUtil.getDocument(DocumentUtil.getNodeAsStream(signedDoc));
 
-   /**
-    * Test signing a string
-    * 
-    * @throws Exception
-    */
-   @Test
-   public void testStringContentSignature() throws Exception
-   {
-      KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
-      KeyPair kp = kpg.genKeyPair();
+        signedNode = DocumentUtil.getNodeWithAttribute(readDoc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "ID", id);
 
-      String arbitContent = "I am A String";
+        // The client creates a validating document, importing the signed assertion.
+        validatingDoc = DocumentUtil.createDocument();
+        importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
+        validatingDoc.appendChild(importedSignedNode);
 
-      byte[] sigVal = SignatureUtil.sign(arbitContent, kp.getPrivate());
+        // The client re-validates the signature.
+        assertTrue("Signature is valid:", XMLSignatureUtil.validate(validatingDoc, kp.getPublic()));
 
-      boolean valid = SignatureUtil.validate(arbitContent.getBytes(), sigVal, kp.getPublic());
-      assertTrue(valid);
-   }
+        /*
+         * JAXBElement<ResponseType> jaxbresponseType = (JAXBElement<ResponseType>) binder.unmarshal(readDoc); responseType =
+         * jaxbresponseType.getValue(); assertNotNull(responseType);
+         */
+    }
+
+    /**
+     * Test signing a string
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testStringContentSignature() throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
+        KeyPair kp = kpg.genKeyPair();
+
+        String arbitContent = "I am A String";
+
+        byte[] sigVal = SignatureUtil.sign(arbitContent, kp.getPrivate());
+
+        boolean valid = SignatureUtil.validate(arbitContent.getBytes(), sigVal, kp.getPublic());
+        assertTrue(valid);
+    }
 }

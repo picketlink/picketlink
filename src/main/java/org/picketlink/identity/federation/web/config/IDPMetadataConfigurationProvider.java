@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2011, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -36,75 +36,62 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
 /**
  * <p>
- * An instance of {@link SAMLConfigurationProvider} that can be used to generate
- * the IDP configuration using SAML2 Metadata.
+ * An instance of {@link SAMLConfigurationProvider} that can be used to generate the IDP configuration using SAML2 Metadata.
  * </p>
  * <p>
  * This provider uses the following in sequence whichever is available:
  * <ol>
- * <li> a idp-metadata.xml file available in its immediate class path.</li>
- * <li> </li>
+ * <li>a idp-metadata.xml file available in its immediate class path.</li>
+ * <li></li>
  * </ol>
  * </p>
+ *
  * @author Anil Saldhana
  * @since Feb 15, 2012
  */
-public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider
-      implements
-         SAMLConfigurationProvider
-{
-   public static final String IDP_MD_FILE = "idp-metadata.xml";
+public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider {
+    public static final String IDP_MD_FILE = "idp-metadata.xml";
 
-   /**
-    * @see SAMLConfigurationProvider#getIDPConfiguration()
-    */
-   public IDPType getIDPConfiguration() throws ProcessingException
-   {
-      IDPType idpType = null;
-      if (fileAvailable())
-      {
-         try
-         {
-            EntitiesDescriptorType entities = parseMDFile();
-            IDPSSODescriptorType idpSSO = CoreConfigUtil.getIDPDescriptor(entities);
-            if (idpSSO != null)
-            {
-               idpType = CoreConfigUtil.getIDPType(idpSSO);
+    /**
+     * @see SAMLConfigurationProvider#getIDPConfiguration()
+     */
+    public IDPType getIDPConfiguration() throws ProcessingException {
+        IDPType idpType = null;
+        if (fileAvailable()) {
+            try {
+                EntitiesDescriptorType entities = parseMDFile();
+                IDPSSODescriptorType idpSSO = CoreConfigUtil.getIDPDescriptor(entities);
+                if (idpSSO != null) {
+                    idpType = CoreConfigUtil.getIDPType(idpSSO);
+                }
+            } catch (ParsingException e) {
+                throw new ProcessingException(e);
             }
-         }
-         catch (ParsingException e)
-         {
-            throw new ProcessingException(e);
-         }
-      }
+        }
 
-      if (configParsedIDPType != null)
-      {
-         idpType.importFrom(configParsedIDPType);
-      }
+        if (configParsedIDPType != null) {
+            idpType.importFrom(configParsedIDPType);
+        }
 
-      return idpType;
-   }
+        return idpType;
+    }
 
-   public SPType getSPConfiguration() throws ProcessingException
-   {
-      throw new RuntimeException(ErrorCodes.ILLEGAL_METHOD_CALLED);
-   }
+    public SPType getSPConfiguration() throws ProcessingException {
+        throw new RuntimeException(ErrorCodes.ILLEGAL_METHOD_CALLED);
+    }
 
-   private boolean fileAvailable()
-   {
-      InputStream is = SecurityActions.loadStream(getClass(), IDP_MD_FILE);
-      return is != null;
-   }
+    private boolean fileAvailable() {
+        InputStream is = SecurityActions.loadStream(getClass(), IDP_MD_FILE);
+        return is != null;
+    }
 
-   private EntitiesDescriptorType parseMDFile() throws ParsingException
-   {
-      InputStream is = SecurityActions.loadStream(getClass(), IDP_MD_FILE);
+    private EntitiesDescriptorType parseMDFile() throws ParsingException {
+        InputStream is = SecurityActions.loadStream(getClass(), IDP_MD_FILE);
 
-      if (is == null)
-         throw new IllegalStateException(ErrorCodes.NULL_VALUE + IDP_MD_FILE);
+        if (is == null)
+            throw new IllegalStateException(ErrorCodes.NULL_VALUE + IDP_MD_FILE);
 
-      SAMLParser parser = new SAMLParser();
-      return (EntitiesDescriptorType) parser.parse(is);
-   }
+        SAMLParser parser = new SAMLParser();
+        return (EntitiesDescriptorType) parser.parse(is);
+    }
 }

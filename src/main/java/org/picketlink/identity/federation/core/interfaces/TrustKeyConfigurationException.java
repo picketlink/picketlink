@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,30 +25,26 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 
 /**
  * ConfigurationException in the TrustKeyManager
+ *
  * @author Anil.Saldhana@redhat.com
  * @since May 22, 2009
  */
-public class TrustKeyConfigurationException extends ConfigurationException
-{
-   private static final long serialVersionUID = 1L;
+public class TrustKeyConfigurationException extends ConfigurationException {
+    private static final long serialVersionUID = 1L;
 
-   public TrustKeyConfigurationException()
-   {
-      super(); 
-   }
+    public TrustKeyConfigurationException() {
+        super();
+    }
 
-   public TrustKeyConfigurationException(String message, Throwable cause)
-   {
-      super(message, cause); 
-   }
+    public TrustKeyConfigurationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-   public TrustKeyConfigurationException(String message)
-   {
-      super(message); 
-   }
+    public TrustKeyConfigurationException(String message) {
+        super(message);
+    }
 
-   public TrustKeyConfigurationException(Throwable cause)
-   {
-      super(cause); 
-   }  
+    public TrustKeyConfigurationException(Throwable cause) {
+        super(cause);
+    }
 }

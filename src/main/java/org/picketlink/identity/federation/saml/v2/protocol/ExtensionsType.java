@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
- * <p>Java class for ExtensionsType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ExtensionsType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ExtensionsType">
  *   &lt;complexContent>
@@ -41,37 +42,35 @@ import java.util.List;
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
- * </pre> 
- * 
- */ 
-public class ExtensionsType 
-{ 
-   protected List<Object> any = new ArrayList<Object>();
+ * </pre>
+ *
+ */
+public class ExtensionsType {
+    protected List<Object> any = new ArrayList<Object>();
 
-   /**
-    * Add an extension
-    * @param extension
-    */
-   public void addExtension( Object extension )
-   {
-      any.add( extension );
-   }
-   
-   /**
-    * Remove an extension
-    * @param extension
-    */
-   public void removeExtension( Object extension )
-   {
-      any.remove( extension );
-   }
+    /**
+     * Add an extension
+     *
+     * @param extension
+     */
+    public void addExtension(Object extension) {
+        any.add(extension);
+    }
 
-   /**
-    * Gets the value of the any property. 
-    * 
-    */
-   public List<Object> getAny() 
-   {
-      return Collections.unmodifiableList( this.any );
-   }
+    /**
+     * Remove an extension
+     *
+     * @param extension
+     */
+    public void removeExtension(Object extension) {
+        any.remove(extension);
+    }
+
+    /**
+     * Gets the value of the any property.
+     *
+     */
+    public List<Object> getAny() {
+        return Collections.unmodifiableList(this.any);
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,44 +29,41 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
- * An attribute manager that delegates to
- * another manager for attributes
+ * An attribute manager that delegates to another manager for attributes
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 31, 2009
  */
-public class DelegatedAttributeManager implements AttributeManager
-{
-   private AttributeManager delegate = new EmptyAttributeManager();
+public class DelegatedAttributeManager implements AttributeManager {
+    private AttributeManager delegate = new EmptyAttributeManager();
 
-   public DelegatedAttributeManager()
-   {
-   }
+    public DelegatedAttributeManager() {
+    }
 
-   /**
-    * Set the delegate
-    * @param manager
-    */
-   public void setDelegate(AttributeManager manager)
-   {
-      this.delegate = manager;
-   }
+    /**
+     * Set the delegate
+     *
+     * @param manager
+     */
+    public void setDelegate(AttributeManager manager) {
+        this.delegate = manager;
+    }
 
-   /**
-    * Is the delegate set?
-    * @return
-    */
-   public boolean isDelegateSet()
-   {
-      return this.delegate != null;
-   }
+    /**
+     * Is the delegate set?
+     *
+     * @return
+     */
+    public boolean isDelegateSet() {
+        return this.delegate != null;
+    }
 
-   /**
-    * @see AttributeManager#getAttributes(Principal, List)
-    */
-   public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys)
-   {
-      if (delegate == null)
-         throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Delegate");
-      return delegate.getAttributes(userPrincipal, attributeKeys);
-   }
+    /**
+     * @see AttributeManager#getAttributes(Principal, List)
+     */
+    public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys) {
+        if (delegate == null)
+            throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Delegate");
+        return delegate.getAttributes(userPrincipal, attributeKeys);
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,25 +25,22 @@ import org.w3c.dom.Element;
 
 /**
  * Assertion that is encrypted
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public class EncryptedAssertionType extends EncryptedElementType
-{
-   private static final long serialVersionUID = 1L;
+public class EncryptedAssertionType extends EncryptedElementType {
+    private static final long serialVersionUID = 1L;
 
-   public EncryptedAssertionType()
-   {
-      super();
-   }
+    public EncryptedAssertionType() {
+        super();
+    }
 
-   public EncryptedAssertionType(Element el)
-   {
-      super(el);
-   }
+    public EncryptedAssertionType(Element el) {
+        super(el);
+    }
 
-   public String getID()
-   {
-      return null;
-   }
+    public String getID() {
+        return null;
+    }
 }

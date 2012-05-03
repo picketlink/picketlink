@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,10 +24,12 @@ package org.picketlink.identity.federation.saml.v2.assertion;
 import java.io.Serializable;
 
 /**
- * <p>Java class for SubjectLocalityType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for SubjectLocalityType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="SubjectLocalityType">
  *   &lt;complexContent>
@@ -38,66 +40,53 @@ import java.io.Serializable;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class SubjectLocalityType implements Serializable
-{
-   private static final long serialVersionUID = 1L;
+public class SubjectLocalityType implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-   protected String address;
+    protected String address;
 
-   protected String dnsName;
+    protected String dnsName;
 
-   /**
-    * Gets the value of the address property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getAddress()
-   {
-      return address;
-   }
+    /**
+     * Gets the value of the address property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getAddress() {
+        return address;
+    }
 
-   /**
-    * Sets the value of the address property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setAddress(String value)
-   {
-      this.address = value;
-   }
+    /**
+     * Sets the value of the address property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setAddress(String value) {
+        this.address = value;
+    }
 
-   /**
-    * Gets the value of the dnsName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getDNSName()
-   {
-      return dnsName;
-   }
+    /**
+     * Gets the value of the dnsName property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getDNSName() {
+        return dnsName;
+    }
 
-   /**
-    * Sets the value of the dnsName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setDNSName(String value)
-   {
-      this.dnsName = value;
-   }
+    /**
+     * Sets the value of the dnsName property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setDNSName(String value) {
+        this.dnsName = value;
+    }
 }

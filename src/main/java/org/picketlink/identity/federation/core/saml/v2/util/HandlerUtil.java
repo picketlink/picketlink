@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -38,54 +38,46 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCo
 
 /**
  * Deals with SAML2 Handlers
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-public class HandlerUtil
-{
-   public static Set<SAML2Handler> getHandlers(Handlers handlers) throws ConfigurationException
-   {
-      if (handlers == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "handlers");
-      List<Handler> handlerList = handlers.getHandler();
+public class HandlerUtil {
+    public static Set<SAML2Handler> getHandlers(Handlers handlers) throws ConfigurationException {
+        if (handlers == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "handlers");
+        List<Handler> handlerList = handlers.getHandler();
 
-      Set<SAML2Handler> handlerSet = new LinkedHashSet<SAML2Handler>();
+        Set<SAML2Handler> handlerSet = new LinkedHashSet<SAML2Handler>();
 
-      for (Handler handler : handlerList)
-      {
-         String clazzName = handler.getClazz();
+        for (Handler handler : handlerList) {
+            String clazzName = handler.getClazz();
 
-         Class<?> clazz;
-         try
-         {
-            clazz = SecurityActions.loadClass(HandlerUtil.class, clazzName);
-            if (clazz == null)
-               throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + clazzName);
-            SAML2Handler samlhandler = (SAML2Handler) clazz.newInstance();
-            List<KeyValueType> options = handler.getOption();
+            Class<?> clazz;
+            try {
+                clazz = SecurityActions.loadClass(HandlerUtil.class, clazzName);
+                if (clazz == null)
+                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + clazzName);
+                SAML2Handler samlhandler = (SAML2Handler) clazz.newInstance();
+                List<KeyValueType> options = handler.getOption();
 
-            Map<String, Object> mapOptions = new HashMap<String, Object>();
+                Map<String, Object> mapOptions = new HashMap<String, Object>();
 
-            for (KeyValueType kvtype : options)
-            {
-               mapOptions.put(kvtype.getKey(), kvtype.getValue());
+                for (KeyValueType kvtype : options) {
+                    mapOptions.put(kvtype.getKey(), kvtype.getValue());
+                }
+                SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+                handlerConfig.set(mapOptions);
+
+                samlhandler.initHandlerConfig(handlerConfig);
+
+                handlerSet.add(samlhandler);
+            } catch (InstantiationException e) {
+                throw new ConfigurationException(e);
+            } catch (IllegalAccessException e) {
+                throw new ConfigurationException(e);
             }
-            SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
-            handlerConfig.set(mapOptions);
-
-            samlhandler.initHandlerConfig(handlerConfig);
-
-            handlerSet.add(samlhandler);
-         }
-         catch (InstantiationException e)
-         {
-            throw new ConfigurationException(e);
-         }
-         catch (IllegalAccessException e)
-         {
-            throw new ConfigurationException(e);
-         }
-      }
-      return handlerSet;
-   }
+        }
+        return handlerSet;
+    }
 }

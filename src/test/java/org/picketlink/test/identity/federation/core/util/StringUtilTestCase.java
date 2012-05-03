@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2011, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,60 +34,52 @@ import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
  * Unit test {@link StringUtil}
+ *
  * @author Anil Saldhana
  * @since Feb 22, 2012
  */
-public class StringUtilTestCase
-{
-   @Test
-   public void testTokenizeKeyValuePairs() throws Exception
-   {
-      String str = "a=b,c=d,e=f";
-      Map<String, String> map = StringUtil.tokenizeKeyValuePair(str);
+public class StringUtilTestCase {
+    @Test
+    public void testTokenizeKeyValuePairs() throws Exception {
+        String str = "a=b,c=d,e=f";
+        Map<String, String> map = StringUtil.tokenizeKeyValuePair(str);
 
-      assertEquals("b", map.get("a"));
-      assertEquals("d", map.get("c"));
-      assertEquals("f", map.get("e"));
-   }
+        assertEquals("b", map.get("a"));
+        assertEquals("d", map.get("c"));
+        assertEquals("f", map.get("e"));
+    }
 
-   @Test
-   public void testTokenize() throws Exception
-   {
-      String str = "a,b";
+    @Test
+    public void testTokenize() throws Exception {
+        String str = "a,b";
 
-      String theOtherString = "a/b;c/d";
+        String theOtherString = "a/b;c/d";
 
-      List<String> list = StringUtil.tokenize(str);
-      assertEquals(2, list.size());
-      assertTrue(list.contains("a"));
-      assertTrue(list.contains("b"));
+        List<String> list = StringUtil.tokenize(str);
+        assertEquals(2, list.size());
+        assertTrue(list.contains("a"));
+        assertTrue(list.contains("b"));
 
-      List<String> bigList = StringUtil.tokenize(theOtherString, ";");
-      assertEquals(2, bigList.size());
-      for (String token : bigList)
-      {
-         List<String> theList = StringUtil.tokenize(token, "/");
+        List<String> bigList = StringUtil.tokenize(theOtherString, ";");
+        assertEquals(2, bigList.size());
+        for (String token : bigList) {
+            List<String> theList = StringUtil.tokenize(token, "/");
 
-         if (token.equals("a/b"))
-         {
-            assertTrue(theList.contains("a"));
-            assertTrue(theList.contains("b"));
-         }
-         else if (token.equals("c/d"))
-         {
-            assertTrue(theList.contains("c"));
-            assertTrue(theList.contains("d"));
-         }
-         else
-            throw new RuntimeException("Unknown");
-      }
-   }
+            if (token.equals("a/b")) {
+                assertTrue(theList.contains("a"));
+                assertTrue(theList.contains("b"));
+            } else if (token.equals("c/d")) {
+                assertTrue(theList.contains("c"));
+                assertTrue(theList.contains("d"));
+            } else
+                throw new RuntimeException("Unknown");
+        }
+    }
 
-   @Test
-   public void trim() throws Exception
-   {
-      assertNotNull("".trim());
-      assertEquals(0, "".trim().length());
-      assertEquals(0, StaxParserUtil.trim("").length());
-   }
+    @Test
+    public void trim() throws Exception {
+        assertNotNull("".trim());
+        assertEquals(0, "".trim().length());
+        assertEquals(0, StaxParserUtil.trim("").length());
+    }
 }

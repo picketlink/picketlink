@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2011, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -31,18 +31,17 @@ import org.picketlink.identity.federation.web.config.SPRedirectMetadataConfigura
 
 /**
  * Unit test the {@link SPRedirectMetadataConfigurationProvider}
+ *
  * @author Anil Saldhana
  * @since Feb 15, 2012
  */
-public class SPRedirectMetadataConfigurationProviderUnitTestCase
-{
-   @Test
-   public void testSPType() throws ProcessingException
-   {
-      SPRedirectMetadataConfigurationProvider provider = new SPRedirectMetadataConfigurationProvider();
-      SPType sp = provider.getSPConfiguration();
-      assertNotNull(sp);
-      assertEquals("https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT", sp.getServiceURL());
-   }
+public class SPRedirectMetadataConfigurationProviderUnitTestCase {
+    @Test
+    public void testSPType() throws ProcessingException {
+        SPRedirectMetadataConfigurationProvider provider = new SPRedirectMetadataConfigurationProvider();
+        SPType sp = provider.getSPConfiguration();
+        assertNotNull(sp);
+        assertEquals("https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT", sp.getServiceURL());
+    }
 
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -48,53 +48,52 @@ import org.w3c.dom.NodeList;
 
 /**
  * Unit test the X500 Profile of SAML2
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Sep 14, 2009
  */
-public class X500AttributeUnitTestCase extends TestCase
-{
-   public void testX500Marshalling() throws Exception
-   {
-      Map<String, Object> attributes = new HashMap<String, Object>();
-      attributes.put(X500SAMLProfileConstants.EMAIL_ADDRESS.getFriendlyName(), "test@a");
-      attributes.put(X500SAMLProfileConstants.GIVEN_NAME.getFriendlyName(), "anil");
+public class X500AttributeUnitTestCase extends TestCase {
+    public void testX500Marshalling() throws Exception {
+        Map<String, Object> attributes = new HashMap<String, Object>();
+        attributes.put(X500SAMLProfileConstants.EMAIL_ADDRESS.getFriendlyName(), "test@a");
+        attributes.put(X500SAMLProfileConstants.GIVEN_NAME.getFriendlyName(), "anil");
 
-      AttributeStatementType attrStat = StatementUtil.createAttributeStatement(attributes);
+        AttributeStatementType attrStat = StatementUtil.createAttributeStatement(attributes);
 
-      IssuerInfoHolder issuerHolder = new IssuerInfoHolder("http://idp");
-      issuerHolder.setStatusCode(JBossSAMLURIConstants.STATUS_SUCCESS.get());
+        IssuerInfoHolder issuerHolder = new IssuerInfoHolder("http://idp");
+        issuerHolder.setStatusCode(JBossSAMLURIConstants.STATUS_SUCCESS.get());
 
-      IDPInfoHolder idp = new IDPInfoHolder();
-      idp.setNameIDFormatValue(IDGenerator.create());
+        IDPInfoHolder idp = new IDPInfoHolder();
+        idp.setNameIDFormatValue(IDGenerator.create());
 
-      ResponseType rt = JBossSAMLAuthnResponseFactory.createResponseType("response111", new SPInfoHolder(), idp,
-            issuerHolder);
-      assertNotNull(rt);
+        ResponseType rt = JBossSAMLAuthnResponseFactory
+                .createResponseType("response111", new SPInfoHolder(), idp, issuerHolder);
+        assertNotNull(rt);
 
-      AssertionType assertion = rt.getAssertions().get(0).getAssertion();
-      assertion.addStatement(attrStat);
+        AssertionType assertion = rt.getAssertions().get(0).getAssertion();
+        assertion.addStatement(attrStat);
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-      SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
-      writer.write(rt);
+        SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(rt);
 
-      Document samlDom = DocumentUtil.getDocument(new String(baos.toByteArray()));
+        Document samlDom = DocumentUtil.getDocument(new String(baos.toByteArray()));
 
-      NodeList nl = samlDom.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "Attribute");
-      assertEquals("nodes = 2", 2, nl.getLength());
+        NodeList nl = samlDom.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "Attribute");
+        assertEquals("nodes = 2", 2, nl.getLength());
 
-      String x500NS = JBossSAMLURIConstants.X500_NSURI.get();
-      String encodingLocalName = "Encoding";
+        String x500NS = JBossSAMLURIConstants.X500_NSURI.get();
+        String encodingLocalName = "Encoding";
 
-      Element attrib = (Element) nl.item(0);
-      assertTrue("Has ldap encoding?", attrib.hasAttributeNS(x500NS, encodingLocalName));
-      assertEquals("LDAP", attrib.getAttributeNodeNS(x500NS, encodingLocalName).getNodeValue());
+        Element attrib = (Element) nl.item(0);
+        assertTrue("Has ldap encoding?", attrib.hasAttributeNS(x500NS, encodingLocalName));
+        assertEquals("LDAP", attrib.getAttributeNodeNS(x500NS, encodingLocalName).getNodeValue());
 
-      NodeList nla = attrib.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "AttributeValue");
+        NodeList nla = attrib.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), "AttributeValue");
 
-      Node attribNode = nla.item(0);
-      String nodeValue = attribNode.getTextContent();
-      assertTrue(nodeValue.equals("test@a") || nodeValue.equals("anil"));
-   }
+        Node attribNode = nla.item(0);
+        String nodeValue = attribNode.getTextContent();
+        assertTrue(nodeValue.equals("test@a") || nodeValue.equals("anil"));
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,42 +34,41 @@ import org.picketlink.test.identity.federation.core.wstrust.PicketLinkSTSUnitTes
 
 /**
  * Unit test various aspects of the sts configuration
+ *
  * @author Anil.Saldhana@redhat.com
  * @since May 25, 2010
  */
-public class PicketLinkSTSConfigUnitTestCase
-{
-   /**
-    * Test the masking of passwords
-    * @throws Exception
-    */
-   @Test
-   public void testMaskedPassword() throws Exception
-   {
-      PicketLinkSTSUnitTestCase plstsTest = new PicketLinkSTSUnitTestCase();
-      TestSTS sts = plstsTest.new TestSTS("sts/picketlink-sts-maskedpasswd.xml");
+public class PicketLinkSTSConfigUnitTestCase {
+    /**
+     * Test the masking of passwords
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testMaskedPassword() throws Exception {
+        PicketLinkSTSUnitTestCase plstsTest = new PicketLinkSTSUnitTestCase();
+        TestSTS sts = plstsTest.new TestSTS("sts/picketlink-sts-maskedpasswd.xml");
 
-      STSConfiguration stsConfiguration = sts.getConfiguration();
-      Certificate cert = stsConfiguration.getCertificate( "service1" );
-      assertNotNull( "cert is not null", cert );
+        STSConfiguration stsConfiguration = sts.getConfiguration();
+        Certificate cert = stsConfiguration.getCertificate("service1");
+        assertNotNull("cert is not null", cert);
 
-      cert =  stsConfiguration.getCertificate( "service2" );
-      assertNotNull( "cert is not null", cert );
-   }
-   
-   /**
-    * Test the introduction of the CanonicalizationMethod attribute
-    * on the STSType
-    * @throws Exception
-    */
-   @Test
-   public void testXMLDSigCanonicalization() throws Exception
-   {
-      PicketLinkSTSUnitTestCase plstsTest = new PicketLinkSTSUnitTestCase();
-      TestSTS sts = plstsTest.new TestSTS("sts/picketlink-sts-xmldsig-Canonicalization.xml");
+        cert = stsConfiguration.getCertificate("service2");
+        assertNotNull("cert is not null", cert);
+    }
 
-      STSConfiguration stsConfiguration = sts.getConfiguration();
-      assertNotNull( "STS Configuration is not null", stsConfiguration ); 
-      assertEquals( CanonicalizationMethod.EXCLUSIVE, stsConfiguration.getXMLDSigCanonicalizationMethod() );
-   }
+    /**
+     * Test the introduction of the CanonicalizationMethod attribute on the STSType
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testXMLDSigCanonicalization() throws Exception {
+        PicketLinkSTSUnitTestCase plstsTest = new PicketLinkSTSUnitTestCase();
+        TestSTS sts = plstsTest.new TestSTS("sts/picketlink-sts-xmldsig-Canonicalization.xml");
+
+        STSConfiguration stsConfiguration = sts.getConfiguration();
+        assertNotNull("STS Configuration is not null", stsConfiguration);
+        assertEquals(CanonicalizationMethod.EXCLUSIVE, stsConfiguration.getXMLDSigCanonicalizationMethod());
+    }
 }

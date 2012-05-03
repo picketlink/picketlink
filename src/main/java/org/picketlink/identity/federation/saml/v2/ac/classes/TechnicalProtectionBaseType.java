@@ -1,12 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
-
-
 /**
- * <p>Java class for TechnicalProtectionBaseType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for TechnicalProtectionBaseType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="TechnicalProtectionBaseType">
  *   &lt;complexContent>
@@ -22,21 +22,19 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class TechnicalProtectionBaseType extends ExtensionListType {
- 
-    protected PrivateKeyProtectionType privateKeyProtection; 
-    protected SecretKeyProtectionType secretKeyProtection; 
+
+    protected PrivateKeyProtectionType privateKeyProtection;
+    protected SecretKeyProtectionType secretKeyProtection;
 
     /**
      * Gets the value of the privateKeyProtection property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PrivateKeyProtectionType }
-     *     
+     *
+     * @return possible object is {@link PrivateKeyProtectionType }
+     *
      */
     public PrivateKeyProtectionType getPrivateKeyProtection() {
         return privateKeyProtection;
@@ -44,11 +42,9 @@ public class TechnicalProtectionBaseType extends ExtensionListType {
 
     /**
      * Sets the value of the privateKeyProtection property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PrivateKeyProtectionType }
-     *     
+     *
+     * @param value allowed object is {@link PrivateKeyProtectionType }
+     *
      */
     public void setPrivateKeyProtection(PrivateKeyProtectionType value) {
         this.privateKeyProtection = value;
@@ -56,11 +52,9 @@ public class TechnicalProtectionBaseType extends ExtensionListType {
 
     /**
      * Gets the value of the secretKeyProtection property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SecretKeyProtectionType }
-     *     
+     *
+     * @return possible object is {@link SecretKeyProtectionType }
+     *
      */
     public SecretKeyProtectionType getSecretKeyProtection() {
         return secretKeyProtection;
@@ -68,11 +62,9 @@ public class TechnicalProtectionBaseType extends ExtensionListType {
 
     /**
      * Sets the value of the secretKeyProtection property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SecretKeyProtectionType }
-     *     
+     *
+     * @param value allowed object is {@link SecretKeyProtectionType }
+     *
      */
     public void setSecretKeyProtection(SecretKeyProtectionType value) {
         this.secretKeyProtection = value;

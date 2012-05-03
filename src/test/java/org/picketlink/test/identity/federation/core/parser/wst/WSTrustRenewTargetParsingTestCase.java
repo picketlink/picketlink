@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -47,60 +47,59 @@ import org.w3c.dom.Element;
 
 /**
  * Validate the parsing of wst-batch-validate.xml
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2010
  */
-public class WSTrustRenewTargetParsingTestCase
-{
-   @Test
-   public void testWST_RenewTarget() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-renew-saml.xml");
+public class WSTrustRenewTargetParsingTestCase {
+    @Test
+    public void testWST_RenewTarget() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-renew-saml.xml");
 
-      WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
-      assertEquals("renewcontext", requestToken.getContext());
-      assertEquals(WSTrustConstants.RENEW_REQUEST, requestToken.getRequestType().toASCIIString());
-      assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString());
+        WSTrustParser parser = new WSTrustParser();
+        RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+        assertEquals("renewcontext", requestToken.getContext());
+        assertEquals(WSTrustConstants.RENEW_REQUEST, requestToken.getRequestType().toASCIIString());
+        assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString());
 
-      RenewTargetType renewTarget = requestToken.getRenewTarget();
-      Element assertionElement = (Element) renewTarget.getAny().get(0);
-      AssertionType assertion = SAMLUtil.fromElement(assertionElement);
-      assertEquals("ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID());
-      assertEquals("Test STS", assertion.getIssuer().getValue());
-      SubjectType subject = assertion.getSubject();
-      assertEquals("jduke", ((NameIDType) subject.getSubType().getBaseID()).getValue());
+        RenewTargetType renewTarget = requestToken.getRenewTarget();
+        Element assertionElement = (Element) renewTarget.getAny().get(0);
+        AssertionType assertion = SAMLUtil.fromElement(assertionElement);
+        assertEquals("ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID());
+        assertEquals("Test STS", assertion.getIssuer().getValue());
+        SubjectType subject = assertion.getSubject();
+        assertEquals("jduke", ((NameIDType) subject.getSubType().getBaseID()).getValue());
 
-      //Now for the writing part
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
+        // Now for the writing part
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken);
+        rstWriter.write(requestToken);
 
-      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
-   
-   @Test
-   public void testWST_ResponseRenew() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-response-renew.xml"); 
-      
-      WSTrustParser parser = new WSTrustParser();
-      RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) parser.parse(configStream);
-      assertNotNull(responseCollection);
-      
-      //Now for the writing part
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustResponseWriter rstrWriter = new WSTrustResponseWriter(baos);
+        Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 
-      rstrWriter.write(responseCollection);
+    @Test
+    public void testWST_ResponseRenew() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-response-renew.xml");
 
-      byte[] data = baos.toByteArray();
-      System.out.println(new String(data));
-      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(data));
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        WSTrustParser parser = new WSTrustParser();
+        RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) parser
+                .parse(configStream);
+        assertNotNull(responseCollection);
+
+        // Now for the writing part
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WSTrustResponseWriter rstrWriter = new WSTrustResponseWriter(baos);
+
+        rstrWriter.write(responseCollection);
+
+        byte[] data = baos.toByteArray();
+        System.out.println(new String(data));
+        Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(data));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 }

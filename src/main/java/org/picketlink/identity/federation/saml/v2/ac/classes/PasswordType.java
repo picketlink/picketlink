@@ -1,11 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
-
 /**
- * <p>Java class for PasswordType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for PasswordType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="PasswordType">
  *   &lt;complexContent>
@@ -21,23 +22,21 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class PasswordType extends ExtensionListType {
 
     protected LengthType length;
     protected AlphabetType alphabet;
-    protected Generation generation; 
+    protected Generation generation;
     protected String externalVerification;
 
     /**
      * Gets the value of the length property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link LengthType }
-     *     
+     *
+     * @return possible object is {@link LengthType }
+     *
      */
     public LengthType getLength() {
         return length;
@@ -45,11 +44,9 @@ public class PasswordType extends ExtensionListType {
 
     /**
      * Sets the value of the length property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link LengthType }
-     *     
+     *
+     * @param value allowed object is {@link LengthType }
+     *
      */
     public void setLength(LengthType value) {
         this.length = value;
@@ -57,11 +54,9 @@ public class PasswordType extends ExtensionListType {
 
     /**
      * Gets the value of the alphabet property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link AlphabetType }
-     *     
+     *
+     * @return possible object is {@link AlphabetType }
+     *
      */
     public AlphabetType getAlphabet() {
         return alphabet;
@@ -69,11 +64,9 @@ public class PasswordType extends ExtensionListType {
 
     /**
      * Sets the value of the alphabet property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link AlphabetType }
-     *     
+     *
+     * @param value allowed object is {@link AlphabetType }
+     *
      */
     public void setAlphabet(AlphabetType value) {
         this.alphabet = value;
@@ -81,11 +74,9 @@ public class PasswordType extends ExtensionListType {
 
     /**
      * Gets the value of the generation property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Generation }
-     *     
+     *
+     * @return possible object is {@link Generation }
+     *
      */
     public Generation getGeneration() {
         return generation;
@@ -93,11 +84,9 @@ public class PasswordType extends ExtensionListType {
 
     /**
      * Sets the value of the generation property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link Generation }
-     *     
+     *
+     * @param value allowed object is {@link Generation }
+     *
      */
     public void setGeneration(Generation value) {
         this.generation = value;
@@ -105,11 +94,9 @@ public class PasswordType extends ExtensionListType {
 
     /**
      * Gets the value of the externalVerification property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getExternalVerification() {
         return externalVerification;
@@ -117,11 +104,9 @@ public class PasswordType extends ExtensionListType {
 
     /**
      * Sets the value of the externalVerification property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setExternalVerification(String value) {
         this.externalVerification = value;

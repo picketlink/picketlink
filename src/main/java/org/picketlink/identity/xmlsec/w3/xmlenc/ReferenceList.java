@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for anonymous complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -43,52 +44,43 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class ReferenceList 
-{
-   public static class References
-   {
-      private ReferenceType dataReference;
-      private ReferenceType keyReference;
-      
-      public References(ReferenceType dataReference, ReferenceType keyReference)
-      {
-         this.dataReference = dataReference;
-         this.keyReference = keyReference;
-      }
+ *
+ *
+ */
+public class ReferenceList {
+    public static class References {
+        private ReferenceType dataReference;
+        private ReferenceType keyReference;
 
-      public ReferenceType getDataReference()
-      {
-         return dataReference;
-      }
+        public References(ReferenceType dataReference, ReferenceType keyReference) {
+            this.dataReference = dataReference;
+            this.keyReference = keyReference;
+        }
 
-      public ReferenceType getKeyReference()
-      {
-         return keyReference;
-      } 
-   }
-   
-   private List<References> referencesList = new ArrayList<References>();
-   
-   public void add( References ref )
-   {
-      this.referencesList.add(ref);
-   }
-   
-   public void addAll( List<References> refs )
-   {
-      this.referencesList.addAll(refs);
-   }
-   
-   public void remove( References ref )
-   {
-      this.referencesList.remove( ref );
-   }
-   
-   public List<References> getReferences()
-   {
-      return Collections.unmodifiableList( referencesList );
-   }
+        public ReferenceType getDataReference() {
+            return dataReference;
+        }
+
+        public ReferenceType getKeyReference() {
+            return keyReference;
+        }
+    }
+
+    private List<References> referencesList = new ArrayList<References>();
+
+    public void add(References ref) {
+        this.referencesList.add(ref);
+    }
+
+    public void addAll(List<References> refs) {
+        this.referencesList.addAll(refs);
+    }
+
+    public void remove(References ref) {
+        this.referencesList.remove(ref);
+    }
+
+    public List<References> getReferences() {
+        return Collections.unmodifiableList(referencesList);
+    }
 }

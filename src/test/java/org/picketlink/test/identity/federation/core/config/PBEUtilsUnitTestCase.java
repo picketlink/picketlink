@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,33 +34,32 @@ import org.picketlink.identity.federation.core.util.PBEUtils;
 
 /**
  * Test the masking of the password using {@code PBEUtils}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since May 25, 2010
  */
-public class PBEUtilsUnitTestCase
-{
-   @Test
-   public void testPBE() throws Exception
-   {
-      String pass = "testpass";
+public class PBEUtilsUnitTestCase {
+    @Test
+    public void testPBE() throws Exception {
+        String pass = "testpass";
 
-      String salt = "18273645";
-      int iterationCount = 56;
+        String salt = "18273645";
+        int iterationCount = 56;
 
-      String pbeAlgo = PicketLinkFederationConstants.PBE_ALGORITHM;
-      SecretKeyFactory factory = SecretKeyFactory.getInstance(pbeAlgo);
+        String pbeAlgo = PicketLinkFederationConstants.PBE_ALGORITHM;
+        SecretKeyFactory factory = SecretKeyFactory.getInstance(pbeAlgo);
 
-      char[] password = "somearbitrarycrazystringthatdoesnotmatter".toCharArray();
-      PBEParameterSpec cipherSpec = new PBEParameterSpec(salt.getBytes(), iterationCount);
-      PBEKeySpec keySpec = new PBEKeySpec(password);
-      SecretKey cipherKey = factory.generateSecret(keySpec);
+        char[] password = "somearbitrarycrazystringthatdoesnotmatter".toCharArray();
+        PBEParameterSpec cipherSpec = new PBEParameterSpec(salt.getBytes(), iterationCount);
+        PBEKeySpec keySpec = new PBEKeySpec(password);
+        SecretKey cipherKey = factory.generateSecret(keySpec);
 
-      String encodedPass = PBEUtils.encode64(pass.getBytes(), pbeAlgo, cipherKey, cipherSpec);
+        String encodedPass = PBEUtils.encode64(pass.getBytes(), pbeAlgo, cipherKey, cipherSpec);
 
-      //Decode the stuff
-      cipherKey = factory.generateSecret(keySpec);
-      String decodedPass = PBEUtils.decode64(encodedPass, pbeAlgo, cipherKey, cipherSpec);
+        // Decode the stuff
+        cipherKey = factory.generateSecret(keySpec);
+        String decodedPass = PBEUtils.decode64(encodedPass, pbeAlgo, cipherKey, cipherSpec);
 
-      assertEquals("Passwords match", pass, decodedPass);
-   }
+        assertEquals("Passwords match", pass, decodedPass);
+    }
 }

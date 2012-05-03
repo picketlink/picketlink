@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -41,90 +41,85 @@ import org.w3c.dom.Document;
 
 /**
  * Validate the SAML2 AuthnRequest parse
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 2, 2010
  */
-public class SAMLAuthnRequestParserTestCase extends AbstractParserTest
-{
-   @Test
-   public void testSAMLAuthnRequestParse() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-authnrequest.xml");
+public class SAMLAuthnRequestParserTestCase extends AbstractParserTest {
+    @Test
+    public void testSAMLAuthnRequestParse() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-authnrequest.xml");
 
-      SAMLParser parser = new SAMLParser();
-      AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(configStream);
-      assertNotNull("AuthnRequestType is not null", authnRequest);
+        SAMLParser parser = new SAMLParser();
+        AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(configStream);
+        assertNotNull("AuthnRequestType is not null", authnRequest);
 
-      assertEquals("http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint", authnRequest
-            .getAssertionConsumerServiceURL().toString());
-      assertEquals("http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint", authnRequest.getDestination()
-            .toString());
-      assertEquals("a2sffdlgdhgfg32fdldsdghdsgdgfdglgx", authnRequest.getID());
-      assertEquals(XMLTimeUtil.parse("2007-12-17T18:40:52.203Z"), authnRequest.getIssueInstant());
-      assertEquals("urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect", authnRequest.getProtocolBinding().toString());
-      assertEquals("Test SAML2 SP", authnRequest.getProviderName());
-      assertEquals("2.0", authnRequest.getVersion());
+        assertEquals("http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint", authnRequest
+                .getAssertionConsumerServiceURL().toString());
+        assertEquals("http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint", authnRequest.getDestination()
+                .toString());
+        assertEquals("a2sffdlgdhgfg32fdldsdghdsgdgfdglgx", authnRequest.getID());
+        assertEquals(XMLTimeUtil.parse("2007-12-17T18:40:52.203Z"), authnRequest.getIssueInstant());
+        assertEquals("urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect", authnRequest.getProtocolBinding().toString());
+        assertEquals("Test SAML2 SP", authnRequest.getProviderName());
+        assertEquals("2.0", authnRequest.getVersion());
 
-      //Issuer
-      assertEquals("Test SAML2 SP", authnRequest.getIssuer().getValue());
+        // Issuer
+        assertEquals("Test SAML2 SP", authnRequest.getIssuer().getValue());
 
-      //NameID Policy
-      NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
-      assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat().toString());
-      assertEquals(Boolean.TRUE, nameIDPolicy.isAllowCreate());
+        // NameID Policy
+        NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
+        assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat().toString());
+        assertEquals(Boolean.TRUE, nameIDPolicy.isAllowCreate());
 
-      //Try out writing
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
-      writer.write(authnRequest);
+        // Try out writing
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(authnRequest);
 
-      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
-      Document doc = DocumentUtil.getDocument(bis); //throws exceptions
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
-   
-   @Test
-   public void testSAMLAuthnRequestParse2() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-authnrequest-2.xml");
+        ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+        Document doc = DocumentUtil.getDocument(bis); // throws exceptions
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 
+    @Test
+    public void testSAMLAuthnRequestParse2() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-authnrequest-2.xml");
 
-      JAXPValidationUtil.validate(configStream);
-      configStream = tcl.getResourceAsStream("parser/saml2/saml2-authnrequest-2.xml");
-      
-      SAMLParser parser = new SAMLParser();
-      AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(configStream);
-      assertNotNull("AuthnRequestType is not null", authnRequest);
+        JAXPValidationUtil.validate(configStream);
+        configStream = tcl.getResourceAsStream("parser/saml2/saml2-authnrequest-2.xml");
 
-      /*assertEquals("http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint", authnRequest
-            .getAssertionConsumerServiceURL().toString());
-      assertEquals("http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint", authnRequest.getDestination()
-            .toString());
-      assertEquals("a2sffdlgdhgfg32fdldsdghdsgdgfdglgx", authnRequest.getID());
-      assertEquals(XMLTimeUtil.parse("2007-12-17T18:40:52.203Z"), authnRequest.getIssueInstant());
-      assertEquals("urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect", authnRequest.getProtocolBinding().toString());
-      assertEquals("Test SAML2 SP", authnRequest.getProviderName());
-      assertEquals("2.0", authnRequest.getVersion());
+        SAMLParser parser = new SAMLParser();
+        AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(configStream);
+        assertNotNull("AuthnRequestType is not null", authnRequest);
 
-      //Issuer
-      assertEquals("Test SAML2 SP", authnRequest.getIssuer().getValue());
+        /*
+         * assertEquals("http://localhost/org.eclipse.higgins.saml2idp.test/SAMLEndpoint", authnRequest
+         * .getAssertionConsumerServiceURL().toString());
+         * assertEquals("http://localhost/org.eclipse.higgins.saml2idp.server/SAMLEndpoint", authnRequest.getDestination()
+         * .toString()); assertEquals("a2sffdlgdhgfg32fdldsdghdsgdgfdglgx", authnRequest.getID());
+         * assertEquals(XMLTimeUtil.parse("2007-12-17T18:40:52.203Z"), authnRequest.getIssueInstant());
+         * assertEquals("urn:oasis:names.tc:SAML:2.0:bindings:HTTP-Redirect", authnRequest.getProtocolBinding().toString());
+         * assertEquals("Test SAML2 SP", authnRequest.getProviderName()); assertEquals("2.0", authnRequest.getVersion());
+         *
+         * //Issuer assertEquals("Test SAML2 SP", authnRequest.getIssuer().getValue());
+         *
+         * //NameID Policy NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
+         * assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat().toString());
+         * assertEquals(Boolean.TRUE, nameIDPolicy.isAllowCreate());
+         */
 
-      //NameID Policy
-      NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
-      assertEquals("urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", nameIDPolicy.getFormat().toString());
-      assertEquals(Boolean.TRUE, nameIDPolicy.isAllowCreate());*/
+        // Try out writing
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(authnRequest);
 
-      //Try out writing
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
-      writer.write(authnRequest);
-
-      byte[] data = baos.toByteArray();
-      System.out.println(new String(data));
-      ByteArrayInputStream bis = new ByteArrayInputStream(data);
-      Document doc = DocumentUtil.getDocument(bis); //throws exceptions
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        byte[] data = baos.toByteArray();
+        System.out.println(new String(data));
+        ByteArrayInputStream bis = new ByteArrayInputStream(data);
+        Document doc = DocumentUtil.getDocument(bis); // throws exceptions
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 }

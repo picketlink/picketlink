@@ -1,12 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
- 
-
 /**
- * <p>Java class for PublicKeyType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for PublicKeyType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="PublicKeyType">
  *   &lt;complexContent>
@@ -19,19 +19,17 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class PublicKeyType extends ExtensionListType {
     protected String keyValidation;
 
     /**
      * Gets the value of the keyValidation property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getKeyValidation() {
         return keyValidation;
@@ -39,11 +37,9 @@ public class PublicKeyType extends ExtensionListType {
 
     /**
      * Sets the value of the keyValidation property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setKeyValidation(String value) {
         this.keyValidation = value;

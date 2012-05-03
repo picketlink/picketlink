@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -42,35 +42,34 @@ import org.w3c.dom.Element;
 
 /**
  * Validate the parsing of wst-validate-saml.xml
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2010
  */
-public class WSTrustValidateSamlTestCase
-{
-   @Test
-   public void testWST_ValidateSaml() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-validate-saml.xml");
+public class WSTrustValidateSamlTestCase {
+    @Test
+    public void testWST_ValidateSaml() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-validate-saml.xml");
 
-      WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken rst1 = (RequestSecurityToken) parser.parse(configStream);
-      assertEquals("validatecontext", rst1.getContext());
-      assertEquals(WSTrustConstants.VALIDATE_REQUEST, rst1.getRequestType().toASCIIString());
-      assertEquals(WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
+        WSTrustParser parser = new WSTrustParser();
+        RequestSecurityToken rst1 = (RequestSecurityToken) parser.parse(configStream);
+        assertEquals("validatecontext", rst1.getContext());
+        assertEquals(WSTrustConstants.VALIDATE_REQUEST, rst1.getRequestType().toASCIIString());
+        assertEquals(WSTrustConstants.RSTR_STATUS_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
 
-      ValidateTargetType validateTarget = rst1.getValidateTarget();
-      Element assertionElement = (Element) validateTarget.getAny().get(0);
-      AssertionType assertion = SAMLUtil.fromElement(assertionElement);
-      assertEquals("ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID());
+        ValidateTargetType validateTarget = rst1.getValidateTarget();
+        Element assertionElement = (Element) validateTarget.getAny().get(0);
+        AssertionType assertion = SAMLUtil.fromElement(assertionElement);
+        assertEquals("ID_654b6092-c725-40ea-8044-de453b59cb28", assertion.getID());
 
-      //Now for the writing part
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
+        // Now for the writing part
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(rst1);
+        rstWriter.write(rst1);
 
-      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 }

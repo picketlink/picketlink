@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,10 +26,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <p>Java class for ClaimsProcessorType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ClaimsProcessorType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ClaimsProcessorType">
  *   &lt;complexContent>
@@ -43,91 +45,74 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class ClaimsProcessorType
-{
+public class ClaimsProcessorType {
 
-   protected List<KeyValueType> property = new ArrayList<KeyValueType>();
+    protected List<KeyValueType> property = new ArrayList<KeyValueType>();
 
-   protected String processorClass;
+    protected String processorClass;
 
-   protected String dialect;
+    protected String dialect;
 
-   public void add(KeyValueType kv)
-   {
-      this.property.add(kv);
-   }
+    public void add(KeyValueType kv) {
+        this.property.add(kv);
+    }
 
-   public void remove(KeyValueType kv)
-   {
-      this.property.remove(kv);
-   }
+    public void remove(KeyValueType kv) {
+        this.property.remove(kv);
+    }
 
-   /**
-    * Gets the value of the property property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link KeyValueType }
-    * 
-    * 
-    */
-   public List<KeyValueType> getProperty()
-   {
-      return Collections.unmodifiableList(this.property);
-   }
+    /**
+     * Gets the value of the property property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link KeyValueType }
+     *
+     *
+     */
+    public List<KeyValueType> getProperty() {
+        return Collections.unmodifiableList(this.property);
+    }
 
-   /**
-    * Gets the value of the processorClass property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getProcessorClass()
-   {
-      return processorClass;
-   }
+    /**
+     * Gets the value of the processorClass property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getProcessorClass() {
+        return processorClass;
+    }
 
-   /**
-    * Sets the value of the processorClass property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setProcessorClass(String value)
-   {
-      this.processorClass = value;
-   }
+    /**
+     * Sets the value of the processorClass property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setProcessorClass(String value) {
+        this.processorClass = value;
+    }
 
-   /**
-    * Gets the value of the dialect property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getDialect()
-   {
-      return dialect;
-   }
+    /**
+     * Gets the value of the dialect property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getDialect() {
+        return dialect;
+    }
 
-   /**
-    * Sets the value of the dialect property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setDialect(String value)
-   {
-      this.dialect = value;
-   }
+    /**
+     * Sets the value of the dialect property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setDialect(String value) {
+        this.dialect = value;
+    }
 
 }

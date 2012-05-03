@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -76,136 +76,129 @@ import org.w3c.dom.Document;
 
 /**
  * Unit test the {@link SAML2AuthenticationHandler}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 17, 2011
  */
-public class SAML2AuthenticationHandlerUnitTestCase
-{
-   @Test
-   public void handleNameIDCustomization() throws Exception
-   {
-      SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+public class SAML2AuthenticationHandlerUnitTestCase {
+    @Test
+    public void handleNameIDCustomization() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
 
-      SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
-      SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
-      handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
 
-      Map<String, Object> chainOptions = new HashMap<String, Object>();
-      SPType spType = new SPType();
-      chainOptions.put(GeneralConstants.CONFIGURATION, spType);
-      chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
-      chainConfig.set(chainOptions);
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        SPType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
 
-      //Initialize the handler
-      handler.initChainConfig(chainConfig);
-      handler.initHandlerConfig(handlerConfig);
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
 
-      //Create a Protocol Context
-      MockHttpSession session = new MockHttpSession();
-      MockServletContext servletContext = new MockServletContext();
-      MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
-      MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-      HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
-      SAML2Object saml2Object = new SAML2Object()
-      {
-      };
+        SAML2Object saml2Object = new SAML2Object() {
+        };
 
-      SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
-      IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
 
-      SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
-            SAML2Handler.HANDLER_TYPE.SP);
-      request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+        request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
 
-      SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
-      handler.generateSAMLRequest(request, response);
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        handler.generateSAMLRequest(request, response);
 
-      Document samlReq = response.getResultingDocument();
-      SAMLParser parser = new SAMLParser();
-      AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(DocumentUtil.getNodeAsStream(samlReq));
-      NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
-      assertEquals(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get(), nameIDPolicy.getFormat().toString());
-   }
+        Document samlReq = response.getResultingDocument();
+        SAMLParser parser = new SAMLParser();
+        AuthnRequestType authnRequest = (AuthnRequestType) parser.parse(DocumentUtil.getNodeAsStream(samlReq));
+        NameIDPolicyType nameIDPolicy = authnRequest.getNameIDPolicy();
+        assertEquals(JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get(), nameIDPolicy.getFormat().toString());
+    }
 
-   @Ignore
-   @Test
-   public void handleEncryptedAssertion() throws Exception
-   {
-      SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
+    @Ignore
+    @Test
+    public void handleEncryptedAssertion() throws Exception {
+        SAML2AuthenticationHandler handler = new SAML2AuthenticationHandler();
 
-      SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
-      SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
 
-      Map<String, Object> chainOptions = new HashMap<String, Object>();
-      SPType spType = new SPType();
-      chainOptions.put(GeneralConstants.CONFIGURATION, spType);
-      chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
-      chainConfig.set(chainOptions);
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        SPType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
+        chainConfig.set(chainOptions);
 
-      //Initialize the handler
-      handler.initChainConfig(chainConfig);
-      handler.initHandlerConfig(handlerConfig);
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
 
-      //Create a Protocol Context
-      MockHttpSession session = new MockHttpSession();
-      MockServletContext servletContext = new MockServletContext();
-      MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
-      MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-      HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
-      SAML2Object saml2Object = new SAML2Object()
-      {
-      };
+        SAML2Object saml2Object = new SAML2Object() {
+        };
 
-      KeyPair keypair = KeyStoreUtil.generateKeyPair("RSA");
+        KeyPair keypair = KeyStoreUtil.generateKeyPair("RSA");
 
-      SAML2Response saml2Response = new SAML2Response();
-      IssuerInfoHolder issuerInfoholder = new IssuerInfoHolder("testIssuer");
+        SAML2Response saml2Response = new SAML2Response();
+        IssuerInfoHolder issuerInfoholder = new IssuerInfoHolder("testIssuer");
 
-      AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), new NameIDType());
-      SubjectType assertionSubject = new SubjectType();
-      STSubType subType = new STSubType();
-      NameIDType anil = new NameIDType();
-      anil.setValue("anil");
-      subType.addBaseID(anil);
-      assertionSubject.setSubType(subType);
-      assertion.setSubject(assertionSubject);
+        AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), new NameIDType());
+        SubjectType assertionSubject = new SubjectType();
+        STSubType subType = new STSubType();
+        NameIDType anil = new NameIDType();
+        anil.setValue("anil");
+        subType.addBaseID(anil);
+        assertionSubject.setSubType(subType);
+        assertion.setSubject(assertionSubject);
 
-      ResponseType responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder,
-            assertion);
+        ResponseType responseType = saml2Response.createResponseType(IDGenerator.create("ID_"), issuerInfoholder, assertion);
 
-      String assertionNS = JBossSAMLURIConstants.ASSERTION_NSURI.get();
+        String assertionNS = JBossSAMLURIConstants.ASSERTION_NSURI.get();
 
-      QName assertionQName = new QName(assertionNS, "EncryptedAssertion", "saml");
-      Document responseDoc = saml2Response.convert(responseType);
+        QName assertionQName = new QName(assertionNS, "EncryptedAssertion", "saml");
+        Document responseDoc = saml2Response.convert(responseType);
 
-      byte[] secret = WSTrustUtil.createRandomSecret(128 / 8);
-      SecretKey secretKey = new SecretKeySpec(secret, "AES");
+        byte[] secret = WSTrustUtil.createRandomSecret(128 / 8);
+        SecretKey secretKey = new SecretKeySpec(secret, "AES");
 
-      PublicKey publicKey = keypair.getPublic();
-      XMLEncryptionUtil.encryptElement(new QName(assertionNS, "Assertion", "saml"), responseDoc, publicKey, secretKey,
-            128, assertionQName, true);
+        PublicKey publicKey = keypair.getPublic();
+        XMLEncryptionUtil.encryptElement(new QName(assertionNS, "Assertion", "saml"), responseDoc, publicKey, secretKey, 128,
+                assertionQName, true);
 
-      SAMLParser parser = new SAMLParser();
-      saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
+        SAMLParser parser = new SAMLParser();
+        saml2Object = (SAML2Object) parser.parse(DocumentUtil.getNodeAsStream(responseDoc));
 
-      SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
-      IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
-      SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
-            SAML2Handler.HANDLER_TYPE.SP);
-      request.addOption(GeneralConstants.DECRYPTING_KEY, keypair.getPrivate());
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.SP);
+        request.addOption(GeneralConstants.DECRYPTING_KEY, keypair.getPrivate());
 
-      SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
 
-      session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal()
-      {
-         public String getName()
-         {
-            return "Hi";
-         }
-      });
+        session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal() {
+            public String getName() {
+                return "Hi";
+            }
+        });
 
-      handler.handleStatusResponseType(request, response);
-   }
+        handler.handleStatusResponseType(request, response);
+    }
 }

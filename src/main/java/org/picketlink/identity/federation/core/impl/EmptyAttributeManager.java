@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,25 +29,21 @@ import java.util.Map;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
- * An attribute manager implementation that just returns 
- * an empty attribute map
+ * An attribute manager implementation that just returns an empty attribute map
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Sep 10, 2009
  */
-public class EmptyAttributeManager implements AttributeManager
-{
-   /**
-    * @see AttributeManager#getAttributes(Principal, List)
-    */
-   public Map<String, Object> getAttributes(Principal userPrincipal, 
-         List<String> attributeKeys)
-   { 
-      return new HashMap<String, Object>();
-   }
+public class EmptyAttributeManager implements AttributeManager {
+    /**
+     * @see AttributeManager#getAttributes(Principal, List)
+     */
+    public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys) {
+        return new HashMap<String, Object>();
+    }
 
-   @Override
-   public String toString()
-   {
-     return EmptyAttributeManager.class.getName();
-   } 
+    @Override
+    public String toString() {
+        return EmptyAttributeManager.class.getName();
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -31,10 +31,12 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionType;
 
 /**
- * <p>Java class for ResponseType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ResponseType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ResponseType">
  *   &lt;complexContent>
@@ -47,107 +49,94 @@ import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionTy
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class ResponseType extends StatusResponseType
-{
-   private static final long serialVersionUID = 1L;
+public class ResponseType extends StatusResponseType {
+    private static final long serialVersionUID = 1L;
 
-   protected List<RTChoiceType> assertions = new ArrayList<ResponseType.RTChoiceType>();
+    protected List<RTChoiceType> assertions = new ArrayList<ResponseType.RTChoiceType>();
 
-   public ResponseType(String id, XMLGregorianCalendar issueInstant)
-   {
-      super(id, issueInstant);
-   }
+    public ResponseType(String id, XMLGregorianCalendar issueInstant) {
+        super(id, issueInstant);
+    }
 
-   public ResponseType(StatusResponseType srt)
-   {
-      super(srt);
-   }
+    public ResponseType(StatusResponseType srt) {
+        super(srt);
+    }
 
-   /**
-    * Add an assertion
-    * @param choice
-    */
-   public void addAssertion(RTChoiceType choice)
-   {
-      assertions.add(choice);
-   }
+    /**
+     * Add an assertion
+     *
+     * @param choice
+     */
+    public void addAssertion(RTChoiceType choice) {
+        assertions.add(choice);
+    }
 
-   /**
-    * Remove an assertion
-    * @param choice
-    */
-   public void removeAssertion(RTChoiceType choice)
-   {
-      assertions.remove(choice);
-   }
+    /**
+     * Remove an assertion
+     *
+     * @param choice
+     */
+    public void removeAssertion(RTChoiceType choice) {
+        assertions.remove(choice);
+    }
 
-   /**
-    * Replace the first assertion with the passed assertion
-    * @param id id of the old assertion
-    * @param newAssertion
-    */
-   public void replaceAssertion(String id, RTChoiceType newAssertion)
-   {
-      int index = 0;
-      if (id != null && !id.isEmpty())
-      {
-         for (RTChoiceType assertion : assertions)
-         {
-            if (assertion.getID().equals(id))
-            {
-               break;
+    /**
+     * Replace the first assertion with the passed assertion
+     *
+     * @param id id of the old assertion
+     * @param newAssertion
+     */
+    public void replaceAssertion(String id, RTChoiceType newAssertion) {
+        int index = 0;
+        if (id != null && !id.isEmpty()) {
+            for (RTChoiceType assertion : assertions) {
+                if (assertion.getID().equals(id)) {
+                    break;
+                }
+                index++;
             }
-            index++;
-         }
-      }
-      assertions.remove(index);
-      assertions.add(index, newAssertion);
-   }
+        }
+        assertions.remove(index);
+        assertions.add(index, newAssertion);
+    }
 
-   /**
-    * Gets a read only list of assertions
-    */
-   public List<RTChoiceType> getAssertions()
-   {
-      return Collections.unmodifiableList(assertions);
-   }
+    /**
+     * Gets a read only list of assertions
+     */
+    public List<RTChoiceType> getAssertions() {
+        return Collections.unmodifiableList(assertions);
+    }
 
-   public static class RTChoiceType
-   {
-      private AssertionType assertion;
+    public static class RTChoiceType {
+        private AssertionType assertion;
 
-      private EncryptedAssertionType encryptedAssertion;
+        private EncryptedAssertionType encryptedAssertion;
 
-      private String id;
+        private String id;
 
-      public RTChoiceType(AssertionType assertion)
-      {
-         this.assertion = assertion;
-         this.id = assertion.getID();
-      }
+        public RTChoiceType(AssertionType assertion) {
+            this.assertion = assertion;
+            this.id = assertion.getID();
+        }
 
-      public RTChoiceType(EncryptedAssertionType encryptedAssertion)
-      {
-         this.encryptedAssertion = encryptedAssertion;
+        public RTChoiceType(EncryptedAssertionType encryptedAssertion) {
+            this.encryptedAssertion = encryptedAssertion;
 
-      }
+        }
 
-      public AssertionType getAssertion()
-      {
-         return assertion;
-      }
+        public AssertionType getAssertion() {
+            return assertion;
+        }
 
-      public EncryptedAssertionType getEncryptedAssertion()
-      {
-         return encryptedAssertion;
-      }
+        public EncryptedAssertionType getEncryptedAssertion() {
+            return encryptedAssertion;
+        }
 
-      public String getID()
-      {
-         return id;
-      }
-   }
+        public String getID() {
+            return id;
+        }
+    }
 }

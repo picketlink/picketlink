@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,11 +25,13 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
 
 /**
  * This type represents a reference to an embedded security token.
- * 
- * <p>Java class for EmbeddedType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
+ * <p>
+ * Java class for EmbeddedType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="EmbeddedType">
  *   &lt;complexContent>
@@ -42,36 +44,29 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class EmbeddedType extends AnyAddressingType
-{
-   protected String valueType;
+public class EmbeddedType extends AnyAddressingType {
+    protected String valueType;
 
-   /**
-    * Gets the value of the valueType property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getValueType()
-   {
-      return valueType;
-   }
+    /**
+     * Gets the value of the valueType property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getValueType() {
+        return valueType;
+    }
 
-   /**
-    * Sets the value of the valueType property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setValueType(String value)
-   {
-      this.valueType = value;
-   }
+    /**
+     * Sets the value of the valueType property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setValueType(String value) {
+        this.valueType = value;
+    }
 }

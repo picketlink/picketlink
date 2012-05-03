@@ -1,10 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
- 
+
 /**
- * <p>Java class for RestrictedPasswordType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for RestrictedPasswordType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="RestrictedPasswordType">
  *   &lt;complexContent>
@@ -19,10 +21,8 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class RestrictedPasswordType
-    extends PasswordType
-{ 
+ *
+ *
+ */
+public class RestrictedPasswordType extends PasswordType {
 }

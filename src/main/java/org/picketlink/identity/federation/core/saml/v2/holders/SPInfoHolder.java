@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,34 +22,33 @@
 package org.picketlink.identity.federation.core.saml.v2.holders;
 
 /**
- * <p>Holds the information about a Service Provider</p>
- * <p>This holder is useful in generating saml messages</p>
- * 
+ * <p>
+ * Holds the information about a Service Provider
+ * </p>
+ * <p>
+ * This holder is useful in generating saml messages
+ * </p>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Dec 10, 2008
  */
-public class SPInfoHolder
-{
-   private String requestID;
-   private String responseDestinationURI;
+public class SPInfoHolder {
+    private String requestID;
+    private String responseDestinationURI;
 
-   public String getRequestID()
-   {
-      return requestID;
-   }
+    public String getRequestID() {
+        return requestID;
+    }
 
-   public void setRequestID(String requestID)
-   {
-      this.requestID = requestID;
-   }
+    public void setRequestID(String requestID) {
+        this.requestID = requestID;
+    }
 
-   public String getResponseDestinationURI()
-   {
-      return responseDestinationURI;
-   }
+    public String getResponseDestinationURI() {
+        return responseDestinationURI;
+    }
 
-   public void setResponseDestinationURI(String responseDestinationURI)
-   {
-      this.responseDestinationURI = responseDestinationURI;
-   }
+    public void setResponseDestinationURI(String responseDestinationURI) {
+        this.responseDestinationURI = responseDestinationURI;
+    }
 }

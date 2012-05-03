@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,68 +26,52 @@ import java.security.PrivilegedAction;
 
 /**
  * Privileged Blocks
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Mar 17, 2009
  */
-class SecurityActions
-{
-   static String getSystemProperty(final String key)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<String>()
-      {
-         public String run()
-         {
-            return System.getProperty(key);
-         }
-      });
-   }
-
-   static void setSystemProperty(final String key, final String value)
-   {
-      AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
-            System.setProperty(key, value);
-            return null;
-         }
-      });
-   }
-
-   static Class<?> loadClass(final Class<?> theClass, final String fqn)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
-      {
-         public Class<?> run()
-         {
-            ClassLoader classLoader = theClass.getClassLoader();
-
-            Class<?> clazz = loadClass(classLoader, fqn);
-            if (clazz == null)
-            {
-               classLoader = Thread.currentThread().getContextClassLoader();
-               clazz = loadClass(classLoader, fqn);
+class SecurityActions {
+    static String getSystemProperty(final String key) {
+        return AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return System.getProperty(key);
             }
-            return clazz;
-         }
-      });
-   }
+        });
+    }
 
-   static Class<?> loadClass(final ClassLoader cl, final String fqn)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<Class<?>>()
-      {
-         public Class<?> run()
-         {
-            try
-            {
-               return cl.loadClass(fqn);
+    static void setSystemProperty(final String key, final String value) {
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            public Object run() {
+                System.setProperty(key, value);
+                return null;
             }
-            catch (ClassNotFoundException e)
-            {
+        });
+    }
+
+    static Class<?> loadClass(final Class<?> theClass, final String fqn) {
+        return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
+            public Class<?> run() {
+                ClassLoader classLoader = theClass.getClassLoader();
+
+                Class<?> clazz = loadClass(classLoader, fqn);
+                if (clazz == null) {
+                    classLoader = Thread.currentThread().getContextClassLoader();
+                    clazz = loadClass(classLoader, fqn);
+                }
+                return clazz;
             }
-            return null;
-         }
-      });
-   }
+        });
+    }
+
+    static Class<?> loadClass(final ClassLoader cl, final String fqn) {
+        return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
+            public Class<?> run() {
+                try {
+                    return cl.loadClass(fqn);
+                } catch (ClassNotFoundException e) {
+                }
+                return null;
+            }
+        });
+    }
 }

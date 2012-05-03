@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -33,24 +33,22 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 
 /**
  * Base class for the parser unit tests
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 30, 2011
  */
-public class AbstractParserTest
-{
-   public void validateSchema(String value) throws Exception
-   {
-      System.setProperty("jaxp.debug", "true");
-      Validator validator = StaxParserUtil.getSchemaValidator();
-      assertNotNull(validator);
-      validator.validate(new StreamSource(new StringReader(value)));
-   }
+public class AbstractParserTest {
+    public void validateSchema(String value) throws Exception {
+        System.setProperty("jaxp.debug", "true");
+        Validator validator = StaxParserUtil.getSchemaValidator();
+        assertNotNull(validator);
+        validator.validate(new StreamSource(new StringReader(value)));
+    }
 
-   public void validateSchema(InputStream is) throws Exception
-   {
-      System.setProperty("jaxp.debug", "true");
-      Validator validator = StaxParserUtil.getSchemaValidator();
-      assertNotNull(validator);
-      validator.validate(new StreamSource(is));
-   }
+    public void validateSchema(InputStream is) throws Exception {
+        System.setProperty("jaxp.debug", "true");
+        Validator validator = StaxParserUtil.getSchemaValidator();
+        assertNotNull(validator);
+        validator.validate(new StreamSource(is));
+    }
 }

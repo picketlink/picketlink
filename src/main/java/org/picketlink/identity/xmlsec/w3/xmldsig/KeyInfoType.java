@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
- * <p>Java class for KeyInfoType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for KeyInfoType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="KeyInfoType">
  *   &lt;complexContent>
@@ -50,54 +51,43 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class KeyInfoType 
-{
-     protected String id;
-     
-     protected List<Object> contentList = new ArrayList<Object>();
-     
-     public void addContent( Object content )
-     {
-        this.contentList.add(content);
-     }
-     
-     public void removeContent( Object content )
-     {
-        this.contentList.remove(content);
-     }
-     
-     public List<Object> getContent()
-     {
-        return Collections.unmodifiableList( contentList );
-     }
+ *
+ *
+ */
+public class KeyInfoType {
+    protected String id;
 
-  
+    protected List<Object> contentList = new ArrayList<Object>();
+
+    public void addContent(Object content) {
+        this.contentList.add(content);
+    }
+
+    public void removeContent(Object content) {
+        this.contentList.remove(content);
+    }
+
+    public List<Object> getContent() {
+        return Collections.unmodifiableList(contentList);
+    }
+
     /**
      * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
-    public String getId() 
-    {
+    public String getId() {
         return id;
     }
 
     /**
      * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
-    public void setId(String value) 
-    {
+    public void setId(String value) {
         this.id = value;
-    } 
+    }
 }

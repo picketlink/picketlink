@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,10 +24,12 @@ package org.picketlink.identity.federation.saml.v2.assertion;
 import org.w3c.dom.Element;
 
 /**
- * <p>Java class for KeyInfoConfirmationDataType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for KeyInfoConfirmationDataType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="KeyInfoConfirmationDataType">
  *   &lt;complexContent>
@@ -39,22 +41,19 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class KeyInfoConfirmationDataType extends SubjectConfirmationDataType
-{
-   private static final long serialVersionUID = 2510471236717847074L;
+public class KeyInfoConfirmationDataType extends SubjectConfirmationDataType {
+    private static final long serialVersionUID = 2510471236717847074L;
 
-   protected Element keyInfo;
+    protected Element keyInfo;
 
-   public Element getKeyInfo()
-   {
-      return keyInfo;
-   }
+    public Element getKeyInfo() {
+        return keyInfo;
+    }
 
-   public void setKeyInfo(Element keyInfo)
-   {
-      this.keyInfo = keyInfo;
-   }
+    public void setKeyInfo(Element keyInfo) {
+        this.keyInfo = keyInfo;
+    }
 }

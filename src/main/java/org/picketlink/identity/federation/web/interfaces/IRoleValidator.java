@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,23 +27,24 @@ import java.util.Map;
 
 /**
  * Validate the passed Roles
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 21, 2009
  */
-public interface IRoleValidator
-{
-   /**
-    * Initialize the validator
-    * @param options
-    */
-   void intialize(Map<String,String> options);
-   
-   /**
-    * Validate whether the principal with the given
-    * list of roles is valid
-    * @param userPrincipal
-    * @param roles
-    * @return
-    */
-   boolean userInRole(Principal userPrincipal, List<String> roles); 
+public interface IRoleValidator {
+    /**
+     * Initialize the validator
+     *
+     * @param options
+     */
+    void intialize(Map<String, String> options);
+
+    /**
+     * Validate whether the principal with the given list of roles is valid
+     *
+     * @param userPrincipal
+     * @param roles
+     * @return
+     */
+    boolean userInRole(Principal userPrincipal, List<String> roles);
 }

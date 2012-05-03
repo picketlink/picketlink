@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,30 +25,26 @@ import java.security.GeneralSecurityException;
 
 /**
  * Exception indicating an issue with the configuration
+ *
  * @author Anil.Saldhana@redhat.com
  * @since May 22, 2009
  */
-public class ConfigurationException extends GeneralSecurityException
-{
-   private static final long serialVersionUID = 1L;
-   
-   public ConfigurationException()
-   {
-      super(); 
-   }
+public class ConfigurationException extends GeneralSecurityException {
+    private static final long serialVersionUID = 1L;
 
-   public ConfigurationException(String message, Throwable cause)
-   {
-      super(message, cause); 
-   }
+    public ConfigurationException() {
+        super();
+    }
 
-   public ConfigurationException(String message)
-   {
-      super(message); 
-   }
+    public ConfigurationException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-   public ConfigurationException(Throwable cause)
-   {
-      super(cause); 
-   }
+    public ConfigurationException(String message) {
+        super(message);
+    }
+
+    public ConfigurationException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,10 +34,12 @@ import javax.xml.bind.annotation.XmlType;
 import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for anonymous complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -54,91 +56,75 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "", propOrder =
-{"appliesTo", "policyOrPolicyReference", "any"})
+@XmlType(name = "", propOrder = { "appliesTo", "policyOrPolicyReference", "any" })
 @XmlRootElement(name = "PolicyAttachment")
-public class PolicyAttachment extends AnyAddressingType
-{
-   protected AppliesTo appliesTo;
+public class PolicyAttachment extends AnyAddressingType {
+    protected AppliesTo appliesTo;
 
-   protected List<PolicyChoice> theChoices = new ArrayList<PolicyChoice>();
+    protected List<PolicyChoice> theChoices = new ArrayList<PolicyChoice>();
 
-   public static class PolicyChoice
-   {
-      private Policy thePolicy;
+    public static class PolicyChoice {
+        private Policy thePolicy;
 
-      private PolicyReference thePolicyRef;
+        private PolicyReference thePolicyRef;
 
-      public PolicyChoice(Policy p)
-      {
-         thePolicy = p;
-      }
+        public PolicyChoice(Policy p) {
+            thePolicy = p;
+        }
 
-      public PolicyChoice(PolicyReference pr)
-      {
-         thePolicyRef = pr;
-      }
+        public PolicyChoice(PolicyReference pr) {
+            thePolicyRef = pr;
+        }
 
-      public Policy getPolicy()
-      {
-         return thePolicy;
-      }
+        public Policy getPolicy() {
+            return thePolicy;
+        }
 
-      public PolicyReference getPolicyReference()
-      {
-         return thePolicyRef;
-      }
-   }
+        public PolicyReference getPolicyReference() {
+            return thePolicyRef;
+        }
+    }
 
-   /**
-    * Gets the value of the appliesTo property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link AppliesTo }
-    *     
-    */
-   public AppliesTo getAppliesTo()
-   {
-      return appliesTo;
-   }
+    /**
+     * Gets the value of the appliesTo property.
+     *
+     * @return possible object is {@link AppliesTo }
+     *
+     */
+    public AppliesTo getAppliesTo() {
+        return appliesTo;
+    }
 
-   /**
-    * Sets the value of the appliesTo property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link AppliesTo }
-    *     
-    */
-   public void setAppliesTo(AppliesTo value)
-   {
-      this.appliesTo = value;
-   }
+    /**
+     * Sets the value of the appliesTo property.
+     *
+     * @param value allowed object is {@link AppliesTo }
+     *
+     */
+    public void setAppliesTo(AppliesTo value) {
+        this.appliesTo = value;
+    }
 
-   /**
-    * Add a {@link PolicyChoice}
-    * @param pc
-    */
-   public void addChoice(PolicyChoice pc)
-   {
-      this.theChoices.add(pc);
-   }
+    /**
+     * Add a {@link PolicyChoice}
+     *
+     * @param pc
+     */
+    public void addChoice(PolicyChoice pc) {
+        this.theChoices.add(pc);
+    }
 
-   /**
-    * Gets the value of the policyOrPolicyReference property.
-    *  
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link PolicyReference }
-    * {@link Policy }
-    */
-   public List<PolicyChoice> getPolicyOrPolicyReference()
-   {
-      return Collections.unmodifiableList(this.theChoices);
-   }
+    /**
+     * Gets the value of the policyOrPolicyReference property.
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link PolicyReference } {@link Policy }
+     */
+    public List<PolicyChoice> getPolicyOrPolicyReference() {
+        return Collections.unmodifiableList(this.theChoices);
+    }
 }

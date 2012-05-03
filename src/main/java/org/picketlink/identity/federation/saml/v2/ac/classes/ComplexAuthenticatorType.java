@@ -1,12 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
-
-
 /**
- * <p>Java class for ComplexAuthenticatorType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ComplexAuthenticatorType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ComplexAuthenticatorType">
  *   &lt;complexContent>
@@ -19,10 +19,9 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class ComplexAuthenticatorType extends ObjectListType
-{ 
+ *
+ *
+ */
+public class ComplexAuthenticatorType extends ObjectListType {
 
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,11 +25,13 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
 
 /**
  * This type represents a username token per Section 4.1
- * 
- * <p>Java class for UsernameTokenType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
+ * <p>
+ * Java class for UsernameTokenType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="UsernameTokenType">
  *   &lt;complexContent>
@@ -43,64 +45,51 @@ import org.picketlink.identity.federation.ws.addressing.AnyAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class UsernameTokenType extends AnyAddressingType
-{
-   protected AttributedString username;
+public class UsernameTokenType extends AnyAddressingType {
+    protected AttributedString username;
 
-   protected String id;
+    protected String id;
 
-   /**
-    * Gets the value of the username property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link AttributedString }
-    *     
-    */
-   public AttributedString getUsername()
-   {
-      return username;
-   }
+    /**
+     * Gets the value of the username property.
+     *
+     * @return possible object is {@link AttributedString }
+     *
+     */
+    public AttributedString getUsername() {
+        return username;
+    }
 
-   /**
-    * Sets the value of the username property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link AttributedString }
-    *     
-    */
-   public void setUsername(AttributedString value)
-   {
-      this.username = value;
-   }
+    /**
+     * Sets the value of the username property.
+     *
+     * @param value allowed object is {@link AttributedString }
+     *
+     */
+    public void setUsername(AttributedString value) {
+        this.username = value;
+    }
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getId()
-   {
-      return id;
-   }
+    /**
+     * Gets the value of the id property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getId() {
+        return id;
+    }
 
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setId(String value)
-   {
-      this.id = value;
-   }
+    /**
+     * Sets the value of the id property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setId(String value) {
+        this.id = value;
+    }
 }

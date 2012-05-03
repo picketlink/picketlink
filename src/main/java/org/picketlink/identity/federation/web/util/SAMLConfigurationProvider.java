@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,22 +27,24 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 
 /**
  * Returns configuration for an IDP or SP
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 9, 2011
  */
-public interface SAMLConfigurationProvider
-{
-   /**
-    * Get the {@link IDPType} configuration
-    * @return
-    * @throws ProcessingException
-    */
-   IDPType getIDPConfiguration() throws ProcessingException;
+public interface SAMLConfigurationProvider {
+    /**
+     * Get the {@link IDPType} configuration
+     *
+     * @return
+     * @throws ProcessingException
+     */
+    IDPType getIDPConfiguration() throws ProcessingException;
 
-   /**
-    * Get the {@l SPType} configuration
-    * @return
-    * @throws ProcessingException
-    */
-   SPType getSPConfiguration() throws ProcessingException;
+    /**
+     * Get the {@l SPType} configuration
+     *
+     * @return
+     * @throws ProcessingException
+     */
+    SPType getSPConfiguration() throws ProcessingException;
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,10 +24,12 @@ package org.picketlink.identity.federation.saml.v2.metadata;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 
 /**
- * <p>Java class for RequestedAttributeType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for RequestedAttributeType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="RequestedAttributeType">
  *   &lt;complexContent>
@@ -37,43 +39,35 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class RequestedAttributeType extends AttributeType
-{
-   private static final long serialVersionUID = 1L;
+public class RequestedAttributeType extends AttributeType {
+    private static final long serialVersionUID = 1L;
 
-   public RequestedAttributeType(String name)
-   {
-      super(name);
-   }
+    public RequestedAttributeType(String name) {
+        super(name);
+    }
 
-   protected Boolean isRequired;
+    protected Boolean isRequired;
 
-   /**
-    * Gets the value of the isRequired property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link Boolean }
-    *     
-    */
-   public Boolean isIsRequired()
-   {
-      return isRequired;
-   }
+    /**
+     * Gets the value of the isRequired property.
+     *
+     * @return possible object is {@link Boolean }
+     *
+     */
+    public Boolean isIsRequired() {
+        return isRequired;
+    }
 
-   /**
-    * Sets the value of the isRequired property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link Boolean }
-    *     
-    */
-   public void setIsRequired(Boolean value)
-   {
-      this.isRequired = value;
-   }
+    /**
+     * Sets the value of the isRequired property.
+     *
+     * @param value allowed object is {@link Boolean }
+     *
+     */
+    public void setIsRequired(Boolean value) {
+        this.isRequired = value;
+    }
 }

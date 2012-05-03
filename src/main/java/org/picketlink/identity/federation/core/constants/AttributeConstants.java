@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,13 +23,13 @@ package org.picketlink.identity.federation.core.constants;
 
 /**
  * Constants for attributes
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 31, 2009
  */
-public interface AttributeConstants
-{
-   String ROLES = "roles";
+public interface AttributeConstants {
+    String ROLES = "roles";
 
-   /** Default identifier in the saml2 attribute statements to indicate role **/
-   String ROLE_IDENTIFIER_ASSERTION = "Role";
+    /** Default identifier in the saml2 attribute statements to indicate role **/
+    String ROLE_IDENTIFIER_ASSERTION = "Role";
 }

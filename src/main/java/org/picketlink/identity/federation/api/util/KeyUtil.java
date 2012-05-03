@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -38,72 +38,68 @@ import org.w3c.dom.Element;
 
 /**
  * Utility dealing with PublicKey/Certificates and xml-dsig KeyInfoType
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Apr 29, 2009
  */
-public class KeyUtil
-{
-   private static String EOL = getSystemProperty("line.separator", "\n");
+public class KeyUtil {
+    private static String EOL = getSystemProperty("line.separator", "\n");
 
-   /**
-    * Base64 encode the certificate
-    * @param certificate
-    * @return
-    * @throws CertificateEncodingException
-    */
-   public static String encodeAsString(Certificate certificate) throws CertificateEncodingException
-   {
-      return Base64.encodeBytes(certificate.getEncoded());
-   }
+    /**
+     * Base64 encode the certificate
+     *
+     * @param certificate
+     * @return
+     * @throws CertificateEncodingException
+     */
+    public static String encodeAsString(Certificate certificate) throws CertificateEncodingException {
+        return Base64.encodeBytes(certificate.getEncoded());
+    }
 
-   /**
-    * Given a certificate, build a keyinfo type
-    * @param certificate
-    * @return 
-    * @throws CertificateException 
-    * @throws ProcessingException 
-    * @throws ParsingException 
-    * @throws ConfigurationException 
-    */
-   public static Element getKeyInfo(Certificate certificate) throws CertificateException, ConfigurationException,
-         ParsingException, ProcessingException
-   {
-      if (certificate == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "certificate is null");
+    /**
+     * Given a certificate, build a keyinfo type
+     *
+     * @param certificate
+     * @return
+     * @throws CertificateException
+     * @throws ProcessingException
+     * @throws ParsingException
+     * @throws ConfigurationException
+     */
+    public static Element getKeyInfo(Certificate certificate) throws CertificateException, ConfigurationException,
+            ParsingException, ProcessingException {
+        if (certificate == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "certificate is null");
 
-      StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
-      if (certificate instanceof X509Certificate)
-      {
-         X509Certificate x509 = (X509Certificate) certificate;
+        if (certificate instanceof X509Certificate) {
+            X509Certificate x509 = (X509Certificate) certificate;
 
-         //Add the binary encoded x509 cert
-         String certStr = Base64.encodeBytes(x509.getEncoded(), 76);
+            // Add the binary encoded x509 cert
+            String certStr = Base64.encodeBytes(x509.getEncoded(), 76);
 
-         builder.append("<KeyInfo xmlns=\'http://www.w3.org/2000/09/xmldsig#\'>").append(EOL).append("<X509Data>")
-               .append(EOL).append("<X509Certificate>").append(EOL).append(certStr).append(EOL)
-               .append("</X509Certificate>").append("</X509Data>").append("</KeyInfo>");
-      }
-      else
-         throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
+            builder.append("<KeyInfo xmlns=\'http://www.w3.org/2000/09/xmldsig#\'>").append(EOL).append("<X509Data>")
+                    .append(EOL).append("<X509Certificate>").append(EOL).append(certStr).append(EOL)
+                    .append("</X509Certificate>").append("</X509Data>").append("</KeyInfo>");
+        } else
+            throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
 
-      return DocumentUtil.getDocument(builder.toString()).getDocumentElement();
-   }
+        return DocumentUtil.getDocument(builder.toString()).getDocumentElement();
+    }
 
-   /**
-    * Get the system property
-    * @param key
-    * @param defaultValue
-    * @return
-    */
-   static String getSystemProperty(final String key, final String defaultValue)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<String>()
-      {
-         public String run()
-         {
-            return System.getProperty(key, defaultValue);
-         }
-      });
-   }
+    /**
+     * Get the system property
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    static String getSystemProperty(final String key, final String defaultValue) {
+        return AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return System.getProperty(key, defaultValue);
+            }
+        });
+    }
 }

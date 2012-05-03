@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -31,48 +31,37 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 
 /**
- * Default LoginHandler that uses a properties file
- * in the classpath called as users.properties whose
- * format is 
+ * Default LoginHandler that uses a properties file in the classpath called as users.properties whose format is
  * username=password
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 18, 2009
  */
-public class DefaultLoginHandler implements ILoginHandler
-{
-   private static Properties props = new Properties();
+public class DefaultLoginHandler implements ILoginHandler {
+    private static Properties props = new Properties();
 
-   static
-   {
-      try
-      {
-         URL url = SecurityActions.loadResource(DefaultLoginHandler.class, "users.properties");
-         if (url == null)
-            throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + "users.properties not found");
-         props.load(url.openStream());
-      }
-      catch (IOException e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
+    static {
+        try {
+            URL url = SecurityActions.loadResource(DefaultLoginHandler.class, "users.properties");
+            if (url == null)
+                throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + "users.properties not found");
+            props.load(url.openStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-   public boolean authenticate(String username, Object credential) throws LoginException
-   {
-      String pass = null;
-      if (credential instanceof byte[])
-      {
-         pass = new String((byte[]) credential);
-      }
-      else if (credential instanceof String)
-      {
-         pass = (String) credential;
-      }
-      else
-         throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown credential type:" + credential.getClass());
+    public boolean authenticate(String username, Object credential) throws LoginException {
+        String pass = null;
+        if (credential instanceof byte[]) {
+            pass = new String((byte[]) credential);
+        } else if (credential instanceof String) {
+            pass = (String) credential;
+        } else
+            throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown credential type:" + credential.getClass());
 
-      String storedPass = (String) props.get(username);
-      return storedPass != null ? storedPass.equals(pass) : false;
-   }
+        String storedPass = (String) props.get(username);
+        return storedPass != null ? storedPass.equals(pass) : false;
+    }
 
 }

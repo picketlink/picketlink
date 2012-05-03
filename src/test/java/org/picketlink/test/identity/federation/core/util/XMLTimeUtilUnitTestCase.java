@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,50 +34,47 @@ import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 
 /**
  * Unit Test the XML Time Util
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 6, 2009
  */
-public class XMLTimeUtilUnitTestCase extends TestCase
-{
-   public void testCompareViaParsing() throws Exception
-   {
-      DatatypeFactory dt = DatatypeFactory.newInstance();
-      XMLGregorianCalendar now = dt.newXMLGregorianCalendar("2009-06-03T17:42:09.322-04:00");
-      XMLGregorianCalendar notBefore = dt.newXMLGregorianCalendar("2009-06-03T17:42:05.901-04:00");
-      XMLGregorianCalendar notOnOrAfter = dt.newXMLGregorianCalendar("2009-06-03T17:47:05.901-04:00");
-      assertTrue(XMLTimeUtil.isValid(now, notBefore, notOnOrAfter));
-   }
+public class XMLTimeUtilUnitTestCase extends TestCase {
+    public void testCompareViaParsing() throws Exception {
+        DatatypeFactory dt = DatatypeFactory.newInstance();
+        XMLGregorianCalendar now = dt.newXMLGregorianCalendar("2009-06-03T17:42:09.322-04:00");
+        XMLGregorianCalendar notBefore = dt.newXMLGregorianCalendar("2009-06-03T17:42:05.901-04:00");
+        XMLGregorianCalendar notOnOrAfter = dt.newXMLGregorianCalendar("2009-06-03T17:47:05.901-04:00");
+        assertTrue(XMLTimeUtil.isValid(now, notBefore, notOnOrAfter));
+    }
 
-   public void testAdd() throws Exception
-   {
-      XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
-      long min5 = XMLTimeUtil.inMilis(5);
+    public void testAdd() throws Exception {
+        XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
+        long min5 = XMLTimeUtil.inMilis(5);
 
-      XMLGregorianCalendar after5M = XMLTimeUtil.add(now, min5);
-      assertTrue(now.compare(after5M) == DatatypeConstants.LESSER);
+        XMLGregorianCalendar after5M = XMLTimeUtil.add(now, min5);
+        assertTrue(now.compare(after5M) == DatatypeConstants.LESSER);
 
-      GregorianCalendar nowG = now.toGregorianCalendar();
-      GregorianCalendar now5M = after5M.toGregorianCalendar();
+        GregorianCalendar nowG = now.toGregorianCalendar();
+        GregorianCalendar now5M = after5M.toGregorianCalendar();
 
-      //Add 5 minutes
-      nowG.roll(Calendar.MINUTE, 5);
+        // Add 5 minutes
+        nowG.roll(Calendar.MINUTE, 5);
 
-      int val = nowG.compareTo(now5M);
+        int val = nowG.compareTo(now5M);
 
-      assertTrue("Compared value is 0", val <= 0);
-   }
+        assertTrue("Compared value is 0", val <= 0);
+    }
 
-   public void testIsValid() throws Exception
-   {
-      XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
+    public void testIsValid() throws Exception {
+        XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
 
-      long milisFor5Mins = XMLTimeUtil.inMilis(5);
+        long milisFor5Mins = XMLTimeUtil.inMilis(5);
 
-      XMLGregorianCalendar after5M = XMLTimeUtil.add(now, milisFor5Mins);
-      XMLGregorianCalendar after10M = XMLTimeUtil.add(now, milisFor5Mins * 2);
+        XMLGregorianCalendar after5M = XMLTimeUtil.add(now, milisFor5Mins);
+        XMLGregorianCalendar after10M = XMLTimeUtil.add(now, milisFor5Mins * 2);
 
-      //isValid(now, notbefore, notOnOrAfter)
-      assertTrue(XMLTimeUtil.isValid(after5M, now, after10M));
-      assertFalse(XMLTimeUtil.isValid(now, after5M, after10M));
-   }
+        // isValid(now, notbefore, notOnOrAfter)
+        assertTrue(XMLTimeUtil.isValid(after5M, now, after10M));
+        assertFalse(XMLTimeUtil.isValid(now, after5M, after10M));
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,10 +24,12 @@ package org.picketlink.identity.federation.ws.trust;
 import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
 
 /**
- * <p>Java class for BinarySecretType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for BinarySecretType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="BinarySecretType">
  *   &lt;simpleContent>
@@ -37,62 +39,49 @@ import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class BinarySecretType extends BaseAddressingType
-{
-   protected byte[] value;
+public class BinarySecretType extends BaseAddressingType {
+    protected byte[] value;
 
-   protected String type;
+    protected String type;
 
-   /**
-    * Gets the value of the value property.
-    * 
-    * @return
-    *     possible object is
-    *     byte[]
-    */
-   public byte[] getValue()
-   {
-      return value;
-   }
+    /**
+     * Gets the value of the value property.
+     *
+     * @return possible object is byte[]
+     */
+    public byte[] getValue() {
+        return value;
+    }
 
-   /**
-    * Sets the value of the value property.
-    * 
-    * @param value
-    *     allowed object is
-    *     byte[]
-    */
-   public void setValue(byte[] value)
-   {
-      this.value = (value);
-   }
+    /**
+     * Sets the value of the value property.
+     *
+     * @param value allowed object is byte[]
+     */
+    public void setValue(byte[] value) {
+        this.value = (value);
+    }
 
-   /**
-    * Gets the value of the type property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getType()
-   {
-      return type;
-   }
+    /**
+     * Gets the value of the type property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getType() {
+        return type;
+    }
 
-   /**
-    * Sets the value of the type property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setType(String value)
-   {
-      this.type = value;
-   }
+    /**
+     * Sets the value of the type property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setType(String value) {
+        this.type = value;
+    }
 }

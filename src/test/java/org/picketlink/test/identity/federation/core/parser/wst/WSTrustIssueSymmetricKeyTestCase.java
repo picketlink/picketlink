@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -42,42 +42,41 @@ import org.w3c.dom.Document;
 
 /**
  * Validate parsing of RST with Use Key set to Symmetric Key
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 18, 2010
  */
-public class WSTrustIssueSymmetricKeyTestCase
-{
-   @Test
-   public void testSymKey() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-issue-symmetric-key.xml");
+public class WSTrustIssueSymmetricKeyTestCase {
+    @Test
+    public void testSymKey() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-issue-symmetric-key.xml");
 
-      WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+        WSTrustParser parser = new WSTrustParser();
+        RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
 
-      assertEquals("testcontext", requestToken.getContext());
-      assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
+        assertEquals("testcontext", requestToken.getContext());
+        assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
 
-      AppliesTo appliesTo = requestToken.getAppliesTo();
-      EndpointReferenceType endpoint = (EndpointReferenceType) appliesTo.getAny().get(0);
-      assertEquals("http://services.testcorp.org/provider2", endpoint.getAddress().getValue());
+        AppliesTo appliesTo = requestToken.getAppliesTo();
+        EndpointReferenceType endpoint = (EndpointReferenceType) appliesTo.getAny().get(0);
+        assertEquals("http://services.testcorp.org/provider2", endpoint.getAddress().getValue());
 
-      assertEquals(WSTrustConstants.BS_TYPE_SYMMETRIC, requestToken.getKeyType().toASCIIString());
+        assertEquals(WSTrustConstants.BS_TYPE_SYMMETRIC, requestToken.getKeyType().toASCIIString());
 
-      EntropyType entropy = requestToken.getEntropy();
-      BinarySecretType binarySecret = (BinarySecretType) entropy.getAny().get(0);
+        EntropyType entropy = requestToken.getEntropy();
+        BinarySecretType binarySecret = (BinarySecretType) entropy.getAny().get(0);
 
-      assertEquals(WSTrustConstants.BS_TYPE_NONCE, binarySecret.getType());
-      assertEquals("M0/7qLpV49c=", new String(binarySecret.getValue()));
+        assertEquals(WSTrustConstants.BS_TYPE_NONCE, binarySecret.getType());
+        assertEquals("M0/7qLpV49c=", new String(binarySecret.getValue()));
 
-      //Now for the writing part
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
+        // Now for the writing part
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken);
+        rstWriter.write(requestToken);
 
-      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 }

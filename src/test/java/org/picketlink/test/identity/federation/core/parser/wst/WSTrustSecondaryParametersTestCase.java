@@ -19,12 +19,13 @@ import org.w3c.dom.Document;
 
 /**
  * Unit test the wst:SecondaryParameters
+ *
  * @author anil saldhana
  */
 public class WSTrustSecondaryParametersTestCase {
-    
+
     @Test
-    public void testSecondaryParameters() throws Exception{
+    public void testSecondaryParameters() throws Exception {
 
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
         InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-secondaryparameters.xml");
@@ -33,12 +34,11 @@ public class WSTrustSecondaryParametersTestCase {
         RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
 
         EndpointReferenceType endpoint = (EndpointReferenceType) requestToken.getAppliesTo().getAny().get(0);
-        assertEquals("http://localhost:8080/jaxws-samples-wsse-policy-trust/SecurityService", 
-               endpoint.getAddress().getValue() );
+        assertEquals("http://localhost:8080/jaxws-samples-wsse-policy-trust/SecurityService", endpoint.getAddress().getValue());
         assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
         assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString());
 
-        //Now for the writing part
+        // Now for the writing part
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 

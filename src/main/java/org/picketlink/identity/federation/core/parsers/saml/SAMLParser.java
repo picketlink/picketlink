@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -40,138 +40,102 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 
 /**
  * Parse SAML payload
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2010
  */
-public class SAMLParser extends AbstractParser
-{
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+public class SAMLParser extends AbstractParser {
+    /**
+     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     */
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
 
-         if (xmlEvent instanceof StartElement)
-         {
-            StartElement startElement = (StartElement) xmlEvent;
-            QName startElementName = startElement.getName();
-            String nsURI = startElementName.getNamespaceURI();
+            if (xmlEvent instanceof StartElement) {
+                StartElement startElement = (StartElement) xmlEvent;
+                QName startElementName = startElement.getName();
+                String nsURI = startElementName.getNamespaceURI();
 
-            String localPart = startElementName.getLocalPart();
+                String localPart = startElementName.getLocalPart();
 
-            String elementName = StaxParserUtil.getStartElementName(startElement);
+                String elementName = StaxParserUtil.getStartElementName(startElement);
 
-            if (elementName.equalsIgnoreCase(JBossSAMLConstants.ASSERTION.get())
-                  || elementName.equals(JBossSAMLConstants.ENCRYPTED_ASSERTION.get()))
-            {
-               if (nsURI.equals(SAML11Constants.ASSERTION_11_NSURI))
-               {
-                  SAML11AssertionParser saml11AssertionParser = new SAML11AssertionParser();
-                  return saml11AssertionParser.parse(xmlEventReader);
-               }
-               SAMLAssertionParser assertionParser = new SAMLAssertionParser();
-               return assertionParser.parse(xmlEventReader);
+                if (elementName.equalsIgnoreCase(JBossSAMLConstants.ASSERTION.get())
+                        || elementName.equals(JBossSAMLConstants.ENCRYPTED_ASSERTION.get())) {
+                    if (nsURI.equals(SAML11Constants.ASSERTION_11_NSURI)) {
+                        SAML11AssertionParser saml11AssertionParser = new SAML11AssertionParser();
+                        return saml11AssertionParser.parse(xmlEventReader);
+                    }
+                    SAMLAssertionParser assertionParser = new SAMLAssertionParser();
+                    return assertionParser.parse(xmlEventReader);
+                } else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                        && JBossSAMLConstants.AUTHN_REQUEST.get().equals(startElementName.getLocalPart())) {
+                    SAMLAuthNRequestParser authNRequestParser = new SAMLAuthNRequestParser();
+                    return authNRequestParser.parse(xmlEventReader);
+                } else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                        && JBossSAMLConstants.LOGOUT_REQUEST.get().equals(startElementName.getLocalPart())) {
+                    SAMLSloRequestParser sloParser = new SAMLSloRequestParser();
+                    return sloParser.parse(xmlEventReader);
+                } else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                        && JBossSAMLConstants.LOGOUT_RESPONSE.get().equals(startElementName.getLocalPart())) {
+                    SAMLSloResponseParser sloParser = new SAMLSloResponseParser();
+                    return sloParser.parse(xmlEventReader);
+                } else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                        && JBossSAMLConstants.RESPONSE.get().equals(startElementName.getLocalPart())) {
+                    SAMLResponseParser responseParser = new SAMLResponseParser();
+                    return responseParser.parse(xmlEventReader);
+                } else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                        && JBossSAMLConstants.REQUEST_ABSTRACT.get().equals(startElementName.getLocalPart())) {
+                    String xsiTypeValue = StaxParserUtil.getXSITypeValue(startElement);
+                    if (xsiTypeValue.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY_TYPE.get())) {
+                        SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
+                        return samlXacmlParser.parse(xmlEventReader);
+                    }
+                    throw new RuntimeException(ErrorCodes.UNKNOWN_XSI + xsiTypeValue);
+                } else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                        && JBossSAMLConstants.ARTIFACT_RESOLVE.get().equals(startElementName.getLocalPart())) {
+                    SAMLArtifactResolveParser artifactResolverParser = new SAMLArtifactResolveParser();
+                    return artifactResolverParser.parse(xmlEventReader);
+                } else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                        && JBossSAMLConstants.ARTIFACT_RESPONSE.get().equals(startElementName.getLocalPart())) {
+                    SAMLArtifactResponseParser responseParser = new SAMLArtifactResponseParser();
+                    return responseParser.parse(xmlEventReader);
+                } else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
+                        && JBossSAMLConstants.ATTRIBUTE_QUERY.get().equals(startElementName.getLocalPart())) {
+                    SAMLAttributeQueryParser responseParser = new SAMLAttributeQueryParser();
+                    return responseParser.parse(xmlEventReader);
+                } else if (JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get().equals(localPart)) {
+                    SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
+                    return samlXacmlParser.parse(xmlEventReader);
+                } else if (JBossSAMLConstants.ENTITY_DESCRIPTOR.get().equals(localPart)) {
+                    SAMLEntityDescriptorParser entityDescriptorParser = new SAMLEntityDescriptorParser();
+                    return entityDescriptorParser.parse(xmlEventReader);
+                } else if (JBossSAMLConstants.ENTITIES_DESCRIPTOR.get().equals(localPart)) {
+                    SAMLEntitiesDescriptorParser entityDescriptorParser = new SAMLEntitiesDescriptorParser();
+                    return entityDescriptorParser.parse(xmlEventReader);
+                } else if (SAML11Constants.PROTOCOL_11_NSURI.equals(nsURI)
+                        && JBossSAMLConstants.RESPONSE.get().equals(startElementName.getLocalPart())) {
+                    SAML11ResponseParser responseParser = new SAML11ResponseParser();
+                    return responseParser.parse(xmlEventReader);
+                } else if (SAML11Constants.PROTOCOL_11_NSURI.equals(nsURI)
+                        && SAML11Constants.REQUEST.equals(startElementName.getLocalPart())) {
+                    SAML11RequestParser reqParser = new SAML11RequestParser();
+                    return reqParser.parse(xmlEventReader);
+                } else
+                    throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
+                            + startElement.getLocation());
+            } else {
+                StaxParserUtil.getNextEvent(xmlEventReader);
             }
-            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
-                  && JBossSAMLConstants.AUTHN_REQUEST.get().equals(startElementName.getLocalPart()))
-            {
-               SAMLAuthNRequestParser authNRequestParser = new SAMLAuthNRequestParser();
-               return authNRequestParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
-                  && JBossSAMLConstants.LOGOUT_REQUEST.get().equals(startElementName.getLocalPart()))
-            {
-               SAMLSloRequestParser sloParser = new SAMLSloRequestParser();
-               return sloParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
-                  && JBossSAMLConstants.LOGOUT_RESPONSE.get().equals(startElementName.getLocalPart()))
-            {
-               SAMLSloResponseParser sloParser = new SAMLSloResponseParser();
-               return sloParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
-                  && JBossSAMLConstants.RESPONSE.get().equals(startElementName.getLocalPart()))
-            {
-               SAMLResponseParser responseParser = new SAMLResponseParser();
-               return responseParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
-                  && JBossSAMLConstants.REQUEST_ABSTRACT.get().equals(startElementName.getLocalPart()))
-            {
-               String xsiTypeValue = StaxParserUtil.getXSITypeValue(startElement);
-               if (xsiTypeValue.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY_TYPE.get()))
-               {
-                  SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
-                  return samlXacmlParser.parse(xmlEventReader);
-               }
-               throw new RuntimeException(ErrorCodes.UNKNOWN_XSI + xsiTypeValue);
-            }
-            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
-                  && JBossSAMLConstants.ARTIFACT_RESOLVE.get().equals(startElementName.getLocalPart()))
-            {
-               SAMLArtifactResolveParser artifactResolverParser = new SAMLArtifactResolveParser();
-               return artifactResolverParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
-                  && JBossSAMLConstants.ARTIFACT_RESPONSE.get().equals(startElementName.getLocalPart()))
-            {
-               SAMLArtifactResponseParser responseParser = new SAMLArtifactResponseParser();
-               return responseParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(nsURI)
-                  && JBossSAMLConstants.ATTRIBUTE_QUERY.get().equals(startElementName.getLocalPart()))
-            {
-               SAMLAttributeQueryParser responseParser = new SAMLAttributeQueryParser();
-               return responseParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get().equals(localPart))
-            {
-               SAMLXACMLRequestParser samlXacmlParser = new SAMLXACMLRequestParser();
-               return samlXacmlParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLConstants.ENTITY_DESCRIPTOR.get().equals(localPart))
-            {
-               SAMLEntityDescriptorParser entityDescriptorParser = new SAMLEntityDescriptorParser();
-               return entityDescriptorParser.parse(xmlEventReader);
-            }
-            else if (JBossSAMLConstants.ENTITIES_DESCRIPTOR.get().equals(localPart))
-            {
-               SAMLEntitiesDescriptorParser entityDescriptorParser = new SAMLEntitiesDescriptorParser();
-               return entityDescriptorParser.parse(xmlEventReader);
-            }
-            else if (SAML11Constants.PROTOCOL_11_NSURI.equals(nsURI)
-                  && JBossSAMLConstants.RESPONSE.get().equals(startElementName.getLocalPart()))
-            {
-               SAML11ResponseParser responseParser = new SAML11ResponseParser();
-               return responseParser.parse(xmlEventReader);
-            }
-            else if (SAML11Constants.PROTOCOL_11_NSURI.equals(nsURI)
-                  && SAML11Constants.REQUEST.equals(startElementName.getLocalPart()))
-            {
-               SAML11RequestParser reqParser = new SAML11RequestParser();
-               return reqParser.parse(xmlEventReader);
-            }
-            else
-               throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + elementName + "::location="
-                     + startElement.getLocation());
-         }
-         else
-         {
-            StaxParserUtil.getNextEvent(xmlEventReader);
-         }
-      }
-      throw new RuntimeException(ErrorCodes.FAILED_PARSING + "SAML Parsing has failed");
-   }
+        }
+        throw new RuntimeException(ErrorCodes.FAILED_PARSING + "SAML Parsing has failed");
+    }
 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
-   public boolean supports(QName qname)
-   {
-      return JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(qname.getNamespaceURI());
-   }
+    /**
+     * @see {@link ParserNamespaceSupport#supports(QName)}
+     */
+    public boolean supports(QName qname) {
+        return JBossSAMLURIConstants.ASSERTION_NSURI.get().equals(qname.getNamespaceURI());
+    }
 }

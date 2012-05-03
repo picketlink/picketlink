@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -37,52 +37,43 @@ import org.w3c.dom.Document;
 
 /**
  * Utility for SAML and XACML
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Dec 20, 2010
  */
-public class SAMLXACMLUtil
-{
-   public final static String XACML_PKG_PATH = "org.jboss.security.xacml.core.model.context"; 
-   
-   public static JAXBContext getJAXBContext() throws JAXBException
-   {
-      return JAXBContext.newInstance( XACML_PKG_PATH );
-   }
-   
-   public static Document getXACMLResponse( ResponseType responseType ) throws ProcessingException
-   {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
-      JAXBElement<?> jaxb = (new ObjectFactory()).createResponse( responseType );
-      
-      StreamResult result = new StreamResult( baos );
-      
-      try
-      {
-         TransformerUtil.transform( SAMLXACMLUtil.getJAXBContext(), jaxb, result);
-         return DocumentUtil.getDocument( new String( baos.toByteArray() ));
-      }
-      catch ( Exception e )
-      {
-         throw new ProcessingException( e );
-      } 
-   }
-   
-   public static Document getXACMLRequest( RequestType requestType ) throws ProcessingException
-   {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      //Marshaller marshaller = getMarshaller();
-      JAXBElement<?> jaxb = (new ObjectFactory()).createRequest( requestType );
-      
-      StreamResult result = new StreamResult( baos );
-      
-      try
-      {
-         TransformerUtil.transform( getJAXBContext(), jaxb, result);
-         return DocumentUtil.getDocument( new String( baos.toByteArray() ));
-      }
-      catch ( Exception e )
-      {
-         throw new ProcessingException( e );
-      } 
-   }
+public class SAMLXACMLUtil {
+    public final static String XACML_PKG_PATH = "org.jboss.security.xacml.core.model.context";
+
+    public static JAXBContext getJAXBContext() throws JAXBException {
+        return JAXBContext.newInstance(XACML_PKG_PATH);
+    }
+
+    public static Document getXACMLResponse(ResponseType responseType) throws ProcessingException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        JAXBElement<?> jaxb = (new ObjectFactory()).createResponse(responseType);
+
+        StreamResult result = new StreamResult(baos);
+
+        try {
+            TransformerUtil.transform(SAMLXACMLUtil.getJAXBContext(), jaxb, result);
+            return DocumentUtil.getDocument(new String(baos.toByteArray()));
+        } catch (Exception e) {
+            throw new ProcessingException(e);
+        }
+    }
+
+    public static Document getXACMLRequest(RequestType requestType) throws ProcessingException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        // Marshaller marshaller = getMarshaller();
+        JAXBElement<?> jaxb = (new ObjectFactory()).createRequest(requestType);
+
+        StreamResult result = new StreamResult(baos);
+
+        try {
+            TransformerUtil.transform(getJAXBContext(), jaxb, result);
+            return DocumentUtil.getDocument(new String(baos.toByteArray()));
+        } catch (Exception e) {
+            throw new ProcessingException(e);
+        }
+    }
 }

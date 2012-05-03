@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -42,45 +42,45 @@ import org.w3c.dom.Document;
 
 /**
  * Unit Test the WS Trust batch issue
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 11, 2010
  */
-public class WSTrustBatchIssueParsingTestCase
-{
-   /**
-    * Parse and validate the parser/wst/wst-batch-issue.xml file
-    * @throws Exception
-    */
-   @Test
-   public void testWST_BatchIssue() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-batch-issue.xml");
+public class WSTrustBatchIssueParsingTestCase {
+    /**
+     * Parse and validate the parser/wst/wst-batch-issue.xml file
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testWST_BatchIssue() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-batch-issue.xml");
 
-      WSTrustParser parser = new WSTrustParser();
-      RequestSecurityTokenCollection requestCollection = (RequestSecurityTokenCollection) parser.parse(configStream);
-      assertNotNull("Request Security Token Collection is null?", requestCollection);
+        WSTrustParser parser = new WSTrustParser();
+        RequestSecurityTokenCollection requestCollection = (RequestSecurityTokenCollection) parser.parse(configStream);
+        assertNotNull("Request Security Token Collection is null?", requestCollection);
 
-      List<RequestSecurityToken> tokens = requestCollection.getRequestSecurityTokens();
-      assertEquals(2, tokens.size());
+        List<RequestSecurityToken> tokens = requestCollection.getRequestSecurityTokens();
+        assertEquals(2, tokens.size());
 
-      RequestSecurityToken rst1 = tokens.get(0);
-      assertEquals("context1", rst1.getContext());
-      assertEquals(WSTrustConstants.BATCH_ISSUE_REQUEST, rst1.getRequestType().toASCIIString());
-      assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
+        RequestSecurityToken rst1 = tokens.get(0);
+        assertEquals("context1", rst1.getContext());
+        assertEquals(WSTrustConstants.BATCH_ISSUE_REQUEST, rst1.getRequestType().toASCIIString());
+        assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, rst1.getTokenType().toASCIIString());
 
-      RequestSecurityToken rst2 = tokens.get(1);
-      assertEquals("context2", rst2.getContext());
-      assertEquals(WSTrustConstants.BATCH_ISSUE_REQUEST, rst2.getRequestType().toASCIIString());
-      assertEquals("http://www.tokens.org/SpecialToken", rst2.getTokenType().toASCIIString());
+        RequestSecurityToken rst2 = tokens.get(1);
+        assertEquals("context2", rst2.getContext());
+        assertEquals(WSTrustConstants.BATCH_ISSUE_REQUEST, rst2.getRequestType().toASCIIString());
+        assertEquals("http://www.tokens.org/SpecialToken", rst2.getTokenType().toASCIIString());
 
-      //Now for the writing part
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
+        // Now for the writing part
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestCollection);
+        rstWriter.write(requestCollection);
 
-      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 }

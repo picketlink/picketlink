@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -32,47 +32,47 @@ import java.util.zip.InflaterInputStream;
 
 /**
  * Encoder of saml messages based on DEFLATE compression
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Dec 11, 2008
  */
-public class DeflateUtil
-{
-   /**
-    * Apply DEFLATE encoding
-    * @param message
-    * @return
-    * @throws IOException
-    */
-   public static byte[] encode(byte[] message) throws IOException
-   {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      Deflater deflater = new Deflater(Deflater.DEFLATED, true);
-      DeflaterOutputStream deflaterStream = new DeflaterOutputStream(baos, deflater);
-      deflaterStream.write(message);
-      deflaterStream.finish();
-      
-      return baos.toByteArray(); 
-   }
-   
-   /**
-    * Apply DEFLATE encoding
-    * @param message
-    * @return
-    * @throws IOException
-    */
-   public static byte[] encode(String message) throws IOException
-   {
-      return encode(message.getBytes()); 
-   } 
-   
-   /**
-    * DEFLATE decoding
-    * @param msgToDecode the message that needs decoding
-    * @return
-    */
-   public static InputStream decode(byte[] msgToDecode) 
-   {
-      ByteArrayInputStream bais = new ByteArrayInputStream(msgToDecode);
-      return new InflaterInputStream(bais, new Inflater(true)); 
-   }
+public class DeflateUtil {
+    /**
+     * Apply DEFLATE encoding
+     *
+     * @param message
+     * @return
+     * @throws IOException
+     */
+    public static byte[] encode(byte[] message) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Deflater deflater = new Deflater(Deflater.DEFLATED, true);
+        DeflaterOutputStream deflaterStream = new DeflaterOutputStream(baos, deflater);
+        deflaterStream.write(message);
+        deflaterStream.finish();
+
+        return baos.toByteArray();
+    }
+
+    /**
+     * Apply DEFLATE encoding
+     *
+     * @param message
+     * @return
+     * @throws IOException
+     */
+    public static byte[] encode(String message) throws IOException {
+        return encode(message.getBytes());
+    }
+
+    /**
+     * DEFLATE decoding
+     *
+     * @param msgToDecode the message that needs decoding
+     * @return
+     */
+    public static InputStream decode(byte[] msgToDecode) {
+        ByteArrayInputStream bais = new ByteArrayInputStream(msgToDecode);
+        return new InflaterInputStream(bais, new Inflater(true));
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,12 +22,13 @@
 
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
-
 /**
- * <p>Java class for DSAKeyValueType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for DSAKeyValueType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="DSAKeyValueType">
  *   &lt;complexContent>
@@ -49,11 +50,10 @@ package org.picketlink.identity.xmlsec.w3.xmldsig;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class DSAKeyValueType 
-{
+ *
+ *
+ */
+public class DSAKeyValueType {
     protected byte[] p;
     protected byte[] q;
     protected byte[] g;
@@ -64,10 +64,8 @@ public class DSAKeyValueType
 
     /**
      * Gets the value of the p property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getP() {
         return p;
@@ -75,10 +73,8 @@ public class DSAKeyValueType
 
     /**
      * Sets the value of the p property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setP(byte[] value) {
         this.p = ((byte[]) value);
@@ -86,10 +82,8 @@ public class DSAKeyValueType
 
     /**
      * Gets the value of the q property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getQ() {
         return q;
@@ -97,10 +91,8 @@ public class DSAKeyValueType
 
     /**
      * Sets the value of the q property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setQ(byte[] value) {
         this.q = ((byte[]) value);
@@ -108,10 +100,8 @@ public class DSAKeyValueType
 
     /**
      * Gets the value of the g property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getG() {
         return g;
@@ -119,10 +109,8 @@ public class DSAKeyValueType
 
     /**
      * Sets the value of the g property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setG(byte[] value) {
         this.g = ((byte[]) value);
@@ -130,10 +118,8 @@ public class DSAKeyValueType
 
     /**
      * Gets the value of the y property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getY() {
         return y;
@@ -141,10 +127,8 @@ public class DSAKeyValueType
 
     /**
      * Sets the value of the y property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setY(byte[] value) {
         this.y = ((byte[]) value);
@@ -152,10 +136,8 @@ public class DSAKeyValueType
 
     /**
      * Gets the value of the j property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getJ() {
         return j;
@@ -163,10 +145,8 @@ public class DSAKeyValueType
 
     /**
      * Sets the value of the j property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setJ(byte[] value) {
         this.j = ((byte[]) value);
@@ -174,10 +154,8 @@ public class DSAKeyValueType
 
     /**
      * Gets the value of the seed property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getSeed() {
         return seed;
@@ -185,10 +163,8 @@ public class DSAKeyValueType
 
     /**
      * Sets the value of the seed property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setSeed(byte[] value) {
         this.seed = ((byte[]) value);
@@ -196,10 +172,8 @@ public class DSAKeyValueType
 
     /**
      * Gets the value of the pgenCounter property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getPgenCounter() {
         return pgenCounter;
@@ -207,10 +181,8 @@ public class DSAKeyValueType
 
     /**
      * Sets the value of the pgenCounter property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setPgenCounter(byte[] value) {
         this.pgenCounter = ((byte[]) value);

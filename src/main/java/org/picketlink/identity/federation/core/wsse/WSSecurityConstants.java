@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,17 +23,17 @@ package org.picketlink.identity.federation.core.wsse;
 
 /**
  * Constants for WSS and WSSE
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 8, 2010
  */
-public interface WSSecurityConstants
-{
-   String ID = "Id";
-   String USERNAME = "Username";
-   String USERNAME_TOKEN = "UsernameToken";
-   String WSSE_PREFIX = "wsse";
-   String WSU_PREFIX = "wsu";
-   String WSSE_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
-   String WSSE11_NS = "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd";
-   String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
+public interface WSSecurityConstants {
+    String ID = "Id";
+    String USERNAME = "Username";
+    String USERNAME_TOKEN = "UsernameToken";
+    String WSSE_PREFIX = "wsse";
+    String WSU_PREFIX = "wsu";
+    String WSSE_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd";
+    String WSSE11_NS = "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd";
+    String WSU_NS = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd";
 }

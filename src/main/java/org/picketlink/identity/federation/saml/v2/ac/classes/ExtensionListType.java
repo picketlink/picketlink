@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,25 +27,23 @@ import java.util.List;
 
 /**
  * A type that contains a list of ExtensionType
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 3, 2011
  */
-public class ExtensionListType
-{
-   protected List<ExtensionType> content = new ArrayList<ExtensionType>();
+public class ExtensionListType {
+    protected List<ExtensionType> content = new ArrayList<ExtensionType>();
 
-   public void add( ExtensionType obj )
-   {
-      this.content.add(obj);
-   }
-   
-   public void remove( ExtensionType obj )
-   {
-      this.content.remove( obj );
-   }
-   
-   public List<ExtensionType> getContent() {
-        
-       return Collections.unmodifiableList( this.content );
-   } 
+    public void add(ExtensionType obj) {
+        this.content.add(obj);
+    }
+
+    public void remove(ExtensionType obj) {
+        this.content.remove(obj);
+    }
+
+    public List<ExtensionType> getContent() {
+
+        return Collections.unmodifiableList(this.content);
+    }
 }

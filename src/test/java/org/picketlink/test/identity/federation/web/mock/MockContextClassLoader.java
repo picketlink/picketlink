@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,56 +27,48 @@ import java.net.URLClassLoader;
 
 /**
  * Mock TCL
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-public class MockContextClassLoader extends URLClassLoader
-{
-   private String profile;
+public class MockContextClassLoader extends URLClassLoader {
+    private String profile;
 
-   private ClassLoader delegate;
+    private ClassLoader delegate;
 
-   public MockContextClassLoader(URL[] urls)
-   {
-      super(urls);
-   }
+    public MockContextClassLoader(URL[] urls) {
+        super(urls);
+    }
 
-   public void setDelegate(ClassLoader tcl)
-   {
-      this.delegate = tcl;
-   }
+    public void setDelegate(ClassLoader tcl) {
+        this.delegate = tcl;
+    }
 
-   public void setProfile(String profile)
-   {
-      this.profile = profile;
-   }
+    public void setProfile(String profile) {
+        this.profile = profile;
+    }
 
-   @Override
-   public InputStream getResourceAsStream(String name)
-   {
-      if (profile == null)
-         throw new RuntimeException("null profile");
-      InputStream is = super.getResourceAsStream(name);
-      if (is == null)
-         is = delegate.getResourceAsStream(profile + "/" + name);
-      return is;
-   }
+    @Override
+    public InputStream getResourceAsStream(String name) {
+        if (profile == null)
+            throw new RuntimeException("null profile");
+        InputStream is = super.getResourceAsStream(name);
+        if (is == null)
+            is = delegate.getResourceAsStream(profile + "/" + name);
+        return is;
+    }
 
-   @Override
-   public URL getResource(String name)
-   {
-      if (profile == null)
-         throw new RuntimeException("null profile");
-      URL url = null;
-      try
-      {
-         url = super.getResource(profile + "/" + name);
-      }
-      catch (Exception e)
-      {
-      }
-      if (url == null)
-         url = delegate.getResource(profile + "/" + name);
-      return url;
-   }
+    @Override
+    public URL getResource(String name) {
+        if (profile == null)
+            throw new RuntimeException("null profile");
+        URL url = null;
+        try {
+            url = super.getResource(profile + "/" + name);
+        } catch (Exception e) {
+        }
+        if (url == null)
+            url = delegate.getResource(profile + "/" + name);
+        return url;
+    }
 }

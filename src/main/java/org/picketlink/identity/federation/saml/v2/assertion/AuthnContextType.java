@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -30,10 +30,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * <p>Java class for AuthnContextType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for AuthnContextType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="AuthnContextType">
  *   &lt;complexContent>
@@ -58,166 +60,151 @@ import java.util.Set;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class AuthnContextType implements Serializable
-{
-   private static final long serialVersionUID = 1L;
+public class AuthnContextType implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-   private final Set<URI> authenticatingAuthority = new LinkedHashSet<URI>();
+    private final Set<URI> authenticatingAuthority = new LinkedHashSet<URI>();
 
-   private AuthnContextTypeSequence sequence;
+    private AuthnContextTypeSequence sequence;
 
-   private final Set<URIType> URITypes = new HashSet<URIType>();
+    private final Set<URIType> URITypes = new HashSet<URIType>();
 
-   /**
-    * Add an authenticating authority
-    * @param aa {@link URI}
-    */
-   public void addAuthenticatingAuthority(URI aa)
-   {
-      authenticatingAuthority.add(aa);
-   }
+    /**
+     * Add an authenticating authority
+     *
+     * @param aa {@link URI}
+     */
+    public void addAuthenticatingAuthority(URI aa) {
+        authenticatingAuthority.add(aa);
+    }
 
-   /**
-    * Add Authenticating Authority
-    * @param aas an array of {@link URI}
-    */
-   public void addAuthenticatingAuthority(URI[] aas)
-   {
-      authenticatingAuthority.addAll(Arrays.asList(aas));
-   }
+    /**
+     * Add Authenticating Authority
+     *
+     * @param aas an array of {@link URI}
+     */
+    public void addAuthenticatingAuthority(URI[] aas) {
+        authenticatingAuthority.addAll(Arrays.asList(aas));
+    }
 
-   /**
-    * Remove an authenticating authority
-    * @param aa
-    */
-   public void removeAuthenticatingAuthority(URI aa)
-   {
-      authenticatingAuthority.remove(aa);
-   }
+    /**
+     * Remove an authenticating authority
+     *
+     * @param aa
+     */
+    public void removeAuthenticatingAuthority(URI aa) {
+        authenticatingAuthority.remove(aa);
+    }
 
-   /**
-    * Get a read only set of authenticating authority
-    * @return
-    */
-   public Set<URI> getAuthenticatingAuthority()
-   {
-      return Collections.unmodifiableSet(authenticatingAuthority);
-   }
+    /**
+     * Get a read only set of authenticating authority
+     *
+     * @return
+     */
+    public Set<URI> getAuthenticatingAuthority() {
+        return Collections.unmodifiableSet(authenticatingAuthority);
+    }
 
-   /**
-    * Get the sequence
-    * @return
-    */
-   public AuthnContextTypeSequence getSequence()
-   {
-      return sequence;
-   }
+    /**
+     * Get the sequence
+     *
+     * @return
+     */
+    public AuthnContextTypeSequence getSequence() {
+        return sequence;
+    }
 
-   /**
-    * Set the authn context sequence
-    * @param sequence
-    */
-   public void setSequence(AuthnContextTypeSequence sequence)
-   {
-      this.sequence = sequence;
-   }
+    /**
+     * Set the authn context sequence
+     *
+     * @param sequence
+     */
+    public void setSequence(AuthnContextTypeSequence sequence) {
+        this.sequence = sequence;
+    }
 
-   /**
-    * Add an URI type
-    * @param aa
-    */
-   public void addURIType(URIType aa)
-   {
-      URITypes.add(aa);
-   }
+    /**
+     * Add an URI type
+     *
+     * @param aa
+     */
+    public void addURIType(URIType aa) {
+        URITypes.add(aa);
+    }
 
-   /**
-    * Add an array of URI Type
-    * @param aas
-    */
-   public void addURIType(URIType[] aas)
-   {
-      URITypes.addAll(Arrays.asList(aas));
-   }
+    /**
+     * Add an array of URI Type
+     *
+     * @param aas
+     */
+    public void addURIType(URIType[] aas) {
+        URITypes.addAll(Arrays.asList(aas));
+    }
 
-   /**
-    * Get a read only set of URI type
-    * @return
-    */
-   public Set<URIType> getURIType()
-   {
-      return Collections.unmodifiableSet(URITypes);
-   }
+    /**
+     * Get a read only set of URI type
+     *
+     * @return
+     */
+    public Set<URIType> getURIType() {
+        return Collections.unmodifiableSet(URITypes);
+    }
 
-   /**
-    * Add an URI type
-    * @param aa
-    */
-   public void removeURIType(URIType aa)
-   {
-      URITypes.remove(aa);
-   }
+    /**
+     * Add an URI type
+     *
+     * @param aa
+     */
+    public void removeURIType(URIType aa) {
+        URITypes.remove(aa);
+    }
 
-   /**
-    <sequence>
-       <element ref="saml:AuthnContextClassRef"/>
-       <choice minOccurs="0">
-          <element ref="saml:AuthnContextDecl"/>
-          <element ref="saml:AuthnContextDeclRef"/>
-       </choice>
-    </sequence>
-    */
-   public class AuthnContextTypeSequence implements Serializable
-   {
-      private static final long serialVersionUID = 1L;
+    /**
+     * <sequence> <element ref="saml:AuthnContextClassRef"/> <choice minOccurs="0"> <element ref="saml:AuthnContextDecl"/>
+     * <element ref="saml:AuthnContextDeclRef"/> </choice> </sequence>
+     */
+    public class AuthnContextTypeSequence implements Serializable {
+        private static final long serialVersionUID = 1L;
 
-      private AuthnContextClassRefType classRef;
-      
-      private AuthnContextDeclType authnContextDecl;
+        private AuthnContextClassRefType classRef;
 
-      private final Set<URIType> URITypes = new HashSet<URIType>();
+        private AuthnContextDeclType authnContextDecl;
 
-      public AuthnContextClassRefType getClassRef()
-      {
-         return classRef;
-      }
+        private final Set<URIType> URITypes = new HashSet<URIType>();
 
-      public void setClassRef(AuthnContextClassRefType classRef)
-      {
-         this.classRef = classRef;
-      }
+        public AuthnContextClassRefType getClassRef() {
+            return classRef;
+        }
 
-      public void addURIType(URIType aa)
-      {
-         URITypes.add(aa);
-      }
+        public void setClassRef(AuthnContextClassRefType classRef) {
+            this.classRef = classRef;
+        }
 
-      public void removeURIType(URIType aa)
-      {
-         URITypes.remove(aa);
-      }
+        public void addURIType(URIType aa) {
+            URITypes.add(aa);
+        }
 
-      public void addURIType(URIType[] aas)
-      {
-         URITypes.addAll(Arrays.asList(aas));
-      }
+        public void removeURIType(URIType aa) {
+            URITypes.remove(aa);
+        }
 
-      public Set<URIType> getURIType()
-      {
-    	 return Collections.unmodifiableSet(URITypes);
-      }
+        public void addURIType(URIType[] aas) {
+            URITypes.addAll(Arrays.asList(aas));
+        }
 
-      public AuthnContextDeclType getAuthnContextDecl() 
-      {
-    	 return authnContextDecl;
-      }
+        public Set<URIType> getURIType() {
+            return Collections.unmodifiableSet(URITypes);
+        }
 
-      public void setAuthnContextDecl(AuthnContextDeclType authnContextDecl) 
-      {
-    	 this.authnContextDecl = authnContextDecl;
-      }
-   }
+        public AuthnContextDeclType getAuthnContextDecl() {
+            return authnContextDecl;
+        }
+
+        public void setAuthnContextDecl(AuthnContextDeclType authnContextDecl) {
+            this.authnContextDecl = authnContextDecl;
+        }
+    }
 }

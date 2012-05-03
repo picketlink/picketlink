@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,33 +24,24 @@ package org.picketlink.identity.federation.saml.v1.protocol;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 
 /**
- * <complexType name="SubjectQueryAbstractType" abstract="true">
-        <complexContent>
-            <extension base="samlp:QueryAbstractType">
-                <sequence>
-                    <element ref="saml:Subject"/>
-                </sequence>
-
-            </extension>
-        </complexContent>
-    </complexType>
-
+ * <complexType name="SubjectQueryAbstractType" abstract="true"> <complexContent> <extension base="samlp:QueryAbstractType">
+ * <sequence> <element ref="saml:Subject"/> </sequence>
+ *
+ * </extension> </complexContent> </complexType>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
-public class SAML11SubjectQueryAbstractType extends SAML11QueryAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class SAML11SubjectQueryAbstractType extends SAML11QueryAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected SAML11SubjectType subject;
+    protected SAML11SubjectType subject;
 
-   public SAML11SubjectType getSubject()
-   {
-      return subject;
-   }
+    public SAML11SubjectType getSubject() {
+        return subject;
+    }
 
-   public void setSubject(SAML11SubjectType subject)
-   {
-      this.subject = subject;
-   }
+    public void setSubject(SAML11SubjectType subject) {
+        this.subject = subject;
+    }
 }

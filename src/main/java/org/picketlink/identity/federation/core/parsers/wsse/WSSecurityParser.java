@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -42,159 +42,135 @@ import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
 
 /**
  * <p>
- * Parses the WS-Security elements that can be part
- * of the WS-T RST
+ * Parses the WS-Security elements that can be part of the WS-T RST
  * </p>
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 14, 2010
  */
-public class WSSecurityParser extends AbstractParser
-{
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+public class WSSecurityParser extends AbstractParser {
+    /**
+     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     */
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
 
-         if (xmlEvent instanceof StartElement)
-         {
-            StartElement startElement = (StartElement) xmlEvent;
+            if (xmlEvent instanceof StartElement) {
+                StartElement startElement = (StartElement) xmlEvent;
 
-            String elementName = StaxParserUtil.getStartElementName(startElement);
-            if (elementName.equalsIgnoreCase(WSTrustConstants.WSSE.USERNAME_TOKEN))
-            {
-               startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                String elementName = StaxParserUtil.getStartElementName(startElement);
+                if (elementName.equalsIgnoreCase(WSTrustConstants.WSSE.USERNAME_TOKEN)) {
+                    startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
 
-               UsernameTokenType userNameToken = new UsernameTokenType();
+                    UsernameTokenType userNameToken = new UsernameTokenType();
 
-               //Get the Id attribute
-               QName idQName = new QName(WSTrustConstants.WSU_NS, WSTrustConstants.WSSE.ID);
-               Attribute idAttribute = startElement.getAttributeByName(idQName);
+                    // Get the Id attribute
+                    QName idQName = new QName(WSTrustConstants.WSU_NS, WSTrustConstants.WSSE.ID);
+                    Attribute idAttribute = startElement.getAttributeByName(idQName);
 
-               if (idAttribute == null)
-                  throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Id");
+                    if (idAttribute == null)
+                        throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Id");
 
-               userNameToken.setId(StaxParserUtil.getAttributeValue(idAttribute));
+                    userNameToken.setId(StaxParserUtil.getAttributeValue(idAttribute));
 
-               startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                    startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
 
-               if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                  throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "userName");
+                    if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                        throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "userName");
 
-               String userName = StaxParserUtil.getElementText(xmlEventReader);
+                    String userName = StaxParserUtil.getElementText(xmlEventReader);
 
-               AttributedString attributedString = new AttributedString();
-               attributedString.setValue(userName);
+                    AttributedString attributedString = new AttributedString();
+                    attributedString.setValue(userName);
 
-               userNameToken.setUsername(attributedString);
+                    userNameToken.setUsername(attributedString);
 
-               //Get the end element
-               EndElement onBehalfOfEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               StaxParserUtil.validate(onBehalfOfEndElement, WSTrustConstants.WSSE.USERNAME_TOKEN);
+                    // Get the end element
+                    EndElement onBehalfOfEndElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                    StaxParserUtil.validate(onBehalfOfEndElement, WSTrustConstants.WSSE.USERNAME_TOKEN);
 
-               return userNameToken;
+                    return userNameToken;
+                } else if (elementName.equals(WSTrustConstants.WSSE.SECURITY_TOKEN_REFERENCE)) {
+                    return parseSecurityTokenReference(xmlEventReader);
+                }
+            } else {
+                StaxParserUtil.getNextEvent(xmlEventReader);
             }
-            else if (elementName.equals(WSTrustConstants.WSSE.SECURITY_TOKEN_REFERENCE))
-            {
-               return parseSecurityTokenReference(xmlEventReader);
+        }
+        throw new RuntimeException(ErrorCodes.FAILED_PARSING);
+    }
+
+    /**
+     * @see {@link ParserNamespaceSupport#supports(QName)}
+     */
+    public boolean supports(QName qname) {
+        String nsURI = qname.getNamespaceURI();
+
+        return WSTrustConstants.WSSE_NS.equals(nsURI);
+    }
+
+    private SecurityTokenReferenceType parseSecurityTokenReference(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, WSTrustConstants.WSSE.SECURITY_TOKEN_REFERENCE);
+
+        SecurityTokenReferenceType securityTokenRef = new SecurityTokenReferenceType();
+
+        // Get the Token Type attribute
+        QName tokenType = new QName(WSTrustConstants.WSSE11_NS, WSTrustConstants.TOKEN_TYPE);
+        Attribute tokenTypeAttr = startElement.getAttributeByName(tokenType);
+        if (tokenTypeAttr != null) {
+            tokenType = new QName(WSTrustConstants.WSSE11_NS, WSTrustConstants.TOKEN_TYPE, tokenTypeAttr.getName().getPrefix());
+            securityTokenRef.addOtherAttribute(tokenType, StaxParserUtil.getAttributeValue(tokenTypeAttr));
+        }
+
+        XMLEvent xmlEvent = null;
+        EndElement endElement = null;
+        String tag = null;
+
+        while (xmlEventReader.hasNext()) {
+            xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                endElement = (EndElement) xmlEvent;
+                tag = StaxParserUtil.getEndElementName(endElement);
+                if (tag.equals(WSTrustConstants.WSSE.SECURITY_TOKEN_REFERENCE)) {
+                    endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                    break;
+                } else if (tag.equals(WSTrustConstants.WSSE.REFERENCE)) {
+                    endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                    continue;
+                } else
+                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
             }
-         }
-         else
-         {
-            StaxParserUtil.getNextEvent(xmlEventReader);
-         }
-      }
-      throw new RuntimeException(ErrorCodes.FAILED_PARSING);
-   }
 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
-   public boolean supports(QName qname)
-   {
-      String nsURI = qname.getNamespaceURI();
+            startElement = (StartElement) xmlEvent;
+            tag = StaxParserUtil.getStartElementName(startElement);
+            if (tag.equals(WSTrustConstants.WSSE.KEY_IDENTIFIER)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                KeyIdentifierType keyIdentifierType = new KeyIdentifierType();
 
-      return WSTrustConstants.WSSE_NS.equals(nsURI);
-   }
+                Attribute valueTypeAttr = startElement.getAttributeByName(new QName(WSTrustConstants.VALUE_TYPE));
+                if (valueTypeAttr != null)
+                    keyIdentifierType.setValueType(StaxParserUtil.getAttributeValue(valueTypeAttr));
+                keyIdentifierType.setValue(StaxParserUtil.getElementText(xmlEventReader));
+                securityTokenRef.addAny(keyIdentifierType);
+            } else if (tag.equals(WSTrustConstants.WSSE.REFERENCE)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                ReferenceType referenceType = new ReferenceType();
 
-   private SecurityTokenReferenceType parseSecurityTokenReference(XMLEventReader xmlEventReader)
-         throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, WSTrustConstants.WSSE.SECURITY_TOKEN_REFERENCE);
+                Attribute valueTypeAttr = startElement.getAttributeByName(new QName(WSTrustConstants.VALUE_TYPE));
+                if (valueTypeAttr != null) {
+                    referenceType.setValueType(StaxParserUtil.getAttributeValue(valueTypeAttr));
+                }
 
-      SecurityTokenReferenceType securityTokenRef = new SecurityTokenReferenceType();
-
-      //Get the Token Type attribute
-      QName tokenType = new QName(WSTrustConstants.WSSE11_NS, WSTrustConstants.TOKEN_TYPE);
-      Attribute tokenTypeAttr = startElement.getAttributeByName(tokenType);
-      if (tokenTypeAttr != null)
-      {
-         tokenType = new QName(WSTrustConstants.WSSE11_NS, WSTrustConstants.TOKEN_TYPE, tokenTypeAttr.getName()
-               .getPrefix());
-         securityTokenRef.addOtherAttribute(tokenType, StaxParserUtil.getAttributeValue(tokenTypeAttr));
-      }
-
-      XMLEvent xmlEvent = null;
-      EndElement endElement = null;
-      String tag = null;
-
-      while (xmlEventReader.hasNext())
-      {
-         xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent instanceof EndElement)
-         {
-            endElement = (EndElement) xmlEvent;
-            tag = StaxParserUtil.getEndElementName(endElement);
-            if (tag.equals(WSTrustConstants.WSSE.SECURITY_TOKEN_REFERENCE))
-            {
-               endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               break;
+                Attribute uriAttr = startElement.getAttributeByName(new QName(WSTrustConstants.WSSE.URI));
+                if (uriAttr != null) {
+                    referenceType.setURI(StaxParserUtil.getAttributeValue(uriAttr));
+                }
+                securityTokenRef.addAny(referenceType);
             }
-            else if (tag.equals(WSTrustConstants.WSSE.REFERENCE))
-            {
-                endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-                continue;
-            }
-            else
-               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
-         }
+        }
 
-         startElement = (StartElement) xmlEvent;
-         tag = StaxParserUtil.getStartElementName(startElement);
-         if (tag.equals(WSTrustConstants.WSSE.KEY_IDENTIFIER))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            KeyIdentifierType keyIdentifierType = new KeyIdentifierType();
-
-            Attribute valueTypeAttr = startElement.getAttributeByName(new QName(WSTrustConstants.VALUE_TYPE));
-            if (valueTypeAttr != null)
-               keyIdentifierType.setValueType(StaxParserUtil.getAttributeValue(valueTypeAttr));
-            keyIdentifierType.setValue(StaxParserUtil.getElementText(xmlEventReader));
-            securityTokenRef.addAny(keyIdentifierType);
-         }
-         else if(tag.equals(WSTrustConstants.WSSE.REFERENCE))
-         {
-             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-             ReferenceType referenceType = new ReferenceType();
-             
-             Attribute valueTypeAttr = startElement.getAttributeByName(new QName(WSTrustConstants.VALUE_TYPE));
-             if (valueTypeAttr != null){
-                 referenceType.setValueType(StaxParserUtil.getAttributeValue(valueTypeAttr));
-             }
-             
-             Attribute uriAttr = startElement.getAttributeByName(new QName(WSTrustConstants.WSSE.URI));
-             if (uriAttr != null){
-                 referenceType.setURI(StaxParserUtil.getAttributeValue(uriAttr));
-             }
-             securityTokenRef.addAny(referenceType);
-          }
-      }
-
-      return securityTokenRef;
-   }
+        return securityTokenRef;
+    }
 }

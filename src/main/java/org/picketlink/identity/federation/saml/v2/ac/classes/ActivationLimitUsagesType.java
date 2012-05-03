@@ -2,12 +2,13 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
 
 import java.math.BigInteger;
 
-
 /**
- * <p>Java class for ActivationLimitUsagesType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ActivationLimitUsagesType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ActivationLimitUsagesType">
  *   &lt;complexContent>
@@ -17,26 +18,22 @@ import java.math.BigInteger;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 
-public class ActivationLimitUsagesType 
-{
+public class ActivationLimitUsagesType {
     protected BigInteger number;
-    
-    public ActivationLimitUsagesType( BigInteger theNumber )
-    {
-       this.number = theNumber;
+
+    public ActivationLimitUsagesType(BigInteger theNumber) {
+        this.number = theNumber;
     }
 
     /**
      * Gets the value of the number property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BigInteger }
-     *     
+     *
+     * @return possible object is {@link BigInteger }
+     *
      */
     public BigInteger getNumber() {
         return number;

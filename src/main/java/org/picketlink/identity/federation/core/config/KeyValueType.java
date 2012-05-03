@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,10 +22,12 @@
 package org.picketlink.identity.federation.core.config;
 
 /**
- * <p>Java class for KeyValueType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for KeyValueType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="KeyValueType">
  *   &lt;complexContent>
@@ -36,79 +38,66 @@ package org.picketlink.identity.federation.core.config;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class KeyValueType
-{
+public class KeyValueType {
 
-   protected String key;
+    protected String key;
 
-   protected String value;
+    protected String value;
 
-   /**
-    * Gets the value of the key property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getKey()
-   {
-      return key;
-   }
+    /**
+     * Gets the value of the key property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getKey() {
+        return key;
+    }
 
-   /**
-    * Sets the value of the key property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setKey(String value)
-   {
-      this.key = value;
-   }
+    /**
+     * Sets the value of the key property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setKey(String value) {
+        this.key = value;
+    }
 
-   /**
-    * Gets the value of the value property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getValue()
-   {
-      return value;
-   }
+    /**
+     * Gets the value of the value property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getValue() {
+        return value;
+    }
 
-   /**
-    * Sets the value of the value property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setValue(String value)
-   {
-      this.value = value;
-   }
+    /**
+     * Sets the value of the value property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-   /**
-    * Create a new instance
-    * @param key
-    * @param value
-    * @return
-    */
-   public static KeyValueType create(String key, String value)
-   {
-      KeyValueType keyValueType = new KeyValueType();
-      keyValueType.setKey(key);
-      keyValueType.setValue(value);
-      return keyValueType;
-   }
+    /**
+     * Create a new instance
+     *
+     * @param key
+     * @param value
+     * @return
+     */
+    public static KeyValueType create(String key, String value) {
+        KeyValueType keyValueType = new KeyValueType();
+        keyValueType.setKey(key);
+        keyValueType.setValue(value);
+        return keyValueType;
+    }
 }

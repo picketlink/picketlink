@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,92 +23,92 @@ package org.picketlink.identity.federation.web.constants;
 
 /**
  * Constants
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 8, 2009
  */
-public interface GeneralConstants
-{
-   String ASSERTIONS_VALIDITY = "ASSERTIONS_VALIDITY";
+public interface GeneralConstants {
+    String ASSERTIONS_VALIDITY = "ASSERTIONS_VALIDITY";
 
-   String ASSERTION_ID = "ASSERTION_ID";
+    String ASSERTION_ID = "ASSERTION_ID";
 
-   String ASSERTION = "ASSERTION";
+    String ASSERTION = "ASSERTION";
 
-   String ATTRIBUTES = "ATTRIBUTES";
+    String ATTRIBUTES = "ATTRIBUTES";
 
-   String ATTRIBUTE_KEYS = "ATTRIBUTE_KEYS";
+    String ATTRIBUTE_KEYS = "ATTRIBUTE_KEYS";
 
-   String ATTRIBUTE_CHOOSE_FRIENDLY_NAME = "ATTRIBUTE_CHOOSE_FRIENDLY_NAME";
+    String ATTRIBUTE_CHOOSE_FRIENDLY_NAME = "ATTRIBUTE_CHOOSE_FRIENDLY_NAME";
 
-   String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER";
+    String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER";
 
-   String CANONICALIZATION_METHOD = "CANONICALIZATION_METHOD";
+    String CANONICALIZATION_METHOD = "CANONICALIZATION_METHOD";
 
-   String CONFIGURATION = "CONFIGURATION";
+    String CONFIGURATION = "CONFIGURATION";
 
-   String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink.xml";
+    String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink.xml";
 
-   String CONFIG_PROVIDER = "CONFIG_PROVIDER";
+    String CONFIG_PROVIDER = "CONFIG_PROVIDER";
 
-   String DEPRECATED_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";
+    String DEPRECATED_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";
 
-   String LOCAL_LOGOUT = "LLO";
+    String LOCAL_LOGOUT = "LLO";
 
-   String GLOBAL_LOGOUT = "GLO";
+    String GLOBAL_LOGOUT = "GLO";
 
-   String HANDLER_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-handlers.xml";
+    String HANDLER_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-handlers.xml";
 
-   String IDENTITY_SERVER = "IDENTITY_SERVER";
+    String IDENTITY_SERVER = "IDENTITY_SERVER";
 
-   String IDENTITY_PARTICIPANT_STACK = "IDENTITY_PARTICIPANT_STACK";
+    String IDENTITY_PARTICIPANT_STACK = "IDENTITY_PARTICIPANT_STACK";
 
-   String IGNORE_SIGNATURES = "IGNORE_SIGNATURES";
+    String IGNORE_SIGNATURES = "IGNORE_SIGNATURES";
 
-   String KEYPAIR = "KEYPAIR";
+    String KEYPAIR = "KEYPAIR";
 
-   String LOGIN_TYPE = "LOGIN_TYPE";
+    String LOGIN_TYPE = "LOGIN_TYPE";
 
-   String LOGOUT_PAGE = "LOGOUT_PAGE";
+    String LOGOUT_PAGE = "LOGOUT_PAGE";
 
-   String LOGOUT_PAGE_NAME = "/logout.jsp";
+    String LOGOUT_PAGE_NAME = "/logout.jsp";
 
-   String NAMEID_FORMAT = "NAMEID_FORMAT";
+    String NAMEID_FORMAT = "NAMEID_FORMAT";
 
-   String PRINCIPAL_ID = "picketlink.principal";
+    String PRINCIPAL_ID = "picketlink.principal";
 
-   String RELAY_STATE = "RelayState";
+    String RELAY_STATE = "RelayState";
 
-   String ROLES = "ROLES";
+    String ROLES = "ROLES";
 
-   String ROLES_ID = "picketlink.roles";
+    String ROLES_ID = "picketlink.roles";
 
-   String ROLE_GENERATOR = "ROLE_GENERATOR";
+    String ROLE_GENERATOR = "ROLE_GENERATOR";
 
-   String ROLE_VALIDATOR = "ROLE_VALIDATOR";
+    String ROLE_VALIDATOR = "ROLE_VALIDATOR";
 
-   String ROLE_VALIDATOR_IGNORE = "ROLE_VALIDATOR_IGNORE";
+    String ROLE_VALIDATOR_IGNORE = "ROLE_VALIDATOR_IGNORE";
 
-   String SAML_REQUEST_KEY = "SAMLRequest";
+    String SAML_REQUEST_KEY = "SAMLRequest";
 
-   String SAML_RESPONSE_KEY = "SAMLResponse";
-   
-   String SAML_SIG_ALG_REQUEST_KEY = "SigAlg";
-   
-   String SAML_SIGNATURE_REQUEST_KEY = "Signature";
-   
-   String SAML_IDP_STRICT_POST_BINDING = "SAML_IDP_STRICT_POST_BINDING";
+    String SAML_RESPONSE_KEY = "SAMLResponse";
 
-   String DECRYPTING_KEY = "DECRYPTING_KEY";
+    String SAML_SIG_ALG_REQUEST_KEY = "SigAlg";
 
-   String SENDER_PUBLIC_KEY = "SENDER_PUBLIC_KEY";
+    String SAML_SIGNATURE_REQUEST_KEY = "Signature";
 
-   String SIGN_OUTGOING_MESSAGES = "SIGN_OUTGOING_MESSAGES";
+    String SAML_IDP_STRICT_POST_BINDING = "SAML_IDP_STRICT_POST_BINDING";
 
-   String SESSION_ATTRIBUTE_MAP = "SESSION_ATTRIBUTE_MAP";
+    String DECRYPTING_KEY = "DECRYPTING_KEY";
 
-   String USERNAME_FIELD = "JBID_USERNAME";
+    String SENDER_PUBLIC_KEY = "SENDER_PUBLIC_KEY";
 
-   String PASS_FIELD = "JBID_PASSWORD";
-   
-   String AUTH_REQUEST_ID = "AUTH_REQUEST_ID";
+    String SIGN_OUTGOING_MESSAGES = "SIGN_OUTGOING_MESSAGES";
+
+    String SESSION_ATTRIBUTE_MAP = "SESSION_ATTRIBUTE_MAP";
+
+    String USERNAME_FIELD = "JBID_USERNAME";
+
+    String PASS_FIELD = "JBID_PASSWORD";
+
+    String AUTH_REQUEST_ID = "AUTH_REQUEST_ID";
 }

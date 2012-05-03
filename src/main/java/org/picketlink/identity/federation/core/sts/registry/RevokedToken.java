@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2010, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,92 +27,84 @@ import javax.persistence.Id;
 
 /**
  * <p>
- * {@code RevokedToken} is a simple JPA entity used by the {@code JPABasedRevocationRegistry} to persist the ids of
- * the revoked security tokens.
+ * {@code RevokedToken} is a simple JPA entity used by the {@code JPABasedRevocationRegistry} to persist the ids of the revoked
+ * security tokens.
  * </p>
- * 
+ *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 @Entity
-public class RevokedToken
-{
+public class RevokedToken {
 
-   @Column
-   private String tokenType;
-   
-   @Id
-   private String tokenId;
+    @Column
+    private String tokenType;
 
-   /**
-    * <p>
-    * Default constructor.
-    * </p>
-    */
-   public RevokedToken()
-   {
-   }
+    @Id
+    private String tokenId;
 
-   /**
-    * <p>
-    * Creates an instance of {@code RevokedToken} with the specified token type and token id.
-    * </p>
-    * 
-    * @param tokenType a {@code String} representing the token type.
-    * @param tokenId a {@code String} representing the token id.
-    */
-   public RevokedToken(String tokenType, String tokenId)
-   {
-      this.tokenType = tokenType;
-      this.tokenId = tokenId;
-   }
-   
-   /**
-    * <p>
-    * Obtains the type of the revoked security token.
-    * </p>
-    * 
-    * @return a {@code String} containing the revoked token type.
-    */
-   public String getTokenType()
-   {
-      return this.tokenType;
-   }
+    /**
+     * <p>
+     * Default constructor.
+     * </p>
+     */
+    public RevokedToken() {
+    }
 
-   /**
-    * <p>
-    * Sets the type of revoked security token.
-    * </p>
-    * 
-    * @param tokenType a {@code String} containing the type to be set.
-    */
-   public void setTokenType(String tokenType)
-   {
-      this.tokenType = tokenType;
-   }
+    /**
+     * <p>
+     * Creates an instance of {@code RevokedToken} with the specified token type and token id.
+     * </p>
+     *
+     * @param tokenType a {@code String} representing the token type.
+     * @param tokenId a {@code String} representing the token id.
+     */
+    public RevokedToken(String tokenType, String tokenId) {
+        this.tokenType = tokenType;
+        this.tokenId = tokenId;
+    }
 
-   /**
-    * <p>
-    * Obtains the id of the revoked security token.
-    * </p>
-    * 
-    * @return a {@code String} containing the revoked token id.
-    */
-   public String getTokenId()
-   {
-      return this.tokenId;
-   }
+    /**
+     * <p>
+     * Obtains the type of the revoked security token.
+     * </p>
+     *
+     * @return a {@code String} containing the revoked token type.
+     */
+    public String getTokenType() {
+        return this.tokenType;
+    }
 
-   /**
-    * <p>
-    * Sets the id of the revoked security token.
-    * </p>
-    * 
-    * @param tokenId a {@code String} containing the id to be set.
-    */
-   public void setTokenId(String tokenId)
-   {
-      this.tokenId = tokenId;
-   }
-   
-   
+    /**
+     * <p>
+     * Sets the type of revoked security token.
+     * </p>
+     *
+     * @param tokenType a {@code String} containing the type to be set.
+     */
+    public void setTokenType(String tokenType) {
+        this.tokenType = tokenType;
+    }
+
+    /**
+     * <p>
+     * Obtains the id of the revoked security token.
+     * </p>
+     *
+     * @return a {@code String} containing the revoked token id.
+     */
+    public String getTokenId() {
+        return this.tokenId;
+    }
+
+    /**
+     * <p>
+     * Sets the id of the revoked security token.
+     * </p>
+     *
+     * @param tokenId a {@code String} containing the id to be set.
+     */
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
+    }
+
 }

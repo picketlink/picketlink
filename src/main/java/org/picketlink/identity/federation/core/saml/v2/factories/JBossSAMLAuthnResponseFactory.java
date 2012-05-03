@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -49,136 +49,136 @@ import org.w3c.dom.Element;
 
 /**
  * Factory for the SAML v2 Authn Response
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Dec 9, 2008
  */
-public class JBossSAMLAuthnResponseFactory
-{
-   /**
-    * Create a StatusType given the status code uri
-    * @param statusCodeURI
-    * @return
-    */
-   public static StatusType createStatusType(String statusCodeURI)
-   {
-      StatusCodeType sct = new StatusCodeType();
-      sct.setValue(URI.create(statusCodeURI));
+public class JBossSAMLAuthnResponseFactory {
+    /**
+     * Create a StatusType given the status code uri
+     *
+     * @param statusCodeURI
+     * @return
+     */
+    public static StatusType createStatusType(String statusCodeURI) {
+        StatusCodeType sct = new StatusCodeType();
+        sct.setValue(URI.create(statusCodeURI));
 
-      StatusType statusType = new StatusType();
-      statusType.setStatusCode(sct);
-      return statusType;
-   }
+        StatusType statusType = new StatusType();
+        statusType.setStatusCode(sct);
+        return statusType;
+    }
 
-   /**
-    * Create a ResponseType
-    * @param ID id of the response
-    * @param sp holder with the information about the Service Provider
-    * @param idp holder with the information on the Identity Provider
-    * @param issuerInfo holder with information on the issuer
-    * @return
-    * @throws ConfigurationException   
-    */
-   public static ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp,
-         IssuerInfoHolder issuerInfo) throws ConfigurationException
-   {
-      String responseDestinationURI = sp.getResponseDestinationURI();
+    /**
+     * Create a ResponseType
+     *
+     * @param ID id of the response
+     * @param sp holder with the information about the Service Provider
+     * @param idp holder with the information on the Identity Provider
+     * @param issuerInfo holder with information on the issuer
+     * @return
+     * @throws ConfigurationException
+     */
+    public static ResponseType createResponseType(String ID, SPInfoHolder sp, IDPInfoHolder idp, IssuerInfoHolder issuerInfo)
+            throws ConfigurationException {
+        String responseDestinationURI = sp.getResponseDestinationURI();
 
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
+        XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
 
-      //Create an assertion
-      String id = IDGenerator.create("ID_");
+        // Create an assertion
+        String id = IDGenerator.create("ID_");
 
-      //Create assertion -> subject
-      SubjectType subjectType = new SubjectType();
+        // Create assertion -> subject
+        SubjectType subjectType = new SubjectType();
 
-      //subject -> nameid
-      NameIDType nameIDType = new NameIDType();
-      nameIDType.setFormat(URI.create(idp.getNameIDFormat()));
-      nameIDType.setValue(idp.getNameIDFormatValue());
+        // subject -> nameid
+        NameIDType nameIDType = new NameIDType();
+        nameIDType.setFormat(URI.create(idp.getNameIDFormat()));
+        nameIDType.setValue(idp.getNameIDFormatValue());
 
-      SubjectType.STSubType subType = new SubjectType.STSubType();
-      subType.addBaseID(nameIDType);
-      subjectType.setSubType(subType);
+        SubjectType.STSubType subType = new SubjectType.STSubType();
+        subType.addBaseID(nameIDType);
+        subjectType.setSubType(subType);
 
-      SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType();
-      subjectConfirmation.setMethod(idp.getSubjectConfirmationMethod());
+        SubjectConfirmationType subjectConfirmation = new SubjectConfirmationType();
+        subjectConfirmation.setMethod(idp.getSubjectConfirmationMethod());
 
-      SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
-      subjectConfirmationData.setInResponseTo(sp.getRequestID());
-      subjectConfirmationData.setRecipient(responseDestinationURI);
-      subjectConfirmationData.setNotBefore(issueInstant);
-      subjectConfirmationData.setNotOnOrAfter(issueInstant);
+        SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
+        subjectConfirmationData.setInResponseTo(sp.getRequestID());
+        subjectConfirmationData.setRecipient(responseDestinationURI);
+        subjectConfirmationData.setNotBefore(issueInstant);
+        subjectConfirmationData.setNotOnOrAfter(issueInstant);
 
-      subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
+        subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
 
-      subjectType.addConfirmation(subjectConfirmation);
+        subjectType.addConfirmation(subjectConfirmation);
 
-      AssertionType assertionType = SAMLAssertionFactory.createAssertion(id, nameIDType, issueInstant,
-            (ConditionsType) null, subjectType, (List<StatementAbstractType>) null);
+        AssertionType assertionType = SAMLAssertionFactory.createAssertion(id, nameIDType, issueInstant, (ConditionsType) null,
+                subjectType, (List<StatementAbstractType>) null);
 
-      ResponseType responseType = createResponseType(ID, issuerInfo, assertionType);
-      //InResponseTo ID
-      responseType.setInResponseTo(sp.getRequestID());
-      //Destination
-      responseType.setDestination(responseDestinationURI);
+        ResponseType responseType = createResponseType(ID, issuerInfo, assertionType);
+        // InResponseTo ID
+        responseType.setInResponseTo(sp.getRequestID());
+        // Destination
+        responseType.setDestination(responseDestinationURI);
 
-      return responseType;
-   }
+        return responseType;
+    }
 
-   /**
-    * Create a Response Type
-    * @param ID
-    * @param issuerInfo
-    * @param assertionType
-    * @return
-    * @throws ConfigurationException 
-    */
-   public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertionType)
-         throws ConfigurationException
-   {
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
-      ResponseType responseType = new ResponseType(ID, issueInstant);
+    /**
+     * Create a Response Type
+     *
+     * @param ID
+     * @param issuerInfo
+     * @param assertionType
+     * @return
+     * @throws ConfigurationException
+     */
+    public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, AssertionType assertionType)
+            throws ConfigurationException {
+        XMLGregorianCalendar issueInstant = XMLTimeUtil.getIssueInstant();
+        ResponseType responseType = new ResponseType(ID, issueInstant);
 
-      //Issuer 
-      NameIDType issuer = issuerInfo.getIssuer();
-      responseType.setIssuer(issuer);
+        // Issuer
+        NameIDType issuer = issuerInfo.getIssuer();
+        responseType.setIssuer(issuer);
 
-      //Status
-      String statusCode = issuerInfo.getStatusCode();
-      if (statusCode == null)
-         throw new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
+        // Status
+        String statusCode = issuerInfo.getStatusCode();
+        if (statusCode == null)
+            throw new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
 
-      responseType.setStatus(createStatusType(statusCode));
+        responseType.setStatus(createStatusType(statusCode));
 
-      responseType.addAssertion(new RTChoiceType(assertionType));
-      return responseType;
-   }
+        responseType.addAssertion(new RTChoiceType(assertionType));
+        return responseType;
+    }
 
-   /**
-    * Create a Response Type
-    * @param ID
-    * @param issuerInfo
-    * @param encryptedAssertion a DOM {@link Element} that represents an encrypted assertion
-    * @return
-    * @throws ConfigurationException 
-    */
-   public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion)
-         throws ConfigurationException
-   {
-      ResponseType responseType = new ResponseType(ID, XMLTimeUtil.getIssueInstant());
+    /**
+     * Create a Response Type
+     *
+     * @param ID
+     * @param issuerInfo
+     * @param encryptedAssertion a DOM {@link Element} that represents an encrypted assertion
+     * @return
+     * @throws ConfigurationException
+     */
+    public static ResponseType createResponseType(String ID, IssuerInfoHolder issuerInfo, Element encryptedAssertion)
+            throws ConfigurationException {
+        ResponseType responseType = new ResponseType(ID, XMLTimeUtil.getIssueInstant());
 
-      //Issuer 
-      NameIDType issuer = issuerInfo.getIssuer();
-      responseType.setIssuer(issuer);
+        // Issuer
+        NameIDType issuer = issuerInfo.getIssuer();
+        responseType.setIssuer(issuer);
 
-      //Status
-      String statusCode = issuerInfo.getStatusCode();
-      if (statusCode == null)
-         throw new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
+        // Status
+        String statusCode = issuerInfo.getStatusCode();
+        if (statusCode == null)
+            throw new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
 
-      responseType.setStatus(createStatusType(statusCode));
+        responseType.setStatus(createStatusType(statusCode));
 
-      responseType.addAssertion(new RTChoiceType(new EncryptedAssertionType(encryptedAssertion)));
-      return responseType;
-   }
+        responseType.addAssertion(new RTChoiceType(new EncryptedAssertionType(encryptedAssertion)));
+        return responseType;
+    }
 }

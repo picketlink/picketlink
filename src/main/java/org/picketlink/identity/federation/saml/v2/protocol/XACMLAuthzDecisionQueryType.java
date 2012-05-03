@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,10 +26,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.jboss.security.xacml.core.model.context.RequestType;
 
 /**
- * <p>Java class for XACMLAuthzDecisionQueryType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for XACMLAuthzDecisionQueryType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="XACMLAuthzDecisionQueryType">
  *   &lt;complexContent>
@@ -43,114 +45,88 @@ import org.jboss.security.xacml.core.model.context.RequestType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class XACMLAuthzDecisionQueryType extends RequestAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class XACMLAuthzDecisionQueryType extends RequestAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected RequestType request;
+    protected RequestType request;
 
-   protected Boolean inputContextOnly;
+    protected Boolean inputContextOnly;
 
-   protected Boolean returnContext;
+    protected Boolean returnContext;
 
-   public XACMLAuthzDecisionQueryType(String id, XMLGregorianCalendar instant)
-   {
-      super(id, instant);
-   }
+    public XACMLAuthzDecisionQueryType(String id, XMLGregorianCalendar instant) {
+        super(id, instant);
+    }
 
-   /**
-    * Gets the value of the request property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link RequestType }
-    *     
-    */
-   public RequestType getRequest()
-   {
-      return request;
-   }
+    /**
+     * Gets the value of the request property.
+     *
+     * @return possible object is {@link RequestType }
+     *
+     */
+    public RequestType getRequest() {
+        return request;
+    }
 
-   /**
-    * Sets the value of the request property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link RequestType }
-    *     
-    */
-   public void setRequest(RequestType value)
-   {
-      this.request = value;
-   }
+    /**
+     * Sets the value of the request property.
+     *
+     * @param value allowed object is {@link RequestType }
+     *
+     */
+    public void setRequest(RequestType value) {
+        this.request = value;
+    }
 
-   /**
-    * Gets the value of the inputContextOnly property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link Boolean }
-    *     
-    */
-   public boolean isInputContextOnly()
-   {
-      if (inputContextOnly == null)
-      {
-         return false;
-      }
-      else
-      {
-         return inputContextOnly;
-      }
-   }
+    /**
+     * Gets the value of the inputContextOnly property.
+     *
+     * @return possible object is {@link Boolean }
+     *
+     */
+    public boolean isInputContextOnly() {
+        if (inputContextOnly == null) {
+            return false;
+        } else {
+            return inputContextOnly;
+        }
+    }
 
-   /**
-    * Sets the value of the inputContextOnly property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link Boolean }
-    *     
-    */
-   public void setInputContextOnly(Boolean value)
-   {
-      this.inputContextOnly = value;
-   }
+    /**
+     * Sets the value of the inputContextOnly property.
+     *
+     * @param value allowed object is {@link Boolean }
+     *
+     */
+    public void setInputContextOnly(Boolean value) {
+        this.inputContextOnly = value;
+    }
 
-   /**
-    * Gets the value of the returnContext property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link Boolean }
-    *     
-    */
-   public boolean isReturnContext()
-   {
-      if (returnContext == null)
-      {
-         return false;
-      }
-      else
-      {
-         return returnContext;
-      }
-   }
+    /**
+     * Gets the value of the returnContext property.
+     *
+     * @return possible object is {@link Boolean }
+     *
+     */
+    public boolean isReturnContext() {
+        if (returnContext == null) {
+            return false;
+        } else {
+            return returnContext;
+        }
+    }
 
-   /**
-    * Sets the value of the returnContext property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link Boolean }
-    *     
-    */
-   public void setReturnContext(Boolean value)
-   {
-      this.returnContext = value;
-   }
+    /**
+     * Sets the value of the returnContext property.
+     *
+     * @param value allowed object is {@link Boolean }
+     *
+     */
+    public void setReturnContext(Boolean value) {
+        this.returnContext = value;
+    }
 
 }

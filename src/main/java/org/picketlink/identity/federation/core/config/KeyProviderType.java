@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,14 +26,16 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 
- *     			Source of the Signing and Validating Key
- *     		
- * 
- * <p>Java class for KeyProviderType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
+ * Source of the Signing and Validating Key
+ *
+ *
+ * <p>
+ * Java class for KeyProviderType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="KeyProviderType">
  *   &lt;complexContent>
@@ -48,116 +50,95 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class KeyProviderType
-{
+public class KeyProviderType {
 
-   protected List<AuthPropertyType> auth = new ArrayList<AuthPropertyType>();
+    protected List<AuthPropertyType> auth = new ArrayList<AuthPropertyType>();
 
-   protected List<KeyValueType> validatingAlias = new ArrayList<KeyValueType>();
+    protected List<KeyValueType> validatingAlias = new ArrayList<KeyValueType>();
 
-   protected String signingAlias;
+    protected String signingAlias;
 
-   protected String className;
+    protected String className;
 
-   public void add(AuthPropertyType kv)
-   {
-      this.auth.add(kv);
-   }
+    public void add(AuthPropertyType kv) {
+        this.auth.add(kv);
+    }
 
-   public void remove(AuthPropertyType kv)
-   {
-      this.auth.remove(kv);
-   }
+    public void remove(AuthPropertyType kv) {
+        this.auth.remove(kv);
+    }
 
-   /**
-    * Gets the value of the auth property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link AuthPropertyType }
-    * 
-    * 
-    */
-   public List<AuthPropertyType> getAuth()
-   {
-      return Collections.unmodifiableList(this.auth);
-   }
+    /**
+     * Gets the value of the auth property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link AuthPropertyType }
+     *
+     *
+     */
+    public List<AuthPropertyType> getAuth() {
+        return Collections.unmodifiableList(this.auth);
+    }
 
-   public void add(KeyValueType kv)
-   {
-      this.validatingAlias.add(kv);
-   }
+    public void add(KeyValueType kv) {
+        this.validatingAlias.add(kv);
+    }
 
-   public void remove(KeyValueType kv)
-   {
-      this.validatingAlias.remove(kv);
-   }
+    public void remove(KeyValueType kv) {
+        this.validatingAlias.remove(kv);
+    }
 
-   /**
-    * Gets the value of the validatingAlias property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link KeyValueType }
-    * 
-    * 
-    */
-   public List<KeyValueType> getValidatingAlias()
-   {
-      return Collections.unmodifiableList(this.validatingAlias);
-   }
+    /**
+     * Gets the value of the validatingAlias property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link KeyValueType }
+     *
+     *
+     */
+    public List<KeyValueType> getValidatingAlias() {
+        return Collections.unmodifiableList(this.validatingAlias);
+    }
 
-   /**
-    * Gets the value of the signingAlias property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getSigningAlias()
-   {
-      return signingAlias;
-   }
+    /**
+     * Gets the value of the signingAlias property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getSigningAlias() {
+        return signingAlias;
+    }
 
-   /**
-    * Sets the value of the signingAlias property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setSigningAlias(String value)
-   {
-      this.signingAlias = value;
-   }
+    /**
+     * Sets the value of the signingAlias property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setSigningAlias(String value) {
+        this.signingAlias = value;
+    }
 
-   /**
-    * Gets the value of the className property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getClassName()
-   {
-      return className;
-   }
+    /**
+     * Gets the value of the className property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getClassName() {
+        return className;
+    }
 
-   /**
-    * Sets the value of the className property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setClassName(String value)
-   {
-      this.className = value;
-   }
+    /**
+     * Sets the value of the className property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setClassName(String value) {
+        this.className = value;
+    }
 
 }

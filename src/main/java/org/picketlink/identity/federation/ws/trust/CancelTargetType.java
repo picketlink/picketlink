@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,10 +22,12 @@
 package org.picketlink.identity.federation.ws.trust;
 
 /**
- * <p>Java class for CancelTargetType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for CancelTargetType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="CancelTargetType">
  *   &lt;complexContent>
@@ -37,16 +39,14 @@ package org.picketlink.identity.federation.ws.trust;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class CancelTargetType extends SimpleAnyType
-{
-   @Override
-   public void add(Object t)
-   {
-      //ensure that we clear
-      this.any.clear();
-      super.add(t);
-   }
+public class CancelTargetType extends SimpleAnyType {
+    @Override
+    public void add(Object t) {
+        // ensure that we clear
+        this.any.clear();
+        super.add(t);
+    }
 }

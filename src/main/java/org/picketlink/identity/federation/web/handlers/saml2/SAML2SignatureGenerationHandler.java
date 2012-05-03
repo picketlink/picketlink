@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -35,82 +35,70 @@ import org.w3c.dom.Node;
 
 /**
  * Handles SAML2 Signature
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2009
  */
-public class SAML2SignatureGenerationHandler extends BaseSAML2Handler
-{
-   private static Logger log = Logger.getLogger(SAML2SignatureGenerationHandler.class);
+public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
+    private static Logger log = Logger.getLogger(SAML2SignatureGenerationHandler.class);
 
-   private final boolean trace = log.isTraceEnabled();
+    private final boolean trace = log.isTraceEnabled();
 
-   @Override
-   public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response)
-         throws ProcessingException
-   {
-      //Generate the signature
-      Document samlDocument = response.getResultingDocument();
+    @Override
+    public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
+        // Generate the signature
+        Document samlDocument = response.getResultingDocument();
 
-      if (samlDocument == null && trace)
-      {
-         log.trace("No document generated in the handler chain. Cannot generate signature");
-         return;
-      }
+        if (samlDocument == null && trace) {
+            log.trace("No document generated in the handler chain. Cannot generate signature");
+            return;
+        }
 
-      //Get the Key Pair
-      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+        // Get the Key Pair
+        KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
 
-      if (keypair == null)
-      {
-         log.error("Key Pair cannot be found");
-         throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyPair not found");
-      }
+        if (keypair == null) {
+            log.error("Key Pair cannot be found");
+            throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyPair not found");
+        }
 
-      sign(samlDocument, keypair);
-   }
+        sign(samlDocument, keypair);
+    }
 
-   public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException
-   {
-      Document responseDocument = response.getResultingDocument();
-      if (responseDocument == null)
-      {
-         if (trace)
-         {
-            log.trace("handleRequestType:No response document found");
-         }
-         return;
-      }
+    public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
+        Document responseDocument = response.getResultingDocument();
+        if (responseDocument == null) {
+            if (trace) {
+                log.trace("handleRequestType:No response document found");
+            }
+            return;
+        }
 
-      //Get the Key Pair
-      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+        // Get the Key Pair
+        KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
 
-      this.sign(responseDocument, keypair);
-   }
+        this.sign(responseDocument, keypair);
+    }
 
-   @Override
-   public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response)
-         throws ProcessingException
-   {
-      Document responseDocument = response.getResultingDocument();
-      if (responseDocument == null)
-      {
-         if (trace)
-         {
-            log.trace("handleStatusResponseType:No response document found");
-         }
-         return;
-      }
+    @Override
+    public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
+        Document responseDocument = response.getResultingDocument();
+        if (responseDocument == null) {
+            if (trace) {
+                log.trace("handleStatusResponseType:No response document found");
+            }
+            return;
+        }
 
-      //Get the Key Pair
-      KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
-      this.sign(responseDocument, keypair);
-   }
+        // Get the Key Pair
+        KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+        this.sign(responseDocument, keypair);
+    }
 
-   private void sign(Document samlDocument, KeyPair keypair) throws ProcessingException
-   {
-      SAML2Signature samlSignature = new SAML2Signature();
-      Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
-      samlSignature.setNextSibling(nextSibling);
-      samlSignature.signSAMLDocument(samlDocument, keypair);
-   }
+    private void sign(Document samlDocument, KeyPair keypair) throws ProcessingException {
+        SAML2Signature samlSignature = new SAML2Signature();
+        Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
+        samlSignature.setNextSibling(nextSibling);
+        samlSignature.signSAMLDocument(samlDocument, keypair);
+    }
 }

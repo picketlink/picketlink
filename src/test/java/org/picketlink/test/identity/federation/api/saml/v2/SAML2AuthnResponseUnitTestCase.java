@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -35,34 +35,31 @@ import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 
-
 /**
  * Unit Test the SAML2 Authn Response factory
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Dec 9, 2008
  */
-public class SAML2AuthnResponseUnitTestCase
-{
-   @Test
-   public void testResponseTypeCreation() throws Exception
-   { 
-      //Initialize the Core STS
-      PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
-      sts.installDefaultConfiguration();
+public class SAML2AuthnResponseUnitTestCase {
+    @Test
+    public void testResponseTypeCreation() throws Exception {
+        // Initialize the Core STS
+        PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
+        sts.installDefaultConfiguration();
 
-      IssuerInfoHolder issuerHolder = new IssuerInfoHolder("http://idp");
-      issuerHolder.setStatusCode(JBossSAMLURIConstants.STATUS_SUCCESS.get());
-      
-      IDPInfoHolder idp = new IDPInfoHolder();
-      idp.setNameIDFormatValue(IDGenerator.create());
+        IssuerInfoHolder issuerHolder = new IssuerInfoHolder("http://idp");
+        issuerHolder.setStatusCode(JBossSAMLURIConstants.STATUS_SUCCESS.get());
 
-      SAML2Response saml2Response = new SAML2Response();
-      
-      ResponseType rt = saml2Response.createResponseType("response111",
-             new SPInfoHolder(), idp, issuerHolder);
-      Assert.assertNotNull(rt);
-      
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      saml2Response.marshall(rt, baos);
-   }   
+        IDPInfoHolder idp = new IDPInfoHolder();
+        idp.setNameIDFormatValue(IDGenerator.create());
+
+        SAML2Response saml2Response = new SAML2Response();
+
+        ResponseType rt = saml2Response.createResponseType("response111", new SPInfoHolder(), idp, issuerHolder);
+        Assert.assertNotNull(rt);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        saml2Response.marshall(rt, baos);
+    }
 }

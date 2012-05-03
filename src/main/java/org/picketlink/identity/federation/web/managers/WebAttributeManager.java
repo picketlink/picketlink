@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -30,16 +30,15 @@ import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
  * A default attribute manager for web applications
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Sep 10, 2009
  */
-public class WebAttributeManager implements AttributeManager
-{
-   /**
-    * @see AttributeManager#getAttributes(Principal, List)
-    */
-   public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys)
-   {
-      throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
-   }
+public class WebAttributeManager implements AttributeManager {
+    /**
+     * @see AttributeManager#getAttributes(Principal, List)
+     */
+    public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys) {
+        throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
+    }
 }

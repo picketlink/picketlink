@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2011, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,10 +28,12 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * <p>Java class for EndpointReferenceType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for EndpointReferenceType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="EndpointReferenceType">
  *   &lt;complexContent>
@@ -46,118 +48,96 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class EndpointReferenceType extends BaseAddressingType
-{
-   protected AttributedURIType address;
+public class EndpointReferenceType extends BaseAddressingType {
+    protected AttributedURIType address;
 
-   protected ReferenceParametersType referenceParameters;
+    protected ReferenceParametersType referenceParameters;
 
-   protected MetadataType metadata;
+    protected MetadataType metadata;
 
-   protected List<Object> any = new ArrayList<Object>();
+    protected List<Object> any = new ArrayList<Object>();
 
-   /**
-    * Gets the value of the address property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link AttributedURIType }
-    *     
-    */
-   public AttributedURIType getAddress()
-   {
-      return address;
-   }
+    /**
+     * Gets the value of the address property.
+     *
+     * @return possible object is {@link AttributedURIType }
+     *
+     */
+    public AttributedURIType getAddress() {
+        return address;
+    }
 
-   /**
-    * Sets the value of the address property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link AttributedURIType }
-    *     
-    */
-   public void setAddress(AttributedURIType value)
-   {
-      this.address = value;
-   }
+    /**
+     * Sets the value of the address property.
+     *
+     * @param value allowed object is {@link AttributedURIType }
+     *
+     */
+    public void setAddress(AttributedURIType value) {
+        this.address = value;
+    }
 
-   /**
-    * Gets the value of the referenceParameters property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link ReferenceParametersType }
-    *     
-    */
-   public ReferenceParametersType getReferenceParameters()
-   {
-      return referenceParameters;
-   }
+    /**
+     * Gets the value of the referenceParameters property.
+     *
+     * @return possible object is {@link ReferenceParametersType }
+     *
+     */
+    public ReferenceParametersType getReferenceParameters() {
+        return referenceParameters;
+    }
 
-   /**
-    * Sets the value of the referenceParameters property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link ReferenceParametersType }
-    *     
-    */
-   public void setReferenceParameters(ReferenceParametersType value)
-   {
-      this.referenceParameters = value;
-   }
+    /**
+     * Sets the value of the referenceParameters property.
+     *
+     * @param value allowed object is {@link ReferenceParametersType }
+     *
+     */
+    public void setReferenceParameters(ReferenceParametersType value) {
+        this.referenceParameters = value;
+    }
 
-   /**
-    * Gets the value of the metadata property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link MetadataType }
-    *     
-    */
-   public MetadataType getMetadata()
-   {
-      return metadata;
-   }
+    /**
+     * Gets the value of the metadata property.
+     *
+     * @return possible object is {@link MetadataType }
+     *
+     */
+    public MetadataType getMetadata() {
+        return metadata;
+    }
 
-   /**
-    * Sets the value of the metadata property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link MetadataType }
-    *     
-    */
-   public void setMetadata(MetadataType value)
-   {
-      this.metadata = value;
-   }
+    /**
+     * Sets the value of the metadata property.
+     *
+     * @param value allowed object is {@link MetadataType }
+     *
+     */
+    public void setMetadata(MetadataType value) {
+        this.metadata = value;
+    }
 
-   /**
-    * Gets the value of the any property. 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link Object }
-    * {@link Element }
-    * 
-    * 
-    */
-   public List<Object> getAny()
-   {
-      return Collections.unmodifiableList(this.any);
-   }
+    /**
+     * Gets the value of the any property.
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link Object } {@link Element }
+     *
+     *
+     */
+    public List<Object> getAny() {
+        return Collections.unmodifiableList(this.any);
+    }
 
-   /**
-    * Add an any
-    * @param obj
-    */
-   public void addAny(Object obj)
-   {
-      this.any.add(obj);
-   }
+    /**
+     * Add an any
+     *
+     * @param obj
+     */
+    public void addAny(Object obj) {
+        this.any.add(obj);
+    }
 }

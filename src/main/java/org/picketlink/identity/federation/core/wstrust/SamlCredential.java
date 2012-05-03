@@ -2,17 +2,17 @@
  * JBoss, Home of Professional Open Source Copyright 2009, Red Hat Middleware
  * LLC, and individual contributors by the @authors tag. See the copyright.txt
  * in the distribution for a full listing of individual contributors.
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the
  * terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this software; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF
@@ -43,109 +43,91 @@ import org.w3c.dom.Element;
 
 /**
  * Credential that wraps a SAML Assertion.
- * 
+ *
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
- * 
+ *
  */
-public final class SamlCredential implements Serializable
-{
-   private static final long serialVersionUID = -8496414959425288835L;
+public final class SamlCredential implements Serializable {
+    private static final long serialVersionUID = -8496414959425288835L;
 
-   private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
-   private final String assertion;
+    private final String assertion;
 
-   public SamlCredential(final Element assertion)
-   {
-      if (assertion == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
+    public SamlCredential(final Element assertion) {
+        if (assertion == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
 
-      this.assertion = SamlCredential.assertionToString(assertion);
-   }
+        this.assertion = SamlCredential.assertionToString(assertion);
+    }
 
-   public SamlCredential(final String assertion)
-   {
-      if (StringUtil.isNullOrEmpty(assertion))
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
+    public SamlCredential(final String assertion) {
+        if (StringUtil.isNullOrEmpty(assertion))
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
 
-      this.assertion = assertion;
-   }
+        this.assertion = assertion;
+    }
 
-   public String getAssertionAsString()
-   {
-      return assertion;
-   }
+    public String getAssertionAsString() {
+        return assertion;
+    }
 
-   public Element getAssertionAsElement() throws ProcessingException
-   {
-      return SamlCredential.assertionToElement(assertion);
-   }
+    public Element getAssertionAsElement() throws ProcessingException {
+        return SamlCredential.assertionToElement(assertion);
+    }
 
-   @Override
-   public boolean equals(final Object obj)
-   {
-      if (this == obj)
-         return true;
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj)
+            return true;
 
-      if (!(obj instanceof SamlCredential))
-         return false;
+        if (!(obj instanceof SamlCredential))
+            return false;
 
-      final SamlCredential that = (SamlCredential) obj;
-      return this.assertion.equals(that.assertion);
-   }
+        final SamlCredential that = (SamlCredential) obj;
+        return this.assertion.equals(that.assertion);
+    }
 
-   @Override
-   public int hashCode()
-   {
-      int result = 17;
-      result = 31 * result + assertion.hashCode();
-      return result;
-   }
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + assertion.hashCode();
+        return result;
+    }
 
-   @Override
-   public String toString()
-   {
-      return "SamlCredential[" + assertion + "]";
-   }
+    @Override
+    public String toString() {
+        return "SamlCredential[" + assertion + "]";
+    }
 
-   public static Element assertionToElement(final String assertion) throws ProcessingException
-   {
-      try
-      {
-         Document document = DocumentUtil.getDocument(assertion);
-         return (Element) document.getFirstChild();
-      }
-      catch (final ConfigurationException e)
-      {
-         throw new ProcessingException(e);
-      }
-      catch (final ParsingException e)
-      {
-         throw new ProcessingException(e);
-      }
-   }
+    public static Element assertionToElement(final String assertion) throws ProcessingException {
+        try {
+            Document document = DocumentUtil.getDocument(assertion);
+            return (Element) document.getFirstChild();
+        } catch (final ConfigurationException e) {
+            throw new ProcessingException(e);
+        } catch (final ParsingException e) {
+            throw new ProcessingException(e);
+        }
+    }
 
-   public static String assertionToString(final Element assertion)
-   {
-      if (assertion == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
+    public static String assertionToString(final Element assertion) {
+        if (assertion == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
 
-      try
-      {
-         final Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
-         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        try {
+            final Transformer transformer = TRANSFORMER_FACTORY.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
 
-         final Source source = new DOMSource(assertion);
-         final StringWriter writer = new StringWriter();
-         final Result result = new StreamResult(writer);
+            final Source source = new DOMSource(assertion);
+            final StringWriter writer = new StringWriter();
+            final Result result = new StreamResult(writer);
 
-         transformer.transform(source, result);
+            transformer.transform(source, result);
 
-         return writer.toString();
-      }
-      catch (final TransformerException e)
-      {
-         throw new IllegalStateException(e.getMessage(), e);
-      }
-   }
+            return writer.toString();
+        } catch (final TransformerException e) {
+            throw new IllegalStateException(e.getMessage(), e);
+        }
+    }
 }

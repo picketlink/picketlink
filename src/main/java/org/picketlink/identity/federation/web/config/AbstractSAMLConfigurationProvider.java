@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2011, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -33,33 +33,31 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
 /**
  * An abstact class to hold the common functionality across providers
+ *
  * @author Anil Saldhana
  * @since Feb 22, 2012
  */
-public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider
-{
-   public static final String VALIDATING_ALIAS = "ValidatingAlias";
+public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider {
+    public static final String VALIDATING_ALIAS = "ValidatingAlias";
 
-   protected IDPType configParsedIDPType = null;
+    protected IDPType configParsedIDPType = null;
 
-   protected SPType configParsedSPType = null;
+    protected SPType configParsedSPType = null;
 
-   public void setConfigFile(InputStream is) throws ParsingException
-   {
-      if (is == null)
-      {
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT);
-      }
+    public void setConfigFile(InputStream is) throws ParsingException {
+        if (is == null) {
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT);
+        }
 
-      SAMLConfigParser parser = new SAMLConfigParser();
-      Object parsedObject = parser.parse(is);
-      if (parsedObject instanceof IDPType)
-         configParsedIDPType = (IDPType) parsedObject;
-      else
-         configParsedSPType = (SPType) parsedObject;
-   }
+        SAMLConfigParser parser = new SAMLConfigParser();
+        Object parsedObject = parser.parse(is);
+        if (parsedObject instanceof IDPType)
+            configParsedIDPType = (IDPType) parsedObject;
+        else
+            configParsedSPType = (SPType) parsedObject;
+    }
 
-   public abstract IDPType getIDPConfiguration() throws ProcessingException;
+    public abstract IDPType getIDPConfiguration() throws ProcessingException;
 
-   public abstract SPType getSPConfiguration() throws ProcessingException;
+    public abstract SPType getSPConfiguration() throws ProcessingException;
 }

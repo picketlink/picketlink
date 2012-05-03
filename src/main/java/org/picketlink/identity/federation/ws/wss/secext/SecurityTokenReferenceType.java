@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,11 +29,13 @@ import org.picketlink.identity.federation.ws.trust.SimpleCollectionUsage;
 
 /**
  * This type is used reference a security token.
- * 
- * <p>Java class for SecurityTokenReferenceType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ *
+ * <p>
+ * Java class for SecurityTokenReferenceType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="SecurityTokenReferenceType">
  *   &lt;complexContent>
@@ -47,61 +49,50 @@ import org.picketlink.identity.federation.ws.trust.SimpleCollectionUsage;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class SecurityTokenReferenceType extends AnyAddressingType implements SimpleCollectionUsage<String>
-{
-   protected String id;
+public class SecurityTokenReferenceType extends AnyAddressingType implements SimpleCollectionUsage<String> {
+    protected String id;
 
-   protected List<String> usage;
+    protected List<String> usage;
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getId()
-   {
-      return id;
-   }
+    /**
+     * Gets the value of the id property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getId() {
+        return id;
+    }
 
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setId(String value)
-   {
-      this.id = value;
-   }
+    /**
+     * Sets the value of the id property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setId(String value) {
+        this.id = value;
+    }
 
-   /**
-    * Gets the value of the usage property. 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link String }
-    * 
-    * 
-    */
-   public List<String> getUsage()
-   {
-      return Collections.unmodifiableList(this.usage);
-   }
+    /**
+     * Gets the value of the usage property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link String }
+     *
+     *
+     */
+    public List<String> getUsage() {
+        return Collections.unmodifiableList(this.usage);
+    }
 
-   public void add(String t)
-   {
-      this.usage.add(t);
-   }
+    public void add(String t) {
+        this.usage.add(t);
+    }
 
-   public boolean remove(String t)
-   {
-      return this.usage.remove(t);
-   }
+    public boolean remove(String t) {
+        return this.usage.remove(t);
+    }
 }

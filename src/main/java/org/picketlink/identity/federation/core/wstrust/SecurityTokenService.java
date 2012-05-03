@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,18 +26,17 @@ import javax.xml.ws.Provider;
 
 /**
  * <p>
- * The {@code SecurityTokenService} (STS) interface. It extends the {@code Provider} interface so that it can be
- * dynamically invoked (as opposed to having a service endpoint interface).
+ * The {@code SecurityTokenService} (STS) interface. It extends the {@code Provider} interface so that it can be dynamically
+ * invoked (as opposed to having a service endpoint interface).
  * </p>
- * 
+ *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public interface SecurityTokenService extends Provider<Source>
-{
-   /*
-    * (non-Javadoc)
-    * 
-    * @see javax.xml.ws.Provider#invoke(java.lang.Object)
-    */
-   public Source invoke(Source request);
+public interface SecurityTokenService extends Provider<Source> {
+    /*
+     * (non-Javadoc)
+     *
+     * @see javax.xml.ws.Provider#invoke(java.lang.Object)
+     */
+    public Source invoke(Source request);
 }

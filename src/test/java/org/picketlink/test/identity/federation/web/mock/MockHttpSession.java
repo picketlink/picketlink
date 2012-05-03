@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,137 +34,115 @@ import javax.servlet.http.HttpSessionContext;
 
 /**
  * Mock HttpSession
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
- */ 
-@SuppressWarnings({"deprecation", "unchecked", "rawtypes"}) 
-public class MockHttpSession implements HttpSession
-{
-   private boolean valid = true;
-   
-   private Map<String,Object> attribs = new HashMap<String,Object>();
+ */
+@SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
+public class MockHttpSession implements HttpSession {
+    private boolean valid = true;
 
-   private String id = UUID.randomUUID().toString();
+    private Map<String, Object> attribs = new HashMap<String, Object>();
 
-   private ServletContext context;
-   
-   public boolean isInvalidated()
-   {
-      return valid == false;
-   }
-   
-   public Object getAttribute(String arg0)
-   {
-      return attribs.get(arg0);
-   }
+    private String id = UUID.randomUUID().toString();
 
-   public Enumeration getAttributeNames()
-   {
-      return new Enumeration() 
-      {
-         private Iterator iter = attribs.entrySet().iterator();
-         
-         public boolean hasMoreElements()
-         {
-            return iter.hasNext();
-         }
+    private ServletContext context;
 
-         public Object nextElement()
-         {
-            Entry<String,Object> entry =  (Entry<String, Object>) iter.next();
-            return entry.getValue();
-         }
-      };
-   }
+    public boolean isInvalidated() {
+        return valid == false;
+    }
 
-   public long getCreationTime()
-   {  
-      return 0;
-   }
+    public Object getAttribute(String arg0) {
+        return attribs.get(arg0);
+    }
 
-   public String getId()
-   {   
-      return id;
-   }
+    public Enumeration getAttributeNames() {
+        return new Enumeration() {
+            private Iterator iter = attribs.entrySet().iterator();
 
-   public long getLastAccessedTime()
-   {      
-      return 0;
-   }
+            public boolean hasMoreElements() {
+                return iter.hasNext();
+            }
 
-   public int getMaxInactiveInterval()
-   {      
-      return 0;
-   }
+            public Object nextElement() {
+                Entry<String, Object> entry = (Entry<String, Object>) iter.next();
+                return entry.getValue();
+            }
+        };
+    }
 
-   public void setServletContext(ServletContext servletContext)
-   {
-      this.context = servletContext;
-   }
-   
-   public ServletContext getServletContext()
-   {     
-      return this.context;
-   }
+    public long getCreationTime() {
+        return 0;
+    }
 
-   public HttpSessionContext getSessionContext()
-   {
-      
-      throw new RuntimeException("NYI");
-   }
+    public String getId() {
+        return id;
+    }
 
-   public Object getValue(String arg0)
-   { 
-      throw new RuntimeException("NYI");
-   }
+    public long getLastAccessedTime() {
+        return 0;
+    }
 
-   public String[] getValueNames()
-   {  
-      throw new RuntimeException("NYI");
-   }
+    public int getMaxInactiveInterval() {
+        return 0;
+    }
 
-   public void invalidate()
-   {
-      this.valid = false;
-   }
+    public void setServletContext(ServletContext servletContext) {
+        this.context = servletContext;
+    }
 
-   public boolean isNew()
-   {  
-      if(this.valid == false)
-         throw new IllegalStateException("Session already invalidated");
-      
-      return false;
-   }
+    public ServletContext getServletContext() {
+        return this.context;
+    }
 
-   public void putValue(String arg0, Object arg1)
-   {
-      if(this.valid == false)
-         throw new IllegalStateException("Session already invalidated");
-   }
+    public HttpSessionContext getSessionContext() {
 
-   public void removeAttribute(String arg0)
-   {
-      if(this.valid == false)
-         throw new IllegalStateException("Session already invalidated");
-      
-      this.attribs.remove(arg0);
-   }
+        throw new RuntimeException("NYI");
+    }
 
-   public void removeValue(String arg0)
-   {
-      if(this.valid == false)
-         throw new IllegalStateException("Session already invalidated");      
-   }
+    public Object getValue(String arg0) {
+        throw new RuntimeException("NYI");
+    }
 
-   public void setAttribute(String arg0, Object arg1)
-   {
-      if(this.valid == false)
-      throw new IllegalStateException("Session already invalidated");
-   
-      this.attribs.put(arg0, arg1); 
-   }
+    public String[] getValueNames() {
+        throw new RuntimeException("NYI");
+    }
 
-   public void setMaxInactiveInterval(int arg0)
-   { 
-   }
+    public void invalidate() {
+        this.valid = false;
+    }
+
+    public boolean isNew() {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+
+        return false;
+    }
+
+    public void putValue(String arg0, Object arg1) {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+    }
+
+    public void removeAttribute(String arg0) {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+
+        this.attribs.remove(arg0);
+    }
+
+    public void removeValue(String arg0) {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+    }
+
+    public void setAttribute(String arg0, Object arg1) {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+
+        this.attribs.put(arg0, arg1);
+    }
+
+    public void setMaxInactiveInterval(int arg0) {
+    }
 }

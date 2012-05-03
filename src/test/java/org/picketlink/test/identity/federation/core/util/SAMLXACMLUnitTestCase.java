@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,52 +34,49 @@ import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQue
 
 /**
  * Read a SAML-XACML request
- * 
+ *
  * @see {@code SAMLResponseParserTestCase#testXACMLDecisionStatements()}
  * @author Anil.Saldhana@redhat.com
  * @since Jan 8, 2009
  */
-public class SAMLXACMLUnitTestCase 
-{
-   /**
-    * Usage of samlp with xsi-type 
-    */
-   @Test
-   public void testSAML_XACML_Read() throws Exception
-   {
-      String resourceName = "saml-xacml/saml-xacml-request.xml";  
+public class SAMLXACMLUnitTestCase {
+    /**
+     * Usage of samlp with xsi-type
+     */
+    @Test
+    public void testSAML_XACML_Read() throws Exception {
+        String resourceName = "saml-xacml/saml-xacml-request.xml";
 
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = tcl.getResourceAsStream(resourceName);
-      
-      SAMLParser parser = new SAMLParser();
-      RequestAbstractType req = (RequestAbstractType) parser.parse( is );
-      assertNotNull(req);
-      assertTrue( req instanceof XACMLAuthzDecisionQueryType );
-      
-      XACMLAuthzDecisionQueryType xadqt = (XACMLAuthzDecisionQueryType) req;
-      RequestType requestType = xadqt.getRequest();
-      assertNotNull(requestType);
-   }
-   
-   /**
-    * Usage of xacml-samlp
-    */
-   @Test
-   public void testSAML_XACML_Read_2() throws Exception
-   {      
-      String resourceName = "saml-xacml/saml-xacml-request-2.xml";
-      
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream is = tcl.getResourceAsStream(resourceName);
-    
-      SAMLParser parser = new SAMLParser();
-      RequestAbstractType req = (RequestAbstractType) parser.parse( is );
-      assertNotNull(req);
-      assertTrue( req instanceof XACMLAuthzDecisionQueryType );
-      
-      XACMLAuthzDecisionQueryType xadqt = (XACMLAuthzDecisionQueryType) req;
-      RequestType requestType = xadqt.getRequest();
-      assertNotNull(requestType);
-   }
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(resourceName);
+
+        SAMLParser parser = new SAMLParser();
+        RequestAbstractType req = (RequestAbstractType) parser.parse(is);
+        assertNotNull(req);
+        assertTrue(req instanceof XACMLAuthzDecisionQueryType);
+
+        XACMLAuthzDecisionQueryType xadqt = (XACMLAuthzDecisionQueryType) req;
+        RequestType requestType = xadqt.getRequest();
+        assertNotNull(requestType);
+    }
+
+    /**
+     * Usage of xacml-samlp
+     */
+    @Test
+    public void testSAML_XACML_Read_2() throws Exception {
+        String resourceName = "saml-xacml/saml-xacml-request-2.xml";
+
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(resourceName);
+
+        SAMLParser parser = new SAMLParser();
+        RequestAbstractType req = (RequestAbstractType) parser.parse(is);
+        assertNotNull(req);
+        assertTrue(req instanceof XACMLAuthzDecisionQueryType);
+
+        XACMLAuthzDecisionQueryType xadqt = (XACMLAuthzDecisionQueryType) req;
+        RequestType requestType = xadqt.getRequest();
+        assertNotNull(requestType);
+    }
 }

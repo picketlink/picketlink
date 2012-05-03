@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -39,70 +39,69 @@ import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 
 /**
  * Validate the parsing of SLO (log out) Request
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 3, 2010
  */
-public class SAMLSloRequestParserTestCase extends AbstractParserTest
-{
-   @Test
-   public void testSAMLLogOutRequestParsing() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request.xml");
+public class SAMLSloRequestParserTestCase extends AbstractParserTest {
+    @Test
+    public void testSAMLLogOutRequestParsing() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request.xml");
 
-      SAMLParser parser = new SAMLParser();
-      LogoutRequestType lotRequest = (LogoutRequestType) parser.parse(configStream);
-      assertNotNull(lotRequest);
+        SAMLParser parser = new SAMLParser();
+        LogoutRequestType lotRequest = (LogoutRequestType) parser.parse(configStream);
+        assertNotNull(lotRequest);
 
-      assertEquals("ID_c3b5ae86-7fea-4d8b-a438-a3f47d8e92c3", lotRequest.getID());
-      assertEquals(XMLTimeUtil.parse("2010-07-29T13:46:20.647-05:00"), lotRequest.getIssueInstant());
-      assertEquals("2.0", lotRequest.getVersion());
-      //Issuer
-      assertEquals("http://localhost:8080/sales/", lotRequest.getIssuer().getValue());
+        assertEquals("ID_c3b5ae86-7fea-4d8b-a438-a3f47d8e92c3", lotRequest.getID());
+        assertEquals(XMLTimeUtil.parse("2010-07-29T13:46:20.647-05:00"), lotRequest.getIssueInstant());
+        assertEquals("2.0", lotRequest.getVersion());
+        // Issuer
+        assertEquals("http://localhost:8080/sales/", lotRequest.getIssuer().getValue());
 
-      //Try out writing
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
-      writer.write(lotRequest);
+        // Try out writing
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(lotRequest);
 
-      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
-      DocumentUtil.getDocument(bis); //throws exceptions
+        ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+        DocumentUtil.getDocument(bis); // throws exceptions
 
-      baos = new ByteArrayOutputStream();
-      //Lets do the writing
-      writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
-      writer.write(lotRequest);
-      String writtenString = new String(baos.toByteArray());
-      System.out.println(writtenString);
-      validateSchema(writtenString);
-   }
-   
-   @Test 
-   public void testSAMLSLOParsing() throws Exception{
-       ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-       InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request-2.xml");
+        baos = new ByteArrayOutputStream();
+        // Lets do the writing
+        writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(lotRequest);
+        String writtenString = new String(baos.toByteArray());
+        System.out.println(writtenString);
+        validateSchema(writtenString);
+    }
 
-       JAXPValidationUtil.validate(configStream);
-       configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request-2.xml");
-       
-       SAMLParser parser = new SAMLParser();
-       LogoutRequestType lotRequest = (LogoutRequestType) parser.parse(configStream);
-       assertNotNull(lotRequest); 
-       
-       //Try out writing
-       ByteArrayOutputStream baos = new ByteArrayOutputStream();
-       SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
-       writer.write(lotRequest);
+    @Test
+    public void testSAMLSLOParsing() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request-2.xml");
 
-       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
-       DocumentUtil.getDocument(bis); //throws exceptions
+        JAXPValidationUtil.validate(configStream);
+        configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-request-2.xml");
 
-       baos = new ByteArrayOutputStream();
-       //Lets do the writing
-       writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
-       writer.write(lotRequest);
-       String writtenString = new String(baos.toByteArray());
-       System.out.println(writtenString);
-       validateSchema(writtenString);
-   }
+        SAMLParser parser = new SAMLParser();
+        LogoutRequestType lotRequest = (LogoutRequestType) parser.parse(configStream);
+        assertNotNull(lotRequest);
+
+        // Try out writing
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        SAMLRequestWriter writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(lotRequest);
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+        DocumentUtil.getDocument(bis); // throws exceptions
+
+        baos = new ByteArrayOutputStream();
+        // Lets do the writing
+        writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
+        writer.write(lotRequest);
+        String writtenString = new String(baos.toByteArray());
+        System.out.println(writtenString);
+        validateSchema(writtenString);
+    }
 }

@@ -1,12 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
-
-
 /**
- * <p>Java class for OperationalProtectionType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for OperationalProtectionType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="OperationalProtectionType">
  *   &lt;complexContent>
@@ -20,21 +20,19 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class OperationalProtectionType extends ExtensionListType {
- 
-    protected SecurityAuditType securityAudit; 
-    protected ExtensionOnlyType deactivationCallCenter;  
+
+    protected SecurityAuditType securityAudit;
+    protected ExtensionOnlyType deactivationCallCenter;
 
     /**
      * Gets the value of the securityAudit property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link SecurityAuditType }
-     *     
+     *
+     * @return possible object is {@link SecurityAuditType }
+     *
      */
     public SecurityAuditType getSecurityAudit() {
         return securityAudit;
@@ -42,11 +40,9 @@ public class OperationalProtectionType extends ExtensionListType {
 
     /**
      * Sets the value of the securityAudit property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link SecurityAuditType }
-     *     
+     *
+     * @param value allowed object is {@link SecurityAuditType }
+     *
      */
     public void setSecurityAudit(SecurityAuditType value) {
         this.securityAudit = value;
@@ -54,11 +50,9 @@ public class OperationalProtectionType extends ExtensionListType {
 
     /**
      * Gets the value of the deactivationCallCenter property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ExtensionOnlyType }
-     *     
+     *
+     * @return possible object is {@link ExtensionOnlyType }
+     *
      */
     public ExtensionOnlyType getDeactivationCallCenter() {
         return deactivationCallCenter;
@@ -66,13 +60,11 @@ public class OperationalProtectionType extends ExtensionListType {
 
     /**
      * Sets the value of the deactivationCallCenter property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ExtensionOnlyType }
-     *     
+     *
+     * @param value allowed object is {@link ExtensionOnlyType }
+     *
      */
     public void setDeactivationCallCenter(ExtensionOnlyType value) {
         this.deactivationCallCenter = value;
-    } 
+    }
 }

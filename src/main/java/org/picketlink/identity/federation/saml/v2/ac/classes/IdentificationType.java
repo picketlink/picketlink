@@ -1,14 +1,12 @@
- 
-
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
- 
-
 /**
- * <p>Java class for IdentificationType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for IdentificationType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="IdentificationType">
  *   &lt;complexContent>
@@ -24,23 +22,21 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class IdentificationType extends ExtensionListType{
- 
-    protected PhysicalVerification physicalVerification; 
-    protected ExtensionOnlyType writtenConsent; 
-    protected GoverningAgreementsType governingAgreements;  
+ *
+ *
+ */
+public class IdentificationType extends ExtensionListType {
+
+    protected PhysicalVerification physicalVerification;
+    protected ExtensionOnlyType writtenConsent;
+    protected GoverningAgreementsType governingAgreements;
     protected NymType nym;
 
     /**
      * Gets the value of the physicalVerification property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link PhysicalVerification }
-     *     
+     *
+     * @return possible object is {@link PhysicalVerification }
+     *
      */
     public PhysicalVerification getPhysicalVerification() {
         return physicalVerification;
@@ -48,11 +44,9 @@ public class IdentificationType extends ExtensionListType{
 
     /**
      * Sets the value of the physicalVerification property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link PhysicalVerification }
-     *     
+     *
+     * @param value allowed object is {@link PhysicalVerification }
+     *
      */
     public void setPhysicalVerification(PhysicalVerification value) {
         this.physicalVerification = value;
@@ -60,11 +54,9 @@ public class IdentificationType extends ExtensionListType{
 
     /**
      * Gets the value of the writtenConsent property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ExtensionOnlyType }
-     *     
+     *
+     * @return possible object is {@link ExtensionOnlyType }
+     *
      */
     public ExtensionOnlyType getWrittenConsent() {
         return writtenConsent;
@@ -72,11 +64,9 @@ public class IdentificationType extends ExtensionListType{
 
     /**
      * Sets the value of the writtenConsent property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ExtensionOnlyType }
-     *     
+     *
+     * @param value allowed object is {@link ExtensionOnlyType }
+     *
      */
     public void setWrittenConsent(ExtensionOnlyType value) {
         this.writtenConsent = value;
@@ -84,11 +74,9 @@ public class IdentificationType extends ExtensionListType{
 
     /**
      * Gets the value of the governingAgreements property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link GoverningAgreementsType }
-     *     
+     *
+     * @return possible object is {@link GoverningAgreementsType }
+     *
      */
     public GoverningAgreementsType getGoverningAgreements() {
         return governingAgreements;
@@ -96,11 +84,9 @@ public class IdentificationType extends ExtensionListType{
 
     /**
      * Sets the value of the governingAgreements property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link GoverningAgreementsType }
-     *     
+     *
+     * @param value allowed object is {@link GoverningAgreementsType }
+     *
      */
     public void setGoverningAgreements(GoverningAgreementsType value) {
         this.governingAgreements = value;
@@ -108,11 +94,9 @@ public class IdentificationType extends ExtensionListType{
 
     /**
      * Gets the value of the nym property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link NymType }
-     *     
+     *
+     * @return possible object is {@link NymType }
+     *
      */
     public NymType getNym() {
         return nym;
@@ -120,11 +104,9 @@ public class IdentificationType extends ExtensionListType{
 
     /**
      * Sets the value of the nym property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link NymType }
-     *     
+     *
+     * @param value allowed object is {@link NymType }
+     *
      */
     public void setNym(NymType value) {
         this.nym = value;

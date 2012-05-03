@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -31,10 +31,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.w3c.dom.Element;
 
 /**
- * <p>Java class for EntitiesDescriptorType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for EntitiesDescriptorType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="EntitiesDescriptorType">
  *   &lt;complexContent>
@@ -55,210 +57,170 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class EntitiesDescriptorType
-{
-   protected Element signature;
+public class EntitiesDescriptorType {
+    protected Element signature;
 
-   protected ExtensionsType extensions;
+    protected ExtensionsType extensions;
 
-   protected List<Object> entityDescriptor = new ArrayList<Object>();
+    protected List<Object> entityDescriptor = new ArrayList<Object>();
 
-   protected XMLGregorianCalendar validUntil;
+    protected XMLGregorianCalendar validUntil;
 
-   protected Duration cacheDuration;
+    protected Duration cacheDuration;
 
-   protected String id;
+    protected String id;
 
-   protected String name;
+    protected String name;
 
-   /**
-    * Gets the value of the signature property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link Element }
-    *     
-    */
-   public Element getSignature()
-   {
-      return signature;
-   }
+    /**
+     * Gets the value of the signature property.
+     *
+     * @return possible object is {@link Element }
+     *
+     */
+    public Element getSignature() {
+        return signature;
+    }
 
-   /**
-    * Sets the value of the signature property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link Element }
-    *     
-    */
-   public void setSignature(Element value)
-   {
-      this.signature = value;
-   }
+    /**
+     * Sets the value of the signature property.
+     *
+     * @param value allowed object is {@link Element }
+     *
+     */
+    public void setSignature(Element value) {
+        this.signature = value;
+    }
 
-   /**
-    * Gets the value of the extensions property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link ExtensionsType }
-    *     
-    */
-   public ExtensionsType getExtensions()
-   {
-      return extensions;
-   }
+    /**
+     * Gets the value of the extensions property.
+     *
+     * @return possible object is {@link ExtensionsType }
+     *
+     */
+    public ExtensionsType getExtensions() {
+        return extensions;
+    }
 
-   /**
-    * Sets the value of the extensions property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link ExtensionsType }
-    *     
-    */
-   public void setExtensions(ExtensionsType value)
-   {
-      this.extensions = value;
-   }
+    /**
+     * Sets the value of the extensions property.
+     *
+     * @param value allowed object is {@link ExtensionsType }
+     *
+     */
+    public void setExtensions(ExtensionsType value) {
+        this.extensions = value;
+    }
 
-   /**
-    * Add an entity descriptor
-    * @param obj
-    */
-   public void addEntityDescriptor(Object obj)
-   {
-      this.entityDescriptor.add(obj);
-   }
+    /**
+     * Add an entity descriptor
+     *
+     * @param obj
+     */
+    public void addEntityDescriptor(Object obj) {
+        this.entityDescriptor.add(obj);
+    }
 
-   /**
-    * Remove an entity descriptor
-    * @param obj
-    */
-   public void removeEntityDescriptor(Object obj)
-   {
-      this.entityDescriptor.remove(obj);
-   }
+    /**
+     * Remove an entity descriptor
+     *
+     * @param obj
+     */
+    public void removeEntityDescriptor(Object obj) {
+        this.entityDescriptor.remove(obj);
+    }
 
-   /**
-    * Gets the value of the entityDescriptorOrEntitiesDescriptor property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link EntitiesDescriptorType }
-    * {@link EntityDescriptorType }
-    * 
-    * 
-    */
-   public List<Object> getEntityDescriptor()
-   {
-      return Collections.unmodifiableList(this.entityDescriptor);
-   }
+    /**
+     * Gets the value of the entityDescriptorOrEntitiesDescriptor property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link EntitiesDescriptorType } {@link EntityDescriptorType }
+     *
+     *
+     */
+    public List<Object> getEntityDescriptor() {
+        return Collections.unmodifiableList(this.entityDescriptor);
+    }
 
-   /**
-    * Gets the value of the validUntil property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getValidUntil()
-   {
-      return validUntil;
-   }
+    /**
+     * Gets the value of the validUntil property.
+     *
+     * @return possible object is {@link XMLGregorianCalendar }
+     *
+     */
+    public XMLGregorianCalendar getValidUntil() {
+        return validUntil;
+    }
 
-   /**
-    * Sets the value of the validUntil property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public void setValidUntil(XMLGregorianCalendar value)
-   {
-      this.validUntil = value;
-   }
+    /**
+     * Sets the value of the validUntil property.
+     *
+     * @param value allowed object is {@link XMLGregorianCalendar }
+     *
+     */
+    public void setValidUntil(XMLGregorianCalendar value) {
+        this.validUntil = value;
+    }
 
-   /**
-    * Gets the value of the cacheDuration property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link Duration }
-    *     
-    */
-   public Duration getCacheDuration()
-   {
-      return cacheDuration;
-   }
+    /**
+     * Gets the value of the cacheDuration property.
+     *
+     * @return possible object is {@link Duration }
+     *
+     */
+    public Duration getCacheDuration() {
+        return cacheDuration;
+    }
 
-   /**
-    * Sets the value of the cacheDuration property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link Duration }
-    *     
-    */
-   public void setCacheDuration(Duration value)
-   {
-      this.cacheDuration = value;
-   }
+    /**
+     * Sets the value of the cacheDuration property.
+     *
+     * @param value allowed object is {@link Duration }
+     *
+     */
+    public void setCacheDuration(Duration value) {
+        this.cacheDuration = value;
+    }
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getID()
-   {
-      return id;
-   }
+    /**
+     * Gets the value of the id property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getID() {
+        return id;
+    }
 
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setID(String value)
-   {
-      this.id = value;
-   }
+    /**
+     * Sets the value of the id property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setID(String value) {
+        this.id = value;
+    }
 
-   /**
-    * Gets the value of the name property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getName()
-   {
-      return name;
-   }
+    /**
+     * Gets the value of the name property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getName() {
+        return name;
+    }
 
-   /**
-    * Sets the value of the name property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setName(String value)
-   {
-      this.name = value;
-   }
+    /**
+     * Sets the value of the name property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setName(String value) {
+        this.name = value;
+    }
 }

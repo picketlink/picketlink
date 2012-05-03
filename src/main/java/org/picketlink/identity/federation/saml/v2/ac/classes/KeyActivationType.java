@@ -1,11 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
-
 /**
- * <p>Java class for KeyActivationType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for KeyActivationType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="KeyActivationType">
  *   &lt;complexContent>
@@ -18,20 +19,17 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class KeyActivationType extends ExtensionListType
-{
-    protected ActivationPinType activationPin; 
-    
+ *
+ *
+ */
+public class KeyActivationType extends ExtensionListType {
+    protected ActivationPinType activationPin;
+
     /**
      * Gets the value of the activationPin property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ActivationPinType }
-     *     
+     *
+     * @return possible object is {@link ActivationPinType }
+     *
      */
     public ActivationPinType getActivationPin() {
         return activationPin;
@@ -39,14 +37,12 @@ public class KeyActivationType extends ExtensionListType
 
     /**
      * Sets the value of the activationPin property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ActivationPinType }
-     *     
+     *
+     * @param value allowed object is {@link ActivationPinType }
+     *
      */
     public void setActivationPin(ActivationPinType value) {
         this.activationPin = value;
     }
- 
+
 }

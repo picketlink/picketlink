@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,20 +29,21 @@ import org.w3c.dom.Node;
 
 /**
  * A Transfer Object used by {@link XMLSignatureUtil}
+ *
  * @author anil saldhana
  */
 public class SignatureUtilTransferObject {
     private Document documentToBeSigned;
     private KeyPair keyPair;
-    
+
     private Node nextSibling;
-    
+
     private String digestMethod;
-    
+
     private String referenceURI;
 
     private String signatureMethod;
-    
+
     public Document getDocumentToBeSigned() {
         return documentToBeSigned;
     }
@@ -89,5 +90,5 @@ public class SignatureUtilTransferObject {
 
     public void setSignatureMethod(String signatureMethod) {
         this.signatureMethod = signatureMethod;
-    }   
+    }
 }

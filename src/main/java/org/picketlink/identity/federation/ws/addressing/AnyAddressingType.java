@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -31,31 +31,25 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since May 17, 2011
  */
-public class AnyAddressingType extends BaseAddressingType
-{
-   protected List<Object> any = new ArrayList<Object>();
+public class AnyAddressingType extends BaseAddressingType {
+    protected List<Object> any = new ArrayList<Object>();
 
-   /**
-    * Gets the value of the any property. 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link Object }
-    * {@link Element }
-    * 
-    */
-   public List<Object> getAny()
-   {
-      return Collections.unmodifiableList(this.any);
-   }
+    /**
+     * Gets the value of the any property.
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link Object } {@link Element }
+     *
+     */
+    public List<Object> getAny() {
+        return Collections.unmodifiableList(this.any);
+    }
 
-   public void addAny(Object t)
-   {
-      this.any.add(t);
-   }
+    public void addAny(Object t) {
+        this.any.add(t);
+    }
 
-   public boolean removeAny(Object t)
-   {
-      return any.remove(t);
-   }
+    public boolean removeAny(Object t) {
+        return any.remove(t);
+    }
 }

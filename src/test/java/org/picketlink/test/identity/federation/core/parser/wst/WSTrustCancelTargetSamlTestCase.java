@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -50,87 +50,79 @@ import org.w3c.dom.Element;
 
 /**
  * Validate the WST Cancel Target for SAML assertions
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 14, 2010
  */
-public class WSTrustCancelTargetSamlTestCase
-{
-   @Test
-   public void testWST_CancelTargetSaml() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-cancel-saml.xml");
+public class WSTrustCancelTargetSamlTestCase {
+    @Test
+    public void testWST_CancelTargetSaml() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-cancel-saml.xml");
 
-      WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
-      assertEquals("cancelcontext", requestToken.getContext());
-      assertEquals(WSTrustConstants.CANCEL_REQUEST, requestToken.getRequestType().toASCIIString());
+        WSTrustParser parser = new WSTrustParser();
+        RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+        assertEquals("cancelcontext", requestToken.getContext());
+        assertEquals(WSTrustConstants.CANCEL_REQUEST, requestToken.getRequestType().toASCIIString());
 
-      CancelTargetType cancelTarget = requestToken.getCancelTarget();
+        CancelTargetType cancelTarget = requestToken.getCancelTarget();
 
-      Element assertionElement = (Element) cancelTarget.getAny().get(0);
-      AssertionType assertion = SAMLUtil.fromElement(assertionElement);
-      validateAssertion(assertion);
+        Element assertionElement = (Element) cancelTarget.getAny().get(0);
+        AssertionType assertion = SAMLUtil.fromElement(assertionElement);
+        validateAssertion(assertion);
 
-      //Now for the writing part
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
+        // Now for the writing part
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken);
+        rstWriter.write(requestToken);
 
-      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 
-   private void validateAssertion(AssertionType assertion) throws Exception
-   {
-      DatatypeFactory dtf = DatatypeFactory.newInstance();
+    private void validateAssertion(AssertionType assertion) throws Exception {
+        DatatypeFactory dtf = DatatypeFactory.newInstance();
 
-      assertNotNull(assertion);
+        assertNotNull(assertion);
 
-      assertEquals("ID_cb1eadf5-50a6-4fdf-96bc-412514f52882", assertion.getID());
-      assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T19:13:37.603Z"), assertion.getIssueInstant());
-      //Issuer
-      assertEquals("Test STS", assertion.getIssuer().getValue());
+        assertEquals("ID_cb1eadf5-50a6-4fdf-96bc-412514f52882", assertion.getID());
+        assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T19:13:37.603Z"), assertion.getIssueInstant());
+        // Issuer
+        assertEquals("Test STS", assertion.getIssuer().getValue());
 
-      //Subject
-      SubjectType subject = assertion.getSubject();
+        // Subject
+        SubjectType subject = assertion.getSubject();
 
-      NameIDType subjectNameID = (NameIDType) subject.getSubType().getBaseID();
+        NameIDType subjectNameID = (NameIDType) subject.getSubType().getBaseID();
 
-      assertEquals("jduke", subjectNameID.getValue());
-      assertEquals("urn:picketlink:identity-federation", subjectNameID.getNameQualifier());
+        assertEquals("jduke", subjectNameID.getValue());
+        assertEquals("urn:picketlink:identity-federation", subjectNameID.getNameQualifier());
 
-      SubjectConfirmationType subjectConfirmationType = subject.getConfirmation().get(0);
-      assertEquals(JBossSAMLURIConstants.BEARER.get(), subjectConfirmationType.getMethod());
+        SubjectConfirmationType subjectConfirmationType = subject.getConfirmation().get(0);
+        assertEquals(JBossSAMLURIConstants.BEARER.get(), subjectConfirmationType.getMethod());
 
-      /*List<JAXBElement<?>> content = subject.getContent(); 
-      
-      int size = content.size();
-      
-      assertEquals( 2, size );
-      
-      for( int i = 0 ; i < size; i++ )
-      {
-         JAXBElement<?> node = content.get(i);
-         if( node.getDeclaredType().equals( NameIDType.class ))
-         {
-            NameIDType subjectNameID = (NameIDType) node.getValue();
-            
-            assertEquals( "jduke", subjectNameID.getValue() );
-            assertEquals( "urn:picketlink:identity-federation", subjectNameID.getNameQualifier() ); 
-         }
-         
-         if( node.getDeclaredType().equals( SubjectConfirmationType.class ))
-         {
-            SubjectConfirmationType subjectConfirmationType = (SubjectConfirmationType) node.getValue();
-            assertEquals( JBossSAMLURIConstants.BEARER.get(), subjectConfirmationType.getMethod() );
-         }
-      } */
+        /*
+         * List<JAXBElement<?>> content = subject.getContent();
+         *
+         * int size = content.size();
+         *
+         * assertEquals( 2, size );
+         *
+         * for( int i = 0 ; i < size; i++ ) { JAXBElement<?> node = content.get(i); if( node.getDeclaredType().equals(
+         * NameIDType.class )) { NameIDType subjectNameID = (NameIDType) node.getValue();
+         *
+         * assertEquals( "jduke", subjectNameID.getValue() ); assertEquals( "urn:picketlink:identity-federation",
+         * subjectNameID.getNameQualifier() ); }
+         *
+         * if( node.getDeclaredType().equals( SubjectConfirmationType.class )) { SubjectConfirmationType subjectConfirmationType
+         * = (SubjectConfirmationType) node.getValue(); assertEquals( JBossSAMLURIConstants.BEARER.get(),
+         * subjectConfirmationType.getMethod() ); } }
+         */
 
-      //Conditions
-      ConditionsType conditions = assertion.getConditions();
-      assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T19:13:37.603Z"), conditions.getNotBefore());
-      assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T21:13:37.603Z"), conditions.getNotOnOrAfter());
-   }
+        // Conditions
+        ConditionsType conditions = assertion.getConditions();
+        assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T19:13:37.603Z"), conditions.getNotBefore());
+        assertEquals(dtf.newXMLGregorianCalendar("2010-09-30T21:13:37.603Z"), conditions.getNotOnOrAfter());
+    }
 }

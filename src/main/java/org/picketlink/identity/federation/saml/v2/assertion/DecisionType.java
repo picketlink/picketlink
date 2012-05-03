@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,10 +22,13 @@
 package org.picketlink.identity.federation.saml.v2.assertion;
 
 /**
- * <p>Java class for DecisionType.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
+ * Java class for DecisionType.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ * <p>
+ *
  * <pre>
  * &lt;simpleType name="DecisionType">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
@@ -35,32 +38,26 @@ package org.picketlink.identity.federation.saml.v2.assertion;
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
- * 
+ *
  */
-public enum DecisionType 
-{ 
-   PERMIT("Permit"),
-   DENY("Deny"),
-   INDETERMINATE("Indeterminate");
-   private final String value;
+public enum DecisionType {
+    PERMIT("Permit"), DENY("Deny"), INDETERMINATE("Indeterminate");
+    private final String value;
 
-   DecisionType(String v) {
-      value = v;
-   }
+    DecisionType(String v) {
+        value = v;
+    }
 
-   public String value() {
-      return value;
-   }
+    public String value() {
+        return value;
+    }
 
-   public static DecisionType fromValue(String v) 
-   {
-      for (DecisionType c: DecisionType.values()) 
-      {
-         if (c.value.equals(v)) 
-         {
-            return c;
-         }
-      }
-      throw new IllegalArgumentException(v);
-   }
+    public static DecisionType fromValue(String v) {
+        for (DecisionType c : DecisionType.values()) {
+            if (c.value.equals(v)) {
+                return c;
+            }
+        }
+        throw new IllegalArgumentException(v);
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,10 +25,12 @@ package org.picketlink.identity.federation.ws.policy;
 import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
 
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for anonymous complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -40,98 +42,76 @@ import org.picketlink.identity.federation.ws.addressing.BaseAddressingType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class PolicyReference extends BaseAddressingType
-{
+public class PolicyReference extends BaseAddressingType {
 
-   protected String uri;
+    protected String uri;
 
-   protected byte[] digest;
+    protected byte[] digest;
 
-   protected String digestAlgorithm;
+    protected String digestAlgorithm;
 
-   /**
-    * Gets the value of the uri property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getURI()
-   {
-      return uri;
-   }
+    /**
+     * Gets the value of the uri property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getURI() {
+        return uri;
+    }
 
-   /**
-    * Sets the value of the uri property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setURI(String value)
-   {
-      this.uri = value;
-   }
+    /**
+     * Sets the value of the uri property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setURI(String value) {
+        this.uri = value;
+    }
 
-   /**
-    * Gets the value of the digest property.
-    * 
-    * @return
-    *     possible object is
-    *     byte[]
-    */
-   public byte[] getDigest()
-   {
-      return digest;
-   }
+    /**
+     * Gets the value of the digest property.
+     *
+     * @return possible object is byte[]
+     */
+    public byte[] getDigest() {
+        return digest;
+    }
 
-   /**
-    * Sets the value of the digest property.
-    * 
-    * @param value
-    *     allowed object is
-    *     byte[]
-    */
-   public void setDigest(byte[] value)
-   {
-      this.digest = (value);
-   }
+    /**
+     * Sets the value of the digest property.
+     *
+     * @param value allowed object is byte[]
+     */
+    public void setDigest(byte[] value) {
+        this.digest = (value);
+    }
 
-   /**
-    * Gets the value of the digestAlgorithm property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getDigestAlgorithm()
-   {
-      if (digestAlgorithm == null)
-      {
-         return "http://schemas.xmlsoap.org/ws/2004/09/policy/Sha1Exc";
-      }
-      else
-      {
-         return digestAlgorithm;
-      }
-   }
+    /**
+     * Gets the value of the digestAlgorithm property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getDigestAlgorithm() {
+        if (digestAlgorithm == null) {
+            return "http://schemas.xmlsoap.org/ws/2004/09/policy/Sha1Exc";
+        } else {
+            return digestAlgorithm;
+        }
+    }
 
-   /**
-    * Sets the value of the digestAlgorithm property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setDigestAlgorithm(String value)
-   {
-      this.digestAlgorithm = value;
-   }
+    /**
+     * Sets the value of the digestAlgorithm property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setDigestAlgorithm(String value) {
+        this.digestAlgorithm = value;
+    }
 }

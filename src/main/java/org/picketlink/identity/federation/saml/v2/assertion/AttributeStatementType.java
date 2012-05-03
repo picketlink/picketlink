@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,13 +27,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
-
 /**
- * <p>Java class for AttributeStatementType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for AttributeStatementType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="AttributeStatementType">
  *   &lt;complexContent>
@@ -46,65 +46,61 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class AttributeStatementType
-extends StatementAbstractType
-{ 
-   private static final long serialVersionUID = 1L;
-   protected List<ASTChoiceType> attributes = new ArrayList<ASTChoiceType>();
+ *
+ *
+ */
+public class AttributeStatementType extends StatementAbstractType {
+    private static final long serialVersionUID = 1L;
+    protected List<ASTChoiceType> attributes = new ArrayList<ASTChoiceType>();
 
-   /**
-    * Add an attribute
-    * @param attribute
-    */
-   public void addAttribute( ASTChoiceType attribute )
-   {
-      attributes.add( attribute );
-   }
-   
-   /**
-    * Remove an attribute
-    * @param attribute
-    */
-   public void removeAttribute( ASTChoiceType attribute )
-   {
-      attributes.remove( attribute );
-   }
+    /**
+     * Add an attribute
+     *
+     * @param attribute
+     */
+    public void addAttribute(ASTChoiceType attribute) {
+        attributes.add(attribute);
+    }
 
-   /**
-    * Gets the attributes.
-    * @return a read only {@link List} 
-    */
-   public List<ASTChoiceType> getAttributes() 
-   {
-      return Collections.unmodifiableList( this.attributes );
-   }
+    /**
+     * Remove an attribute
+     *
+     * @param attribute
+     */
+    public void removeAttribute(ASTChoiceType attribute) {
+        attributes.remove(attribute);
+    }
 
-   public static class ASTChoiceType implements Serializable
-   {
-      private static final long serialVersionUID = 1L;
-      private AttributeType attribute;
-      private EncryptedElementType encryptedAssertion;
+    /**
+     * Gets the attributes.
+     *
+     * @return a read only {@link List}
+     */
+    public List<ASTChoiceType> getAttributes() {
+        return Collections.unmodifiableList(this.attributes);
+    }
 
-      public ASTChoiceType(AttributeType attribute)
-      {
-         super();
-         this.attribute = attribute;
-      }
-      public ASTChoiceType(EncryptedElementType encryptedAssertion)
-      {
-         super();
-         this.encryptedAssertion = encryptedAssertion;
-      }
-      public AttributeType getAttribute()
-      {
-         return attribute;
-      }
-      public EncryptedElementType getEncryptedAssertion()
-      {
-         return encryptedAssertion;
-      } 
-   }
+    public static class ASTChoiceType implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private AttributeType attribute;
+        private EncryptedElementType encryptedAssertion;
+
+        public ASTChoiceType(AttributeType attribute) {
+            super();
+            this.attribute = attribute;
+        }
+
+        public ASTChoiceType(EncryptedElementType encryptedAssertion) {
+            super();
+            this.encryptedAssertion = encryptedAssertion;
+        }
+
+        public AttributeType getAttribute() {
+            return attribute;
+        }
+
+        public EncryptedElementType getEncryptedAssertion() {
+            return encryptedAssertion;
+        }
+    }
 }

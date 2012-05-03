@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -32,24 +32,23 @@ import org.w3c.dom.Document;
 
 /**
  * Test how we write a DOM Element to Stax writer
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 8, 2010
  */
-public class DomElementToStaxWritingTestCase
-{
-   @Test
-   public void testDOM2Stax() throws Exception
-   {
-      String xml = "<a xmlns=\'urn:hello\' >  <b> <c/> <d xmlns=\'urn:t\' test=\'tt\'/> </b></a>";
+public class DomElementToStaxWritingTestCase {
+    @Test
+    public void testDOM2Stax() throws Exception {
+        String xml = "<a xmlns=\'urn:hello\' >  <b> <c/> <d xmlns=\'urn:t\' test=\'tt\'/> </b></a>";
 
-      Document doc = DocumentUtil.getDocument(xml);
+        Document doc = DocumentUtil.getDocument(xml);
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-      XMLStreamWriter writer = StaxUtil.getXMLStreamWriter(baos);
-      StaxUtil.writeDOMElement(writer, doc.getDocumentElement());
+        XMLStreamWriter writer = StaxUtil.getXMLStreamWriter(baos);
+        StaxUtil.writeDOMElement(writer, doc.getDocumentElement());
 
-      String writtenDoc = new String(baos.toByteArray());
-      doc = DocumentUtil.getDocument(writtenDoc);
-   }
+        String writtenDoc = new String(baos.toByteArray());
+        doc = DocumentUtil.getDocument(writtenDoc);
+    }
 }

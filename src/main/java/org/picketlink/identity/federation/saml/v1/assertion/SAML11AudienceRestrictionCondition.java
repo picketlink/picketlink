@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,43 +27,32 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <complexType name="AudienceRestrictionConditionType">
-        <complexContent>
-            <extension base="saml:ConditionAbstractType">
-                <sequence>
-                    <element ref="saml:Audience" maxOccurs="unbounded"/>
-                </sequence>
-
-            </extension>
-        </complexContent>
-    </complexType>
-
+ * <complexType name="AudienceRestrictionConditionType"> <complexContent> <extension base="saml:ConditionAbstractType">
+ * <sequence> <element ref="saml:Audience" maxOccurs="unbounded"/> </sequence>
+ *
+ * </extension> </complexContent> </complexType>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
-public class SAML11AudienceRestrictionCondition extends SAML11ConditionAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class SAML11AudienceRestrictionCondition extends SAML11ConditionAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected List<URI> audience = new ArrayList<URI>();
+    protected List<URI> audience = new ArrayList<URI>();
 
-   public void add(URI advice)
-   {
-      this.audience.add(advice);
-   }
+    public void add(URI advice) {
+        this.audience.add(advice);
+    }
 
-   public void addAll(List<URI> advice)
-   {
-      this.audience.addAll(advice);
-   }
+    public void addAll(List<URI> advice) {
+        this.audience.addAll(advice);
+    }
 
-   public boolean remove(URI advice)
-   {
-      return this.audience.remove(advice);
-   }
+    public boolean remove(URI advice) {
+        return this.audience.remove(advice);
+    }
 
-   public List<URI> get()
-   {
-      return Collections.unmodifiableList(audience);
-   }
+    public List<URI> get() {
+        return Collections.unmodifiableList(audience);
+    }
 }

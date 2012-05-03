@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,18 +22,13 @@
 package org.picketlink.identity.federation.saml.v1.assertion;
 
 /**
- * <simpleType name="DecisionType">
-        <restriction base="string">
-
-            <enumeration value="Permit"/>
-            <enumeration value="Deny"/>
-            <enumeration value="Indeterminate"/>
-        </restriction>
-    </simpleType>
-
+ * <simpleType name="DecisionType"> <restriction base="string">
+ *
+ * <enumeration value="Permit"/> <enumeration value="Deny"/> <enumeration value="Indeterminate"/> </restriction> </simpleType>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
 public enum SAML11DecisionType {
-   Permit, Deny, Indeterminate;
+    Permit, Deny, Indeterminate;
 }

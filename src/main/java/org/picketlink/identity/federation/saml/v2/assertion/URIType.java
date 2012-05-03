@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,10 +25,10 @@ import java.net.URI;
 
 /**
  * A type that holds {@code URI}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public interface URIType
-{ 
-   URI getValue();
+public interface URIType {
+    URI getValue();
 }

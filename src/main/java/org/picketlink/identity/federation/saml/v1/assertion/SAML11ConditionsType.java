@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,41 +28,32 @@ import java.util.List;
 import org.picketlink.identity.federation.saml.common.CommonConditionsType;
 
 /**
- * <complexType name="ConditionsType">
-        <choice minOccurs="0" maxOccurs="unbounded">
-            <element ref="saml:AudienceRestrictionCondition"/>
-            <element ref="saml:DoNotCacheCondition"/>
-            <element ref="saml:Condition"/>
-        </choice>
-        <attribute name="NotBefore" type="dateTime" use="optional"/>
-        <attribute name="NotOnOrAfter" type="dateTime" use="optional"/>
-    </complexType>
+ * <complexType name="ConditionsType"> <choice minOccurs="0" maxOccurs="unbounded"> <element
+ * ref="saml:AudienceRestrictionCondition"/> <element ref="saml:DoNotCacheCondition"/> <element ref="saml:Condition"/> </choice>
+ * <attribute name="NotBefore" type="dateTime" use="optional"/> <attribute name="NotOnOrAfter" type="dateTime" use="optional"/>
+ * </complexType>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
-public class SAML11ConditionsType extends CommonConditionsType
-{
-   private static final long serialVersionUID = 1L;
+public class SAML11ConditionsType extends CommonConditionsType {
+    private static final long serialVersionUID = 1L;
 
-   public List<SAML11ConditionAbstractType> conditions = new ArrayList<SAML11ConditionAbstractType>();
+    public List<SAML11ConditionAbstractType> conditions = new ArrayList<SAML11ConditionAbstractType>();
 
-   public void add(SAML11ConditionAbstractType condition)
-   {
-      this.conditions.add(condition);
-   }
+    public void add(SAML11ConditionAbstractType condition) {
+        this.conditions.add(condition);
+    }
 
-   public void addAll(List<SAML11ConditionAbstractType> theConditions)
-   {
-      this.conditions.addAll(theConditions);
-   }
+    public void addAll(List<SAML11ConditionAbstractType> theConditions) {
+        this.conditions.addAll(theConditions);
+    }
 
-   public boolean remove(SAML11ConditionsAbstractType condition)
-   {
-      return this.conditions.remove(condition);
-   }
+    public boolean remove(SAML11ConditionsAbstractType condition) {
+        return this.conditions.remove(condition);
+    }
 
-   public List<SAML11ConditionAbstractType> get()
-   {
-      return Collections.unmodifiableList(conditions);
-   }
+    public List<SAML11ConditionAbstractType> get() {
+        return Collections.unmodifiableList(conditions);
+    }
 }

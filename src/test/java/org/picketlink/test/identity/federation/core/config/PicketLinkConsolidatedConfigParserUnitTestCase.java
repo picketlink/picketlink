@@ -16,12 +16,13 @@ import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigPa
 
 /**
  * Unit test to parse the Consolidated PicketLink Configuration in picketlink.xml
+ *
  * @author anil saldhana
  */
 public class PicketLinkConsolidatedConfigParserUnitTestCase {
-    
+
     @Test
-    public void testIDP() throws ParsingException{
+    public void testIDP() throws ParsingException {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
         InputStream configStream = tcl.getResourceAsStream("parser/config/picketlink-idp.xml");
         PicketLinkConfigParser parser = new PicketLinkConfigParser();
@@ -31,9 +32,9 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         IDPType idp = (IDPType) picketlink.getIdpOrSP();
         assertNotNull(idp);
     }
-    
+
     @Test
-    public void testSP() throws ParsingException{
+    public void testSP() throws ParsingException {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
         InputStream configStream = tcl.getResourceAsStream("parser/config/picketlink-sp.xml");
         PicketLinkConfigParser parser = new PicketLinkConfigParser();
@@ -48,9 +49,9 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         assertEquals("/someerror.jsp", sp.getErrorPage());
         assertTrue(sp.isSupportsSignature());
     }
-    
+
     @Test
-    public void testSTS() throws ParsingException{
+    public void testSTS() throws ParsingException {
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
         InputStream configStream = tcl.getResourceAsStream("parser/config/picketlink-consolidated-sts.xml");
         PicketLinkConfigParser parser = new PicketLinkConfigParser();

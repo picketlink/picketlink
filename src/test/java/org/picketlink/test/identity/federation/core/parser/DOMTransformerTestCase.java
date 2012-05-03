@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -42,40 +42,37 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
- * Parse an xml file partially using StAX and then use JAXP Transformer
- * to parse a DOM Element and resume stax
- * 
+ * Parse an xml file partially using StAX and then use JAXP Transformer to parse a DOM Element and resume stax
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 22, 2010
  */
-public class DOMTransformerTestCase
-{
-   String xml = "<a xmlns=\'urn:a\'><b><c><d>SomeD</d></c></b></a>";
+public class DOMTransformerTestCase {
+    String xml = "<a xmlns=\'urn:a\'><b><c><d>SomeD</d></c></b></a>";
 
-   @Test
-   public void testDOMTransformer() throws Exception
-   {
-      ByteArrayInputStream bis = new ByteArrayInputStream(xml.getBytes());
-      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(bis);
+    @Test
+    public void testDOMTransformer() throws Exception {
+        ByteArrayInputStream bis = new ByteArrayInputStream(xml.getBytes());
+        XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(bis);
 
-      StartElement a = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(a, "a");
+        StartElement a = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(a, "a");
 
-      Document resultDocument = DocumentUtil.createDocument();
-      DOMResult domResult = new DOMResult(resultDocument);
+        Document resultDocument = DocumentUtil.createDocument();
+        DOMResult domResult = new DOMResult(resultDocument);
 
-      //Let us parse <b><c><d> using transformer
-      StAXSource source = new StAXSource(xmlEventReader);
+        // Let us parse <b><c><d> using transformer
+        StAXSource source = new StAXSource(xmlEventReader);
 
-      Transformer transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
-      transformer.transform(source, domResult);
+        Transformer transformer = TransformerUtil.getStaxSourceToDomResultTransformer();
+        transformer.transform(source, domResult);
 
-      Document doc = (Document) domResult.getNode();
-      Element elem = doc.getDocumentElement();
-      assertEquals("b", elem.getLocalName());
+        Document doc = (Document) domResult.getNode();
+        Element elem = doc.getDocumentElement();
+        assertEquals("b", elem.getLocalName());
 
-      XMLEvent xmlEvent = xmlEventReader.nextEvent();
-      assertTrue(xmlEvent instanceof EndElement);
-      StaxParserUtil.validate((EndElement) xmlEvent, "a");
-   }
+        XMLEvent xmlEvent = xmlEventReader.nextEvent();
+        assertTrue(xmlEvent instanceof EndElement);
+        StaxParserUtil.validate((EndElement) xmlEvent, "a");
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,21 +25,23 @@ import java.util.Collection;
 
 /**
  * A simple interface to add in methods for a {@link Collection}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 16, 2011
  */
-public interface SimpleCollectionUsage<T>
-{
-   /**
-    * Add a {@link T} to the collection
-    * @param t
-    */
-   public void add(T t);
+public interface SimpleCollectionUsage<T> {
+    /**
+     * Add a {@link T} to the collection
+     *
+     * @param t
+     */
+    public void add(T t);
 
-   /**
-    * Remove a {@link T} from collection
-    * @param t
-    * @return
-    */
-   public boolean remove(T t);
+    /**
+     * Remove a {@link T} from collection
+     *
+     * @param t
+     * @return
+     */
+    public boolean remove(T t);
 }

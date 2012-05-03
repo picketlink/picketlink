@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,32 +27,35 @@ import java.util.Map;
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2009
  */
-public interface SAML2MapBasedConfig
-{
-   /**
-    * Does the config contain the key?
-    * @param key
-    * @return
-    */
-   boolean containsKey(String key);
+public interface SAML2MapBasedConfig {
+    /**
+     * Does the config contain the key?
+     *
+     * @param key
+     * @return
+     */
+    boolean containsKey(String key);
 
-   /**
-    * Get a parameter from the chain config
-    * @param parameterName
-    * @return
-    */
-   public Object getParameter(String parameterName);
+    /**
+     * Get a parameter from the chain config
+     *
+     * @param parameterName
+     * @return
+     */
+    public Object getParameter(String parameterName);
 
-   /**
-    * Add a parameter
-    * @param parameterName
-    * @param value
-    */
-   public void addParameter(String parameterName, Object value);
+    /**
+     * Add a parameter
+     *
+     * @param parameterName
+     * @param value
+     */
+    public void addParameter(String parameterName, Object value);
 
-   /**
-    * Set the options
-    * @param options
-    */
-   void set(Map<String, Object> options);
+    /**
+     * Set the options
+     *
+     * @param options
+     */
+    void set(Map<String, Object> options);
 }

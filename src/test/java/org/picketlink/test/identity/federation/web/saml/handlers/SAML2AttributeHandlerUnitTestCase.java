@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -60,129 +60,120 @@ import org.picketlink.test.identity.federation.web.mock.MockHttpSession;
 import org.picketlink.test.identity.federation.web.mock.MockServletContext;
 
 /**
- * Unit test the {@code SAML2AttributeHandler} 
+ * Unit test the {@code SAML2AttributeHandler}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2009
  */
-public class SAML2AttributeHandlerUnitTestCase
-{
-   private static String name = "anil";
+public class SAML2AttributeHandlerUnitTestCase {
+    private static String name = "anil";
 
-   private static String email = "anil@test";
+    private static String email = "anil@test";
 
-   @SuppressWarnings("unchecked")
-   @Test
-   public void testAttributes() throws Exception
-   {
-      SAML2AttributeHandler handler = new SAML2AttributeHandler();
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAttributes() throws Exception {
+        SAML2AttributeHandler handler = new SAML2AttributeHandler();
 
-      SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
-      SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
 
-      Map<String, Object> chainOptions = new HashMap<String, Object>();
-      IDPType idpType = new IDPType();
-      idpType.setAttributeManager(TestAttributeManager.class.getName());
-      chainOptions.put(GeneralConstants.CONFIGURATION, idpType);
-      chainConfig.set(chainOptions);
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        IDPType idpType = new IDPType();
+        idpType.setAttributeManager(TestAttributeManager.class.getName());
+        chainOptions.put(GeneralConstants.CONFIGURATION, idpType);
+        chainConfig.set(chainOptions);
 
-      //Initialize the handler
-      handler.initChainConfig(chainConfig);
-      handler.initHandlerConfig(handlerConfig);
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
 
-      //Create a Protocol Context
-      MockHttpSession session = new MockHttpSession();
-      MockServletContext servletContext = new MockServletContext();
-      MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
-      MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-      HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
-      SAML2Object saml2Object = new SAML2Object()
-      {
-      };
+        SAML2Object saml2Object = new SAML2Object() {
+        };
 
-      SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
-      IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
-      SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
-            SAML2Handler.HANDLER_TYPE.IDP);
-      SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.IDP);
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
 
-      session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal()
-      {
-         public String getName()
-         {
-            return name;
-         }
-      });
-      handler.handleRequestType(request, response);
+        session.setAttribute(GeneralConstants.PRINCIPAL_ID, new Principal() {
+            public String getName() {
+                return name;
+            }
+        });
+        handler.handleRequestType(request, response);
 
-      Map<String, Object> attribs = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
-      assertNotNull("Attributes are not null", attribs);
-      assertEquals(email, attribs.get(X500SAMLProfileConstants.EMAIL.getFriendlyName()));
-   }
+        Map<String, Object> attribs = (Map<String, Object>) session.getAttribute(GeneralConstants.ATTRIBUTES);
+        assertNotNull("Attributes are not null", attribs);
+        assertEquals(email, attribs.get(X500SAMLProfileConstants.EMAIL.getFriendlyName()));
+    }
 
-   @SuppressWarnings("unchecked")
-   @Test
-   public void testAttribsOnSP() throws Exception
-   {
-      SAML2AttributeHandler handler = new SAML2AttributeHandler();
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testAttribsOnSP() throws Exception {
+        SAML2AttributeHandler handler = new SAML2AttributeHandler();
 
-      SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
-      SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
+        SAML2HandlerChainConfig chainConfig = new DefaultSAML2HandlerChainConfig();
+        SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
 
-      Map<String, Object> chainOptions = new HashMap<String, Object>();
-      SPType spType = new SPType();
-      chainOptions.put(GeneralConstants.CONFIGURATION, spType);
-      chainConfig.set(chainOptions);
+        Map<String, Object> chainOptions = new HashMap<String, Object>();
+        SPType spType = new SPType();
+        chainOptions.put(GeneralConstants.CONFIGURATION, spType);
+        chainConfig.set(chainOptions);
 
-      //Initialize the handler
-      handler.initChainConfig(chainConfig);
-      handler.initHandlerConfig(handlerConfig);
+        // Initialize the handler
+        handler.initChainConfig(chainConfig);
+        handler.initHandlerConfig(handlerConfig);
 
-      //Create a Protocol Context
-      MockHttpSession session = new MockHttpSession();
-      MockServletContext servletContext = new MockServletContext();
-      MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
-      MockHttpServletResponse servletResponse = new MockHttpServletResponse();
-      HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
+        // Create a Protocol Context
+        MockHttpSession session = new MockHttpSession();
+        MockServletContext servletContext = new MockServletContext();
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        MockHttpServletResponse servletResponse = new MockHttpServletResponse();
+        HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
-      SAML2Object saml2Object = new SAML2Object()
-      {
-      };
+        SAML2Object saml2Object = new SAML2Object() {
+        };
 
-      SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
-      IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
-      SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
-            SAML2Handler.HANDLER_TYPE.IDP);
-      SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
+        IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
+        SAML2HandlerRequest request = new DefaultSAML2HandlerRequest(httpContext, issuerInfo.getIssuer(), docHolder,
+                SAML2Handler.HANDLER_TYPE.IDP);
+        SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
 
-      AssertionType assertion = new AssertionType(IDGenerator.create("ID_"), XMLTimeUtil.getIssueInstant());
+        AssertionType assertion = new AssertionType(IDGenerator.create("ID_"), XMLTimeUtil.getIssueInstant());
 
-      Map<String, Object> myattr = new HashMap<String, Object>();
-      myattr.put("testKey", "hello");
-      AttributeStatementType attState = StatementUtil.createAttributeStatement(myattr);
-      assertion.addStatement(attState);
+        Map<String, Object> myattr = new HashMap<String, Object>();
+        myattr.put("testKey", "hello");
+        AttributeStatementType attState = StatementUtil.createAttributeStatement(myattr);
+        assertion.addStatement(attState);
 
-      request.addOption(GeneralConstants.ASSERTION, assertion);
-      handler.handleStatusResponseType(request, response);
+        request.addOption(GeneralConstants.ASSERTION, assertion);
+        handler.handleStatusResponseType(request, response);
 
-      Map<String, List<Object>> sessionMap = (Map<String, List<Object>>) session
-            .getAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP);
-      assertNotNull(sessionMap);
-      List<Object> values = sessionMap.get("testKey");
-      assertEquals("hello", values.get(0));
-   }
+        Map<String, List<Object>> sessionMap = (Map<String, List<Object>>) session
+                .getAttribute(GeneralConstants.SESSION_ATTRIBUTE_MAP);
+        assertNotNull(sessionMap);
+        List<Object> values = sessionMap.get("testKey");
+        assertEquals("hello", values.get(0));
+    }
 
-   public static class TestAttributeManager implements AttributeManager
-   {
-      public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys)
-      {
-         Map<String, Object> attribs = new HashMap<String, Object>();
+    public static class TestAttributeManager implements AttributeManager {
+        public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys) {
+            Map<String, Object> attribs = new HashMap<String, Object>();
 
-         if (name.equals(userPrincipal.getName()))
-         {
-            attribs.put(X500SAMLProfileConstants.EMAIL.getFriendlyName(), email);
-         }
-         return attribs;
-      }
-   }
+            if (name.equals(userPrincipal.getName())) {
+                attribs.put(X500SAMLProfileConstants.EMAIL.getFriendlyName(), email);
+            }
+            return attribs;
+        }
+    }
 }

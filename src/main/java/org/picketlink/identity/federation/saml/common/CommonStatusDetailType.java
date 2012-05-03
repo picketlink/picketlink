@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,10 +27,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <p>Java class for StatusDetailType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for StatusDetailType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="StatusDetailType">
  *   &lt;complexContent>
@@ -42,38 +44,36 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class CommonStatusDetailType implements Serializable
-{
-   private static final long serialVersionUID = 1L;
+public class CommonStatusDetailType implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-   protected List<Object> any = new ArrayList<Object>();
+    protected List<Object> any = new ArrayList<Object>();
 
-   /**
-    * Add status detail
-    * @param obj
-    */
-   public void addStatusDetail(Object obj)
-   {
-      this.any.add(obj);
-   }
+    /**
+     * Add status detail
+     *
+     * @param obj
+     */
+    public void addStatusDetail(Object obj) {
+        this.any.add(obj);
+    }
 
-   /**
-    * Remove status detail
-    * @param obj
-    */
-   public void removeStatusDetail(Object obj)
-   {
-      this.any.remove(obj);
-   }
+    /**
+     * Remove status detail
+     *
+     * @param obj
+     */
+    public void removeStatusDetail(Object obj) {
+        this.any.remove(obj);
+    }
 
-   /**
-    * Gets the value of the any property.  Read-Only list
-    */
-   public List<Object> getAny()
-   {
-      return Collections.unmodifiableList(this.any);
-   }
+    /**
+     * Gets the value of the any property. Read-Only list
+     */
+    public List<Object> getAny() {
+        return Collections.unmodifiableList(this.any);
+    }
 }

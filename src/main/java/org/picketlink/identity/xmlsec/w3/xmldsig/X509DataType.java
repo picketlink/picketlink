@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,16 +24,16 @@ package org.picketlink.identity.xmlsec.w3.xmldsig;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
- 
 
 import org.w3c.dom.Element;
 
-
 /**
- * <p>Java class for X509DataType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for X509DataType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="X509DataType">
  *   &lt;complexContent>
@@ -52,33 +52,27 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class X509DataType 
-{
+ *
+ *
+ */
+public class X509DataType {
     protected List<Object> x509IssuerSerialOrX509SKIOrX509SubjectName = new ArrayList<Object>();
 
-    public void add( Object obj )
-    {
-       this.x509IssuerSerialOrX509SKIOrX509SubjectName.add(obj);
+    public void add(Object obj) {
+        this.x509IssuerSerialOrX509SKIOrX509SubjectName.add(obj);
     }
-    
-    public void remove( Object obj )
-    {
-       this.x509IssuerSerialOrX509SKIOrX509SubjectName.remove( obj );
+
+    public void remove(Object obj) {
+        this.x509IssuerSerialOrX509SKIOrX509SubjectName.remove(obj);
     }
-    
+
     /**
      * Gets the value of the x509IssuerSerialOrX509SKIOrX509SubjectName property.
-     * 
+     *
      * <p>
-     * Objects of the following type(s) are allowed in the list 
-     * {@link Element } 
-     * {@link Object }  
+     * Objects of the following type(s) are allowed in the list {@link Element } {@link Object }
      */
-    public List<Object> getDataObjects() 
-    { 
-        return Collections.unmodifiableList( this.x509IssuerSerialOrX509SKIOrX509SubjectName );
+    public List<Object> getDataObjects() {
+        return Collections.unmodifiableList(this.x509IssuerSerialOrX509SKIOrX509SubjectName);
     }
 }

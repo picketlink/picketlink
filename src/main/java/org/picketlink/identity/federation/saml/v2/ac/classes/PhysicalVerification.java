@@ -1,10 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
- 
+
 /**
- * <p>Java class for anonymous complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for anonymous complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType>
  *   &lt;complexContent>
@@ -21,20 +23,18 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class PhysicalVerification {
 
     protected String credentialLevel;
 
     /**
      * Gets the value of the credentialLevel property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getCredentialLevel() {
         return credentialLevel;
@@ -42,11 +42,9 @@ public class PhysicalVerification {
 
     /**
      * Sets the value of the credentialLevel property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setCredentialLevel(String value) {
         this.credentialLevel = value;

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -31,10 +31,12 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.w3c.dom.Element;
 
 /**
- * <p>Java class for EntityDescriptorType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for EntityDescriptorType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="EntityDescriptorType">
  *   &lt;complexContent>
@@ -65,410 +67,344 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class EntityDescriptorType extends TypeWithOtherAttributes
-{
-   public static class EDTChoiceType
-   {
-      private List<EDTDescriptorChoiceType> descriptors = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
+public class EntityDescriptorType extends TypeWithOtherAttributes {
+    public static class EDTChoiceType {
+        private List<EDTDescriptorChoiceType> descriptors = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
 
-      private AffiliationDescriptorType affiliationDescriptor;
+        private AffiliationDescriptorType affiliationDescriptor;
 
-      public EDTChoiceType(List<EDTDescriptorChoiceType> descriptors)
-      {
-         this.descriptors = descriptors;
-      }
+        public EDTChoiceType(List<EDTDescriptorChoiceType> descriptors) {
+            this.descriptors = descriptors;
+        }
 
-      public EDTChoiceType(AffiliationDescriptorType affiliationDescriptor)
-      {
-         this.affiliationDescriptor = affiliationDescriptor;
-      }
+        public EDTChoiceType(AffiliationDescriptorType affiliationDescriptor) {
+            this.affiliationDescriptor = affiliationDescriptor;
+        }
 
-      public List<EDTDescriptorChoiceType> getDescriptors()
-      {
-         return Collections.unmodifiableList(descriptors);
-      }
+        public List<EDTDescriptorChoiceType> getDescriptors() {
+            return Collections.unmodifiableList(descriptors);
+        }
 
-      public AffiliationDescriptorType getAffiliationDescriptor()
-      {
-         return affiliationDescriptor;
-      }
+        public AffiliationDescriptorType getAffiliationDescriptor() {
+            return affiliationDescriptor;
+        }
 
-      public static EDTChoiceType oneValue(EDTDescriptorChoiceType edt)
-      {
-         List<EDTDescriptorChoiceType> aList = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
-         aList.add(edt);
-         return new EDTChoiceType(aList);
-      }
-   }
+        public static EDTChoiceType oneValue(EDTDescriptorChoiceType edt) {
+            List<EDTDescriptorChoiceType> aList = new ArrayList<EntityDescriptorType.EDTDescriptorChoiceType>();
+            aList.add(edt);
+            return new EDTChoiceType(aList);
+        }
+    }
 
-   public static class EDTDescriptorChoiceType
-   {
-      private RoleDescriptorType roleDescriptor;
+    public static class EDTDescriptorChoiceType {
+        private RoleDescriptorType roleDescriptor;
 
-      private IDPSSODescriptorType idpDescriptor;
+        private IDPSSODescriptorType idpDescriptor;
 
-      private SPSSODescriptorType spDescriptor;
+        private SPSSODescriptorType spDescriptor;
 
-      private AuthnAuthorityDescriptorType authnDescriptor;
+        private AuthnAuthorityDescriptorType authnDescriptor;
 
-      private AttributeAuthorityDescriptorType attribDescriptor;
+        private AttributeAuthorityDescriptorType attribDescriptor;
 
-      private PDPDescriptorType pdpDescriptor;
+        private PDPDescriptorType pdpDescriptor;
 
-      public EDTDescriptorChoiceType(AuthnAuthorityDescriptorType authnDescriptor)
-      {
-         this.authnDescriptor = authnDescriptor;
-      }
+        public EDTDescriptorChoiceType(AuthnAuthorityDescriptorType authnDescriptor) {
+            this.authnDescriptor = authnDescriptor;
+        }
 
-      public EDTDescriptorChoiceType(AttributeAuthorityDescriptorType attribDescriptor)
-      {
-         this.attribDescriptor = attribDescriptor;
-      }
+        public EDTDescriptorChoiceType(AttributeAuthorityDescriptorType attribDescriptor) {
+            this.attribDescriptor = attribDescriptor;
+        }
 
-      public EDTDescriptorChoiceType(PDPDescriptorType pdpDescriptor)
-      {
-         this.pdpDescriptor = pdpDescriptor;
-      }
+        public EDTDescriptorChoiceType(PDPDescriptorType pdpDescriptor) {
+            this.pdpDescriptor = pdpDescriptor;
+        }
 
-      public EDTDescriptorChoiceType(SSODescriptorType sso)
-      {
-         if (sso instanceof IDPSSODescriptorType)
-         {
-            this.idpDescriptor = (IDPSSODescriptorType) sso;
-         }
-         else
-            this.spDescriptor = (SPSSODescriptorType) sso;
-      }
+        public EDTDescriptorChoiceType(SSODescriptorType sso) {
+            if (sso instanceof IDPSSODescriptorType) {
+                this.idpDescriptor = (IDPSSODescriptorType) sso;
+            } else
+                this.spDescriptor = (SPSSODescriptorType) sso;
+        }
 
-      public EDTDescriptorChoiceType(RoleDescriptorType roleDescriptor)
-      {
-         this.roleDescriptor = roleDescriptor;
-      }
+        public EDTDescriptorChoiceType(RoleDescriptorType roleDescriptor) {
+            this.roleDescriptor = roleDescriptor;
+        }
 
-      public RoleDescriptorType getRoleDescriptor()
-      {
-         return roleDescriptor;
-      }
+        public RoleDescriptorType getRoleDescriptor() {
+            return roleDescriptor;
+        }
 
-      public IDPSSODescriptorType getIdpDescriptor()
-      {
-         return idpDescriptor;
-      }
+        public IDPSSODescriptorType getIdpDescriptor() {
+            return idpDescriptor;
+        }
 
-      public SPSSODescriptorType getSpDescriptor()
-      {
-         return spDescriptor;
-      }
+        public SPSSODescriptorType getSpDescriptor() {
+            return spDescriptor;
+        }
 
-      public AuthnAuthorityDescriptorType getAuthnDescriptor()
-      {
-         return authnDescriptor;
-      }
+        public AuthnAuthorityDescriptorType getAuthnDescriptor() {
+            return authnDescriptor;
+        }
 
-      public AttributeAuthorityDescriptorType getAttribDescriptor()
-      {
-         return attribDescriptor;
-      }
+        public AttributeAuthorityDescriptorType getAttribDescriptor() {
+            return attribDescriptor;
+        }
 
-      public PDPDescriptorType getPdpDescriptor()
-      {
-         return pdpDescriptor;
-      }
-   }
+        public PDPDescriptorType getPdpDescriptor() {
+            return pdpDescriptor;
+        }
+    }
 
-   protected Element signature;
+    protected Element signature;
 
-   protected ExtensionsType extensions;
+    protected ExtensionsType extensions;
 
-   protected List<EDTChoiceType> choiceType = new ArrayList<EntityDescriptorType.EDTChoiceType>();
+    protected List<EDTChoiceType> choiceType = new ArrayList<EntityDescriptorType.EDTChoiceType>();
 
-   protected OrganizationType organization;
+    protected OrganizationType organization;
 
-   protected List<ContactType> contactPerson = new ArrayList<ContactType>();
+    protected List<ContactType> contactPerson = new ArrayList<ContactType>();
 
-   protected List<AdditionalMetadataLocationType> additionalMetadataLocation = new ArrayList<AdditionalMetadataLocationType>();
+    protected List<AdditionalMetadataLocationType> additionalMetadataLocation = new ArrayList<AdditionalMetadataLocationType>();
 
-   protected String entityID;
+    protected String entityID;
 
-   protected XMLGregorianCalendar validUntil;
+    protected XMLGregorianCalendar validUntil;
 
-   protected Duration cacheDuration;
+    protected Duration cacheDuration;
 
-   protected String id;
+    protected String id;
 
-   public EntityDescriptorType(String entityID)
-   {
-      this.entityID = entityID;
-   }
+    public EntityDescriptorType(String entityID) {
+        this.entityID = entityID;
+    }
 
-   /**
-    * Gets the value of the signature property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link Element }
-    *     
-    */
-   public Element getSignature()
-   {
-      return signature;
-   }
+    /**
+     * Gets the value of the signature property.
+     *
+     * @return possible object is {@link Element }
+     *
+     */
+    public Element getSignature() {
+        return signature;
+    }
 
-   /**
-    * Sets the value of the signature property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link Element }
-    *     
-    */
-   public void setSignature(Element value)
-   {
-      this.signature = value;
-   }
+    /**
+     * Sets the value of the signature property.
+     *
+     * @param value allowed object is {@link Element }
+     *
+     */
+    public void setSignature(Element value) {
+        this.signature = value;
+    }
 
-   /**
-    * Gets the value of the extensions property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link ExtensionsType }
-    *     
-    */
-   public ExtensionsType getExtensions()
-   {
-      return extensions;
-   }
+    /**
+     * Gets the value of the extensions property.
+     *
+     * @return possible object is {@link ExtensionsType }
+     *
+     */
+    public ExtensionsType getExtensions() {
+        return extensions;
+    }
 
-   /**
-    * Sets the value of the extensions property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link ExtensionsType }
-    *     
-    */
-   public void setExtensions(ExtensionsType value)
-   {
-      this.extensions = value;
-   }
+    /**
+     * Sets the value of the extensions property.
+     *
+     * @param value allowed object is {@link ExtensionsType }
+     *
+     */
+    public void setExtensions(ExtensionsType value) {
+        this.extensions = value;
+    }
 
-   /**
-    * Get a read only list of choice types
-    * @return
-    */
-   public List<EDTChoiceType> getChoiceType()
-   {
-      return Collections.unmodifiableList(choiceType);
-   }
+    /**
+     * Get a read only list of choice types
+     *
+     * @return
+     */
+    public List<EDTChoiceType> getChoiceType() {
+        return Collections.unmodifiableList(choiceType);
+    }
 
-   /**
-    * Add a choice type
-    * @param choiceType
-    */
-   public void addChoiceType(EDTChoiceType choiceType)
-   {
-      this.choiceType.add(choiceType);
-   }
+    /**
+     * Add a choice type
+     *
+     * @param choiceType
+     */
+    public void addChoiceType(EDTChoiceType choiceType) {
+        this.choiceType.add(choiceType);
+    }
 
-   /**
-    * Remove a choice type
-    * @param choiceType
-    */
-   public void removeChoiceType(EDTChoiceType choiceType)
-   {
-      this.choiceType.remove(choiceType);
-   }
+    /**
+     * Remove a choice type
+     *
+     * @param choiceType
+     */
+    public void removeChoiceType(EDTChoiceType choiceType) {
+        this.choiceType.remove(choiceType);
+    }
 
-   /**
-    * Gets the value of the organization property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link OrganizationType }
-    *     
-    */
-   public OrganizationType getOrganization()
-   {
-      return organization;
-   }
+    /**
+     * Gets the value of the organization property.
+     *
+     * @return possible object is {@link OrganizationType }
+     *
+     */
+    public OrganizationType getOrganization() {
+        return organization;
+    }
 
-   /**
-    * Sets the value of the organization property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link OrganizationType }
-    *     
-    */
-   public void setOrganization(OrganizationType value)
-   {
-      this.organization = value;
-   }
+    /**
+     * Sets the value of the organization property.
+     *
+     * @param value allowed object is {@link OrganizationType }
+     *
+     */
+    public void setOrganization(OrganizationType value) {
+        this.organization = value;
+    }
 
-   /**
-    * Add a {@link ContactType} contact person
-    * @param ct
-    */
-   public void addContactPerson(ContactType ct)
-   {
-      contactPerson.add(ct);
-   }
+    /**
+     * Add a {@link ContactType} contact person
+     *
+     * @param ct
+     */
+    public void addContactPerson(ContactType ct) {
+        contactPerson.add(ct);
+    }
 
-   public void removeContactPerson(ContactType ct)
-   {
-      contactPerson.remove(ct);
-   }
+    public void removeContactPerson(ContactType ct) {
+        contactPerson.remove(ct);
+    }
 
-   /**
-    * Gets the value of the contactPerson property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link ContactType }
-    * 
-    * 
-    */
-   public List<ContactType> getContactPerson()
-   {
-      return Collections.unmodifiableList(this.contactPerson);
-   }
+    /**
+     * Gets the value of the contactPerson property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link ContactType }
+     *
+     *
+     */
+    public List<ContactType> getContactPerson() {
+        return Collections.unmodifiableList(this.contactPerson);
+    }
 
-   /**
-    * Add a {@link AdditionalMetadataLocationType}
-    * @param amld
-    */
-   public void addAdditionalMetadataLocationType(AdditionalMetadataLocationType amld)
-   {
-      this.additionalMetadataLocation.add(amld);
-   }
+    /**
+     * Add a {@link AdditionalMetadataLocationType}
+     *
+     * @param amld
+     */
+    public void addAdditionalMetadataLocationType(AdditionalMetadataLocationType amld) {
+        this.additionalMetadataLocation.add(amld);
+    }
 
-   /**
-    * Remove a {@link AdditionalMetadataLocationType}
-    * @param amld
-    */
-   public void removeAdditionalMetadataLocationType(AdditionalMetadataLocationType amld)
-   {
-      this.additionalMetadataLocation.remove(amld);
-   }
+    /**
+     * Remove a {@link AdditionalMetadataLocationType}
+     *
+     * @param amld
+     */
+    public void removeAdditionalMetadataLocationType(AdditionalMetadataLocationType amld) {
+        this.additionalMetadataLocation.remove(amld);
+    }
 
-   /**
-    * Gets the value of the additionalMetadataLocation property.
-    * 
-    * <p>
-    * This accessor method returns a reference to the live list,
-    * not a snapshot. Therefore any modification you make to the
-    * returned list will be present inside the JAXB object.
-    * This is why there is not a <CODE>set</CODE> method for the additionalMetadataLocation property.
-    * 
-    * <p>
-    * For example, to add a new item, do as follows:
-    * <pre>
-    *    getAdditionalMetadataLocation().add(newItem);
-    * </pre>
-    * 
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link AdditionalMetadataLocationType }
-    * 
-    * 
-    */
-   public List<AdditionalMetadataLocationType> getAdditionalMetadataLocation()
-   {
-      return Collections.unmodifiableList(this.additionalMetadataLocation);
-   }
+    /**
+     * Gets the value of the additionalMetadataLocation property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list, not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object. This is why there is not a <CODE>set</CODE> method for the
+     * additionalMetadataLocation property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     *
+     * <pre>
+     * getAdditionalMetadataLocation().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link AdditionalMetadataLocationType }
+     *
+     *
+     */
+    public List<AdditionalMetadataLocationType> getAdditionalMetadataLocation() {
+        return Collections.unmodifiableList(this.additionalMetadataLocation);
+    }
 
-   /**
-    * Gets the value of the entityID property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getEntityID()
-   {
-      return entityID;
-   }
+    /**
+     * Gets the value of the entityID property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getEntityID() {
+        return entityID;
+    }
 
-   /**
-    * Gets the value of the validUntil property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getValidUntil()
-   {
-      return validUntil;
-   }
+    /**
+     * Gets the value of the validUntil property.
+     *
+     * @return possible object is {@link XMLGregorianCalendar }
+     *
+     */
+    public XMLGregorianCalendar getValidUntil() {
+        return validUntil;
+    }
 
-   /**
-    * Sets the value of the validUntil property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public void setValidUntil(XMLGregorianCalendar value)
-   {
-      this.validUntil = value;
-   }
+    /**
+     * Sets the value of the validUntil property.
+     *
+     * @param value allowed object is {@link XMLGregorianCalendar }
+     *
+     */
+    public void setValidUntil(XMLGregorianCalendar value) {
+        this.validUntil = value;
+    }
 
-   /**
-    * Gets the value of the cacheDuration property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link Duration }
-    *     
-    */
-   public Duration getCacheDuration()
-   {
-      return cacheDuration;
-   }
+    /**
+     * Gets the value of the cacheDuration property.
+     *
+     * @return possible object is {@link Duration }
+     *
+     */
+    public Duration getCacheDuration() {
+        return cacheDuration;
+    }
 
-   /**
-    * Sets the value of the cacheDuration property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link Duration }
-    *     
-    */
-   public void setCacheDuration(Duration value)
-   {
-      this.cacheDuration = value;
-   }
+    /**
+     * Sets the value of the cacheDuration property.
+     *
+     * @param value allowed object is {@link Duration }
+     *
+     */
+    public void setCacheDuration(Duration value) {
+        this.cacheDuration = value;
+    }
 
-   /**
-    * Gets the value of the id property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getID()
-   {
-      return id;
-   }
+    /**
+     * Gets the value of the id property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getID() {
+        return id;
+    }
 
-   /**
-    * Sets the value of the id property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setID(String value)
-   {
-      this.id = value;
-   }
+    /**
+     * Sets the value of the id property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setID(String value) {
+        this.id = value;
+    }
 }

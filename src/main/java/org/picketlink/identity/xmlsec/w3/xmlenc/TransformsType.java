@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,14 +26,14 @@ import java.util.Collections;
 import java.util.List;
 
 import org.picketlink.identity.xmlsec.w3.xmldsig.TransformType;
- 
-
 
 /**
- * <p>Java class for TransformsType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for TransformsType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="TransformsType">
  *   &lt;complexContent>
@@ -45,35 +45,30 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.TransformType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class TransformsType 
-{
+ *
+ *
+ */
+public class TransformsType {
     protected List<TransformType> transform = new ArrayList<TransformType>();
 
-    public void add( TransformType tt )
-    {
-       this.transform.add( tt );
+    public void add(TransformType tt) {
+        this.transform.add(tt);
     }
-    
-    public void addAll( List<TransformType> ttlist )
-    {
-       this.transform.addAll( ttlist );
+
+    public void addAll(List<TransformType> ttlist) {
+        this.transform.addAll(ttlist);
     }
-    
-    public void remove( TransformType tt )
-    {
-       this.transform.remove( tt );
+
+    public void remove(TransformType tt) {
+        this.transform.remove(tt);
     }
-    
+
     /**
      * Gets the value of the transform property.
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link TransformType } 
+     * Objects of the following type(s) are allowed in the list {@link TransformType }
      */
     public List<TransformType> getTransform() {
-        return Collections.unmodifiableList( this.transform );
+        return Collections.unmodifiableList(this.transform);
     }
 }

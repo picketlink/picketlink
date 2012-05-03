@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,63 +29,50 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 /**
- * <complexType name="SubjectConfirmationType">
-        <sequence>
-            <element ref="saml:ConfirmationMethod" maxOccurs="unbounded"/>
-            <element ref="saml:SubjectConfirmationData" minOccurs="0"/>
-
-            <element ref="ds:KeyInfo" minOccurs="0"/>
-        </sequence>
-    </complexType>
-
+ * <complexType name="SubjectConfirmationType"> <sequence> <element ref="saml:ConfirmationMethod" maxOccurs="unbounded"/>
+ * <element ref="saml:SubjectConfirmationData" minOccurs="0"/>
+ *
+ * <element ref="ds:KeyInfo" minOccurs="0"/> </sequence> </complexType>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
-public class SAML11SubjectConfirmationType
-{
-   protected List<URI> confirmationMethod = new ArrayList<URI>();
+public class SAML11SubjectConfirmationType {
+    protected List<URI> confirmationMethod = new ArrayList<URI>();
 
-   protected Object subjectConfirmationData;
+    protected Object subjectConfirmationData;
 
-   protected Element keyInfo;
+    protected Element keyInfo;
 
-   public void addConfirmationMethod(URI confirmation)
-   {
-      this.confirmationMethod.add(confirmation);
-   }
+    public void addConfirmationMethod(URI confirmation) {
+        this.confirmationMethod.add(confirmation);
+    }
 
-   public void addAllConfirmationMethod(List<URI> confirmation)
-   {
-      this.confirmationMethod.addAll(confirmation);
-   }
+    public void addAllConfirmationMethod(List<URI> confirmation) {
+        this.confirmationMethod.addAll(confirmation);
+    }
 
-   public boolean removeConfirmationMethod(URI confirmation)
-   {
-      return this.confirmationMethod.remove(confirmation);
-   }
+    public boolean removeConfirmationMethod(URI confirmation) {
+        return this.confirmationMethod.remove(confirmation);
+    }
 
-   public List<URI> getConfirmationMethod()
-   {
-      return Collections.unmodifiableList(confirmationMethod);
-   }
+    public List<URI> getConfirmationMethod() {
+        return Collections.unmodifiableList(confirmationMethod);
+    }
 
-   public void setSubjectConfirmationData(Object subjectConfirmation)
-   {
-      this.subjectConfirmationData = subjectConfirmation;
-   }
+    public void setSubjectConfirmationData(Object subjectConfirmation) {
+        this.subjectConfirmationData = subjectConfirmation;
+    }
 
-   public Element getKeyInfo()
-   {
-      return keyInfo;
-   }
+    public Element getKeyInfo() {
+        return keyInfo;
+    }
 
-   public void setKeyInfo(Element keyInfo)
-   {
-      this.keyInfo = keyInfo;
-   }
+    public void setKeyInfo(Element keyInfo) {
+        this.keyInfo = keyInfo;
+    }
 
-   public Object getSubjectConfirmationData()
-   {
-      return subjectConfirmationData;
-   }
+    public Object getSubjectConfirmationData() {
+        return subjectConfirmationData;
+    }
 }

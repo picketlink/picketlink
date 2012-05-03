@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2011, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -36,74 +36,64 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
 /**
  * <p>
- * An instance of {@link SAMLConfigurationProvider} that can be used to generate
- * the SP configuration for the HTTP-Redirect binding using SAML2 Metadata.
+ * An instance of {@link SAMLConfigurationProvider} that can be used to generate the SP configuration for the HTTP-Redirect
+ * binding using SAML2 Metadata.
  * </p>
  * <p>
  * This provider uses the following in sequence whichever is available:
  * <ol>
- * <li> a sp-metadata.xml file available in its immediate class path.</li>
- * <li> </li>
+ * <li>a sp-metadata.xml file available in its immediate class path.</li>
+ * <li></li>
  * </ol>
  * </p>
+ *
  * @author Anil Saldhana
  * @since Feb 15, 2012
  */
-public class SPRedirectMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider
-      implements
-         SAMLConfigurationProvider
-{
-   public static final String SP_MD_FILE = "sp-metadata.xml";
+public class SPRedirectMetadataConfigurationProvider extends AbstractSAMLConfigurationProvider implements
+        SAMLConfigurationProvider {
+    public static final String SP_MD_FILE = "sp-metadata.xml";
 
-   public static final String bindingURI = JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get();
+    public static final String bindingURI = JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get();
 
-   /**
-    * @see SAMLConfigurationProvider#getIDPConfiguration()
-    */
-   public IDPType getIDPConfiguration() throws ProcessingException
-   {
-      throw new RuntimeException(ErrorCodes.ILLEGAL_METHOD_CALLED);
-   }
+    /**
+     * @see SAMLConfigurationProvider#getIDPConfiguration()
+     */
+    public IDPType getIDPConfiguration() throws ProcessingException {
+        throw new RuntimeException(ErrorCodes.ILLEGAL_METHOD_CALLED);
+    }
 
-   /**
-    * @see SAMLConfigurationProvider#getSPConfiguration()
-    */
-   public SPType getSPConfiguration() throws ProcessingException
-   {
-      SPType spType = null;
-      if (fileAvailable())
-      {
-         try
-         {
-            EntitiesDescriptorType entities = parseMDFile();
-            spType = CoreConfigUtil.getSPConfiguration(entities, bindingURI);
-         }
-         catch (ParsingException e)
-         {
-            throw new ProcessingException(e);
-         }
-      }
-      if (configParsedSPType != null)
-      {
-         spType.importFrom(configParsedSPType);
-      }
-      return spType;
-   }
+    /**
+     * @see SAMLConfigurationProvider#getSPConfiguration()
+     */
+    public SPType getSPConfiguration() throws ProcessingException {
+        SPType spType = null;
+        if (fileAvailable()) {
+            try {
+                EntitiesDescriptorType entities = parseMDFile();
+                spType = CoreConfigUtil.getSPConfiguration(entities, bindingURI);
+            } catch (ParsingException e) {
+                throw new ProcessingException(e);
+            }
+        }
+        if (configParsedSPType != null) {
+            spType.importFrom(configParsedSPType);
+        }
+        return spType;
+    }
 
-   private boolean fileAvailable()
-   {
-      InputStream is = SecurityActions.loadStream(getClass(), SP_MD_FILE);
-      return is != null;
-   }
+    private boolean fileAvailable() {
+        InputStream is = SecurityActions.loadStream(getClass(), SP_MD_FILE);
+        return is != null;
+    }
 
-   private EntitiesDescriptorType parseMDFile() throws ParsingException
-   {
-      InputStream is = SecurityActions.loadStream(getClass(), SP_MD_FILE);
+    private EntitiesDescriptorType parseMDFile() throws ParsingException {
+        InputStream is = SecurityActions.loadStream(getClass(), SP_MD_FILE);
 
-      if (is == null)
-         throw new IllegalStateException(ErrorCodes.NULL_VALUE + SP_MD_FILE);
+        if (is == null)
+            throw new IllegalStateException(ErrorCodes.NULL_VALUE + SP_MD_FILE);
 
-      SAMLParser parser = new SAMLParser();
-      return (EntitiesDescriptorType) parser.parse(is);
-   }
+        SAMLParser parser = new SAMLParser();
+        return (EntitiesDescriptorType) parser.parse(is);
+    }
 }

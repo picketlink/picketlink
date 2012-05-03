@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,12 +27,13 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
-
 /**
- * <p>Java class for ObjectType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ObjectType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ObjectType">
  *   &lt;complexContent>
@@ -47,114 +48,89 @@ import org.w3c.dom.Element;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class ObjectType 
-{
-    protected List<Object> content = new ArrayList<Object>(); 
-    protected String id; 
-    protected String mimeType; 
+ *
+ *
+ */
+public class ObjectType {
+    protected List<Object> content = new ArrayList<Object>();
+    protected String id;
+    protected String mimeType;
     protected String encoding;
 
-    public void add( Object obj )
-    {
-       this.content.add(obj);
+    public void add(Object obj) {
+        this.content.add(obj);
     }
-    
-    public void remove( Object obj )
-    {
-       this.content.remove( obj );
+
+    public void remove(Object obj) {
+        this.content.remove(obj);
     }
-    
+
     /**
-     * Gets the value of the content property. 
+     * Gets the value of the content property.
      * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Element }
-     * {@link Object }
-     * {@link String }
+     * Objects of the following type(s) are allowed in the list {@link Element } {@link Object } {@link String }
      */
-    public List<Object> getContent() 
-    {
-        return Collections.unmodifiableList( this.content );
+    public List<Object> getContent() {
+        return Collections.unmodifiableList(this.content);
     }
 
     /**
      * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
-    public String getId() 
-    {
+    public String getId() {
         return id;
     }
 
     /**
      * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
-    public void setId(String value) 
-    {
+    public void setId(String value) {
         this.id = value;
     }
 
     /**
      * Gets the value of the mimeType property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
-    public String getMimeType() 
-    {
+    public String getMimeType() {
         return mimeType;
     }
 
     /**
      * Sets the value of the mimeType property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
-    public void setMimeType(String value) 
-    {
+    public void setMimeType(String value) {
         this.mimeType = value;
     }
 
     /**
      * Gets the value of the encoding property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
-    public String getEncoding() 
-    {
+    public String getEncoding() {
         return encoding;
     }
 
     /**
      * Sets the value of the encoding property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
-    public void setEncoding(String value) 
-    {
+    public void setEncoding(String value) {
         this.encoding = value;
     }
 }

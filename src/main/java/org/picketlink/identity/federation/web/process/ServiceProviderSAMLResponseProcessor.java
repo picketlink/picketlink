@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -52,7 +52,7 @@ import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 
 /**
  * Utility Class to handle processing of an SAML Request Message
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 27, 2009
  */
@@ -67,7 +67,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
 
     /**
      * Construct
-     * 
+     *
      * @param postBinding Whether it is the Post Binding
      * @param serviceURL Service URL of the SP
      */
@@ -77,7 +77,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
 
     /**
      * Flag to indicate whether the response should be validated for signature
-     * 
+     *
      * @param validateSignature
      */
     public void setValidateSignature(boolean validateSignature) {
@@ -86,7 +86,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
 
     /**
      * Process the message
-     * 
+     *
      * @param samlResponse
      * @param httpContext
      * @param handlers
@@ -147,7 +147,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      * <p>
      * Validates the SAML token signature of this option is enabled.
      * </p>
-     * 
+     *
      * @param httpContext
      * @param documentHolder
      * @throws ProcessingException
@@ -161,7 +161,8 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
                     this.verifyRedirectBindingSignature(httpContext);
                 }
             } catch (IssuerNotTrustedException e) {
-                throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed. Issuer is not trusted by this Service Provider", e);
+                throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
+                        + "Signature Validation failed. Issuer is not trusted by this Service Provider", e);
             } catch (Exception e) {
                 throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed", e);
             }
@@ -191,7 +192,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      * <p>
      * Validates the signature for SAML tokens received via HTTP Redirect Binding.
      * </p>
-     * 
+     *
      * @param httpContext
      * @throws IssuerNotTrustedException
      * @throws ProcessingException
@@ -205,7 +206,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
 
         try {
             String queryString = httpContext.getRequest().getQueryString();
-            
+
             // Check if there is a signature
             byte[] sigValue;
 
@@ -231,27 +232,27 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
      * <p>
      * Returns the PublicKey to be used to verify signatures for SAML tokens issued by the IDP.
      * </p>
-     * 
+     *
      * @return
      * @throws TrustKeyConfigurationException
      * @throws TrustKeyProcessingException
      */
     private PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
-        if(this.keyManager == null){
+        if (this.keyManager == null) {
             throw new TrustKeyConfigurationException(ErrorCodes.TRUST_MANAGER_MISSING);
         }
         String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
 
-        if(StringUtil.isNullOrEmpty(idpValidatingAlias)){
+        if (StringUtil.isNullOrEmpty(idpValidatingAlias)) {
             idpValidatingAlias = safeURL(spConfiguration.getIdentityURL()).getHost();
         }
-            
+
         return keyManager.getValidatingKey(idpValidatingAlias);
     }
 
     /**
      * Validate the signature of the IDP response
-     * 
+     *
      * @param samlDocumentHolder
      * @return
      * @throws IssuerNotTrustedException

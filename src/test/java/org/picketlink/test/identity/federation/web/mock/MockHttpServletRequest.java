@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -49,358 +49,299 @@ import javax.servlet.http.Part;
 
 /**
  * Mock Http Servlet Request
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 7, 2009
  */
-@SuppressWarnings({ "unchecked", "rawtypes"})
-public class MockHttpServletRequest implements HttpServletRequest
-{
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public class MockHttpServletRequest implements HttpServletRequest {
     private HttpSession session = null;
     protected Map headers = new HashMap();
-    protected Map parameters = new HashMap();   
+    protected Map parameters = new HashMap();
     protected Map attribs = new HashMap();
 
     private String methodType;
 
-    public MockHttpServletRequest(HttpSession session, String methodType)
-    {
+    public MockHttpServletRequest(HttpSession session, String methodType) {
         this.session = session;
         this.methodType = methodType;
     }
 
-    public void addHeader(String key, String value)
-    {
+    public void addHeader(String key, String value) {
         headers.put(key, value);
     }
 
-    public void addParameter(String key, String value)
-    {
+    public void addParameter(String key, String value) {
         parameters.put(key, value);
     }
 
-    public String getAuthType()
-    {
+    public String getAuthType() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getContextPath()
-    { 
+    public String getContextPath() {
         throw new RuntimeException("NYI");
     }
 
-    public Cookie[] getCookies()
-    {
+    public Cookie[] getCookies() {
 
         throw new RuntimeException("NYI");
     }
 
-    public long getDateHeader(String arg0)
-    { 
+    public long getDateHeader(String arg0) {
         return 0;
     }
 
-    public String getHeader(String arg0)
-    { 
+    public String getHeader(String arg0) {
         return (String) headers.get(arg0);
     }
 
-    public Enumeration getHeaderNames()
-    {
-        return new Enumeration() 
-        {
+    public Enumeration getHeaderNames() {
+        return new Enumeration() {
             private Iterator iter = headers.entrySet().iterator();
 
-            public boolean hasMoreElements()
-            {
+            public boolean hasMoreElements() {
                 return iter.hasNext();
             }
-            public Object nextElement()
-            {
-                Entry<String,String> entry =  (Entry<String, String>) iter.next();
+
+            public Object nextElement() {
+                Entry<String, String> entry = (Entry<String, String>) iter.next();
                 return entry.getValue();
             }
         };
     }
 
-    public Enumeration getHeaders(String arg0)
-    { 
+    public Enumeration getHeaders(String arg0) {
         throw new RuntimeException("NYI");
     }
 
-    public int getIntHeader(String arg0)
-    { 
+    public int getIntHeader(String arg0) {
         return 0;
     }
 
-    public String getMethod()
-    { 
+    public String getMethod() {
         return this.methodType;
     }
 
-    public String getPathInfo()
-    {
+    public String getPathInfo() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getPathTranslated()
-    {
+    public String getPathTranslated() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getQueryString()
-    {
-        if("POST".equalsIgnoreCase(this.methodType))
+    public String getQueryString() {
+        if ("POST".equalsIgnoreCase(this.methodType))
             return null;
 
         throw new RuntimeException("NYI");
     }
 
-    public String getRemoteUser()
-    {
+    public String getRemoteUser() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getRequestURI()
-    {
+    public String getRequestURI() {
 
         throw new RuntimeException("NYI");
     }
 
-    public StringBuffer getRequestURL()
-    {
+    public StringBuffer getRequestURL() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getRequestedSessionId()
-    {
+    public String getRequestedSessionId() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getServletPath()
-    {
+    public String getServletPath() {
 
         throw new RuntimeException("NYI");
     }
 
-    public HttpSession getSession()
-    {
+    public HttpSession getSession() {
         return session;
     }
 
-    public HttpSession getSession(boolean arg0)
-    { 
+    public HttpSession getSession(boolean arg0) {
         return getSession();
     }
 
-    public Principal getUserPrincipal()
-    { 
-        return new Principal(){
+    public Principal getUserPrincipal() {
+        return new Principal() {
             public String getName() {
                 return "testuser";
             }
         };
     }
 
-    public boolean isRequestedSessionIdFromCookie()
-    {
+    public boolean isRequestedSessionIdFromCookie() {
 
         return false;
     }
 
-    public boolean isRequestedSessionIdFromURL()
-    {
+    public boolean isRequestedSessionIdFromURL() {
 
         return false;
     }
 
-    public boolean isRequestedSessionIdFromUrl()
-    {
+    public boolean isRequestedSessionIdFromUrl() {
 
         return false;
     }
 
-    public boolean isRequestedSessionIdValid()
-    {
+    public boolean isRequestedSessionIdValid() {
 
         return false;
     }
 
-    public boolean isUserInRole(String arg0)
-    {
+    public boolean isUserInRole(String arg0) {
 
         return false;
     }
 
-    public Object getAttribute(String arg0)
-    {
+    public Object getAttribute(String arg0) {
 
         throw new RuntimeException("NYI");
     }
 
-    public Enumeration getAttributeNames()
-    {
+    public Enumeration getAttributeNames() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getCharacterEncoding()
-    {
+    public String getCharacterEncoding() {
 
         throw new RuntimeException("NYI");
     }
 
-    public int getContentLength()
-    {
+    public int getContentLength() {
 
         return 0;
     }
 
-    public String getContentType()
-    {
+    public String getContentType() {
 
         throw new RuntimeException("NYI");
     }
 
-    public ServletInputStream getInputStream() throws IOException
-    {
+    public ServletInputStream getInputStream() throws IOException {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getLocalAddr()
-    {
+    public String getLocalAddr() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getLocalName()
-    {
+    public String getLocalName() {
 
         throw new RuntimeException("NYI");
     }
 
-    public int getLocalPort()
-    {
+    public int getLocalPort() {
 
         return 0;
     }
 
-    public Locale getLocale()
-    {
+    public Locale getLocale() {
 
         throw new RuntimeException("NYI");
     }
 
-    public Enumeration getLocales()
-    {
+    public Enumeration getLocales() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getParameter(String arg0)
-    {
+    public String getParameter(String arg0) {
         return (String) this.parameters.get(arg0);
     }
 
-    public Map getParameterMap()
-    {
+    public Map getParameterMap() {
         return this.parameters;
     }
 
-    public Enumeration getParameterNames()
-    {
+    public Enumeration getParameterNames() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String[] getParameterValues(String arg0)
-    {
+    public String[] getParameterValues(String arg0) {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getProtocol()
-    {
+    public String getProtocol() {
 
         throw new RuntimeException("NYI");
     }
 
-    public BufferedReader getReader() throws IOException
-    {
+    public BufferedReader getReader() throws IOException {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getRealPath(String arg0)
-    {
+    public String getRealPath(String arg0) {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getRemoteAddr()
-    {
+    public String getRemoteAddr() {
         return (String) headers.get("Referer");
     }
 
-    public String getRemoteHost()
-    {
+    public String getRemoteHost() {
 
         throw new RuntimeException("NYI");
     }
 
-    public int getRemotePort()
-    {
+    public int getRemotePort() {
 
         return 0;
     }
 
-    public RequestDispatcher getRequestDispatcher(String arg0)
-    {
+    public RequestDispatcher getRequestDispatcher(String arg0) {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getScheme()
-    {
+    public String getScheme() {
 
         throw new RuntimeException("NYI");
     }
 
-    public String getServerName()
-    {
+    public String getServerName() {
 
         throw new RuntimeException("NYI");
     }
 
-    public int getServerPort()
-    {
+    public int getServerPort() {
 
         return 0;
     }
 
-    public boolean isSecure()
-    {
+    public boolean isSecure() {
 
         return false;
     }
 
-    public void removeAttribute(String arg0)
-    {  
+    public void removeAttribute(String arg0) {
     }
 
-    public void setAttribute(String arg0, Object arg1)
-    {
+    public void setAttribute(String arg0, Object arg1) {
         this.attribs.put(arg0, arg1);
     }
 
-    public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException
-    { 
+    public void setCharacterEncoding(String arg0) throws UnsupportedEncodingException {
     }
 
     public ServletContext getServletContext() {
@@ -411,8 +352,7 @@ public class MockHttpServletRequest implements HttpServletRequest
         return null;
     }
 
-    public AsyncContext startAsync(ServletRequest servletRequest,
-            ServletResponse servletResponse) throws IllegalStateException {
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
         return null;
     }
 
@@ -432,8 +372,7 @@ public class MockHttpServletRequest implements HttpServletRequest
         return null;
     }
 
-    public boolean authenticate(HttpServletResponse response) throws IOException,
-    ServletException {
+    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
         return false;
     }
 
@@ -442,7 +381,7 @@ public class MockHttpServletRequest implements HttpServletRequest
 
     public void logout() throws ServletException {
     }
- 
+
     public Collection<Part> getParts() throws IOException, ServletException {
         return null;
     }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -56,150 +56,126 @@ import org.w3c.dom.Element;
 
 /**
  * Parse the saml assertion
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2010
  */
-public class SAML11AssertionParser implements ParserNamespaceSupport
-{
-   private final String ASSERTION = JBossSAMLConstants.ASSERTION.get();
+public class SAML11AssertionParser implements ParserNamespaceSupport {
+    private final String ASSERTION = JBossSAMLConstants.ASSERTION.get();
 
-   public SAML11AssertionType fromElement(Element element) throws ConfigurationException, ProcessingException,
-         ParsingException
-   {
-      XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(element));
-      return (SAML11AssertionType) parse(xmlEventReader);
-   }
+    public SAML11AssertionType fromElement(Element element) throws ConfigurationException, ProcessingException,
+            ParsingException {
+        XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(element));
+        return (SAML11AssertionType) parse(xmlEventReader);
+    }
 
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+    /**
+     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     */
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
 
-      startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
 
-      //Special case: Encrypted Assertion 
-      StaxParserUtil.validate(startElement, ASSERTION);
-      SAML11AssertionType assertion = parseBaseAttributes(startElement);
+        // Special case: Encrypted Assertion
+        StaxParserUtil.validate(startElement, ASSERTION);
+        SAML11AssertionType assertion = parseBaseAttributes(startElement);
 
-      Attribute issuerAttribute = startElement.getAttributeByName(new QName(SAML11Constants.ISSUER));
-      String issuer = StaxParserUtil.getAttributeValue(issuerAttribute);
-      assertion.setIssuer(issuer);
+        Attribute issuerAttribute = startElement.getAttributeByName(new QName(SAML11Constants.ISSUER));
+        String issuer = StaxParserUtil.getAttributeValue(issuerAttribute);
+        assertion.setIssuer(issuer);
 
-      //Peek at the next event
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
+        // Peek at the next event
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
 
-         if (xmlEvent instanceof EndElement)
-         {
-            xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
-            EndElement endElement = (EndElement) xmlEvent;
-            String endElementTag = StaxParserUtil.getEndElementName(endElement);
-            if (endElementTag.equals(JBossSAMLConstants.ASSERTION.get()))
-               break;
-            else
-               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
-         }
+            if (xmlEvent instanceof EndElement) {
+                xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
+                EndElement endElement = (EndElement) xmlEvent;
+                String endElementTag = StaxParserUtil.getEndElementName(endElement);
+                if (endElementTag.equals(JBossSAMLConstants.ASSERTION.get()))
+                    break;
+                else
+                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
+            }
 
-         StartElement peekedElement = null;
+            StartElement peekedElement = null;
 
-         if (xmlEvent instanceof StartElement)
-         {
-            peekedElement = (StartElement) xmlEvent;
-         }
-         else
-         {
-            peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         }
-         if (peekedElement == null)
-            break;
+            if (xmlEvent instanceof StartElement) {
+                peekedElement = (StartElement) xmlEvent;
+            } else {
+                peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            }
+            if (peekedElement == null)
+                break;
 
-         String tag = StaxParserUtil.getStartElementName(peekedElement);
+            String tag = StaxParserUtil.getStartElementName(peekedElement);
 
-         if (tag.equals(JBossSAMLConstants.SIGNATURE.get()))
-         {
-            assertion.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
-         }
-         else if (JBossSAMLConstants.ISSUER.get().equalsIgnoreCase(tag))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            issuer = StaxParserUtil.getElementText(xmlEventReader);
+            if (tag.equals(JBossSAMLConstants.SIGNATURE.get())) {
+                assertion.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
+            } else if (JBossSAMLConstants.ISSUER.get().equalsIgnoreCase(tag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                issuer = StaxParserUtil.getElementText(xmlEventReader);
 
-            assertion.setIssuer(issuer);
-         }
-         else if (JBossSAMLConstants.SUBJECT.get().equalsIgnoreCase(tag))
-         {
-            SAML11SubjectParser subjectParser = new SAML11SubjectParser();
-            SAML11SubjectType subject = (SAML11SubjectType) subjectParser.parse(xmlEventReader);
-            SAML11SubjectStatementType subStat = new SAML11SubjectStatementType();
-            subStat.setSubject(subject);
-         }
-         else if (JBossSAMLConstants.CONDITIONS.get().equalsIgnoreCase(tag))
-         {
-            startElement = (StartElement) xmlEvent;
+                assertion.setIssuer(issuer);
+            } else if (JBossSAMLConstants.SUBJECT.get().equalsIgnoreCase(tag)) {
+                SAML11SubjectParser subjectParser = new SAML11SubjectParser();
+                SAML11SubjectType subject = (SAML11SubjectType) subjectParser.parse(xmlEventReader);
+                SAML11SubjectStatementType subStat = new SAML11SubjectStatementType();
+                subStat.setSubject(subject);
+            } else if (JBossSAMLConstants.CONDITIONS.get().equalsIgnoreCase(tag)) {
+                startElement = (StartElement) xmlEvent;
 
-            SAML11ConditionsType conditions = SAML11ParserUtil.parseSAML11Conditions(xmlEventReader);
-            assertion.setConditions(conditions);
-         }
-         else if (SAML11Constants.AUTHENTICATION_STATEMENT.equals(tag))
-         {
-            startElement = (StartElement) xmlEvent;
-            SAML11AuthenticationStatementType authStat = SAML11ParserUtil.parseAuthenticationStatement(xmlEventReader);
-            assertion.add(authStat);
-         }
-         else if (SAML11Constants.ATTRIBUTE_STATEMENT.equalsIgnoreCase(tag))
-         {
-            SAML11AttributeStatementType attributeStatementType = SAML11ParserUtil
-                  .parseSAML11AttributeStatement(xmlEventReader);
-            assertion.add(attributeStatementType);
-         }
-         else if (SAML11Constants.AUTHORIZATION_DECISION_STATEMENT.equalsIgnoreCase(tag))
-         {
-            SAML11AuthorizationDecisionStatementType authzStat = SAML11ParserUtil
-                  .parseSAML11AuthorizationDecisionStatement(xmlEventReader);
-            assertion.add(authzStat);
-         }
-         else
-            throw new RuntimeException(UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
-      }
-      return assertion;
-   }
+                SAML11ConditionsType conditions = SAML11ParserUtil.parseSAML11Conditions(xmlEventReader);
+                assertion.setConditions(conditions);
+            } else if (SAML11Constants.AUTHENTICATION_STATEMENT.equals(tag)) {
+                startElement = (StartElement) xmlEvent;
+                SAML11AuthenticationStatementType authStat = SAML11ParserUtil.parseAuthenticationStatement(xmlEventReader);
+                assertion.add(authStat);
+            } else if (SAML11Constants.ATTRIBUTE_STATEMENT.equalsIgnoreCase(tag)) {
+                SAML11AttributeStatementType attributeStatementType = SAML11ParserUtil
+                        .parseSAML11AttributeStatement(xmlEventReader);
+                assertion.add(attributeStatementType);
+            } else if (SAML11Constants.AUTHORIZATION_DECISION_STATEMENT.equalsIgnoreCase(tag)) {
+                SAML11AuthorizationDecisionStatementType authzStat = SAML11ParserUtil
+                        .parseSAML11AuthorizationDecisionStatement(xmlEventReader);
+                assertion.add(authzStat);
+            } else
+                throw new RuntimeException(UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
+        }
+        return assertion;
+    }
 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
-   public boolean supports(QName qname)
-   {
-      String nsURI = qname.getNamespaceURI();
-      String localPart = qname.getLocalPart();
+    /**
+     * @see {@link ParserNamespaceSupport#supports(QName)}
+     */
+    public boolean supports(QName qname) {
+        String nsURI = qname.getNamespaceURI();
+        String localPart = qname.getLocalPart();
 
-      return nsURI.equals(JBossSAMLURIConstants.ASSERTION_NSURI.get())
-            && localPart.equals(JBossSAMLConstants.ASSERTION.get());
-   }
+        return nsURI.equals(JBossSAMLURIConstants.ASSERTION_NSURI.get())
+                && localPart.equals(JBossSAMLConstants.ASSERTION.get());
+    }
 
-   private SAML11AssertionType parseBaseAttributes(StartElement nextElement) throws ParsingException
-   {
-      Attribute idAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.ASSERTIONID));
-      if (idAttribute == null)
-         throw new ParsingException(REQD_ATTRIBUTE + "AssertionID");
-      String id = StaxParserUtil.getAttributeValue(idAttribute);
+    private SAML11AssertionType parseBaseAttributes(StartElement nextElement) throws ParsingException {
+        Attribute idAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.ASSERTIONID));
+        if (idAttribute == null)
+            throw new ParsingException(REQD_ATTRIBUTE + "AssertionID");
+        String id = StaxParserUtil.getAttributeValue(idAttribute);
 
-      Attribute majVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MAJOR_VERSION));
-      String majVersion = StaxParserUtil.getAttributeValue(majVersionAttribute);
-      StringUtil.match("1", majVersion);
+        Attribute majVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MAJOR_VERSION));
+        String majVersion = StaxParserUtil.getAttributeValue(majVersionAttribute);
+        StringUtil.match("1", majVersion);
 
-      Attribute minVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MINOR_VERSION));
-      String minVersion = StaxParserUtil.getAttributeValue(minVersionAttribute);
-      StringUtil.match("1", minVersion);
+        Attribute minVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MINOR_VERSION));
+        String minVersion = StaxParserUtil.getAttributeValue(minVersionAttribute);
+        StringUtil.match("1", minVersion);
 
-      Attribute issueInstantAttribute = nextElement
-            .getAttributeByName(new QName(JBossSAMLConstants.ISSUE_INSTANT.get()));
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttribute));
+        Attribute issueInstantAttribute = nextElement.getAttributeByName(new QName(JBossSAMLConstants.ISSUE_INSTANT.get()));
+        XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttribute));
 
-      return new SAML11AssertionType(id, issueInstant);
-   }
+        return new SAML11AssertionType(id, issueInstant);
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -32,10 +32,12 @@ import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 
 /**
- * <p>Java class for LogoutRequestType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for LogoutRequestType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="LogoutRequestType">
  *   &lt;complexContent>
@@ -54,185 +56,152 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class LogoutRequestType extends RequestAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class LogoutRequestType extends RequestAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected BaseIDAbstractType baseID;
+    protected BaseIDAbstractType baseID;
 
-   protected NameIDType nameID;
+    protected NameIDType nameID;
 
-   protected EncryptedElementType encryptedID;
+    protected EncryptedElementType encryptedID;
 
-   protected List<String> sessionIndex = new ArrayList<String>();
+    protected List<String> sessionIndex = new ArrayList<String>();
 
-   protected String reason;
+    protected String reason;
 
-   protected XMLGregorianCalendar notOnOrAfter;
+    protected XMLGregorianCalendar notOnOrAfter;
 
-   public LogoutRequestType(String id, XMLGregorianCalendar instant)
-   {
-      super(id, instant);
-   }
+    public LogoutRequestType(String id, XMLGregorianCalendar instant) {
+        super(id, instant);
+    }
 
-   /**
+    /**
      * Gets the value of the baseID property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link BaseIDAbstractType }
-     *     
+     *
+     * @return possible object is {@link BaseIDAbstractType }
+     *
      */
-   public BaseIDAbstractType getBaseID()
-   {
-      return baseID;
-   }
+    public BaseIDAbstractType getBaseID() {
+        return baseID;
+    }
 
-   /**
-    * Sets the value of the baseID property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link BaseIDAbstractType }
-    *     
-    */
-   public void setBaseID(BaseIDAbstractType value)
-   {
-      this.baseID = value;
-   }
+    /**
+     * Sets the value of the baseID property.
+     *
+     * @param value allowed object is {@link BaseIDAbstractType }
+     *
+     */
+    public void setBaseID(BaseIDAbstractType value) {
+        this.baseID = value;
+    }
 
-   /**
-    * Gets the value of the nameID property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link NameIDType }
-    *     
-    */
-   public NameIDType getNameID()
-   {
-      return nameID;
-   }
+    /**
+     * Gets the value of the nameID property.
+     *
+     * @return possible object is {@link NameIDType }
+     *
+     */
+    public NameIDType getNameID() {
+        return nameID;
+    }
 
-   /**
-    * Sets the value of the nameID property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link NameIDType }
-    *     
-    */
-   public void setNameID(NameIDType value)
-   {
-      this.nameID = value;
-   }
+    /**
+     * Sets the value of the nameID property.
+     *
+     * @param value allowed object is {@link NameIDType }
+     *
+     */
+    public void setNameID(NameIDType value) {
+        this.nameID = value;
+    }
 
-   /**
-    * Gets the value of the encryptedID property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link EncryptedElementType }
-    *     
-    */
-   public EncryptedElementType getEncryptedID()
-   {
-      return encryptedID;
-   }
+    /**
+     * Gets the value of the encryptedID property.
+     *
+     * @return possible object is {@link EncryptedElementType }
+     *
+     */
+    public EncryptedElementType getEncryptedID() {
+        return encryptedID;
+    }
 
-   /**
-    * Sets the value of the encryptedID property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link EncryptedElementType }
-    *     
-    */
-   public void setEncryptedID(EncryptedElementType value)
-   {
-      this.encryptedID = value;
-   }
+    /**
+     * Sets the value of the encryptedID property.
+     *
+     * @param value allowed object is {@link EncryptedElementType }
+     *
+     */
+    public void setEncryptedID(EncryptedElementType value) {
+        this.encryptedID = value;
+    }
 
-   /**
-    * Add session index
-    * @param index
-    */
-   public void addSessionIndex(String index)
-   {
-      this.sessionIndex.add(index);
-   }
+    /**
+     * Add session index
+     *
+     * @param index
+     */
+    public void addSessionIndex(String index) {
+        this.sessionIndex.add(index);
+    }
 
-   /**
-    * Remove session index
-    * @param index
-    */
-   public void removeSessionIndex(String index)
-   {
-      this.sessionIndex.remove(index);
-   }
+    /**
+     * Remove session index
+     *
+     * @param index
+     */
+    public void removeSessionIndex(String index) {
+        this.sessionIndex.remove(index);
+    }
 
-   /**
-    * Gets the value of the sessionIndex property.
-    *  
-    */
-   public List<String> getSessionIndex()
-   {
-      return Collections.unmodifiableList(this.sessionIndex);
-   }
+    /**
+     * Gets the value of the sessionIndex property.
+     *
+     */
+    public List<String> getSessionIndex() {
+        return Collections.unmodifiableList(this.sessionIndex);
+    }
 
-   /**
-    * Gets the value of the reason property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getReason()
-   {
-      return reason;
-   }
+    /**
+     * Gets the value of the reason property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getReason() {
+        return reason;
+    }
 
-   /**
-    * Sets the value of the reason property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setReason(String value)
-   {
-      this.reason = value;
-   }
+    /**
+     * Sets the value of the reason property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setReason(String value) {
+        this.reason = value;
+    }
 
-   /**
-    * Gets the value of the notOnOrAfter property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getNotOnOrAfter()
-   {
-      return notOnOrAfter;
-   }
+    /**
+     * Gets the value of the notOnOrAfter property.
+     *
+     * @return possible object is {@link XMLGregorianCalendar }
+     *
+     */
+    public XMLGregorianCalendar getNotOnOrAfter() {
+        return notOnOrAfter;
+    }
 
-   /**
-    * Sets the value of the notOnOrAfter property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public void setNotOnOrAfter(XMLGregorianCalendar value)
-   {
-      this.notOnOrAfter = value;
-   }
+    /**
+     * Sets the value of the notOnOrAfter property.
+     *
+     * @param value allowed object is {@link XMLGregorianCalendar }
+     *
+     */
+    public void setNotOnOrAfter(XMLGregorianCalendar value) {
+        this.notOnOrAfter = value;
+    }
 
 }

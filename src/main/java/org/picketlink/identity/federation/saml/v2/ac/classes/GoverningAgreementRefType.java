@@ -1,10 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.ac.classes;
 
 /**
- * <p>Java class for GoverningAgreementRefType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for GoverningAgreementRefType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="GoverningAgreementRefType">
  *   &lt;complexContent>
@@ -14,8 +16,8 @@ package org.picketlink.identity.federation.saml.v2.ac.classes;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 public class GoverningAgreementRefType {
 
@@ -23,11 +25,9 @@ public class GoverningAgreementRefType {
 
     /**
      * Gets the value of the governingAgreementRef property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getGoverningAgreementRef() {
         return governingAgreementRef;
@@ -35,11 +35,9 @@ public class GoverningAgreementRefType {
 
     /**
      * Sets the value of the governingAgreementRef property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setGoverningAgreementRef(String value) {
         this.governingAgreementRef = value;

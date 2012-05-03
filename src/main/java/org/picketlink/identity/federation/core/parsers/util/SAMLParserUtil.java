@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -66,503 +66,438 @@ import org.w3c.dom.Element;
 
 /**
  * Utility methods for SAML Parser
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 4, 2010
  */
-public class SAMLParserUtil
-{
-    public static KeyInfoType parseKeyInfo(XMLEventReader xmlEventReader) throws ParsingException
-    {
-       KeyInfoType keyInfo = new KeyInfoType();
-       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-       StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.KEYINFO);
+public class SAMLParserUtil {
+    public static KeyInfoType parseKeyInfo(XMLEventReader xmlEventReader) throws ParsingException {
+        KeyInfoType keyInfo = new KeyInfoType();
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.KEYINFO);
 
-       XMLEvent xmlEvent = null;
-       String tag = null;
+        XMLEvent xmlEvent = null;
+        String tag = null;
 
-       while (xmlEventReader.hasNext())
-       {
-          xmlEvent = StaxParserUtil.peek(xmlEventReader);
-          if (xmlEvent instanceof EndElement)
-          {
-             tag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
-             if (tag.equals(WSTrustConstants.XMLDSig.KEYINFO))
-             {
-                xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
-                break;
-             }
-             else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
-          }
-          startElement = (StartElement) xmlEvent;
-          tag = StaxParserUtil.getStartElementName(startElement);
-          if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY))
-          {
-             keyInfo.addContent(StaxParserUtil.getDOMElement(xmlEventReader));
-          }
-          else if (tag.equals(WSTrustConstants.XMLDSig.X509DATA))
-          {
-             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-             X509DataType x509 = new X509DataType();
+        while (xmlEventReader.hasNext()) {
+            xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                tag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
+                if (tag.equals(WSTrustConstants.XMLDSig.KEYINFO)) {
+                    xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
+                    break;
+                } else
+                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
+            }
+            startElement = (StartElement) xmlEvent;
+            tag = StaxParserUtil.getStartElementName(startElement);
+            if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY)) {
+                keyInfo.addContent(StaxParserUtil.getDOMElement(xmlEventReader));
+            } else if (tag.equals(WSTrustConstants.XMLDSig.X509DATA)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                X509DataType x509 = new X509DataType();
 
-             // Let us go for the X509 certificate
-             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-             StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.X509CERT);
+                // Let us go for the X509 certificate
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.X509CERT);
 
-             X509CertificateType cert = new X509CertificateType();
-             String certValue = StaxParserUtil.getElementText(xmlEventReader);
-             cert.setEncodedCertificate(certValue.getBytes());
-             x509.add(cert);
+                X509CertificateType cert = new X509CertificateType();
+                String certValue = StaxParserUtil.getElementText(xmlEventReader);
+                cert.setEncodedCertificate(certValue.getBytes());
+                x509.add(cert);
 
-             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-             StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.X509DATA);
-             keyInfo.addContent(x509);
-          }
-          else if (tag.equals(WSTrustConstants.XMLDSig.KEYVALUE))
-          {
-             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-             KeyValueType keyValue = new KeyValueType();
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.X509DATA);
+                keyInfo.addContent(x509);
+            } else if (tag.equals(WSTrustConstants.XMLDSig.KEYVALUE)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                KeyValueType keyValue = new KeyValueType();
 
-             startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-             tag = StaxParserUtil.getStartElementName(startElement);
-             if (tag.equals(WSTrustConstants.XMLDSig.RSA_KEYVALUE))
-             {
-                keyValue.getContent().add(parseRSAKeyValue(xmlEventReader));
-             }
-             else if (tag.equals(WSTrustConstants.XMLDSig.DSA_KEYVALUE))
-             {
-                // TODO: parse the DSA key contents.
-             }
-             else
+                startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+                tag = StaxParserUtil.getStartElementName(startElement);
+                if (tag.equals(WSTrustConstants.XMLDSig.RSA_KEYVALUE)) {
+                    keyValue.getContent().add(parseRSAKeyValue(xmlEventReader));
+                } else if (tag.equals(WSTrustConstants.XMLDSig.DSA_KEYVALUE)) {
+                    // TODO: parse the DSA key contents.
+                } else
+                    throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
+
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.KEYVALUE);
+
+                keyInfo.addContent(keyValue);
+            }
+        }
+        return keyInfo;
+    }
+
+    private static RSAKeyValueType parseRSAKeyValue(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.RSA_KEYVALUE);
+
+        XMLEvent xmlEvent = null;
+        String tag = null;
+
+        RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
+
+        while (xmlEventReader.hasNext()) {
+            xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                tag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
+                if (tag.equals(WSTrustConstants.XMLDSig.RSA_KEYVALUE)) {
+                    xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
+                    break;
+                } else
+                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
+            }
+
+            startElement = (StartElement) xmlEvent;
+            tag = StaxParserUtil.getStartElementName(startElement);
+            if (tag.equals(WSTrustConstants.XMLDSig.MODULUS)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                String text = StaxParserUtil.getElementText(xmlEventReader);
+                rsaKeyValue.setModulus(text.getBytes());
+            } else if (tag.equals(WSTrustConstants.XMLDSig.EXPONENT)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                String text = StaxParserUtil.getElementText(xmlEventReader);
+                rsaKeyValue.setExponent(text.getBytes());
+            } else
                 throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
-
-             EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-             StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.KEYVALUE);
-
-             keyInfo.addContent(keyValue);
-          }
-       }
-       return keyInfo;
+        }
+        return rsaKeyValue;
     }
-    
-    private static RSAKeyValueType parseRSAKeyValue(XMLEventReader xmlEventReader) throws ParsingException
-    {
-       StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-       StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.RSA_KEYVALUE);
 
-       XMLEvent xmlEvent = null;
-       String tag = null;
+    /**
+     * Parse an {@code AttributeStatementType}
+     *
+     * @param xmlEventReader
+     * @return
+     * @throws ParsingException
+     */
+    public static AttributeStatementType parseAttributeStatement(XMLEventReader xmlEventReader) throws ParsingException {
+        AttributeStatementType attributeStatementType = new AttributeStatementType();
 
-       RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        String ATTRIBSTATEMT = JBossSAMLConstants.ATTRIBUTE_STATEMENT.get();
+        StaxParserUtil.validate(startElement, ATTRIBSTATEMT);
 
-       while (xmlEventReader.hasNext())
-       {
-          xmlEvent = StaxParserUtil.peek(xmlEventReader);
-          if (xmlEvent instanceof EndElement)
-          {
-             tag = StaxParserUtil.getEndElementName((EndElement) xmlEvent);
-             if (tag.equals(WSTrustConstants.XMLDSig.RSA_KEYVALUE))
-             {
-                xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(endElement, JBossSAMLConstants.ATTRIBUTE_STATEMENT.get());
                 break;
-             }
-             else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
-          }
-
-          startElement = (StartElement) xmlEvent;
-          tag = StaxParserUtil.getStartElementName(startElement);
-          if (tag.equals(WSTrustConstants.XMLDSig.MODULUS))
-          {
-             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-             String text = StaxParserUtil.getElementText(xmlEventReader);
-             rsaKeyValue.setModulus(text.getBytes());
-          }
-          else if (tag.equals(WSTrustConstants.XMLDSig.EXPONENT))
-          {
-             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-             String text = StaxParserUtil.getElementText(xmlEventReader);
-             rsaKeyValue.setExponent(text.getBytes());
-          }
-          else
-             throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
-       }
-       return rsaKeyValue;
+            }
+            // Get the next start element
+            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            String tag = startElement.getName().getLocalPart();
+            if (JBossSAMLConstants.ATTRIBUTE.get().equals(tag)) {
+                AttributeType attribute = parseAttribute(xmlEventReader);
+                attributeStatementType.addAttribute(new ASTChoiceType(attribute));
+            } else
+                throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
+        }
+        return attributeStatementType;
     }
-   /**
-    * Parse an {@code AttributeStatementType}
-    * @param xmlEventReader
-    * @return
-    * @throws ParsingException
-    */
-   public static AttributeStatementType parseAttributeStatement(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      AttributeStatementType attributeStatementType = new AttributeStatementType();
 
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      String ATTRIBSTATEMT = JBossSAMLConstants.ATTRIBUTE_STATEMENT.get();
-      StaxParserUtil.validate(startElement, ATTRIBSTATEMT);
+    /**
+     * Parse an {@code AttributeType}
+     *
+     * @param xmlEventReader
+     * @return
+     * @throws ParsingException
+     */
+    public static AttributeType parseAttribute(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, JBossSAMLConstants.ATTRIBUTE.get());
+        AttributeType attributeType = null;
 
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate(endElement, JBossSAMLConstants.ATTRIBUTE_STATEMENT.get());
-            break;
-         }
-         //Get the next start element
-         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         String tag = startElement.getName().getLocalPart();
-         if (JBossSAMLConstants.ATTRIBUTE.get().equals(tag))
-         {
-            AttributeType attribute = parseAttribute(xmlEventReader);
-            attributeStatementType.addAttribute(new ASTChoiceType(attribute));
-         }
-         else
-            throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
-      }
-      return attributeStatementType;
-   }
+        Attribute name = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME.get()));
+        if (name == null)
+            throw new RuntimeException(REQD_ATTRIBUTE + "Name");
+        attributeType = new AttributeType(StaxParserUtil.getAttributeValue(name));
 
-   /**
-    * Parse an {@code AttributeType}
-    * @param xmlEventReader
-    * @return
-    * @throws ParsingException
-    */
-   public static AttributeType parseAttribute(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.ATTRIBUTE.get());
-      AttributeType attributeType = null;
+        parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.ATTRIBUTE.get(), attributeType);
 
-      Attribute name = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME.get()));
-      if (name == null)
-         throw new RuntimeException(REQD_ATTRIBUTE + "Name");
-      attributeType = new AttributeType(StaxParserUtil.getAttributeValue(name));
+        return attributeType;
+    }
 
-      parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.ATTRIBUTE.get(), attributeType);
+    /**
+     * Parse an {@code AttributeType}
+     *
+     * @param xmlEventReader
+     * @throws ParsingException
+     */
+    public static void parseAttributeType(XMLEventReader xmlEventReader, StartElement startElement, String rootTag,
+            AttributeType attributeType) throws ParsingException {
+        // Look for X500 Encoding
+        QName x500EncodingName = new QName(JBossSAMLURIConstants.X500_NSURI.get(), JBossSAMLConstants.ENCODING.get(),
+                JBossSAMLURIConstants.X500_PREFIX.get());
+        Attribute x500EncodingAttr = startElement.getAttributeByName(x500EncodingName);
 
-      return attributeType;
-   }
+        if (x500EncodingAttr != null) {
+            attributeType.getOtherAttributes().put(x500EncodingAttr.getName(),
+                    StaxParserUtil.getAttributeValue(x500EncodingAttr));
+        }
 
-   /**
-    * Parse an {@code AttributeType}
-    * @param xmlEventReader 
-    * @throws ParsingException
-    */
-   public static void parseAttributeType(XMLEventReader xmlEventReader, StartElement startElement, String rootTag,
-         AttributeType attributeType) throws ParsingException
-   {
-      //Look for X500 Encoding
-      QName x500EncodingName = new QName(JBossSAMLURIConstants.X500_NSURI.get(), JBossSAMLConstants.ENCODING.get(),
-            JBossSAMLURIConstants.X500_PREFIX.get());
-      Attribute x500EncodingAttr = startElement.getAttributeByName(x500EncodingName);
+        Attribute friendlyName = startElement.getAttributeByName(new QName(JBossSAMLConstants.FRIENDLY_NAME.get()));
+        if (friendlyName != null)
+            attributeType.setFriendlyName(StaxParserUtil.getAttributeValue(friendlyName));
 
-      if (x500EncodingAttr != null)
-      {
-         attributeType.getOtherAttributes().put(x500EncodingAttr.getName(),
-               StaxParserUtil.getAttributeValue(x500EncodingAttr));
-      }
+        Attribute nameFormat = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME_FORMAT.get()));
+        if (nameFormat != null)
+            attributeType.setNameFormat(StaxParserUtil.getAttributeValue(nameFormat));
 
-      Attribute friendlyName = startElement.getAttributeByName(new QName(JBossSAMLConstants.FRIENDLY_NAME.get()));
-      if (friendlyName != null)
-         attributeType.setFriendlyName(StaxParserUtil.getAttributeValue(friendlyName));
-
-      Attribute nameFormat = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME_FORMAT.get()));
-      if (nameFormat != null)
-         attributeType.setNameFormat(StaxParserUtil.getAttributeValue(nameFormat));
-
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
-            if (StaxParserUtil.matches(end, rootTag))
-               break;
-         }
-         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         if (startElement == null)
-            break;
-         String tag = StaxParserUtil.getStartElementName(startElement);
-
-         if (JBossSAMLConstants.ATTRIBUTE.get().equals(tag))
-            break;
-
-         if (JBossSAMLConstants.ATTRIBUTE_VALUE.get().equals(tag))
-         {
-            Object attributeValue = parseAttributeValue(xmlEventReader);
-            attributeType.addAttributeValue(attributeValue);
-         }
-         else
-            throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
-      }
-   }
-
-   /**
-    * Parse Attribute value
-    * @param xmlEventReader
-    * @return
-    * @throws ParsingException
-    */
-   public static Object parseAttributeValue(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.ATTRIBUTE_VALUE.get());
-
-      Attribute type = startElement.getAttributeByName(new QName(JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xsi"));
-      if (type == null)
-      {
-         return StaxParserUtil.getElementText(xmlEventReader);
-      }
-
-      String typeValue = StaxParserUtil.getAttributeValue(type);
-      if (typeValue.contains(":string"))
-      {
-         return StaxParserUtil.getElementText(xmlEventReader);
-      }
-      else if (typeValue.contains(":anyType"))
-      {
-         //TODO: for now assume that it is a text value that can be parsed and set as the attribute value
-         return StaxParserUtil.getElementText(xmlEventReader);
-      }
-
-      throw new RuntimeException(UNKNOWN_XSI + typeValue);
-   }
-
-   /**
-    * Parse the AuthnStatement inside the assertion
-    * @param xmlEventReader
-    * @return
-    * @throws ParsingException
-    */
-   public static AuthnStatementType parseAuthnStatement(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      String AUTHNSTATEMENT = JBossSAMLConstants.AUTHN_STATEMENT.get();
-      StaxParserUtil.validate(startElement, AUTHNSTATEMENT);
-
-      Attribute authnInstant = startElement.getAttributeByName(new QName("AuthnInstant"));
-      if (authnInstant == null)
-         throw new RuntimeException(REQD_ATTRIBUTE + "AuthnInstant");
-
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(authnInstant));
-      AuthnStatementType authnStatementType = new AuthnStatementType(issueInstant);
-
-      Attribute sessionIndex = startElement.getAttributeByName(new QName("SessionIndex"));
-      if (sessionIndex != null)
-         authnStatementType.setSessionIndex(StaxParserUtil.getAttributeValue(sessionIndex));
-
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
-
-         if (xmlEvent instanceof EndElement)
-         {
-            xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
-            EndElement endElement = (EndElement) xmlEvent;
-            String endElementTag = StaxParserUtil.getEndElementName(endElement);
-            if (endElementTag.equals(AUTHNSTATEMENT))
-               break;
-            else
-               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
-         }
-         startElement = null;
-
-         if (xmlEvent instanceof StartElement)
-         {
-            startElement = (StartElement) xmlEvent;
-         }
-         else
-         {
-            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         }
-         if (startElement == null)
-            break;
-
-         String tag = StaxParserUtil.getStartElementName(startElement);
-
-         if (JBossSAMLConstants.SUBJECT_LOCALITY.get().equals(tag))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            SubjectLocalityType subjectLocalityType = new SubjectLocalityType();
-            Attribute address = startElement.getAttributeByName(new QName(JBossSAMLConstants.ADDRESS.get()));
-            if (address != null)
-            {
-               subjectLocalityType.setAddress(StaxParserUtil.getAttributeValue(address));
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                EndElement end = StaxParserUtil.getNextEndElement(xmlEventReader);
+                if (StaxParserUtil.matches(end, rootTag))
+                    break;
             }
-            Attribute dns = startElement.getAttributeByName(new QName(JBossSAMLConstants.DNS_NAME.get()));
-            if (dns != null)
-            {
-               subjectLocalityType.setDNSName(StaxParserUtil.getAttributeValue(dns));
-            }
-            authnStatementType.setSubjectLocality(subjectLocalityType);
-            StaxParserUtil.validate(StaxParserUtil.getNextEndElement(xmlEventReader),
-                  JBossSAMLConstants.SUBJECT_LOCALITY.get());
-         }
-         else if (JBossSAMLConstants.AUTHN_CONTEXT.get().equals(tag))
-         {
-            authnStatementType.setAuthnContext(parseAuthnContextType(xmlEventReader));
-         }
-         else
-            throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
-
-      }
-
-      return authnStatementType;
-   }
-
-   /**
-    * Parse the AuthnContext Type inside the AuthnStatement
-    * @param xmlEventReader
-    * @return
-    * @throws ParsingException 
-    */
-   public static AuthnContextType parseAuthnContextType(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      AuthnContextType authnContextType = new AuthnContextType();
-
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.AUTHN_CONTEXT.get());
-      
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent == null)
-            break;
-
-         if (xmlEvent instanceof EndElement)
-         {
-            xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
-            EndElement endElement = (EndElement) xmlEvent;
-            String endElementTag = StaxParserUtil.getEndElementName(endElement);
-            if (endElementTag.equals(JBossSAMLConstants.AUTHN_CONTEXT.get()))
-               break;
-            else
-               throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
-         }
-         startElement = null;
-
-         if (xmlEvent instanceof StartElement)
-         {
-            startElement = (StartElement) xmlEvent;
-         }
-         else
-         {
             startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         }
-         if (startElement == null)
-            break;
+            if (startElement == null)
+                break;
+            String tag = StaxParserUtil.getStartElementName(startElement);
 
-         String tag = StaxParserUtil.getStartElementName(startElement);
-         
-         if (JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION.get().equals(tag))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            
-            Element dom = StaxParserUtil.getDOMElement(xmlEventReader);
+            if (JBossSAMLConstants.ATTRIBUTE.get().equals(tag))
+                break;
 
-            AuthnContextDeclType authnContextDecl = new AuthnContextDeclType(dom);
-            AuthnContextTypeSequence authnContextSequence = authnContextType.new AuthnContextTypeSequence();
-            authnContextSequence.setAuthnContextDecl(authnContextDecl);
-            authnContextType.setSequence(authnContextSequence);
-            
-            EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-            StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION.get());
-         }
-         else if (JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF.get().equals(tag))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            String text = StaxParserUtil.getElementText(xmlEventReader);
+            if (JBossSAMLConstants.ATTRIBUTE_VALUE.get().equals(tag)) {
+                Object attributeValue = parseAttributeValue(xmlEventReader);
+                attributeType.addAttributeValue(attributeValue);
+            } else
+                throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
+        }
+    }
 
-            AuthnContextDeclRefType aAuthnContextDeclType = new AuthnContextDeclRefType(URI.create(text));
-            authnContextType.addURIType(aAuthnContextDeclType);
-         }
-         else if (JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get().equals(tag))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            String text = StaxParserUtil.getElementText(xmlEventReader);
+    /**
+     * Parse Attribute value
+     *
+     * @param xmlEventReader
+     * @return
+     * @throws ParsingException
+     */
+    public static Object parseAttributeValue(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, JBossSAMLConstants.ATTRIBUTE_VALUE.get());
 
-            AuthnContextClassRefType aAuthnContextClassRefType = new AuthnContextClassRefType(URI.create(text));
-            AuthnContextTypeSequence authnContextSequence = authnContextType.new AuthnContextTypeSequence();
-            authnContextSequence.setClassRef(aAuthnContextClassRefType);
+        Attribute type = startElement.getAttributeByName(new QName(JBossSAMLURIConstants.XSI_NSURI.get(), "type", "xsi"));
+        if (type == null) {
+            return StaxParserUtil.getElementText(xmlEventReader);
+        }
 
-            authnContextType.setSequence(authnContextSequence);
-         }
-         else
-            throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
-      }
+        String typeValue = StaxParserUtil.getAttributeValue(type);
+        if (typeValue.contains(":string")) {
+            return StaxParserUtil.getElementText(xmlEventReader);
+        } else if (typeValue.contains(":anyType")) {
+            // TODO: for now assume that it is a text value that can be parsed and set as the attribute value
+            return StaxParserUtil.getElementText(xmlEventReader);
+        }
 
-      return authnContextType;
-   }
+        throw new RuntimeException(UNKNOWN_XSI + typeValue);
+    }
 
-   /**
-    * Parse a {@code NameIDType}
-    * @param xmlEventReader
-    * @return
-    * @throws ParsingException
-    */
-   public static NameIDType parseNameIDType(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      StartElement nameIDElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      NameIDType nameID = new NameIDType();
+    /**
+     * Parse the AuthnStatement inside the assertion
+     *
+     * @param xmlEventReader
+     * @return
+     * @throws ParsingException
+     */
+    public static AuthnStatementType parseAuthnStatement(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        String AUTHNSTATEMENT = JBossSAMLConstants.AUTHN_STATEMENT.get();
+        StaxParserUtil.validate(startElement, AUTHNSTATEMENT);
 
-      Attribute nameQualifier = nameIDElement.getAttributeByName(new QName(JBossSAMLConstants.NAME_QUALIFIER.get()));
-      if (nameQualifier != null)
-      {
-         nameID.setNameQualifier(StaxParserUtil.getAttributeValue(nameQualifier));
-      }
+        Attribute authnInstant = startElement.getAttributeByName(new QName("AuthnInstant"));
+        if (authnInstant == null)
+            throw new RuntimeException(REQD_ATTRIBUTE + "AuthnInstant");
 
-      Attribute format = nameIDElement.getAttributeByName(new QName(JBossSAMLConstants.FORMAT.get()));
-      if (format != null)
-      {
-         nameID.setFormat(URI.create(StaxParserUtil.getAttributeValue(format)));
-      }
+        XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(authnInstant));
+        AuthnStatementType authnStatementType = new AuthnStatementType(issueInstant);
 
-      Attribute spProvidedID = nameIDElement.getAttributeByName(new QName(JBossSAMLConstants.SP_PROVIDED_ID.get()));
-      if (spProvidedID != null)
-      {
-         nameID.setSPProvidedID(StaxParserUtil.getAttributeValue(spProvidedID));
-      }
+        Attribute sessionIndex = startElement.getAttributeByName(new QName("SessionIndex"));
+        if (sessionIndex != null)
+            authnStatementType.setSessionIndex(StaxParserUtil.getAttributeValue(sessionIndex));
 
-      Attribute spNameQualifier = nameIDElement
-            .getAttributeByName(new QName(JBossSAMLConstants.SP_NAME_QUALIFIER.get()));
-      if (spNameQualifier != null)
-      {
-         nameID.setSPNameQualifier(StaxParserUtil.getAttributeValue(spNameQualifier));
-      }
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
 
-      String nameIDValue = StaxParserUtil.getElementText(xmlEventReader);
-      nameID.setValue(nameIDValue);
+            if (xmlEvent instanceof EndElement) {
+                xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
+                EndElement endElement = (EndElement) xmlEvent;
+                String endElementTag = StaxParserUtil.getEndElementName(endElement);
+                if (endElementTag.equals(AUTHNSTATEMENT))
+                    break;
+                else
+                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
+            }
+            startElement = null;
 
-      return nameID;
-   }
+            if (xmlEvent instanceof StartElement) {
+                startElement = (StartElement) xmlEvent;
+            } else {
+                startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            }
+            if (startElement == null)
+                break;
 
-   /**
-    * Parse a space delimited list of strings
-    * @param startElement
-    * @return
-    */
-   public static List<String> parseProtocolEnumeration(StartElement startElement)
-   {
-      List<String> protocolEnum = new ArrayList<String>();
-      Attribute proto = startElement
-            .getAttributeByName(new QName(JBossSAMLConstants.PROTOCOL_SUPPORT_ENUMERATION.get()));
-      String val = StaxParserUtil.getAttributeValue(proto);
-      if (StringUtil.isNotNull(val))
-      {
-         StringTokenizer st = new StringTokenizer(val);
-         while (st.hasMoreTokens())
-         {
-            protocolEnum.add(st.nextToken());
-         }
+            String tag = StaxParserUtil.getStartElementName(startElement);
 
-      }
-      return protocolEnum;
-   }
+            if (JBossSAMLConstants.SUBJECT_LOCALITY.get().equals(tag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                SubjectLocalityType subjectLocalityType = new SubjectLocalityType();
+                Attribute address = startElement.getAttributeByName(new QName(JBossSAMLConstants.ADDRESS.get()));
+                if (address != null) {
+                    subjectLocalityType.setAddress(StaxParserUtil.getAttributeValue(address));
+                }
+                Attribute dns = startElement.getAttributeByName(new QName(JBossSAMLConstants.DNS_NAME.get()));
+                if (dns != null) {
+                    subjectLocalityType.setDNSName(StaxParserUtil.getAttributeValue(dns));
+                }
+                authnStatementType.setSubjectLocality(subjectLocalityType);
+                StaxParserUtil.validate(StaxParserUtil.getNextEndElement(xmlEventReader),
+                        JBossSAMLConstants.SUBJECT_LOCALITY.get());
+            } else if (JBossSAMLConstants.AUTHN_CONTEXT.get().equals(tag)) {
+                authnStatementType.setAuthnContext(parseAuthnContextType(xmlEventReader));
+            } else
+                throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
+
+        }
+
+        return authnStatementType;
+    }
+
+    /**
+     * Parse the AuthnContext Type inside the AuthnStatement
+     *
+     * @param xmlEventReader
+     * @return
+     * @throws ParsingException
+     */
+    public static AuthnContextType parseAuthnContextType(XMLEventReader xmlEventReader) throws ParsingException {
+        AuthnContextType authnContextType = new AuthnContextType();
+
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, JBossSAMLConstants.AUTHN_CONTEXT.get());
+
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
+
+            if (xmlEvent instanceof EndElement) {
+                xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
+                EndElement endElement = (EndElement) xmlEvent;
+                String endElementTag = StaxParserUtil.getEndElementName(endElement);
+                if (endElementTag.equals(JBossSAMLConstants.AUTHN_CONTEXT.get()))
+                    break;
+                else
+                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
+            }
+            startElement = null;
+
+            if (xmlEvent instanceof StartElement) {
+                startElement = (StartElement) xmlEvent;
+            } else {
+                startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            }
+            if (startElement == null)
+                break;
+
+            String tag = StaxParserUtil.getStartElementName(startElement);
+
+            if (JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION.get().equals(tag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+
+                Element dom = StaxParserUtil.getDOMElement(xmlEventReader);
+
+                AuthnContextDeclType authnContextDecl = new AuthnContextDeclType(dom);
+                AuthnContextTypeSequence authnContextSequence = authnContextType.new AuthnContextTypeSequence();
+                authnContextSequence.setAuthnContextDecl(authnContextDecl);
+                authnContextType.setSequence(authnContextSequence);
+
+                EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                StaxParserUtil.validate(endElement, JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION.get());
+            } else if (JBossSAMLConstants.AUTHN_CONTEXT_DECLARATION_REF.get().equals(tag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                String text = StaxParserUtil.getElementText(xmlEventReader);
+
+                AuthnContextDeclRefType aAuthnContextDeclType = new AuthnContextDeclRefType(URI.create(text));
+                authnContextType.addURIType(aAuthnContextDeclType);
+            } else if (JBossSAMLConstants.AUTHN_CONTEXT_CLASS_REF.get().equals(tag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                String text = StaxParserUtil.getElementText(xmlEventReader);
+
+                AuthnContextClassRefType aAuthnContextClassRefType = new AuthnContextClassRefType(URI.create(text));
+                AuthnContextTypeSequence authnContextSequence = authnContextType.new AuthnContextTypeSequence();
+                authnContextSequence.setClassRef(aAuthnContextClassRefType);
+
+                authnContextType.setSequence(authnContextSequence);
+            } else
+                throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
+        }
+
+        return authnContextType;
+    }
+
+    /**
+     * Parse a {@code NameIDType}
+     *
+     * @param xmlEventReader
+     * @return
+     * @throws ParsingException
+     */
+    public static NameIDType parseNameIDType(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement nameIDElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        NameIDType nameID = new NameIDType();
+
+        Attribute nameQualifier = nameIDElement.getAttributeByName(new QName(JBossSAMLConstants.NAME_QUALIFIER.get()));
+        if (nameQualifier != null) {
+            nameID.setNameQualifier(StaxParserUtil.getAttributeValue(nameQualifier));
+        }
+
+        Attribute format = nameIDElement.getAttributeByName(new QName(JBossSAMLConstants.FORMAT.get()));
+        if (format != null) {
+            nameID.setFormat(URI.create(StaxParserUtil.getAttributeValue(format)));
+        }
+
+        Attribute spProvidedID = nameIDElement.getAttributeByName(new QName(JBossSAMLConstants.SP_PROVIDED_ID.get()));
+        if (spProvidedID != null) {
+            nameID.setSPProvidedID(StaxParserUtil.getAttributeValue(spProvidedID));
+        }
+
+        Attribute spNameQualifier = nameIDElement.getAttributeByName(new QName(JBossSAMLConstants.SP_NAME_QUALIFIER.get()));
+        if (spNameQualifier != null) {
+            nameID.setSPNameQualifier(StaxParserUtil.getAttributeValue(spNameQualifier));
+        }
+
+        String nameIDValue = StaxParserUtil.getElementText(xmlEventReader);
+        nameID.setValue(nameIDValue);
+
+        return nameID;
+    }
+
+    /**
+     * Parse a space delimited list of strings
+     *
+     * @param startElement
+     * @return
+     */
+    public static List<String> parseProtocolEnumeration(StartElement startElement) {
+        List<String> protocolEnum = new ArrayList<String>();
+        Attribute proto = startElement.getAttributeByName(new QName(JBossSAMLConstants.PROTOCOL_SUPPORT_ENUMERATION.get()));
+        String val = StaxParserUtil.getAttributeValue(proto);
+        if (StringUtil.isNotNull(val)) {
+            StringTokenizer st = new StringTokenizer(val);
+            while (st.hasMoreTokens()) {
+                protocolEnum.add(st.nextToken());
+            }
+
+        }
+        return protocolEnum;
+    }
 }

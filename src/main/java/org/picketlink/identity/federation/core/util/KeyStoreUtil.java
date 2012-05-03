@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -42,144 +42,140 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
  * Utility to handle Java Keystore
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 12, 2009
  */
-public class KeyStoreUtil
-{
-   /**
-    * Get the KeyStore
-    * @param keyStoreFile
-    * @param storePass
-    * @return
-    * @throws GeneralSecurityException
-    * @throws IOException
-    */
-   public static KeyStore getKeyStore(File keyStoreFile, char[] storePass) throws GeneralSecurityException, IOException
-   {
-      FileInputStream fis = new FileInputStream(keyStoreFile);
-      return getKeyStore(fis, storePass);
-   }
+public class KeyStoreUtil {
+    /**
+     * Get the KeyStore
+     *
+     * @param keyStoreFile
+     * @param storePass
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static KeyStore getKeyStore(File keyStoreFile, char[] storePass) throws GeneralSecurityException, IOException {
+        FileInputStream fis = new FileInputStream(keyStoreFile);
+        return getKeyStore(fis, storePass);
+    }
 
-   /**
-    * Get the Keystore given the url to the keystore file as a string
-    * @param fileURL
-    * @param storePass 
-    * @return
-    * @throws GeneralSecurityException
-    * @throws IOException
-    */
-   public static KeyStore getKeyStore(String fileURL, char[] storePass) throws GeneralSecurityException, IOException
-   {
-      if (fileURL == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "fileURL");
+    /**
+     * Get the Keystore given the url to the keystore file as a string
+     *
+     * @param fileURL
+     * @param storePass
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static KeyStore getKeyStore(String fileURL, char[] storePass) throws GeneralSecurityException, IOException {
+        if (fileURL == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "fileURL");
 
-      File file = new File(fileURL);
-      FileInputStream fis = new FileInputStream(file);
-      return getKeyStore(fis, storePass);
-   }
+        File file = new File(fileURL);
+        FileInputStream fis = new FileInputStream(file);
+        return getKeyStore(fis, storePass);
+    }
 
-   /**
-    * Get the Keystore given the URL to the keystore
-    * @param url
-    * @param storePass
-    * @return
-    * @throws GeneralSecurityException
-    * @throws IOException
-    */
-   public static KeyStore getKeyStore(URL url, char[] storePass) throws GeneralSecurityException, IOException
-   {
-      if (url == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "url");
+    /**
+     * Get the Keystore given the URL to the keystore
+     *
+     * @param url
+     * @param storePass
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static KeyStore getKeyStore(URL url, char[] storePass) throws GeneralSecurityException, IOException {
+        if (url == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "url");
 
-      return getKeyStore(url.openStream(), storePass);
-   }
+        return getKeyStore(url.openStream(), storePass);
+    }
 
-   /**
-    * Get the Key Store
-    * <b>Note:</b> This method wants the InputStream to be not null. 
-    * @param ksStream
-    * @param storePass
-    * @return
-    * @throws GeneralSecurityException
-    * @throws IOException
-    * @throws IllegalArgumentException if ksStream is null
-    */
-   public static KeyStore getKeyStore(InputStream ksStream, char[] storePass) throws GeneralSecurityException,
-         IOException
-   {
-      if (ksStream == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "InputStream for the KeyStore");
-      KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-      ks.load(ksStream, storePass);
-      return ks;
-   }
+    /**
+     * Get the Key Store <b>Note:</b> This method wants the InputStream to be not null.
+     *
+     * @param ksStream
+     * @param storePass
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     * @throws IllegalArgumentException if ksStream is null
+     */
+    public static KeyStore getKeyStore(InputStream ksStream, char[] storePass) throws GeneralSecurityException, IOException {
+        if (ksStream == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "InputStream for the KeyStore");
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+        ks.load(ksStream, storePass);
+        return ks;
+    }
 
-   /**
-    * Generate a Key Pair
-    * @param algo (RSA, DSA etc)
-    * @return
-    * @throws GeneralSecurityException 
-    */
-   public static KeyPair generateKeyPair(String algo) throws GeneralSecurityException
-   {
-      KeyPairGenerator kpg = KeyPairGenerator.getInstance(algo);
-      return kpg.genKeyPair();
-   }
+    /**
+     * Generate a Key Pair
+     *
+     * @param algo (RSA, DSA etc)
+     * @return
+     * @throws GeneralSecurityException
+     */
+    public static KeyPair generateKeyPair(String algo) throws GeneralSecurityException {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance(algo);
+        return kpg.genKeyPair();
+    }
 
-   /**
-    * Get the Public Key from the keystore
-    * @param ks
-    * @param alias
-    * @param password
-    * @return 
-    * @throws GeneralSecurityException  
-    */
-   public static PublicKey getPublicKey(KeyStore ks, String alias, char[] password) throws KeyStoreException,
-         NoSuchAlgorithmException, GeneralSecurityException
-   {
-      PublicKey publicKey = null;
+    /**
+     * Get the Public Key from the keystore
+     *
+     * @param ks
+     * @param alias
+     * @param password
+     * @return
+     * @throws GeneralSecurityException
+     */
+    public static PublicKey getPublicKey(KeyStore ks, String alias, char[] password) throws KeyStoreException,
+            NoSuchAlgorithmException, GeneralSecurityException {
+        PublicKey publicKey = null;
 
-      // Get private key
-      Key key = ks.getKey(alias, password);
-      if (key instanceof PrivateKey)
-      {
-         // Get certificate of public key
-         Certificate cert = ks.getCertificate(alias);
+        // Get private key
+        Key key = ks.getKey(alias, password);
+        if (key instanceof PrivateKey) {
+            // Get certificate of public key
+            Certificate cert = ks.getCertificate(alias);
 
-         // Get public key
-         publicKey = cert.getPublicKey();
-      }
-      // if alias is a certificate alias, get the public key from the certificate.
-      if (publicKey == null)
-      {
-         Certificate cert = ks.getCertificate(alias);
-         if (cert != null)
+            // Get public key
             publicKey = cert.getPublicKey();
-      }
-      return publicKey;
-   }
+        }
+        // if alias is a certificate alias, get the public key from the certificate.
+        if (publicKey == null) {
+            Certificate cert = ks.getCertificate(alias);
+            if (cert != null)
+                publicKey = cert.getPublicKey();
+        }
+        return publicKey;
+    }
 
-   /**
-    * Add a certificate to the KeyStore
-    * @param keystoreFile
-    * @param storePass
-    * @param alias
-    * @param cert
-    * @throws GeneralSecurityException
-    * @throws IOException
-    */
-   public static void addCertificate(File keystoreFile, char[] storePass, String alias, Certificate cert)
-         throws GeneralSecurityException, IOException
-   {
-      KeyStore keystore = getKeyStore(keystoreFile, storePass);
+    /**
+     * Add a certificate to the KeyStore
+     *
+     * @param keystoreFile
+     * @param storePass
+     * @param alias
+     * @param cert
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
+    public static void addCertificate(File keystoreFile, char[] storePass, String alias, Certificate cert)
+            throws GeneralSecurityException, IOException {
+        KeyStore keystore = getKeyStore(keystoreFile, storePass);
 
-      // Add the certificate
-      keystore.setCertificateEntry(alias, cert);
+        // Add the certificate
+        keystore.setCertificateEntry(alias, cert);
 
-      // Save the new keystore contents
-      FileOutputStream out = new FileOutputStream(keystoreFile);
-      keystore.store(out, storePass);
-      out.close();
-   }
+        // Save the new keystore contents
+        FileOutputStream out = new FileOutputStream(keystoreFile);
+        keystore.store(out, storePass);
+        out.close();
+    }
 }

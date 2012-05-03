@@ -1,12 +1,12 @@
 package org.picketlink.identity.federation.saml.v2.profiles.attribute.dce;
 
-
-
 /**
- * <p>Java class for DCEValueType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for DCEValueType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="DCEValueType">
  *   &lt;simpleContent>
@@ -17,22 +17,20 @@ package org.picketlink.identity.federation.saml.v2.profiles.attribute.dce;
  *   &lt;/simpleContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class DCEValueType {
- 
-    protected String value; 
-    protected String realm; 
+
+    protected String value;
+    protected String realm;
     protected String friendlyName;
 
     /**
      * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getValue() {
         return value;
@@ -40,11 +38,9 @@ public class DCEValueType {
 
     /**
      * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setValue(String value) {
         this.value = value;
@@ -52,11 +48,9 @@ public class DCEValueType {
 
     /**
      * Gets the value of the realm property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getRealm() {
         return realm;
@@ -64,11 +58,9 @@ public class DCEValueType {
 
     /**
      * Sets the value of the realm property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setRealm(String value) {
         this.realm = value;
@@ -76,11 +68,9 @@ public class DCEValueType {
 
     /**
      * Gets the value of the friendlyName property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getFriendlyName() {
         return friendlyName;
@@ -88,11 +78,9 @@ public class DCEValueType {
 
     /**
      * Sets the value of the friendlyName property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setFriendlyName(String value) {
         this.friendlyName = value;

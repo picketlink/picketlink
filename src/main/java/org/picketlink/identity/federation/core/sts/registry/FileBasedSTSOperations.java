@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,54 +29,49 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
  * A base class for file based STS operations
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 4, 2011
  */
-public abstract class FileBasedSTSOperations
-{
-   private static Logger logger = Logger.getLogger(FileBasedSTSOperations.class);
+public abstract class FileBasedSTSOperations {
+    private static Logger logger = Logger.getLogger(FileBasedSTSOperations.class);
 
-   protected File directory;
+    protected File directory;
 
-   public FileBasedSTSOperations()
-   {
-      // use the default location registry file location.
-      StringBuilder builder = new StringBuilder();
-      builder.append(System.getProperty("user.home"));
-      builder.append(System.getProperty("file.separator") + "picketlink-store");
-      builder.append(System.getProperty("file.separator") + "sts");
+    public FileBasedSTSOperations() {
+        // use the default location registry file location.
+        StringBuilder builder = new StringBuilder();
+        builder.append(System.getProperty("user.home"));
+        builder.append(System.getProperty("file.separator") + "picketlink-store");
+        builder.append(System.getProperty("file.separator") + "sts");
 
-      // check if the $HOME/picketlink-store/sts directory exists.
-      directory = new File(builder.toString());
-      if (!directory.exists())
-         directory.mkdirs();
-   }
+        // check if the $HOME/picketlink-store/sts directory exists.
+        directory = new File(builder.toString());
+        if (!directory.exists())
+            directory.mkdirs();
+    }
 
-   /**
-    * Create a file with the provided name
-    * @param fileName
-    * @return {@code File} handle
-    */
-   protected File create(String fileName)
-   {
-      if (fileName == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "file name");
+    /**
+     * Create a file with the provided name
+     *
+     * @param fileName
+     * @return {@code File} handle
+     */
+    protected File create(String fileName) {
+        if (fileName == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "file name");
 
-      // check if the specified file exists. If not, create it.
-      File createdFile = new File(fileName);
-      if (!createdFile.exists())
-      {
-         try
-         {
-            createdFile.createNewFile();
-         }
-         catch (IOException ioe)
-         {
-            if (logger.isDebugEnabled())
-               logger.debug("Error creating file: " + ioe.getMessage());
-            ioe.printStackTrace();
-         }
-      }
-      return createdFile;
-   }
+        // check if the specified file exists. If not, create it.
+        File createdFile = new File(fileName);
+        if (!createdFile.exists()) {
+            try {
+                createdFile.createNewFile();
+            } catch (IOException ioe) {
+                if (logger.isDebugEnabled())
+                    logger.debug("Error creating file: " + ioe.getMessage());
+                ioe.printStackTrace();
+            }
+        }
+        return createdFile;
+    }
 }

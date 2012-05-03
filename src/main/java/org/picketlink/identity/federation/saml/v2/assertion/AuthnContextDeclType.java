@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,57 +25,50 @@ import java.io.Serializable;
 
 /**
  * Type that represents an AuthnContextDecl
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Nov 24, 2010
  */
-public class AuthnContextDeclType implements Serializable
-{
-   private static final long serialVersionUID = 1L;
+public class AuthnContextDeclType implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-   private Object value;
+    private Object value;
 
-   public AuthnContextDeclType( Object value )
-   { 
-      this.value = value;
-   }
+    public AuthnContextDeclType(Object value) {
+        this.value = value;
+    }
 
-   public Object getValue()
-   {
-      return value;
-   }
+    public Object getValue() {
+        return value;
+    }
 
-   @Override
-   public String toString()
-   {
-      return "AuthnContextDeclType [value=" + value + "]";
-   }
+    @Override
+    public String toString() {
+        return "AuthnContextDeclType [value=" + value + "]";
+    }
 
-   @Override
-   public int hashCode()
-   {
-      final int prime = 31;
-      int result = 1;
-      result = prime * result + ((value == null) ? 0 : value.hashCode());
-      return result;
-   }
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
 
-   @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-         return true;
-      if (obj == null)
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      AuthnContextDeclType other = (AuthnContextDeclType) obj;
-      if (value == null)
-      {
-         if (other.value != null)
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
             return false;
-      }
-      else if (!value.equals(other.value))
-         return false;
-      return true;
-   }
+        if (getClass() != obj.getClass())
+            return false;
+        AuthnContextDeclType other = (AuthnContextDeclType) obj;
+        if (value == null) {
+            if (other.value != null)
+                return false;
+        } else if (!value.equals(other.value))
+            return false;
+        return true;
+    }
 }

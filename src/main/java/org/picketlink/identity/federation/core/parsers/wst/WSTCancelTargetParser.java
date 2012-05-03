@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,43 +34,37 @@ import org.picketlink.identity.federation.ws.trust.CancelTargetType;
 
 /**
  * Stax parser for the wst:CancelTarget element
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 13, 2010
  */
-public class WSTCancelTargetParser implements ParserNamespaceSupport
-{
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      CancelTargetType cancelTarget = new CancelTargetType();
-      StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-      // null start element indicates that the token to be canceled hasn't been specified.
-      if (startElement == null)
-      {
-         throw new ParsingException(ErrorCodes.UNABLE_PARSING_NULL_TOKEN);
-      }
-      // this is an unknown type - parse using the transformer.
-      try
-      {
-         cancelTarget.add(StaxParserUtil.getDOMElement(xmlEventReader));
-      }
-      catch (Exception e)
-      {
-         throw new ParsingException(ErrorCodes.PARSING_ERROR + e.getMessage(), e);
-      }
-      return cancelTarget;
-   }
+public class WSTCancelTargetParser implements ParserNamespaceSupport {
+    /**
+     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     */
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        CancelTargetType cancelTarget = new CancelTargetType();
+        StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+        // null start element indicates that the token to be canceled hasn't been specified.
+        if (startElement == null) {
+            throw new ParsingException(ErrorCodes.UNABLE_PARSING_NULL_TOKEN);
+        }
+        // this is an unknown type - parse using the transformer.
+        try {
+            cancelTarget.add(StaxParserUtil.getDOMElement(xmlEventReader));
+        } catch (Exception e) {
+            throw new ParsingException(ErrorCodes.PARSING_ERROR + e.getMessage(), e);
+        }
+        return cancelTarget;
+    }
 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
-   public boolean supports(QName qname)
-   {
-      String nsURI = qname.getNamespaceURI();
-      String localPart = qname.getLocalPart();
+    /**
+     * @see {@link ParserNamespaceSupport#supports(QName)}
+     */
+    public boolean supports(QName qname) {
+        String nsURI = qname.getNamespaceURI();
+        String localPart = qname.getLocalPart();
 
-      return WSTrustConstants.BASE_NAMESPACE.equals(nsURI) && WSTrustConstants.CANCEL_TARGET.equals(localPart);
-   }
+        return WSTrustConstants.BASE_NAMESPACE.equals(nsURI) && WSTrustConstants.CANCEL_TARGET.equals(localPart);
+    }
 }

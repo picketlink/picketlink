@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,12 +28,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
- * <p>Java class for EvidenceType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for EvidenceType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="EvidenceType">
  *   &lt;complexContent>
@@ -48,87 +49,77 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class EvidenceType implements Serializable
-{
-   private static final long serialVersionUID = 1L;
-   protected List<ChoiceType> evidences = new ArrayList<ChoiceType>();
+ *
+ *
+ */
+public class EvidenceType implements Serializable {
+    private static final long serialVersionUID = 1L;
+    protected List<ChoiceType> evidences = new ArrayList<ChoiceType>();
 
-   /**
-    * Add an evidence
-    * @param evidence
-    */
-   public void addEvidence( ChoiceType evidence )
-   {
-      evidences.add( evidence );
-   }
-   
-   /**
-    * Remove an evidence
-    * @param evidence
-    */
-   public void removeEvidence( ChoiceType evidence )
-   {
-      evidences.remove( evidence );
-   }
+    /**
+     * Add an evidence
+     *
+     * @param evidence
+     */
+    public void addEvidence(ChoiceType evidence) {
+        evidences.add(evidence);
+    }
 
-   /**
-    * Get the list of evidences as a read only list
-    * @return
-    */
-   public List<ChoiceType> evidences()
-   {
-      return Collections.unmodifiableList( evidences );
-   }
+    /**
+     * Remove an evidence
+     *
+     * @param evidence
+     */
+    public void removeEvidence(ChoiceType evidence) {
+        evidences.remove(evidence);
+    }
 
-   public static class ChoiceType implements Serializable
-   {
-      private static final long serialVersionUID = 1L;
-      private String AssertionIDRef;
-      private URI AssertionURIRef;
-      private AssertionType assertion;
-      private EncryptedAssertionType encryptedAssertion;
+    /**
+     * Get the list of evidences as a read only list
+     *
+     * @return
+     */
+    public List<ChoiceType> evidences() {
+        return Collections.unmodifiableList(evidences);
+    }
 
-      public ChoiceType(String assertionIDRef)
-      { 
-         AssertionIDRef = assertionIDRef;
-      }
+    public static class ChoiceType implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private String AssertionIDRef;
+        private URI AssertionURIRef;
+        private AssertionType assertion;
+        private EncryptedAssertionType encryptedAssertion;
 
-      public ChoiceType(URI assertionURIRef)
-      { 
-         AssertionURIRef = assertionURIRef;
-      }
+        public ChoiceType(String assertionIDRef) {
+            AssertionIDRef = assertionIDRef;
+        }
 
-      public ChoiceType(AssertionType assertion)
-      { 
-         this.assertion = assertion;
-      }
+        public ChoiceType(URI assertionURIRef) {
+            AssertionURIRef = assertionURIRef;
+        }
 
-      public ChoiceType(EncryptedAssertionType encryptedAssertion)
-      { 
-         this.encryptedAssertion = encryptedAssertion;
-      }
+        public ChoiceType(AssertionType assertion) {
+            this.assertion = assertion;
+        }
 
-      public String getAssertionIDRef()
-      {
-         return AssertionIDRef;
-      }
+        public ChoiceType(EncryptedAssertionType encryptedAssertion) {
+            this.encryptedAssertion = encryptedAssertion;
+        }
 
-      public URI getAssertionURIRef()
-      {
-         return AssertionURIRef;
-      }
+        public String getAssertionIDRef() {
+            return AssertionIDRef;
+        }
 
-      public AssertionType getAssertion()
-      {
-         return assertion;
-      }
+        public URI getAssertionURIRef() {
+            return AssertionURIRef;
+        }
 
-      public EncryptedAssertionType getEncryptedAssertion()
-      {
-         return encryptedAssertion;
-      } 
-   }
+        public AssertionType getAssertion() {
+            return assertion;
+        }
+
+        public EncryptedAssertionType getEncryptedAssertion() {
+            return encryptedAssertion;
+        }
+    }
 }

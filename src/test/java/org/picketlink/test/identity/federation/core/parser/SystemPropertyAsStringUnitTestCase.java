@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,58 +29,47 @@ import org.junit.Test;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
- * Unit Test {@link StringUtil#getSystemPropertyAsString(String)}
- * that parses a string that represents a system property
+ * Unit Test {@link StringUtil#getSystemPropertyAsString(String)} that parses a string that represents a system property
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 22, 2011
  */
-public class SystemPropertyAsStringUnitTestCase
-{
-   @Before
-   public void setup()
-   {
-      System.setProperty("test", "anil");
-      System.setProperty("person", "marcus");
-   }
+public class SystemPropertyAsStringUnitTestCase {
+    @Before
+    public void setup() {
+        System.setProperty("test", "anil");
+        System.setProperty("person", "marcus");
+    }
 
-   @Test
-   public void testSystemProperty() throws Exception
-   {
-      try
-      {
-         assertEquals(null, StringUtil.getSystemPropertyAsString(null));
-         fail("should not have passed");
-      }
-      catch (IllegalArgumentException iae)
-      {
+    @Test
+    public void testSystemProperty() throws Exception {
+        try {
+            assertEquals(null, StringUtil.getSystemPropertyAsString(null));
+            fail("should not have passed");
+        } catch (IllegalArgumentException iae) {
 
-      }
-      catch (Exception e)
-      {
-         fail("unknown ex");
-      }
-      assertEquals("test", StringUtil.getSystemPropertyAsString("test"));
-      assertEquals("test/test", StringUtil.getSystemPropertyAsString("test/test"));
+        } catch (Exception e) {
+            fail("unknown ex");
+        }
+        assertEquals("test", StringUtil.getSystemPropertyAsString("test"));
+        assertEquals("test/test", StringUtil.getSystemPropertyAsString("test/test"));
 
-      assertEquals("anil", StringUtil.getSystemPropertyAsString("${test::something}"));
+        assertEquals("anil", StringUtil.getSystemPropertyAsString("${test::something}"));
 
-      assertEquals("anil", StringUtil.getSystemPropertyAsString("${test}"));
-      assertEquals("test/anil", StringUtil.getSystemPropertyAsString("test/${test}"));
+        assertEquals("anil", StringUtil.getSystemPropertyAsString("${test}"));
+        assertEquals("test/anil", StringUtil.getSystemPropertyAsString("test/${test}"));
 
-      assertEquals("anil:anil:marcus//anil", StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test}"));
+        assertEquals("anil:anil:marcus//anil", StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test}"));
 
-      //Test if any of the parantheses are not correctly closed
-      assertEquals("anil:anil:marcus//${test",
-            StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test"));
+        // Test if any of the parantheses are not correctly closed
+        assertEquals("anil:anil:marcus//${test", StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test"));
 
-      //Test the default values
-      assertEquals("http://something", StringUtil.getSystemPropertyAsString("${dummy::http://something}"));
-      assertEquals("http://something__hi",
-            StringUtil.getSystemPropertyAsString("${dummy::http://something}__${to::hi}"));
-      assertEquals("anil:anil:marcus//anilhi",
-            StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test}${to::hi}"));
-      assertEquals("anil:anil:marcus//anilhihttp://something",
-            StringUtil
-                  .getSystemPropertyAsString("${test}:${test}:${person}//${test}${to::hi}${dummy::http://something}"));
-   }
+        // Test the default values
+        assertEquals("http://something", StringUtil.getSystemPropertyAsString("${dummy::http://something}"));
+        assertEquals("http://something__hi", StringUtil.getSystemPropertyAsString("${dummy::http://something}__${to::hi}"));
+        assertEquals("anil:anil:marcus//anilhi",
+                StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test}${to::hi}"));
+        assertEquals("anil:anil:marcus//anilhihttp://something",
+                StringUtil.getSystemPropertyAsString("${test}:${test}:${person}//${test}${to::hi}${dummy::http://something}"));
+    }
 }

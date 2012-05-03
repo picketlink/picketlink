@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,10 +22,12 @@
 package org.picketlink.identity.federation.ws.trust;
 
 /**
- * <p>Java class for StatusType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for StatusType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="StatusType">
  *   &lt;complexContent>
@@ -38,65 +40,52 @@ package org.picketlink.identity.federation.ws.trust;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class StatusType
-{
+public class StatusType {
 
-   protected String code;
+    protected String code;
 
-   protected String reason;
+    protected String reason;
 
-   /**
-    * Gets the value of the code property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getCode()
-   {
-      return code;
-   }
+    /**
+     * Gets the value of the code property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getCode() {
+        return code;
+    }
 
-   /**
-    * Sets the value of the code property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setCode(String value)
-   {
-      this.code = value;
-   }
+    /**
+     * Sets the value of the code property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setCode(String value) {
+        this.code = value;
+    }
 
-   /**
-    * Gets the value of the reason property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getReason()
-   {
-      return reason;
-   }
+    /**
+     * Gets the value of the reason property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getReason() {
+        return reason;
+    }
 
-   /**
-    * Sets the value of the reason property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setReason(String value)
-   {
-      this.reason = value;
-   }
+    /**
+     * Sets the value of the reason property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setReason(String value) {
+        this.reason = value;
+    }
 }

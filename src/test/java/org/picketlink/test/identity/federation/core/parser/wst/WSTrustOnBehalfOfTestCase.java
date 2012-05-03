@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -42,37 +42,36 @@ import org.w3c.dom.Document;
 
 /**
  * Validate the OnBehalfOf parsing
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 18, 2010
  */
-public class WSTrustOnBehalfOfTestCase
-{
-   @Test
-   public void testOnBehalfOfParsing() throws Exception
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-issue-onbehalfof.xml");
+public class WSTrustOnBehalfOfTestCase {
+    @Test
+    public void testOnBehalfOfParsing() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/wst/wst-issue-onbehalfof.xml");
 
-      WSTrustParser parser = new WSTrustParser();
-      RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
+        WSTrustParser parser = new WSTrustParser();
+        RequestSecurityToken requestToken = (RequestSecurityToken) parser.parse(configStream);
 
-      assertEquals("testcontext", requestToken.getContext());
-      assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
+        assertEquals("testcontext", requestToken.getContext());
+        assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
 
-      OnBehalfOfType onBehalfOf = requestToken.getOnBehalfOf();
-      List<Object> theList = onBehalfOf.getAny();
-      assertNotNull(theList);
-      UsernameTokenType userNameToken = (UsernameTokenType) theList.get(0);
-      assertEquals("id", userNameToken.getId());
-      assertEquals("anotherduke", userNameToken.getUsername().getValue());
+        OnBehalfOfType onBehalfOf = requestToken.getOnBehalfOf();
+        List<Object> theList = onBehalfOf.getAny();
+        assertNotNull(theList);
+        UsernameTokenType userNameToken = (UsernameTokenType) theList.get(0);
+        assertEquals("id", userNameToken.getId());
+        assertEquals("anotherduke", userNameToken.getUsername().getValue());
 
-      //Now for the writing part
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
+        // Now for the writing part
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);
 
-      rstWriter.write(requestToken);
+        rstWriter.write(requestToken);
 
-      Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
-      JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
-   }
+        Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+        JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
 /**
- * <p>Java class for SignatureMethodType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for SignatureMethodType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="SignatureMethodType">
  *   &lt;complexContent>
@@ -44,40 +45,35 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class SignatureMethodType { 
-    protected List<Object> content= new ArrayList<Object>();
+ *
+ *
+ */
+public class SignatureMethodType {
+    protected List<Object> content = new ArrayList<Object>();
     protected String algorithm;
 
-    public void add( Object obj )
-    {
-       this.content.add(obj);
+    public void add(Object obj) {
+        this.content.add(obj);
     }
-    
-    public void remove( Object obj )
-    {
-       this.content.remove( obj );
+
+    public void remove(Object obj) {
+        this.content.remove(obj);
     }
-    
+
     /**
      * Gets the value of the content property.
-     *  
-     * {@link Object }
-     * {@link String }
+     *
+     * {@link Object } {@link String }
      */
-    public List<Object> getContent() { 
-        return Collections.unmodifiableList( this.content );
+    public List<Object> getContent() {
+        return Collections.unmodifiableList(this.content);
     }
 
     /**
      * Gets the value of the algorithm property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getAlgorithm() {
         return algorithm;
@@ -85,11 +81,9 @@ public class SignatureMethodType {
 
     /**
      * Sets the value of the algorithm property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setAlgorithm(String value) {
         this.algorithm = value;

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -22,14 +22,14 @@
 package org.picketlink.identity.federation.saml.v2.protocol;
 
 import java.net.URI;
- 
-
 
 /**
- * <p>Java class for StatusCodeType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for StatusCodeType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="StatusCodeType">
  *   &lt;complexContent>
@@ -42,21 +42,18 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class StatusCodeType 
-{ 
-    protected StatusCodeType statusCode;  
+ *
+ *
+ */
+public class StatusCodeType {
+    protected StatusCodeType statusCode;
     protected URI value;
 
     /**
      * Gets the value of the statusCode property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link StatusCodeType }
-     *     
+     *
+     * @return possible object is {@link StatusCodeType }
+     *
      */
     public StatusCodeType getStatusCode() {
         return statusCode;
@@ -64,11 +61,9 @@ public class StatusCodeType
 
     /**
      * Sets the value of the statusCode property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link StatusCodeType }
-     *     
+     *
+     * @param value allowed object is {@link StatusCodeType }
+     *
      */
     public void setStatusCode(StatusCodeType value) {
         this.statusCode = value;
@@ -76,11 +71,9 @@ public class StatusCodeType
 
     /**
      * Gets the value of the value property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public URI getValue() {
         return value;
@@ -88,14 +81,11 @@ public class StatusCodeType
 
     /**
      * Sets the value of the value property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
-    public void setValue( URI value ) 
-    {
+    public void setValue(URI value) {
         this.value = value;
-    } 
+    }
 }

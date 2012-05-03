@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,10 +26,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <p>Java class for MetadataProviderType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for MetadataProviderType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="MetadataProviderType">
  *   &lt;complexContent>
@@ -42,64 +44,53 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class MetadataProviderType
-{
+public class MetadataProviderType {
 
-   protected List<KeyValueType> option = new ArrayList<KeyValueType>();
+    protected List<KeyValueType> option = new ArrayList<KeyValueType>();
 
-   protected String className;
+    protected String className;
 
-   public void add(KeyValueType kv)
-   {
-      this.option.add(kv);
-   }
+    public void add(KeyValueType kv) {
+        this.option.add(kv);
+    }
 
-   public void remove(KeyValueType kv)
-   {
-      this.option.remove(kv);
-   }
+    public void remove(KeyValueType kv) {
+        this.option.remove(kv);
+    }
 
-   /**
-    * Gets the value of the option property.
-    * 
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link KeyValueType }
-    * 
-    * 
-    */
-   public List<KeyValueType> getOption()
-   {
-      return Collections.unmodifiableList(this.option);
-   }
+    /**
+     * Gets the value of the option property.
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link KeyValueType }
+     *
+     *
+     */
+    public List<KeyValueType> getOption() {
+        return Collections.unmodifiableList(this.option);
+    }
 
-   /**
-    * Gets the value of the className property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getClassName()
-   {
-      return className;
-   }
+    /**
+     * Gets the value of the className property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getClassName() {
+        return className;
+    }
 
-   /**
-    * Sets the value of the className property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setClassName(String value)
-   {
-      this.className = value;
-   }
+    /**
+     * Sets the value of the className property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setClassName(String value) {
+        this.className = value;
+    }
 
 }

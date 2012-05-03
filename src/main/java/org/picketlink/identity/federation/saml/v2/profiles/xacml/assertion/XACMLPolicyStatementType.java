@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,10 +29,12 @@ import org.jboss.security.xacml.core.model.policy.PolicyType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 
 /**
- * <p>Java class for XACMLPolicyStatementType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for XACMLPolicyStatementType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="XACMLPolicyStatementType">
  *   &lt;complexContent>
@@ -45,49 +47,44 @@ import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractTyp
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class XACMLPolicyStatementType
-extends StatementAbstractType
-{
-   private static final long serialVersionUID = 1L;
+ *
+ *
+ */
+public class XACMLPolicyStatementType extends StatementAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   public static class ChoiceType
-   {
-      private PolicyType policy;
-      private PolicySetType policySet;
-      public PolicyType getPolicy()
-      {
-         return policy;
-      }
-      public void setPolicy(PolicyType policy)
-      {
-         this.policy = policy;
-      }
-      public PolicySetType getPolicySet()
-      {
-         return policySet;
-      }
-      public void setPolicySet(PolicySetType policySet)
-      {
-         this.policySet = policySet;
-      } 
-   }
+    public static class ChoiceType {
+        private PolicyType policy;
+        private PolicySetType policySet;
 
-   protected List<ChoiceType> choiceTypeList = new ArrayList<ChoiceType>();
+        public PolicyType getPolicy() {
+            return policy;
+        }
 
-   public void add(ChoiceType choice )
-   {
-      choiceTypeList.add(choice);
-   }
+        public void setPolicy(PolicyType policy) {
+            this.policy = policy;
+        }
 
-   /**
-    * Gets the value of the choiceTypeList property. 
-    */
-   public List<ChoiceType> getChoiceType() 
-   {
-      return choiceTypeList;
-   }
+        public PolicySetType getPolicySet() {
+            return policySet;
+        }
+
+        public void setPolicySet(PolicySetType policySet) {
+            this.policySet = policySet;
+        }
+    }
+
+    protected List<ChoiceType> choiceTypeList = new ArrayList<ChoiceType>();
+
+    public void add(ChoiceType choice) {
+        choiceTypeList.add(choice);
+    }
+
+    /**
+     * Gets the value of the choiceTypeList property.
+     */
+    public List<ChoiceType> getChoiceType() {
+        return choiceTypeList;
+    }
 
 }

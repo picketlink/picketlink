@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -34,45 +34,41 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
 
 /**
  * Parse the WS-Trust RequestSecurityToken Collection
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 11, 2010
  */
-public class WSTRequestSecurityTokenCollectionParser implements ParserNamespaceSupport
-{  
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
-   public Object parse( XMLEventReader xmlEventReader ) throws ParsingException
-   {
-      StaxParserUtil.getNextEvent(xmlEventReader); 
-      
-      RequestSecurityTokenCollection requestCollection = new RequestSecurityTokenCollection(); 
-      
-      //Peek at the next event
-      while( xmlEventReader.hasNext() )
-      { 
-         StartElement peekedElement = StaxParserUtil.peekNextStartElement( xmlEventReader  );
-         if( peekedElement == null )
-            break; 
+public class WSTRequestSecurityTokenCollectionParser implements ParserNamespaceSupport {
+    /**
+     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     */
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        StaxParserUtil.getNextEvent(xmlEventReader);
 
-         String tag = StaxParserUtil.getStartElementName( peekedElement );
-         
-         if( WSTrustConstants.RST.equalsIgnoreCase( tag ) )
-         {
-            WSTRequestSecurityTokenParser rstParser = new WSTRequestSecurityTokenParser();
-            RequestSecurityToken rst = ( RequestSecurityToken ) rstParser.parse( xmlEventReader );
-            requestCollection.addRequestSecurityToken( rst ); 
-         } 
-      }
-      return requestCollection;
-   }
- 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
-   public boolean supports( QName qname )
-   {
-      return ( qname.getNamespaceURI().equals( WSTrustConstants.BASE_NAMESPACE )
-            && qname.getLocalPart().equals( WSTrustConstants.RST_COLLECTION ) ); 
-   }
+        RequestSecurityTokenCollection requestCollection = new RequestSecurityTokenCollection();
+
+        // Peek at the next event
+        while (xmlEventReader.hasNext()) {
+            StartElement peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            if (peekedElement == null)
+                break;
+
+            String tag = StaxParserUtil.getStartElementName(peekedElement);
+
+            if (WSTrustConstants.RST.equalsIgnoreCase(tag)) {
+                WSTRequestSecurityTokenParser rstParser = new WSTRequestSecurityTokenParser();
+                RequestSecurityToken rst = (RequestSecurityToken) rstParser.parse(xmlEventReader);
+                requestCollection.addRequestSecurityToken(rst);
+            }
+        }
+        return requestCollection;
+    }
+
+    /**
+     * @see {@link ParserNamespaceSupport#supports(QName)}
+     */
+    public boolean supports(QName qname) {
+        return (qname.getNamespaceURI().equals(WSTrustConstants.BASE_NAMESPACE) && qname.getLocalPart().equals(
+                WSTrustConstants.RST_COLLECTION));
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,10 +26,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <p>Java class for ContactType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ContactType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ContactType">
  *   &lt;complexContent>
@@ -47,219 +49,183 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class ContactType extends TypeWithOtherAttributes
-{
-   protected ExtensionsType extensions;
+public class ContactType extends TypeWithOtherAttributes {
+    protected ExtensionsType extensions;
 
-   protected String company;
+    protected String company;
 
-   protected String givenName;
+    protected String givenName;
 
-   protected String surName;
+    protected String surName;
 
-   protected List<String> emailAddress = new ArrayList<String>();
+    protected List<String> emailAddress = new ArrayList<String>();
 
-   protected List<String> telephoneNumber = new ArrayList<String>();
+    protected List<String> telephoneNumber = new ArrayList<String>();
 
-   protected ContactTypeType contactType;
+    protected ContactTypeType contactType;
 
-   public ContactType(ContactTypeType contactType)
-   {
-      this.contactType = contactType;
-   }
+    public ContactType(ContactTypeType contactType) {
+        this.contactType = contactType;
+    }
 
-   /**
-    * Gets the value of the extensions property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link ExtensionsType }
-    *     
-    */
-   public ExtensionsType getExtensions()
-   {
-      return extensions;
-   }
+    /**
+     * Gets the value of the extensions property.
+     *
+     * @return possible object is {@link ExtensionsType }
+     *
+     */
+    public ExtensionsType getExtensions() {
+        return extensions;
+    }
 
-   /**
-    * Sets the value of the extensions property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link ExtensionsType }
-    *     
-    */
-   public void setExtensions(ExtensionsType value)
-   {
-      this.extensions = value;
-   }
+    /**
+     * Sets the value of the extensions property.
+     *
+     * @param value allowed object is {@link ExtensionsType }
+     *
+     */
+    public void setExtensions(ExtensionsType value) {
+        this.extensions = value;
+    }
 
-   /**
-    * Gets the value of the company property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getCompany()
-   {
-      return company;
-   }
+    /**
+     * Gets the value of the company property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getCompany() {
+        return company;
+    }
 
-   /**
-    * Sets the value of the company property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setCompany(String value)
-   {
-      this.company = value;
-   }
+    /**
+     * Sets the value of the company property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setCompany(String value) {
+        this.company = value;
+    }
 
-   /**
-    * Gets the value of the givenName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getGivenName()
-   {
-      return givenName;
-   }
+    /**
+     * Gets the value of the givenName property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getGivenName() {
+        return givenName;
+    }
 
-   /**
-    * Sets the value of the givenName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setGivenName(String value)
-   {
-      this.givenName = value;
-   }
+    /**
+     * Sets the value of the givenName property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setGivenName(String value) {
+        this.givenName = value;
+    }
 
-   /**
-    * Gets the value of the surName property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getSurName()
-   {
-      return surName;
-   }
+    /**
+     * Gets the value of the surName property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getSurName() {
+        return surName;
+    }
 
-   /**
-    * Sets the value of the surName property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setSurName(String value)
-   {
-      this.surName = value;
-   }
+    /**
+     * Sets the value of the surName property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setSurName(String value) {
+        this.surName = value;
+    }
 
-   /**
-    * Add an email address
-    * @param email
-    */
-   public void addEmailAddress(String email)
-   {
-      this.emailAddress.add(email);
-   }
+    /**
+     * Add an email address
+     *
+     * @param email
+     */
+    public void addEmailAddress(String email) {
+        this.emailAddress.add(email);
+    }
 
-   /**
-    * remove a telephone
-    * @param tel
-    */
-   public void removeTelephone(String tel)
-   {
-      this.telephoneNumber.remove(tel);
-   }
+    /**
+     * remove a telephone
+     *
+     * @param tel
+     */
+    public void removeTelephone(String tel) {
+        this.telephoneNumber.remove(tel);
+    }
 
-   /**
-    * remove an email address
-    * @param email
-    */
-   public void removeEmailAddress(String email)
-   {
-      this.emailAddress.remove(email);
-   }
+    /**
+     * remove an email address
+     *
+     * @param email
+     */
+    public void removeEmailAddress(String email) {
+        this.emailAddress.remove(email);
+    }
 
-   /**
-    * Add a telephone
-    * @param tel
-    */
-   public void addTelephone(String tel)
-   {
-      this.telephoneNumber.add(tel);
-   }
+    /**
+     * Add a telephone
+     *
+     * @param tel
+     */
+    public void addTelephone(String tel) {
+        this.telephoneNumber.add(tel);
+    }
 
-   /**
-    * Gets the value of the emailAddress property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link String }
-    * 
-    * 
-    */
-   public List<String> getEmailAddress()
-   {
-      return Collections.unmodifiableList(this.emailAddress);
-   }
+    /**
+     * Gets the value of the emailAddress property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link String }
+     *
+     *
+     */
+    public List<String> getEmailAddress() {
+        return Collections.unmodifiableList(this.emailAddress);
+    }
 
-   /**
-    * Gets the value of the telephoneNumber property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link String }
-    * 
-    * 
-    */
-   public List<String> getTelephoneNumber()
-   {
-      return Collections.unmodifiableList(this.telephoneNumber);
-   }
+    /**
+     * Gets the value of the telephoneNumber property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link String }
+     *
+     *
+     */
+    public List<String> getTelephoneNumber() {
+        return Collections.unmodifiableList(this.telephoneNumber);
+    }
 
-   /**
-    * Gets the value of the contactType property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link ContactTypeType }
-    *     
-    */
-   public ContactTypeType getContactType()
-   {
-      return contactType;
-   }
+    /**
+     * Gets the value of the contactType property.
+     *
+     * @return possible object is {@link ContactTypeType }
+     *
+     */
+    public ContactTypeType getContactType() {
+        return contactType;
+    }
 
-   /**
-    * Sets the value of the contactType property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link ContactTypeType }
-    *     
-    */
-   public void setContactType(ContactTypeType value)
-   {
-      this.contactType = value;
-   }
+    /**
+     * Sets the value of the contactType property.
+     *
+     * @param value allowed object is {@link ContactTypeType }
+     *
+     */
+    public void setContactType(ContactTypeType value) {
+        this.contactType = value;
+    }
 }

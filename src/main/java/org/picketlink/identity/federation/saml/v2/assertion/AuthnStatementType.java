@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,12 +23,13 @@ package org.picketlink.identity.federation.saml.v2.assertion;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-
 /**
- * <p>Java class for AuthnStatementType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for AuthnStatementType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="AuthnStatementType">
  *   &lt;complexContent>
@@ -44,131 +45,110 @@ import javax.xml.datatype.XMLGregorianCalendar;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class AuthnStatementType
-extends StatementAbstractType
-{ 
-   private static final long serialVersionUID = 1L;
-   
-   protected SubjectLocalityType subjectLocality; 
-   protected AuthnContextType authnContext; 
-   protected XMLGregorianCalendar authnInstant;  
-   protected XMLGregorianCalendar sessionNotOnOrAfter;
+ *
+ *
+ */
+public class AuthnStatementType extends StatementAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected String sessionIndex;
+    protected SubjectLocalityType subjectLocality;
+    protected AuthnContextType authnContext;
+    protected XMLGregorianCalendar authnInstant;
+    protected XMLGregorianCalendar sessionNotOnOrAfter;
 
-   public AuthnStatementType( XMLGregorianCalendar instant )
-   {
-      this.authnInstant = instant;
-   }
+    protected String sessionIndex;
 
-   /**
-    * Gets the value of the subjectLocality property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link SubjectLocalityType }
-    *     
-    */
-   public SubjectLocalityType getSubjectLocality() {
-      return subjectLocality;
-   }
+    public AuthnStatementType(XMLGregorianCalendar instant) {
+        this.authnInstant = instant;
+    }
 
-   /**
-    * Sets the value of the subjectLocality property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link SubjectLocalityType }
-    *     
-    */
-   public void setSubjectLocality(SubjectLocalityType value) {
-      this.subjectLocality = value;
-   }
+    /**
+     * Gets the value of the subjectLocality property.
+     *
+     * @return possible object is {@link SubjectLocalityType }
+     *
+     */
+    public SubjectLocalityType getSubjectLocality() {
+        return subjectLocality;
+    }
 
-   /**
-    * Gets the value of the authnContext property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link AuthnContextType }
-    *     
-    */
-   public AuthnContextType getAuthnContext() {
-      return authnContext;
-   }
+    /**
+     * Sets the value of the subjectLocality property.
+     *
+     * @param value allowed object is {@link SubjectLocalityType }
+     *
+     */
+    public void setSubjectLocality(SubjectLocalityType value) {
+        this.subjectLocality = value;
+    }
 
-   /**
-    * Sets the value of the authnContext property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link AuthnContextType }
-    *     
-    */
-   public void setAuthnContext(AuthnContextType value) {
-      this.authnContext = value;
-   }
+    /**
+     * Gets the value of the authnContext property.
+     *
+     * @return possible object is {@link AuthnContextType }
+     *
+     */
+    public AuthnContextType getAuthnContext() {
+        return authnContext;
+    }
 
-   /**
-    * Gets the value of the authnInstant property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getAuthnInstant() {
-      return authnInstant;
-   } 
+    /**
+     * Sets the value of the authnContext property.
+     *
+     * @param value allowed object is {@link AuthnContextType }
+     *
+     */
+    public void setAuthnContext(AuthnContextType value) {
+        this.authnContext = value;
+    }
 
-   /**
-    * Gets the value of the sessionIndex property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getSessionIndex() {
-      return sessionIndex;
-   }
+    /**
+     * Gets the value of the authnInstant property.
+     *
+     * @return possible object is {@link XMLGregorianCalendar }
+     *
+     */
+    public XMLGregorianCalendar getAuthnInstant() {
+        return authnInstant;
+    }
 
-   /**
-    * Sets the value of the sessionIndex property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setSessionIndex(String value) {
-      this.sessionIndex = value;
-   }
+    /**
+     * Gets the value of the sessionIndex property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getSessionIndex() {
+        return sessionIndex;
+    }
 
-   /**
-    * Gets the value of the sessionNotOnOrAfter property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public XMLGregorianCalendar getSessionNotOnOrAfter() {
-      return sessionNotOnOrAfter;
-   }
+    /**
+     * Sets the value of the sessionIndex property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setSessionIndex(String value) {
+        this.sessionIndex = value;
+    }
 
-   /**
-    * Sets the value of the sessionNotOnOrAfter property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link XMLGregorianCalendar }
-    *     
-    */
-   public void setSessionNotOnOrAfter(XMLGregorianCalendar value) {
-      this.sessionNotOnOrAfter = value;
-   } 
+    /**
+     * Gets the value of the sessionNotOnOrAfter property.
+     *
+     * @return possible object is {@link XMLGregorianCalendar }
+     *
+     */
+    public XMLGregorianCalendar getSessionNotOnOrAfter() {
+        return sessionNotOnOrAfter;
+    }
+
+    /**
+     * Sets the value of the sessionNotOnOrAfter property.
+     *
+     * @param value allowed object is {@link XMLGregorianCalendar }
+     *
+     */
+    public void setSessionNotOnOrAfter(XMLGregorianCalendar value) {
+        this.sessionNotOnOrAfter = value;
+    }
 }

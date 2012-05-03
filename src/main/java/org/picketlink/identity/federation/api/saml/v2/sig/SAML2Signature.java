@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -51,271 +51,248 @@ import org.xml.sax.SAXException;
 
 /**
  * Class that deals with SAML2 Signature
+ *
  * @author Anil.Saldhana@redhat.com
  * @since May 26, 2009
  */
-public class SAML2Signature
-{
-   private String signatureMethod = SignatureMethod.RSA_SHA1;
+public class SAML2Signature {
+    private String signatureMethod = SignatureMethod.RSA_SHA1;
 
-   private String digestMethod = DigestMethod.SHA1;
+    private String digestMethod = DigestMethod.SHA1;
 
-   private Node sibling;
+    private Node sibling;
 
-   public String getSignatureMethod()
-   {
-      return signatureMethod;
-   }
+    public String getSignatureMethod() {
+        return signatureMethod;
+    }
 
-   public void setSignatureMethod(String signatureMethod)
-   {
-      this.signatureMethod = signatureMethod;
-   }
+    public void setSignatureMethod(String signatureMethod) {
+        this.signatureMethod = signatureMethod;
+    }
 
-   public String getDigestMethod()
-   {
-      return digestMethod;
-   }
+    public String getDigestMethod() {
+        return digestMethod;
+    }
 
-   public void setDigestMethod(String digestMethod)
-   {
-      this.digestMethod = digestMethod;
-   }
-   
-   public void setNextSibling(Node sibling)
-   {
-       this.sibling = sibling;
-   }
+    public void setDigestMethod(String digestMethod) {
+        this.digestMethod = digestMethod;
+    }
 
-   /**
-    * Set to false, if you do not want to include keyinfo
-    * in the signature
-    * @param val
-    * @since v2.0.1
-    */
-   public void setSignatureIncludeKeyInfo(boolean val)
-   {
-      if (!val)
-      {
-         XMLSignatureUtil.setIncludeKeyInfoInSignature(false);
-      }
-   }
+    public void setNextSibling(Node sibling) {
+        this.sibling = sibling;
+    }
 
-   /**
-    * Sign an RequestType at the root
-    * @param request
-    * @param keypair Key Pair 
-    * @param digestMethod (Example: DigestMethod.SHA1)
-    * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
-    * @return 
-    * @throws ParserConfigurationException 
-    * @throws IOException 
-    * @throws SAXException 
-    * @throws XMLSignatureException 
-    * @throws MarshalException 
-    * @throws GeneralSecurityException 
-    */
-   public Document sign(RequestAbstractType request, KeyPair keypair) throws SAXException, IOException,
-         ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException
-   {
-      SAML2Request saml2Request = new SAML2Request();
-      Document doc = saml2Request.convert(request);
-      doc.normalize();
-      
-      Node theSibling = getNextSiblingOfIssuer(doc);
-      if(theSibling != null)
-      {
-          this.sibling = theSibling;
-      }
+    /**
+     * Set to false, if you do not want to include keyinfo in the signature
+     *
+     * @param val
+     * @since v2.0.1
+     */
+    public void setSignatureIncludeKeyInfo(boolean val) {
+        if (!val) {
+            XMLSignatureUtil.setIncludeKeyInfoInSignature(false);
+        }
+    }
 
-      return sign(doc, request.getID(), keypair);
-   }
+    /**
+     * Sign an RequestType at the root
+     *
+     * @param request
+     * @param keypair Key Pair
+     * @param digestMethod (Example: DigestMethod.SHA1)
+     * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
+     * @return
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     * @throws XMLSignatureException
+     * @throws MarshalException
+     * @throws GeneralSecurityException
+     */
+    public Document sign(RequestAbstractType request, KeyPair keypair) throws SAXException, IOException,
+            ParserConfigurationException, GeneralSecurityException, MarshalException, XMLSignatureException {
+        SAML2Request saml2Request = new SAML2Request();
+        Document doc = saml2Request.convert(request);
+        doc.normalize();
 
-   /**
-    * Sign an ResponseType at the root
-    * @param response
-    * @param keypair Key Pair 
-    * @param digestMethod (Example: DigestMethod.SHA1)
-    * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
-    * @return 
-    * @throws ParserConfigurationException  
-    * @throws XMLSignatureException 
-    * @throws MarshalException 
-    * @throws GeneralSecurityException 
-    */
-   public Document sign(ResponseType response, KeyPair keypair) throws ParserConfigurationException,
-         GeneralSecurityException, MarshalException, XMLSignatureException
-   {
-      SAML2Response saml2Request = new SAML2Response();
-      Document doc = saml2Request.convert(response);
-      doc.normalize();
-      
-      Node theSibling = getNextSiblingOfIssuer(doc);
-      if(theSibling != null)
-      {
-          this.sibling = theSibling;
-      }
+        Node theSibling = getNextSiblingOfIssuer(doc);
+        if (theSibling != null) {
+            this.sibling = theSibling;
+        }
 
-      return sign(doc, response.getID(), keypair);
-   }
+        return sign(doc, request.getID(), keypair);
+    }
 
-   /**
-    * Sign an Document at the root
-    * @param response
-    * @param keyPair Key Pair 
-    * @param digestMethod (Example: DigestMethod.SHA1)
-    * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
-    * @return 
-    * @throws ParserConfigurationException  
-    * @throws XMLSignatureException 
-    * @throws MarshalException 
-    * @throws GeneralSecurityException 
-    */
-   public Document sign(Document doc, String referenceID, KeyPair keyPair) throws ParserConfigurationException,
-         GeneralSecurityException, MarshalException, XMLSignatureException
-   {
-      String referenceURI = "#" + referenceID;
-      
-      configureIdAttribute(doc);
-      
-      if(sibling != null)
-      {
-          SignatureUtilTransferObject dto = new SignatureUtilTransferObject();
-          dto.setDocumentToBeSigned(doc);
-          dto.setKeyPair(keyPair);
-          dto.setDigestMethod(digestMethod);
-          dto.setSignatureMethod(signatureMethod);
-          dto.setReferenceURI(referenceURI);
-          dto.setNextSibling(sibling);
-          
-          return XMLSignatureUtil.sign(dto);
-      }
-      return XMLSignatureUtil.sign(doc, keyPair, digestMethod, signatureMethod, referenceURI);
-   }
+    /**
+     * Sign an ResponseType at the root
+     *
+     * @param response
+     * @param keypair Key Pair
+     * @param digestMethod (Example: DigestMethod.SHA1)
+     * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
+     * @return
+     * @throws ParserConfigurationException
+     * @throws XMLSignatureException
+     * @throws MarshalException
+     * @throws GeneralSecurityException
+     */
+    public Document sign(ResponseType response, KeyPair keypair) throws ParserConfigurationException, GeneralSecurityException,
+            MarshalException, XMLSignatureException {
+        SAML2Response saml2Request = new SAML2Response();
+        Document doc = saml2Request.convert(response);
+        doc.normalize();
 
-   /**
-    * Sign an assertion whose id value is provided in the response type
-    * @param response
-    * @param idValueOfAssertion
-    * @param keypair
-    * @param referenceURI
-    * @return 
-    * @throws ParserConfigurationException  
-    * @throws TransformerException 
-    * @throws TransformerFactoryConfigurationError 
-    * @throws XPathException 
-    * @throws XMLSignatureException 
-    * @throws MarshalException 
-    * @throws GeneralSecurityException 
-    */
-   public Document sign(ResponseType response, String idValueOfAssertion, KeyPair keypair, String referenceURI)
-         throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError,
-         TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
-   {
-      SAML2Response saml2Response = new SAML2Response();
-      Document doc = saml2Response.convert(response);
-      doc.normalize();
-      
-      Node theSibling = getNextSiblingOfIssuer(doc);
-      if(theSibling != null)
-      {
-          this.sibling = theSibling;
-      }
+        Node theSibling = getNextSiblingOfIssuer(doc);
+        if (theSibling != null) {
+            this.sibling = theSibling;
+        }
 
-      return sign(doc, idValueOfAssertion, keypair, referenceURI);
-   }
+        return sign(doc, response.getID(), keypair);
+    }
 
-   /**
-    * Sign a document
-    * @param doc
-    * @param idValueOfAssertion
-    * @param keypair
-    * @param referenceURI
-    * @return
-    * @throws ParserConfigurationException
-    * @throws XPathException
-    * @throws TransformerFactoryConfigurationError
-    * @throws TransformerException
-    * @throws GeneralSecurityException
-    * @throws MarshalException
-    * @throws XMLSignatureException
-    */
-   public Document sign(Document doc, String idValueOfAssertion, KeyPair keypair, String referenceURI)
-         throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError,
-         TransformerException, GeneralSecurityException, MarshalException, XMLSignatureException
-   {
-      return sign(doc, idValueOfAssertion, keypair);
-   }
+    /**
+     * Sign an Document at the root
+     *
+     * @param response
+     * @param keyPair Key Pair
+     * @param digestMethod (Example: DigestMethod.SHA1)
+     * @param signatureMethod (Example: SignatureMethod.DSA_SHA1)
+     * @return
+     * @throws ParserConfigurationException
+     * @throws XMLSignatureException
+     * @throws MarshalException
+     * @throws GeneralSecurityException
+     */
+    public Document sign(Document doc, String referenceID, KeyPair keyPair) throws ParserConfigurationException,
+            GeneralSecurityException, MarshalException, XMLSignatureException {
+        String referenceURI = "#" + referenceID;
 
-   /**
-    * Sign a SAML Document
-    * @param samlDocument
-    * @param keypair
-    * @throws ProcessingException
-    */
-   public void signSAMLDocument(Document samlDocument, KeyPair keypair) throws ProcessingException
-   {
-      //Get the ID from the root
-      String id = samlDocument.getDocumentElement().getAttribute("ID");
-      try
-      {
-         sign(samlDocument, id, keypair);
-      }
-      catch (Exception e)
-      {
-         throw new ProcessingException(e);
-      }
-   }
+        configureIdAttribute(doc);
 
-   /**
-    * Validate the SAML2 Document
-    * @param signedDocument
-    * @param publicKey
-    * @return
-    * @throws ProcessingException
-    */
-   public boolean validate(Document signedDocument, PublicKey publicKey) throws ProcessingException
-   {
-      try
-      {
-         configureIdAttribute(signedDocument);
-         return XMLSignatureUtil.validate(signedDocument, publicKey);
-      }
-      catch (MarshalException me)
-      {
-         throw new ProcessingException(me.getLocalizedMessage());
-      }
-      catch (XMLSignatureException xse)
-      {
-         throw new ProcessingException(xse.getLocalizedMessage());
-      }
-   }
-   
-   /**
-    * <p>
-    * Sets the IDness of the ID attribute.
-    * Santuario 1.5.1 does not assumes IDness based on attribute names anymore.
-    * This method should be called before signing/validating a saml document.
-    * </p>
-    * 
-    * @param signedDocument SAML document to have its ID attribute configured.
-    */
-   private void configureIdAttribute(Document signedDocument)
-       {
-       // Estabilish the IDness of the ID attribute.
-       signedDocument.getDocumentElement().setIdAttribute("ID", true);
-   }
-   
-   public Node getNextSiblingOfIssuer(Document doc)
-   {
-     //Find the sibling of Issuer
-       NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
-       if(nl.getLength() > 0 )
-       {
-           Node issuer = nl.item(0);
-           
-           return issuer.getNextSibling(); 
-       } 
-       return null;
-   }
+        if (sibling != null) {
+            SignatureUtilTransferObject dto = new SignatureUtilTransferObject();
+            dto.setDocumentToBeSigned(doc);
+            dto.setKeyPair(keyPair);
+            dto.setDigestMethod(digestMethod);
+            dto.setSignatureMethod(signatureMethod);
+            dto.setReferenceURI(referenceURI);
+            dto.setNextSibling(sibling);
+
+            return XMLSignatureUtil.sign(dto);
+        }
+        return XMLSignatureUtil.sign(doc, keyPair, digestMethod, signatureMethod, referenceURI);
+    }
+
+    /**
+     * Sign an assertion whose id value is provided in the response type
+     *
+     * @param response
+     * @param idValueOfAssertion
+     * @param keypair
+     * @param referenceURI
+     * @return
+     * @throws ParserConfigurationException
+     * @throws TransformerException
+     * @throws TransformerFactoryConfigurationError
+     * @throws XPathException
+     * @throws XMLSignatureException
+     * @throws MarshalException
+     * @throws GeneralSecurityException
+     */
+    public Document sign(ResponseType response, String idValueOfAssertion, KeyPair keypair, String referenceURI)
+            throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError, TransformerException,
+            GeneralSecurityException, MarshalException, XMLSignatureException {
+        SAML2Response saml2Response = new SAML2Response();
+        Document doc = saml2Response.convert(response);
+        doc.normalize();
+
+        Node theSibling = getNextSiblingOfIssuer(doc);
+        if (theSibling != null) {
+            this.sibling = theSibling;
+        }
+
+        return sign(doc, idValueOfAssertion, keypair, referenceURI);
+    }
+
+    /**
+     * Sign a document
+     *
+     * @param doc
+     * @param idValueOfAssertion
+     * @param keypair
+     * @param referenceURI
+     * @return
+     * @throws ParserConfigurationException
+     * @throws XPathException
+     * @throws TransformerFactoryConfigurationError
+     * @throws TransformerException
+     * @throws GeneralSecurityException
+     * @throws MarshalException
+     * @throws XMLSignatureException
+     */
+    public Document sign(Document doc, String idValueOfAssertion, KeyPair keypair, String referenceURI)
+            throws ParserConfigurationException, XPathException, TransformerFactoryConfigurationError, TransformerException,
+            GeneralSecurityException, MarshalException, XMLSignatureException {
+        return sign(doc, idValueOfAssertion, keypair);
+    }
+
+    /**
+     * Sign a SAML Document
+     *
+     * @param samlDocument
+     * @param keypair
+     * @throws ProcessingException
+     */
+    public void signSAMLDocument(Document samlDocument, KeyPair keypair) throws ProcessingException {
+        // Get the ID from the root
+        String id = samlDocument.getDocumentElement().getAttribute("ID");
+        try {
+            sign(samlDocument, id, keypair);
+        } catch (Exception e) {
+            throw new ProcessingException(e);
+        }
+    }
+
+    /**
+     * Validate the SAML2 Document
+     *
+     * @param signedDocument
+     * @param publicKey
+     * @return
+     * @throws ProcessingException
+     */
+    public boolean validate(Document signedDocument, PublicKey publicKey) throws ProcessingException {
+        try {
+            configureIdAttribute(signedDocument);
+            return XMLSignatureUtil.validate(signedDocument, publicKey);
+        } catch (MarshalException me) {
+            throw new ProcessingException(me.getLocalizedMessage());
+        } catch (XMLSignatureException xse) {
+            throw new ProcessingException(xse.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * <p>
+     * Sets the IDness of the ID attribute. Santuario 1.5.1 does not assumes IDness based on attribute names anymore. This
+     * method should be called before signing/validating a saml document.
+     * </p>
+     *
+     * @param signedDocument SAML document to have its ID attribute configured.
+     */
+    private void configureIdAttribute(Document signedDocument) {
+        // Estabilish the IDness of the ID attribute.
+        signedDocument.getDocumentElement().setIdAttribute("ID", true);
+    }
+
+    public Node getNextSiblingOfIssuer(Document doc) {
+        // Find the sibling of Issuer
+        NodeList nl = doc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ISSUER.get());
+        if (nl.getLength() > 0) {
+            Node issuer = nl.item(0);
+
+            return issuer.getNextSibling();
+        }
+        return null;
+    }
 }

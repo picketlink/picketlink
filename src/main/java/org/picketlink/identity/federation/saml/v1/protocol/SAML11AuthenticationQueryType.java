@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,31 +24,24 @@ package org.picketlink.identity.federation.saml.v1.protocol;
 import java.net.URI;
 
 /**
- * <complexType name="AuthenticationQueryType">
-        <complexContent>
-            <extension base="samlp:SubjectQueryAbstractType">
-                <attribute name="AuthenticationMethod" type="anyURI"/>
-            </extension>
-
-        </complexContent>
-    </complexType>
-
+ * <complexType name="AuthenticationQueryType"> <complexContent> <extension base="samlp:SubjectQueryAbstractType"> <attribute
+ * name="AuthenticationMethod" type="anyURI"/> </extension>
+ *
+ * </complexContent> </complexType>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 22, 2011
  */
-public class SAML11AuthenticationQueryType extends SAML11SubjectQueryAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class SAML11AuthenticationQueryType extends SAML11SubjectQueryAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected URI authenticationMethod;
+    protected URI authenticationMethod;
 
-   public URI getAuthenticationMethod()
-   {
-      return authenticationMethod;
-   }
+    public URI getAuthenticationMethod() {
+        return authenticationMethod;
+    }
 
-   public void setAuthenticationMethod(URI authenticationMethod)
-   {
-      this.authenticationMethod = authenticationMethod;
-   }
+    public void setAuthenticationMethod(URI authenticationMethod) {
+        this.authenticationMethod = authenticationMethod;
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,31 +27,30 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
  * Utility class that generates unique IDs
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 5, 2009
  */
-public class IDGenerator
-{
-   /*
-    * Create a basic unique ID
-    */
-   public static String create()
-   {
-      return UUID.randomUUID().toString();
-   }
+public class IDGenerator {
+    /*
+     * Create a basic unique ID
+     */
+    public static String create() {
+        return UUID.randomUUID().toString();
+    }
 
-   /**
-    * Create an id that is prefixed by a string
-    * @param prefix
-    * @return an id
-    * @throws IllegalArgumentException when prefix is null
-    */
-   public static String create(String prefix)
-   {
-      if (prefix == null)
-         throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "prefix");
-      StringBuilder sb = new StringBuilder(prefix);
-      sb.append(IDGenerator.create());
-      return sb.toString();
-   }
+    /**
+     * Create an id that is prefixed by a string
+     *
+     * @param prefix
+     * @return an id
+     * @throws IllegalArgumentException when prefix is null
+     */
+    public static String create(String prefix) {
+        if (prefix == null)
+            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "prefix");
+        StringBuilder sb = new StringBuilder(prefix);
+        sb.append(IDGenerator.create());
+        return sb.toString();
+    }
 }

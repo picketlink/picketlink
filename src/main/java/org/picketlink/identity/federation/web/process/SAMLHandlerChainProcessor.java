@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -36,46 +36,36 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**
  * Processor for the SAML2 Handler Chain
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 27, 2009
  */
-public class SAMLHandlerChainProcessor
-{
-   private final Set<SAML2Handler> handlers = new LinkedHashSet<SAML2Handler>();
+public class SAMLHandlerChainProcessor {
+    private final Set<SAML2Handler> handlers = new LinkedHashSet<SAML2Handler>();
 
-   public SAMLHandlerChainProcessor(Set<SAML2Handler> handlers)
-   {
-      this.handlers.addAll(handlers);
-   }
+    public SAMLHandlerChainProcessor(Set<SAML2Handler> handlers) {
+        this.handlers.addAll(handlers);
+    }
 
-   public void callHandlerChain(SAML2Object samlObject, SAML2HandlerRequest saml2HandlerRequest,
-         SAML2HandlerResponse saml2HandlerResponse, HTTPContext httpContext, Lock chainLock)
-         throws ProcessingException, IOException
-   {
-      try
-      {
-         chainLock.lock();
-         //Deal with handler chains
-         for (SAML2Handler handler : handlers)
-         {
-            if (saml2HandlerResponse.isInError())
-            {
-               httpContext.getResponse().sendError(saml2HandlerResponse.getErrorCode());
-               break;
+    public void callHandlerChain(SAML2Object samlObject, SAML2HandlerRequest saml2HandlerRequest,
+            SAML2HandlerResponse saml2HandlerResponse, HTTPContext httpContext, Lock chainLock) throws ProcessingException,
+            IOException {
+        try {
+            chainLock.lock();
+            // Deal with handler chains
+            for (SAML2Handler handler : handlers) {
+                if (saml2HandlerResponse.isInError()) {
+                    httpContext.getResponse().sendError(saml2HandlerResponse.getErrorCode());
+                    break;
+                }
+                if (samlObject instanceof RequestAbstractType) {
+                    handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
+                } else {
+                    handler.handleStatusResponseType(saml2HandlerRequest, saml2HandlerResponse);
+                }
             }
-            if (samlObject instanceof RequestAbstractType)
-            {
-               handler.handleRequestType(saml2HandlerRequest, saml2HandlerResponse);
-            }
-            else
-            {
-               handler.handleStatusResponseType(saml2HandlerRequest, saml2HandlerResponse);
-            }
-         }
-      }
-      finally
-      {
-         chainLock.unlock();
-      }
-   }
+        } finally {
+            chainLock.unlock();
+        }
+    }
 }

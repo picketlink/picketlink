@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -44,137 +44,127 @@ import org.w3c.dom.Element;
  * <p>
  * Mock {@code SecurityTokenProvider} used in the test scenarios.
  * </p>
- * 
+ *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public class SpecialTokenProvider implements SecurityTokenProvider
-{
-   
-   private Map<String, String> properties;
-   
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#initialize(java.util.Map)
-    */
-   public void initialize(Map<String, String> properties)
-   {
-      this.properties = properties;
-   }
+public class SpecialTokenProvider implements SecurityTokenProvider {
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
-    */
-   public void cancelToken( ProtocolContext protoContext ) throws ProcessingException
-   {
-   }
+    private Map<String, String> properties;
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#issueToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
-    */
-   public void issueToken( ProtocolContext protoContext) throws ProcessingException
-   {
-      WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
-      
-      // create a simple sample token using the info from the request.
-      String caller = context.getCallerPrincipal() == null ? "anonymous" : context.getCallerPrincipal().getName();
-      URI tokenType = context.getRequestSecurityToken().getTokenType();
-      if (tokenType == null)
-      {
-         try
-         {
-            tokenType = new URI("http://www.tokens.org/SpecialToken");
-         }
-         catch (URISyntaxException ignore)
-         {
-         }
-      }
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#initialize(java.util.Map)
+     */
+    public void initialize(Map<String, String> properties) {
+        this.properties = properties;
+    }
 
-      // we will use DOM to create the token.
-      try
-      {
-         Document doc = DocumentUtil.createDocument();
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.
+     * core.wstrust.WSTrustRequestContext)
+     */
+    public void cancelToken(ProtocolContext protoContext) throws ProcessingException {
+    }
 
-         String namespaceURI = "http://www.tokens.org";
-         Element root = doc.createElementNS(namespaceURI, "token:SpecialToken");
-         Element child = doc.createElementNS(namespaceURI, "token:SpecialTokenValue");
-         child.appendChild(doc.createTextNode("Principal:" + caller));
-         root.appendChild(child);
-         String id = IDGenerator.create("ID_");
-         root.setAttributeNS(namespaceURI, "ID", id);
-         root.setAttributeNS(namespaceURI, "TokenType", tokenType.toString());
-         root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:token", namespaceURI);
-         
-         doc.appendChild(root);
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#issueToken(org.picketlink.identity.federation.core
+     * .wstrust.WSTrustRequestContext)
+     */
+    public void issueToken(ProtocolContext protoContext) throws ProcessingException {
+        WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
 
-         SecurityToken token = new StandardSecurityToken(tokenType.toString(), root, id);
-         context.setSecurityToken(token);
-      }
-      catch (ConfigurationException pce)
-      {
-         pce.printStackTrace();
-      }
-   }
+        // create a simple sample token using the info from the request.
+        String caller = context.getCallerPrincipal() == null ? "anonymous" : context.getCallerPrincipal().getName();
+        URI tokenType = context.getRequestSecurityToken().getTokenType();
+        if (tokenType == null) {
+            try {
+                tokenType = new URI("http://www.tokens.org/SpecialToken");
+            } catch (URISyntaxException ignore) {
+            }
+        }
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
-    */
-   public void renewToken( ProtocolContext protoContext ) throws ProcessingException
-   {
-   }
+        // we will use DOM to create the token.
+        try {
+            Document doc = DocumentUtil.createDocument();
 
-   /*
-    * (non-Javadoc)
-    * 
-    * @see org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext)
-    */
-   public void validateToken( ProtocolContext protoContext ) throws ProcessingException
-   {
-   }
-   
-   /**
-    * <p>
-    * Just returns a reference to the properties that have been configured for testing purposes.
-    * </p>
-    * 
-    * @return a reference to the properties map.
-    */
-   public Map<String, String> getProperties()
-   {
-      return this.properties;
-   }
+            String namespaceURI = "http://www.tokens.org";
+            Element root = doc.createElementNS(namespaceURI, "token:SpecialToken");
+            Element child = doc.createElementNS(namespaceURI, "token:SpecialTokenValue");
+            child.appendChild(doc.createTextNode("Principal:" + caller));
+            root.appendChild(child);
+            String id = IDGenerator.create("ID_");
+            root.setAttributeNS(namespaceURI, "ID", id);
+            root.setAttributeNS(namespaceURI, "TokenType", tokenType.toString());
+            root.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:token", namespaceURI);
 
-   /**
-    * 
-    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#supports(java.lang.String)
-    */
-   public boolean supports(String namespace)
-   { 
-      return WSTrustConstants.BASE_NAMESPACE.equals(namespace);
-   }
+            doc.appendChild(root);
 
-   /**
-    * 
-    * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#tokenType()
-    */
-   public String tokenType()
-   {
-      return WSTrustConstants.BASE_NAMESPACE;
-   }
+            SecurityToken token = new StandardSecurityToken(tokenType.toString(), root, id);
+            context.setSecurityToken(token);
+        } catch (ConfigurationException pce) {
+            pce.printStackTrace();
+        }
+    }
 
-   public QName getSupportedQName()
-   { 
-      return new QName( tokenType(), "SpecialToken" );
-   }
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#renewToken(org.picketlink.identity.federation.core
+     * .wstrust.WSTrustRequestContext)
+     */
+    public void renewToken(ProtocolContext protoContext) throws ProcessingException {
+    }
 
-   public String family()
-   { 
-      return SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
-   }
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.picketlink.identity.federation.core.wstrust.SecurityTokenProvider#validateToken(org.picketlink.identity.federation
+     * .core.wstrust.WSTrustRequestContext)
+     */
+    public void validateToken(ProtocolContext protoContext) throws ProcessingException {
+    }
+
+    /**
+     * <p>
+     * Just returns a reference to the properties that have been configured for testing purposes.
+     * </p>
+     *
+     * @return a reference to the properties map.
+     */
+    public Map<String, String> getProperties() {
+        return this.properties;
+    }
+
+    /**
+     *
+     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#supports(java.lang.String)
+     */
+    public boolean supports(String namespace) {
+        return WSTrustConstants.BASE_NAMESPACE.equals(namespace);
+    }
+
+    /**
+     *
+     * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#tokenType()
+     */
+    public String tokenType() {
+        return WSTrustConstants.BASE_NAMESPACE;
+    }
+
+    public QName getSupportedQName() {
+        return new QName(tokenType(), "SpecialToken");
+    }
+
+    public String family() {
+        return SecurityTokenProvider.FAMILY_TYPE.WS_TRUST.toString();
+    }
 }

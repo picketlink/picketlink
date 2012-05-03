@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,14 +21,14 @@
  */
 
 package org.picketlink.identity.xmlsec.w3.xmldsig;
- 
-
 
 /**
- * <p>Java class for RSAKeyValueType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for RSAKeyValueType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="RSAKeyValueType">
  *   &lt;complexContent>
@@ -41,20 +41,17 @@ package org.picketlink.identity.xmlsec.w3.xmldsig;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class RSAKeyValueType 
-{
+ *
+ *
+ */
+public class RSAKeyValueType {
     protected byte[] modulus;
     protected byte[] exponent;
 
     /**
      * Gets the value of the modulus property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getModulus() {
         return modulus;
@@ -62,10 +59,8 @@ public class RSAKeyValueType
 
     /**
      * Sets the value of the modulus property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setModulus(byte[] value) {
         this.modulus = ((byte[]) value);
@@ -73,10 +68,8 @@ public class RSAKeyValueType
 
     /**
      * Gets the value of the exponent property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getExponent() {
         return exponent;
@@ -84,10 +77,8 @@ public class RSAKeyValueType
 
     /**
      * Sets the value of the exponent property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setExponent(byte[] value) {
         this.exponent = ((byte[]) value);

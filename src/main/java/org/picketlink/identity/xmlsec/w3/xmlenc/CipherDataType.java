@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -20,13 +20,14 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 package org.picketlink.identity.xmlsec.w3.xmlenc;
- 
 
 /**
- * <p>Java class for CipherDataType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for CipherDataType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="CipherDataType">
  *   &lt;complexContent>
@@ -39,20 +40,17 @@ package org.picketlink.identity.xmlsec.w3.xmlenc;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class CipherDataType 
-{
-    protected byte[] cipherValue; 
+ *
+ *
+ */
+public class CipherDataType {
+    protected byte[] cipherValue;
     protected CipherReferenceType cipherReference;
 
     /**
      * Gets the value of the cipherValue property.
-     * 
-     * @return
-     *     possible object is
-     *     byte[]
+     *
+     * @return possible object is byte[]
      */
     public byte[] getCipherValue() {
         return cipherValue;
@@ -60,10 +58,8 @@ public class CipherDataType
 
     /**
      * Sets the value of the cipherValue property.
-     * 
-     * @param value
-     *     allowed object is
-     *     byte[]
+     *
+     * @param value allowed object is byte[]
      */
     public void setCipherValue(byte[] value) {
         this.cipherValue = ((byte[]) value);
@@ -71,11 +67,9 @@ public class CipherDataType
 
     /**
      * Gets the value of the cipherReference property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link CipherReferenceType }
-     *     
+     *
+     * @return possible object is {@link CipherReferenceType }
+     *
      */
     public CipherReferenceType getCipherReference() {
         return cipherReference;
@@ -83,11 +77,9 @@ public class CipherDataType
 
     /**
      * Sets the value of the cipherReference property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link CipherReferenceType }
-     *     
+     *
+     * @param value allowed object is {@link CipherReferenceType }
+     *
      */
     public void setCipherReference(CipherReferenceType value) {
         this.cipherReference = value;

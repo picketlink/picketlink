@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -32,81 +32,69 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
- * A file based metadata provider that
- * just looks for the passed in file name
+ * A file based metadata provider that just looks for the passed in file name
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Apr 21, 2009
  */
-public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider
-      implements
-         IMetadataProvider<EntityDescriptorType>
-{
+public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider implements
+        IMetadataProvider<EntityDescriptorType> {
 
-   private static final String FILENAME_KEY = "FileName";
+    private static final String FILENAME_KEY = "FileName";
 
-   private String fileName;
+    private String fileName;
 
-   private InputStream metadataFileStream;
+    private InputStream metadataFileStream;
 
-   @SuppressWarnings("unused")
-   private PublicKey encryptionKey;
+    @SuppressWarnings("unused")
+    private PublicKey encryptionKey;
 
-   @SuppressWarnings("unused")
-   private PublicKey signingKey;
+    @SuppressWarnings("unused")
+    private PublicKey signingKey;
 
-   @Override
-   public void init(Map<String, String> options)
-   {
-      super.init(options);
-      fileName = options.get(FILENAME_KEY);
-      if (fileName == null)
-         throw new IllegalStateException(ErrorCodes.OPTION_NOT_SET + "FileName");
-   }
+    @Override
+    public void init(Map<String, String> options) {
+        super.init(options);
+        fileName = options.get(FILENAME_KEY);
+        if (fileName == null)
+            throw new IllegalStateException(ErrorCodes.OPTION_NOT_SET + "FileName");
+    }
 
-   /**
-    * @see IMetadataProvider#getMetaData()
-    */
-   public EntityDescriptorType getMetaData()
-   {
-      if (this.metadataFileStream == null)
-         throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Metadata file");
+    /**
+     * @see IMetadataProvider#getMetaData()
+     */
+    public EntityDescriptorType getMetaData() {
+        if (this.metadataFileStream == null)
+            throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Metadata file");
 
-      try
-      {
-         SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();
-         return (EntityDescriptorType) parser.parse(StaxParserUtil.getXMLEventReader(metadataFileStream));
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
+        try {
+            SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();
+            return (EntityDescriptorType) parser.parse(StaxParserUtil.getXMLEventReader(metadataFileStream));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-   /**
-    * @see IMetadataProvider#isMultiple()
-    */
-   public boolean isMultiple()
-   {
-      return false;
-   }
+    /**
+     * @see IMetadataProvider#isMultiple()
+     */
+    public boolean isMultiple() {
+        return false;
+    }
 
-   public void injectEncryptionKey(PublicKey publicKey)
-   {
-      this.encryptionKey = publicKey;
-   }
+    public void injectEncryptionKey(PublicKey publicKey) {
+        this.encryptionKey = publicKey;
+    }
 
-   public void injectFileStream(InputStream fileStream)
-   {
-      this.metadataFileStream = fileStream;
-   }
+    public void injectFileStream(InputStream fileStream) {
+        this.metadataFileStream = fileStream;
+    }
 
-   public void injectSigningKey(PublicKey publicKey)
-   {
-      this.signingKey = publicKey;
-   }
+    public void injectSigningKey(PublicKey publicKey) {
+        this.signingKey = publicKey;
+    }
 
-   public String requireFileInjection()
-   {
-      return this.fileName;
-   }
+    public String requireFileInjection() {
+        return this.fileName;
+    }
 }

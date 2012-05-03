@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2011, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,12 +21,13 @@
  */
 package org.picketlink.identity.federation.ws.addressing;
 
-
 /**
- * <p>Java class for MetadataType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for MetadataType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="MetadataType">
  *   &lt;complexContent>
@@ -38,9 +39,8 @@ package org.picketlink.identity.federation.ws.addressing;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class MetadataType extends AnyAddressingType
-{
+public class MetadataType extends AnyAddressingType {
 }

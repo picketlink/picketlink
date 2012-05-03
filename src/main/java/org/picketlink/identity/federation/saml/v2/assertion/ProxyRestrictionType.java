@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,10 +28,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <p>Java class for ProxyRestrictionType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ProxyRestrictionType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ProxyRestrictionType">
  *   &lt;complexContent>
@@ -44,67 +46,59 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class ProxyRestrictionType extends ConditionAbstractType
-{
-   private static final long serialVersionUID = 1L;
+public class ProxyRestrictionType extends ConditionAbstractType {
+    private static final long serialVersionUID = 1L;
 
-   protected List<URI> audience = new ArrayList<URI>();
+    protected List<URI> audience = new ArrayList<URI>();
 
-   protected BigInteger count;
+    protected BigInteger count;
 
-   /**
-    * Add an audience
-    * @param a
-    */
-   public void addAudience(URI a)
-   {
-      this.audience.add(a);
-   }
+    /**
+     * Add an audience
+     *
+     * @param a
+     */
+    public void addAudience(URI a) {
+        this.audience.add(a);
+    }
 
-   /**
-    * Gets the value of the audience property.
-    *  
-    */
-   public List<URI> getAudience()
-   {
-      return Collections.unmodifiableList(audience);
-   }
+    /**
+     * Gets the value of the audience property.
+     *
+     */
+    public List<URI> getAudience() {
+        return Collections.unmodifiableList(audience);
+    }
 
-   /**
-    * Remove an audience
-    * @param a
-    */
-   public void removeAudience(URI a)
-   {
-      this.audience.remove(a);
-   }
+    /**
+     * Remove an audience
+     *
+     * @param a
+     */
+    public void removeAudience(URI a) {
+        this.audience.remove(a);
+    }
 
-   /**
-    * Gets the value of the count property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link BigInteger }
-    *     
-    */
-   public BigInteger getCount()
-   {
-      return count;
-   }
+    /**
+     * Gets the value of the count property.
+     *
+     * @return possible object is {@link BigInteger }
+     *
+     */
+    public BigInteger getCount() {
+        return count;
+    }
 
-   /**
-    * Sets the value of the count property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link BigInteger }
-    *     
-    */
-   public void setCount(BigInteger value)
-   {
-      this.count = value;
-   }
+    /**
+     * Sets the value of the count property.
+     *
+     * @param value allowed object is {@link BigInteger }
+     *
+     */
+    public void setCount(BigInteger value) {
+        this.count = value;
+    }
 }

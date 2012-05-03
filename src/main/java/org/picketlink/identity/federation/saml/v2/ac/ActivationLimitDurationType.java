@@ -1,13 +1,14 @@
 package org.picketlink.identity.federation.saml.v2.ac;
- 
+
 import javax.xml.datatype.Duration;
 
-
 /**
- * <p>Java class for ActivationLimitDurationType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for ActivationLimitDurationType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="ActivationLimitDurationType">
  *   &lt;complexContent>
@@ -17,25 +18,21 @@ import javax.xml.datatype.Duration;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class ActivationLimitDurationType 
-{
+ *
+ *
+ */
+public class ActivationLimitDurationType {
     protected Duration duration;
 
-    public ActivationLimitDurationType( Duration theDuration )
-    {
-       this.duration = theDuration;
+    public ActivationLimitDurationType(Duration theDuration) {
+        this.duration = theDuration;
     }
-    
+
     /**
      * Gets the value of the duration property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link Duration }
-     *     
+     *
+     * @return possible object is {@link Duration }
+     *
      */
     public Duration getDuration() {
         return duration;

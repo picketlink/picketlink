@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,17 +27,15 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCh
 
 /**
  * Default implementation of the handler config
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 10, 2009
  */
-public class DefaultSAML2HandlerChainConfig extends BaseHandlerConfig implements SAML2HandlerChainConfig
-{
-   public DefaultSAML2HandlerChainConfig()
-   {
-   }
+public class DefaultSAML2HandlerChainConfig extends BaseHandlerConfig implements SAML2HandlerChainConfig {
+    public DefaultSAML2HandlerChainConfig() {
+    }
 
-   public DefaultSAML2HandlerChainConfig(Map<String, Object> map)
-   {
-      this.params.putAll(map);
-   }
+    public DefaultSAML2HandlerChainConfig(Map<String, Object> map) {
+        this.params.putAll(map);
+    }
 }

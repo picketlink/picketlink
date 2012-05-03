@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,10 +27,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <p>Java class for SubjectType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for SubjectType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="SubjectType">
  *   &lt;complexContent>
@@ -50,114 +52,105 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class SubjectType implements Serializable
-{
-   private static final long serialVersionUID = 1L;
+public class SubjectType implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-   protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
+    protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
 
-   protected STSubType subType;
+    protected STSubType subType;
 
-   /**
-    * Get the {@link STSubType}
-    * @return
-    */
-   public STSubType getSubType()
-   {
-      return subType;
-   }
+    /**
+     * Get the {@link STSubType}
+     *
+     * @return
+     */
+    public STSubType getSubType() {
+        return subType;
+    }
 
-   /**
-    * Set the {@link STSubType}
-    * @param subType
-    */
-   public void setSubType(STSubType subType)
-   {
-      this.subType = subType;
-   }
+    /**
+     * Set the {@link STSubType}
+     *
+     * @param subType
+     */
+    public void setSubType(STSubType subType) {
+        this.subType = subType;
+    }
 
-   /**
-    * Get the size of subject confirmations
-    * @return
-    */
-   public int getCount()
-   {
-      return subjectConfirmation.size();
-   }
+    /**
+     * Get the size of subject confirmations
+     *
+     * @return
+     */
+    public int getCount() {
+        return subjectConfirmation.size();
+    }
 
-   /**
-    * Get a list of subject confirmations
-    * @return {@link} read only list of subject confirmation
-    */
-   public List<SubjectConfirmationType> getConfirmation()
-   {
-      return Collections.unmodifiableList(subjectConfirmation);
-   }
+    /**
+     * Get a list of subject confirmations
+     *
+     * @return {@link} read only list of subject confirmation
+     */
+    public List<SubjectConfirmationType> getConfirmation() {
+        return Collections.unmodifiableList(subjectConfirmation);
+    }
 
-   /**
-    * Add a subject confirmation
-    * @param con
-    */
-   public void addConfirmation(SubjectConfirmationType con)
-   {
-      subjectConfirmation.add(con);
-   }
+    /**
+     * Add a subject confirmation
+     *
+     * @param con
+     */
+    public void addConfirmation(SubjectConfirmationType con) {
+        subjectConfirmation.add(con);
+    }
 
-   /**
-    * Remove a subject confirmation
-    * @param con
-    */
-   public void removeConfirmation(SubjectConfirmationType con)
-   {
-      subjectConfirmation.remove(con);
-   }
+    /**
+     * Remove a subject confirmation
+     *
+     * @param con
+     */
+    public void removeConfirmation(SubjectConfirmationType con) {
+        subjectConfirmation.remove(con);
+    }
 
-   public static class STSubType implements Serializable
-   {
-      private static final long serialVersionUID = -4073731807610876524L;
+    public static class STSubType implements Serializable {
+        private static final long serialVersionUID = -4073731807610876524L;
 
-      private BaseIDAbstractType baseID;
+        private BaseIDAbstractType baseID;
 
-      private EncryptedElementType encryptedID;
+        private EncryptedElementType encryptedID;
 
-      protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
+        protected List<SubjectConfirmationType> subjectConfirmation = new ArrayList<SubjectConfirmationType>();
 
-      public void addBaseID(BaseIDAbstractType base)
-      {
-         this.baseID = base;
-      }
+        public void addBaseID(BaseIDAbstractType base) {
+            this.baseID = base;
+        }
 
-      public BaseIDAbstractType getBaseID()
-      {
-         return baseID;
-      }
+        public BaseIDAbstractType getBaseID() {
+            return baseID;
+        }
 
-      public EncryptedElementType getEncryptedID()
-      {
-         return encryptedID;
-      }
+        public EncryptedElementType getEncryptedID() {
+            return encryptedID;
+        }
 
-      public void setEncryptedID(EncryptedElementType encryptedID)
-      {
-         this.encryptedID = encryptedID;
-      }
+        public void setEncryptedID(EncryptedElementType encryptedID) {
+            this.encryptedID = encryptedID;
+        }
 
-      public void addConfirmation(SubjectConfirmationType con)
-      {
-         subjectConfirmation.add(con);
-      }
+        public void addConfirmation(SubjectConfirmationType con) {
+            subjectConfirmation.add(con);
+        }
 
-      public int getCount()
-      {
-         return subjectConfirmation.size();
-      }
+        public int getCount() {
+            return subjectConfirmation.size();
+        }
 
-      public List<SubjectConfirmationType> getConfirmation()
-      {
-         return Collections.unmodifiableList(subjectConfirmation);
-      }
-   }
+        public List<SubjectConfirmationType> getConfirmation() {
+            return Collections.unmodifiableList(subjectConfirmation);
+        }
+    }
 }

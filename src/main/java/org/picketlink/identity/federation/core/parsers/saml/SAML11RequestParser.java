@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -45,91 +45,75 @@ import org.picketlink.identity.federation.saml.v1.protocol.SAML11RequestType;
 
 /**
  * Parse the SAML2 AuthnRequest
+ *
  * @author Anil.Saldhana@redhat.com
  * @since June 24, 2011
  */
-public class SAML11RequestParser implements ParserNamespaceSupport
-{
+public class SAML11RequestParser implements ParserNamespaceSupport {
 
-   protected SAML11RequestType parseRequiredAttributes(StartElement startElement) throws ParsingException
-   {
-      Attribute idAttr = startElement.getAttributeByName(new QName(SAML11Constants.REQUEST_ID));
-      if (idAttr == null)
-         throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.REQUEST_ID);
+    protected SAML11RequestType parseRequiredAttributes(StartElement startElement) throws ParsingException {
+        Attribute idAttr = startElement.getAttributeByName(new QName(SAML11Constants.REQUEST_ID));
+        if (idAttr == null)
+            throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.REQUEST_ID);
 
-      String id = StaxParserUtil.getAttributeValue(idAttr);
+        String id = StaxParserUtil.getAttributeValue(idAttr);
 
-      Attribute issueInstantAttr = startElement.getAttributeByName(new QName(SAML11Constants.ISSUE_INSTANT));
-      if (issueInstantAttr == null)
-         throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.ISSUE_INSTANT);
-      XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttr));
-      return new SAML11RequestType(id, issueInstant);
-   }
+        Attribute issueInstantAttr = startElement.getAttributeByName(new QName(SAML11Constants.ISSUE_INSTANT));
+        if (issueInstantAttr == null)
+            throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.ISSUE_INSTANT);
+        XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttr));
+        return new SAML11RequestType(id, issueInstant);
+    }
 
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      //Get the startelement
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, SAML11Constants.REQUEST);
+    /**
+     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     */
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        // Get the startelement
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, SAML11Constants.REQUEST);
 
-      SAML11RequestType request = parseRequiredAttributes(startElement);
+        SAML11RequestType request = parseRequiredAttributes(startElement);
 
-      while (xmlEventReader.hasNext())
-      {
-         //Let us peek at the next start element
-         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         if (startElement == null)
-            break;
+        while (xmlEventReader.hasNext()) {
+            // Let us peek at the next start element
+            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            if (startElement == null)
+                break;
 
-         String elementName = StaxParserUtil.getStartElementName(startElement);
+            String elementName = StaxParserUtil.getStartElementName(startElement);
 
-         if (SAML11Constants.ATTRIBUTE_QUERY.equals(elementName))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            SAML11AttributeQueryType query = SAML11ParserUtil.parseSAML11AttributeQuery(xmlEventReader);
-            request.setQuery(query);
-         }
-         else if (SAML11Constants.AUTHENTICATION_QUERY.equals(elementName))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            SAML11AuthenticationQueryType query = SAML11ParserUtil.parseSAML11AuthenticationQuery(xmlEventReader);
-            request.setQuery(query);
-         }
-         else if (SAML11Constants.ASSERTION_ARTIFACT.equals(elementName))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            request.addAssertionArtifact(StaxParserUtil.getElementText(xmlEventReader));
-         }
-         else if (SAML11Constants.AUTHORIZATION_DECISION_QUERY.equals(elementName))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            SAML11AuthorizationDecisionQueryType query = SAML11ParserUtil
-                  .parseSAML11AuthorizationDecisionQueryType(xmlEventReader);
-            request.setQuery(query);
-         }
-         else if (elementName.equals(JBossSAMLConstants.SIGNATURE.get()))
-         {
-            request.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
-         }
-         else if (SAML11Constants.ASSERTION_ID_REF.equals(elementName))
-         {
-            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            request.addAssertionIDRef(StaxParserUtil.getElementText(xmlEventReader));
-         }
-         else
-            throw new RuntimeException(UNKNOWN_START_ELEMENT + elementName + "::location=" + startElement.getLocation());
-      }
-      return request;
-   }
+            if (SAML11Constants.ATTRIBUTE_QUERY.equals(elementName)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                SAML11AttributeQueryType query = SAML11ParserUtil.parseSAML11AttributeQuery(xmlEventReader);
+                request.setQuery(query);
+            } else if (SAML11Constants.AUTHENTICATION_QUERY.equals(elementName)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                SAML11AuthenticationQueryType query = SAML11ParserUtil.parseSAML11AuthenticationQuery(xmlEventReader);
+                request.setQuery(query);
+            } else if (SAML11Constants.ASSERTION_ARTIFACT.equals(elementName)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                request.addAssertionArtifact(StaxParserUtil.getElementText(xmlEventReader));
+            } else if (SAML11Constants.AUTHORIZATION_DECISION_QUERY.equals(elementName)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                SAML11AuthorizationDecisionQueryType query = SAML11ParserUtil
+                        .parseSAML11AuthorizationDecisionQueryType(xmlEventReader);
+                request.setQuery(query);
+            } else if (elementName.equals(JBossSAMLConstants.SIGNATURE.get())) {
+                request.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
+            } else if (SAML11Constants.ASSERTION_ID_REF.equals(elementName)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                request.addAssertionIDRef(StaxParserUtil.getElementText(xmlEventReader));
+            } else
+                throw new RuntimeException(UNKNOWN_START_ELEMENT + elementName + "::location=" + startElement.getLocation());
+        }
+        return request;
+    }
 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
-   public boolean supports(QName qname)
-   {
-      return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI());
-   }
+    /**
+     * @see {@link ParserNamespaceSupport#supports(QName)}
+     */
+    public boolean supports(QName qname) {
+        return JBossSAMLURIConstants.PROTOCOL_NSURI.get().equals(qname.getNamespaceURI());
+    }
 }

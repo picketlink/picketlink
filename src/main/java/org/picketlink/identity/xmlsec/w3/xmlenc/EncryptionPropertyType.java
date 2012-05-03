@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,12 +28,13 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-
 /**
- * <p>Java class for EncryptionPropertyType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for EncryptionPropertyType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="EncryptionPropertyType">
  *   &lt;complexContent>
@@ -47,24 +48,20 @@ import javax.xml.namespace.QName;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
+ *
+ *
+ */
 public class EncryptionPropertyType {
- 
+
     protected URI target;
     protected String id;
     private Map<QName, String> otherAttributes = new HashMap<QName, String>();
 
-     
-
     /**
      * Gets the value of the target property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link URI }
-     *     
+     *
+     * @return possible object is {@link URI }
+     *
      */
     public URI getTarget() {
         return target;
@@ -72,23 +69,19 @@ public class EncryptionPropertyType {
 
     /**
      * Sets the value of the target property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link URI }
-     *     
+     *
+     * @param value allowed object is {@link URI }
+     *
      */
-    public void setTarget( URI value) {
+    public void setTarget(URI value) {
         this.target = value;
     }
 
     /**
      * Gets the value of the id property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
+     *
+     * @return possible object is {@link String }
+     *
      */
     public String getId() {
         return id;
@@ -96,36 +89,32 @@ public class EncryptionPropertyType {
 
     /**
      * Sets the value of the id property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
+     *
+     * @param value allowed object is {@link String }
+     *
      */
     public void setId(String value) {
         this.id = value;
     }
 
-    public void addOtherAttribute( QName key, String val )
-    {
-       this.otherAttributes.put(key, val);
+    public void addOtherAttribute(QName key, String val) {
+        this.otherAttributes.put(key, val);
     }
-    
-    public void addOtherAttributes( Map< QName, String> otherMap )
-    {
-       this.otherAttributes.putAll(otherMap);
+
+    public void addOtherAttributes(Map<QName, String> otherMap) {
+        this.otherAttributes.putAll(otherMap);
     }
-    
-    public void removeOtherAttribute( QName key )
-    {
-       this.otherAttributes.remove(key);
+
+    public void removeOtherAttribute(QName key) {
+        this.otherAttributes.remove(key);
     }
+
     /**
-     * Gets a map that contains attributes that aren't bound to any typed property on this class. 
-     * @return
-     *     always non-null
+     * Gets a map that contains attributes that aren't bound to any typed property on this class.
+     *
+     * @return always non-null
      */
     public Map<QName, String> getOtherAttributes() {
-        return Collections.unmodifiableMap( otherAttributes );
+        return Collections.unmodifiableMap(otherAttributes);
     }
 }

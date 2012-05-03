@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,10 +26,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * <p>Java class for TokenProviderType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for TokenProviderType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="TokenProviderType">
  *   &lt;complexContent>
@@ -45,147 +47,118 @@ import java.util.List;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
-public class TokenProviderType
-{
+public class TokenProviderType {
 
-   protected List<KeyValueType> property = new ArrayList<KeyValueType>();
+    protected List<KeyValueType> property = new ArrayList<KeyValueType>();
 
-   protected String providerClass;
+    protected String providerClass;
 
-   protected String tokenType;
+    protected String tokenType;
 
-   protected String tokenElement;
+    protected String tokenElement;
 
-   protected String tokenElementNS;
+    protected String tokenElementNS;
 
-   public void add(KeyValueType kv)
-   {
-      property.add(kv);
-   }
+    public void add(KeyValueType kv) {
+        property.add(kv);
+    }
 
-   public void remove(KeyValueType kv)
-   {
-      this.remove(kv);
-   }
+    public void remove(KeyValueType kv) {
+        this.remove(kv);
+    }
 
-   /**
-    * Gets the value of the property property.
-    * <p>
-    * Objects of the following type(s) are allowed in the list
-    * {@link KeyValueType }
-    * 
-    * 
-    */
-   public List<KeyValueType> getProperty()
-   {
-      return Collections.unmodifiableList(this.property);
-   }
+    /**
+     * Gets the value of the property property.
+     * <p>
+     * Objects of the following type(s) are allowed in the list {@link KeyValueType }
+     *
+     *
+     */
+    public List<KeyValueType> getProperty() {
+        return Collections.unmodifiableList(this.property);
+    }
 
-   /**
-    * Gets the value of the providerClass property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getProviderClass()
-   {
-      return providerClass;
-   }
+    /**
+     * Gets the value of the providerClass property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getProviderClass() {
+        return providerClass;
+    }
 
-   /**
-    * Sets the value of the providerClass property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setProviderClass(String value)
-   {
-      this.providerClass = value;
-   }
+    /**
+     * Sets the value of the providerClass property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setProviderClass(String value) {
+        this.providerClass = value;
+    }
 
-   /**
-    * Gets the value of the tokenType property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getTokenType()
-   {
-      return tokenType;
-   }
+    /**
+     * Gets the value of the tokenType property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getTokenType() {
+        return tokenType;
+    }
 
-   /**
-    * Sets the value of the tokenType property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setTokenType(String value)
-   {
-      this.tokenType = value;
-   }
+    /**
+     * Sets the value of the tokenType property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setTokenType(String value) {
+        this.tokenType = value;
+    }
 
-   /**
-    * Gets the value of the tokenElement property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getTokenElement()
-   {
-      return tokenElement;
-   }
+    /**
+     * Gets the value of the tokenElement property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getTokenElement() {
+        return tokenElement;
+    }
 
-   /**
-    * Sets the value of the tokenElement property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setTokenElement(String value)
-   {
-      this.tokenElement = value;
-   }
+    /**
+     * Sets the value of the tokenElement property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setTokenElement(String value) {
+        this.tokenElement = value;
+    }
 
-   /**
-    * Gets the value of the tokenElementNS property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getTokenElementNS()
-   {
-      return tokenElementNS;
-   }
+    /**
+     * Gets the value of the tokenElementNS property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getTokenElementNS() {
+        return tokenElementNS;
+    }
 
-   /**
-    * Sets the value of the tokenElementNS property.
-    * 
-    * @param value
-    *     allowed object is
-    *     {@link String }
-    *     
-    */
-   public void setTokenElementNS(String value)
-   {
-      this.tokenElementNS = value;
-   }
+    /**
+     * Sets the value of the tokenElementNS property.
+     *
+     * @param value allowed object is {@link String }
+     *
+     */
+    public void setTokenElementNS(String value) {
+        this.tokenElementNS = value;
+    }
 
 }

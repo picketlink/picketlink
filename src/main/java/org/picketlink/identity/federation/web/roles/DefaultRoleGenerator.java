@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -33,41 +33,32 @@ import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
- * Simple Role Generator that looks
- * inside a roles.properties on the classpath
- * with format:  principalName=role1,role2
- * 
+ * Simple Role Generator that looks inside a roles.properties on the classpath with format: principalName=role1,role2
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 21, 2009
  */
-public class DefaultRoleGenerator implements RoleGenerator
-{
-   private static Properties props = new Properties();
+public class DefaultRoleGenerator implements RoleGenerator {
+    private static Properties props = new Properties();
 
-   static
-   {
-      try
-      {
-         URL url = SecurityActions.loadResource(DefaultRoleGenerator.class, "roles.properties");
-         if (url == null)
-            throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + "roles.properties not found");
-         props.load(url.openStream());
-      }
-      catch (IOException e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
+    static {
+        try {
+            URL url = SecurityActions.loadResource(DefaultRoleGenerator.class, "roles.properties");
+            if (url == null)
+                throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + "roles.properties not found");
+            props.load(url.openStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-   public List<String> generateRoles(Principal principal)
-   {
-      List<String> roles = new ArrayList<String>();
+    public List<String> generateRoles(Principal principal) {
+        List<String> roles = new ArrayList<String>();
 
-      String csv = (String) props.get(principal.getName());
-      if (StringUtil.isNotNull(csv))
-      {
-         roles.addAll(StringUtil.tokenize(csv));
-      }
-      return roles;
-   }
+        String csv = (String) props.get(principal.getName());
+        if (StringUtil.isNotNull(csv)) {
+            roles.addAll(StringUtil.tokenize(csv));
+        }
+        return roles;
+    }
 }

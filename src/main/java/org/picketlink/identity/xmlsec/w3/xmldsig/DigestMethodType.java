@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,12 +23,13 @@ package org.picketlink.identity.xmlsec.w3.xmldsig;
 
 import java.net.URI;
 
-
 /**
- * <p>Java class for DigestMethodType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for DigestMethodType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="DigestMethodType">
  *   &lt;complexContent>
@@ -41,38 +42,32 @@ import java.net.URI;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class DigestMethodType 
-{
-   protected URI algorithm;
-   private Object content;
+ *
+ *
+ */
+public class DigestMethodType {
+    protected URI algorithm;
+    private Object content;
 
-   public DigestMethodType(URI algorithm)
-   { 
-      this.algorithm = algorithm;
-   }
+    public DigestMethodType(URI algorithm) {
+        this.algorithm = algorithm;
+    }
 
-   public void setContent( Object content )
-   {
-      this.content = content;
-   }
+    public void setContent(Object content) {
+        this.content = content;
+    }
 
-   public Object getContent()
-   {
-      return this.content;
-   }
+    public Object getContent() {
+        return this.content;
+    }
 
-   /**
-    * Gets the value of the algorithm property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link URI }
-    *     
-    */
-   public URI getAlgorithm() {
-      return algorithm;
-   }
+    /**
+     * Gets the value of the algorithm property.
+     *
+     * @return possible object is {@link URI }
+     *
+     */
+    public URI getAlgorithm() {
+        return algorithm;
+    }
 }

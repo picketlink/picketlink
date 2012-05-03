@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2009, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,36 +25,35 @@ package org.picketlink.identity.federation.core.wstrust;
  * <p>
  * Interface that represents a security token.
  * </p>
- * 
+ *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public interface SecurityToken
-{
+public interface SecurityToken {
 
-   /**
-    * <p>
-    * Obtains the security token unique identifier.
-    * </p>
-    * 
-    * @return a {@code String} representing the token id.
-    */
-   public String getTokenID();
-   
-   /**
-    * <p>
-    * Obtains the type of the security token.
-    * </p>
-    * 
-    * @return a {@code String} representing the security token type.
-    */
-   public String getTokenType();
-   
-   /**
-    * <p>
-    * Obtains the value of the security token.
-    * </p>
-    * 
-    * @return an {@code Object} representing the security token value.
-    */
-   public Object getTokenValue();
+    /**
+     * <p>
+     * Obtains the security token unique identifier.
+     * </p>
+     *
+     * @return a {@code String} representing the token id.
+     */
+    public String getTokenID();
+
+    /**
+     * <p>
+     * Obtains the type of the security token.
+     * </p>
+     *
+     * @return a {@code String} representing the security token type.
+     */
+    public String getTokenType();
+
+    /**
+     * <p>
+     * Obtains the value of the security token.
+     * </p>
+     *
+     * @return an {@code Object} representing the security token value.
+     */
+    public Object getTokenValue();
 }

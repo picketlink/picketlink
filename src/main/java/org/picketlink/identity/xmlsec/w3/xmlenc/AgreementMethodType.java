@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -24,10 +24,12 @@ package org.picketlink.identity.xmlsec.w3.xmlenc;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 
 /**
- * <p>Java class for AgreementMethodType complex type.
- * 
- * <p>The following schema fragment specifies the expected content contained within this class.
- * 
+ * <p>
+ * Java class for AgreementMethodType complex type.
+ *
+ * <p>
+ * The following schema fragment specifies the expected content contained within this class.
+ *
  * <pre>
  * &lt;complexType name="AgreementMethodType">
  *   &lt;complexContent>
@@ -43,53 +45,48 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
- */ 
-public class AgreementMethodType 
-{
-   protected String algorithm;
+ *
+ *
+ */
+public class AgreementMethodType {
+    protected String algorithm;
 
-   public static class AggrementMethod
-   {
-      protected byte[] kANonce;
-      protected KeyInfoType originatorKeyInfo;
-      protected KeyInfoType recipientKeyInfo;
-      public AggrementMethod(byte[] kANonce, KeyInfoType originatorKeyInfo, KeyInfoType recipientKeyInfo)
-      { 
-         this.kANonce = kANonce;
-         this.originatorKeyInfo = originatorKeyInfo;
-         this.recipientKeyInfo = recipientKeyInfo;
-      }
-      public byte[] getkANonce()
-      {
-         return kANonce;
-      }
-      public KeyInfoType getOriginatorKeyInfo()
-      {
-         return originatorKeyInfo;
-      }
-      public KeyInfoType getRecipientKeyInfo()
-      {
-         return recipientKeyInfo;
-      } 
-   }
-   
-   public AgreementMethodType( String algo )
-   {
-      this.algorithm = algo;
-   }
+    public static class AggrementMethod {
+        protected byte[] kANonce;
+        protected KeyInfoType originatorKeyInfo;
+        protected KeyInfoType recipientKeyInfo;
 
-   /**
-    * Gets the value of the algorithm property.
-    * 
-    * @return
-    *     possible object is
-    *     {@link String }
-    *     
-    */
-   public String getAlgorithm() {
-      return algorithm;
-   }
+        public AggrementMethod(byte[] kANonce, KeyInfoType originatorKeyInfo, KeyInfoType recipientKeyInfo) {
+            this.kANonce = kANonce;
+            this.originatorKeyInfo = originatorKeyInfo;
+            this.recipientKeyInfo = recipientKeyInfo;
+        }
+
+        public byte[] getkANonce() {
+            return kANonce;
+        }
+
+        public KeyInfoType getOriginatorKeyInfo() {
+            return originatorKeyInfo;
+        }
+
+        public KeyInfoType getRecipientKeyInfo() {
+            return recipientKeyInfo;
+        }
+    }
+
+    public AgreementMethodType(String algo) {
+        this.algorithm = algo;
+    }
+
+    /**
+     * Gets the value of the algorithm property.
+     *
+     * @return possible object is {@link String }
+     *
+     */
+    public String getAlgorithm() {
+        return algorithm;
+    }
 
 }

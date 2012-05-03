@@ -2,15 +2,15 @@
  * JBoss, Home of Professional Open Source. Copyright 2008, Red Hat Middleware LLC, and individual contributors as
  * indicated by the @author tags. See the copyright.txt file in the distribution for a full listing of individual
  * contributors.
- * 
+ *
  * This is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any
  * later version.
- * 
+ *
  * This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
  * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License along with this software; if not, write to
  * the Free Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA, or see the FSF site:
  * http://www.fsf.org.
@@ -44,185 +44,147 @@ import org.w3c.dom.Element;
 
 /**
  * Parse the saml subject
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2010
  */
-public class SAMLSubjectParser implements ParserNamespaceSupport
-{
-   /**
-    * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
-    */
-   public Object parse(XMLEventReader xmlEventReader) throws ParsingException
-   {
-      StaxParserUtil.getNextEvent(xmlEventReader);
+public class SAMLSubjectParser implements ParserNamespaceSupport {
+    /**
+     * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
+     */
+    public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+        StaxParserUtil.getNextEvent(xmlEventReader);
 
-      SubjectType subject = new SubjectType();
+        SubjectType subject = new SubjectType();
 
-      // Peek at the next event
-      while (xmlEventReader.hasNext())
-      {
-         XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-         if (xmlEvent instanceof EndElement)
-         {
-            EndElement endElement = (EndElement) xmlEvent;
-            if (StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT.get()))
-            {
-               endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-               break;
-            }
-            else
-               throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
-         }
-
-         StartElement peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         if (peekedElement == null)
-            break;
-
-         String tag = StaxParserUtil.getStartElementName(peekedElement);
-
-         if (JBossSAMLConstants.NAMEID.get().equalsIgnoreCase(tag))
-         {
-            NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
-            STSubType subType = new STSubType();
-            subType.addBaseID(nameID);
-            subject.setSubType(subType);
-         }
-         else if (JBossSAMLConstants.BASEID.get().equalsIgnoreCase(tag))
-         {
-            throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + JBossSAMLConstants.BASEID.get());
-         }
-         else if (JBossSAMLConstants.ENCRYPTED_ID.get().equals(tag))
-         {
-            Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
-            STSubType subType = new STSubType();
-            subType.setEncryptedID(new EncryptedElementType(domElement));
-            subject.setSubType(subType);
-         }
-         else if (JBossSAMLConstants.SUBJECT_CONFIRMATION.get().equalsIgnoreCase(tag))
-         {
-            StartElement subjectConfirmationElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-            Attribute method = subjectConfirmationElement
-                  .getAttributeByName(new QName(JBossSAMLConstants.METHOD.get()));
-
-            SubjectConfirmationType subjectConfirmationType = new SubjectConfirmationType();
-
-            if (method != null)
-            {
-               subjectConfirmationType.setMethod(StaxParserUtil.getAttributeValue(method));
+        // Peek at the next event
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = (EndElement) xmlEvent;
+                if (StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT.get())) {
+                    endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+                    break;
+                } else
+                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
             }
 
-            // There may be additional things under subject confirmation
-            xmlEvent = StaxParserUtil.peek(xmlEventReader);
-            if (xmlEvent instanceof StartElement)
-            {
-               StartElement startElement = (StartElement) xmlEvent;
-               String startTag = StaxParserUtil.getStartElementName(startElement);
+            StartElement peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            if (peekedElement == null)
+                break;
 
-               if (startTag.equals(JBossSAMLConstants.NAMEID.get()))
-               {
-                  NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
-                  subjectConfirmationType.setNameID(nameID);
-               }
-               else if (JBossSAMLConstants.BASEID.get().equalsIgnoreCase(tag))
-               {
-                  throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + JBossSAMLConstants.BASEID.get());
-               }
-               else if (JBossSAMLConstants.ENCRYPTED_ID.get().equals(tag))
-               {
-                  Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
-                  subjectConfirmationType.setEncryptedID(new EncryptedElementType(domElement));
-               }
-               else if (startTag.equals(JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get()))
-               {
-                  SubjectConfirmationDataType subjectConfirmationData = parseSubjectConfirmationData(xmlEventReader);
-                  subjectConfirmationType.setSubjectConfirmationData(subjectConfirmationData);
-               }
-            }
+            String tag = StaxParserUtil.getStartElementName(peekedElement);
 
-            subject.addConfirmation(subjectConfirmationType);
+            if (JBossSAMLConstants.NAMEID.get().equalsIgnoreCase(tag)) {
+                NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
+                STSubType subType = new STSubType();
+                subType.addBaseID(nameID);
+                subject.setSubType(subType);
+            } else if (JBossSAMLConstants.BASEID.get().equalsIgnoreCase(tag)) {
+                throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + JBossSAMLConstants.BASEID.get());
+            } else if (JBossSAMLConstants.ENCRYPTED_ID.get().equals(tag)) {
+                Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
+                STSubType subType = new STSubType();
+                subType.setEncryptedID(new EncryptedElementType(domElement));
+                subject.setSubType(subType);
+            } else if (JBossSAMLConstants.SUBJECT_CONFIRMATION.get().equalsIgnoreCase(tag)) {
+                StartElement subjectConfirmationElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                Attribute method = subjectConfirmationElement.getAttributeByName(new QName(JBossSAMLConstants.METHOD.get()));
 
-            // Get the end tag
-            EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
-            StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get());
-         }
-         else
-            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
-      }
-      return subject;
-   }
+                SubjectConfirmationType subjectConfirmationType = new SubjectConfirmationType();
 
-   /**
-    * @see {@link ParserNamespaceSupport#supports(QName)}
-    */
-   public boolean supports(QName qname)
-   {
-      String nsURI = qname.getNamespaceURI();
-      String localPart = qname.getLocalPart();
+                if (method != null) {
+                    subjectConfirmationType.setMethod(StaxParserUtil.getAttributeValue(method));
+                }
 
-      return nsURI.equals(JBossSAMLURIConstants.ASSERTION_NSURI.get())
-            && localPart.equals(JBossSAMLConstants.SUBJECT.get());
-   }
+                // There may be additional things under subject confirmation
+                xmlEvent = StaxParserUtil.peek(xmlEventReader);
+                if (xmlEvent instanceof StartElement) {
+                    StartElement startElement = (StartElement) xmlEvent;
+                    String startTag = StaxParserUtil.getStartElementName(startElement);
 
-   private SubjectConfirmationDataType parseSubjectConfirmationData(XMLEventReader xmlEventReader)
-         throws ParsingException
-   {
-      StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-      StaxParserUtil.validate(startElement, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get());
+                    if (startTag.equals(JBossSAMLConstants.NAMEID.get())) {
+                        NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
+                        subjectConfirmationType.setNameID(nameID);
+                    } else if (JBossSAMLConstants.BASEID.get().equalsIgnoreCase(tag)) {
+                        throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + JBossSAMLConstants.BASEID.get());
+                    } else if (JBossSAMLConstants.ENCRYPTED_ID.get().equals(tag)) {
+                        Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
+                        subjectConfirmationType.setEncryptedID(new EncryptedElementType(domElement));
+                    } else if (startTag.equals(JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get())) {
+                        SubjectConfirmationDataType subjectConfirmationData = parseSubjectConfirmationData(xmlEventReader);
+                        subjectConfirmationType.setSubjectConfirmationData(subjectConfirmationData);
+                    }
+                }
 
-      SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
+                subject.addConfirmation(subjectConfirmationType);
 
-      Attribute inResponseTo = startElement.getAttributeByName(new QName(JBossSAMLConstants.IN_RESPONSE_TO.get()));
-      if (inResponseTo != null)
-      {
-         subjectConfirmationData.setInResponseTo(StaxParserUtil.getAttributeValue(inResponseTo));
-      }
+                // Get the end tag
+                EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+                StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get());
+            } else
+                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
+        }
+        return subject;
+    }
 
-      Attribute notBefore = startElement.getAttributeByName(new QName(JBossSAMLConstants.NOT_BEFORE.get()));
-      if (notBefore != null)
-      {
-         subjectConfirmationData.setNotBefore(XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(notBefore)));
-      }
+    /**
+     * @see {@link ParserNamespaceSupport#supports(QName)}
+     */
+    public boolean supports(QName qname) {
+        String nsURI = qname.getNamespaceURI();
+        String localPart = qname.getLocalPart();
 
-      Attribute notOnOrAfter = startElement.getAttributeByName(new QName(JBossSAMLConstants.NOT_ON_OR_AFTER.get()));
-      if (notOnOrAfter != null)
-      {
-         subjectConfirmationData.setNotOnOrAfter(XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(notOnOrAfter)));
-      }
+        return nsURI.equals(JBossSAMLURIConstants.ASSERTION_NSURI.get()) && localPart.equals(JBossSAMLConstants.SUBJECT.get());
+    }
 
-      Attribute recipient = startElement.getAttributeByName(new QName(JBossSAMLConstants.RECIPIENT.get()));
-      if (recipient != null)
-      {
-         subjectConfirmationData.setRecipient(StaxParserUtil.getAttributeValue(recipient));
-      }
+    private SubjectConfirmationDataType parseSubjectConfirmationData(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get());
 
-      Attribute address = startElement.getAttributeByName(new QName(JBossSAMLConstants.ADDRESS.get()));
-      if (address != null)
-      {
-         subjectConfirmationData.setAddress(StaxParserUtil.getAttributeValue(address));
-      }
+        SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
 
-      XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
-      if (!(xmlEvent instanceof EndElement))
-      {
-         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-         String tag = StaxParserUtil.getStartElementName(startElement);
-         if (tag.equals(WSTrustConstants.XMLDSig.KEYINFO))
-         {
-            KeyInfoType keyInfo = SAMLParserUtil.parseKeyInfo(xmlEventReader);
-            subjectConfirmationData.setAnyType(keyInfo);
-         }
-         else if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY))
-         {
-            subjectConfirmationData.setAnyType(StaxParserUtil.getDOMElement(xmlEventReader));
-         }
-         else
-            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag);
-      }
+        Attribute inResponseTo = startElement.getAttributeByName(new QName(JBossSAMLConstants.IN_RESPONSE_TO.get()));
+        if (inResponseTo != null) {
+            subjectConfirmationData.setInResponseTo(StaxParserUtil.getAttributeValue(inResponseTo));
+        }
 
-      // Get the end tag
-      EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
-      StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get());
-      return subjectConfirmationData;
-   }
+        Attribute notBefore = startElement.getAttributeByName(new QName(JBossSAMLConstants.NOT_BEFORE.get()));
+        if (notBefore != null) {
+            subjectConfirmationData.setNotBefore(XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(notBefore)));
+        }
+
+        Attribute notOnOrAfter = startElement.getAttributeByName(new QName(JBossSAMLConstants.NOT_ON_OR_AFTER.get()));
+        if (notOnOrAfter != null) {
+            subjectConfirmationData.setNotOnOrAfter(XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(notOnOrAfter)));
+        }
+
+        Attribute recipient = startElement.getAttributeByName(new QName(JBossSAMLConstants.RECIPIENT.get()));
+        if (recipient != null) {
+            subjectConfirmationData.setRecipient(StaxParserUtil.getAttributeValue(recipient));
+        }
+
+        Attribute address = startElement.getAttributeByName(new QName(JBossSAMLConstants.ADDRESS.get()));
+        if (address != null) {
+            subjectConfirmationData.setAddress(StaxParserUtil.getAttributeValue(address));
+        }
+
+        XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+        if (!(xmlEvent instanceof EndElement)) {
+            startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+            String tag = StaxParserUtil.getStartElementName(startElement);
+            if (tag.equals(WSTrustConstants.XMLDSig.KEYINFO)) {
+                KeyInfoType keyInfo = SAMLParserUtil.parseKeyInfo(xmlEventReader);
+                subjectConfirmationData.setAnyType(keyInfo);
+            } else if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY)) {
+                subjectConfirmationData.setAnyType(StaxParserUtil.getDOMElement(xmlEventReader));
+            } else
+                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag);
+        }
+
+        // Get the end tag
+        EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+        StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION_DATA.get());
+        return subjectConfirmationData;
+    }
 }

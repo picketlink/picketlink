@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,20 +26,18 @@ import org.picketlink.identity.federation.ws.trust.RequestSecurityTokenType;
 
 /**
  * A Security Token that is based on SAML2
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2009
  */
-public class SAML2SecurityToken implements SAML2Object
-{
-   private RequestSecurityTokenType token;
-   
-   public SAML2SecurityToken(RequestSecurityTokenType token)
-   {
-      this.token = token;
-   }
+public class SAML2SecurityToken implements SAML2Object {
+    private RequestSecurityTokenType token;
 
-   public RequestSecurityTokenType getToken()
-   {
-      return token;
-   }
+    public SAML2SecurityToken(RequestSecurityTokenType token) {
+        this.token = token;
+    }
+
+    public RequestSecurityTokenType getToken() {
+        return token;
+    }
 }

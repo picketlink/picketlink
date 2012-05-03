@@ -15,6 +15,7 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 
 /**
  * Parser to parse the consolidated picketlink.xml
+ *
  * @author anil saldhana
  */
 public class PicketLinkConfigParser extends AbstractParser {
@@ -29,26 +30,26 @@ public class PicketLinkConfigParser extends AbstractParser {
 
         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
         String tag = StaxParserUtil.getStartElementName(startElement);
-        while(xmlEventReader.hasNext()){
-            if(SAMLConfigParser.IDP.equals(tag)){
+        while (xmlEventReader.hasNext()) {
+            if (SAMLConfigParser.IDP.equals(tag)) {
                 SAMLConfigParser samlConfigParser = new SAMLConfigParser();
                 ProviderType idp = (ProviderType) samlConfigParser.parse(xmlEventReader);
                 picketLinkType.setIdpOrSP(idp);
-            } else if(SAMLConfigParser.SP.equals(tag)){
+            } else if (SAMLConfigParser.SP.equals(tag)) {
                 SAMLConfigParser samlConfigParser = new SAMLConfigParser();
                 ProviderType sp = (ProviderType) samlConfigParser.parse(xmlEventReader);
                 picketLinkType.setIdpOrSP(sp);
-            } else if(SAMLConfigParser.HANDLERS.equals(tag)){
+            } else if (SAMLConfigParser.HANDLERS.equals(tag)) {
                 SAMLConfigParser samlConfigParser = new SAMLConfigParser();
                 Handlers handlers = (Handlers) samlConfigParser.parse(xmlEventReader);
                 picketLinkType.setHandlers(handlers);
-            } else if(STSConfigParser.ROOT_ELEMENT.equals(tag)){
+            } else if (STSConfigParser.ROOT_ELEMENT.equals(tag)) {
                 STSConfigParser samlConfigParser = new STSConfigParser();
                 STSType sts = (STSType) samlConfigParser.parse(xmlEventReader);
                 picketLinkType.setStsType(sts);
-            } 
+            }
             startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
-            if(startElement == null)
+            if (startElement == null)
                 break;
             tag = StaxParserUtil.getStartElementName(startElement);
         }
