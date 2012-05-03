@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -35,40 +35,35 @@ import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 
 /**
  * Generate roles from Tomcat Principal
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 21, 2009
  */
-public class TomcatRoleGenerator implements RoleGenerator
-{
-   /**
-    * @see RoleGenerator#generateRoles(Principal)
-    * @throws IllegalArgumentException if principal is not of type GenericPrincipal or User
-    */
-   public List<String> generateRoles(Principal principal)
-   {
-      String className = principal.getClass().getCanonicalName();
+public class TomcatRoleGenerator implements RoleGenerator {
+    /**
+     * @see RoleGenerator#generateRoles(Principal)
+     * @throws IllegalArgumentException if principal is not of type GenericPrincipal or User
+     */
+    public List<String> generateRoles(Principal principal) {
+        String className = principal.getClass().getCanonicalName();
 
-      if (principal instanceof GenericPrincipal == false && principal instanceof User == false)
-         throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "principal is not tomcat principal:" + className);
-      List<String> userRoles = new ArrayList<String>();
+        if (principal instanceof GenericPrincipal == false && principal instanceof User == false)
+            throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "principal is not tomcat principal:" + className);
+        List<String> userRoles = new ArrayList<String>();
 
-      if (principal instanceof GenericPrincipal)
-      {
-         GenericPrincipal gp = (GenericPrincipal) principal;
-         String[] roles = gp.getRoles();
-         if (roles.length > 0)
-            userRoles.addAll(Arrays.asList(roles));
-      }
-      else if (principal instanceof User)
-      {
-         User tomcatUser = (User) principal;
-         Iterator<?> iter = tomcatUser.getRoles();
-         while (iter.hasNext())
-         {
-            Role tomcatRole = (Role) iter.next();
-            userRoles.add(tomcatRole.getRolename());
-         }
-      }
-      return userRoles;
-   }
+        if (principal instanceof GenericPrincipal) {
+            GenericPrincipal gp = (GenericPrincipal) principal;
+            String[] roles = gp.getRoles();
+            if (roles.length > 0)
+                userRoles.addAll(Arrays.asList(roles));
+        } else if (principal instanceof User) {
+            User tomcatUser = (User) principal;
+            Iterator<?> iter = tomcatUser.getRoles();
+            while (iter.hasNext()) {
+                Role tomcatRole = (Role) iter.next();
+                userRoles.add(tomcatRole.getRolename());
+            }
+        }
+        return userRoles;
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -42,33 +42,41 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * This {@code LoginModule} authenticates clients by validating their SAML assertions with an external security
- * token service (such as PicketLinkSTS). If the supplied assertion contains roles, these roles are extracted
- * and included in the {@code Group} returned by the {@code getRoleSets} method.
+ * This {@code LoginModule} authenticates clients by validating their SAML assertions with an external security token service
+ * (such as PicketLinkSTS). If the supplied assertion contains roles, these roles are extracted and included in the
+ * {@code Group} returned by the {@code getRoleSets} method.
  * </p>
  * <p>
  * This module defines the following module options:
  * <li>
- *  <ul>configFile - this property identifies the properties file that will be used to establish communication with
- *  the external security token service.
- *  </ul>
- *  <ul>cache.invalidation:  set it to true if you require invalidation of JBoss Auth Cache at SAML Principal expiration.
- *  </ul>
- *  <ul>jboss.security.security_domain: name of the security domain where this login module is configured. This is only required
- *  if the cache.invalidation option is configured.
- *  </ul>
- *  <ul>roleKey: a comma separated list of strings that define the attributes in SAML assertion for user roles</ul>
- *  <ul>localValidation: if you want to validate the assertion locally for signature and expiry</ul>
+ * <ul>
+ * configFile - this property identifies the properties file that will be used to establish communication with the external
+ * security token service.
+ * </ul>
+ * <ul>
+ * cache.invalidation: set it to true if you require invalidation of JBoss Auth Cache at SAML Principal expiration.
+ * </ul>
+ * <ul>
+ * jboss.security.security_domain: name of the security domain where this login module is configured. This is only required if
+ * the cache.invalidation option is configured.
+ * </ul>
+ * <ul>
+ * roleKey: a comma separated list of strings that define the attributes in SAML assertion for user roles
+ * </ul>
+ * <ul>
+ * localValidation: if you want to validate the assertion locally for signature and expiry
+ * </ul>
  * </li>
  * </p>
  * <p>
- * Any properties specified besides the above properties are assumed to be used to configure how the {@code STSClient}
- * will connect to the STS. For example, the JBossWS {@code StubExt.PROPERTY_SOCKET_FACTORY} can be specified in order
- * to inform the socket factory that must be used to connect to the STS. All properties will be set in the request
- * context of the {@code Dispatch} instance used by the {@code STSClient} to send requests to the STS.  
+ * Any properties specified besides the above properties are assumed to be used to configure how the {@code STSClient} will
+ * connect to the STS. For example, the JBossWS {@code StubExt.PROPERTY_SOCKET_FACTORY} can be specified in order to inform the
+ * socket factory that must be used to connect to the STS. All properties will be set in the request context of the
+ * {@code Dispatch} instance used by the {@code STSClient} to send requests to the STS.
  * </p>
  * <p>
  * An example of a {@code configFile} can be seen bellow:
+ *
  * <pre>
  * serviceName=PicketLinkSTS
  * portName=PicketLinkSTSPort
@@ -76,78 +84,70 @@ import org.w3c.dom.Element;
  * username=JBoss
  * password=JBoss
  * </pre>
- * The first three properties specify the STS endpoint URL, service name, and port name. The last two properties
- * specify the username and password that are to be used by the application server to authenticate to the STS and
- * have the SAML assertions validated.
+ *
+ * The first three properties specify the STS endpoint URL, service name, and port name. The last two properties specify the
+ * username and password that are to be used by the application server to authenticate to the STS and have the SAML assertions
+ * validated.
  * </p>
  * <p>
- * <b>NOTE:</b> Sub-classes can use {@link #getSTSClient()} method to customize the {@link STSClient} class to make calls to STS/
+ * <b>NOTE:</b> Sub-classes can use {@link #getSTSClient()} method to customize the {@link STSClient} class to make calls to
+ * STS/
  * </p>
- * 
+ *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  * @author Anil.Saldhana@redhat.com
  */
-public class SAML2STSLoginModule extends SAML2STSCommonLoginModule
-{
-   protected static Logger log = Logger.getLogger(SAML2STSCommonLoginModule.class);
+public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
+    protected static Logger log = Logger.getLogger(SAML2STSCommonLoginModule.class);
 
-   protected boolean trace = log.isTraceEnabled();
+    protected boolean trace = log.isTraceEnabled();
 
-   protected boolean localValidation(Element assertionElement) throws Exception
-   {
-      //For unit tests
-      if (localTestingOnly)
-         return true;
+    protected boolean localValidation(Element assertionElement) throws Exception {
+        // For unit tests
+        if (localTestingOnly)
+            return true;
 
-      try
-      {
-         Context ctx = new InitialContext();
+        try {
+            Context ctx = new InitialContext();
 
-         JaasSecurityDomain sd = (JaasSecurityDomain) ctx.lookup(localValidationSecurityDomain);
-         KeyStore ts = sd.getTrustStore();
+            JaasSecurityDomain sd = (JaasSecurityDomain) ctx.lookup(localValidationSecurityDomain);
+            KeyStore ts = sd.getTrustStore();
 
-         if (ts == null)
-         {
-            throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null truststore for " + sd.getName());
-         }
+            if (ts == null) {
+                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null truststore for " + sd.getName());
+            }
 
-         String alias = sd.getKeyStoreAlias();
+            String alias = sd.getKeyStoreAlias();
 
-         if (alias == null)
-         {
-            throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null KeyStoreAlias for "
-                  + sd.getName() + "; set 'KeyStoreAlias' in '" + sd.getName() + "' security domain configuration");
-         }
+            if (alias == null) {
+                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null KeyStoreAlias for " + sd.getName()
+                        + "; set 'KeyStoreAlias' in '" + sd.getName() + "' security domain configuration");
+            }
 
-         Certificate cert = ts.getCertificate(alias);
+            Certificate cert = ts.getCertificate(alias);
 
-         if (cert == null)
-         {
-            throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: no certificate found for alias '"
-                  + alias + "' in the '" + sd.getName() + "' security domain");
-         }
+            if (cert == null) {
+                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: no certificate found for alias '"
+                        + alias + "' in the '" + sd.getName() + "' security domain");
+            }
 
-         PublicKey publicKey = cert.getPublicKey();
+            PublicKey publicKey = cert.getPublicKey();
 
-         boolean sigValid = AssertionUtil.isSignatureValid(assertionElement, publicKey);
-         if (!sigValid)
-         {
-            throw new LoginException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "SAML2STSLoginModule: "
-                  + WSTrustConstants.STATUS_CODE_INVALID + " : invalid SAML V2.0 assertion signature");
-         }
+            boolean sigValid = AssertionUtil.isSignatureValid(assertionElement, publicKey);
+            if (!sigValid) {
+                throw new LoginException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "SAML2STSLoginModule: "
+                        + WSTrustConstants.STATUS_CODE_INVALID + " : invalid SAML V2.0 assertion signature");
+            }
 
-         AssertionType assertion = SAMLUtil.fromElement(assertionElement);
+            AssertionType assertion = SAMLUtil.fromElement(assertionElement);
 
-         if (AssertionUtil.hasExpired(assertion))
-         {
-            throw new LoginException(ErrorCodes.EXPIRED_ASSERTION + "SAML2STSLoginModule: "
-                  + WSTrustConstants.STATUS_CODE_INVALID + "::assertion expired or used before its lifetime period");
-         }
-      }
-      catch (NamingException e)
-      {
-         throw new LoginException(e.toString());
-      }
-      return true;
-   }
+            if (AssertionUtil.hasExpired(assertion)) {
+                throw new LoginException(ErrorCodes.EXPIRED_ASSERTION + "SAML2STSLoginModule: "
+                        + WSTrustConstants.STATUS_CODE_INVALID + "::assertion expired or used before its lifetime period");
+            }
+        } catch (NamingException e) {
+            throw new LoginException(e.toString());
+        }
+        return true;
+    }
 }

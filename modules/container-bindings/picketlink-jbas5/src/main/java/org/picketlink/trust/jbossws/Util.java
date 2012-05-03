@@ -32,185 +32,161 @@ import org.w3c.dom.Node;
 /**
  * @author Jason T. Greene
  */
-public class Util
-{
-   public static int count = 0;
-   
-   public static String assignWsuId(Element element)
-   {
-      String id = element.getAttributeNS(Constants.WSU_NS, Constants.ID);
+public class Util {
+    public static int count = 0;
 
-      if (id == null || id.length() < 1)
-      {
-         id = generateId();
-         element.setAttributeNS(Constants.WSU_NS, Constants.WSU_ID, id);
-         addNamespace(element, Constants.WSU_PREFIX, Constants.WSU_NS);
-      }
+    public static String assignWsuId(Element element) {
+        String id = element.getAttributeNS(Constants.WSU_NS, Constants.ID);
 
-      return id;
-   }
+        if (id == null || id.length() < 1) {
+            id = generateId();
+            element.setAttributeNS(Constants.WSU_NS, Constants.WSU_ID, id);
+            addNamespace(element, Constants.WSU_PREFIX, Constants.WSU_NS);
+        }
 
-   public static Element getFirstChildElement(Node node)
-   {
-      Node child = node.getFirstChild();
-      while (child != null && child.getNodeType() != Node.ELEMENT_NODE)
-         child = child.getNextSibling();
+        return id;
+    }
 
-      return (Element)child;
-   }
+    public static Element getFirstChildElement(Node node) {
+        Node child = node.getFirstChild();
+        while (child != null && child.getNodeType() != Node.ELEMENT_NODE)
+            child = child.getNextSibling();
 
-   public static Element getNextSiblingElement(Element element)
-   {
-      Node sibling = element.getNextSibling();
-      while (sibling != null && sibling.getNodeType() != Node.ELEMENT_NODE)
-         sibling = sibling.getNextSibling();
+        return (Element) child;
+    }
 
-      return (Element)sibling;
-   }
+    public static Element getNextSiblingElement(Element element) {
+        Node sibling = element.getNextSibling();
+        while (sibling != null && sibling.getNodeType() != Node.ELEMENT_NODE)
+            sibling = sibling.getNextSibling();
 
-   public static Element getPreviousSiblingElement(Element element)
-   {
-      Node sibling = element.getPreviousSibling();
-      while (sibling != null && sibling.getNodeType() != Node.ELEMENT_NODE)
-         sibling = sibling.getPreviousSibling();
+        return (Element) sibling;
+    }
 
-      return (Element)sibling;
-   }
+    public static Element getPreviousSiblingElement(Element element) {
+        Node sibling = element.getPreviousSibling();
+        while (sibling != null && sibling.getNodeType() != Node.ELEMENT_NODE)
+            sibling = sibling.getPreviousSibling();
 
-   public static Element findElement(Element root, String localName, String namespace)
-   {
-      return findElement(root, new QName(namespace, localName));
-   }
+        return (Element) sibling;
+    }
 
-   public static Element findElement(Element root, QName name)
-   {
-      // Here lies your standard recusive DFS.....
-      if (matchNode(root, name))
-         return root;
+    public static Element findElement(Element root, String localName, String namespace) {
+        return findElement(root, new QName(namespace, localName));
+    }
 
-      // Search children
-      for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling())
-      {
-         if (child.getNodeType() != Node.ELEMENT_NODE)
-            continue;
+    public static Element findElement(Element root, QName name) {
+        // Here lies your standard recusive DFS.....
+        if (matchNode(root, name))
+            return root;
 
-         Node possibleMatch = findElement((Element)child, name);
-         if (possibleMatch != null)
-            return (Element)possibleMatch;
-      }
+        // Search children
+        for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child.getNodeType() != Node.ELEMENT_NODE)
+                continue;
 
-      return null;
-   }
+            Node possibleMatch = findElement((Element) child, name);
+            if (possibleMatch != null)
+                return (Element) possibleMatch;
+        }
 
-   public static List<Node> findAllElements(Element root, QName name, boolean local)
-   {
-      List<Node> list = new ArrayList<Node>();
-      if (matchNode(root, name, local))
-         list.add(root);
+        return null;
+    }
 
-      for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling())
-      {
-         if (child.getNodeType() != Node.ELEMENT_NODE)
-            continue;
+    public static List<Node> findAllElements(Element root, QName name, boolean local) {
+        List<Node> list = new ArrayList<Node>();
+        if (matchNode(root, name, local))
+            list.add(root);
 
-         list.addAll(findAllElements((Element) child, name, local));
-      }
+        for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child.getNodeType() != Node.ELEMENT_NODE)
+                continue;
 
-      return list;
-   }
+            list.addAll(findAllElements((Element) child, name, local));
+        }
 
-   public static Element findElementByWsuId(Element root, String id)
-   {
-      // Here lies another standard recusive DFS.....
-      if (id.equals(getWsuId(root)))
-         return root;
+        return list;
+    }
 
-      // Search children
-      for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling())
-      {
-         if (child.getNodeType() != Node.ELEMENT_NODE)
-            continue;
+    public static Element findElementByWsuId(Element root, String id) {
+        // Here lies another standard recusive DFS.....
+        if (id.equals(getWsuId(root)))
+            return root;
 
-         Node possibleMatch = findElementByWsuId((Element)child, id);
-         if (possibleMatch != null)
-            return (Element)possibleMatch;
-      }
+        // Search children
+        for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (child.getNodeType() != Node.ELEMENT_NODE)
+                continue;
 
-      return null;
-   }
+            Node possibleMatch = findElementByWsuId((Element) child, id);
+            if (possibleMatch != null)
+                return (Element) possibleMatch;
+        }
 
-   public static Element findOrCreateSoapHeader(Element envelope)
-   {
-      String prefix = envelope.getPrefix();
-      String uri = envelope.getNamespaceURI();
-      QName name = new QName(uri, "Header");
-      Element header = findElement(envelope, name);
-      if (header == null)
-      {
-         header = envelope.getOwnerDocument().createElementNS(uri, prefix + ":Header");
-         envelope.insertBefore(header, envelope.getFirstChild());
-      }
+        return null;
+    }
 
-      return header;
-   }
+    public static Element findOrCreateSoapHeader(Element envelope) {
+        String prefix = envelope.getPrefix();
+        String uri = envelope.getNamespaceURI();
+        QName name = new QName(uri, "Header");
+        Element header = findElement(envelope, name);
+        if (header == null) {
+            header = envelope.getOwnerDocument().createElementNS(uri, prefix + ":Header");
+            envelope.insertBefore(header, envelope.getFirstChild());
+        }
 
-   public static String getWsuId(Element element)
-   {
-      if (element.hasAttributeNS(Constants.WSU_NS, Constants.ID))
-         return element.getAttributeNS(Constants.WSU_NS, Constants.ID);
+        return header;
+    }
 
-      if (element.hasAttribute(Constants.ID))
-      {
-         String ns = element.getNamespaceURI();
-         if (Constants.XML_SIGNATURE_NS.equals(ns) || Constants.XML_ENCRYPTION_NS.equals(ns))
-            return element.getAttribute(Constants.ID);
-      }
+    public static String getWsuId(Element element) {
+        if (element.hasAttributeNS(Constants.WSU_NS, Constants.ID))
+            return element.getAttributeNS(Constants.WSU_NS, Constants.ID);
 
-      return null;
-   }
+        if (element.hasAttribute(Constants.ID)) {
+            String ns = element.getNamespaceURI();
+            if (Constants.XML_SIGNATURE_NS.equals(ns) || Constants.XML_ENCRYPTION_NS.equals(ns))
+                return element.getAttribute(Constants.ID);
+        }
 
-   public static boolean equalStrings(String string1, String string2)
-   {
-      if (string1 == null && string2 == null)
-         return true;
+        return null;
+    }
 
-      return string1 != null && string1.equals(string2);
-   }
+    public static boolean equalStrings(String string1, String string2) {
+        if (string1 == null && string2 == null)
+            return true;
 
-   public static boolean matchNode(Node node, QName name)
-   {
-      return matchNode(node, name, false);
-   }
+        return string1 != null && string1.equals(string2);
+    }
 
-   public static boolean matchNode(Node node, QName name, boolean local)
-   {
-      return equalStrings(node.getLocalName(), name.getLocalPart())
-          && (local || equalStrings(node.getNamespaceURI(), name.getNamespaceURI()));
-   }
+    public static boolean matchNode(Node node, QName name) {
+        return matchNode(node, name, false);
+    }
 
-   public static String generateId()
-   {
-      return generateId("element");
-   }
+    public static boolean matchNode(Node node, QName name, boolean local) {
+        return equalStrings(node.getLocalName(), name.getLocalPart())
+                && (local || equalStrings(node.getNamespaceURI(), name.getNamespaceURI()));
+    }
 
-   public static void addNamespace(Element element, String prefix, String uri)
-   {
-      element.setAttributeNS(Constants.XMLNS_NS, "xmlns:" + prefix, uri);
-   }
+    public static String generateId() {
+        return generateId("element");
+    }
 
-   public static String generateId(String prefix)
-   {
-      StringBuilder id = new StringBuilder();
-      long time = System.currentTimeMillis();
+    public static void addNamespace(Element element, String prefix, String uri) {
+        element.setAttributeNS(Constants.XMLNS_NS, "xmlns:" + prefix, uri);
+    }
 
-      // reasonably gaurantee uniqueness
-      synchronized (Util.class)
-      {
-         count++;
-      }
+    public static String generateId(String prefix) {
+        StringBuilder id = new StringBuilder();
+        long time = System.currentTimeMillis();
 
-      id.append(prefix).append("-").append(count).append("-").append(time).append("-").append(id.hashCode());
+        // reasonably gaurantee uniqueness
+        synchronized (Util.class) {
+            count++;
+        }
 
-      return id.toString();
-   }
+        id.append(prefix).append("-").append(count).append("-").append(time).append("-").append(id.hashCode());
+
+        return id.toString();
+    }
 }

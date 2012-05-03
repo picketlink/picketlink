@@ -33,126 +33,102 @@ import org.jboss.security.SecurityContextFactory;
 
 /**
  * Privileged actions.
- * 
+ *
  * @author <a href="mmoyses@redhat.com">Marcus Moyses</a>
  * @author Anil Saldhana
  * @version $Revision: 1 $
  */
-class SecurityActions
-{ 
-   static SecurityContext createSecurityContext(final Principal p, final Object cred, final Subject subject)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>()
-      {
-         public SecurityContext run()
-         {
-            SecurityContext sc = null;
-            try
-            {
-               sc = SecurityContextFactory.createSecurityContext(p, cred, subject, "SAML2_HANDLER");
+class SecurityActions {
+    static SecurityContext createSecurityContext(final Principal p, final Object cred, final Subject subject) {
+        return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
+            public SecurityContext run() {
+                SecurityContext sc = null;
+                try {
+                    sc = SecurityContextFactory.createSecurityContext(p, cred, subject, "SAML2_HANDLER");
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+                return sc;
             }
-            catch (Exception e)
-            {
-               throw new RuntimeException(e);
-            }
-            return sc;
-         }
-      });
-   }
+        });
+    }
 
-   static void setSecurityContext(final SecurityContext sc)
-   {
-      AccessController.doPrivileged(new PrivilegedAction<Object>()
-      {
-         public Object run()
-         {
-            SecurityContextAssociation.setSecurityContext(sc);
-            return null;
-         }
-      });
-   }
-   
-   static SecurityContext getSecurityContext()
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>()
-      {
-         public SecurityContext run()
-         {
-            return SecurityContextAssociation.getSecurityContext();
-         }
-      });
-   }
-   /**
-    * Get the {@link Subject} from the {@link SecurityContextAssociation}
-    * @return authenticated subject or null
-    */
-   static Subject getAuthenticatedSubject()
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<Subject>()
-      { 
-         public Subject run()
-         {
-            SecurityContext sc = SecurityContextAssociation.getSecurityContext();
-            if( sc != null )
-               return sc.getUtil().getSubject();
-            return null;
-         }
-      });
-   }
-   
-   /**
-    * Get a system property
-    * @param key the property name
-    * @param defaultValue default value in absence of property
-    * @return
-    */
-   static String getSystemProperty( final String key, final String defaultValue)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<String>()
-      { 
-         public String run()
-         {
-            return System.getProperty(key, defaultValue);
-         }
-      });
-   }
-   
-   /**
-    * Set the system property
-    * @param key
-    * @param value
-    */
-   static void setSystemProperty( final String key, final String value)
-   {
-      AccessController.doPrivileged(new PrivilegedAction<Object>()
-      { 
-         public Object run()
-         {
-             System.setProperty(key, value);
-             return null;
-         }
-      });
-   }
-   
-   static ClassLoader getClassLoader( final Class<?> clazz)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-      { 
-         public ClassLoader run()
-         {
-            return clazz.getClassLoader();
-         }
-      });
-   }
-   
-   static ClassLoader getContextClassLoader()
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>()
-      { 
-         public ClassLoader run()
-         {
-            return Thread.currentThread().getContextClassLoader();
-         }
-      });
-   }
+    static void setSecurityContext(final SecurityContext sc) {
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            public Object run() {
+                SecurityContextAssociation.setSecurityContext(sc);
+                return null;
+            }
+        });
+    }
+
+    static SecurityContext getSecurityContext() {
+        return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
+            public SecurityContext run() {
+                return SecurityContextAssociation.getSecurityContext();
+            }
+        });
+    }
+
+    /**
+     * Get the {@link Subject} from the {@link SecurityContextAssociation}
+     *
+     * @return authenticated subject or null
+     */
+    static Subject getAuthenticatedSubject() {
+        return AccessController.doPrivileged(new PrivilegedAction<Subject>() {
+            public Subject run() {
+                SecurityContext sc = SecurityContextAssociation.getSecurityContext();
+                if (sc != null)
+                    return sc.getUtil().getSubject();
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Get a system property
+     *
+     * @param key the property name
+     * @param defaultValue default value in absence of property
+     * @return
+     */
+    static String getSystemProperty(final String key, final String defaultValue) {
+        return AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return System.getProperty(key, defaultValue);
+            }
+        });
+    }
+
+    /**
+     * Set the system property
+     *
+     * @param key
+     * @param value
+     */
+    static void setSystemProperty(final String key, final String value) {
+        AccessController.doPrivileged(new PrivilegedAction<Object>() {
+            public Object run() {
+                System.setProperty(key, value);
+                return null;
+            }
+        });
+    }
+
+    static ClassLoader getClassLoader(final Class<?> clazz) {
+        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+            public ClassLoader run() {
+                return clazz.getClassLoader();
+            }
+        });
+    }
+
+    static ClassLoader getContextClassLoader() {
+        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+            public ClassLoader run() {
+                return Thread.currentThread().getContextClassLoader();
+            }
+        });
+    }
 }

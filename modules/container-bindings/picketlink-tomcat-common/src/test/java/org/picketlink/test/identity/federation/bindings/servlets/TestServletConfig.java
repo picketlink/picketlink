@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,38 +26,31 @@ import java.util.Enumeration;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 
-
 /**
  * @author Anil.Saldhana@redhat.com
  * @since Jan 28, 2009
  */
-@SuppressWarnings({"rawtypes"})
-public class TestServletConfig implements ServletConfig
-{ 
-   private ServletContext sc;
+@SuppressWarnings({ "rawtypes" })
+public class TestServletConfig implements ServletConfig {
+    private ServletContext sc;
 
-   public TestServletConfig(ServletContext sc)
-   {
-      this.sc = sc;
-   }
-   
-   public String getInitParameter(String name)
-   { 
-      return sc.getInitParameter(name);
-   }
+    public TestServletConfig(ServletContext sc) {
+        this.sc = sc;
+    }
 
-   public Enumeration getInitParameterNames()
-   { 
-      return null;
-   }
+    public String getInitParameter(String name) {
+        return sc.getInitParameter(name);
+    }
 
-   public ServletContext getServletContext()
-   { 
-      return sc;
-   }
+    public Enumeration getInitParameterNames() {
+        return null;
+    }
 
-   public String getServletName()
-   { 
-      return null;
-   } 
+    public ServletContext getServletContext() {
+        return sc;
+    }
+
+    public String getServletName() {
+        return null;
+    }
 }

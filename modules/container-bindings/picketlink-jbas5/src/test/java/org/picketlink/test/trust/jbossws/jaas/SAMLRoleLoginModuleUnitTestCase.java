@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -59,107 +59,98 @@ import org.picketlink.trust.jbossws.jaas.SAMLRoleLoginModule;
 
 /**
  * Unit test the {@code SAMLRoleLoginModule}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 6, 2011
  */
-public class SAMLRoleLoginModuleUnitTestCase
-{
-   public static class MySAMLModule implements LoginModule
-   {
-      public MySAMLModule(){}
-      
-      private Subject theSubject = null;
-      @SuppressWarnings("rawtypes")
-      private Map sharedState = null;
-      
-      public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
-            Map<String, ?> options)
-      {
-         theSubject = subject;
-         this.sharedState = sharedState;
-      }
+public class SAMLRoleLoginModuleUnitTestCase {
+    public static class MySAMLModule implements LoginModule {
+        public MySAMLModule() {
+        }
 
-      @SuppressWarnings("unchecked")
-      public boolean login() throws LoginException
-      {
-         sharedState.put("javax.security.auth.login.name", new PicketLinkPrincipal(""));
-         return true;
-      }
+        private Subject theSubject = null;
+        @SuppressWarnings("rawtypes")
+        private Map sharedState = null;
 
-      public boolean commit() throws LoginException
-      {
-         NameIDType issuer = new NameIDType();
-         AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), issuer);
-         
-         List<String> roles = new ArrayList<String>();
-         roles.add("test1"); roles.add("test2");
-         
-         AttributeStatementType att = StatementUtil.createAttributeStatement(roles);
-         assertion.addStatement(att);
-         
-         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-         try
-         {
-            SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
-            writer.write(assertion);
-            SamlCredential cred = new SamlCredential(new String(baos.toByteArray()));
-            theSubject.getPublicCredentials().add(cred);
-         }
-         catch (ProcessingException e)
-         { 
-            throw new RuntimeException(e);
-         }
-         return true;
-      }
+        public void initialize(Subject subject, CallbackHandler callbackHandler, Map<String, ?> sharedState,
+                Map<String, ?> options) {
+            theSubject = subject;
+            this.sharedState = sharedState;
+        }
 
-      public boolean abort() throws LoginException
-      {
-         return true;
-      }
+        @SuppressWarnings("unchecked")
+        public boolean login() throws LoginException {
+            sharedState.put("javax.security.auth.login.name", new PicketLinkPrincipal(""));
+            return true;
+        }
 
-      public boolean logout() throws LoginException
-      {
-         return true;
-      }
-   }
-   
-   @Before
-   public void setup()
-   {
-      Configuration.setConfiguration(new Configuration(){
+        public boolean commit() throws LoginException {
+            NameIDType issuer = new NameIDType();
+            AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), issuer);
 
-         @SuppressWarnings({"rawtypes", "unchecked"})
-         @Override
-         public AppConfigurationEntry[] getAppConfigurationEntry(String name)
-         {
-            final Map options = new HashMap();
-            
-            AppConfigurationEntry a1 = new AppConfigurationEntry(MySAMLModule.class.getName(), LoginModuleControlFlag.REQUIRED, options);
-            AppConfigurationEntry a2 = new AppConfigurationEntry(SAMLRoleLoginModule.class.getName(), LoginModuleControlFlag.REQUIRED, options);
-            return new AppConfigurationEntry[]{a1,a2};
-         }});
-   }
-   
-   @Test
-   public void testAuth() throws Exception
-   {
-      Subject subject = new Subject();
-      
-      LoginContext lc = new LoginContext("something", subject);
-      lc.login();
-      
-      Set<Group> groups = subject.getPrincipals(Group.class);
-      assertNotNull(groups);
-      boolean foundMatch = false;
-      for(Group gp: groups)
-      {
-          if(gp.getName().equals("Roles"))
-          {
-              assertTrue(gp.isMember(new SimplePrincipal("test1")));
-              assertTrue(gp.isMember(new SimplePrincipal("test2")));
-              foundMatch = true;
-          }
-      }
-      assertTrue(foundMatch);
-   }
+            List<String> roles = new ArrayList<String>();
+            roles.add("test1");
+            roles.add("test2");
+
+            AttributeStatementType att = StatementUtil.createAttributeStatement(roles);
+            assertion.addStatement(att);
+
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            try {
+                SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
+                writer.write(assertion);
+                SamlCredential cred = new SamlCredential(new String(baos.toByteArray()));
+                theSubject.getPublicCredentials().add(cred);
+            } catch (ProcessingException e) {
+                throw new RuntimeException(e);
+            }
+            return true;
+        }
+
+        public boolean abort() throws LoginException {
+            return true;
+        }
+
+        public boolean logout() throws LoginException {
+            return true;
+        }
+    }
+
+    @Before
+    public void setup() {
+        Configuration.setConfiguration(new Configuration() {
+
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            @Override
+            public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+                final Map options = new HashMap();
+
+                AppConfigurationEntry a1 = new AppConfigurationEntry(MySAMLModule.class.getName(),
+                        LoginModuleControlFlag.REQUIRED, options);
+                AppConfigurationEntry a2 = new AppConfigurationEntry(SAMLRoleLoginModule.class.getName(),
+                        LoginModuleControlFlag.REQUIRED, options);
+                return new AppConfigurationEntry[] { a1, a2 };
+            }
+        });
+    }
+
+    @Test
+    public void testAuth() throws Exception {
+        Subject subject = new Subject();
+
+        LoginContext lc = new LoginContext("something", subject);
+        lc.login();
+
+        Set<Group> groups = subject.getPrincipals(Group.class);
+        assertNotNull(groups);
+        boolean foundMatch = false;
+        for (Group gp : groups) {
+            if (gp.getName().equals("Roles")) {
+                assertTrue(gp.isMember(new SimplePrincipal("test1")));
+                assertTrue(gp.isMember(new SimplePrincipal("test2")));
+                foundMatch = true;
+            }
+        }
+        assertTrue(foundMatch);
+    }
 }

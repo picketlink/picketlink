@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -27,18 +27,16 @@ import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProvi
 /**
  * Login Module that is capable of dealing with SAML2 cases
  * <p>
- * The password sent to this module should be 
- * {@link ServiceProviderSAMLContext#EMPTY_PASSWORD}
+ * The password sent to this module should be {@link ServiceProviderSAMLContext#EMPTY_PASSWORD}
  * </p>
  * <p>
- * The username is available from {@link ServiceProviderSAMLContext#getUserName()}
- * and roles is available from {@link ServiceProviderSAMLContext#getRoles()}.
- * If the roles is null, then plugged in login modules in the stack have to provide
- * the roles.
+ * The username is available from {@link ServiceProviderSAMLContext#getUserName()} and roles is available from
+ * {@link ServiceProviderSAMLContext#getRoles()}. If the roles is null, then plugged in login modules in the stack have to
+ * provide the roles.
  * </p>
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 13, 2009
  */
-public class SAML2LoginModule extends SAML2CommonLoginModule
-{
+public class SAML2LoginModule extends SAML2CommonLoginModule {
 }

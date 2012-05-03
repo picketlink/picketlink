@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,25 +26,23 @@ import java.security.PrivilegedAction;
 
 /**
  * Privileged Blocks
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Dec 9, 2008
  */
-class SecurityActions
-{
-   /**
-    * Get the system property
-    * @param key
-    * @param defaultValue
-    * @return
-    */
-   static String getSystemProperty(final String key, final String defaultValue)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<String>()
-      {
-         public String run()
-         {
-            return System.getProperty(key, defaultValue);
-         }
-      });
-   }
+class SecurityActions {
+    /**
+     * Get the system property
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    static String getSystemProperty(final String key, final String defaultValue) {
+        return AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return System.getProperty(key, defaultValue);
+            }
+        });
+    }
 }

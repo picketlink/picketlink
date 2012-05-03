@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -39,256 +39,208 @@ import org.apache.catalina.SessionListener;
 
 /**
  * Mock session for the catalina infrastructure
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 20, 2009
  */
-@SuppressWarnings({"deprecation", "unchecked", "rawtypes"})
-public class MockCatalinaSession implements Session, HttpSession
-{
-   private Map<String, Object> notes = new HashMap<String,Object>(); 
-    
-   public void setMaxInactiveInterval(int arg0)
-   {  
-   }
+@SuppressWarnings({ "deprecation", "unchecked", "rawtypes" })
+public class MockCatalinaSession implements Session, HttpSession {
+    private Map<String, Object> notes = new HashMap<String, Object>();
 
-   public void access()
-   {
-   }
+    public void setMaxInactiveInterval(int arg0) {
+    }
 
-   public void addSessionListener(SessionListener arg0)
-   {
-   }
+    public void access() {
+    }
 
-   public void endAccess()
-   {
-   }
+    public void addSessionListener(SessionListener arg0) {
+    }
 
-   public void expire()
-   {
-   }
+    public void endAccess() {
+    }
 
-   public String getAuthType()
-   {
-      throw new RuntimeException("NYI");
-   }
+    public void expire() {
+    }
 
-   public String getIdInternal()
-   {
-      throw new RuntimeException("NYI");
-   }
+    public String getAuthType() {
+        throw new RuntimeException("NYI");
+    }
 
-   public String getInfo()
-   {
-      throw new RuntimeException("NYI");
-   }
+    public String getIdInternal() {
+        throw new RuntimeException("NYI");
+    }
 
-   public long getLastAccessedTimeInternal()
-   {
-      return 0;
-   }
+    public String getInfo() {
+        throw new RuntimeException("NYI");
+    }
 
-   public Manager getManager()
-   {
-      throw new RuntimeException("NYI");
-   }
+    public long getLastAccessedTimeInternal() {
+        return 0;
+    }
 
-   public Object getNote(String arg0)
-   {
-      return notes.get(arg0);
-   }
- 
-   public Iterator getNoteNames()
-   {
-      return notes.keySet().iterator();
-   }
+    public Manager getManager() {
+        throw new RuntimeException("NYI");
+    }
 
-   public Principal getPrincipal()
-   {
-      throw new RuntimeException("NYI");
-   }
+    public Object getNote(String arg0) {
+        return notes.get(arg0);
+    }
 
-   public HttpSession getSession()
-   {
-      return this;
-   }
+    public Iterator getNoteNames() {
+        return notes.keySet().iterator();
+    }
 
-   public boolean isValid()
-   {
-      return this.valid;
-   }
+    public Principal getPrincipal() {
+        throw new RuntimeException("NYI");
+    }
 
-   public void recycle()
-   {
-   }
+    public HttpSession getSession() {
+        return this;
+    }
 
-   public void removeNote(String arg0)
-   {
-   }
+    public boolean isValid() {
+        return this.valid;
+    }
 
-   public void removeSessionListener(SessionListener arg0)
-   {
-   }
+    public void recycle() {
+    }
 
-   public void setAuthType(String arg0)
-   {
-   }
+    public void removeNote(String arg0) {
+    }
 
-   public void setCreationTime(long arg0)
-   { 
-   }
+    public void removeSessionListener(SessionListener arg0) {
+    }
 
-   public void setId(String arg0)
-   { 
-   }
+    public void setAuthType(String arg0) {
+    }
 
-   public void setManager(Manager arg0)
-   { 
-   }
+    public void setCreationTime(long arg0) {
+    }
 
-   public void setNew(boolean arg0)
-   { 
-   }
+    public void setId(String arg0) {
+    }
 
-   public void setNote(String arg0, Object arg1)
-   { 
-      this.notes.put(arg0, arg1);
-   }
+    public void setManager(Manager arg0) {
+    }
 
-   public void setPrincipal(Principal arg0)
-   { 
-   }
+    public void setNew(boolean arg0) {
+    }
 
-   public void setValid(boolean arg0)
-   {  
-   } 
+    public void setNote(String arg0, Object arg1) {
+        this.notes.put(arg0, arg1);
+    }
 
-   //Copied from MockHttpSession
-   private boolean valid = true;
-   
-   private Map<String,Object> attribs = new HashMap<String,Object>();
+    public void setPrincipal(Principal arg0) {
+    }
 
-   private String id = UUID.randomUUID().toString();
+    public void setValid(boolean arg0) {
+    }
 
-   private ServletContext context;
-   
-   public boolean isInvalidated()
-   {
-      return valid == false;
-   }
-   
-   public Object getAttribute(String arg0)
-   {
-      return attribs.get(arg0);
-   }
+    // Copied from MockHttpSession
+    private boolean valid = true;
 
-   public Enumeration getAttributeNames()
-   {
-      return new Enumeration() 
-      {
-         private Iterator iter = attribs.entrySet().iterator();
-         
-         public boolean hasMoreElements()
-         {
-            return iter.hasNext();
-         }
+    private Map<String, Object> attribs = new HashMap<String, Object>();
 
-         public Object nextElement()
-         {
-            Entry<String,Object> entry =  (Entry<String, Object>) iter.next();
-            return entry.getValue();
-         }
-      };
-   }
+    private String id = UUID.randomUUID().toString();
 
-   public long getCreationTime()
-   {  
-      return 0;
-   }
+    private ServletContext context;
 
-   public String getId()
-   {   
-      return id;
-   }
+    public boolean isInvalidated() {
+        return valid == false;
+    }
 
-   public long getLastAccessedTime()
-   {      
-      return 0;
-   }
+    public Object getAttribute(String arg0) {
+        return attribs.get(arg0);
+    }
 
-   public int getMaxInactiveInterval()
-   {      
-      return 0;
-   }
+    public Enumeration getAttributeNames() {
+        return new Enumeration() {
+            private Iterator iter = attribs.entrySet().iterator();
 
-   public void setServletContext(ServletContext servletContext)
-   {
-      this.context = servletContext;
-   }
-   
-   public ServletContext getServletContext()
-   {     
-      return this.context;
-   }
+            public boolean hasMoreElements() {
+                return iter.hasNext();
+            }
 
-   public HttpSessionContext getSessionContext()
-   {
-      
-      throw new RuntimeException("NYI");
-   }
+            public Object nextElement() {
+                Entry<String, Object> entry = (Entry<String, Object>) iter.next();
+                return entry.getValue();
+            }
+        };
+    }
 
-   public Object getValue(String arg0)
-   { 
-      throw new RuntimeException("NYI");
-   }
+    public long getCreationTime() {
+        return 0;
+    }
 
-   public String[] getValueNames()
-   {  
-      throw new RuntimeException("NYI");
-   }
+    public String getId() {
+        return id;
+    }
 
-   public void invalidate()
-   {
-      this.valid = false;
-   }
+    public long getLastAccessedTime() {
+        return 0;
+    }
 
-   public boolean isNew()
-   {  
-      if(this.valid == false)
-         throw new IllegalStateException("Session already invalidated");
-      
-      return false;
-   }
+    public int getMaxInactiveInterval() {
+        return 0;
+    }
 
-   public void putValue(String arg0, Object arg1)
-   {
-      if(this.valid == false)
-         throw new IllegalStateException("Session already invalidated");
-   }
+    public void setServletContext(ServletContext servletContext) {
+        this.context = servletContext;
+    }
 
-   public void removeAttribute(String arg0)
-   {
-      if(this.valid == false)
-         throw new IllegalStateException("Session already invalidated");
-      
-      this.attribs.remove(arg0);
-   }
+    public ServletContext getServletContext() {
+        return this.context;
+    }
 
-   public void removeValue(String arg0)
-   {
-      if(this.valid == false)
-         throw new IllegalStateException("Session already invalidated");      
-   }
+    public HttpSessionContext getSessionContext() {
 
-   public void setAttribute(String arg0, Object arg1)
-   {
-      if(this.valid == false)
-      throw new IllegalStateException("Session already invalidated");
-   
-      this.attribs.put(arg0, arg1); 
-   } 
-   
-   public void clear()
-   {
-      this.notes.clear();
-   }
+        throw new RuntimeException("NYI");
+    }
+
+    public Object getValue(String arg0) {
+        throw new RuntimeException("NYI");
+    }
+
+    public String[] getValueNames() {
+        throw new RuntimeException("NYI");
+    }
+
+    public void invalidate() {
+        this.valid = false;
+    }
+
+    public boolean isNew() {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+
+        return false;
+    }
+
+    public void putValue(String arg0, Object arg1) {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+    }
+
+    public void removeAttribute(String arg0) {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+
+        this.attribs.remove(arg0);
+    }
+
+    public void removeValue(String arg0) {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+    }
+
+    public void setAttribute(String arg0, Object arg1) {
+        if (this.valid == false)
+            throw new IllegalStateException("Session already invalidated");
+
+        this.attribs.put(arg0, arg1);
+    }
+
+    public void clear() {
+        this.notes.clear();
+    }
 }

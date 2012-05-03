@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -56,86 +56,75 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 
 /**
  * Unit Test the {@code SAML2STSLoginModule}
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 7, 2011
  */
-public class SAML2STSLoginModuleUnitTestCase
-{
-   @Before
-   public void setup()
-   {
-      System.setProperty("java.security.debug", "true");
+public class SAML2STSLoginModuleUnitTestCase {
+    @Before
+    public void setup() {
+        System.setProperty("java.security.debug", "true");
 
-      Configuration.setConfiguration(new Configuration()
-      {
-         @SuppressWarnings(
-         {"rawtypes", "unchecked"})
-         @Override
-         public AppConfigurationEntry[] getAppConfigurationEntry(String name)
-         {
-            final Map options = new HashMap();
-            options.put("configFile", "sts-client.properties");
-            options.put("localValidation", "true");
-            options.put("localValidationSecurityDomain", "someSD");
-            options.put("localTestingOnly", "true");
-            options.put("roleKey", "Role,SomeAttrib");
+        Configuration.setConfiguration(new Configuration() {
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            @Override
+            public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
+                final Map options = new HashMap();
+                options.put("configFile", "sts-client.properties");
+                options.put("localValidation", "true");
+                options.put("localValidationSecurityDomain", "someSD");
+                options.put("localTestingOnly", "true");
+                options.put("roleKey", "Role,SomeAttrib");
 
-            AppConfigurationEntry a2 = new AppConfigurationEntry(SAML2STSLoginModule.class.getName(),
-                  LoginModuleControlFlag.REQUIRED, options);
-            return new AppConfigurationEntry[]
-            {a2};
-         }
-      });
-   }
+                AppConfigurationEntry a2 = new AppConfigurationEntry(SAML2STSLoginModule.class.getName(),
+                        LoginModuleControlFlag.REQUIRED, options);
+                return new AppConfigurationEntry[] { a2 };
+            }
+        });
+    }
 
-   public class MyCBH implements CallbackHandler
-   {
+    public class MyCBH implements CallbackHandler {
 
-      public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException
-      {
-         AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), new NameIDType());
+        public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
+            AssertionType assertion = AssertionUtil.createAssertion(IDGenerator.create("ID_"), new NameIDType());
 
-         assertion.setSubject(AssertionUtil.createAssertionSubject("anil"));
+            assertion.setSubject(AssertionUtil.createAssertionSubject("anil"));
 
-         List<String> roles = new ArrayList<String>();
-         roles.add("test1");
-         roles.add("test2");
-         assertion.addStatement(StatementUtil.createAttributeStatement(roles));
-         assertion.addStatement(StatementUtil.createAttributeStatement("SomeAttrib", "testX"));
+            List<String> roles = new ArrayList<String>();
+            roles.add("test1");
+            roles.add("test2");
+            assertion.addStatement(StatementUtil.createAttributeStatement(roles));
+            assertion.addStatement(StatementUtil.createAttributeStatement("SomeAttrib", "testX"));
 
-         try
-         {
-            SamlCredential cred = new SamlCredential(AssertionUtil.asString(assertion));
-            ObjectCallback obj = (ObjectCallback) callbacks[0];
-            obj.setCredential(cred);
-         }
-         catch (ProcessingException e)
-         {
-            throw new RuntimeException(e);
-         }
-      }
+            try {
+                SamlCredential cred = new SamlCredential(AssertionUtil.asString(assertion));
+                ObjectCallback obj = (ObjectCallback) callbacks[0];
+                obj.setCredential(cred);
+            } catch (ProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
-   }
+    }
 
-   @Test
-   public void testAuth() throws Exception
-   {
-      Subject subject = new Subject();
+    @Test
+    public void testAuth() throws Exception {
+        Subject subject = new Subject();
 
-      LoginContext lc = new LoginContext("something", subject, new MyCBH());
-      lc.login();
+        LoginContext lc = new LoginContext("something", subject, new MyCBH());
+        lc.login();
 
-      Set<Group> groups = subject.getPrincipals(Group.class);
-      Group roleGroup = null;
-      for(Group grp: groups){
-          if(grp.getName().equalsIgnoreCase("Roles")){
-              roleGroup = grp;
-              break;
-          }
-      }
-      assertNotNull(roleGroup);
-      assertTrue(roleGroup.isMember(new SimplePrincipal("test1")));
-      assertTrue(roleGroup.isMember(new SimplePrincipal("test2")));
-      assertTrue(roleGroup.isMember(new SimplePrincipal("testX")));
-   }
+        Set<Group> groups = subject.getPrincipals(Group.class);
+        Group roleGroup = null;
+        for (Group grp : groups) {
+            if (grp.getName().equalsIgnoreCase("Roles")) {
+                roleGroup = grp;
+                break;
+            }
+        }
+        assertNotNull(roleGroup);
+        assertTrue(roleGroup.isMember(new SimplePrincipal("test1")));
+        assertTrue(roleGroup.isMember(new SimplePrincipal("test2")));
+        assertTrue(roleGroup.isMember(new SimplePrincipal("testX")));
+    }
 }

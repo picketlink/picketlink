@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -133,11 +133,11 @@ import org.w3c.dom.Document;
 
 /**
  * Generic Web Browser SSO valve for the IDP
- * 
+ *
  * Handles both the SAML Redirect as well as Post Bindings
- * 
+ *
  * Note: Most of the work is done by {@code IDPWebRequestUtil}
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since May 18, 2009
  */
@@ -245,7 +245,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * IDP should not do any attributes such as generation of roles etc
-     * 
+     *
      * @param ignoreAttributes
      */
     public void setIgnoreAttributesGeneration(Boolean ignoreAttributes) {
@@ -634,7 +634,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     /**
      * Returns the alias to be used for the token's signature verification. If <code>validatingAliasToTokenIssuer</code> is true
      * the token issuer will be returned.
-     * 
+     *
      * @param request
      * @param issuer
      * @return
@@ -714,12 +714,12 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             // Create the request/response
             SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, idpIssuer.getIssuer(),
                     samlDocumentHolder, HANDLER_TYPE.IDP);
-            Map<String,Object> options = new HashMap<String,Object>();
+            Map<String, Object> options = new HashMap<String, Object>();
             if (ignoreIncomingSignatures == false && signOutgoingMessages == true) {
                 PublicKey publicKey = keyManager.getValidatingKey(tokenValidatingAlias);
                 options.put(GeneralConstants.SENDER_PUBLIC_KEY, publicKey);
             }
-            
+
             saml2HandlerRequest.setOptions(options);
             saml2HandlerRequest.setRelayState(relayState);
 
@@ -907,7 +907,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Add a lifecycle event listener to this component.
-     * 
+     *
      * @param listener The listener to add
      */
     public void addLifecycleListener(LifecycleListener listener) {
@@ -924,7 +924,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Remove a lifecycle event listener from this component.
-     * 
+     *
      * @param listener The listener to add
      */
     public void removeLifecycleListener(LifecycleListener listener) {
@@ -934,7 +934,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     /**
      * Prepare for the beginning of active use of the public methods of this component. This method should be called after
      * <code>configure()</code>, and before any of the public methods of the component are utilized.
-     * 
+     *
      * @exception LifecycleException if this component detects a fatal error that prevents this component from being used
      */
     public void start() throws LifecycleException {
@@ -1122,7 +1122,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     /**
      * Gracefully terminate the active use of the public methods of this component. This method should be the last one called on
      * a given instance of this component.
-     * 
+     *
      * @exception LifecycleException if this component detects a fatal error that needs to be reported
      */
     public void stop() throws LifecycleException {
@@ -1175,7 +1175,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Given a set of roles, create an attribute statement
-     * 
+     *
      * @param roles
      * @return
      */

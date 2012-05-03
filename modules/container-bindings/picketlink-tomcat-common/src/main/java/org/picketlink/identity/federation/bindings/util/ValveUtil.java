@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -26,21 +26,21 @@ import java.net.URL;
 
 /**
  * Util for tomcat valves
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 22, 2009
  */
-public class ValveUtil
-{ 
-   
-   /**
-    * Given a SP or IDP issuer from the assertion, return the host
-    * @param domainURL
-    * @return
-    * @throws IOException  
-    */
-   public static String getDomain(String domainURL) throws IOException  
-   {
-      URL url = new URL(domainURL);
-      return url.getHost();
-   }
+public class ValveUtil {
+
+    /**
+     * Given a SP or IDP issuer from the assertion, return the host
+     *
+     * @param domainURL
+     * @return
+     * @throws IOException
+     */
+    public static String getDomain(String domainURL) throws IOException {
+        URL url = new URL(domainURL);
+        return url.getHost();
+    }
 }

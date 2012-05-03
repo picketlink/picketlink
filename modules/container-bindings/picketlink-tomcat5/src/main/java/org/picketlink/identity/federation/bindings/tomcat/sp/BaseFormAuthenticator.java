@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -85,7 +85,7 @@ import org.w3c.dom.Document;
 
 /**
  * Base Class for Service Provider Form Authenticators
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jun 9, 2009
  */
@@ -151,18 +151,17 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
     public BaseFormAuthenticator() {
         super();
     }
-        
+
     protected String idpAddress = null;
 
     /**
-     * If the request.getRemoteAddr is not exactly the IDP address that you have keyed
-     * in your deployment descriptor for keystore alias, you can set it here explicitly
+     * If the request.getRemoteAddr is not exactly the IDP address that you have keyed in your deployment descriptor for
+     * keystore alias, you can set it here explicitly
      */
-    public void setIdpAddress(String idpAddress)
-    {
-       this.idpAddress = idpAddress;
+    public void setIdpAddress(String idpAddress) {
+        this.idpAddress = idpAddress;
     }
-    
+
     public String getConfigFile() {
         return configFile;
     }
@@ -195,14 +194,14 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
             throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
         }
     }
-    
-    public SPType getConfiguration(){
+
+    public SPType getConfiguration() {
         return spConfiguration;
     }
 
     /**
      * Set a separate issuer id
-     * 
+     *
      * @param issuerID
      */
     public void setIssuerID(String issuerID) {
@@ -215,7 +214,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     /**
      * Perform validation os the request object
-     * 
+     *
      * @param request
      * @return
      * @throws IOException
@@ -234,7 +233,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     /**
      * Get the Identity URL
-     * 
+     *
      * @return
      */
     public String getIdentityURL() {
@@ -243,7 +242,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     /**
      * Get the {@link X509Certificate} of the IDP if provided via the IDP metadata file
-     * 
+     *
      * @return {@link X509Certificate} or null
      */
     public X509Certificate getIdpCertificate() {
@@ -254,7 +253,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
      * This method is a hack!!! Tomcat on account of Servlet3 changed their authenticator method signatures We utilize Java
      * Reflection to identify the super register method on the first call and save it. Subsquent invocations utilize the saved
      * {@link Method}
-     * 
+     *
      * @see org.apache.catalina.authenticator.AuthenticatorBase#register(org.apache.catalina.connector.Request,
      *      org.apache.catalina.connector.Response, java.security.Principal, java.lang.String, java.lang.String,
      *      java.lang.String)
@@ -287,7 +286,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     /**
      * Fall back on local authentication at the service provider side
-     * 
+     *
      * @param request
      * @param response
      * @param loginConfig
@@ -316,7 +315,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     /**
      * Return the SAML Binding that this authenticator supports
-     * 
+     *
      * @see {@link JBossSAMLURIConstants#SAML_HTTP_POST_BINDING}
      * @see {@link JBossSAMLURIConstants#SAML_HTTP_REDIRECT_BINDING}
      * @return
@@ -354,9 +353,9 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         List<EndpointType> endpoints = idpSSO.getSingleSignOnService();
         for (EndpointType endpoint : endpoints) {
             String endpointBinding = endpoint.getBinding().toString();
-            if(endpointBinding.contains("HTTP-POST"))
+            if (endpointBinding.contains("HTTP-POST"))
                 endpointBinding = "POST";
-            else if(endpointBinding.contains("HTTP-Redirect"))
+            else if (endpointBinding.contains("HTTP-Redirect"))
                 endpointBinding = "REDIRECT";
             if (getBinding().equals(endpointBinding)) {
                 identityURL = endpoint.getLocation().toString();
@@ -465,9 +464,9 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
         chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
         chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); // No validator as tomcat realm does validn
-        
-        if(doSupportSignature()){
-            chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());   
+
+        if (doSupportSignature()) {
+            chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
         }
     }
 
@@ -531,19 +530,17 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
             throw new RuntimeException(e);
         }
     }
-    
-
 
     /**
      * <p>
      * Indicates if digital signatures/validation of SAML assertions are enabled. Subclasses that supports signature should
      * override this method.
      * </p>
-     * 
+     *
      * @return
      */
     protected boolean doSupportSignature() {
-        if(spConfiguration != null){
+        if (spConfiguration != null) {
             return spConfiguration.isSupportsSignature();
         }
         return false;
@@ -556,6 +553,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         } while (myClass != AuthenticatorBase.class);
         return myClass;
     }
-    
+
     protected abstract void initKeyProvider(Context context) throws LifecycleException;
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -23,16 +23,17 @@ package org.picketlink.identity.federation.bindings.tomcat.sp;
 
 import org.apache.catalina.LifecycleException;
 
-
 /**
  * Authenticator at the Service Provider that handles HTTP/Post binding of SAML 2 but falls back on Form Authentication
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Dec 12, 2008
  */
 public class SPPostFormAuthenticator extends ServiceProviderAuthenticator {
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     *
      * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#start()
      */
     @Override
@@ -40,10 +41,10 @@ public class SPPostFormAuthenticator extends ServiceProviderAuthenticator {
         super.start();
         this.spConfiguration.setBindingType("POST");
     }
-    
-    public void testStart() throws LifecycleException{
+
+    public void testStart() throws LifecycleException {
         super.testStart();
         this.spConfiguration.setBindingType("POST");
     }
-    
+
 }

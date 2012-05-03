@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -35,162 +35,126 @@ import javax.servlet.http.HttpServletResponse;
  * @author Anil.Saldhana@redhat.com
  * @since Jan 28, 2009
  */
-public class TestServletResponse implements HttpServletResponse
-{
-   private BufferedOutputStream bos = null;
-   
-   public TestServletResponse(OutputStream os)
-   {
-      super();
-      bos = new BufferedOutputStream(os);
-   }
+public class TestServletResponse implements HttpServletResponse {
+    private BufferedOutputStream bos = null;
 
-   public void addCookie(Cookie cookie)
-   { 
-   }
+    public TestServletResponse(OutputStream os) {
+        super();
+        bos = new BufferedOutputStream(os);
+    }
 
-   public void addDateHeader(String name, long date)
-   { 
-   }
+    public void addCookie(Cookie cookie) {
+    }
 
-   public void addHeader(String name, String value)
-   {  
-   }
+    public void addDateHeader(String name, long date) {
+    }
 
-   public void addIntHeader(String name, int value)
-   {  
-   }
+    public void addHeader(String name, String value) {
+    }
 
-   public boolean containsHeader(String name)
-   {  
-      return false;
-   }
+    public void addIntHeader(String name, int value) {
+    }
 
-   public String encodeRedirectURL(String url)
-   { 
-      return null;
-   }
+    public boolean containsHeader(String name) {
+        return false;
+    }
 
-   public String encodeRedirectUrl(String url)
-   {
-      return null;
-   }
+    public String encodeRedirectURL(String url) {
+        return null;
+    }
 
-   public String encodeURL(String url)
-   {
-      return null;
-   }
+    public String encodeRedirectUrl(String url) {
+        return null;
+    }
 
-   public String encodeUrl(String url)
-   {
-      return null;
-   }
+    public String encodeURL(String url) {
+        return null;
+    }
 
-   public void sendError(int sc) throws IOException
-   {
-   }
+    public String encodeUrl(String url) {
+        return null;
+    }
 
-   public void sendError(int sc, String msg) throws IOException
-   {
-   }
+    public void sendError(int sc) throws IOException {
+    }
 
-   public void sendRedirect(String location) throws IOException
-   {
-   }
+    public void sendError(int sc, String msg) throws IOException {
+    }
 
-   public void setDateHeader(String name, long date)
-   {
-   }
+    public void sendRedirect(String location) throws IOException {
+    }
 
-   public void setHeader(String name, String value)
-   {
-   }
+    public void setDateHeader(String name, long date) {
+    }
 
-   public void setIntHeader(String name, int value)
-   {
-   }
+    public void setHeader(String name, String value) {
+    }
 
-   public void setStatus(int sc)
-   {
-   }
+    public void setIntHeader(String name, int value) {
+    }
 
-   public void setStatus(int sc, String sm)
-   {
-   }
+    public void setStatus(int sc) {
+    }
 
-   public void flushBuffer() throws IOException
-   {
-      this.bos.flush();
-   }
+    public void setStatus(int sc, String sm) {
+    }
 
-   public int getBufferSize()
-   {
-      return 0;
-   }
+    public void flushBuffer() throws IOException {
+        this.bos.flush();
+    }
 
-   public String getCharacterEncoding()
-   {
-      return null;
-   }
+    public int getBufferSize() {
+        return 0;
+    }
 
-   public String getContentType()
-   {
-      return null;
-   }
+    public String getCharacterEncoding() {
+        return null;
+    }
 
-   public Locale getLocale()
-   {
-      return null;
-   }
+    public String getContentType() {
+        return null;
+    }
 
-   public ServletOutputStream getOutputStream() throws IOException
-   { 
-      bos.flush();
-      return new ServletOutputStream()
-      {
-         @Override
-         public void write(int b) throws IOException
-         {
-            bos.write(b);
-         }
-      };
-   }
+    public Locale getLocale() {
+        return null;
+    }
 
-   public PrintWriter getWriter() throws IOException
-   { 
-      return null;
-   }
+    public ServletOutputStream getOutputStream() throws IOException {
+        bos.flush();
+        return new ServletOutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                bos.write(b);
+            }
+        };
+    }
 
-   public boolean isCommitted()
-   { 
-      return false;
-   }
+    public PrintWriter getWriter() throws IOException {
+        return null;
+    }
 
-   public void reset()
-   {
-   }
+    public boolean isCommitted() {
+        return false;
+    }
 
-   public void resetBuffer()
-   {
-   }
+    public void reset() {
+    }
 
-   public void setBufferSize(int size)
-   {
-   }
+    public void resetBuffer() {
+    }
 
-   public void setCharacterEncoding(String charset)
-   {
-   }
+    public void setBufferSize(int size) {
+    }
 
-   public void setContentLength(int len)
-   {
-   }
+    public void setCharacterEncoding(String charset) {
+    }
 
-   public void setContentType(String type)
-   {
-   }
+    public void setContentLength(int len) {
+    }
 
-   public void setLocale(Locale loc)
-   {
-   } 
+    public void setContentType(String type) {
+    }
+
+    public void setLocale(Locale loc) {
+    }
 }

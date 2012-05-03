@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -51,173 +51,165 @@ import org.w3c.dom.Node;
 
 /**
  * Unit Test the SOAP SAML XACML Servlet
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 28, 2009
  */
-public class SOAPSAMLXACMLServletUnitTestCase
-{
-   @Test
-   public void testPermit() throws Exception
-   {
-      validate("xacml/requests/XacmlRequest-01-01.xml", DecisionType.PERMIT.value(), true);
+public class SOAPSAMLXACMLServletUnitTestCase {
+    @Test
+    public void testPermit() throws Exception {
+        validate("xacml/requests/XacmlRequest-01-01.xml", DecisionType.PERMIT.value(), true);
 
-      validate("xacml/requests/XacmlRequest-format2-01-01.xml", DecisionType.PERMIT.value(), true);
-   }
+        validate("xacml/requests/XacmlRequest-format2-01-01.xml", DecisionType.PERMIT.value(), true);
+    }
 
-   @Test
-   public void testDeny() throws Exception
-   {
-      validate("xacml/requests/XacmlRequest-01-02.xml", DecisionType.DENY.value(), true);
-   }
+    @Test
+    public void testDeny() throws Exception {
+        validate("xacml/requests/XacmlRequest-01-02.xml", DecisionType.DENY.value(), true);
+    }
 
-   @Test
-   public void testIncorrectInput() throws Exception
-   {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    @Test
+    public void testIncorrectInput() throws Exception {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-      String garbage = "<fdfdsfdfk/>";
-      ByteArrayInputStream bis = new ByteArrayInputStream(garbage.getBytes());
+        String garbage = "<fdfdsfdfk/>";
+        ByteArrayInputStream bis = new ByteArrayInputStream(garbage.getBytes());
 
-      SOAPSAMLXACMLServlet servlet = new SOAPSAMLXACMLServlet();
-      servlet.init(new TestServletConfig(getServletContext()));
-      ServletRequest sreq = new TestServletRequest(getSOAPStream(bis));
-      ServletResponse sresp = new TestServletResponse(baos);
-      servlet.service(sreq, sresp);
+        SOAPSAMLXACMLServlet servlet = new SOAPSAMLXACMLServlet();
+        servlet.init(new TestServletConfig(getServletContext()));
+        ServletRequest sreq = new TestServletRequest(getSOAPStream(bis));
+        ServletResponse sresp = new TestServletResponse(baos);
+        servlet.service(sreq, sresp);
 
-      sresp.flushBuffer(); //Flush the servlet response ServletOutputStream to our baos
+        sresp.flushBuffer(); // Flush the servlet response ServletOutputStream to our baos
 
-      bis = new ByteArrayInputStream(baos.toByteArray());
+        bis = new ByteArrayInputStream(baos.toByteArray());
 
-      SOAPMessage soapMessage = SOAPUtil.getSOAPMessage(bis);
-      Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
-      assertTrue(xacmlNode instanceof Element);
-      Element xacmlElement = (Element) xacmlNode;
-      assertTrue(xacmlElement.getLocalName().equals("Fault"));
-      /*Unmarshaller un = JAXBUtil.getUnmarshaller(SOAPSAMLXACMLUtil.getPackage());
-      JAXBElement<Envelope> jax = (JAXBElement<Envelope>) un.unmarshal(bis);
-      Envelope envelope = jax.getValue();
-      assertNotNull("Envelope is not null", envelope); 
-      JAXBElement<?> fault = (JAXBElement<?>) envelope.getBody().getAny().get(0);
-      assertTrue(fault.getValue() instanceof Fault);*/
-   }
+        SOAPMessage soapMessage = SOAPUtil.getSOAPMessage(bis);
+        Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
+        assertTrue(xacmlNode instanceof Element);
+        Element xacmlElement = (Element) xacmlNode;
+        assertTrue(xacmlElement.getLocalName().equals("Fault"));
+        /*
+         * Unmarshaller un = JAXBUtil.getUnmarshaller(SOAPSAMLXACMLUtil.getPackage()); JAXBElement<Envelope> jax =
+         * (JAXBElement<Envelope>) un.unmarshal(bis); Envelope envelope = jax.getValue(); assertNotNull("Envelope is not null",
+         * envelope); JAXBElement<?> fault = (JAXBElement<?>) envelope.getBody().getAny().get(0); assertTrue(fault.getValue()
+         * instanceof Fault);
+         */
+    }
 
-   @Test
-   public void testInteropSOAPRequest() throws Exception
-   {
-      validate("xacml/requests/interop-request.xml", DecisionType.PERMIT.value(), false);
-   }
-   
-   @Test
-   public void testCXFRequest() throws Exception{
-       boolean needSOAPWrapping = false;
-       InputStream is = getInputStream("xacml/requests/cxf-soap-request.xml");
-       if (is == null)
-          throw new IllegalArgumentException("Input Stream to request file is null");
+    @Test
+    public void testInteropSOAPRequest() throws Exception {
+        validate("xacml/requests/interop-request.xml", DecisionType.PERMIT.value(), false);
+    }
 
-       ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    @Test
+    public void testCXFRequest() throws Exception {
+        boolean needSOAPWrapping = false;
+        InputStream is = getInputStream("xacml/requests/cxf-soap-request.xml");
+        if (is == null)
+            throw new IllegalArgumentException("Input Stream to request file is null");
 
-       SOAPSAMLXACMLServlet servlet = new SOAPSAMLXACMLServlet();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-       HashMap<String, String> map = new HashMap<String, String>();
-       map.put("soapVersion", "1.2");
-       map.put("policyConfigFileName", "xacml/policies/config/rsaConfPolicyConfig.xml");
-       ServletContext sc = new TestServletContext(map);
-       
-       servlet.init(new TestServletConfig(sc));
+        SOAPSAMLXACMLServlet servlet = new SOAPSAMLXACMLServlet();
 
-       if (needSOAPWrapping)
-          is = getSOAPStream(is);
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("soapVersion", "1.2");
+        map.put("policyConfigFileName", "xacml/policies/config/rsaConfPolicyConfig.xml");
+        ServletContext sc = new TestServletContext(map);
 
-       ServletRequest sreq = new TestServletRequest(is);
-       ServletResponse sresp = new TestServletResponse(baos);
-       servlet.service(sreq, sresp);
+        servlet.init(new TestServletConfig(sc));
 
-       sresp.flushBuffer(); //Flush the servlet response ServletOutputStream to our baos
+        if (needSOAPWrapping)
+            is = getSOAPStream(is);
 
-       ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+        ServletRequest sreq = new TestServletRequest(is);
+        ServletResponse sresp = new TestServletResponse(baos);
+        servlet.service(sreq, sresp);
 
-       SOAPMessage soapMessage = SOAPUtil.getSOAP12Message(bis);
+        sresp.flushBuffer(); // Flush the servlet response ServletOutputStream to our baos
 
-       soapMessage.writeTo(System.out);
+        ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
 
-       Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
-       XACMLAuthzDecisionStatementType xacmlStatement = SOAPSAMLXACMLUtil.getDecisionStatement(xacmlNode);
-       assertNotNull(xacmlStatement);
-   }
+        SOAPMessage soapMessage = SOAPUtil.getSOAP12Message(bis);
 
-   private void validate(String requestFile, String value, boolean needSOAPWrapping) throws Exception
-   {
-      InputStream is = getInputStream(requestFile);
-      if (is == null)
-         throw new IllegalArgumentException("Input Stream to request file is null");
+        soapMessage.writeTo(System.out);
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
+        XACMLAuthzDecisionStatementType xacmlStatement = SOAPSAMLXACMLUtil.getDecisionStatement(xacmlNode);
+        assertNotNull(xacmlStatement);
+    }
 
-      SOAPSAMLXACMLServlet servlet = new SOAPSAMLXACMLServlet();
-      servlet.init(new TestServletConfig(getServletContext()));
+    private void validate(String requestFile, String value, boolean needSOAPWrapping) throws Exception {
+        InputStream is = getInputStream(requestFile);
+        if (is == null)
+            throw new IllegalArgumentException("Input Stream to request file is null");
 
-      if (needSOAPWrapping)
-         is = getSOAPStream(is);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-      ServletRequest sreq = new TestServletRequest(is);
-      ServletResponse sresp = new TestServletResponse(baos);
-      servlet.service(sreq, sresp);
+        SOAPSAMLXACMLServlet servlet = new SOAPSAMLXACMLServlet();
+        servlet.init(new TestServletConfig(getServletContext()));
 
-      sresp.flushBuffer(); //Flush the servlet response ServletOutputStream to our baos
+        if (needSOAPWrapping)
+            is = getSOAPStream(is);
 
-      ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
+        ServletRequest sreq = new TestServletRequest(is);
+        ServletResponse sresp = new TestServletResponse(baos);
+        servlet.service(sreq, sresp);
 
-      SOAPMessage soapMessage = SOAPUtil.getSOAPMessage(bis);
+        sresp.flushBuffer(); // Flush the servlet response ServletOutputStream to our baos
 
-      Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
-      XACMLAuthzDecisionStatementType xacmlStatement = SOAPSAMLXACMLUtil.getDecisionStatement(xacmlNode);
-      /*Unmarshaller un = JAXBUtil.getUnmarshaller(SOAPSAMLXACMLUtil.getPackage());
-      JAXBElement<Envelope> jax = (JAXBElement<Envelope>) un.unmarshal(bis);
-      Envelope envelope = jax.getValue();
-      assertNotNull("Envelope is not null", envelope);
-      
-      JAXBElement<ResponseType> jaxbResponseType = (JAXBElement<ResponseType>) envelope.getBody().getAny().get(0);
-      ResponseType responseType = jaxbResponseType.getValue();
-      
-      assertNotNull("ResponseType is not null", responseType); 
-      AssertionType assertion = (AssertionType) responseType.getAssertionOrEncryptedAssertion().get(0);
-      XACMLAuthzDecisionStatementType xacmlStatement = (XACMLAuthzDecisionStatementType) assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().get(0);
-      */
+        ByteArrayInputStream bis = new ByteArrayInputStream(baos.toByteArray());
 
-      assertNotNull("XACML Authorization Statement is not null", xacmlStatement);
-      org.jboss.security.xacml.core.model.context.ResponseType xacmlResponse = xacmlStatement.getResponse();
-      ResultType resultType = xacmlResponse.getResult().get(0);
-      DecisionType decision = resultType.getDecision();
-      assertNotNull("Decision is not null", decision);
-      assertEquals(value, decision.value());
-   }
+        SOAPMessage soapMessage = SOAPUtil.getSOAPMessage(bis);
 
-   private ServletContext getServletContext()
-   {
-      HashMap<String, String> map = new HashMap<String, String>();
-      map.put("policyConfigFileName", "xacml/policies/config/rsaConfPolicyConfig.xml");
-      return new TestServletContext(map);
-   }
+        Node xacmlNode = soapMessage.getSOAPBody().getChildNodes().item(0);
+        XACMLAuthzDecisionStatementType xacmlStatement = SOAPSAMLXACMLUtil.getDecisionStatement(xacmlNode);
+        /*
+         * Unmarshaller un = JAXBUtil.getUnmarshaller(SOAPSAMLXACMLUtil.getPackage()); JAXBElement<Envelope> jax =
+         * (JAXBElement<Envelope>) un.unmarshal(bis); Envelope envelope = jax.getValue(); assertNotNull("Envelope is not null",
+         * envelope);
+         *
+         * JAXBElement<ResponseType> jaxbResponseType = (JAXBElement<ResponseType>) envelope.getBody().getAny().get(0);
+         * ResponseType responseType = jaxbResponseType.getValue();
+         *
+         * assertNotNull("ResponseType is not null", responseType); AssertionType assertion = (AssertionType)
+         * responseType.getAssertionOrEncryptedAssertion().get(0); XACMLAuthzDecisionStatementType xacmlStatement =
+         * (XACMLAuthzDecisionStatementType) assertion.getStatementOrAuthnStatementOrAuthzDecisionStatement().get(0);
+         */
 
-   private InputStream getInputStream(String requestFileLoc)
-   {
-      ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-      return tcl.getResourceAsStream(requestFileLoc);
-   }
+        assertNotNull("XACML Authorization Statement is not null", xacmlStatement);
+        org.jboss.security.xacml.core.model.context.ResponseType xacmlResponse = xacmlStatement.getResponse();
+        ResultType resultType = xacmlResponse.getResult().get(0);
+        DecisionType decision = resultType.getDecision();
+        assertNotNull("Decision is not null", decision);
+        assertEquals(value, decision.value());
+    }
 
-   private InputStream getSOAPStream(InputStream dataStream) throws Exception
-   {
-      SOAPMessage message = SOAPUtil.create();
-      SOAPPart soapPart = message.getSOAPPart();
-      SOAPEnvelope envelope = soapPart.getEnvelope();
-      SOAPBody body = envelope.getBody();
+    private ServletContext getServletContext() {
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("policyConfigFileName", "xacml/policies/config/rsaConfPolicyConfig.xml");
+        return new TestServletContext(map);
+    }
 
-      body.addDocument(DocumentUtil.getDocument(dataStream));
-      message.saveChanges();
+    private InputStream getInputStream(String requestFileLoc) {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        return tcl.getResourceAsStream(requestFileLoc);
+    }
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      message.writeTo(baos);
+    private InputStream getSOAPStream(InputStream dataStream) throws Exception {
+        SOAPMessage message = SOAPUtil.create();
+        SOAPPart soapPart = message.getSOAPPart();
+        SOAPEnvelope envelope = soapPart.getEnvelope();
+        SOAPBody body = envelope.getBody();
 
-      return new ByteArrayInputStream(baos.toByteArray());
-   }
+        body.addDocument(DocumentUtil.getDocument(dataStream));
+        message.saveChanges();
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        message.writeTo(baos);
+
+        return new ByteArrayInputStream(baos.toByteArray());
+    }
 }

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -29,19 +29,16 @@ import java.util.Map;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
- * An implementation of attribute manager to get
- * attributes of an identity
+ * An implementation of attribute manager to get attributes of an identity
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Aug 31, 2009
  */
-public class TomcatAttributeManager implements AttributeManager
-{
-   /**
-    * @see AttributeManager#getAttributes(Principal, List)
-    */
-   public Map<String, Object> getAttributes(Principal userPrincipal,
-         List<String> attributeKeys)
-   {
-      return new HashMap<String, Object>(); 
-   }
+public class TomcatAttributeManager implements AttributeManager {
+    /**
+     * @see AttributeManager#getAttributes(Principal, List)
+     */
+    public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys) {
+        return new HashMap<String, Object>();
+    }
 }

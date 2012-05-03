@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -44,153 +44,150 @@ import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRespons
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession;
 
 /**
- * <p>Unit test the SAML2 Logout Mechanism for Tomcat bindings with token signature.</>
- * <p>This test uses a scenario where there are two SPs (Employee e Sales) pointing to the same IDP. When the user sends a GLO logout request to the Employee SP
- * Picketlink will start the logout process and invalidate the user in both SPs.</p>
- * 
+ * <p>
+ * Unit test the SAML2 Logout Mechanism for Tomcat bindings with token signature.</>
+ * <p>
+ * This test uses a scenario where there are two SPs (Employee e Sales) pointing to the same IDP. When the user sends a GLO
+ * logout request to the Employee SP Picketlink will start the logout process and invalidate the user in both SPs.
+ * </p>
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Igor</a>
  * @since Dec 1, 2011
  */
 @SuppressWarnings("unused")
-public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML2RedirectWithSignatureTestCase
-{
-   private static final String SP_SALES_URL = "http://192.168.1.4:8080/sales/";
+public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML2RedirectWithSignatureTestCase {
+    private static final String SP_SALES_URL = "http://192.168.1.4:8080/sales/";
 
-   private static final String SP_SALES_PROFILE = BASE_PROFILE + "/sp/sales-sig";
+    private static final String SP_SALES_PROFILE = BASE_PROFILE + "/sp/sales-sig";
 
-   private static final String SP_EMPLOYEE_URL = "http://192.168.1.2:8080/employee/";
+    private static final String SP_EMPLOYEE_URL = "http://192.168.1.2:8080/employee/";
 
-   private static final String SP_EMPLOYEE_PROFILE = BASE_PROFILE + "/sp/employee-sig";
+    private static final String SP_EMPLOYEE_PROFILE = BASE_PROFILE + "/sp/employee-sig";
 
-   private IDPWebBrowserSSOValve idpWebBrowserSSOValve;
+    private IDPWebBrowserSSOValve idpWebBrowserSSOValve;
 
-   private MockCatalinaSession employeeHttpSession = new MockCatalinaSession();
+    private MockCatalinaSession employeeHttpSession = new MockCatalinaSession();
 
-   private MockCatalinaSession salesHttpSession = new MockCatalinaSession();
+    private MockCatalinaSession salesHttpSession = new MockCatalinaSession();
 
-   private SPRedirectSignatureFormAuthenticator salesServiceProvider;
+    private SPRedirectSignatureFormAuthenticator salesServiceProvider;
 
-   private SPRedirectSignatureFormAuthenticator employeeServiceProvider;
+    private SPRedirectSignatureFormAuthenticator employeeServiceProvider;
 
-   /**
-    * Tests the GLO logout mechanism. 
-    * 
-    * @throws LifecycleException
-    * @throws IOException
-    * @throws ServletException
-    */
-   @Test
-   public void testSAML2LogOutFromSP() throws LifecycleException, IOException, ServletException
-   { 
-      System.setProperty("picketlink.schema.validate", "true");
-      // requests a GLO logout to the Employee SP
-      MockCatalinaRequest originalEmployeeLogoutRequest = createRequest(employeeHttpSession, true);
+    /**
+     * Tests the GLO logout mechanism.
+     *
+     * @throws LifecycleException
+     * @throws IOException
+     * @throws ServletException
+     */
+    @Test
+    public void testSAML2LogOutFromSP() throws LifecycleException, IOException, ServletException {
+        System.setProperty("picketlink.schema.validate", "true");
+        // requests a GLO logout to the Employee SP
+        MockCatalinaRequest originalEmployeeLogoutRequest = createRequest(employeeHttpSession, true);
 
-      originalEmployeeLogoutRequest.setParameter(GeneralConstants.GLOBAL_LOGOUT, "true");
+        originalEmployeeLogoutRequest.setParameter(GeneralConstants.GLOBAL_LOGOUT, "true");
 
-      MockCatalinaResponse originalEmployeeLogoutResponse = sendSPRequest(originalEmployeeLogoutRequest,
-            getEmployeeServiceProvider());
-      
-      assertNotNull(originalEmployeeLogoutResponse);
+        MockCatalinaResponse originalEmployeeLogoutResponse = sendSPRequest(originalEmployeeLogoutRequest,
+                getEmployeeServiceProvider());
 
-      // sends the LogoutRequest to the IDP
-      MockCatalinaRequest idpLogoutRequest = createIDPRequest(true);
+        assertNotNull(originalEmployeeLogoutResponse);
 
-      setQueryStringFromResponse(originalEmployeeLogoutResponse, idpLogoutRequest);
+        // sends the LogoutRequest to the IDP
+        MockCatalinaRequest idpLogoutRequest = createIDPRequest(true);
 
-      MockCatalinaResponse idpLogoutResponse = sendIDPRequest(idpLogoutRequest);
+        setQueryStringFromResponse(originalEmployeeLogoutResponse, idpLogoutRequest);
 
-      // The IDP responds with a LogoutRequest. Send it to the Sales SP with the RelayState pointing to the Employee SP
-      MockCatalinaRequest salesLogoutRequest = createRequest(salesHttpSession, true);
+        MockCatalinaResponse idpLogoutResponse = sendIDPRequest(idpLogoutRequest);
 
-      setQueryStringFromResponse(idpLogoutResponse, salesLogoutRequest);
+        // The IDP responds with a LogoutRequest. Send it to the Sales SP with the RelayState pointing to the Employee SP
+        MockCatalinaRequest salesLogoutRequest = createRequest(salesHttpSession, true);
 
-      MockCatalinaResponse salesLogoutResponse = sendSPRequest(salesLogoutRequest, getSalesServiceProvider());
-      
-      // At this moment the user is not logged in Sales SP anymore.
-      assertTrue(this.salesHttpSession.isInvalidated());
-      
-      // sends the StatusResponse to the IDP to continue the logout process.
-      MockCatalinaRequest processSalesStatusResponse = createIDPRequest(true);
+        setQueryStringFromResponse(idpLogoutResponse, salesLogoutRequest);
 
-      setQueryStringFromResponse(salesLogoutResponse, processSalesStatusResponse);
+        MockCatalinaResponse salesLogoutResponse = sendSPRequest(salesLogoutRequest, getSalesServiceProvider());
 
-      MockCatalinaResponse salesStatusResponse = sendIDPRequest(processSalesStatusResponse);
+        // At this moment the user is not logged in Sales SP anymore.
+        assertTrue(this.salesHttpSession.isInvalidated());
 
-      // The IDP responds with a LogoutRequest. Send it to the Employee SP.
-      MockCatalinaRequest employeeLogoutRequest = createRequest(employeeHttpSession, true);
+        // sends the StatusResponse to the IDP to continue the logout process.
+        MockCatalinaRequest processSalesStatusResponse = createIDPRequest(true);
 
-      setQueryStringFromResponse(salesStatusResponse, employeeLogoutRequest);
+        setQueryStringFromResponse(salesLogoutResponse, processSalesStatusResponse);
 
-      MockCatalinaResponse employeeLogoutResponse = sendSPRequest(employeeLogoutRequest, getEmployeeServiceProvider());
-      
-      // At this moment the user is not logged in Employee SP anymore.
-      assertTrue(this.employeeHttpSession.isInvalidated());
-      
-      Assert.assertNotNull(employeeLogoutRequest.getForwardPath());
-      Assert.assertEquals(employeeLogoutRequest.getForwardPath(), GeneralConstants.LOGOUT_PAGE_NAME);
-      assertEquals(0, getIdentityServer(getIDPWebBrowserSSOValve()).stack().getParticipants(getIDPHttpSession().getId()));
-      assertEquals(0, getIdentityServer(getIDPWebBrowserSSOValve()).stack().getNumOfParticipantsInTransit(getIDPHttpSession().getId()));
+        MockCatalinaResponse salesStatusResponse = sendIDPRequest(processSalesStatusResponse);
 
-      //Finally the session should be invalidated
-      assertTrue(getIDPHttpSession().isInvalidated());
-   }
+        // The IDP responds with a LogoutRequest. Send it to the Employee SP.
+        MockCatalinaRequest employeeLogoutRequest = createRequest(employeeHttpSession, true);
 
-   private MockCatalinaResponse sendSPRequest(MockCatalinaRequest request, SPRedirectSignatureFormAuthenticator sp) throws LifecycleException,
-         IOException, ServletException
-   {
-      MockCatalinaResponse response = new MockCatalinaResponse();
-      response.setWriter(new PrintWriter(new ByteArrayOutputStream()));
+        setQueryStringFromResponse(salesStatusResponse, employeeLogoutRequest);
 
-      sp.authenticate(request, response, new MockCatalinaLoginConfig());
+        MockCatalinaResponse employeeLogoutResponse = sendSPRequest(employeeLogoutRequest, getEmployeeServiceProvider());
 
-      return response;
-   }
+        // At this moment the user is not logged in Employee SP anymore.
+        assertTrue(this.employeeHttpSession.isInvalidated());
 
-   private MockCatalinaResponse sendIDPRequest(MockCatalinaRequest request) throws LifecycleException, IOException,
-         ServletException
-   {
-      IDPWebBrowserSSOValve idp = getIDPWebBrowserSSOValve();
-      idp.setStrictPostBinding(false);
+        Assert.assertNotNull(employeeLogoutRequest.getForwardPath());
+        Assert.assertEquals(employeeLogoutRequest.getForwardPath(), GeneralConstants.LOGOUT_PAGE_NAME);
+        assertEquals(0, getIdentityServer(getIDPWebBrowserSSOValve()).stack().getParticipants(getIDPHttpSession().getId()));
+        assertEquals(0,
+                getIdentityServer(getIDPWebBrowserSSOValve()).stack()
+                        .getNumOfParticipantsInTransit(getIDPHttpSession().getId()));
 
-      MockCatalinaResponse response = new MockCatalinaResponse();
+        // Finally the session should be invalidated
+        assertTrue(getIDPHttpSession().isInvalidated());
+    }
 
-      response.setWriter(new PrintWriter(new ByteArrayOutputStream()));
+    private MockCatalinaResponse sendSPRequest(MockCatalinaRequest request, SPRedirectSignatureFormAuthenticator sp)
+            throws LifecycleException, IOException, ServletException {
+        MockCatalinaResponse response = new MockCatalinaResponse();
+        response.setWriter(new PrintWriter(new ByteArrayOutputStream()));
 
-      idp.invoke(request, response);
-      
-      ((MockCatalinaSession) request.getSession()).clear();
-      
-      return response;
-   }
+        sp.authenticate(request, response, new MockCatalinaLoginConfig());
 
-   private IDPWebBrowserSSOValve getIDPWebBrowserSSOValve() throws LifecycleException
-   {
-      if (this.idpWebBrowserSSOValve == null)
-      {
-         this.idpWebBrowserSSOValve = createIdentityProvider();
-         addIdentityServerParticipants(this.idpWebBrowserSSOValve, SP_EMPLOYEE_URL);
-         addIdentityServerParticipants(this.idpWebBrowserSSOValve, SP_SALES_URL);
-      }
+        return response;
+    }
 
-      return this.idpWebBrowserSSOValve;
-   }
-   
-   public SPRedirectSignatureFormAuthenticator getEmployeeServiceProvider() {
-      if (this.employeeServiceProvider == null)
-      {
-         this.employeeServiceProvider = (SPRedirectSignatureFormAuthenticator) createServiceProvider(SP_EMPLOYEE_PROFILE);
-      }
+    private MockCatalinaResponse sendIDPRequest(MockCatalinaRequest request) throws LifecycleException, IOException,
+            ServletException {
+        IDPWebBrowserSSOValve idp = getIDPWebBrowserSSOValve();
+        idp.setStrictPostBinding(false);
 
-      return this.employeeServiceProvider;
-   }
-   
-   public SPRedirectSignatureFormAuthenticator getSalesServiceProvider() {
-      if (this.salesServiceProvider == null)
-      {
-         this.salesServiceProvider = (SPRedirectSignatureFormAuthenticator) createServiceProvider(SP_SALES_PROFILE);
-      }
+        MockCatalinaResponse response = new MockCatalinaResponse();
 
-      return this.salesServiceProvider;
-   }
+        response.setWriter(new PrintWriter(new ByteArrayOutputStream()));
+
+        idp.invoke(request, response);
+
+        ((MockCatalinaSession) request.getSession()).clear();
+
+        return response;
+    }
+
+    private IDPWebBrowserSSOValve getIDPWebBrowserSSOValve() throws LifecycleException {
+        if (this.idpWebBrowserSSOValve == null) {
+            this.idpWebBrowserSSOValve = createIdentityProvider();
+            addIdentityServerParticipants(this.idpWebBrowserSSOValve, SP_EMPLOYEE_URL);
+            addIdentityServerParticipants(this.idpWebBrowserSSOValve, SP_SALES_URL);
+        }
+
+        return this.idpWebBrowserSSOValve;
+    }
+
+    public SPRedirectSignatureFormAuthenticator getEmployeeServiceProvider() {
+        if (this.employeeServiceProvider == null) {
+            this.employeeServiceProvider = (SPRedirectSignatureFormAuthenticator) createServiceProvider(SP_EMPLOYEE_PROFILE);
+        }
+
+        return this.employeeServiceProvider;
+    }
+
+    public SPRedirectSignatureFormAuthenticator getSalesServiceProvider() {
+        if (this.salesServiceProvider == null) {
+            this.salesServiceProvider = (SPRedirectSignatureFormAuthenticator) createServiceProvider(SP_SALES_PROFILE);
+        }
+
+        return this.salesServiceProvider;
+    }
 }

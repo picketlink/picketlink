@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,16 +21,17 @@
  */
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-
 /**
  * JBID-142: POST form authenticator that can handle signatures at the SP side
- * 
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jul 24, 2009
  */
 public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator {
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see org.picketlink.identity.federation.bindings.tomcat.sp.AbstractSPFormAuthenticator#doSupportSignature()
      */
     @Override

@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -33,82 +33,69 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  * Mock catalina response
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Oct 20, 2009
  */
-public class MockCatalinaResponse extends Response
-{
-   private Map<String, String> headers = new HashMap<String, String>();
-   private int status;
-   public String redirectString;
-   private PrintWriter mywriter;
+public class MockCatalinaResponse extends Response {
+    private Map<String, String> headers = new HashMap<String, String>();
+    private int status;
+    public String redirectString;
+    private PrintWriter mywriter;
 
-   @Override
-   public void setCharacterEncoding(String charset)
-   { 
-   }
+    @Override
+    public void setCharacterEncoding(String charset) {
+    }
 
-   @Override
-   public void setHeader(String name, String value)
-   {
-      this.headers.put(name, value); 
-   } 
+    @Override
+    public void setHeader(String name, String value) {
+        this.headers.put(name, value);
+    }
 
-   @Override
-   public int getStatus()
-   {
-      return this.status;
-   }
+    @Override
+    public int getStatus() {
+        return this.status;
+    }
 
-   @Override
-   public void setStatus(int status)
-   {
-      this.status = status; 
-   } 
+    @Override
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
-   @Override
-   public void sendRedirect(String arg0) throws IOException
-   {
-      this.redirectString = arg0;
-   }
+    @Override
+    public void sendRedirect(String arg0) throws IOException {
+        this.redirectString = arg0;
+    }
 
-   @Override
-   public boolean isCommitted()
-   {
-      return false;
-   }
+    @Override
+    public boolean isCommitted() {
+        return false;
+    }
 
-   @Override
-   public boolean isAppCommitted()
-   {
-      boolean redirected = getStatus() == HttpServletResponse.SC_MOVED_TEMPORARILY;
-      return redirected;
-   }
+    @Override
+    public boolean isAppCommitted() {
+        boolean redirected = getStatus() == HttpServletResponse.SC_MOVED_TEMPORARILY;
+        return redirected;
+    }
 
-   public void setWriter(Writer w)
-   {
-      this.mywriter = (PrintWriter) w;
-   }
-    
+    public void setWriter(Writer w) {
+        this.mywriter = (PrintWriter) w;
+    }
 
-   @Override
-   public PrintWriter getWriter() throws IOException
-   {
-      return this.mywriter;
-   }
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        return this.mywriter;
+    }
 
-   @Override
-   public void setContentLength(int length)
-   { 
-   }
+    @Override
+    public void setContentLength(int length) {
+    }
 
-   @Override
-   public void setContentType(String arg0)
-   { 
-   }
+    @Override
+    public void setContentType(String arg0) {
+    }
 
-   @Override
-   public void recycle()
-   { 
-   }  
+    @Override
+    public void recycle() {
+    }
 }

@@ -67,10 +67,10 @@ import org.w3c.dom.Document;
  * <p>
  * Abstract class to be extended by Service Provider valves to handle SAML requests and responses.
  * </p>
- * 
+ *
  * @author <a href="mailto:asaldhan@redhat.com">Anil Saldhana</a>
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator {
 
@@ -88,7 +88,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#processStart()
      */
     @Override
@@ -102,7 +102,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * Initialize the KeyProvider configurations. This configurations are to be used during signing and validation of SAML
      * assertions.
      * </p>
-     * 
+     *
      * @param context
      * @throws LifecycleException
      */
@@ -146,7 +146,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
     /**
      * Authenticate the request
-     * 
+     *
      * @param request
      * @param response
      * @param config
@@ -164,7 +164,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.apache.catalina.authenticator.FormAuthenticator#authenticate(org.apache.catalina.connector.Request,
      * org.apache.catalina.connector.Response, org.apache.catalina.deploy.LoginConfig)
      */
@@ -229,7 +229,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * <p>
      * Indicates if the current request is a GlobalLogout request.
      * </p>
-     * 
+     *
      * @param request
      * @return
      */
@@ -242,7 +242,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * <p>
      * Indicates if the current request is a LocalLogout request.
      * </p>
-     * 
+     *
      * @param request
      * @return
      */
@@ -253,7 +253,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
     /**
      * Handle the IDP Request
-     * 
+     *
      * @param request
      * @param response
      * @param loginConfig
@@ -288,7 +288,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
     /**
      * Handle IDP Response
-     * 
+     *
      * @param request
      * @param response
      * @param loginConfig
@@ -388,7 +388,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             log.error("Server Exception:", e);
             throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
         }
-        
+
         return localAuthentication(request, response, loginConfig);
     }
 
@@ -398,10 +398,9 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
     /**
      * <p>
-     * Send the request to the IDP.
-     * Subclasses should override this method to implement how requests must be sent to the IDP.
+     * Send the request to the IDP. Subclasses should override this method to implement how requests must be sent to the IDP.
      * </p>
-     * 
+     *
      * @param destination idp url
      * @param samlDocument request or response document
      * @param relayState
@@ -413,8 +412,10 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      */
     protected abstract void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
             boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException;
-    
-    /* (non-Javadoc)
+
+    /*
+     * (non-Javadoc)
+     *
      * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#getBinding()
      */
     @Override
@@ -424,7 +425,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
     /**
      * Handle the user invocation for the first time
-     * 
+     *
      * @param request
      * @param response
      * @param loginConfig
@@ -444,7 +445,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         }
 
         boolean postBinding = spConfiguration.getBindingType().equals("POST");
-        
+
         // Neither saml request nor response from IDP
         // So this is a user request
         SAML2HandlerResponse saml2HandlerResponse = null;
@@ -494,7 +495,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * <p>
      * Indicates if the SP is configure with HTTP POST Binding.
      * </p>
-     * 
+     *
      * @return
      */
     protected boolean isHttpPostBinding() {

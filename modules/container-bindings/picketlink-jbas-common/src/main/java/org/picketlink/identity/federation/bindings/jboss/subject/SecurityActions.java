@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -28,29 +28,25 @@ import java.security.PrivilegedAction;
  * <p>
  * This class contains operations that need privileged blocks to run.
  * </p>
- * 
+ *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-class SecurityActions
-{
-   /**
-    * <p>
-    * Obtains the system property identified by the provided key. If no property can be found, the specified default
-    * value will be returned.
-    * </p>
-    * 
-    * @param key the system property key.
-    * @param defaultValue the value to be returned if no property was found under the provided key.
-    * @return a {@code String} representing the property value.
-    */
-   static String getSystemProperty(final String key, final String defaultValue)
-   {
-      return AccessController.doPrivileged(new PrivilegedAction<String>()
-      {
-         public String run()
-         {
-            return System.getProperty(key, defaultValue);
-         }
-      });
-   }
+class SecurityActions {
+    /**
+     * <p>
+     * Obtains the system property identified by the provided key. If no property can be found, the specified default value will
+     * be returned.
+     * </p>
+     *
+     * @param key the system property key.
+     * @param defaultValue the value to be returned if no property was found under the provided key.
+     * @return a {@code String} representing the property value.
+     */
+    static String getSystemProperty(final String key, final String defaultValue) {
+        return AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return System.getProperty(key, defaultValue);
+            }
+        });
+    }
 }

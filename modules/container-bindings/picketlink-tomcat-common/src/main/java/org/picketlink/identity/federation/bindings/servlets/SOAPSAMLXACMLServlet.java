@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -21,14 +21,12 @@
  */
 package org.picketlink.identity.federation.bindings.servlets;
 
-
 /**
- * Servlet that can read SOAP 1.1 messages that contain
- * an XACML query in saml payload
+ * Servlet that can read SOAP 1.1 messages that contain an XACML query in saml payload
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Jan 27, 2009
  */
-public class SOAPSAMLXACMLServlet extends org.picketlink.identity.federation.web.servlets.saml.SOAPSAMLXACMLServlet
-{ 
-   private static final long serialVersionUID = 1L;   
+public class SOAPSAMLXACMLServlet extends org.picketlink.identity.federation.web.servlets.saml.SOAPSAMLXACMLServlet {
+    private static final long serialVersionUID = 1L;
 }

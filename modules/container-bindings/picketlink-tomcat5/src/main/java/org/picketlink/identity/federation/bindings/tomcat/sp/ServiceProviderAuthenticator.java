@@ -22,14 +22,14 @@ import org.w3c.dom.Document;
 
 /**
  * Unified Service Provider Authenticator
- * 
+ *
  * @author anil saldhana
  */
 public class ServiceProviderAuthenticator extends AbstractSPFormAuthenticator {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.picketlink.identity.federation.bindings.tomcat.sp.AbstractSPFormAuthenticator#sendRequestToIDP(java.lang.String,
      * org.w3c.dom.Document, java.lang.String, org.apache.catalina.connector.Response, boolean)
      */
@@ -42,12 +42,12 @@ public class ServiceProviderAuthenticator extends AbstractSPFormAuthenticator {
             sendHttpRedirectRequest(destination, samlDocument, relayState, response, willSendRequest);
         }
     }
-    
+
     /**
      * <p>
      * Sends a HTTP Redirect request to the IDP.
      * </p>
-     * 
+     *
      * @param destination
      * @param relayState
      * @param response
@@ -84,7 +84,7 @@ public class ServiceProviderAuthenticator extends AbstractSPFormAuthenticator {
      * <p>
      * Sends a HTTP POST request to the IDP.
      * </p>
-     * 
+     *
      * @param destination
      * @param samlDocument
      * @param relayState
@@ -116,7 +116,7 @@ public class ServiceProviderAuthenticator extends AbstractSPFormAuthenticator {
      * <p>
      * Returns a signed querystring to be sent to the IDP.
      * </p>
-     * 
+     *
      * @param urlEncodedRequest
      * @param urlEncodedRelayState
      * @param sendRequest

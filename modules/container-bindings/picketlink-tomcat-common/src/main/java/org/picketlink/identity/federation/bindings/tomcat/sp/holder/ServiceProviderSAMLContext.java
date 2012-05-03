@@ -2,7 +2,7 @@
  * JBoss, Home of Professional Open Source.
  * Copyright 2008, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
- * distribution for a full listing of individual contributors. 
+ * distribution for a full listing of individual contributors.
  *
  * This is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as
@@ -25,35 +25,31 @@ import java.util.List;
 
 /**
  * A context of username/roles to be used by login modules
+ *
  * @author Anil.Saldhana@redhat.com
  * @since Feb 13, 2009
  */
-public class ServiceProviderSAMLContext
-{
-   public static final String EMPTY_PASSWORD = "EMPTY_STR";
-   
-   private static ThreadLocal<String> username = new ThreadLocal<String>();
-   private static ThreadLocal<List<String>> userRoles = new ThreadLocal<List<String>>();
-   
-   public static void push(String user, List<String> roles)
-   {
-      username.set(user);
-      userRoles.set(roles);
-   }
-   
-   public static void clear()
-   {
-      username.remove();
-      userRoles.remove();
-   }
+public class ServiceProviderSAMLContext {
+    public static final String EMPTY_PASSWORD = "EMPTY_STR";
 
-   public static String getUserName()
-   {
-      return username.get();
-   }
-   
-   public static List<String> getRoles()
-   {
-      return userRoles.get();
-   }
+    private static ThreadLocal<String> username = new ThreadLocal<String>();
+    private static ThreadLocal<List<String>> userRoles = new ThreadLocal<List<String>>();
+
+    public static void push(String user, List<String> roles) {
+        username.set(user);
+        userRoles.set(roles);
+    }
+
+    public static void clear() {
+        username.remove();
+        userRoles.remove();
+    }
+
+    public static String getUserName() {
+        return username.get();
+    }
+
+    public static List<String> getRoles() {
+        return userRoles.get();
+    }
 }
