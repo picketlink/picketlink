@@ -33,6 +33,7 @@ import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.Base64;
@@ -64,6 +65,7 @@ import org.w3c.dom.Node;
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
+ * @author <a href="mailto:alessio.soldano@jboss.com">Alessio Soldano</a>
  */
 public class StandardRequestHandler implements WSTrustRequestHandler {
     private static Logger log = Logger.getLogger(StandardRequestHandler.class);
@@ -317,12 +319,15 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
          * securityToken.getLocalName());
          */
 
+        setupIDAttribute(securityToken);
+        
         if (this.configuration.signIssuedToken() && this.configuration.getSTSKeyPair() != null) {
             KeyPair keyPair = this.configuration.getSTSKeyPair();
             try {
                 Document tokenDocument = DocumentUtil.createDocument();
                 Node importedNode = tokenDocument.importNode(securityToken, true);
                 tokenDocument.appendChild(importedNode);
+                XMLSignatureUtil.propagateIDAttributeSetup(securityToken, tokenDocument.getDocumentElement());
                 if (!XMLSignatureUtil.validate(tokenDocument, keyPair.getPublic()))
                     throw new WSTrustException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Validation failure during renewal");
             } catch (Exception e) {
@@ -406,6 +411,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         if (securityToken == null)
             throw new WSTrustException(ErrorCodes.NULL_VALUE + "security token:Unable to validate token");
 
+        setupIDAttribute(securityToken);
+        
         WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
         // if the validate request was made on behalf of another identity, get the principal of that identity.
         if (request.getOnBehalfOf() != null) {
@@ -427,6 +434,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 Document tokenDocument = DocumentUtil.createDocument();
                 Node importedNode = tokenDocument.importNode(securityToken, true);
                 tokenDocument.appendChild(importedNode);
+                XMLSignatureUtil.propagateIDAttributeSetup(securityToken, tokenDocument.getDocumentElement());
                 if (!XMLSignatureUtil.validate(tokenDocument, keyPair.getPublic())) {
                     status = new StatusType();
                     status.setCode(WSTrustConstants.STATUS_CODE_INVALID);
@@ -539,12 +547,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                     // Set the CanonicalizationMethod if any
                     XMLSignatureUtil.setCanonicalizationMethodType(configuration.getXMLDSigCanonicalizationMethod());
 
-                    /*
-                     * rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
-                     * signatureMethod, "#" + tokenElement.getAttribute("ID"));
-                     */
                     rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
-                            signatureMethod, "");
+                            signatureMethod, setupIDAttribute(tokenElement));
                     if (trace) {
                         try {
                             log.trace("Signed Token:" + DocumentUtil.getNodeAsString(tokenElement));
@@ -595,6 +599,28 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         }
 
         return rstrDocument;
+    }
+    
+    /**
+     * Setup the ID attribute in the provided node if it's a SAML Assertion element.
+     * 
+     * @param node  The node representing the SAML Assertion
+     * @return      A reference to the correct ID
+     */
+    private static String setupIDAttribute(Node node) {
+        if (node instanceof Element) {
+            Element assertion = (Element)node;
+            if (assertion.getLocalName().equals("Assertion")) {
+                if (assertion.getNamespaceURI().equals(WSTrustConstants.SAML2_ASSERTION_NS) && assertion.hasAttribute("ID")) {
+                    assertion.setIdAttribute("ID", true);
+                    return "#" + assertion.getAttribute("ID");
+                } else if (assertion.getNamespaceURI().equals(SAML11Constants.ASSERTION_11_NSURI) && assertion.hasAttribute(SAML11Constants.ASSERTIONID)) {
+                    assertion.setIdAttribute(SAML11Constants.ASSERTIONID, true);
+                    return "#" + assertion.getAttribute(SAML11Constants.ASSERTIONID);
+                }
+            }
+        }
+        return "";
     }
 
 }

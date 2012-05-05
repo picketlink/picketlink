@@ -64,7 +64,10 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.transfer.SignatureUtilTransferObject;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
@@ -74,6 +77,7 @@ import org.xml.sax.SAXException;
  * "picketlink.xmlsig.canonicalization"
  *
  * @author Anil.Saldhana@redhat.com
+ * @author alessio.soldano@jboss.com
  * @since Dec 15, 2008
  */
 public class XMLSignatureUtil {
@@ -211,6 +215,9 @@ public class XMLSignatureUtil {
         Node signingNode = newDoc.importNode(nodeToBeSigned, true);
         newDoc.appendChild(signingNode);
 
+        if (!referenceURI.isEmpty()) {
+            propagateIDAttributeSetup(nodeToBeSigned, newDoc.getDocumentElement());
+        }
         newDoc = sign(newDoc, keyPair, digestMethod, signatureMethod, referenceURI);
 
         // if the signed element is a SAMLv2.0 assertion we need to move the signature element to the position
@@ -232,6 +239,24 @@ public class XMLSignatureUtil {
         // doc.getDocumentElement().replaceChild(signedNode, nodeToBeSigned);
 
         return doc;
+    }
+    
+    /**
+     * Setup the ID attribute into <code>destElement</code> depending on the
+     * <code>isId</code> flag of an attribute of <code>sourceNode</code>.
+     * 
+     * @param sourceNode
+     * @param destDocElement
+     */
+    public static void propagateIDAttributeSetup(Node sourceNode, Element destElement) {
+        NamedNodeMap nnm = sourceNode.getAttributes();
+        for (int i = 0; i < nnm.getLength(); i++) {
+            Attr attr = (Attr)nnm.item(i);
+            if (attr.isId()) {
+                destElement.setIdAttribute(attr.getName(), true); 
+                break;
+            }
+        }
     }
 
     /**
