@@ -32,6 +32,7 @@ import java.io.InputStream;
 
 import javax.xml.namespace.QName;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -82,7 +83,7 @@ public class SAMLSloResponseParserTestCase extends AbstractParserTest {
         writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(response, new QName(PROTOCOL_NSURI.get(), LOGOUT_RESPONSE.get(), "samlp"));
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLSloResponseParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 

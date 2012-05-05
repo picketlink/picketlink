@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -117,7 +118,7 @@ public class SAMLAuthnRequestParserTestCase extends AbstractParserTest {
         writer.write(authnRequest);
 
         byte[] data = baos.toByteArray();
-        System.out.println(new String(data));
+        Logger.getLogger(SAMLAuthnRequestParserTestCase.class).debug(new String(data));
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
         Document doc = DocumentUtil.getDocument(bis); // throws exceptions
         JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));

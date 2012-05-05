@@ -30,6 +30,7 @@ import java.security.KeyPair;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.KeyStoreUtil;
@@ -79,7 +80,7 @@ public class XMLSignatureUtilUnitTestCase {
 
         assertNotNull(rstrDocument);
 
-        System.out.println(DocumentUtil.asString(rstrDocument));
+        Logger.getLogger(XMLSignatureUtilUnitTestCase.class).debug(DocumentUtil.asString(rstrDocument));
 
         assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
     }
@@ -103,7 +104,7 @@ public class XMLSignatureUtilUnitTestCase {
 
         assertNotNull(rstrDocument);
 
-        System.out.println(DocumentUtil.asString(rstrDocument));
+        Logger.getLogger(XMLSignatureUtilUnitTestCase.class).debug(DocumentUtil.asString(rstrDocument));
 
         assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
     }

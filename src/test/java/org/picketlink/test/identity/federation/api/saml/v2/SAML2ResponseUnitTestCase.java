@@ -34,6 +34,7 @@ import java.security.cert.Certificate;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
@@ -86,7 +87,7 @@ public class SAML2ResponseUnitTestCase {
         Document signedDoc = sig.sign((ResponseType) samlObject, getKeyPair());
         assertNotNull(signedDoc);
 
-        System.out.println("Signed Response=" + DocumentUtil.asString(signedDoc));
+        Logger.getLogger(SAML2ResponseUnitTestCase.class).debug("Signed Response=" + DocumentUtil.asString(signedDoc));
     }
 
     /**
@@ -127,7 +128,7 @@ public class SAML2ResponseUnitTestCase {
         Document signedDoc = sig.sign(responseType, getKeyPair());
         assertNotNull(signedDoc);
 
-        System.out.println("Signed Response=" + DocumentUtil.asString(signedDoc));
+        Logger.getLogger(SAML2ResponseUnitTestCase.class).debug("Signed Response=" + DocumentUtil.asString(signedDoc));
 
         Document convertedDoc = samlResponse.convert(responseType);
         assertNotNull(convertedDoc);

@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -72,7 +73,7 @@ public class SAMLSloRequestParserTestCase extends AbstractParserTest {
         writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(lotRequest);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLSloRequestParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -101,7 +102,7 @@ public class SAMLSloRequestParserTestCase extends AbstractParserTest {
         writer = new SAMLRequestWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(lotRequest);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLSloRequestParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 }

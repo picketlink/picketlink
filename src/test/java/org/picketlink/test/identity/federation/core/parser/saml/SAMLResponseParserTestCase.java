@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -137,7 +138,7 @@ public class SAMLResponseParserTestCase extends AbstractParserTest {
         writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(response);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLResponseParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -211,7 +212,7 @@ public class SAMLResponseParserTestCase extends AbstractParserTest {
         SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(response);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLResponseParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -241,7 +242,7 @@ public class SAMLResponseParserTestCase extends AbstractParserTest {
         SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(response);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLResponseParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -287,7 +288,7 @@ public class SAMLResponseParserTestCase extends AbstractParserTest {
         SAMLResponseWriter writer = new SAMLResponseWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(response);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLResponseParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 

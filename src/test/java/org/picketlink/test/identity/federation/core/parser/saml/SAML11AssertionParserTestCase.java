@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11AssertionWriter;
@@ -94,7 +95,7 @@ public class SAML11AssertionParserTestCase extends AbstractParserTest {
         SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(assertion);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAML11AssertionParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -158,7 +159,7 @@ public class SAML11AssertionParserTestCase extends AbstractParserTest {
         SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(assertion);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAML11AssertionParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -187,7 +188,7 @@ public class SAML11AssertionParserTestCase extends AbstractParserTest {
         SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(assertion);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAML11AssertionParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -265,7 +266,7 @@ public class SAML11AssertionParserTestCase extends AbstractParserTest {
         SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(assertion);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAML11AssertionParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -307,7 +308,7 @@ public class SAML11AssertionParserTestCase extends AbstractParserTest {
         SAML11AssertionWriter writer = new SAML11AssertionWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(assertion);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAML11AssertionParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 }

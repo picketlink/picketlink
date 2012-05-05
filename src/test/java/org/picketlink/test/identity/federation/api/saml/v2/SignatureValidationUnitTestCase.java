@@ -30,6 +30,7 @@ import java.security.KeyPairGenerator;
 
 import javax.xml.crypto.dsig.SignatureMethod;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
@@ -78,7 +79,7 @@ public class SignatureValidationUnitTestCase {
         ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
         Document signedDoc = ss.sign(authnRequest, kp);
 
-        System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
+        Logger.getLogger(SignatureValidationUnitTestCase.class).debug("Signed Doc:" + DocumentUtil.asString(signedDoc));
 
         JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
@@ -111,7 +112,7 @@ public class SignatureValidationUnitTestCase {
         ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
         Document signedDoc = ss.sign(authnRequest, kp);
 
-        System.out.println("Signed Doc:" + DocumentUtil.asString(signedDoc));
+        Logger.getLogger(SignatureValidationUnitTestCase.class).debug("Signed Doc:" + DocumentUtil.asString(signedDoc));
 
         JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
@@ -151,7 +152,7 @@ public class SignatureValidationUnitTestCase {
         ss.setSignatureMethod(SignatureMethod.DSA_SHA1);
         Document signedDoc = ss.sign(responseType, kp);
 
-        System.out.println(DocumentUtil.asString(signedDoc));
+        Logger.getLogger(SignatureValidationUnitTestCase.class).debug(DocumentUtil.asString(signedDoc));
         JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(signedDoc));
 
         // Validate the signature

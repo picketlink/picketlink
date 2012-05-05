@@ -28,6 +28,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAML11ResponseParser;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -76,7 +77,7 @@ public class SAML11ResponseParserTestCase extends AbstractParserTest {
         SAML11ResponseWriter writer = new SAML11ResponseWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(response);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAML11ResponseParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 }

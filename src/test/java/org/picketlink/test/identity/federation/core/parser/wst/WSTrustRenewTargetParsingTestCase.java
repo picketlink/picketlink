@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -98,7 +99,7 @@ public class WSTrustRenewTargetParsingTestCase {
         rstrWriter.write(responseCollection);
 
         byte[] data = baos.toByteArray();
-        System.out.println(new String(data));
+        Logger.getLogger(WSTrustRenewTargetParsingTestCase.class).debug(new String(data));
         Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(data));
         JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
     }

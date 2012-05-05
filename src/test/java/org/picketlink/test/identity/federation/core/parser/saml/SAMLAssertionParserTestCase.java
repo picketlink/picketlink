@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -94,7 +95,7 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest {
         SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(assertion);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLAssertionParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -142,7 +143,7 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest {
         SAMLAssertionWriter writer = new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(baos));
         writer.write(assertion);
         String writtenString = new String(baos.toByteArray());
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLAssertionParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
@@ -222,7 +223,7 @@ public class SAMLAssertionParserTestCase extends AbstractParserTest {
         DocumentUtil.getDocument(bis); // throws exceptions
 
         String writtenString = new String(bytes);
-        System.out.println(writtenString);
+        Logger.getLogger(SAMLAssertionParserTestCase.class).debug(writtenString);
         validateSchema(writtenString);
     }
 
