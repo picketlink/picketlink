@@ -68,6 +68,7 @@ public class XMLSignatureUtilUnitTestCase {
             Node theNode = childNodes.item(i);
             if (theNode instanceof Element) {
                 tokenElement = (Element) theNode;
+                tokenElement.setIdAttribute("AssertionID", true);
                 break;
             }
         }
@@ -76,7 +77,7 @@ public class XMLSignatureUtilUnitTestCase {
         KeyPair keyPair = KeyStoreUtil.generateKeyPair("RSA");
 
         rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1, signatureMethod, "#"
-                + tokenElement.getAttribute("ID"));
+                + tokenElement.getAttribute("AssertionID"));
 
         assertNotNull(rstrDocument);
 

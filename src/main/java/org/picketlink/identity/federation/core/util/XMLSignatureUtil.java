@@ -239,6 +239,10 @@ public class XMLSignatureUtil {
 
         // Now let us import this signed doc into the original document we got in the method call
         Node signedNode = doc.importNode(newDoc.getFirstChild(), true);
+        
+        if (!referenceURI.isEmpty()) {
+            propagateIDAttributeSetup(newDoc.getDocumentElement(), (Element)signedNode);
+        }
 
         parentNode.replaceChild(signedNode, nodeToBeSigned);
         // doc.getDocumentElement().replaceChild(signedNode, nodeToBeSigned);

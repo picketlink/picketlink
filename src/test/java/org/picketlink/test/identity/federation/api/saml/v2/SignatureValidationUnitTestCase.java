@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 /**
@@ -197,6 +198,10 @@ public class SignatureValidationUnitTestCase {
         Document validatingDoc = DocumentUtil.createDocument();
         Node importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
         validatingDoc.appendChild(importedSignedNode);
+        
+        //set IDness in validating document
+        Element assertionEl = (Element)DocumentUtil.getNodeWithAttribute(validatingDoc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "ID", id);
+        assertionEl.setIdAttribute("ID", true);
 
         // Validate the signature
         boolean isValid = XMLSignatureUtil.validate(validatingDoc, kp.getPublic());
@@ -215,6 +220,10 @@ public class SignatureValidationUnitTestCase {
         validatingDoc = DocumentUtil.createDocument();
         importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
         validatingDoc.appendChild(importedSignedNode);
+        
+        //set IDness in validating document
+        assertionEl = (Element)DocumentUtil.getNodeWithAttribute(validatingDoc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "ID", id);
+        assertionEl.setIdAttribute("ID", true);
 
         // The client re-validates the signature.
         assertTrue("Signature is valid:", XMLSignatureUtil.validate(validatingDoc, kp.getPublic()));

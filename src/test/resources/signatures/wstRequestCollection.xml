@@ -15,7 +15,7 @@
 		</wst:KeyType>
 		<wst:RequestedSecurityToken>
 		   <saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion"
-				ID="ID_4756863b-eb25-4572-935f-af4ccc8a34ac" IssueInstant="2012-02-24T15:57:15.975Z"
+				AssertionID="ID_4756863b-eb25-4572-935f-af4ccc8a34ac" IssueInstant="2012-02-24T15:57:15.975Z"
 				Issuer="PicketLinkSTS" MajorVersion="1" MinorVersion="1">
 				<saml:Conditions NotBefore="2012-02-24T15:57:15.975Z"
 					NotOnOrAfter="2012-02-24T17:57:15.975Z" />
