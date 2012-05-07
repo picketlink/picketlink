@@ -54,6 +54,7 @@ import org.xml.sax.SAXException;
  * Class that deals with SAML2 Signature
  *
  * @author Anil.Saldhana@redhat.com
+ * @author alessio.soldano@jboss.com
  * @since May 26, 2009
  */
 public class SAML2Signature {

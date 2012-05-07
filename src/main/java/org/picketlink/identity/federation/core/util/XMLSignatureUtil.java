@@ -82,6 +82,16 @@ import org.xml.sax.SAXException;
  * @since Dec 15, 2008
  */
 public class XMLSignatureUtil {
+    // Set some system properties and Santuario providers. Run this block before any other class initialization.
+    static {
+        ProvidersUtil.ensure();
+        SystemPropertiesUtil.ensure();
+        String keyInfoProp = SecurityActions.getSystemProperty("picketlink.xmlsig.includeKeyInfo", null);
+        if (StringUtil.isNotNull(keyInfoProp)) {
+            includeKeyInfoInSignature = Boolean.parseBoolean(keyInfoProp);
+        }
+    };
+
     private static Logger log = Logger.getLogger(XMLSignatureUtil.class);
 
     private static boolean trace = log.isTraceEnabled();
@@ -104,34 +114,11 @@ public class XMLSignatureUtil {
             try {
                 xsf = XMLSignatureFactory.getInstance("DOM");
             } catch (Exception err) {
-                Class<?> clazz = SecurityActions
-                        .loadClass(XMLSignatureUtil.class, "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
-                if (clazz == null)
-                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
-    
-                Provider provider = null;
-                try {
-                    provider = (Provider) clazz.newInstance();
-                } catch (Exception e) {
-                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + e.getLocalizedMessage());
-                }
-                xsf = XMLSignatureFactory.getInstance("DOM", provider);
-                /*
-                 * // JDK5 xsf = XMLSignatureFactory.getInstance("DOM", new org.jcp.xml.dsig.internal.dom.XMLDSigRI());
-                 */
+                throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + err.getLocalizedMessage());
             }
         }
         return xsf;
     }
-
-    // Set some system properties
-    static {
-        SystemPropertiesUtil.ensure();
-        String keyInfoProp = SecurityActions.getSystemProperty("picketlink.xmlsig.includeKeyInfo", null);
-        if (StringUtil.isNotNull(keyInfoProp)) {
-            includeKeyInfoInSignature = Boolean.parseBoolean(keyInfoProp);
-        }
-    };
 
     /**
      * Set the canonicalization method type
