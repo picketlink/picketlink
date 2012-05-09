@@ -1,132 +1,144 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <parent>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-fed-parent</artifactId>
-      <version>2.1.2-SNAPSHOT</version>
-      <relativePath>../../parent</relativePath>
-   </parent>
-   <modelVersion>4.0.0</modelVersion>
-   <artifactId>picketlink-jbas5-single</artifactId>
-   <packaging>jar</packaging>
-   <name>PicketLink Federation Server Bindings for JBoss5/6</name>
-   <url>http://labs.jboss.org/portal/picketlink/</url>
-   <description>PicketLink contains the foundation for Federated Identity Needs.</description>
-   <licenses>
-      <license>
-         <name>lgpl</name>
-         <url>http://repository.jboss.com/licenses/lgpl.txt</url>
-      </license>
-   </licenses>
-   <organization>
-      <name>JBoss Inc.</name>
-      <url>http://www.jboss.org</url>
-   </organization>
-   <build>
-     <plugins>
-       <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <printSummary>true</printSummary>
-            <disableXmlReport>false</disableXmlReport>
-            <testFailureIgnore>false</testFailureIgnore>
-            <includes>
-              <include>**/**TestCase.java</include>
-            </includes>
-            <forkMode>pertest</forkMode>
-            <argLine>-Djava.endorsed.dirs=${basedir}/src/test/resources/endorsed</argLine>
-            <useFile>false</useFile>
-            <trimStackTrace>false</trimStackTrace>
-           </configuration>
-        </plugin>
-     </plugins>
-  </build>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>org.picketlink</groupId>
+		<artifactId>picketlink-fed-parent</artifactId>
+		<version>2.1.2-SNAPSHOT</version>
+		<relativePath>../../parent</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>picketlink-jbas5-single</artifactId>
+	<packaging>jar</packaging>
+	<name>PicketLink Federation Server Bindings for JBoss5/6</name>
+	<url>http://labs.jboss.org/portal/picketlink/</url>
+	<description>PicketLink contains the foundation for Federated Identity Needs.</description>
+	<licenses>
+		<license>
+			<name>lgpl</name>
+			<url>http://repository.jboss.com/licenses/lgpl.txt</url>
+		</license>
+	</licenses>
+	<organization>
+		<name>JBoss Inc.</name>
+		<url>http://www.jboss.org</url>
+	</organization>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<printSummary>true</printSummary>
+					<disableXmlReport>false</disableXmlReport>
+					<testFailureIgnore>false</testFailureIgnore>
+					<includes>
+						<include>**/**TestCase.java</include>
+					</includes>
+					<forkMode>pertest</forkMode>
+					<argLine>-Djava.endorsed.dirs=${basedir}/src/test/resources/endorsed</argLine>
+					<useFile>false</useFile>
+					<trimStackTrace>false</trimStackTrace>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
-   <dependencies>
-      <dependency>
-         <groupId>org.jboss.ws</groupId>
-         <artifactId>jbossws-common</artifactId>
-         <version>1.4.1.GA</version>
-      </dependency>
-      <dependency>
-         <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-core</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-jbas-common</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.security</groupId>
-         <artifactId>jboss-security-spi</artifactId>
-         <version>2.0.4</version>
-         <scope>compile</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.security</groupId>
-         <artifactId>jbosssx</artifactId>
-         <version>2.0.4</version>
-         <scope>compile</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.jbossas</groupId>
-         <artifactId>jboss-as-security</artifactId>
-         <version>6.0.0.Final</version>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.aop</groupId>
-         <artifactId>jboss-aop</artifactId>
-         <version>2.1.6.GA</version>
-  	 <scope>provided</scope>
-         <exclusions>
-           <exclusion>
-            <groupId>trove</groupId>
-            <artifactId>trove</artifactId>
-           </exclusion>
-         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>trove</groupId>
-        <artifactId>trove</artifactId>
-        <version>1.0.2</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <scope>test</scope>
-      </dependency>
-   </dependencies>
-   
-   <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <doclet>org.jboss.apiviz.APIviz</doclet>
-          <docletArtifact>
-            <groupId>org.jboss.apiviz</groupId>
-            <artifactId>apiviz</artifactId>
-            <version>1.2.5.GA</version>
-          </docletArtifact>
-          <additionalparam>
-            -charset UTF-8
-            -docencoding UTF-8
-            -version
-            -author
-            -breakiterator
-            -windowtitle "${project.name} ${project.version} API Reference"
-            -doctitle "${project.name} ${project.version} API Reference"
-            -bottom "Copyright © ${project.inceptionYear}-Present ${project.organization.name}. All Rights Reserved."
-            -link http://java.sun.com/javase/6/docs/api/
-            -sourceclasspath ${project.build.outputDirectory}
-          </additionalparam>
-          <encoding>UTF-8</encoding>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
+	<dependencies>
+		<dependency>
+			<groupId>org.jboss.ws</groupId>
+			<artifactId>jbossws-common</artifactId>
+			<version>1.4.1.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-jbas-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.security</groupId>
+			<artifactId>jboss-security-spi</artifactId>
+			<version>2.0.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.security</groupId>
+			<artifactId>jbosssx</artifactId>
+			<version>2.0.4</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.jbossas</groupId>
+			<artifactId>jboss-as-security</artifactId>
+			<version>6.0.0.Final</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>trove</groupId>
+					<artifactId>trove</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.aop</groupId>
+			<artifactId>jboss-aop</artifactId>
+			<version>2.1.6.GA</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>trove</groupId>
+					<artifactId>trove</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>trove</groupId>
+			<artifactId>trove</artifactId>
+			<version>1.0.2</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<doclet>org.jboss.apiviz.APIviz</doclet>
+					<docletArtifact>
+						<groupId>org.jboss.apiviz</groupId>
+						<artifactId>apiviz</artifactId>
+						<version>1.2.5.GA</version>
+					</docletArtifact>
+					<additionalparam>
+						-charset UTF-8
+						-docencoding UTF-8
+						-version
+						-author
+						-breakiterator
+						-windowtitle "${project.name} ${project.version} API
+						Reference"
+						-doctitle "${project.name} ${project.version} API
+						Reference"
+						-bottom "Copyright © ${project.inceptionYear}-Present
+						${project.organization.name}. All Rights Reserved."
+						-link
+						http://java.sun.com/javase/6/docs/api/
+						-sourceclasspath
+						${project.build.outputDirectory}
+					</additionalparam>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>
