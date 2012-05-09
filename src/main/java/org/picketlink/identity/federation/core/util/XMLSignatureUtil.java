@@ -24,7 +24,6 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
-import java.security.Provider;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -387,6 +386,9 @@ public class XMLSignatureUtil {
     public static boolean validate(Document signedDoc, Key publicKey) throws MarshalException, XMLSignatureException {
         if (signedDoc == null)
             throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Signed Document");
+        
+        propagateIDAttributeSetup(signedDoc.getDocumentElement(), signedDoc.getDocumentElement());
+        
         NodeList nl = signedDoc.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
         if (nl == null || nl.getLength() == 0) {
             throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Cannot find Signature element");
@@ -396,6 +398,7 @@ public class XMLSignatureUtil {
 
         DOMValidateContext valContext = new DOMValidateContext(publicKey, nl.item(0));
         XMLSignature signature = fac.unmarshalXMLSignature(valContext);
+        
         boolean coreValidity = signature.validate(valContext);
 
         if (trace && !coreValidity) {

@@ -25,6 +25,7 @@ import java.security.PublicKey;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
@@ -46,6 +47,8 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler {
     private static Logger log = Logger.getLogger(SAML2SignatureValidationHandler.class);
 
     private final boolean trace = log.isTraceEnabled();
+    
+    private SAML2Signature saml2Signature = new SAML2Signature();
 
     /**
      * @see {@code SAML2Handler#handleRequestType(SAML2HandlerRequest, SAML2HandlerResponse)}
@@ -92,7 +95,7 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler {
 
     private boolean validateSender(Document signedDocument, PublicKey publicKey) throws ProcessingException {
         try {
-            return XMLSignatureUtil.validate(signedDocument, publicKey);
+            return this.saml2Signature.validate(signedDocument, publicKey);
         } catch (Exception e) {
             log.error("Error validating signature:", e);
             throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Error validating signature.");
