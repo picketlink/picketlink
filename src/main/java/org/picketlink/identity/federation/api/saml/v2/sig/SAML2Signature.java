@@ -285,7 +285,9 @@ public class SAML2Signature {
     private void configureIdAttribute(Document document) {
         // Estabilish the IDness of the ID attribute.
         document.getDocumentElement().setIdAttribute("ID", true);
-        NodeList nodes = document.getElementsByTagNameNS("urn:oasis:names:tc:SAML:2.0:assertion", "Assertion");
+        
+        NodeList nodes = document.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(), JBossSAMLConstants.ASSERTION.get());
+        
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);
             if (n instanceof Element) {
