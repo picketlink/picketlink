@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
@@ -49,10 +50,19 @@ public class FileBasedMetadataConfigurationStoreUnitTestCase {
     @Before
     public void setup() throws Exception {
         // commented to allow build from jenkins openshift
-//        String userHome = System.getProperty("user.home");
-//        if (StringUtil.isNotNull(userHome) && "?".equals(userHome))
-//            System.setProperty("user.home", System.getProperty("user.dir"));
-        System.setProperty("user.home", System.getProperty("user.dir"));
+        String userHome = System.getProperty("user.home");
+        
+        String testsUserHome = System.getProperty("user.home.tests");
+        
+        if (testsUserHome != null) {
+            userHome = testsUserHome;
+        }
+        
+        if (StringUtil.isNotNull(userHome) && "?".equals(userHome)) {
+            System.setProperty("user.home", System.getProperty("user.dir"));
+        } else {
+            System.setProperty("user.home", userHome);
+        }
     }
 
     @Test
