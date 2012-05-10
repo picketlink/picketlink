@@ -60,9 +60,13 @@ import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.util.LifecycleSupport;
 import org.apache.catalina.valves.ValveBase;
 import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
@@ -146,7 +150,12 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     private final boolean trace = log.isTraceEnabled();
 
+    protected boolean enableAudit = false;
+    protected PicketLinkAuditHelper auditHelper = null;
+
     protected IDPType idpConfiguration = null;
+
+    protected PicketLinkType picketLinkConfiguration = null;
 
     private RoleGenerator roleGenerator = new TomcatRoleGenerator();
 
@@ -454,6 +463,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
             holder.setResponseDoc(samlResponse).setDestination(target).setRelayState("").setAreWeSendingRequest(false)
                     .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+
+            if (enableAudit) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
+                auditEvent.setDestination(target);
+                auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                auditHelper.audit(auditEvent);
+            }
             webRequestUtil.send(holder);
         } catch (GeneralSecurityException e) {
             log.error("Exception handling saml 11 use case:", e);
@@ -619,6 +636,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
                 if (strictPostBinding)
                     holder.setStrictPostBinding(true);
+
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
+                    auditEvent.setDestination(destination);
+                    auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                    auditHelper.audit(auditEvent);
+                }
                 webRequestUtil.send(holder);
             } catch (ParsingException e) {
                 if (trace)
@@ -778,6 +803,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
                 if (strictPostBinding)
                     holder.setStrictPostBinding(true);
+
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
+                    auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                    auditEvent.setDestination(destination);
+                    auditHelper.audit(auditEvent);
+                }
                 webRequestUtil.send(holder);
             } catch (ParsingException e) {
                 if (trace)
@@ -852,6 +885,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             if (strictPostBinding)
                 holder.setStrictPostBinding(true);
+            if (enableAudit) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setType(PicketLinkAuditEventType.ERROR_RESPONSE_TO_SP);
+                auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                auditEvent.setDestination(referrer);
+                auditHelper.audit(auditEvent);
+            }
             webRequestUtil.send(holder);
         } catch (ParsingException e1) {
             throw new ServletException(e1);
@@ -980,14 +1020,22 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             }
         }
 
-        PicketLinkType picketLinkConfiguration = null;
-
         if (idpConfiguration == null) {
             if (is != null) {
                 try {
                     picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
                     idpConfiguration = (IDPType) picketLinkConfiguration.getIdpOrSP();
+                    enableAudit = picketLinkConfiguration.isEnableAudit();
+
+                    if (enableAudit) {
+                        String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(context.getServletContext());
+                        auditHelper = new PicketLinkAuditHelper(securityDomainName);
+                    }
                 } catch (ParsingException e) {
+                    if (trace)
+                        log.trace(e);
+                    throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+                } catch (ConfigurationException e) {
                     if (trace)
                         log.trace(e);
                     throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);

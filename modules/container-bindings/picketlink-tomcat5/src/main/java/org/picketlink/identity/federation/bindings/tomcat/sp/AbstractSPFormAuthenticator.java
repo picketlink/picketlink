@@ -42,8 +42,11 @@ import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -272,6 +275,13 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             requestProcessor.setSupportSignatures(doSupportSignature());
             boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
 
+            if (enableAudit) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setType(PicketLinkAuditEventType.REQUEST_FROM_IDP);
+                auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                auditHelper.audit(auditEvent);
+            }
+
             // If response is already commited, we need to stop with processing of HTTP request
             if (response.isCommitted() || response.isAppCommitted())
                 return false;
@@ -371,6 +381,13 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     this.restoreRequest(request, session);
                 }
 
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.RESPONSE_FROM_IDP);
+                    auditEvent.setSubjectName(username);
+                    auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                    auditHelper.audit(auditEvent);
+                }
                 register(request, response, principal, Constants.FORM_METHOD, username, password);
 
                 return true;
@@ -379,6 +396,12 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             Throwable t = pe.getCause();
             if (t != null && t instanceof AssertionExpiredException) {
                 log.error("Assertion has expired. Asking IDP for reissue");
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.EXPIRED_ASSERTION);
+                    auditEvent.setAssertionID(((AssertionExpiredException) t).getId());
+                    auditHelper.audit(auditEvent);
+                }
                 // Just issue a fresh request back to IDP
                 return generalUserRequest(request, response, loginConfig);
             }
@@ -480,6 +503,12 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 if (saveRestoreRequest) {
                     this.saveRequest(request, session);
                 }
+                if (enableAudit) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setType(PicketLinkAuditEventType.REQUEST_TO_IDP);
+                    auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                    auditHelper.audit(auditEvent);
+                }
                 sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
                 return false;
             } catch (Exception e) {
@@ -501,5 +530,4 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
     protected boolean isHttpPostBinding() {
         return getBinding().equalsIgnoreCase("POST");
     }
-
 }
