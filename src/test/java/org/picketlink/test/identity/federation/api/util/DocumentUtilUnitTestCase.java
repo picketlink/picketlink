@@ -21,15 +21,20 @@
  */
 package org.picketlink.test.identity.federation.api.util;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.InputStream;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
 /**
  * Unit Test the DocumentUtil
@@ -37,11 +42,12 @@ import org.w3c.dom.Node;
  * @author Anil.Saldhana@redhat.com
  * @since Feb 6, 2009
  */
-public class DocumentUtilUnitTestCase extends TestCase {
+public class DocumentUtilUnitTestCase {
     String EncryptionSpecNS = "http://www.w3.org/2001/04/xmlenc#";
     String TAG_ENCRYPTEDDATA = "EncryptedData";
     String TAG_ENCRYPTEDKEY = "EncryptedKey";
 
+    @Test
     public void testReadSAMLEncryptedAssertion() throws Exception {
         Document encDoc = getDocument("xml/dom/enc-sample.xml");
         Element encryptedDataElement = (Element) encDoc.getElementsByTagNameNS(EncryptionSpecNS, TAG_ENCRYPTEDDATA).item(0);
@@ -56,6 +62,7 @@ public class DocumentUtilUnitTestCase extends TestCase {
      *
      * @throws Exception
      */
+    @Test
     public void testReadingAnAssertionFromSAMLResponse() throws Exception {
         String id = "ID_976d8310-658a-450d-be39-f33c73c8afa6";
         Document responseDoc = getDocument("xml/dom/saml-response-2-assertions.xml");
@@ -84,6 +91,35 @@ public class DocumentUtilUnitTestCase extends TestCase {
 
         // We have to check that the extracted node actually exists in the document
         assertTrue("Extracted Node is in doc", DocumentUtil.containsNode(responseDoc, firstAssertion));
+    }
+
+    @Test
+    public void testReadSecurityDomain() throws Exception {
+        String securityDomain = null;
+        Document jbosswebDoc = getDocument("xml/dom/jboss-web.xml");
+        assertNotNull(jbosswebDoc);
+        Element rootNode = jbosswebDoc.getDocumentElement();
+        NodeList nl = rootNode.getChildNodes();
+        int length = nl.getLength();
+        assertEquals(7, length);
+        for (int i = 0; i < length; i++) {
+            Node child = nl.item(i);
+            if (child instanceof Element) {
+                Element el = (Element) child;
+                if ("security-domain".equals(el.getNodeName())) {
+                    NodeList nl1 = el.getChildNodes();
+                    int len = nl1.getLength();
+                    for (int j = 0; j < len; j++) {
+                        Node aChild = nl1.item(j);
+                        if (aChild instanceof Text) {
+                            securityDomain = ((Text) aChild).getNodeValue();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        assertEquals("idp", securityDomain);
     }
 
     private Document getDocument(String fileName) throws Exception {

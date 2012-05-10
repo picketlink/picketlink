@@ -30,6 +30,8 @@ package org.picketlink.identity.federation.core;
 public interface ErrorCodes {
     String ASSERTION_RENEWAL_EXCEPTION = "PL00103:Assertion Renewal Exception:";
 
+    String AUDIT_MANAGER_NULL = "PL00028: Audit Manager Is Not Set";
+
     String AUTHENTICATOR_DOES_NOT_HANDLE_ENC = "PL00027: Authenticator does not handle encryption";
 
     String AUTHN_REQUEST_ID_VERIFICATION_FAILED = "PL00104:Authn Request ID verification failed:";

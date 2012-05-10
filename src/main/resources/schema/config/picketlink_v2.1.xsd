@@ -335,6 +335,7 @@
 			</choice>
 			<element name="Handlers" type="tns:Handlers" maxOccurs="1"
 				minOccurs="0"></element>
-		</sequence>
+		</sequence> 
+		<attribute name="EnableAudit" type="boolean"></attribute>
 	</complexType>
 </schema>

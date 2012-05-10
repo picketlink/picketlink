@@ -42,6 +42,8 @@ public interface GeneralConstants {
 
     String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER";
 
+    String AUDIT_SECURITY_DOMAIN = "picketlink.audit.securitydomain";
+
     String CANONICALIZATION_METHOD = "CANONICALIZATION_METHOD";
 
     String CONFIGURATION = "CONFIGURATION";

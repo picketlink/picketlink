@@ -2,6 +2,7 @@ package org.picketlink.identity.federation.core.parsers.config;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
 import org.picketlink.identity.federation.core.config.PicketLinkType;
@@ -22,11 +23,20 @@ public class PicketLinkConfigParser extends AbstractParser {
 
     public static final String PICKETLINK = "PicketLink";
 
+    public static final String ENABLE_AUDIT = "EnableAudit";
+
     @Override
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         PicketLinkType picketLinkType = new PicketLinkType();
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, PICKETLINK);
+
+        // parse and set the root element attributes.
+        QName attributeQName = new QName("", ENABLE_AUDIT);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            picketLinkType.setEnableAudit(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        }
 
         startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
         String tag = StaxParserUtil.getStartElementName(startElement);

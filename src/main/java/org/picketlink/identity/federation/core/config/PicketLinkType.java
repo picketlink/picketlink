@@ -11,6 +11,7 @@ public class PicketLinkType {
     private ProviderType idpOrSP;
     private Handlers handlers;
     private STSType stsType;
+    private boolean enableAudit;
 
     public ProviderType getIdpOrSP() {
         return idpOrSP;
@@ -34,5 +35,13 @@ public class PicketLinkType {
 
     public void setStsType(STSType stsType) {
         this.stsType = stsType;
+    }
+
+    public boolean isEnableAudit() {
+        return enableAudit;
+    }
+
+    public void setEnableAudit(boolean enableAudit) {
+        this.enableAudit = enableAudit;
     }
 }

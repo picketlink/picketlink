@@ -225,9 +225,9 @@ public class XMLSignatureUtil {
 
         // Now let us import this signed doc into the original document we got in the method call
         Node signedNode = doc.importNode(newDoc.getFirstChild(), true);
-        
+
         if (!referenceURI.isEmpty()) {
-            propagateIDAttributeSetup(newDoc.getDocumentElement(), (Element)signedNode);
+            propagateIDAttributeSetup(newDoc.getDocumentElement(), (Element) signedNode);
         }
 
         parentNode.replaceChild(signedNode, nodeToBeSigned);
@@ -235,20 +235,20 @@ public class XMLSignatureUtil {
 
         return doc;
     }
-    
+
     /**
-     * Setup the ID attribute into <code>destElement</code> depending on the
-     * <code>isId</code> flag of an attribute of <code>sourceNode</code>.
-     * 
+     * Setup the ID attribute into <code>destElement</code> depending on the <code>isId</code> flag of an attribute of
+     * <code>sourceNode</code>.
+     *
      * @param sourceNode
      * @param destDocElement
      */
     public static void propagateIDAttributeSetup(Node sourceNode, Element destElement) {
         NamedNodeMap nnm = sourceNode.getAttributes();
         for (int i = 0; i < nnm.getLength(); i++) {
-            Attr attr = (Attr)nnm.item(i);
+            Attr attr = (Attr) nnm.item(i);
             if (attr.isId()) {
-                destElement.setIdAttribute(attr.getName(), true); 
+                destElement.setIdAttribute(attr.getName(), true);
                 break;
             }
         }
@@ -386,9 +386,9 @@ public class XMLSignatureUtil {
     public static boolean validate(Document signedDoc, Key publicKey) throws MarshalException, XMLSignatureException {
         if (signedDoc == null)
             throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Signed Document");
-        
+
         propagateIDAttributeSetup(signedDoc.getDocumentElement(), signedDoc.getDocumentElement());
-        
+
         NodeList nl = signedDoc.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
         if (nl == null || nl.getLength() == 0) {
             throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Cannot find Signature element");
@@ -398,7 +398,7 @@ public class XMLSignatureUtil {
 
         DOMValidateContext valContext = new DOMValidateContext(publicKey, nl.item(0));
         XMLSignature signature = fac.unmarshalXMLSignature(valContext);
-        
+
         boolean coreValidity = signature.validate(valContext);
 
         if (trace && !coreValidity) {

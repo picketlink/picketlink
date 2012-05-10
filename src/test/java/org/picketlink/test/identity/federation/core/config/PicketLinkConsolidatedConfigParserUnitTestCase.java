@@ -31,6 +31,7 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         PicketLinkType picketlink = (PicketLinkType) result;
         IDPType idp = (IDPType) picketlink.getIdpOrSP();
         assertNotNull(idp);
+        assertTrue(picketlink.isEnableAudit());
     }
 
     @Test
@@ -48,6 +49,7 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         assertEquals("someURL", sp.getRelayState());
         assertEquals("/someerror.jsp", sp.getErrorPage());
         assertTrue(sp.isSupportsSignature());
+        assertTrue(picketlink.isEnableAudit());
     }
 
     @Test
@@ -60,5 +62,6 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         PicketLinkType picketlink = (PicketLinkType) result;
         STSType sts = picketlink.getStsType();
         assertNotNull(sts);
+        assertTrue(picketlink.isEnableAudit());
     }
 }

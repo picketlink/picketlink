@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -19,40 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.identity.federation.core.saml.v2.exceptions;
-
-import java.security.GeneralSecurityException;
+package org.picketlink.identity.federation.core.audit;
 
 /**
- * Security Exception indicating expiration of SAML2 assertion
+ * An enumeration indicating the type of audit event
  *
- * @author Anil.Saldhana@redhat.com
- * @since Dec 12, 2008
+ * @author anil saldhana
  */
-public class AssertionExpiredException extends GeneralSecurityException {
-    private static final long serialVersionUID = 1L;
-
-    protected String id;
-
-    public AssertionExpiredException() {
-    }
-
-    public AssertionExpiredException(String message, Throwable cause) {
-    }
-
-    public AssertionExpiredException(String msg) {
-        super(msg);
-    }
-
-    public AssertionExpiredException(Throwable cause) {
-        super(cause);
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
+public enum PicketLinkAuditEventType {
+    ERROR_RESPONSE_TO_SP, 
+    ERROR_SIG_VALIDATION, 
+    ERROR_TRUSTED_DOMAIN, 
+    EXPIRED_ASSERTION, 
+    LOGIN_INIT, 
+    LOGIN_COMPLETE, 
+    TOKEN_ISSUED, 
+    REQUEST_TO_IDP, 
+    RESPONSE_FROM_IDP, 
+    REQUEST_FROM_IDP, 
+    RESPONSE_TO_SP;
 }
