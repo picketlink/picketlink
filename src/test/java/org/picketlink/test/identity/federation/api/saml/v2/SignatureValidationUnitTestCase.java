@@ -198,9 +198,10 @@ public class SignatureValidationUnitTestCase {
         Document validatingDoc = DocumentUtil.createDocument();
         Node importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
         validatingDoc.appendChild(importedSignedNode);
-        
-        //set IDness in validating document
-        Element assertionEl = (Element)DocumentUtil.getNodeWithAttribute(validatingDoc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "ID", id);
+
+        // set IDness in validating document
+        Element assertionEl = (Element) DocumentUtil.getNodeWithAttribute(validatingDoc,
+                "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "ID", id);
         assertionEl.setIdAttribute("ID", true);
 
         // Validate the signature
@@ -220,9 +221,10 @@ public class SignatureValidationUnitTestCase {
         validatingDoc = DocumentUtil.createDocument();
         importedSignedNode = validatingDoc.importNode(signedNode.getOwnerDocument().getFirstChild(), true);
         validatingDoc.appendChild(importedSignedNode);
-        
-        //set IDness in validating document
-        assertionEl = (Element)DocumentUtil.getNodeWithAttribute(validatingDoc, "urn:oasis:names:tc:SAML:2.0:assertion", "Assertion", "ID", id);
+
+        // set IDness in validating document
+        assertionEl = (Element) DocumentUtil.getNodeWithAttribute(validatingDoc, "urn:oasis:names:tc:SAML:2.0:assertion",
+                "Assertion", "ID", id);
         assertionEl.setIdAttribute("ID", true);
 
         // The client re-validates the signature.

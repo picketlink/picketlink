@@ -36,24 +36,24 @@ import org.picketlink.identity.federation.core.ErrorCodes;
  * @since 07-May-2012
  */
 public class ProvidersUtil {
-    
+
     private static Logger log = Logger.getLogger(ProvidersUtil.class);
-    
+
     /**
      * No-op call such that the default system properties are set
      */
     public static synchronized void ensure() {
         AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
             public Boolean run() {
-                //register Apache Santuario 1.5.x XMLDSig version
+                // register Apache Santuario 1.5.x XMLDSig version
                 addXMLDSigRI();
-                //register BC provider if available (to have additional encryption algorithms, etc.)
+                // register BC provider if available (to have additional encryption algorithms, etc.)
                 addJceProvider("BC", "org.bouncycastle.jce.provider.BouncyCastleProvider");
                 return true;
             }
         });
     }
-    
+
     private static void addXMLDSigRI() {
         try {
             Class<?> clazz = SecurityActions
@@ -62,19 +62,17 @@ public class ProvidersUtil {
                 throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
             addJceProvider("ApacheXMLDSig", (Provider) clazz.newInstance());
         } catch (Throwable t) {
-            //ignore - may be a NoClassDefFound if XMLDSigRI isn't avail
+            // ignore - may be a NoClassDefFound if XMLDSigRI isn't avail
             return;
         }
     }
-    
+
     /**
      * Add a new JCE security provider to use for PicketLink.
-     * 
-     * @param name
-     *            The name string of the provider (this may not be the real name of the provider)
-     * @param provider
-     *            A subclass of <code>java.security.Provider</code>
-     * 
+     *
+     * @param name The name string of the provider (this may not be the real name of the provider)
+     * @param provider A subclass of <code>java.security.Provider</code>
+     *
      * @return Returns the actual name of the provider that was loaded
      */
     private static String addJceProvider(String name, Provider provider) {
@@ -90,8 +88,7 @@ public class ProvidersUtil {
                 int ret = 0;
                 Provider[] provs = Security.getProviders();
                 for (int i = 0; i < provs.length; i++) {
-                    if ("SUN".equals(provs[i].getName())
-                        || "IBMJCE".equals(provs[i].getName())) {
+                    if ("SUN".equals(provs[i].getName()) || "IBMJCE".equals(provs[i].getName())) {
                         ret = Security.insertProviderAt(provider, i + 2);
                         break;
                     }
@@ -100,10 +97,8 @@ public class ProvidersUtil {
                     ret = Security.insertProviderAt(provider, 2);
                 }
                 if (log.isDebugEnabled()) {
-                    log.debug(
-                        "The provider " + provider.getName() + " - "
-                         + provider.getVersion() + " was added at position: " + ret
-                    );
+                    log.debug("The provider " + provider.getName() + " - " + provider.getVersion() + " was added at position: "
+                            + ret);
                 }
                 return provider.getName();
             } catch (Throwable t) {
@@ -115,12 +110,12 @@ public class ProvidersUtil {
         }
         return currentProvider.getName();
     }
-    
+
     private static String addJceProvider(String name, String className) {
         Provider currentProvider = Security.getProvider(name);
         if (currentProvider == null) {
             try {
-                //Class<? extends Provider> clazz = Loader.loadClass(className, false, Provider.class);
+                // Class<? extends Provider> clazz = Loader.loadClass(className, false, Provider.class);
                 Class<? extends Provider> clazz = Class.forName(className).asSubclass(Provider.class);
                 Provider provider = clazz.newInstance();
                 return addJceProvider(name, provider);

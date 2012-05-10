@@ -320,7 +320,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
          */
 
         setupIDAttribute(securityToken);
-        
+
         if (this.configuration.signIssuedToken() && this.configuration.getSTSKeyPair() != null) {
             KeyPair keyPair = this.configuration.getSTSKeyPair();
             try {
@@ -412,7 +412,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             throw new WSTrustException(ErrorCodes.NULL_VALUE + "security token:Unable to validate token");
 
         setupIDAttribute(securityToken);
-        
+
         WSTrustRequestContext context = new WSTrustRequestContext(request, callerPrincipal);
         // if the validate request was made on behalf of another identity, get the principal of that identity.
         if (request.getOnBehalfOf() != null) {
@@ -600,21 +600,22 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
 
         return rstrDocument;
     }
-    
+
     /**
      * Setup the ID attribute in the provided node if it's a SAML Assertion element.
-     * 
-     * @param node  The node representing the SAML Assertion
-     * @return      A reference to the correct ID
+     *
+     * @param node The node representing the SAML Assertion
+     * @return A reference to the correct ID
      */
     private static String setupIDAttribute(Node node) {
         if (node instanceof Element) {
-            Element assertion = (Element)node;
+            Element assertion = (Element) node;
             if (assertion.getLocalName().equals("Assertion")) {
                 if (assertion.getNamespaceURI().equals(WSTrustConstants.SAML2_ASSERTION_NS) && assertion.hasAttribute("ID")) {
                     assertion.setIdAttribute("ID", true);
                     return "#" + assertion.getAttribute("ID");
-                } else if (assertion.getNamespaceURI().equals(SAML11Constants.ASSERTION_11_NSURI) && assertion.hasAttribute(SAML11Constants.ASSERTIONID)) {
+                } else if (assertion.getNamespaceURI().equals(SAML11Constants.ASSERTION_11_NSURI)
+                        && assertion.hasAttribute(SAML11Constants.ASSERTIONID)) {
                     assertion.setIdAttribute(SAML11Constants.ASSERTIONID, true);
                     return "#" + assertion.getAttribute(SAML11Constants.ASSERTIONID);
                 }

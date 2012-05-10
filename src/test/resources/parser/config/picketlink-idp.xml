@@ -1,4 +1,5 @@
-<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1"
+     EnableAudit="true">
 	<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:2.1">
 		<IdentityURL>${idp.url::http://localhost:8080/idp/}</IdentityURL>
 		<Trust>

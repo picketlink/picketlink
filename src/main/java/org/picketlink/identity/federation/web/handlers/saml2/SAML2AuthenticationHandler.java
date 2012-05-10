@@ -425,6 +425,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
             if (expiredAssertion) {
                 AssertionExpiredException aee = new AssertionExpiredException();
+                aee.setId(assertion.getID());
                 throw new ProcessingException(ErrorCodes.EXPIRED_ASSERTION + "Assertion has expired", aee);
             }
 

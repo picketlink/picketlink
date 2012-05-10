@@ -54,7 +54,7 @@ public class MockFilterConfig implements FilterConfig {
         return params.get(arg0);
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Enumeration getInitParameterNames() {
         throw new RuntimeException("NYI");
     }

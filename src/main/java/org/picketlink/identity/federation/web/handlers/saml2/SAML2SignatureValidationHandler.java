@@ -33,7 +33,6 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerEr
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Document;
 
@@ -47,7 +46,7 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler {
     private static Logger log = Logger.getLogger(SAML2SignatureValidationHandler.class);
 
     private final boolean trace = log.isTraceEnabled();
-    
+
     private SAML2Signature saml2Signature = new SAML2Signature();
 
     /**
