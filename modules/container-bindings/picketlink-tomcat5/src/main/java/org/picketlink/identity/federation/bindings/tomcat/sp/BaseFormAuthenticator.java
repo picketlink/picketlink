@@ -52,6 +52,7 @@ import org.apache.catalina.deploy.LoginConfig;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.MetaDataExtractor;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -93,6 +94,9 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
     protected static Logger log = Logger.getLogger(BaseFormAuthenticator.class);
 
     protected final boolean trace = log.isTraceEnabled();
+
+    protected boolean enableAudit = false;
+    protected PicketLinkAuditHelper auditHelper = null;
 
     protected TrustKeyManager keyManager;
 
@@ -386,6 +390,12 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
                     try {
                         picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
                         spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
+                        enableAudit = picketLinkConfiguration.isEnableAudit();
+                        if (enableAudit) {
+                            String securityDomainName = PicketLinkAuditHelper
+                                    .getSecurityDomainName(context.getServletContext());
+                            auditHelper = new PicketLinkAuditHelper(securityDomainName);
+                        }
                     } catch (ParsingException e) {
                         if (trace)
                             log.trace(e);
