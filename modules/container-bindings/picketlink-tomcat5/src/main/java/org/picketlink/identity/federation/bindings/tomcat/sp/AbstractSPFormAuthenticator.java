@@ -273,6 +273,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     isPOSTBindingResponse(), this.serviceURL);
             requestProcessor.setTrustKeyManager(keyManager);
             requestProcessor.setSupportSignatures(doSupportSignature());
+            requestProcessor.setConfiguration(spConfiguration);
             boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
 
             if (enableAudit) {
