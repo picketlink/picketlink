@@ -24,8 +24,6 @@ package org.picketlink.identity.federation.web.process;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.PublicKey;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
@@ -43,8 +41,6 @@ import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerR
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
@@ -118,20 +114,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
         SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers);
 
         // Set some request options
-        if (spConfiguration != null) {
-            Map<String, Object> requestOptions = new HashMap<String, Object>();
-
-            requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
-
-            if (keyManager != null) {
-                PublicKey validatingKey = getIDPPublicKey();
-
-                requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
-                requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
-            }
-
-            saml2HandlerRequest.setOptions(requestOptions);
-        }
+        setRequestOptions(saml2HandlerRequest);
 
         chainProcessor.callHandlerChain(documentHolder.getSamlObject(), saml2HandlerRequest, saml2HandlerResponse, httpContext,
                 chainLock);
@@ -226,28 +209,6 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
             throw new IssuerNotTrustedException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed");
         }
 
-    }
-
-    /**
-     * <p>
-     * Returns the PublicKey to be used to verify signatures for SAML tokens issued by the IDP.
-     * </p>
-     *
-     * @return
-     * @throws TrustKeyConfigurationException
-     * @throws TrustKeyProcessingException
-     */
-    private PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
-        if (this.keyManager == null) {
-            throw new TrustKeyConfigurationException(ErrorCodes.TRUST_MANAGER_MISSING);
-        }
-        String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
-
-        if (StringUtil.isNullOrEmpty(idpValidatingAlias)) {
-            idpValidatingAlias = safeURL(spConfiguration.getIdentityURL()).getHost();
-        }
-
-        return keyManager.getValidatingKey(idpValidatingAlias);
     }
 
     /**

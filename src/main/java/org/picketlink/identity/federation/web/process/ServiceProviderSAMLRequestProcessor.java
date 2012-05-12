@@ -103,6 +103,9 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
 
         SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers);
 
+        // Set some request options
+        setRequestOptions(saml2HandlerRequest);
+
         chainProcessor.callHandlerChain(samlObject, saml2HandlerRequest, saml2HandlerResponse, httpContext, chainLock);
 
         Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();

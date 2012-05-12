@@ -25,17 +25,23 @@ import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.PublicKey;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerRequest;
@@ -45,6 +51,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler.H
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest.GENERATE_REQUEST_TYPE;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
@@ -204,4 +211,44 @@ public class ServiceProviderBaseProcessor {
         }
         return null;
     }
+
+    /**
+     * <p>
+     * Returns the PublicKey to be used to verify signatures for SAML tokens issued by the IDP.
+     * </p>
+     *
+     * @return
+     * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException
+     * @throws org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException
+     */
+    protected PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (this.keyManager == null) {
+            throw new TrustKeyConfigurationException(ErrorCodes.TRUST_MANAGER_MISSING);
+        }
+        String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
+
+        if (StringUtil.isNullOrEmpty(idpValidatingAlias)) {
+            idpValidatingAlias = safeURL(spConfiguration.getIdentityURL()).getHost();
+        }
+
+        return keyManager.getValidatingKey(idpValidatingAlias);
+    }
+
+    protected void setRequestOptions(SAML2HandlerRequest saml2HandlerRequest) throws TrustKeyConfigurationException, TrustKeyProcessingException {
+        if (spConfiguration != null) {
+            Map<String, Object> requestOptions = new HashMap<String, Object>();
+
+            requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
+
+            if (keyManager != null) {
+                PublicKey validatingKey = getIDPPublicKey();
+
+                requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
+                requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+            }
+
+            saml2HandlerRequest.setOptions(requestOptions);
+        }
+    }
+
 }
