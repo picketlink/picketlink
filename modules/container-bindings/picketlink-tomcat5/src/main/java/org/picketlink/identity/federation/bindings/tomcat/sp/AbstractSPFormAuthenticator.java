@@ -272,7 +272,11 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(
                     isPOSTBindingResponse(), this.serviceURL);
             requestProcessor.setTrustKeyManager(keyManager);
-            requestProcessor.setSupportSignatures(doSupportSignature());
+
+            // Only to enforce warning, so the users are aware that they should update their configuration.
+            // This should be removed in future versions.
+            if (doSupportSignature()) {}
+
             requestProcessor.setConfiguration(spConfiguration);
             boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
 
@@ -311,7 +315,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         Session session = request.getSessionInternal(true);
         String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
 
-        String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
         boolean willSendRequest = false;
         HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
         Set<SAML2Handler> handlers = chain.handlers();
@@ -327,21 +330,27 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(
                     isPOSTBindingResponse(), serviceURL);
             responseProcessor.setConfiguration(spConfiguration);
-            responseProcessor.setValidateSignature(doSupportSignature());
+
+            // Only to enforce warning, so the users are aware that they should update their configuration.
+            // This should be removed in future versions.
+            if (doSupportSignature()) {}
+
             responseProcessor.setTrustKeyManager(keyManager);
 
             SAML2HandlerResponse saml2HandlerResponse = responseProcessor.process(samlResponse, httpContext, handlers,
                     chainLock);
 
             Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
-            relayState = saml2HandlerResponse.getRelayState();
+            String relayState = saml2HandlerResponse.getRelayState();
 
             String destination = saml2HandlerResponse.getDestination();
 
             willSendRequest = saml2HandlerResponse.getSendRequest();
 
+            String destinationQueryStringWithSignature = saml2HandlerResponse.getDestinationQueryStringWithSignature();
+
             if (destination != null && samlResponseDocument != null) {
-                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
+                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
             } else {
                 // See if the session has been invalidated
 
@@ -430,12 +439,13 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @param relayState
      * @param response
      * @param willSendRequest are we sending Request or Response to IDP
+     * @param destinationQueryStringWithSignature used only with Redirect binding and with signature enabled.
      * @throws ProcessingException
      * @throws ConfigurationException
      * @throws IOException
      */
     protected abstract void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
-            boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException;
+            boolean willSendRequest, String destinationQueryStringWithSignature) throws ProcessingException, ConfigurationException, IOException;
 
     /*
      * (non-Javadoc)
@@ -461,12 +471,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         boolean willSendRequest = false;
         HTTPContext httpContext = new HTTPContext(request, response, context.getServletContext());
         Set<SAML2Handler> handlers = chain.handlers();
-
-        // This is the first time, the user is accessing. Get the relay state from the configuration
-        String relayState = request.getParameter(GeneralConstants.RELAY_STATE);
-        if (StringUtil.isNotNull(relayState)) {
-            relayState = spConfiguration.getRelayState();
-        }
 
         boolean postBinding = spConfiguration.getBindingType().equals("POST");
 
@@ -495,9 +499,10 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         willSendRequest = saml2HandlerResponse.getSendRequest();
 
         Document samlResponseDocument = saml2HandlerResponse.getResultingDocument();
-        relayState = saml2HandlerResponse.getRelayState();
+        String relayState = saml2HandlerResponse.getRelayState();
 
         String destination = saml2HandlerResponse.getDestination();
+        String destinationQueryStringWithSignature = saml2HandlerResponse.getDestinationQueryStringWithSignature();
 
         if (destination != null && samlResponseDocument != null) {
             try {
@@ -510,7 +515,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
                     auditHelper.audit(auditEvent);
                 }
-                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest);
+                sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
                 return false;
             } catch (Exception e) {
                 log.error("Server Exception:", e);
