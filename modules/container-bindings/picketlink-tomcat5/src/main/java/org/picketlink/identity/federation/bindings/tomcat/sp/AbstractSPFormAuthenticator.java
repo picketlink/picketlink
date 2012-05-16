@@ -272,11 +272,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(
                     isPOSTBindingResponse(), this.serviceURL);
             requestProcessor.setTrustKeyManager(keyManager);
-
-            // Only to enforce warning, so the users are aware that they should update their configuration.
-            // This should be removed in future versions.
-            if (doSupportSignature()) {}
-
             requestProcessor.setConfiguration(spConfiguration);
             boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
 
@@ -330,10 +325,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(
                     isPOSTBindingResponse(), serviceURL);
             responseProcessor.setConfiguration(spConfiguration);
-
-            // Only to enforce warning, so the users are aware that they should update their configuration.
-            // This should be removed in future versions.
-            if (doSupportSignature()) {}
 
             responseProcessor.setTrustKeyManager(keyManager);
 
