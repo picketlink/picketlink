@@ -21,17 +21,26 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.security.PrivateKey;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * Handles SAML2 Signature
@@ -54,15 +63,7 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
             return;
         }
 
-        // Get the Key Pair
-        KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
-
-        if (keypair == null) {
-            log.error("Key Pair cannot be found");
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyPair not found");
-        }
-
-        sign(samlDocument, keypair);
+        this.sign(samlDocument, response);
     }
 
     public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
@@ -74,10 +75,7 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
             return;
         }
 
-        // Get the Key Pair
-        KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
-
-        this.sign(responseDocument, keypair);
+        this.sign(responseDocument, response);
     }
 
     @Override
@@ -90,15 +88,71 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
             return;
         }
 
-        // Get the Key Pair
-        KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
-        this.sign(responseDocument, keypair);
+        this.sign(responseDocument, response);
     }
 
-    private void sign(Document samlDocument, KeyPair keypair) throws ProcessingException {
+    private void sign(Document samlDocument, SAML2HandlerResponse response) throws ProcessingException {
+        // Get the Key Pair
+        KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
+
+        if (keypair == null) {
+            log.error("Key Pair cannot be found");
+            throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyPair not found");
+        }
+
+        if (response.isPostBindingForResponse()) {
+            if (trace)
+                log.trace("Going to sign response document with POST binding type");
+            signPost(samlDocument, keypair);
+        }
+        else {
+            if (trace)
+                log.trace("Going to sign response document with REDIRECT binding type");
+            String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair, response.getSendRequest());
+            response.setDestinationQueryStringWithSignature(destinationQueryString);
+        }
+    }
+
+    private void signPost(Document samlDocument, KeyPair keypair) throws ProcessingException {
         SAML2Signature samlSignature = new SAML2Signature();
         Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
         samlSignature.setNextSibling(nextSibling);
         samlSignature.signSAMLDocument(samlDocument, keypair);
+    }
+
+    private String signRedirect(Document samlDocument, String relayState, KeyPair keypair, boolean willSendRequest) throws ProcessingException {
+        try {
+            String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
+            String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMessage.getBytes("UTF-8"));
+            PrivateKey signingKey = keypair.getPrivate();
+
+            String url;
+
+            // Encode relayState before signing
+            if (isNotNull(relayState))
+                relayState = RedirectBindingUtil.urlEncode(relayState);
+
+            if (willSendRequest) {
+                url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(base64Request, relayState,
+                    signingKey);
+            } else {
+                url = RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(base64Request, relayState,
+                    signingKey);
+            }
+
+            return url;
+        }
+        catch (ConfigurationException ce) {
+           log.error("Error when trying to sign message for redirection", ce);
+           throw new RuntimeException(ce);
+        }
+        catch (GeneralSecurityException ce) {
+           log.error("Error when trying to sign message for redirection", ce);
+           throw new RuntimeException(ce);
+        }
+        catch (IOException ce) {
+           log.error("Error when trying to sign message for redirection", ce);
+           throw new RuntimeException(ce);
+        }
     }
 }

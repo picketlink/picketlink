@@ -143,4 +143,18 @@ public interface SAML2HandlerResponse {
      * @return
      */
     boolean isPostBindingForResponse();
+
+   /**
+    *  Whole destination query string including signature. It's used only in Redirect Binding with
+    * signature enabled.
+    *
+    * @param destinationQueryStringWithSignature
+    */
+    void setDestinationQueryStringWithSignature(String destinationQueryStringWithSignature);
+
+   /**
+    * @see #setDestinationQueryStringWithSignature(String)
+    * @return
+    */
+    String getDestinationQueryStringWithSignature();
 }

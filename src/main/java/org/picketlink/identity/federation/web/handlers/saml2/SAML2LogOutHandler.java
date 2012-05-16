@@ -168,10 +168,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                 try {
                     generateSuccessStatusResponseType(statusResponseType.getInResponseTo(), request, response, relayState);
-                    Boolean isPost = server.stack().getBinding(relayState);
-                    if (isPost == null)
-                        isPost = Boolean.TRUE;
-                    response.setPostBindingForResponse(isPost.booleanValue());
+
+                    boolean isPost = isPostBindingForResponse(server, relayState, request);
+                    response.setPostBindingForResponse(isPost);
                 } catch (Exception e) {
                     throw new ProcessingException(e);
                 }
@@ -180,10 +179,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             } else {
                 // Put the participant in transit mode
                 server.stack().registerTransitParticipant(sessionID, nextParticipant);
-                Boolean isPost = server.stack().getBinding(nextParticipant);
-                if (isPost == null)
-                    isPost = Boolean.TRUE;
-                response.setPostBindingForResponse(isPost.booleanValue());
+
+                boolean isPost = isPostBindingForResponse(server, nextParticipant, request);
+                response.setPostBindingForResponse(isPost);
 
                 // send logout request to participant with relaystate to orig
                 response.setRelayState(relayState);
@@ -229,12 +227,11 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     session.invalidate();
                     server.stack().pop(sessionID);
 
-                    Boolean isPost = server.stack().getBinding(participant);
-                    if (isPost == null)
-                        isPost = Boolean.TRUE;
-
                     generateSuccessStatusResponseType(logOutRequest.getID(), request, response, originalIssuer);
-                    response.setPostBindingForResponse(isPost.booleanValue());
+
+                    boolean isPost = isPostBindingForResponse(server, participant, request);
+                    response.setPostBindingForResponse(isPost);
+
                     response.setSendRequest(false);
                 } else {
                     // Put the participant in transit mode
@@ -248,10 +245,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                     response.setDestination(participant);
 
-                    Boolean isPost = server.stack().getBinding(participant);
-                    if (isPost == null)
-                        isPost = Boolean.TRUE;
-
+                    boolean isPost = isPostBindingForResponse(server, participant, request);
                     response.setPostBindingForResponse(isPost);
 
                     LogoutRequestType lort = saml2Request.createLogoutRequest(request.getIssuer().getValue());
@@ -335,6 +329,18 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 log.trace("Participant = " + participant);
             }
             return participant;
+        }
+
+        private boolean isPostBindingForResponse(IdentityServer server, String participant, SAML2HandlerRequest request) {
+            Boolean isPostParticipant = server.stack().getBinding(participant);
+            if (isPostParticipant == null)
+                isPostParticipant = Boolean.TRUE;
+
+            Boolean isStrictPostBindingForResponse = (Boolean)request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
+            if (isStrictPostBindingForResponse == null)
+                isStrictPostBindingForResponse = Boolean.FALSE;
+
+            return isPostParticipant || isStrictPostBindingForResponse;
         }
     }
 

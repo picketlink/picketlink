@@ -62,6 +62,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     private String methodType;
 
+    private String queryString;
+
     public MockHttpServletRequest(HttpSession session, String methodType) {
         this.session = session;
         this.methodType = methodType;
@@ -73,6 +75,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     public void addParameter(String key, String value) {
         parameters.put(key, value);
+    }
+
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
     }
 
     public String getAuthType() {
@@ -135,10 +141,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public String getQueryString() {
-        if ("POST".equalsIgnoreCase(this.methodType))
+        if ("POST".equalsIgnoreCase(this.methodType)) {
             return null;
-
-        throw new RuntimeException("NYI");
+        }
+        else {
+            return queryString;
+        }
     }
 
     public String getRemoteUser() {

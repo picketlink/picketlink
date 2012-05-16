@@ -78,8 +78,6 @@ public class ServiceProviderBaseProcessor {
 
     protected String issuer = null;
 
-    protected boolean supportSignatures = false;
-
     public static final String IDP_KEY = "idp.key";
 
     /**
@@ -121,15 +119,6 @@ public class ServiceProviderBaseProcessor {
     }
 
     /**
-     * Whether we support signatures during the current processing
-     *
-     * @param supportSignatures
-     */
-    public void setSupportSignatures(boolean supportSignatures) {
-        this.supportSignatures = supportSignatures;
-    }
-
-    /**
      * Set a separate issuer that is different from the service url
      *
      * @param issuer
@@ -152,6 +141,7 @@ public class ServiceProviderBaseProcessor {
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null, httpContext);
         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
+        saml2HandlerResponse.setPostBindingForResponse(postBinding);
         saml2HandlerResponse.setDestination(identityURL);
 
         // Reset the state

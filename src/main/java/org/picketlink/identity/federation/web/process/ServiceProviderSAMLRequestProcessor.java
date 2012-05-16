@@ -29,7 +29,6 @@ import java.util.concurrent.locks.Lock;
 import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -47,7 +46,6 @@ import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * Utility Class to handle processing of an SAML Request Message
@@ -100,6 +98,7 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
         // Create the request/response
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(documentHolder, httpContext);
         saml2HandlerResponse = new DefaultSAML2HandlerResponse();
+        saml2HandlerResponse.setPostBindingForResponse(postBinding);
 
         SAMLHandlerChainProcessor chainProcessor = new SAMLHandlerChainProcessor(handlers);
 
@@ -119,13 +118,17 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
             if (postBinding) {
                 sendRequestToIDP(destination, samlResponseDocument, relayState, httpContext.getResponse(), willSendRequest);
             } else {
-                boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
-                String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
+                String destinationQuery = saml2HandlerResponse.getDestinationQueryStringWithSignature();
 
-                String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
+                // This is the case with signatures disabled
+                if (destinationQuery == null) {
+                   boolean areWeSendingRequest = saml2HandlerResponse.getSendRequest();
+                   String samlMsg = DocumentUtil.getDocumentAsString(samlResponseDocument);
 
-                String destinationQuery = RedirectBindingUtil.getDestinationQueryString(base64Request, relayState,
-                        areWeSendingRequest);
+                   String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMsg.getBytes("UTF-8"));
+                   destinationQuery = RedirectBindingUtil.getDestinationQueryString(base64Request, relayState,
+                         areWeSendingRequest);
+                }
 
                 RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
                 holder.setDestination(destination).setDestinationQueryString(destinationQuery);
@@ -154,13 +157,6 @@ public class ServiceProviderSAMLRequestProcessor extends ServiceProviderBaseProc
      */
     protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, HttpServletResponse response,
             boolean willSendRequest) throws ProcessingException, ConfigurationException, IOException {
-        if (this.supportSignatures) {
-            SAML2Signature samlSignature = new SAML2Signature();
-            Node nextSibling = samlSignature.getNextSiblingOfIssuer(samlDocument);
-            samlSignature.setNextSibling(nextSibling);
-            samlSignature.signSAMLDocument(samlDocument, keyManager.getSigningKeyPair());
-        }
-
         String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
         samlMessage = PostBindingUtil.base64Encode(samlMessage);
         PostBindingUtil.sendPost(new DestinationInfoHolder(destination, samlMessage, relayState), response, willSendRequest);

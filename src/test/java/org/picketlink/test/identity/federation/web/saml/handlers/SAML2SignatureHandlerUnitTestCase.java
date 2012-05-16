@@ -62,7 +62,16 @@ import org.w3c.dom.Document;
  * @since Oct 12, 2009
  */
 public class SAML2SignatureHandlerUnitTestCase extends TestCase {
-    public void testSignatures() throws Exception {
+
+    public void testSignaturesPostBinding() throws Exception {
+        doSignatureTest(true);
+    }
+
+    public void testSignaturesRedirectBinding() throws Exception {
+        doSignatureTest(false);
+    }
+
+    private void doSignatureTest(boolean isPostBinding) throws Exception {
         SAML2Request saml2Request = new SAML2Request();
         String id = IDGenerator.create("ID_");
         String assertionConsumerURL = "http://sp";
@@ -93,7 +102,8 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         // Create a Protocol Context
         MockHttpSession session = new MockHttpSession();
         MockServletContext servletContext = new MockServletContext();
-        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, "POST");
+        String httpMethod = isPostBinding ? "POST" : "GET";
+        MockHttpServletRequest servletRequest = new MockHttpServletRequest(session, httpMethod);
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
@@ -104,6 +114,7 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         request.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
 
         SAML2HandlerResponse response = new DefaultSAML2HandlerResponse();
+        response.setPostBindingForResponse(isPostBinding);
 
         request.addOption(GeneralConstants.SENDER_PUBLIC_KEY, keypair.getPublic());
 
@@ -120,6 +131,10 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
                 SAML2Handler.HANDLER_TYPE.SP);
 
         request.addOption(GeneralConstants.SENDER_PUBLIC_KEY, keypair.getPublic());
+
+        if (!isPostBinding) {
+            servletRequest.setQueryString(response.getDestinationQueryStringWithSignature());
+        }
 
         SAML2SignatureValidationHandler validHandler = new SAML2SignatureValidationHandler();
         validHandler.initChainConfig(chainConfig);

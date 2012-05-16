@@ -34,6 +34,8 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.identity.federation.web.core.HTTPContext;
+import org.picketlink.identity.federation.web.util.RedirectBindingSignatureUtil;
 import org.w3c.dom.Document;
 
 /**
@@ -53,6 +55,16 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler {
      * @see {@code SAML2Handler#handleRequestType(SAML2HandlerRequest, SAML2HandlerResponse)}
      */
     public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
+        validateSender(request, response);
+    }
+
+    @Override
+    public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
+        validateSender(request, response);
+    }
+
+    // Same method can be used for "handleRequestType" and "handleStatusResponseType" validations
+    private void validateSender(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         Map<String, Object> requestOptions = request.getOptions();
         Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
         if (ignoreSignatures == Boolean.TRUE)
@@ -65,39 +77,62 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler {
         }
         PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
         try {
-            boolean isValid = this.validateSender(signedDocument, publicKey);
+            boolean isValid;
+
+            HTTPContext httpContext = (HTTPContext) request.getContext();
+            boolean isPost = httpContext.getRequest().getMethod().equalsIgnoreCase("POST");
+            if (trace)
+                log.trace("HTTP method for validating response: " + httpContext.getRequest().getMethod());
+
+            if (isPost) {
+                isValid = verifyPostBindingSignature(signedDocument, publicKey);
+            } else {
+                isValid = verifyRedirectBindingSignature(httpContext, publicKey);
+            }
+
             if (!isValid)
-                throw constructSignatureException();
+               throw constructSignatureException();
         } catch (ProcessingException pe) {
             response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, "Signature Validation Failed");
             throw pe;
         }
     }
 
-    @Override
-    public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
-        Map<String, Object> requestOptions = request.getOptions();
-        Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
-        if (ignoreSignatures == Boolean.TRUE)
-            return;
-
-        Document signedDocument = request.getRequestDocument();
-        if (trace) {
-            log.trace("Document for validation=" + DocumentUtil.asString(signedDocument));
-        }
-
-        PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
-        boolean isValid = this.validateSender(signedDocument, publicKey);
-        if (!isValid)
-            throw constructSignatureException();
-    }
-
-    private boolean validateSender(Document signedDocument, PublicKey publicKey) throws ProcessingException {
+    private boolean verifyPostBindingSignature(Document signedDocument, PublicKey publicKey) throws ProcessingException {
         try {
             return this.saml2Signature.validate(signedDocument, publicKey);
         } catch (Exception e) {
             log.error("Error validating signature:", e);
             throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Error validating signature.");
+        }
+    }
+
+    /**
+     * <p>
+     * Validates the signature for SAML tokens received via HTTP Redirect Binding.
+     * </p>
+     *
+     * @param httpContext
+     * @throws org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException
+     * @throws ProcessingException
+     */
+    private boolean verifyRedirectBindingSignature(HTTPContext httpContext, PublicKey publicKey) throws ProcessingException {
+        try {
+            String queryString = httpContext.getRequest().getQueryString();
+
+            // Check if there is a signature
+            byte[] sigValue;
+
+            sigValue = RedirectBindingSignatureUtil.getSignatureValueFromSignedURL(queryString);
+
+            if (sigValue == null) {
+                throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
+                      + "Signature Validation failed. Signature is not present. Check if the IDP is supporting signatures.");
+            }
+
+            return RedirectBindingSignatureUtil.validateSignature(queryString, publicKey, sigValue);
+        } catch (Exception e) {
+            throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed", e);
         }
     }
 

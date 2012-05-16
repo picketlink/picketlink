@@ -192,9 +192,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 IdentityServer identityServer = (IdentityServer) servletContext.getAttribute(GeneralConstants.IDENTITY_SERVER);
                 identityServer.stack().register(session.getId(), destination, isPost);
 
+                // Check whether we use POST binding for response
+                boolean strictPostBinding = request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING) != null
+                      && (Boolean)request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
+                boolean postBindingForResponse = isPost || strictPostBinding;
+
                 response.setResultingDocument(samlResponse);
                 response.setRelayState(request.getRelayState());
-                response.setPostBindingForResponse(isPost);
+                response.setPostBindingForResponse(postBindingForResponse);
             } catch (Exception e) {
                 log.error("Exception in processing authentication:", e);
                 throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "authentication issue");

@@ -45,6 +45,8 @@ public class DefaultSAML2HandlerResponse implements SAML2HandlerResponse {
 
     private boolean postBinding = true;
 
+    private String destinationQueryStringWithSignature;
+
     /**
      * @see SAML2HandlerResponse#getRelayState()
      */
@@ -158,5 +160,19 @@ public class DefaultSAML2HandlerResponse implements SAML2HandlerResponse {
      */
     public boolean isPostBindingForResponse() {
         return this.postBinding;
+    }
+
+   /**
+    * @see SAML2HandlerResponse#setDestinationQueryStringWithSignature(String)
+    */
+    public void setDestinationQueryStringWithSignature(String destinationQueryStringWithSignature) {
+        this.destinationQueryStringWithSignature = destinationQueryStringWithSignature;
+    }
+
+   /**
+    * @see SAML2HandlerResponse#getDestinationQueryStringWithSignature()
+    */
+    public String getDestinationQueryStringWithSignature() {
+        return this.destinationQueryStringWithSignature;
     }
 }
