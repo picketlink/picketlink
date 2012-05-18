@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import java.io.InputStream;
+import java.util.logging.Handler;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.config.IDPType;
@@ -13,6 +14,7 @@ import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 
 /**
@@ -67,5 +69,19 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         STSType sts = picketlink.getStsType();
         assertNotNull(sts);
         assertTrue(picketlink.isEnableAudit());
+    }
+    
+    @Test
+    public void testHandlers() throws ParsingException {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/config/picketlink-handlers.xml");
+        PicketLinkConfigParser parser = new PicketLinkConfigParser();
+        Object result = parser.parse(configStream);
+        assertNotNull(result);
+        PicketLinkType picketlink = (PicketLinkType) result;
+        Handlers handlers = picketlink.getHandlers();
+        assertNotNull(handlers);
+        assertNotNull(handlers.getHandlerChainClass());
+        assertFalse(handlers.getHandler().isEmpty());
     }
 }

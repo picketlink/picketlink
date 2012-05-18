@@ -97,6 +97,8 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String CANONICALIZATION_METHOD = "CanonicalizationMethod";
 
     public static final String HANDLERS = "Handlers";
+    
+    public static final String HANDLERS_CHAIN_CLASS = "ChainClass";
 
     public static final String HANDLER = "Handler";
 
@@ -131,6 +133,12 @@ public class SAMLConfigParser extends AbstractParser {
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, HANDLERS);
 
+        // parse and set the root element attributes.
+        QName attributeQName = new QName("", HANDLERS_CHAIN_CLASS);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            handlers.setHandlerChainClass(StaxParserUtil.getAttributeValue(attribute));
+        
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
             if (xmlEvent == null)

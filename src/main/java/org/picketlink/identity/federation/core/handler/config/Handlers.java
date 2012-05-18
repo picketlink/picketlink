@@ -26,9 +26,11 @@ import java.util.List;
  *
  */
 public class Handlers {
-
+    
+    protected String handlerChainClass;
+    
     protected List<Handler> handler = new ArrayList<Handler>();
-
+    
     public void add(Handler h) {
         this.handler.add(h);
     }
@@ -46,6 +48,21 @@ public class Handlers {
      */
     public List<Handler> getHandler() {
         return Collections.unmodifiableList(this.handler);
+    }
+    
+    /**
+     * <p>
+     * Sets the Handler chain class.
+     * </p>
+     * 
+     * @param samlHandlerChainClass value must be a subclass of #{@link SAML2HandlerChain}
+     */
+    public void setHandlerChainClass(String samlHandlerChainClass) {
+        this.handlerChainClass = samlHandlerChainClass;
+    }
+    
+    public String getHandlerChainClass() {
+        return this.handlerChainClass;
     }
 
 }

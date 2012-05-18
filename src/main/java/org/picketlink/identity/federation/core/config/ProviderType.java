@@ -79,7 +79,7 @@ public class ProviderType {
     protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
     protected Map<String, Object> additionalOptions = new HashMap<String, Object>();
-
+    
     /**
      * Gets the value of the identityURL property.
      *
