@@ -24,16 +24,16 @@ package org.picketlink.identity.federation.core.config;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
- *
+ * 
  * IDP Type defines the configuration for an Identity Provider.
- *
- *
+ * 
+ * 
  * <p>
  * Java class for IDPType complex type.
- *
+ * 
  * <p>
  * The following schema fragment specifies the expected content contained within this class.
- *
+ * 
  * <pre>
  * &lt;complexType name="IDPType">
  *   &lt;complexContent>
@@ -49,8 +49,8 @@ import org.picketlink.identity.federation.core.util.StringUtil;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- *
- *
+ * 
+ * 
  */
 public class IDPType extends ProviderType {
 
@@ -65,16 +65,16 @@ public class IDPType extends ProviderType {
     protected Boolean encrypt;
 
     /**
-     * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to true
-     * if you want the IDP to adhere to this requirement via
+     * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to false
+     * if you want to force the IDP to respond to SPs using the Redirect Binding.
      */
     private boolean strictPostBinding = true;
 
     /**
      * Gets the value of the encryption property.
-     *
+     * 
      * @return possible object is {@link EncryptionType }
-     *
+     * 
      */
     public EncryptionType getEncryption() {
         return encryption;
@@ -82,9 +82,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the encryption property.
-     *
+     * 
      * @param value allowed object is {@link EncryptionType }
-     *
+     * 
      */
     public void setEncryption(EncryptionType value) {
         this.encryption = value;
@@ -92,9 +92,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the assertionValidity property.
-     *
+     * 
      * @return possible object is {@link Long }
-     *
+     * 
      */
     public long getAssertionValidity() {
         if (assertionValidity == null) {
@@ -106,9 +106,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the assertionValidity property.
-     *
+     * 
      * @param value allowed object is {@link Long }
-     *
+     * 
      */
     public void setAssertionValidity(Long value) {
         this.assertionValidity = value;
@@ -116,9 +116,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the roleGenerator property.
-     *
+     * 
      * @return possible object is {@link String }
-     *
+     * 
      */
     public String getRoleGenerator() {
         if (roleGenerator == null) {
@@ -130,9 +130,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the roleGenerator property.
-     *
+     * 
      * @param value allowed object is {@link String }
-     *
+     * 
      */
     public void setRoleGenerator(String value) {
         this.roleGenerator = value;
@@ -140,9 +140,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the attributeManager property.
-     *
+     * 
      * @return possible object is {@link String }
-     *
+     * 
      */
     public String getAttributeManager() {
         if (attributeManager == null) {
@@ -154,9 +154,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the attributeManager property.
-     *
+     * 
      * @param value allowed object is {@link String }
-     *
+     * 
      */
     public void setAttributeManager(String value) {
         this.attributeManager = value;
@@ -164,9 +164,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Gets the value of the encrypt property.
-     *
+     * 
      * @return possible object is {@link Boolean }
-     *
+     * 
      */
     public boolean isEncrypt() {
         if (encrypt == null) {
@@ -178,9 +178,9 @@ public class IDPType extends ProviderType {
 
     /**
      * Sets the value of the encrypt property.
-     *
+     * 
      * @param value allowed object is {@link Boolean }
-     *
+     * 
      */
     public void setEncrypt(Boolean value) {
         this.encrypt = value;
@@ -188,7 +188,7 @@ public class IDPType extends ProviderType {
 
     /**
      * Import values from another {@link IDPType}
-     *
+     * 
      * @param other
      */
     public void importFrom(IDPType other) {
@@ -215,12 +215,12 @@ public class IDPType extends ProviderType {
     public void setStrictPostBinding(boolean strictPostBinding) {
         this.strictPostBinding = strictPostBinding;
     }
-    
+
     /**
      * Gets the value of the encrypt property.
-     *
+     * 
      * @return possible object is {@link Boolean }
-     *
+     * 
      */
     public boolean isStrictPostBinding() {
         return strictPostBinding;
