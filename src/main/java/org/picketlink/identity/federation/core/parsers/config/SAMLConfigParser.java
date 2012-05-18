@@ -107,6 +107,8 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String SERVER_ENVIRONMENT = "ServerEnvironment";
 
     public static final String SUPPORTS_SIGNATURES = "SupportsSignatures";
+    
+    public static final String STRICT_POST_BINDING = "StrictPostBinding";
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -185,6 +187,11 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null)
             idp.setAttributeManager(StaxParserUtil.getAttributeValue(attribute));
+
+        attributeQName = new QName("", STRICT_POST_BINDING);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            idp.setStrictPostBinding(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
 
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);

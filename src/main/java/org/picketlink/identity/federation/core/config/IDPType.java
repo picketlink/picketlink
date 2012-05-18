@@ -65,6 +65,12 @@ public class IDPType extends ProviderType {
     protected Boolean encrypt;
 
     /**
+     * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to true
+     * if you want the IDP to adhere to this requirement via
+     */
+    private boolean strictPostBinding = true;
+
+    /**
      * Gets the value of the encryption property.
      *
      * @return possible object is {@link EncryptionType }
@@ -199,5 +205,24 @@ public class IDPType extends ProviderType {
         if (StringUtil.isNotNull(other.getRoleGenerator())) {
             this.roleGenerator = other.getRoleGenerator();
         }
+    }
+
+    /**
+     * Sets the value of the strictPostBinding property.
+     * 
+     * @param value allowed object is {@link Boolean }
+     */
+    public void setStrictPostBinding(boolean strictPostBinding) {
+        this.strictPostBinding = strictPostBinding;
+    }
+    
+    /**
+     * Gets the value of the encrypt property.
+     *
+     * @return possible object is {@link Boolean }
+     *
+     */
+    public boolean isStrictPostBinding() {
+        return strictPostBinding;
     }
 }

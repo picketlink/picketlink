@@ -3,6 +3,7 @@ package org.picketlink.test.identity.federation.core.config;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.InputStream;
 
@@ -32,6 +33,9 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         IDPType idp = (IDPType) picketlink.getIdpOrSP();
         assertNotNull(idp);
         assertTrue(picketlink.isEnableAudit());
+        
+        // asserts the StrictPostBinding attribute. Default is true, but for this test it was changed to true in the configuration file. 
+        assertFalse(idp.isStrictPostBinding());
     }
 
     @Test
