@@ -221,8 +221,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     @Deprecated
     public void setStrictPostBinding(Boolean strictPostBinding) {
-        log.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if " +
-                "SAML2SignatureValidationHandler is available.");
+        log.warn("Option 'strictPostBinding' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
 
     @Deprecated
