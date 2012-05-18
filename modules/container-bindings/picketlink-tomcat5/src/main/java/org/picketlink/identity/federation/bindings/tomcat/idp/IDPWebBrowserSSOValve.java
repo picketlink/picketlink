@@ -198,12 +198,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
      */
     private final Lock chainLock = new ReentrantLock();
 
-    /**
-     * SAML Web Browser SSO Profile has a requirement that the IDP does not respond back in Redirect Binding. Set this to true
-     * if you want the IDP to adhere to this requirement via
-     */
-    private boolean strictPostBinding = true;
-
     // Set a list of attributes we are interested in separated by comma
     public void setAttributeList(String attribList) {
         if (StringUtil.isNotNull(attribList)) {
@@ -225,16 +219,20 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         }
     }
 
+    @Deprecated
     public void setStrictPostBinding(Boolean strictPostBinding) {
-        this.strictPostBinding = strictPostBinding;
+        log.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if " +
+                "SAML2SignatureValidationHandler is available.");
     }
 
+    @Deprecated
     public Boolean getIgnoreIncomingSignatures() {
         log.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if " +
               "SAML2SignatureValidationHandler is available.");
         return false;
     }
 
+    @Deprecated
     public void setIgnoreIncomingSignatures(Boolean ignoreIncomingSignature) {
         log.warn("Option 'ignoreIncomingSignatures' is deprecated and not used. Signatures are verified if " +
               "SAML2SignatureValidationHandler is available.");
@@ -261,12 +259,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             this.attribManager = null;
     }
 
+    @Deprecated
     public Boolean getSignOutgoingMessages() {
         log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are " +
               "signed by SAML2SignatureGenerationHandler.");
         return signOutgoingMessages;
     }
 
+    @Deprecated
     public void setSignOutgoingMessages(Boolean signOutgoingMessages) {
        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are " +
              "signed by SAML2SignatureGenerationHandler.");
@@ -359,8 +359,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     holder.setSupportSignature(true).setPrivateKey(keyManager.getSigningKey());
                 }
 
-                if (strictPostBinding)
-                    holder.setStrictPostBinding(true);
+                holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
+                
                 webRequestUtil.send(holder);
             } catch (GeneralSecurityException e) {
                 throw new ServletException(e);
@@ -546,7 +546,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
             requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
             requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
-            requestOptions.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.strictPostBinding);
+            requestOptions.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
 
             if (assertionID != null)
                 requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID);
@@ -628,8 +628,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                         .setErrorResponse(isErrorResponse).setServletResponse(response)
                         .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
 
-                if (strictPostBinding)
-                    holder.setStrictPostBinding(true);
+                holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
 
                 if (requestedPostProfile != null)
                     holder.setPostBindingRequested(requestedPostProfile);
@@ -639,9 +638,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 if (this.signOutgoingMessages) {
                     holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
                 }
-
-                if (strictPostBinding)
-                    holder.setStrictPostBinding(true);
 
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -732,12 +728,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, idpIssuer.getIssuer(),
                     samlDocumentHolder, HANDLER_TYPE.IDP);
             Map<String, Object> options = new HashMap<String, Object>();
-            if (signOutgoingMessages == true) {
+            
+            if (signOutgoingMessages) {
                 PublicKey publicKey = keyManager.getValidatingKey(tokenValidatingAlias);
                 options.put(GeneralConstants.SENDER_PUBLIC_KEY, publicKey);
             }
 
-            options.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.strictPostBinding);
+            options.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
 
             saml2HandlerRequest.setOptions(options);
             saml2HandlerRequest.setRelayState(relayState);
@@ -798,8 +795,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
                 }
 
-                if (strictPostBinding)
-                    holder.setStrictPostBinding(true);
+                holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
 
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -880,8 +876,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
             }
 
-            if (strictPostBinding)
-                holder.setStrictPostBinding(true);
+            holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
+            
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                 auditEvent.setType(PicketLinkAuditEventType.ERROR_RESPONSE_TO_SP);
