@@ -133,11 +133,11 @@ import org.w3c.dom.Document;
 
 /**
  * Generic Web Browser SSO valve for the IDP
- *
+ * 
  * Handles both the SAML Redirect as well as Post Bindings
- *
+ * 
  * Note: Most of the work is done by {@code IDPWebRequestUtil}
- *
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since May 18, 2009
  */
@@ -164,12 +164,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     // Option "signOutgoingMessages" is used for error messages.
     // Normal (not-error) messages are signed with SAML2SignatureGenerationHandler
     private Boolean signOutgoingMessages = true;
-
-    /**
-     * Defines how the token's signature will be validated. If true is used the token's issuer, otherwise the
-     * request.getRemoteAddr. Default false.
-     */
-    private Boolean validatingAliasToTokenIssuer = false;
 
     private transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
 
@@ -226,31 +220,28 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     @Deprecated
     public Boolean getIgnoreIncomingSignatures() {
-        log.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if " +
-              "SAML2SignatureValidationHandler is available.");
+        log.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if "
+                + "SAML2SignatureValidationHandler is available.");
         return false;
     }
 
     @Deprecated
     public void setIgnoreIncomingSignatures(Boolean ignoreIncomingSignature) {
-        log.warn("Option 'ignoreIncomingSignatures' is deprecated and not used. Signatures are verified if " +
-              "SAML2SignatureValidationHandler is available.");
+        log.warn("Option 'ignoreIncomingSignatures' is deprecated and not used. Signatures are verified if "
+                + "SAML2SignatureValidationHandler is available.");
     }
 
     /**
      * PLFED-248 Allows to validate the token's signature against the keystore using the token's issuer.
      */
+    @Deprecated
     public void setValidatingAliasToTokenIssuer(Boolean validatingAliasToTokenIssuer) {
-        this.validatingAliasToTokenIssuer = validatingAliasToTokenIssuer;
-    }
-
-    public Boolean getValidatingAliasToTokenIssuer() {
-        return validatingAliasToTokenIssuer;
+        log.warn("Option 'validatingAliasToTokenIssuer' is deprecated and not used. The IDP will always use the issuer host to validate signatures.");
     }
 
     /**
      * IDP should not do any attributes such as generation of roles etc
-     *
+     * 
      * @param ignoreAttributes
      */
     public void setIgnoreAttributesGeneration(Boolean ignoreAttributes) {
@@ -260,15 +251,15 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     @Deprecated
     public Boolean getSignOutgoingMessages() {
-        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are " +
-              "signed by SAML2SignatureGenerationHandler.");
+        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
+                + "signed by SAML2SignatureGenerationHandler.");
         return signOutgoingMessages;
     }
 
     @Deprecated
     public void setSignOutgoingMessages(Boolean signOutgoingMessages) {
-       log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are " +
-             "signed by SAML2SignatureGenerationHandler.");
+        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
+                + "signed by SAML2SignatureGenerationHandler.");
         this.signOutgoingMessages = signOutgoingMessages;
     }
 
@@ -359,7 +350,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 }
 
                 holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
-                
+
                 webRequestUtil.send(holder);
             } catch (GeneralSecurityException e) {
                 throw new ServletException(e);
@@ -520,10 +511,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             RequestAbstractType requestAbstractType = (RequestAbstractType) samlObject;
             String issuer = requestAbstractType.getIssuer().getValue();
 
-            String tokenSignatureValidatingAlias = getTokenSignatureValidatingAlias(request, issuer);
-            boolean isValid = samlRequestMessage != null;
-
-            if (!isValid)
+            if (samlRequestMessage == null)
                 throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
             IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
@@ -551,12 +539,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID);
 
             if (this.keyManager != null) {
-                if (trace) {
-                    log.trace("Remote Host=" + request.getRemoteAddr());
-                    log.trace("Validating Alias=" + tokenSignatureValidatingAlias);
-                }
-
-                PublicKey validatingKey = CoreConfigUtil.getValidatingKey(keyManager, tokenSignatureValidatingAlias);
+                PublicKey validatingKey = getIssuerPublicKey(request, issuer);
                 requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
                 requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
             }
@@ -577,7 +560,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 log.trace("Handlers are=" + handlers);
             }
 
-            webRequestUtil.isTrusted(issuer);
+            // webRequestUtil.isTrusted(issuer);
 
             if (handlers != null) {
                 try {
@@ -658,27 +641,34 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     }
 
     /**
-     * Returns the alias to be used for the token's signature verification. If <code>validatingAliasToTokenIssuer</code> is true
-     * the token issuer will be returned.
-     *
+     * Returns the PublicKey to be used for the token's signature verification. This key is related with the issuer of the SAML
+     * message received by the IDP.
+     * 
      * @param request
      * @param issuer
      * @return
+     * @throws ProcessingException
+     * @throws ConfigurationException
      */
-    private String getTokenSignatureValidatingAlias(Request request, String issuer) {
+    private PublicKey getIssuerPublicKey(Request request, String issuer) throws ConfigurationException, ProcessingException {
         String issuerHost = request.getRemoteAddr();
 
-        if (this.validatingAliasToTokenIssuer) {
-            try {
-                issuerHost = new URL(issuer).getHost();
-            } catch (MalformedURLException e) {
-                if (trace) {
-                    log.trace("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
-                }
+        try {
+            issuerHost = new URL(issuer).getHost();
+        } catch (MalformedURLException e) {
+            if (trace) {
+                log.warn("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
             }
         }
 
-        return issuerHost;
+        PublicKey issuerPublicKey = CoreConfigUtil.getValidatingKey(keyManager, issuerHost);
+
+        if (trace) {
+            log.trace("Remote Host=" + request.getRemoteAddr());
+            log.trace("Using Validating Alias=" + issuerHost + " to check signatures.");
+        }
+
+        return issuerPublicKey;
     }
 
     protected void processSAMLResponseMessage(IDPWebRequestUtil webRequestUtil, Request request, Response response)
@@ -714,7 +704,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             StatusResponseType statusResponseType = (StatusResponseType) samlObject;
             String issuer = statusResponseType.getIssuer().getValue();
-            String tokenValidatingAlias = getTokenSignatureValidatingAlias(request, issuer);
 
             boolean isValid = samlResponseMessage != null;
 
@@ -727,9 +716,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, idpIssuer.getIssuer(),
                     samlDocumentHolder, HANDLER_TYPE.IDP);
             Map<String, Object> options = new HashMap<String, Object>();
-            
+
             if (signOutgoingMessages) {
-                PublicKey publicKey = keyManager.getValidatingKey(tokenValidatingAlias);
+                PublicKey publicKey = getIssuerPublicKey(request, issuer);
                 options.put(GeneralConstants.SENDER_PUBLIC_KEY, publicKey);
             }
 
@@ -742,7 +731,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             Set<SAML2Handler> handlers = chain.handlers();
 
-            webRequestUtil.isTrusted(issuer);
+            // webRequestUtil.isTrusted(issuer);
 
             if (handlers != null) {
                 try {
@@ -782,7 +771,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     throw new ServletException(ErrorCodes.NULL_VALUE + "Destination");
                 holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                         .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
-                        .setErrorResponse(isErrorResponse).setServletResponse(response).setPostBindingRequested(requestedPostProfile)
+                        .setErrorResponse(isErrorResponse).setServletResponse(response)
+                        .setPostBindingRequested(requestedPostProfile)
                         .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
 
                 /*
@@ -876,7 +866,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             }
 
             holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
-            
+
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                 auditEvent.setType(PicketLinkAuditEventType.ERROR_RESPONSE_TO_SP);
@@ -905,7 +895,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Add a lifecycle event listener to this component.
-     *
+     * 
      * @param listener The listener to add
      */
     public void addLifecycleListener(LifecycleListener listener) {
@@ -922,7 +912,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Remove a lifecycle event listener from this component.
-     *
+     * 
      * @param listener The listener to add
      */
     public void removeLifecycleListener(LifecycleListener listener) {
@@ -932,7 +922,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     /**
      * Prepare for the beginning of active use of the public methods of this component. This method should be called after
      * <code>configure()</code>, and before any of the public methods of the component are utilized.
-     *
+     * 
      * @exception LifecycleException if this component detects a fatal error that prevents this component from being used
      */
     public void start() throws LifecycleException {
@@ -1128,7 +1118,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     /**
      * Gracefully terminate the active use of the public methods of this component. This method should be the last one called on
      * a given instance of this component.
-     *
+     * 
      * @exception LifecycleException if this component detects a fatal error that needs to be reported
      */
     public void stop() throws LifecycleException {
@@ -1167,7 +1157,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     /**
      * Given a set of roles, create an attribute statement
-     *
+     * 
      * @param roles
      * @return
      */
