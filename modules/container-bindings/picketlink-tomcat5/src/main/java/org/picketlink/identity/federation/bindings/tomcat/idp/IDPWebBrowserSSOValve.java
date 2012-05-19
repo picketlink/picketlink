@@ -466,7 +466,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             if (trace) {
                 log.trace("Handlers are=" + handlers);
             }
-
+            
+            // the trusted domains is done by a handler
             // webRequestUtil.isTrusted(issuer);
 
             if (handlers != null) {
@@ -638,6 +639,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             Set<SAML2Handler> handlers = chain.handlers();
 
+            // the trusted domains is done by a handler
             // webRequestUtil.isTrusted(issuer);
 
             if (handlers != null) {
@@ -1051,7 +1053,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
      * Initializes the STS configuration.
      */
     private void initSTSConfiguration() {
-        // if the sts configuration are present in the picketlink.xml then load them.
+        // if the sts configuration is present in the picketlink.xml then load it.
         if (this.picketLinkConfiguration != null && this.picketLinkConfiguration.getStsType() != null) {
             PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
             sts.initialize(new PicketLinkSTSConfiguration(this.picketLinkConfiguration.getStsType()));
