@@ -842,7 +842,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         SystemPropertiesUtil.ensure();
 
         initIDPConfiguration();
-        initAttributes();
         initSTSConfiguration();
         initKeyManager();
         initHandlersChain();
