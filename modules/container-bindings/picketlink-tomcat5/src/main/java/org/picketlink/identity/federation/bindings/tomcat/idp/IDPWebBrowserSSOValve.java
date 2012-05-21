@@ -847,7 +847,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         initSTSConfiguration();
         initKeyManager();
         initHandlersChain();
-        initIdentityServver();
+        initIdentityServer();
         
         // Add some keys to the attibutes
         String[] ak = new String[] { "mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
@@ -861,7 +861,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
      * Initializes the {@link IdentityServer}.
      * </p>
      */
-    private void initIdentityServver() {
+    private void initIdentityServer() {
         // The Identity Server on the servlet context gets set
         // in the implementation of IdentityServer
         // Create an Identity Server and set it on the context
