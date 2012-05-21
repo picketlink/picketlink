@@ -16,6 +16,9 @@
 						maxOccurs="1" minOccurs="0">
 					</element>
 				</sequence>
+				<attribute name="AssertionValidity" type="long" use="optional"
+					default="300000"> <!-- 5 minutes expressed in miliseconds -->
+				</attribute>
 				<attribute name="RoleGenerator" type="string" use="optional"
 					default="org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator">
 				</attribute>
