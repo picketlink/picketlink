@@ -45,7 +45,6 @@ public class MetadataConfigUnitTestCase extends TestCase {
         Object object = this.unmarshall(config + "1.xml");
         assertNotNull("IDP is not null", object);
         IDPType idp = (IDPType) object;
-        assertEquals("20000", 20000L, idp.getAssertionValidity());
         assertEquals("somefqn", idp.getRoleGenerator());
 
         TrustType trust = idp.getTrust();

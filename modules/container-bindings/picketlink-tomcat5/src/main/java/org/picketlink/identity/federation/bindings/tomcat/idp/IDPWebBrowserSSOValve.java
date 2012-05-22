@@ -33,7 +33,9 @@ import java.net.URI;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
+import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.KeyStore.TrustedCertificateEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -155,8 +157,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     protected PicketLinkType picketLinkConfiguration = null;
 
     private RoleGenerator roleGenerator = new TomcatRoleGenerator();
-
-    private long assertionValidity = 5000; // 5 seconds in miliseconds
 
     private String identityURL = null;
 
@@ -438,7 +438,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, Boolean.FALSE);
             requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-            requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
             requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
             requestOptions.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
 
@@ -491,7 +490,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             destinationQueryStringWithSignature = saml2HandlerResponse.getDestinationQueryStringWithSignature();
         } catch (Exception e) {
             String status = JBossSAMLURIConstants.STATUS_AUTHNFAILED.get();
-            if (e instanceof IssuerNotTrustedException) {
+            if (e instanceof IssuerNotTrustedException || e.getCause() instanceof IssuerNotTrustedException) {
                 status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
             }
             log.error("Exception in processing request:", e);
@@ -1025,7 +1024,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             this.identityURL = idpConfiguration.getIdentityURL();
             if (trace)
                 log.trace("Identity Provider URL=" + this.identityURL);
-            this.assertionValidity = idpConfiguration.getAssertionValidity();
             this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
             log.info("IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
                     + canonicalizationMethod);
@@ -1219,6 +1217,21 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
                 + "signed by SAML2SignatureGenerationHandler.");
         this.signOutgoingMessages = signOutgoingMessages;
+    }
+
+    /**
+     * <p>
+     * Returns the configurations used.
+     * </p>
+     * 
+     * @return
+     */
+    public PicketLinkType getConfiguration() {
+        return this.picketLinkConfiguration;
+    }
+
+    public TrustKeyManager getKeyManager() {
+        return this.keyManager;
     }
 
 }
