@@ -45,8 +45,6 @@ public interface GeneralConstants {
 
     String AUDIT_SECURITY_DOMAIN = "picketlink.audit.securitydomain";
 
-    String CANONICALIZATION_METHOD = "CANONICALIZATION_METHOD";
-
     String CONFIGURATION = "CONFIGURATION";
 
     String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink.xml";

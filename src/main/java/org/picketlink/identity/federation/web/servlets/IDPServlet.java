@@ -230,7 +230,6 @@ public class IDPServlet extends HttpServlet {
             Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
             chainConfigOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
             chainConfigOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
-            chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
 
             SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
             Set<SAML2Handler> samlHandlers = chain.handlers();

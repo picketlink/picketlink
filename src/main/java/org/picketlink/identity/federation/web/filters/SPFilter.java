@@ -474,7 +474,6 @@ public class SPFilter implements Filter {
             Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
             chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
             chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR, roleValidator);
-            chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
 
             SAML2HandlerChainConfig handlerChainConfig = new DefaultSAML2HandlerChainConfig(chainConfigOptions);
             Set<SAML2Handler> samlHandlers = chain.handlers();
