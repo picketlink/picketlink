@@ -43,7 +43,7 @@ public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigura
 
     protected IDPType configParsedIDPType = null;
 
-    protected ProviderType configParsedSPType = null;
+    protected SPType configParsedSPType = null;
 
     public void setConfigFile(InputStream is) throws ParsingException {
         if (is == null) {
@@ -55,7 +55,7 @@ public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigura
         if (parsedObject instanceof IDPType)
             configParsedIDPType = (IDPType) parsedObject;
         else
-            configParsedSPType = (ProviderType) parsedObject;
+            configParsedSPType = (SPType) parsedObject;
     }
 
     public abstract IDPType getIDPConfiguration() throws ProcessingException;
