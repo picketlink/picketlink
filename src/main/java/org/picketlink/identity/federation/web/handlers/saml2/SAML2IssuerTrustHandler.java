@@ -35,6 +35,8 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
@@ -78,7 +80,12 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
     private class IDPTrustHandler {
         public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, IDPType idpConfiguration)
                 throws ProcessingException {
-            String issuer = request.getIssuer().getValue();
+            RequestAbstractType requestType = (RequestAbstractType) request.getSAML2Object();
+            
+            if (requestType == null)
+                throw new ProcessingException(ErrorCodes.NULL_VALUE + "AuthnRequest is null");
+            
+            String issuer = requestType.getIssuer().getValue();
 
             trustIssuer(idpConfiguration, issuer);
         }

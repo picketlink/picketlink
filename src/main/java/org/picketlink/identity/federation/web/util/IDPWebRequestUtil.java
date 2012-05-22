@@ -52,6 +52,7 @@ import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.identity.federation.core.saml.v2.factories.JBossSAMLAuthnResponseFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
@@ -320,17 +321,9 @@ public class IDPWebRequestUtil {
 
         SPInfoHolder sp = new SPInfoHolder();
         sp.setResponseDestinationURI(responseURL);
-        try {
-            responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
-        } catch (ConfigurationException e1) {
-            if (trace)
-                log.trace(e1);
-            responseType = saml2Response.createResponseType(id);
-        } catch (ProcessingException e) {
-            if (trace)
-                log.trace(e);
-            responseType = saml2Response.createResponseType(id);
-        }
+        
+        responseType = saml2Response.createResponseType(id);
+        responseType.setStatus(JBossSAMLAuthnResponseFactory.createStatusType(status));
 
         // Lets see how the response looks like
         if (log.isTraceEnabled()) {
@@ -349,8 +342,11 @@ public class IDPWebRequestUtil {
                 SAML2Signature ss = new SAML2Signature();
                 samlResponse = ss.sign(responseType, keyManager.getSigningKeyPair());
             } catch (Exception e) {
-                if (trace)
+                if (trace) {
                     log.trace(e);
+                }
+                
+                throw new RuntimeException(ErrorCodes.SIGNING_PROCESS_FAILURE, e);
             }
         } else
             try {
