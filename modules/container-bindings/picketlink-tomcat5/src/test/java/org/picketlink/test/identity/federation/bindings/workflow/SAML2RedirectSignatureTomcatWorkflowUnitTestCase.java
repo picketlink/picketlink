@@ -36,6 +36,7 @@ import org.junit.Test;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectSignatureFormAuthenticator;
 import org.picketlink.identity.federation.bindings.tomcat.sp.ServiceProviderAuthenticator;
+import org.picketlink.test.identity.federation.bindings.authenticators.AuthenticatorTestUtils;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaLoginConfig;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaResponse;
@@ -102,7 +103,7 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSA
 
     private void testWorkflow(String userAddress, String idpAddress) throws LifecycleException, IOException, ServletException {
         System.setProperty("picketlink.schema.validate", "true");
-        MockCatalinaRequest request = createRequest(userAddress, false);
+        MockCatalinaRequest request = AuthenticatorTestUtils.createRequest(userAddress, false);
 
         // Sends a initial request to the SP. Requesting a resource ...
         MockCatalinaResponse idpAuthRequest = sendSPRequest(request, false, idpAddress);
@@ -110,7 +111,7 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSA
         assertNotNull("Redirect String can not be null.", idpAuthRequest.redirectString);
 
         // Sends a auth request to the IDP
-        request = createRequest(userAddress, true);
+        request = AuthenticatorTestUtils.createRequest(userAddress, true);
 
         setQueryStringFromResponse(idpAuthRequest, request);
 
@@ -120,7 +121,7 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSA
 
         // Sends the IDP response to the SP. Now the user is succesfully authenticated and access for the requested resource is
         // granted...
-        request = createRequest(userAddress, false);
+        request = AuthenticatorTestUtils.createRequest(userAddress, false);
 
         setQueryStringFromResponse(idpAuthResponse, request);
 
