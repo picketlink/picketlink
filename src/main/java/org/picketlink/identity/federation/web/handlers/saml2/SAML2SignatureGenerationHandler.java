@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -40,15 +42,13 @@ import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
-
 /**
  * Handles SAML2 Signature
- *
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Oct 12, 2009
  */
-public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
+public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
     private static Logger log = Logger.getLogger(SAML2SignatureGenerationHandler.class);
 
     private final boolean trace = log.isTraceEnabled();
@@ -63,11 +63,12 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
             return;
         }
 
-        this.sign(samlDocument, response);
+        this.sign(samlDocument, request, response);
     }
 
     public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         Document responseDocument = response.getResultingDocument();
+
         if (responseDocument == null) {
             if (trace) {
                 log.trace("handleRequestType:No response document found");
@@ -75,7 +76,7 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
             return;
         }
 
-        this.sign(responseDocument, response);
+        this.sign(responseDocument, request, response);
     }
 
     @Override
@@ -88,10 +89,15 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
             return;
         }
 
-        this.sign(responseDocument, response);
+        this.sign(responseDocument, request, response);
     }
 
-    private void sign(Document samlDocument, SAML2HandlerResponse response) throws ProcessingException {
+    private void sign(Document samlDocument, SAML2HandlerRequest request, SAML2HandlerResponse response)
+            throws ProcessingException {
+        if (!isSupportsSignature(request)) {
+            return;
+        }
+
         // Get the Key Pair
         KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
 
@@ -104,11 +110,11 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
             if (trace)
                 log.trace("Going to sign response document with POST binding type");
             signPost(samlDocument, keypair);
-        }
-        else {
+        } else {
             if (trace)
                 log.trace("Going to sign response document with REDIRECT binding type");
-            String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair, response.getSendRequest());
+            String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair,
+                    response.getSendRequest());
             response.setDestinationQueryStringWithSignature(destinationQueryString);
         }
     }
@@ -120,7 +126,8 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
         samlSignature.signSAMLDocument(samlDocument, keypair);
     }
 
-    private String signRedirect(Document samlDocument, String relayState, KeyPair keypair, boolean willSendRequest) throws ProcessingException {
+    private String signRedirect(Document samlDocument, String relayState, KeyPair keypair, boolean willSendRequest)
+            throws ProcessingException {
         try {
             String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
             String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMessage.getBytes("UTF-8"));
@@ -133,26 +140,21 @@ public class SAML2SignatureGenerationHandler extends BaseSAML2Handler {
                 relayState = RedirectBindingUtil.urlEncode(relayState);
 
             if (willSendRequest) {
-                url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(base64Request, relayState,
-                    signingKey);
+                url = RedirectBindingSignatureUtil.getSAMLRequestURLWithSignature(base64Request, relayState, signingKey);
             } else {
-                url = RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(base64Request, relayState,
-                    signingKey);
+                url = RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(base64Request, relayState, signingKey);
             }
 
             return url;
-        }
-        catch (ConfigurationException ce) {
-           log.error("Error when trying to sign message for redirection", ce);
-           throw new RuntimeException(ce);
-        }
-        catch (GeneralSecurityException ce) {
-           log.error("Error when trying to sign message for redirection", ce);
-           throw new RuntimeException(ce);
-        }
-        catch (IOException ce) {
-           log.error("Error when trying to sign message for redirection", ce);
-           throw new RuntimeException(ce);
+        } catch (ConfigurationException ce) {
+            log.error("Error when trying to sign message for redirection", ce);
+            throw new RuntimeException(ce);
+        } catch (GeneralSecurityException ce) {
+            log.error("Error when trying to sign message for redirection", ce);
+            throw new RuntimeException(ce);
+        } catch (IOException ce) {
+            log.error("Error when trying to sign message for redirection", ce);
+            throw new RuntimeException(ce);
         }
     }
 }

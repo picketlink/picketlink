@@ -36,6 +36,7 @@ import javax.xml.namespace.QName;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
@@ -90,7 +91,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         handlerConfig.addParameter(GeneralConstants.NAMEID_FORMAT, JBossSAMLURIConstants.NAMEID_FORMAT_PERSISTENT.get());
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        SPType spType = new SPType();
+        ProviderType spType = new SPType();
         chainOptions.put(GeneralConstants.CONFIGURATION, spType);
         chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
         chainConfig.set(chainOptions);
@@ -135,7 +136,7 @@ public class SAML2AuthenticationHandlerUnitTestCase {
         SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        SPType spType = new SPType();
+        ProviderType spType = new SPType();
         chainOptions.put(GeneralConstants.CONFIGURATION, spType);
         chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
         chainConfig.set(chainOptions);

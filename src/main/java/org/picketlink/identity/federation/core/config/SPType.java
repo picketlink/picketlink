@@ -69,8 +69,6 @@ public class SPType extends ProviderType {
      */
     protected boolean idpUsesPostBinding = true;
 
-    protected boolean supportsSignature = false;
-
     /**
      * Gets the value of the serviceURL property.
      *
@@ -143,13 +141,5 @@ public class SPType extends ProviderType {
 
     public void setIdpUsesPostBinding(boolean idpPostBinding) {
         this.idpUsesPostBinding = idpPostBinding;
-    }
-
-    public boolean isSupportsSignature() {
-        return supportsSignature;
-    }
-
-    public void setSupportsSignature(boolean supportsSignature) {
-        this.supportsSignature = supportsSignature;
     }
 }

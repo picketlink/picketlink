@@ -36,6 +36,7 @@ import junit.framework.TestCase;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -88,7 +89,7 @@ public class SAML2InResponseToVerificationHandlerUnitTestCase extends TestCase {
         handlerConfig.addParameter(SAML2Handler.DISABLE_SENDING_ROLES, "true");
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        SPType spType = new SPType();
+        ProviderType spType = new SPType();
         chainOptions.put(GeneralConstants.CONFIGURATION, spType);
         chainOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "true");
         chainConfig.set(chainOptions);

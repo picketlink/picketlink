@@ -279,7 +279,7 @@ public class CoreConfigUtil {
      * @param bindingURI
      * @return
      */
-    public static SPType getSPConfiguration(EntityDescriptorType entityDescriptor, String bindingURI) {
+    public static ProviderType getSPConfiguration(EntityDescriptorType entityDescriptor, String bindingURI) {
         SPType spType = new SPType();
         String identityURL = null;
         String serviceURL = null;

@@ -25,6 +25,7 @@ import java.io.InputStream;
 
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -42,7 +43,7 @@ public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigura
 
     protected IDPType configParsedIDPType = null;
 
-    protected SPType configParsedSPType = null;
+    protected ProviderType configParsedSPType = null;
 
     public void setConfigFile(InputStream is) throws ParsingException {
         if (is == null) {
@@ -54,7 +55,7 @@ public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigura
         if (parsedObject instanceof IDPType)
             configParsedIDPType = (IDPType) parsedObject;
         else
-            configParsedSPType = (SPType) parsedObject;
+            configParsedSPType = (ProviderType) parsedObject;
     }
 
     public abstract IDPType getIDPConfiguration() throws ProcessingException;

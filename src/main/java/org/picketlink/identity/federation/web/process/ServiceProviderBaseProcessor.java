@@ -35,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -72,7 +72,7 @@ public class ServiceProviderBaseProcessor {
 
     protected String identityURL;
 
-    protected SPType spConfiguration;
+    protected ProviderType spConfiguration;
 
     protected TrustKeyManager keyManager;
 
@@ -96,7 +96,7 @@ public class ServiceProviderBaseProcessor {
      *
      * @param sp
      */
-    public void setConfiguration(SPType sp) {
+    public void setConfiguration(ProviderType sp) {
         this.spConfiguration = sp;
     }
 
@@ -235,6 +235,7 @@ public class ServiceProviderBaseProcessor {
 
                 requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
                 requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
+                requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
             }
 
             saml2HandlerRequest.setOptions(requestOptions);

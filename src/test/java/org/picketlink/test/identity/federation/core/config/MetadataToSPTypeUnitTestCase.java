@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.InputStream;
 
 import org.junit.Test;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -51,7 +52,7 @@ public class MetadataToSPTypeUnitTestCase {
         EntitiesDescriptorType entities = (EntitiesDescriptorType) parser.parse(is);
         assertNotNull(entities);
 
-        SPType sp = CoreConfigUtil.getSPConfiguration((EntityDescriptorType) entities.getEntityDescriptor().get(0),
+        ProviderType sp = CoreConfigUtil.getSPConfiguration((EntityDescriptorType) entities.getEntityDescriptor().get(0),
                 JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get());
         assertNotNull(sp);
         assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", sp.getIdentityURL());

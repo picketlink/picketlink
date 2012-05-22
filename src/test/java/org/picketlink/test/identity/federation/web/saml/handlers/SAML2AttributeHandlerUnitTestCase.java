@@ -31,6 +31,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
@@ -125,7 +126,7 @@ public class SAML2AttributeHandlerUnitTestCase {
         SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        SPType spType = new SPType();
+        ProviderType spType = new SPType();
         chainOptions.put(GeneralConstants.CONFIGURATION, spType);
         chainConfig.set(chainOptions);
 

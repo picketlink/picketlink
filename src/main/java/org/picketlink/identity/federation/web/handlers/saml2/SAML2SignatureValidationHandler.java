@@ -44,7 +44,7 @@ import org.w3c.dom.Document;
  * @author Anil.Saldhana@redhat.com
  * @since Nov 13, 2009
  */
-public class SAML2SignatureValidationHandler extends BaseSAML2Handler {
+public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
     private static Logger log = Logger.getLogger(SAML2SignatureValidationHandler.class);
 
     private final boolean trace = log.isTraceEnabled();
@@ -65,6 +65,10 @@ public class SAML2SignatureValidationHandler extends BaseSAML2Handler {
 
     // Same method can be used for "handleRequestType" and "handleStatusResponseType" validations
     private void validateSender(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
+        if (!isSupportsSignature(request)) {
+            return;
+        }
+        
         Map<String, Object> requestOptions = request.getOptions();
         Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
         if (ignoreSignatures == Boolean.TRUE)

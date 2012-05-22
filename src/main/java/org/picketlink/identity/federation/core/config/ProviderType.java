@@ -79,6 +79,8 @@ public class ProviderType {
     protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
     protected Map<String, Object> additionalOptions = new HashMap<String, Object>();
+
+    protected boolean supportsSignature = false;
     
     /**
      * Gets the value of the identityURL property.
@@ -252,5 +254,13 @@ public class ProviderType {
         trust = other.getTrust();
 
         additionalOptions.putAll(other.additionalOptions);
+    }
+
+    public boolean isSupportsSignature() {
+        return supportsSignature;
+    }
+
+    public void setSupportsSignature(boolean supportsSignature) {
+        this.supportsSignature = supportsSignature;
     }
 }

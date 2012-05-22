@@ -28,7 +28,7 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -63,7 +63,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                     (IDPType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
         } else {
             sp.handleRequestType(request, response,
-                    (SPType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
+                    (ProviderType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
         }
     }
 
@@ -73,7 +73,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                     (IDPType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
         } else {
             sp.handleStatusResponseType(request, response,
-                    (SPType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
+                    (ProviderType) this.handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION));
         }
     }
 
@@ -131,21 +131,21 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
     }
 
     private class SPTrustHandler {
-        public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, SPType spConfiguration)
+        public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, ProviderType spConfiguration)
                 throws ProcessingException {
             String issuer = request.getIssuer().getValue();
 
             trustIssuer(spConfiguration, issuer);
         }
 
-        public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response, SPType spConfiguration)
+        public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response, ProviderType spConfiguration)
                 throws ProcessingException {
             String issuer = request.getIssuer().getValue();
 
             trustIssuer(spConfiguration, issuer);
         }
 
-        private void trustIssuer(SPType spConfiguration, String issuer) throws ProcessingException {
+        private void trustIssuer(ProviderType spConfiguration, String issuer) throws ProcessingException {
             if (spConfiguration == null)
                 throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "SP Configuration");
             try {

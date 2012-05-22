@@ -35,6 +35,7 @@ import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.MetadataProviderType;
+import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -193,6 +194,12 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null)
             idp.setStrictPostBinding(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        
+        attributeQName = new QName("", SUPPORTS_SIGNATURES);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            idp.setSupportsSignature(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        }
 
         while (xmlEventReader.hasNext()) {
             XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
@@ -232,7 +239,7 @@ public class SAMLConfigParser extends AbstractParser {
         return idp;
     }
 
-    protected SPType parseSPConfiguration(XMLEventReader xmlEventReader) throws ParsingException {
+    protected ProviderType parseSPConfiguration(XMLEventReader xmlEventReader) throws ParsingException {
         SPType sp = new SPType();
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, SP);
