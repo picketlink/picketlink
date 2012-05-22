@@ -258,7 +258,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     nameID.setValue(userPrincipal.getName());
                     lort.setNameID(nameID);
 
-                    long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
+                    long assertionValidity = PicketLinkCoreSTS.instance().getConfiguration().getIssuedTokenTimeout();
 
                     lort.setNotOnOrAfter(XMLTimeUtil.add(lort.getIssueInstant(), assertionValidity));
                     lort.setDestination(URI.create(participant));

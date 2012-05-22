@@ -219,7 +219,6 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             List<String> roles = (List<String>) session.getAttribute(GeneralConstants.ROLES_ID);
             String identityURL = request.getIssuer().getValue();
             Map<String, Object> attribs = (Map<String, Object>) request.getOptions().get(GeneralConstants.ATTRIBUTES);
-            long assertionValidity = (Long) request.getOptions().get(GeneralConstants.ASSERTIONS_VALIDITY);
             String requestID = art.getID();
 
             Document samlResponseDocument = null;
@@ -227,7 +226,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             String authMethod = (String) request.getOptions().get(GeneralConstants.LOGIN_TYPE);
 
             if (trace)
-                log.trace("AssertionConsumerURL=" + assertionConsumerURL + "::assertion validity=" + assertionValidity);
+                log.trace("AssertionConsumerURL=" + assertionConsumerURL);
             ResponseType responseType = null;
 
             SAML2Response saml2Response = new SAML2Response();

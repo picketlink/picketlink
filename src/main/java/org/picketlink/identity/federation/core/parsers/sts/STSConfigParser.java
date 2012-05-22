@@ -81,6 +81,7 @@ public class STSConfigParser extends AbstractParser {
     private static final String STS_NAME_ATTRIB = "STSName";
 
     private static final String TOKEN_TIMEOUT_ATTRIB = "TokenTimeout";
+    private static final String CLOCK_SKEW_ATTRIB = "ClockSkew";
 
     private static final String SIGN_TOKEN_ATTRIB = "SignToken";
 
@@ -130,6 +131,11 @@ public class STSConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null)
             configType.setTokenTimeout(Integer.valueOf(StaxParserUtil.getAttributeValue(attribute)));
+
+        attributeQName = new QName("", CLOCK_SKEW_ATTRIB);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            configType.setClockSkew(Integer.valueOf(StaxParserUtil.getAttributeValue(attribute)));
 
         attributeQName = new QName("", SIGN_TOKEN_ATTRIB);
         attribute = startElement.getAttributeByName(attributeQName);

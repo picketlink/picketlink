@@ -86,8 +86,6 @@ public class SAMLConfigParser extends AbstractParser {
 
     public static final String VALIDATING_ALIAS = "ValidatingAlias";
 
-    public static final String ASSERTION_VALIDITY = "AssertionValidity";
-
     public static final String ROLE_GENERATOR = "RoleGenerator";
 
     public static final String ENCRYPT = "Encrypt";
@@ -170,14 +168,9 @@ public class SAMLConfigParser extends AbstractParser {
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, IDP);
 
-        // parse and set the root element attributes.
-        QName attributeQName = new QName("", ASSERTION_VALIDITY);
+        QName attributeQName = new QName("", ROLE_GENERATOR);
         Attribute attribute = startElement.getAttributeByName(attributeQName);
-        if (attribute != null)
-            idp.setAssertionValidity(Long.parseLong(StaxParserUtil.getAttributeValue(attribute)));
-
-        attributeQName = new QName("", ROLE_GENERATOR);
-        attribute = startElement.getAttributeByName(attributeQName);
+        
         if (attribute != null)
             idp.setRoleGenerator(StaxParserUtil.getAttributeValue(attribute));
 

@@ -317,4 +317,8 @@ public class PicketLinkCoreSTS {
             throw new ConfigurationException(ErrorCodes.STS_CONFIGURATION_FILE_PARSING_ERROR, e);
         }
     }
+
+    public STSCoreConfig getConfiguration() {
+        return this.configuration;
+    }
 }

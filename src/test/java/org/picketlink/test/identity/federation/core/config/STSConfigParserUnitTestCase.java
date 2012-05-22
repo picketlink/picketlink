@@ -62,6 +62,7 @@ public class STSConfigParserUnitTestCase {
         // check if the STS attributes have been correctly set, including the ones with default values.
         assertEquals("PicketLinkSTS", stsType.getSTSName());
         assertEquals(7200, stsType.getTokenTimeout());
+        assertEquals(1000, stsType.getClockSkew());
         assertEquals(true, stsType.isSignToken());
         assertEquals(false, stsType.isEncryptToken());
         assertEquals("http://www.w3.org/2001/10/xml-exc-c14n#WithComments", stsType.getCanonicalizationMethod());

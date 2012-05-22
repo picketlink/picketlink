@@ -76,6 +76,8 @@ public class STSType {
 
     protected String canonicalizationMethod;
 
+    private Integer clockSkew;
+
     /**
      * Gets the value of the keyProvider property.
      *
@@ -293,5 +295,29 @@ public class STSType {
      */
     public void setCanonicalizationMethod(String canonicalizationMethod) {
         this.canonicalizationMethod = canonicalizationMethod;
+    }
+
+    /**
+     * Sets the value of the clockSkew property.
+     *
+     * @param value allowed object is {@link Integer }
+     *
+     */
+    public void setClockSkew(Integer clockSkew) {
+        this.clockSkew = clockSkew;
+    }
+    
+    /**
+     * Gets the value of the clockSkew property.
+     *
+     * @return possible object is {@link Integer }
+     *
+     */
+    public int getClockSkew() {
+        if (this.clockSkew == null) {
+            return 2000;
+        } else {
+            return clockSkew;
+        }
     }
 }

@@ -118,8 +118,6 @@ public class IDPServlet extends HttpServlet {
 
     protected List<String> attributeKeys = new ArrayList<String>();
 
-    protected long assertionValidity = 5000; // 5 seconds in miliseconds
-
     protected String identityURL = null;
 
     protected transient TrustKeyManager keyManager;
@@ -206,7 +204,6 @@ public class IDPServlet extends HttpServlet {
         try {
             this.identityURL = idpConfiguration.getIdentityURL();
             log.trace("Identity Provider URL=" + this.identityURL);
-            this.assertionValidity = idpConfiguration.getAssertionValidity();
 
             this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
 
@@ -439,7 +436,6 @@ public class IDPServlet extends HttpServlet {
                     // Set the options on the handler request
                     Map<String, Object> requestOptions = new HashMap<String, Object>();
                     requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
-                    requestOptions.put(GeneralConstants.ASSERTIONS_VALIDITY, this.assertionValidity);
                     requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
 
                     Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);

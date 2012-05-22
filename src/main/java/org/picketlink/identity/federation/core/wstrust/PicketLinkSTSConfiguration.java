@@ -49,6 +49,7 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.sts.STSCoreConfig;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * <p>
@@ -111,8 +112,12 @@ public class PicketLinkSTSConfiguration implements STSConfiguration {
                     throw new RuntimeException(e);
                 }
 
-                for (KeyValueType propertyType : providerPropertiesList)
+                properties.put(GeneralConstants.ASSERTIONS_VALIDITY, String.valueOf(config.getTokenTimeout()));
+                properties.put(GeneralConstants.CLOCK_SKEW, String.valueOf(config.getClockSkew()));
+                
+                for (KeyValueType propertyType : providerPropertiesList) {
                     properties.put(propertyType.getKey(), propertyType.getValue());
+                }
 
                 // create and initialize the token provider.
                 SecurityTokenProvider tokenProvider = WSTrustServiceFactory.getInstance().createTokenProvider(

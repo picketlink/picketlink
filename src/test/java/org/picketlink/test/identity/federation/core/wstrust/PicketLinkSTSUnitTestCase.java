@@ -211,7 +211,6 @@ public class PicketLinkSTSUnitTestCase {
         assertTrue("Unexpected token provider type", provider instanceof SpecialTokenProvider);
         Map<String, String> properties = ((SpecialTokenProvider) provider).getProperties();
         assertNotNull("Unexpected null properties map", properties);
-        assertEquals("Unexpected number of properties", 2, properties.size());
         assertEquals("Invalid property found", "Value1", properties.get("Property1"));
         assertEquals("Invalid property found", "Value2", properties.get("Property2"));
         provider = config.getProviderForTokenType(SAMLUtil.SAML2_TOKEN_TYPE);

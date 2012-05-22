@@ -56,8 +56,6 @@ public class IDPType extends ProviderType {
 
     protected EncryptionType encryption;
 
-    protected Long assertionValidity;
-
     protected String roleGenerator;
 
     protected String attributeManager;
@@ -88,30 +86,6 @@ public class IDPType extends ProviderType {
      */
     public void setEncryption(EncryptionType value) {
         this.encryption = value;
-    }
-
-    /**
-     * Gets the value of the assertionValidity property.
-     * 
-     * @return possible object is {@link Long }
-     * 
-     */
-    public long getAssertionValidity() {
-        if (assertionValidity == null) {
-            return 300000L;
-        } else {
-            return assertionValidity;
-        }
-    }
-
-    /**
-     * Sets the value of the assertionValidity property.
-     * 
-     * @param value allowed object is {@link Long }
-     * 
-     */
-    public void setAssertionValidity(Long value) {
-        this.assertionValidity = value;
     }
 
     /**
@@ -198,7 +172,6 @@ public class IDPType extends ProviderType {
         if (StringUtil.isNotNull(attributeManager)) {
             setAttributeManager(attributeManager);
         }
-        assertionValidity = other.getAssertionValidity();
 
         encrypt = other.isEncrypt();
 
