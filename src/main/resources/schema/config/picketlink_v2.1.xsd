@@ -223,14 +223,14 @@
 			use="optional">
 			<annotation>
 				<documentation>
-					Defined the token timeout in miliseconds.
+					Defines the token timeout in miliseconds.
 				</documentation>
 			</annotation>
 		</attribute>
 		<attribute name="ClockSkew" default="2000" type="int" use="optional">
 			<annotation>
 				<documentation>
-					Defined the clock skew, or timing skew, for the token timeout.
+					Defines the clock skew, or timing skew, for the token timeout.
 				</documentation>
 			</annotation>
 		</attribute>
