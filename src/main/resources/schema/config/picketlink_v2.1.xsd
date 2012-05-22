@@ -34,7 +34,8 @@
 						<documentation>SAML Web Browser SSO Profile has a requirement that
 							the IDP does not respond back in Redirect Binding. Set this to
 							false if you want to force the IDP to respond to SPs using the
-							Redirect Binding.</documentation>
+							Redirect Binding.
+						</documentation>
 					</annotation>
 				</attribute>
 			</extension>
@@ -219,7 +220,20 @@
 		<attribute name="STSName" default="PicketLinkSTS" type="string"
 			use="optional" />
 		<attribute name="TokenTimeout" default="3600" type="int"
-			use="optional" />
+			use="optional">
+			<annotation>
+				<documentation>
+					Defined the token timeout in miliseconds.
+				</documentation>
+			</annotation>
+		</attribute>
+		<attribute name="ClockSkew" default="2000" type="int" use="optional">
+			<annotation>
+				<documentation>
+					Defined the clock skew, or timing skew, for the token timeout.
+				</documentation>
+			</annotation>
+		</attribute>
 		<attribute name="SignToken" default="true" type="boolean"
 			use="optional" />
 		<attribute name="EncryptToken" default="false" type="boolean"
