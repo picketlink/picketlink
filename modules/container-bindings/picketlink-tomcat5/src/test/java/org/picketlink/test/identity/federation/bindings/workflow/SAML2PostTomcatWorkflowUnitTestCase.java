@@ -69,6 +69,7 @@ public class SAML2PostTomcatWorkflowUnitTestCase extends TestCase {
     private String employee = "http://localhost:8080/employee/";
     private String identity = "http://localhost:8080/idp/";
 
+    @SuppressWarnings("deprecation")
     public void testSAML2Post() throws Exception {
         System.setProperty("picketlink.schema.validate", "true");
         String id = IDGenerator.create("ID_");

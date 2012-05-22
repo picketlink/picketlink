@@ -128,6 +128,7 @@ public class SAML2RedirectSignatureTomcatWorkflowUnitTestCase extends AbstractSA
         sendSPRequest(request, true, idpAddress);
     }
 
+    @SuppressWarnings("deprecation")
     private MockCatalinaResponse sendIDPRequest(MockCatalinaRequest request) throws LifecycleException, IOException,
             ServletException {
         IDPWebBrowserSSOValve idp = createIdentityProvider();

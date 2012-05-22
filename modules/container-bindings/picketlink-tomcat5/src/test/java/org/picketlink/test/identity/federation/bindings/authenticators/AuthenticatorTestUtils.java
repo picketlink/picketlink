@@ -39,7 +39,6 @@ import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContextClassLoader;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRealm;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaResponse;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession;
 
 /**

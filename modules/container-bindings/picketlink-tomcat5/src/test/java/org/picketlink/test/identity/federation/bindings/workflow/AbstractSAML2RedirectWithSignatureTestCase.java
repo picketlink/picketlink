@@ -22,9 +22,6 @@
 package org.picketlink.test.identity.federation.bindings.workflow;
 
 import java.io.IOException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
@@ -32,7 +29,6 @@ import junit.framework.Assert;
 
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.Session;
-import org.apache.catalina.realm.GenericPrincipal;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.SPRedirectSignatureFormAuthenticator;
 import org.picketlink.identity.federation.bindings.tomcat.sp.ServiceProviderAuthenticator;
@@ -41,7 +37,6 @@ import org.picketlink.identity.federation.web.core.IdentityServer;
 import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
 import org.picketlink.test.identity.federation.bindings.authenticators.AuthenticatorTestUtils;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
-import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRealm;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaResponse;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaSession;

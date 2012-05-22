@@ -149,6 +149,7 @@ public class SAML2LogoutSignatureTomcatWorkflowUnitTestCase extends AbstractSAML
         return response;
     }
 
+    @SuppressWarnings("deprecation")
     private MockCatalinaResponse sendIDPRequest(MockCatalinaRequest request) throws LifecycleException, IOException,
             ServletException {
         IDPWebBrowserSSOValve idp = getIDPWebBrowserSSOValve();
