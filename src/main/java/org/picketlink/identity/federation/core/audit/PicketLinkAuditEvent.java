@@ -43,6 +43,14 @@ public class PicketLinkAuditEvent extends AuditEvent {
 
     protected String assertionID;
 
+    protected String httpSessionID;
+    
+    /**
+     * String that represents arbitrary text that gets 
+     * logged at the end of the entry
+     */
+    protected String optionalString;
+
     /**
      * Web Context of who is auditing
      */
@@ -65,7 +73,8 @@ public class PicketLinkAuditEvent extends AuditEvent {
     }
 
     /**
-     * Set the type of audit event 
+     * Set the type of audit event
+     *
      * @param type an instance of {@link PicketLinkAuditEventType}
      */
     public void setType(PicketLinkAuditEventType type) {
@@ -74,6 +83,7 @@ public class PicketLinkAuditEvent extends AuditEvent {
 
     /**
      * Get the destination of the SAML request/response
+     *
      * @return
      */
     public String getDestination() {
@@ -86,6 +96,7 @@ public class PicketLinkAuditEvent extends AuditEvent {
 
     /**
      * Get the authenticated subject's name
+     *
      * @return
      */
     public String getSubjectName() {
@@ -94,6 +105,7 @@ public class PicketLinkAuditEvent extends AuditEvent {
 
     /**
      * Set the authenticated subject's name
+     *
      * @param subjectName
      */
     public void setSubjectName(String subjectName) {
@@ -102,6 +114,7 @@ public class PicketLinkAuditEvent extends AuditEvent {
 
     /**
      * Get the ID of the assertion
+     *
      * @return
      */
     public String getAssertionID() {
@@ -112,8 +125,25 @@ public class PicketLinkAuditEvent extends AuditEvent {
         this.assertionID = assertionID;
     }
 
+    public String getHttpSessionID() {
+        return httpSessionID;
+    }
+
+    public void setHttpSessionID(String httpSessionID) {
+        this.httpSessionID = httpSessionID;
+    } 
+
+    public String getOptionalString() {
+        return optionalString;
+    }
+
+    public void setOptionalString(String optionalString) {
+        this.optionalString = optionalString;
+    }
+
     /**
      * Context path of the auditing application
+     *
      * @return
      */
     public String getWhoIsAuditing() {
@@ -142,6 +172,9 @@ public class PicketLinkAuditEvent extends AuditEvent {
         }
         if (StringUtil.isNotNull(assertionID)) {
             builder.append(assertionID).append(SPACE);
+        }
+        if (StringUtil.isNotNull(httpSessionID)) {
+            builder.append(httpSessionID).append(SPACE);
         }
         builder.append(super.toString());
         return builder.toString();

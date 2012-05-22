@@ -1,12 +1,11 @@
 package org.picketlink.test.identity.federation.core.config;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
 
 import java.io.InputStream;
-import java.util.logging.Handler;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.config.IDPType;

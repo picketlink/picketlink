@@ -23,6 +23,7 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.net.URI;
 import java.security.Principal;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -30,9 +31,13 @@ import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -174,7 +179,15 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 } catch (Exception e) {
                     throw new ProcessingException(e);
                 }
-
+                Map<String, Object> requestOptions = request.getOptions();
+                PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
+                if (auditHelper != null) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setWhoIsAuditing((String) requestOptions.get(GeneralConstants.CONTEXT_PATH));
+                    auditEvent.setType(PicketLinkAuditEventType.INVALIDATE_HTTP_SESSION);
+                    auditEvent.setHttpSessionID(httpSession.getId());
+                    auditHelper.audit(auditEvent);
+                }
                 httpSession.invalidate(); // We are done with the logout interaction
             } else {
                 // Put the participant in transit mode
@@ -336,7 +349,8 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             if (isPostParticipant == null)
                 isPostParticipant = Boolean.TRUE;
 
-            Boolean isStrictPostBindingForResponse = (Boolean)request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
+            Boolean isStrictPostBindingForResponse = (Boolean) request.getOptions().get(
+                    GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
             if (isStrictPostBindingForResponse == null)
                 isStrictPostBindingForResponse = Boolean.FALSE;
 

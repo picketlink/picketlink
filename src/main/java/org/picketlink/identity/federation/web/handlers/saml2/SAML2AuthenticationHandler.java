@@ -34,10 +34,14 @@ import javax.servlet.http.HttpSession;
 import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.SerializablePrincipal;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -194,9 +198,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
                 // Check whether we use POST binding for response
                 boolean strictPostBinding = request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING) != null
-                      && (Boolean)request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
+                        && (Boolean) request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING);
                 boolean postBindingForResponse = isPost || strictPostBinding;
-
+                
                 response.setResultingDocument(samlResponse);
                 response.setRelayState(request.getRelayState());
                 response.setPostBindingForResponse(postBindingForResponse);
@@ -281,7 +285,17 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
 
             // Add assertion to the session
-            session.setAttribute(GeneralConstants.ASSERTION, assertion);
+            session.setAttribute(GeneralConstants.ASSERTION, assertion); 
+
+            Map<String, Object> requestOptions = request.getOptions();
+            PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
+            if (auditHelper != null) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setWhoIsAuditing((String) requestOptions.get(GeneralConstants.CONTEXT_PATH));
+                auditEvent.setType(PicketLinkAuditEventType.CREATED_ASSERTION);
+                auditEvent.setAssertionID(id);
+                auditHelper.audit(auditEvent);
+            }
 
             // Lets see how the response looks like
             if (log.isTraceEnabled()) {
@@ -326,6 +340,16 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
                 response.setResultingDocument(samlRequest.convert(authn));
                 response.setSendRequest(true);
+
+                Map<String, Object> requestOptions = request.getOptions();
+                PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
+                if (auditHelper != null) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setWhoIsAuditing((String) requestOptions.get(GeneralConstants.CONTEXT_PATH));
+                    auditEvent.setType(PicketLinkAuditEventType.CREATED_ASSERTION);
+                    auditEvent.setAssertionID(id);
+                    auditHelper.audit(auditEvent);
+                }
 
                 // Save AuthnRequest ID into sharedState, so that we can later process it by another handler
                 request.addOption(GeneralConstants.AUTH_REQUEST_ID, id);

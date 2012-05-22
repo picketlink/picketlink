@@ -43,6 +43,8 @@ public interface GeneralConstants {
 
     String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER";
 
+    String AUDIT_HELPER = "AUDIT_HELPER";
+    
     String AUDIT_SECURITY_DOMAIN = "picketlink.audit.securitydomain";
 
     String CONFIGURATION = "CONFIGURATION";
@@ -50,6 +52,8 @@ public interface GeneralConstants {
     String CONFIG_FILE_LOCATION = "/WEB-INF/picketlink.xml";
 
     String CONFIG_PROVIDER = "CONFIG_PROVIDER";
+    
+    String CONTEXT_PATH = "CONTEXT_PATH";
 
     String DEPRECATED_CONFIG_FILE_LOCATION = "/WEB-INF/picketlink-idfed.xml";
 

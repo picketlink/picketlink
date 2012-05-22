@@ -25,8 +25,12 @@ import java.security.PublicKey;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerErrorCodes;
@@ -70,6 +74,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
         }
         
         Map<String, Object> requestOptions = request.getOptions();
+        PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
         Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
         if (ignoreSignatures == Boolean.TRUE)
             return;
@@ -94,8 +99,16 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
                 isValid = verifyRedirectBindingSignature(httpContext, publicKey);
             }
 
-            if (!isValid)
-               throw constructSignatureException();
+            if (!isValid) {
+                if (auditHelper != null) {
+                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                    auditEvent.setWhoIsAuditing((String) requestOptions.get(GeneralConstants.CONTEXT_PATH));
+                    auditEvent.setType(PicketLinkAuditEventType.ERROR_SIG_VALIDATION);
+                    auditHelper.audit(auditEvent);
+                }
+
+                throw constructSignatureException();
+            }
         } catch (ProcessingException pe) {
             response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, "Signature Validation Failed");
             throw pe;
@@ -131,7 +144,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
 
             if (sigValue == null) {
                 throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
-                      + "Signature Validation failed. Signature is not present. Check if the IDP is supporting signatures.");
+                        + "Signature Validation failed. Signature is not present. Check if the IDP is supporting signatures.");
             }
 
             return RedirectBindingSignatureUtil.validateSignature(queryString, publicKey, sigValue);

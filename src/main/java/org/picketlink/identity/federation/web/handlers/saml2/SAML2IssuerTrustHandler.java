@@ -23,10 +23,15 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
+import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.TrustType;
@@ -35,7 +40,6 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
@@ -133,21 +137,22 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
     private class SPTrustHandler {
         public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response, ProviderType spConfiguration)
                 throws ProcessingException {
-            String issuer = request.getIssuer().getValue();
-
-            trustIssuer(spConfiguration, issuer);
+            trustIssuer(spConfiguration, request);
         }
 
         public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response, ProviderType spConfiguration)
                 throws ProcessingException {
-            String issuer = request.getIssuer().getValue();
-
-            trustIssuer(spConfiguration, issuer);
+            trustIssuer(spConfiguration, request);
         }
 
-        private void trustIssuer(ProviderType spConfiguration, String issuer) throws ProcessingException {
+        private void trustIssuer(ProviderType spConfiguration, SAML2HandlerRequest request) throws ProcessingException {
             if (spConfiguration == null)
                 throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "SP Configuration");
+
+            String issuer = request.getIssuer().getValue();
+            Map<String, Object> requestOptions = request.getOptions();
+            PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
+            String contextPath = (String) requestOptions.get(GeneralConstants.CONTEXT_PATH);
             try {
                 String issuerDomain = getDomain(issuer);
                 TrustType spTrust = spConfiguration.getTrust();
@@ -167,6 +172,12 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                                     log.trace("Matched " + uriBit + " trust for " + issuerDomain);
                                 return;
                             }
+                        }
+                        if (auditHelper != null) {
+                            PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                            auditEvent.setWhoIsAuditing(contextPath);
+                            auditEvent.setType(PicketLinkAuditEventType.ERROR_TRUSTED_DOMAIN);
+                            auditHelper.audit(auditEvent);
                         }
                         throw new IssuerNotTrustedException(issuer);
                     }

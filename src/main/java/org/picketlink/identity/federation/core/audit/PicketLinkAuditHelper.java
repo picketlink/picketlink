@@ -50,6 +50,11 @@ import org.w3c.dom.Text;
 public class PicketLinkAuditHelper {
     private AuditManager auditManager = null;
 
+    /**
+     * Create a {@link PicketLinkAuditHelper}
+     * @param securityDomainName the security domain name
+     * @throws ConfigurationException
+     */
     public PicketLinkAuditHelper(String securityDomainName) throws ConfigurationException {
         try {
             Context context = new InitialContext();

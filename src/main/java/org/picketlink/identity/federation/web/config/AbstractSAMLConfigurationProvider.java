@@ -25,7 +25,6 @@ import java.io.InputStream;
 
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;

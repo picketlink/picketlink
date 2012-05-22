@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -77,6 +78,8 @@ public class ServiceProviderBaseProcessor {
     protected TrustKeyManager keyManager;
 
     protected String issuer = null;
+    
+    protected PicketLinkAuditHelper auditHelper = null;
 
     public static final String IDP_KEY = "idp.key";
 
@@ -125,6 +128,14 @@ public class ServiceProviderBaseProcessor {
      */
     public void setIssuer(String issuer) {
         this.issuer = issuer;
+    }
+    
+    /**
+     * Set the {@link PicketLinkAuditHelper}
+     * @param helper
+     */
+    public void setAuditHelper(PicketLinkAuditHelper helper){
+        this.auditHelper = helper;
     }
 
     public SAML2HandlerResponse process(HTTPContext httpContext, Set<SAML2Handler> handlers, Lock chainLock)
@@ -229,6 +240,10 @@ public class ServiceProviderBaseProcessor {
             Map<String, Object> requestOptions = new HashMap<String, Object>();
 
             requestOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
+            
+            if(auditHelper != null){
+                requestOptions.put(GeneralConstants.AUDIT_HELPER, auditHelper);
+            }
 
             if (keyManager != null) {
                 PublicKey validatingKey = getIDPPublicKey();
