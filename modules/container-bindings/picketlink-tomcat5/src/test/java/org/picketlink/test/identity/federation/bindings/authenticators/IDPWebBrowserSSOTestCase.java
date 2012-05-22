@@ -190,6 +190,35 @@ public class IDPWebBrowserSSOTestCase {
     
     /**
      * <p>
+     * Tests if the IDP respond with a valid {@link AssertionType} given a valid {@link AuthnRequestType}.
+     * This test disables signature support on the IDP and try to get an assertion without signatures.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testSimpleAuthenticationRequestWithoutSignature() throws Exception {
+        logger.info("testSimpleAuthenticationRequest");
+        
+        getAuthenticator().getConfiguration().getIdpOrSP().setSupportsSignature(false);
+        
+        MockCatalinaRequest request = AuthenticatorTestUtils.createRequest(SERVICE_PROVIDER_HOST_ADDRESS, true);
+        MockCatalinaResponse response = new MockCatalinaResponse();
+
+        sendAuthenticationRequest(request, response, SERVICE_PROVIDER_URL, false);
+
+        ResponseType responseType = getResponseType(response);
+
+        Assert.assertNotNull(responseType);
+        Assert.assertEquals(1, responseType.getAssertions().size());
+        Assert.assertEquals(responseType.getAssertions().get(0).getAssertion().getIssuer().getValue(), IDENTITY_PROVIDER_URL);
+        
+        // The response should redirect back to the caller SP
+        Assert.assertTrue("Expected a redirect to the SP.", response.redirectString.contains(SERVICE_PROVIDER_URL));
+    }
+    
+    /**
+     * <p>
      * Tests if the the assertion issued by the IDP has the expected time conditions. This test asserts if the PicketLinkSTS.TokenTimeout
      * attribute is being considered when creating the assertion conditions.
      * </p>

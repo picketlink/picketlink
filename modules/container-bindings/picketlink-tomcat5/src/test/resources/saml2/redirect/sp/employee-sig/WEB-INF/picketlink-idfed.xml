@@ -1,5 +1,5 @@
 <PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0"
-	ServerEnvironment="jboss">
+	ServerEnvironment="jboss" SupportsSignatures="true">
 	<IdentityURL>${idp-sig.url::http://192.168.1.1:8080/idp/}</IdentityURL>
 	<ServiceURL>${employee-post-sig.url::http://192.168.1.2:8080/employee/}
 	</ServiceURL>

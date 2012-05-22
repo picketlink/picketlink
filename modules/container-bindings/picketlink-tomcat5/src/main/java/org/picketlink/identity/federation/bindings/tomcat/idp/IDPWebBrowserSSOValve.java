@@ -33,9 +33,7 @@ import java.net.URI;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
-import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.security.KeyStore.TrustedCertificateEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,7 +46,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.Lifecycle;
@@ -150,6 +147,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     private final boolean trace = log.isTraceEnabled();
 
     protected boolean enableAudit = false;
+    
     protected PicketLinkAuditHelper auditHelper = null;
 
     protected IDPType idpConfiguration = null;
@@ -158,21 +156,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
     private RoleGenerator roleGenerator = new TomcatRoleGenerator();
 
-    private String identityURL = null;
-
     private TrustKeyManager keyManager;
-
-    // Option "signOutgoingMessages" is used for error messages.
-    // Normal (not-error) messages are signed with SAML2SignatureGenerationHandler
-    private Boolean signOutgoingMessages = true;
 
     private transient DelegatedAttributeManager attribManager = new DelegatedAttributeManager();
 
     private final List<String> attributeKeys = new ArrayList<String>();
 
     private transient SAML2HandlerChain chain = null;
-
-    protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
     /**
      * The user can inject a fully qualified name of a {@link SAMLConfigurationProvider}
@@ -244,7 +234,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         if (response.getStatus() == HttpServletResponse.SC_FORBIDDEN) {
             try {
                 samlErrorResponse = webRequestUtil.getErrorResponse(referer, JBossSAMLURIConstants.STATUS_AUTHNFAILED.get(),
-                        this.identityURL, this.signOutgoingMessages);
+                        getIdentityURL(), this.idpConfiguration.isSupportsSignature());
 
                 WebRequestUtilHolder holder = webRequestUtil.getHolder();
                 holder.setResponseDoc(samlErrorResponse).setDestination(referer).setRelayState(relayState)
@@ -252,7 +242,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                         .setServletResponse(response).setErrorResponse(true);
                 holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
 
-                if (this.signOutgoingMessages) {
+                if (this.idpConfiguration.isSupportsSignature()) {
                     holder.setSupportSignature(true).setPrivateKey(keyManager.getSigningKey());
                 }
 
@@ -325,7 +315,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             SAML11AssertionType saml11Assertion = (SAML11AssertionType) session.getNote("SAML11");
             if (saml11Assertion == null) {
                 SAML11ProtocolContext saml11Protocol = new SAML11ProtocolContext();
-                saml11Protocol.setIssuerID(this.identityURL);
+                saml11Protocol.setIssuerID(getIdentityURL());
                 SAML11SubjectType subject = new SAML11SubjectType();
                 SAML11SubjectTypeChoice subjectChoice = new SAML11SubjectTypeChoice(new SAML11NameIdentifierType(
                         userPrincipal.getName()));
@@ -421,7 +411,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             if (samlRequestMessage == null)
                 throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
-            IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
+            IssuerInfoHolder idpIssuer = new IssuerInfoHolder(getIdentityURL());
             ProtocolContext protocolContext = new HTTPContext(request, response, getContext().getServletContext());
             // Create the request/response
             SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, idpIssuer.getIssuer(),
@@ -440,6 +430,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
             requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
             requestOptions.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
+            requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, this.idpConfiguration.isSupportsSignature());
 
             if (assertionID != null)
                 requestOptions.put(GeneralConstants.ASSERTION_ID, assertionID);
@@ -494,7 +485,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
             }
             log.error("Exception in processing request:", e);
-            samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL, this.signOutgoingMessages);
+            samlResponse = webRequestUtil.getErrorResponse(referer, status, getIdentityURL(), this.idpConfiguration.isSupportsSignature());
             isErrorResponse = true;
         } finally {
             try {
@@ -524,7 +515,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 else
                     holder.setPostBindingRequested(postProfile);
 
-                if (this.signOutgoingMessages) {
+                if (this.idpConfiguration.isSupportsSignature()) {
                     holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
                 }
 
@@ -617,19 +608,20 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             if (!isValid)
                 throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
 
-            IssuerInfoHolder idpIssuer = new IssuerInfoHolder(this.identityURL);
+            IssuerInfoHolder idpIssuer = new IssuerInfoHolder(getIdentityURL());
             ProtocolContext protocolContext = new HTTPContext(request, response, getContext().getServletContext());
             // Create the request/response
             SAML2HandlerRequest saml2HandlerRequest = new DefaultSAML2HandlerRequest(protocolContext, idpIssuer.getIssuer(),
                     samlDocumentHolder, HANDLER_TYPE.IDP);
             Map<String, Object> options = new HashMap<String, Object>();
 
-            if (signOutgoingMessages) {
+            if (this.idpConfiguration.isSupportsSignature()) {
                 PublicKey publicKey = getIssuerPublicKey(request, issuer);
                 options.put(GeneralConstants.SENDER_PUBLIC_KEY, publicKey);
             }
 
             options.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
+            options.put(GeneralConstants.SUPPORTS_SIGNATURES, this.idpConfiguration.isSupportsSignature());
 
             saml2HandlerRequest.setOptions(options);
             saml2HandlerRequest.setRelayState(relayState);
@@ -666,7 +658,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
             }
             log.error("Exception in processing request:", e);
-            samlResponse = webRequestUtil.getErrorResponse(referer, status, this.identityURL, this.signOutgoingMessages);
+            samlResponse = webRequestUtil.getErrorResponse(referer, status, getIdentityURL(), this.idpConfiguration.isSupportsSignature());
             isErrorResponse = true;
         } finally {
             try {
@@ -688,7 +680,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                  * holder.setPostBindingRequested(postProfile);
                  */
 
-                if (this.signOutgoingMessages) {
+                if (this.idpConfiguration.isSupportsSignature()) {
                     holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
                 }
 
@@ -757,7 +749,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             log.trace("About to send error response to SP:" + referrer);
 
         Document samlResponse = webRequestUtil.getErrorResponse(referrer, JBossSAMLURIConstants.STATUS_RESPONDER.get(),
-                this.identityURL, this.signOutgoingMessages);
+                getIdentityURL(), this.idpConfiguration.isSupportsSignature());
         try {
 
             boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
@@ -769,7 +761,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
             holder.setPostBindingRequested(postProfile);
 
-            if (this.signOutgoingMessages) {
+            if (this.idpConfiguration.isSupportsSignature()) {
                 holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
             }
 
@@ -938,7 +930,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     }
 
     private void initKeyManager() throws LifecycleException {
-        if (this.signOutgoingMessages) {
+        if (this.idpConfiguration.isSupportsSignature()) {
             KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
             if (keyProvider == null)
                 throw new LifecycleException(ErrorCodes.NULL_VALUE + "Key Provider is null for context=" + getContext().getName());
@@ -953,6 +945,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 log.error("Exception reading configuration:", e);
                 throw new LifecycleException(e.getLocalizedMessage());
             }
+            
+            log.info("IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
+                    + idpConfiguration.getCanonicalizationMethod());
+            XMLSignatureUtil.setCanonicalizationMethodType(idpConfiguration.getCanonicalizationMethod());
+            
             if (trace)
                 log.trace("Key Provider=" + keyProvider.getClassName());
         }
@@ -1020,13 +1017,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         }
         
         try {
-            this.identityURL = idpConfiguration.getIdentityURL();
             if (trace)
-                log.trace("Identity Provider URL=" + this.identityURL);
-            this.canonicalizationMethod = idpConfiguration.getCanonicalizationMethod();
-            log.info("IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
-                    + canonicalizationMethod);
-            XMLSignatureUtil.setCanonicalizationMethodType(canonicalizationMethod);
+                log.trace("Identity Provider URL=" + getIdentityURL());
 
             // Get the attribute manager
             String attributeManager = idpConfiguration.getAttributeManager();
@@ -1040,6 +1032,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         } catch (Exception e) {
             throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
         }
+    }
+
+    private String getIdentityURL() {
+        return this.idpConfiguration.getIdentityURL();
     }
 
     private Context getContext() {
@@ -1208,14 +1204,13 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     public Boolean getSignOutgoingMessages() {
         log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
                 + "signed by SAML2SignatureGenerationHandler.");
-        return signOutgoingMessages;
+        return true;
     }
 
     @Deprecated
     public void setSignOutgoingMessages(Boolean signOutgoingMessages) {
         log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
                 + "signed by SAML2SignatureGenerationHandler.");
-        this.signOutgoingMessages = signOutgoingMessages;
     }
 
     /**

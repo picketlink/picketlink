@@ -149,9 +149,14 @@ public class AuthenticatorTestUtils {
     
     private static final  String getSAMLResponse(String queryString) {
         int endIndex = queryString.indexOf("&SigAlg=");
-
+        
         if (queryString.contains("&RelayState=")) {
             endIndex = queryString.indexOf("&RelayState=");
+        }
+        
+        // no signature info
+        if (endIndex == -1) {
+            endIndex = queryString.length();
         }
 
         return queryString.substring(queryString.indexOf(GeneralConstants.SAML_RESPONSE_KEY + "=")
@@ -168,7 +173,14 @@ public class AuthenticatorTestUtils {
     }
 
     private static final  String getSAMLSigAlg(String queryString) {
-        return queryString.substring(queryString.indexOf("&SigAlg=") + "&SigAlg=".length(),
+        int indexOfSigAlg = queryString.indexOf("&SigAlg=");
+        
+        // no signature info
+        if (indexOfSigAlg == -1) {
+            return "";
+        }
+        
+        return queryString.substring(indexOfSigAlg + "&SigAlg=".length(),
                 queryString.lastIndexOf("&Signature="));
     }
 
