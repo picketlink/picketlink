@@ -472,7 +472,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     protected void populateChainConfig() throws ConfigurationException, ProcessingException {
         chainConfigOptions.put(GeneralConstants.CONFIGURATION, spConfiguration);
-        chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
         chainConfigOptions.put(GeneralConstants.ROLE_VALIDATOR_IGNORE, "false"); // No validator as tomcat realm does validn
 
         if (doSupportSignature()) {

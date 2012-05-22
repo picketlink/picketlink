@@ -921,7 +921,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             Map<String, Object> chainConfigOptions = new HashMap<String, Object>();
             chainConfigOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
             chainConfigOptions.put(GeneralConstants.CONFIGURATION, idpConfiguration);
-            chainConfigOptions.put(GeneralConstants.CANONICALIZATION_METHOD, canonicalizationMethod);
             if (this.keyManager != null)
                 chainConfigOptions.put(GeneralConstants.KEYPAIR, keyManager.getSigningKeyPair());
 
