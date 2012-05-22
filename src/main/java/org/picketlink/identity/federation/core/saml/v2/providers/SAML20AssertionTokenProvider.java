@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * <p>
@@ -81,11 +82,11 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
     public void initialize(Map<String, String> props) {
         super.initialize(props);
 
-        String validity = this.properties.get("ASSERTION_VALIDITY");
+        String validity = this.properties.get(GeneralConstants.ASSERTIONS_VALIDITY);
         if (validity != null) {
             ASSERTION_VALIDITY = Long.parseLong(validity);
         }
-        String skew = this.properties.get("CLOCK_SKEW");
+        String skew = this.properties.get(GeneralConstants.CLOCK_SKEW);
         if (skew != null) {
             CLOCK_SKEW = Long.parseLong(skew);
         }
