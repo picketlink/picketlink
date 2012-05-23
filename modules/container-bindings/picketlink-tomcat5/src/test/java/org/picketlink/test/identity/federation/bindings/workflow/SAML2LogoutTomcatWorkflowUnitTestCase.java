@@ -137,6 +137,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
         assertEquals("Match Employee URL", employee, lor.getIssuer().getValue());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testSAML2LogOutFromIDP() throws Exception {
         System.setProperty("picketlink.schema.validate", "true");

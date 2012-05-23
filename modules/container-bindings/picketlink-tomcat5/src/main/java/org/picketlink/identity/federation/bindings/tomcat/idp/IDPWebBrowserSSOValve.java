@@ -303,6 +303,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             IOException {
         try {
             Principal userPrincipal = request.getPrincipal();
+            String contextPath = getContext().getServletContext().getContextPath();
 
             String target = request.getParameter(SAML11Constants.TARGET);
 
@@ -353,7 +354,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                 auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
                 auditEvent.setDestination(target);
-                auditEvent.setWhoIsAuditing(getContext().getServletContext().getContextPath());
+                auditEvent.setWhoIsAuditing(contextPath);
                 auditHelper.audit(auditEvent);
             }
             webRequestUtil.send(holder);
@@ -380,6 +381,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         String samlRequestMessage = (String) session.getNote(GeneralConstants.SAML_REQUEST_KEY);
 
         String relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
+        
+        String contextPath = getContext().getServletContext().getContextPath();
 
         boolean willSendRequest = false;
 
@@ -438,6 +441,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
             requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+            if(auditHelper != null){
+                requestOptions.put(GeneralConstants.AUDIT_HELPER, auditHelper);
+                requestOptions.put(GeneralConstants.CONTEXT_PATH, contextPath);
+            }
 
             saml2HandlerRequest.setOptions(requestOptions);
 
@@ -518,7 +525,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                     auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
                     auditEvent.setDestination(destination);
-                    auditEvent.setWhoIsAuditing(getContext().getServletContext().getContextPath());
+                    auditEvent.setWhoIsAuditing(contextPath);
                     auditHelper.audit(auditEvent);
                 }
                 webRequestUtil.send(holder);
@@ -574,6 +581,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         boolean isErrorResponse = false;
         String destination = null;
         String destinationQueryStringWithSignature = null;
+        
+        String contextPath = getContext().getServletContext().getContextPath();
 
         boolean requestedPostProfile = false;
 
@@ -615,8 +624,12 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 options.put(GeneralConstants.SENDER_PUBLIC_KEY, publicKey);
             }
 
-            options.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
-            options.put(GeneralConstants.SUPPORTS_SIGNATURES, this.idpConfiguration.isSupportsSignature());
+            options.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding()); 
+            options.put(GeneralConstants.SUPPORTS_SIGNATURES, this.idpConfiguration.isSupportsSignature()); 
+            if(auditHelper != null){
+                options.put(GeneralConstants.AUDIT_HELPER, auditHelper);
+                options.put(GeneralConstants.CONTEXT_PATH, contextPath);
+            }
 
             saml2HandlerRequest.setOptions(options);
             saml2HandlerRequest.setRelayState(relayState);
@@ -684,7 +697,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                     auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
-                    auditEvent.setWhoIsAuditing(getContext().getServletContext().getContextPath());
+                    auditEvent.setWhoIsAuditing(contextPath);
                     auditEvent.setDestination(destination);
                     auditHelper.audit(auditEvent);
                 }
@@ -743,6 +756,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         if (trace)
             log.trace("About to send error response to SP:" + referrer);
 
+        String contextPath = getContext().getServletContext().getContextPath();
+        
         Document samlResponse = webRequestUtil.getErrorResponse(referrer, JBossSAMLURIConstants.STATUS_RESPONDER.get(),
                 getIdentityURL(), this.idpConfiguration.isSupportsSignature());
         try {
@@ -765,7 +780,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                 auditEvent.setType(PicketLinkAuditEventType.ERROR_RESPONSE_TO_SP);
-                auditEvent.setWhoIsAuditing(getContext().getServletContext().getContextPath());
+                auditEvent.setWhoIsAuditing(contextPath);
                 auditEvent.setDestination(referrer);
                 auditHelper.audit(auditEvent);
             }

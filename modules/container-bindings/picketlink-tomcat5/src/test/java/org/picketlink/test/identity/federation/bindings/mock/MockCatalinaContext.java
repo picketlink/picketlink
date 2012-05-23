@@ -662,7 +662,7 @@ public class MockCatalinaContext implements Context, Container, ServletContext {
     }
 
     public String getContextPath() {
-        throw new RuntimeException("NYI");
+        return "/contextpath";
     }
 
     public String getInitParameter(String arg0) {
