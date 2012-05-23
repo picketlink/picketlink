@@ -32,12 +32,16 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.stream.StreamResult;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
@@ -53,7 +57,10 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
@@ -100,6 +107,61 @@ public class IDPWebBrowserSSOTestCase {
 
     private IDPWebBrowserSSOValve identityProvider;
 
+    @Before
+    public void onSetup() {
+        TestIdentityParticipantStack.reset();
+    }
+    
+    /**
+     * <p>
+     * Tests the configuration of a custom {@link IdentityParticipantStack}.
+     * </p>
+     */
+    @Test
+    public void testRoleGeneratorConfiguration() {
+        logger.info("testRoleGeneratorConfiguration");
+
+        MockCatalinaRequest request = AuthenticatorTestUtils.createRequest(SERVICE_PROVIDER_HOST_ADDRESS, true);
+        MockCatalinaResponse response = new MockCatalinaResponse();
+
+        sendAuthenticationRequest(request, response, SERVICE_PROVIDER_URL, true);
+
+        ResponseType responseType = getResponseTypeAndCheckSignature(response, null);
+
+        assertNotNull(responseType);
+        assertEquals(1, responseType.getAssertions().size());
+        
+        AssertionType assertion = responseType.getAssertions().get(0).getAssertion();
+        
+        assertEquals(assertion.getIssuer().getValue(), IDENTITY_PROVIDER_URL);
+        
+        List<String> expectedRoles = new ArrayList<String>();
+        
+        expectedRoles.add("test-role1");
+        expectedRoles.add("test-role2");
+        expectedRoles.add("test-role3");
+        
+        Set<StatementAbstractType> statements = assertion.getStatements();
+        
+        for (StatementAbstractType statementType : statements) {
+            if (statementType instanceof AttributeStatementType) {
+                AttributeStatementType attributeType = (AttributeStatementType) statementType;
+                List<ASTChoiceType> attributes = attributeType.getAttributes();
+                
+                for (ASTChoiceType astChoiceType : attributes) {
+                    if (astChoiceType.getAttribute().getName().equals("Role")) {
+                        expectedRoles.remove(astChoiceType.getAttribute().getAttributeValue().get(0));
+                    }
+                }
+            }
+        }
+        
+        assertTrue(expectedRoles.isEmpty());
+        
+        // The response should redirect back to the caller SP
+        assertTrue("Expected a redirect to the SP.", response.redirectString.contains(SERVICE_PROVIDER_URL));
+    }
+    
     /**
      * <p>
      * Tests the configuration of a custom {@link IdentityParticipantStack}.

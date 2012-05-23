@@ -24,6 +24,7 @@ package org.picketlink.test.identity.federation.bindings.authenticators.idp;
 
 import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 import org.picketlink.identity.federation.web.core.IdentityServer;
+import org.picketlink.identity.federation.web.core.IdentityServer.STACK;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -31,12 +32,20 @@ import org.picketlink.identity.federation.web.core.IdentityServer;
  */
 public class TestIdentityParticipantStack implements IdentityParticipantStack {
 
-    private static final IdentityServer.STACK delegate = new IdentityServer().new STACK();
+    private static IdentityServer.STACK delegate = createDelegate();
+    
+    private static STACK createDelegate() {
+        return new IdentityServer().new STACK();
+    }
     
     public static IdentityParticipantStack getDelegate() {
         return delegate;
     }
-    
+
+    public static void reset() {
+        delegate = createDelegate(); 
+    }
+
     /**
      * @return
      * @see java.lang.Object#hashCode()
@@ -159,7 +168,6 @@ public class TestIdentityParticipantStack implements IdentityParticipantStack {
      */
     public String toString() {
         return delegate.toString();
-    }
-    
+    }    
     
 }

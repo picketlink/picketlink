@@ -1024,6 +1024,16 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 AttributeManager delegate = (AttributeManager) clazz.newInstance();
                 this.attribManager.setDelegate(delegate);
             }
+            
+            // Get the role generator
+            String roleGeneratorAttribute = idpConfiguration.getRoleGenerator();
+            
+            if (roleGeneratorAttribute != null && !"".equals(roleGeneratorAttribute)) {
+                Class<?> clazz = SecurityActions.loadClass(getClass(), roleGeneratorAttribute);
+                if (clazz == null)
+                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + roleGeneratorAttribute);
+                roleGenerator = (RoleGenerator) clazz.newInstance();
+            }
         } catch (Exception e) {
             throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
         }
@@ -1139,15 +1149,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         }
     }
 
+    @Deprecated
     public void setRoleGenerator(String rgName) {
-        try {
-            Class<?> clazz = SecurityActions.loadClass(getClass(), rgName);
-            if (clazz == null)
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + rgName);
-            roleGenerator = (RoleGenerator) clazz.newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        log.warn("Option 'roleGenerator' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
 
     @Deprecated
