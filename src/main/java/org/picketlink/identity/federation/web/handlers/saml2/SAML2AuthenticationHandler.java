@@ -273,7 +273,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 assertion.addStatement(authnStatement);
             }
 
-            if (handlerConfig.getParameter(DISABLE_SENDING_ROLES) == null) {
+            if (handlerConfig.getParameter(DISABLE_SENDING_ROLES) == null && (roles != null && !roles.isEmpty())) {
                 AttributeStatementType attrStatement = StatementUtil.createAttributeStatement(roles);
                 assertion.addStatement(attrStatement);
             }
