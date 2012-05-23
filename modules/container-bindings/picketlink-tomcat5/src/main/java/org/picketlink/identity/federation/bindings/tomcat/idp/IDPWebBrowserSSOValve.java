@@ -170,11 +170,6 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     protected SAMLConfigurationProvider configProvider = null;
 
     /**
-     * If the user wants to set a particular {@link IdentityParticipantStack}
-     */
-    protected String identityParticipantStack = null;
-
-    /**
      * A Lock for Handler operations in the chain
      */
     private final Lock chainLock = new ReentrantLock();
@@ -876,11 +871,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         if (identityServer == null) {
             identityServer = new IdentityServer();
             getContext().getServletContext().setAttribute(GeneralConstants.IDENTITY_SERVER, identityServer);
-            if (StringUtil.isNotNull(this.identityParticipantStack)) {
+            if (StringUtil.isNotNull(this.idpConfiguration.getIdentityParticipantStack())) {
                 try {
-                    Class<?> clazz = SecurityActions.loadClass(getClass(), this.identityParticipantStack);
+                    Class<?> clazz = SecurityActions.loadClass(getClass(), this.idpConfiguration.getIdentityParticipantStack());
                     if (clazz == null)
-                        throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + this.identityParticipantStack);
+                        throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + this.idpConfiguration.getIdentityParticipantStack());
 
                     identityServer.setStack((IdentityParticipantStack) clazz.newInstance());
                 } catch (Exception e) {
@@ -1175,8 +1170,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         log.warn("Option 'samlHandlerChainClass' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
 
+    @Deprecated
     public void setIdentityParticipantStack(String fqn) {
-        this.identityParticipantStack = fqn;
+        log.warn("Option 'identityParticipantStack' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
     
     @Deprecated
