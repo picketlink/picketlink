@@ -37,6 +37,8 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         
         // asserts the StrictPostBinding attribute. Default is true, but for this test it was changed to true in the configuration file. 
         assertFalse(idp.isStrictPostBinding());
+        
+        assertEquals("TestIdentityParticipantStack", idp.getIdentityParticipantStack());
     }
 
     @Test

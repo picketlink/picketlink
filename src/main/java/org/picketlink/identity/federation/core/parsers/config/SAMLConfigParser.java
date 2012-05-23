@@ -109,6 +109,8 @@ public class SAMLConfigParser extends AbstractParser {
 
     public static final String SUPPORTS_SIGNATURES = "SupportsSignatures";
     
+    public static final String IDENTITY_PARTICIPANT_STACK = "IdentityParticipantStack";
+    
     public static final String STRICT_POST_BINDING = "StrictPostBinding";
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
@@ -199,6 +201,12 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null) {
             idp.setSupportsSignature(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(attribute)));
+        }
+
+        attributeQName = new QName("", IDENTITY_PARTICIPANT_STACK);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            idp.setIdentityParticipantStack(StaxParserUtil.getAttributeValue(attribute));
         }
 
         while (xmlEventReader.hasNext()) {
