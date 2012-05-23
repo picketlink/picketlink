@@ -1,6 +1,6 @@
 <PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
 	<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0"
-		StrictPostBinding="false" SupportsSignatures="true">
+		StrictPostBinding="false" SupportsSignatures="true" IdentityParticipantStack="org.picketlink.test.identity.federation.bindings.authenticators.idp.TestIdentityParticipantStack">
 		<IdentityURL>${idp-sig.url::http://192.168.1.1:8080/idp-sig/}
 		</IdentityURL>
 		<Trust>
