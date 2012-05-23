@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.core.config;
 
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 
 /**
  * 
@@ -67,6 +68,11 @@ public class IDPType extends ProviderType {
      * if you want to force the IDP to respond to SPs using the Redirect Binding.
      */
     private boolean strictPostBinding = true;
+
+    /**
+     * If the user wants to set a particular {@link IdentityParticipantStack}
+     */
+    private String identityParticipantStack = null;
 
     /**
      * Gets the value of the encryption property.
@@ -190,12 +196,32 @@ public class IDPType extends ProviderType {
     }
 
     /**
-     * Gets the value of the encrypt property.
+     * Gets the value of the strictPostBinding property.
      * 
      * @return possible object is {@link Boolean }
      * 
      */
     public boolean isStrictPostBinding() {
-        return strictPostBinding;
+        return this.strictPostBinding;
+    }
+
+    /**
+     * Sets the value of the identityParticipantStack property. The value must be the name of a {@link IdentityParticipantStack}
+     * subclass.
+     * 
+     * @param value allowed object is {@link String }
+     */
+    public void setIdentityParticipantStack(String identityParticipantStack) {
+        this.identityParticipantStack = identityParticipantStack;
+    }
+
+    /**
+     * Gets the value of the identityParticipantStack property.
+     * 
+     * @return possible object is {@link String }
+     * 
+     */
+    public String getIdentityParticipantStack() {
+        return this.identityParticipantStack;
     }
 }

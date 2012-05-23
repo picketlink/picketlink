@@ -1,6 +1,6 @@
 <PicketLink xmlns="urn:picketlink:identity-federation:config:2.1"
      EnableAudit="true">
-	<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:2.1" StrictPostBinding="false">
+	<PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:2.1" StrictPostBinding="false" IdentityParticipantStack="TestIdentityParticipantStack">
 		<IdentityURL>${idp.url::http://localhost:8080/idp/}</IdentityURL>
 		<Trust>
 			<Domains>localhost,jboss.com,jboss.org,amazonaws.com</Domains>
