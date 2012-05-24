@@ -32,6 +32,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -52,6 +53,7 @@ import org.picketlink.identity.federation.ws.trust.RequestedTokenCancelledType;
 import org.picketlink.identity.federation.ws.trust.StatusType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -226,12 +228,34 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 List<Object> theList = useKeyType.getAny();
                 for (Object value : theList) {
                     if (value instanceof Element) {
-                        String elementName = ((Element) value).getLocalName();
+                        Element keyElement = (Element) value;
+                        String elementName = (keyElement).getLocalName();
                         // if the specified key is a X509 certificate we must insert it into a X509Data element.
                         if (elementName.equals("X509Certificate")) {
                             X509DataType data = new X509DataType();
                             data.add(value);
                             value = data;
+                        } else if(elementName.equals("KeyValue")){
+                           KeyValueType keyValue = null;
+                           Element child = DocumentUtil.getChildElement(keyElement, new QName(WSTrustConstants.XMLDSig.RSA_KEYVALUE));
+                           if(child != null){
+                               try {
+                                keyValue = XMLSignatureUtil.getRSAKeyValue(child);
+                            } catch (ParsingException e) {
+                                throw new WSTrustException("Ex" ,e);
+                            }
+                           }
+                           if(keyValue == null && child == null){
+                               child = DocumentUtil.getChildElement(keyElement, new QName(WSTrustConstants.XMLDSig.DSA_KEYVALUE));
+                               if(child != null){
+                                   try {
+                                    keyValue = XMLSignatureUtil.getDSAKeyValue(child);
+                                } catch (ParsingException e) {
+                                    throw new WSTrustException("Ex" ,e);
+                                }
+                               }
+                               value = keyValue;
+                           }
                         }
                         KeyInfoType keyInfo = new KeyInfoType();
                         keyInfo.addContent(value);

@@ -45,6 +45,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -57,6 +58,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.Aut
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectLocalityType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
@@ -111,14 +113,14 @@ public class SAMLParserUtil {
                 keyInfo.addContent(x509);
             } else if (tag.equals(WSTrustConstants.XMLDSig.KEYVALUE)) {
                 startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-                KeyValueType keyValue = new KeyValueType();
+                KeyValueType keyValue = null;
 
                 startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
                 tag = StaxParserUtil.getStartElementName(startElement);
                 if (tag.equals(WSTrustConstants.XMLDSig.RSA_KEYVALUE)) {
-                    keyValue.getContent().add(parseRSAKeyValue(xmlEventReader));
+                    keyValue = parseRSAKeyValue(xmlEventReader);
                 } else if (tag.equals(WSTrustConstants.XMLDSig.DSA_KEYVALUE)) {
-                    // TODO: parse the DSA key contents.
+                    keyValue = parseDSAKeyValue(xmlEventReader);
                 } else
                     throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
 
@@ -165,6 +167,14 @@ public class SAMLParserUtil {
                 throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
         }
         return rsaKeyValue;
+    }
+    
+    private static DSAKeyValueType parseDSAKeyValue(XMLEventReader xmlEventReader) throws ParsingException {
+        StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.DSA_KEYVALUE);
+        
+        Element dsaElement = StaxParserUtil.getDOMElement(xmlEventReader);
+        return XMLSignatureUtil.getDSAKeyValue(dsaElement);
     }
 
     /**

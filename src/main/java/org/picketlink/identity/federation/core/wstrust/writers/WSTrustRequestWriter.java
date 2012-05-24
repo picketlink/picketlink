@@ -55,6 +55,7 @@ import org.picketlink.identity.federation.ws.trust.RenewTargetType;
 import org.picketlink.identity.federation.ws.trust.UseKeyType;
 import org.picketlink.identity.federation.ws.trust.ValidateTargetType;
 import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
@@ -302,14 +303,12 @@ public class WSTrustRequestWriter {
         StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.KEYVALUE,
                 WSTrustConstants.DSIG_NS);
         StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
-        if (type.getContent().size() == 0)
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyValueType must contain at least one value");
-
-        for (Object obj : type.getContent()) {
-            if (obj instanceof RSAKeyValueType) {
-                RSAKeyValueType rsaKeyValue = (RSAKeyValueType) obj;
-                writeRSAKeyValueType(rsaKeyValue);
-            }
+        if (type instanceof RSAKeyValueType) {
+            RSAKeyValueType rsaKeyValue = (RSAKeyValueType) type;
+            writeRSAKeyValueType(rsaKeyValue);
+        } else if(type instanceof DSAKeyValueType) {
+            DSAKeyValueType dsaKeyValue = (DSAKeyValueType)type;
+            writeDSAKeyValueType(dsaKeyValue);
         }
         StaxUtil.writeEndElement(writer);
     }
@@ -328,6 +327,13 @@ public class WSTrustRequestWriter {
         StaxUtil.writeCharacters(writer, new String(exponent));
         StaxUtil.writeEndElement(writer);
 
+        StaxUtil.writeEndElement(writer);
+    }
+    
+    private void writeDSAKeyValueType(DSAKeyValueType type) throws ProcessingException {
+        StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.DSA_KEYVALUE, WSTrustConstants.DSIG_NS);
+        
+        //TODO: write
         StaxUtil.writeEndElement(writer);
     }
 

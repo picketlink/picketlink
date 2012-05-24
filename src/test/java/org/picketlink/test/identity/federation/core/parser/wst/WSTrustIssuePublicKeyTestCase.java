@@ -73,6 +73,7 @@ public class WSTrustIssuePublicKeyTestCase {
         rstWriter.write(requestToken);
 
         Document doc = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
+        System.out.println(DocumentUtil.asString(doc));
         JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(doc));
     }
 }

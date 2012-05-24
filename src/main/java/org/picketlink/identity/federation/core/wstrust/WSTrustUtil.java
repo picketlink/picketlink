@@ -29,8 +29,6 @@ import java.security.Principal;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
-import java.security.interfaces.DSAPublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +46,7 @@ import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
@@ -61,10 +60,8 @@ import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
 import org.picketlink.identity.federation.ws.wss.secext.SecurityTokenReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
-import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Document;
@@ -446,36 +443,7 @@ public class WSTrustUtil {
      * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA key.
      */
     public static KeyValueType createKeyValue(PublicKey key) {
-        if (key instanceof RSAPublicKey) {
-            RSAPublicKey pubKey = (RSAPublicKey) key;
-            byte[] modulus = pubKey.getModulus().toByteArray();
-            byte[] exponent = pubKey.getPublicExponent().toByteArray();
-
-            RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
-            rsaKeyValue.setModulus(Base64.encodeBytes(modulus).getBytes());
-            rsaKeyValue.setExponent(Base64.encodeBytes(exponent).getBytes());
-
-            KeyValueType keyValue = new KeyValueType();
-            keyValue.getContent().add(rsaKeyValue);
-            return keyValue;
-        } else if (key instanceof DSAPublicKey) {
-            DSAPublicKey pubKey = (DSAPublicKey) key;
-            byte[] P = pubKey.getParams().getP().toByteArray();
-            byte[] Q = pubKey.getParams().getQ().toByteArray();
-            byte[] G = pubKey.getParams().getG().toByteArray();
-            byte[] Y = pubKey.getY().toByteArray();
-
-            DSAKeyValueType dsaKeyValue = new DSAKeyValueType();
-            dsaKeyValue.setP(Base64.encodeBytes(P).getBytes());
-            dsaKeyValue.setQ(Base64.encodeBytes(Q).getBytes());
-            dsaKeyValue.setG(Base64.encodeBytes(G).getBytes());
-            dsaKeyValue.setY(Base64.encodeBytes(Y).getBytes());
-
-            KeyValueType keyValue = new KeyValueType();
-            keyValue.getContent().add(dsaKeyValue);
-            return keyValue;
-        } else
-            return null;
+        return XMLSignatureUtil.createKeyValue(key);
     }
 
     public static String getServiceNameFromAppliesTo(RequestSecurityToken requestSecurityToken) {
