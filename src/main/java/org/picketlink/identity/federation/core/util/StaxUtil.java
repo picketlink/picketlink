@@ -31,8 +31,10 @@ import javax.xml.transform.Result;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Attr;
@@ -449,11 +451,81 @@ public class StaxUtil {
             KeyValueType keyvalueType = (KeyValueType) content;
             StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.KEYVALUE,
                     WSTrustConstants.XMLDSig.DSIG_NS);
-            StaxUtil.writeCharacters(writer, keyvalueType.toString());
+            if(keyvalueType instanceof DSAKeyValueType){
+                StaxUtil.writeDSAKeyValueType(writer, (DSAKeyValueType) keyvalueType);
+            }
+            if(keyvalueType instanceof RSAKeyValueType){
+                StaxUtil.writeRSAKeyValueType(writer, (RSAKeyValueType) keyvalueType);
+            }
             StaxUtil.writeEndElement(writer);
         } else
             throw new ProcessingException(ErrorCodes.UNSUPPORTED_TYPE + content);
 
         StaxUtil.writeEndElement(writer);
+    }
+    
+    public static void writeRSAKeyValueType(XMLStreamWriter writer, RSAKeyValueType type) throws ProcessingException {
+        String prefix = WSTrustConstants.XMLDSig.DSIG_PREFIX;
+        
+        StaxUtil.writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.RSA_KEYVALUE, WSTrustConstants.DSIG_NS);
+        // write the rsa key modulus.
+        byte[] modulus = type.getModulus();
+        writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.MODULUS, WSTrustConstants.DSIG_NS);
+        writeCharacters(writer, new String(modulus));
+        writeEndElement(writer);
+
+        // write the rsa key exponent.
+        byte[] exponent = type.getExponent();
+        writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.EXPONENT, WSTrustConstants.DSIG_NS);
+        writeCharacters(writer, new String(exponent));
+        writeEndElement(writer);
+
+        writeEndElement(writer);
+    }
+    
+    public static void writeDSAKeyValueType(XMLStreamWriter writer, DSAKeyValueType type) throws ProcessingException {
+        
+        String prefix = WSTrustConstants.XMLDSig.DSIG_PREFIX;
+        
+        writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.DSA_KEYVALUE, WSTrustConstants.DSIG_NS);
+        
+        byte[] p = type.getP();
+        if(p != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.P, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(p));
+            writeEndElement(writer);    
+        }
+        byte[] q = type.getQ();
+        if(q != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.Q, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(q));
+            writeEndElement(writer);    
+        }
+        byte[] g = type.getG();
+        if(g != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.G, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(g));
+            writeEndElement(writer);    
+        }
+        byte[] y = type.getY();
+        if(y != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.Y, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(y));
+            writeEndElement(writer);    
+        }
+        byte[] seed = type.getSeed();
+        if(seed != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.SEED, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(seed));
+            writeEndElement(writer);    
+        }
+        byte[] pgen = type.getPgenCounter();
+        if(pgen != null){
+            writeStartElement(writer, prefix, WSTrustConstants.XMLDSig.PGEN_COUNTER, WSTrustConstants.DSIG_NS);
+            writeCharacters(writer, new String(pgen));
+            writeEndElement(writer);    
+        }
+        
+        writeEndElement(writer);
     }
 }
