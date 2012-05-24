@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusCodeType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
 import org.w3c.dom.Element;
 
 /**
@@ -89,7 +90,7 @@ public class SAML11ResponseParser implements ParserNamespaceSupport {
             } else if (JBossSAMLConstants.STATUS.get().equals(elementName)) {
                 response.setStatus(parseStatus(xmlEventReader));
             } else
-                throw new RuntimeException(UNKNOWN_START_ELEMENT + "::location=" + startElement.getLocation());
+                throw new RuntimeException(UNKNOWN_START_ELEMENT + startElement +  "::location=" + startElement.getLocation());
         }
 
         return response;
@@ -148,6 +149,22 @@ public class SAML11ResponseParser implements ParserNamespaceSupport {
                     StaxParserUtil.validate(endElement, JBossSAMLConstants.STATUS_CODE.get());
                     continue;
                 }
+            }
+            if (JBossSAMLConstants.STATUS_MESSAGE.get().equals(elementTag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                if (startElement == null)
+                    break;
+                status.setStatusMessage(StaxParserUtil.getElementText(xmlEventReader));
+            }
+            
+            if (JBossSAMLConstants.STATUS_DETAIL.get().equals(elementTag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                if (startElement == null)
+                    break;
+                Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
+                StatusDetailType statusDetailType = new StatusDetailType();
+                statusDetailType.addStatusDetail(domElement);
+                status.setStatusDetail(statusDetailType);
             }
 
             // Get the next end element
