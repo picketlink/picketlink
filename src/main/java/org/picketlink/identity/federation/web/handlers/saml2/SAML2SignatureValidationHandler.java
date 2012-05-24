@@ -72,7 +72,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
         if (!isSupportsSignature(request)) {
             return;
         }
-        
+
         Map<String, Object> requestOptions = request.getOptions();
         PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
         Boolean ignoreSignatures = (Boolean) requestOptions.get(GeneralConstants.IGNORE_SIGNATURES);
@@ -110,6 +110,12 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
                 throw constructSignatureException();
             }
         } catch (ProcessingException pe) {
+            if (auditHelper != null) {
+                PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                auditEvent.setWhoIsAuditing((String) requestOptions.get(GeneralConstants.CONTEXT_PATH));
+                auditEvent.setType(PicketLinkAuditEventType.ERROR_SIG_VALIDATION);
+                auditHelper.audit(auditEvent);
+            }
             response.setError(SAML2HandlerErrorCodes.SIGNATURE_INVALID, "Signature Validation Failed");
             throw pe;
         }

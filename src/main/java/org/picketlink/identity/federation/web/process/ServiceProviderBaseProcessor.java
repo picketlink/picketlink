@@ -150,6 +150,8 @@ public class ServiceProviderBaseProcessor {
 
         // Create the request/response
         SAML2HandlerRequest saml2HandlerRequest = getSAML2HandlerRequest(null, httpContext);
+        saml2HandlerRequest.addOption(GeneralConstants.CONTEXT_PATH, httpContext.getServletContext().getContextPath());
+        
         SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
         saml2HandlerResponse.setPostBindingForResponse(postBinding);
