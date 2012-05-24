@@ -64,6 +64,7 @@ public class WSTrustParser extends AbstractParser {
                     WSTRequestSecurityTokenResponseParser wst = new WSTRequestSecurityTokenResponseParser();
                     return wst.parse(xmlEventReader);
                 }
+                throw new RuntimeException(ErrorCodes.FAILED_PARSING + elementName);
             } else {
                 StaxParserUtil.getNextEvent(xmlEventReader);
             }

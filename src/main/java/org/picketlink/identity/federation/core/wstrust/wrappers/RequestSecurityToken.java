@@ -168,6 +168,8 @@ public class RequestSecurityToken implements BaseRequestSecurityToken {
     private URI binaryValueType;
 
     private Node binaryToken;
+    
+    private URI computedKeyAlgorithm;
 
     /**
      * <p>
@@ -790,6 +792,22 @@ public class RequestSecurityToken implements BaseRequestSecurityToken {
     public void setSignWith(URI signWith) {
         this.signWith = signWith;
         this.delegate.addAny(signWith.toString());
+    }
+    
+    /**
+     * Get the ComputedKeyAlgorithm
+     * @return
+     */
+    public URI getComputedKeyAlgorithm() {
+        return computedKeyAlgorithm;
+    }
+
+    /**
+     * Set the Computed Key Algorithm
+     * @param computedKeyAlgorithm
+     */
+    public void setComputedKeyAlgorithm(URI computedKeyAlgorithm) {
+        this.computedKeyAlgorithm = computedKeyAlgorithm;
     }
 
     /**

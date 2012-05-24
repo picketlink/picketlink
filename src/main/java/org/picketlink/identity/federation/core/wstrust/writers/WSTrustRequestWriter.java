@@ -198,6 +198,11 @@ public class WSTrustRequestWriter {
         if (entropy != null) {
             writeEntropyType(entropy);
         }
+        
+        URI computedKeyAlgorithm = requestToken.getComputedKeyAlgorithm();
+        if(computedKeyAlgorithm != null){
+            writeComputedKeyAlgorithm(computedKeyAlgorithm);
+        }
 
         UseKeyType useKeyType = requestToken.getUseKey();
         if (useKeyType != null) {
@@ -246,6 +251,18 @@ public class WSTrustRequestWriter {
                 }
             }
         }
+        StaxUtil.writeEndElement(writer);
+    }
+    
+    /**
+     * Write ComputedKeyAlgorithm to stream
+     *
+     * @param entropy
+     * @throws ProcessingException
+     */
+    private void writeComputedKeyAlgorithm(URI computedKeyAlgorithm) throws ProcessingException {
+        StaxUtil.writeStartElement(writer, PREFIX, WSTrustConstants.COMPUTED_KEY_ALGORITHM, BASE_NAMESPACE);
+        StaxUtil.writeCharacters(writer, computedKeyAlgorithm.toASCIIString());
         StaxUtil.writeEndElement(writer);
     }
 

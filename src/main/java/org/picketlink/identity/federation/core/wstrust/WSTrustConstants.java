@@ -106,6 +106,8 @@ public interface WSTrustConstants {
     String BINARY_SECRET = "BinarySecret";
 
     String CREATED = "Created";
+    
+    String COMPUTED_KEY_ALGORITHM = "ComputedKeyAlgorithm";
 
     String ENTROPY = "Entropy";
 
