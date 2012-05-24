@@ -100,6 +100,10 @@ public class PicketLinkAuditHelper {
                     throw new ConfigurationException(e1);
                 }
             }
+            /**
+             * In the absence of /WEB-INF/jboss-web.xml,  there can be a system property
+             * picketlink.audit.securitydomain    to indicate the security domain name
+             */
             String secDomain = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_SECURITY_DOMAIN, null);
             if (StringUtil.isNotNull(secDomain))
                 return secDomain;

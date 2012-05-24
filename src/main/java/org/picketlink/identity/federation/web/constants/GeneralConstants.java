@@ -42,6 +42,8 @@ public interface GeneralConstants {
     String ATTRIBUTE_CHOOSE_FRIENDLY_NAME = "ATTRIBUTE_CHOOSE_FRIENDLY_NAME";
 
     String ATTIBUTE_MANAGER = "ATTRIBUTE_MANAGER";
+    
+    String AUDIT_ENABLE = "picketlink.audit.enable";
 
     String AUDIT_HELPER = "AUDIT_HELPER";
     

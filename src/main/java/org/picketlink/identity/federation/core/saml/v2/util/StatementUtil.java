@@ -134,8 +134,11 @@ public class StatementUtil {
      * @return
      */
     public static AttributeStatementType createAttributeStatement(List<String> roles) {
-        AttributeStatementType attrStatement = new AttributeStatementType();
+        AttributeStatementType attrStatement = null;
         for (String role : roles) {
+            if(attrStatement == null){
+                attrStatement = new AttributeStatementType();
+            }
             AttributeType attr = new AttributeType("Role");
             attr.addAttributeValue(role);
             attrStatement.addAttribute(new ASTChoiceType(attr));
