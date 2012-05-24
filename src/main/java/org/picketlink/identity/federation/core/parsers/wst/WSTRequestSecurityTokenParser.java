@@ -275,6 +275,15 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
                         requestToken.setUseKey(useKeyType);
                     } else
                         throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + StaxParserUtil.getStartElementName(subEvent));
+                } else if (tag.equals(WSTrustConstants.COMPUTED_KEY_ALGORITHM)) { 
+                    subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
+
+                    if (!StaxParserUtil.hasTextAhead(xmlEventReader))
+                        throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + WSTrustConstants.COMPUTED_KEY_ALGORITHM);
+
+                    String computedKeyAlgo = StaxParserUtil.getElementText(xmlEventReader);
+
+                    requestToken.setComputedKeyAlgorithm(URI.create(computedKeyAlgo));
                 } else {
                     QName qname = subEvent.getName();
                     if (trace) {
