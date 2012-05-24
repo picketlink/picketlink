@@ -27,6 +27,7 @@ import java.util.Properties;
 
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -88,5 +89,11 @@ public class PropertiesConfigurationProvider implements SAMLConfigurationProvide
         }
 
         return sp;
+    }
+
+    @Override
+    public PicketLinkType getPicketLinkConfiguration() throws ProcessingException {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
