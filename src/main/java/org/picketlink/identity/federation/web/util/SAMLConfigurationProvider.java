@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.web.util;
 
 import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 
@@ -47,4 +48,12 @@ public interface SAMLConfigurationProvider {
      * @throws ProcessingException
      */
     SPType getSPConfiguration() throws ProcessingException;
+
+    /**
+     * Get the {@l SPType} configuration
+     *
+     * @return
+     * @throws ProcessingException
+     */
+    PicketLinkType getPicketLinkConfiguration() throws ProcessingException;
 }
