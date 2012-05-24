@@ -147,7 +147,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     private final boolean trace = log.isTraceEnabled();
 
     protected boolean enableAudit = false;
-    
+
     protected PicketLinkAuditHelper auditHelper = null;
 
     protected IDPType idpConfiguration = null;
@@ -233,8 +233,8 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
                 WebRequestUtilHolder holder = webRequestUtil.getHolder();
                 holder.setResponseDoc(samlErrorResponse).setDestination(referer).setRelayState(relayState)
-                        .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false)
-                        .setServletResponse(response).setErrorResponse(true);
+                .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false)
+                .setServletResponse(response).setErrorResponse(true);
                 holder.setPostBindingRequested(webRequestUtil.hasSAMLRequestInPostProfile());
 
                 if (this.idpConfiguration.isSupportsSignature()) {
@@ -300,7 +300,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     }
 
     protected void handleSAML11(IDPWebRequestUtil webRequestUtil, Request request, Response response) throws ServletException,
-            IOException {
+    IOException {
         try {
             Principal userPrincipal = request.getPrincipal();
             String contextPath = getContext().getServletContext().getContextPath();
@@ -332,7 +332,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             GenericPrincipal genericPrincipal = (GenericPrincipal) userPrincipal;
             String[] roles = genericPrincipal.getRoles();
             SAML11AttributeStatementType attributeStatement = this.createAttributeStatement(Arrays.asList(roles));
-            saml11Assertion.add(attributeStatement);
+            if(attributeStatement != null){
+                saml11Assertion.add(attributeStatement);   
+            }
 
             // Send it as SAMLResponse
             String id = IDGenerator.create("ID_");
@@ -348,7 +350,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
             holder.setResponseDoc(samlResponse).setDestination(target).setRelayState("").setAreWeSendingRequest(false)
-                    .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+            .setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
 
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -381,7 +383,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         String samlRequestMessage = (String) session.getNote(GeneralConstants.SAML_REQUEST_KEY);
 
         String relayState = (String) session.getNote(GeneralConstants.RELAY_STATE);
-        
+
         String contextPath = getContext().getServletContext().getContextPath();
 
         boolean willSendRequest = false;
@@ -458,7 +460,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             if (trace) {
                 log.trace("Handlers are=" + handlers);
             }
-            
+
             // the trusted domains is done by a handler
             // webRequestUtil.isTrusted(issuer);
 
@@ -506,9 +508,9 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
                 WebRequestUtilHolder holder = webRequestUtil.getHolder();
                 holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
-                        .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
-                        .setErrorResponse(isErrorResponse).setServletResponse(response)
-                        .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
+                .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
+                .setErrorResponse(isErrorResponse).setServletResponse(response)
+                .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
 
                 holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
 
@@ -581,7 +583,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         boolean isErrorResponse = false;
         String destination = null;
         String destinationQueryStringWithSignature = null;
-        
+
         String contextPath = getContext().getServletContext().getContextPath();
 
         boolean requestedPostProfile = false;
@@ -678,10 +680,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 if (destination == null)
                     throw new ServletException(ErrorCodes.NULL_VALUE + "Destination");
                 holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
-                        .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
-                        .setErrorResponse(isErrorResponse).setServletResponse(response)
-                        .setPostBindingRequested(requestedPostProfile)
-                        .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
+                .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
+                .setErrorResponse(isErrorResponse).setServletResponse(response)
+                .setPostBindingRequested(requestedPostProfile)
+                .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
 
                 /*
                  * if (requestedPostProfile) holder.setPostBindingRequested(requestedPostProfile); else
@@ -757,7 +759,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             log.trace("About to send error response to SP:" + referrer);
 
         String contextPath = getContext().getServletContext().getContextPath();
-        
+
         Document samlResponse = webRequestUtil.getErrorResponse(referrer, JBossSAMLURIConstants.STATUS_RESPONDER.get(),
                 getIdentityURL(), this.idpConfiguration.isSupportsSignature());
         try {
@@ -768,7 +770,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             WebRequestUtilHolder holder = webRequestUtil.getHolder();
             holder.setResponseDoc(samlResponse).setDestination(referrer).setRelayState(relayState)
-                    .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
+            .setAreWeSendingRequest(false).setPrivateKey(null).setSupportSignature(false).setServletResponse(response);
             holder.setPostBindingRequested(postProfile);
 
             if (this.idpConfiguration.isSupportsSignature()) {
@@ -849,10 +851,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         initKeyManager();
         initHandlersChain();
         initIdentityServer();
-        
+
         // Add some keys to the attibutes
         String[] ak = new String[] { "mail", "cn", "commonname", "givenname", "surname", "employeeType", "employeeNumber",
-                "facsimileTelephoneNumber" };
+        "facsimileTelephoneNumber" };
 
         this.attributeKeys.addAll(Arrays.asList(ak));
     }
@@ -894,7 +896,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
      */
     private void initHandlersChain() throws LifecycleException {
         Handlers handlers = null;
-        
+
         try {
             if (picketLinkConfiguration != null) {
                 handlers = picketLinkConfiguration.getHandlers();
@@ -907,7 +909,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
 
             // Get the chain from config
             String handlerChainClass = handlers.getHandlerChainClass();
-            
+
             if (StringUtil.isNullOrEmpty(handlerChainClass))
                 chain = SAML2HandlerChainFactory.createChain();
             else {
@@ -955,11 +957,11 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 log.error("Exception reading configuration:", e);
                 throw new LifecycleException(e.getLocalizedMessage());
             }
-            
+
             log.info("IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
                     + idpConfiguration.getCanonicalizationMethod());
             XMLSignatureUtil.setCanonicalizationMethodType(idpConfiguration.getCanonicalizationMethod());
-            
+
             if (trace)
                 log.trace("Key Provider=" + keyProvider.getClassName());
         }
@@ -997,6 +999,14 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     idpConfiguration = (IDPType) picketLinkConfiguration.getIdpOrSP();
                     enableAudit = picketLinkConfiguration.isEnableAudit();
 
+                    //See if we have the system property enabled
+                    if(!enableAudit){
+                        String sysProp = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_ENABLE, "NULL");
+                        if(!"NULL".equals(sysProp)){
+                            enableAudit = Boolean.parseBoolean(sysProp);   
+                        }
+                    }
+
                     if (enableAudit) {
                         String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(getContext().getServletContext());
                         auditHelper = new PicketLinkAuditHelper(securityDomainName);
@@ -1025,7 +1035,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 }
             }
         }
-        
+
         try {
             if (trace)
                 log.trace("Identity Provider URL=" + getIdentityURL());
@@ -1039,10 +1049,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                 AttributeManager delegate = (AttributeManager) clazz.newInstance();
                 this.attribManager.setDelegate(delegate);
             }
-            
+
             // Get the role generator
             String roleGeneratorAttribute = idpConfiguration.getRoleGenerator();
-            
+
             if (roleGeneratorAttribute != null && !"".equals(roleGeneratorAttribute)) {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), roleGeneratorAttribute);
                 if (clazz == null)
@@ -1072,7 +1082,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
             sts.initialize(new PicketLinkSTSConfiguration(this.picketLinkConfiguration.getStsType()));
         } else {
             //Try to load from /WEB-INF/picketlink-sts.xml.
-            
+
             // Ensure that the Core STS has the SAML20 Token Provider
             PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
             // Let us look for a file
@@ -1134,16 +1144,19 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
      * @return
      */
     private SAML11AttributeStatementType createAttributeStatement(List<String> roles) {
-        SAML11AttributeStatementType attrStatement = new SAML11AttributeStatementType();
+        SAML11AttributeStatementType attrStatement = null;
         for (String role : roles) {
+            if(attrStatement == null){
+                attrStatement = new SAML11AttributeStatementType();   
+            }
             SAML11AttributeType attr = new SAML11AttributeType("Role", URI.create("urn:picketlink:role"));
             attr.add(role);
             attrStatement.add(attr);
         }
         return attrStatement;
     }
-    
- // Set a list of attributes we are interested in separated by comma
+
+    // Set a list of attributes we are interested in separated by comma
     public void setAttributeList(String attribList) {
         if (StringUtil.isNotNull(attribList)) {
             this.attributeKeys.clear();
@@ -1178,7 +1191,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
     public void setIdentityParticipantStack(String fqn) {
         log.warn("Option 'identityParticipantStack' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
-    
+
     @Deprecated
     public void setStrictPostBinding(Boolean strictPostBinding) {
         log.warn("Option 'strictPostBinding' is deprecated and should not be used. This configuration is now set in picketlink.xml.");

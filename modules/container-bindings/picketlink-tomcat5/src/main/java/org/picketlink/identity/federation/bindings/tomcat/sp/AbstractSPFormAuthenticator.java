@@ -325,6 +325,9 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(
                     isPOSTBindingResponse(), serviceURL);
             responseProcessor.setConfiguration(spConfiguration);
+            if(auditHelper !=  null){
+                responseProcessor.setAuditHelper(auditHelper);   
+            }
 
             responseProcessor.setTrustKeyManager(keyManager);
 
@@ -474,7 +477,8 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 baseProcessor.setIssuer(issuerID);
 
             baseProcessor.setIdentityURL(identityURL);
-
+            
+            baseProcessor.setAuditHelper(auditHelper);
             saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
         } catch (ProcessingException pe) {
             log.error("Processing Exception:", pe);

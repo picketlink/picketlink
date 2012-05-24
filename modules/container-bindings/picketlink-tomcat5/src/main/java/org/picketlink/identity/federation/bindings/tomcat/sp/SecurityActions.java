@@ -78,5 +78,20 @@ class SecurityActions {
                 }
             }
         });
+    } 
+
+    /**
+     * Get the system property
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    static String getSystemProperty(final String key, final String defaultValue) {
+        return AccessController.doPrivileged(new PrivilegedAction<String>() {
+            public String run() {
+                return System.getProperty(key, defaultValue);
+            }
+        });
     }
 }

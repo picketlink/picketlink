@@ -391,6 +391,14 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
                         picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
                         spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
                         enableAudit = picketLinkConfiguration.isEnableAudit();
+                        //See if we have the system property enabled
+                        if(!enableAudit){
+                            String sysProp = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_ENABLE, "NULL");
+                            if(!"NULL".equals(sysProp)){
+                                enableAudit = Boolean.parseBoolean(sysProp);   
+                            }
+                        }
+                        
                         if (enableAudit) {
                             String securityDomainName = PicketLinkAuditHelper
                                     .getSecurityDomainName(context.getServletContext());
