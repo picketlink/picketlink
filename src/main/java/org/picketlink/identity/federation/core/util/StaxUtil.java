@@ -32,6 +32,7 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509CertificateType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.X509DataType;
 import org.w3c.dom.Attr;
@@ -409,6 +410,12 @@ public class StaxUtil {
         }
     }
 
+    /**
+     * Write the {@link KeyInfoType}
+     * @param writer
+     * @param keyInfo
+     * @throws ProcessingException
+     */
     public static void writeKeyInfo(XMLStreamWriter writer, KeyInfoType keyInfo) throws ProcessingException {
         if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0)
             throw new ProcessingException(ErrorCodes.WRITER_INVALID_KEYINFO_NULL_CONTENT);
@@ -438,7 +445,14 @@ public class StaxUtil {
                 StaxUtil.writeEndElement(writer);
             }
             StaxUtil.writeEndElement(writer);
-        }
+        } else if( content instanceof KeyValueType){
+            KeyValueType keyvalueType = (KeyValueType) content;
+            StaxUtil.writeStartElement(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.XMLDSig.KEYVALUE,
+                    WSTrustConstants.XMLDSig.DSIG_NS);
+            StaxUtil.writeCharacters(writer, keyvalueType.toString());
+            StaxUtil.writeEndElement(writer);
+        } else
+            throw new ProcessingException(ErrorCodes.UNSUPPORTED_TYPE + content);
 
         StaxUtil.writeEndElement(writer);
     }
