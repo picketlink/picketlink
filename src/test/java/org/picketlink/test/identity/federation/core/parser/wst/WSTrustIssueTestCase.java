@@ -22,6 +22,9 @@
 package org.picketlink.test.identity.federation.core.parser.wst;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,6 +38,7 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;
+import org.picketlink.identity.federation.ws.trust.RenewingType;
 import org.w3c.dom.Document;
 
 /**
@@ -55,7 +59,12 @@ public class WSTrustIssueTestCase {
         assertEquals("testcontext", requestToken.getContext());
         assertEquals(WSTrustConstants.ISSUE_REQUEST, requestToken.getRequestType().toASCIIString());
         assertEquals(SAMLUtil.SAML2_TOKEN_TYPE, requestToken.getTokenType().toASCIIString());
-
+        
+        RenewingType renewingType = requestToken.getRenewing();
+        assertNotNull(renewingType);
+        assertTrue(renewingType.isAllow());
+        assertFalse(renewingType.isOK());
+        
         // Now for the writing part
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WSTrustRequestWriter rstWriter = new WSTrustRequestWriter(baos);

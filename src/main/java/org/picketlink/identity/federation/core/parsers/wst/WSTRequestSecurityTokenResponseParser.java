@@ -35,6 +35,7 @@ import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.parsers.wsse.WSSecurityParser;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
@@ -43,7 +44,6 @@ import org.picketlink.identity.federation.ws.trust.ComputedKeyType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.LifetimeType;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
-import org.picketlink.identity.federation.ws.trust.RenewingType;
 import org.picketlink.identity.federation.ws.trust.RequestedProofTokenType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.trust.RequestedSecurityTokenType;
@@ -252,9 +252,8 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
                 } else if (tag.equals(WSTrustConstants.STATUS)) {
                     responseToken.setStatus(this.parseStatusType(xmlEventReader));
                 }
-
                 else if (tag.equals(WSTrustConstants.RENEWING)) {
-                    responseToken.setRenewing(this.parseRenewingType(xmlEventReader));
+                    responseToken.setRenewing(WSTrustUtil.parseRenewingType(xmlEventReader));
                 } else {
                     QName qname = subEvent.getName();
                     if (trace) {
@@ -364,26 +363,5 @@ public class WSTRequestSecurityTokenResponseParser implements ParserNamespaceSup
         StaxParserUtil.validate(endElement, WSTrustConstants.REQUESTED_ATTACHED_REFERENCE);
 
         return ref;
-    }
-
-    private RenewingType parseRenewingType(XMLEventReader xmlEventReader) throws ParsingException {
-        RenewingType renewingType = new RenewingType();
-
-        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
-        StaxParserUtil.validate(startElement, WSTrustConstants.RENEWING);
-
-        Attribute allowAttribute = startElement.getAttributeByName(new QName(WSTrustConstants.ALLOW));
-        if (allowAttribute != null) {
-            renewingType.setAllow(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(allowAttribute)));
-        }
-
-        Attribute okAttribute = startElement.getAttributeByName(new QName(WSTrustConstants.OK));
-        if (allowAttribute != null) {
-            renewingType.setOK(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(okAttribute)));
-        }
-
-        EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-        StaxParserUtil.validate(endElement, WSTrustConstants.RENEWING);
-        return renewingType;
     }
 }

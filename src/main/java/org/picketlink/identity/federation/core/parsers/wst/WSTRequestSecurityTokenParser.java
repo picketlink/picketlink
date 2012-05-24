@@ -41,6 +41,7 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants.XMLDSig;
+import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
@@ -284,6 +285,8 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
                     String computedKeyAlgo = StaxParserUtil.getElementText(xmlEventReader);
 
                     requestToken.setComputedKeyAlgorithm(URI.create(computedKeyAlgo));
+                } else if (tag.equals(WSTrustConstants.RENEWING)) {
+                    requestToken.setRenewing(WSTrustUtil.parseRenewingType(xmlEventReader));
                 } else {
                     QName qname = subEvent.getName();
                     if (trace) {
