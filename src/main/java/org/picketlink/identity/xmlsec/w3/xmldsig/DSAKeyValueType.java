@@ -22,6 +22,17 @@
 
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.interfaces.DSAPrivateKey;
+import java.security.interfaces.DSAPublicKey;
+import java.security.spec.DSAPrivateKeySpec;
+import java.security.spec.DSAPublicKeySpec;
+
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.util.Base64;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+
 /**
  * <p>
  * Java class for DSAKeyValueType complex type.
@@ -53,7 +64,7 @@ package org.picketlink.identity.xmlsec.w3.xmldsig;
  *
  *
  */
-public class DSAKeyValueType {
+public class DSAKeyValueType implements KeyValueType {
     protected byte[] p;
     protected byte[] q;
     protected byte[] g;
@@ -186,5 +197,109 @@ public class DSAKeyValueType {
      */
     public void setPgenCounter(byte[] value) {
         this.pgenCounter = ((byte[]) value);
+    }
+
+    /**
+     * Convert to the JDK representation of a DSA Public Key
+     * @return
+     * @throws ProcessingException
+     */
+    public DSAPublicKey convertToPublicKey() throws ProcessingException{
+        BigInteger BigY, BigP, BigQ, BigG;
+
+        BigY = new BigInteger(1, massage(Base64.decode(new String(y))));
+        BigP = new BigInteger(1, massage(Base64.decode(new String(p))));
+        BigQ = new BigInteger(1, massage(Base64.decode(new String(q))));
+        BigG = new BigInteger(1, massage(Base64.decode(new String(g))));
+
+        try {
+            KeyFactory dsaKeyFactory = KeyFactory.getInstance("dsa");
+            DSAPublicKeySpec kspec = new DSAPublicKeySpec(BigY, BigP, BigQ, BigG);
+            return (DSAPublicKey) dsaKeyFactory.generatePublic(kspec);
+        } catch (Exception e) {
+            throw new ProcessingException(e);
+        }
+    }
+    
+    /**
+     * Convert to the JDK representation of a DSA Private Key
+     * @return
+     * @throws ProcessingException
+     */
+    public DSAPrivateKey convertToPrivateKey() throws ProcessingException{
+        BigInteger BigY, BigP, BigQ, BigG;
+
+        BigY = new BigInteger(1, massage(Base64.decode(new String(y))));
+        BigP = new BigInteger(1, massage(Base64.decode(new String(p))));
+        BigQ = new BigInteger(1, massage(Base64.decode(new String(q))));
+        BigG = new BigInteger(1, massage(Base64.decode(new String(g))));
+
+        try {
+            KeyFactory dsaKeyFactory = KeyFactory.getInstance("dsa");
+            DSAPrivateKeySpec kspec = new DSAPrivateKeySpec(BigY, BigP, BigQ, BigG);
+            return (DSAPrivateKey) dsaKeyFactory.generatePrivate(kspec);
+        } catch (Exception e) {
+            throw new ProcessingException(e);
+        }
+    }
+
+    public String toString(){
+        String prefix = WSTrustConstants.XMLDSig.DSIG_PREFIX;
+        String colon = ":";
+        String left = "<";
+        String right = ">";
+        String slash = "/";
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.DSA_KEYVALUE).append(right);
+
+        if(p != null){
+            sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.P).append(right);
+            sb.append(new String(getP()));
+            sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.P).append(right);
+        }
+
+        if(q != null){
+            sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.Q).append(right);
+            sb.append(new String(getQ()));
+            sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.Q).append(right);
+        }
+
+        if(g != null){
+            sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.G).append(right);
+            sb.append(new String(getG()));
+            sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.G).append(right);
+        }
+
+        if(y != null){
+            sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.Y).append(right);
+            sb.append(new String(getY()));
+            sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.Y).append(right);
+        }
+
+        if(seed != null){
+            sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.SEED).append(right);
+            sb.append(new String(getSeed()));
+            sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.SEED).append(right);
+        }
+
+        if(pgenCounter != null){
+            sb.append(left).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.PGEN_COUNTER).append(right);
+            sb.append(new String(getPgenCounter()));
+            sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.PGEN_COUNTER).append(right);
+        }
+
+        sb.append(left).append(slash).append(prefix).append(colon).append(WSTrustConstants.XMLDSig.DSA_KEYVALUE).append(right);
+        return sb.toString();
+    }
+
+    private byte[] massage(byte[] byteArray){
+        if (byteArray[0] == 0){
+            byte[] substring = new byte[byteArray.length - 1];
+            System.arraycopy(byteArray, 1, substring, 0, byteArray.length - 1);
+            return substring;
+        }
+        return byteArray;
     }
 }

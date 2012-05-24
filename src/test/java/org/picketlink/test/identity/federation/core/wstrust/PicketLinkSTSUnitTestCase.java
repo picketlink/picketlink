@@ -1556,10 +1556,7 @@ public class PicketLinkSTSUnitTestCase {
             // if the public key has been used as proof, we should be able to retrieve it from KeyValueType.
             if (usePublicKey == true) {
                 KeyValueType keyValue = (KeyValueType) keyInfo.getContent().get(0);
-                List<Object> keyValueContent = keyValue.getContent();
-                assertEquals("Unexpected key value content size", 1, keyValueContent.size());
-                assertEquals("Unexpected key value content type", RSAKeyValueType.class, keyValueContent.get(0).getClass());
-                RSAKeyValueType rsaKeyValue = (RSAKeyValueType) keyValueContent.get(0);
+                RSAKeyValueType rsaKeyValue = (RSAKeyValueType) keyValue;
 
                 // reconstruct the public key and check if it matches the public key of the provided certificate.
                 BigInteger modulus = new BigInteger(1, Base64.decode(new String(rsaKeyValue.getModulus())));

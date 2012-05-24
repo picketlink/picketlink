@@ -21,10 +21,6 @@
  */
 package org.picketlink.identity.xmlsec.w3.xmldsig;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -49,18 +45,5 @@ import org.w3c.dom.Element;
  *
  *
  */
-public class KeyValueType {
-    protected List<Object> content = new ArrayList<Object>();
-
-    /**
-     * Gets the value of the content property.
-     * <p>
-     * Objects of the following type(s) are allowed in the list {@link Element } {@link String } {@link JAXBElement }{@code <}
-     * {@link RSAKeyValueType }{@code >} {@link Object } {@link JAXBElement }{@code <}{@link DSAKeyValueType }{@code >}
-     *
-     *
-     */
-    public List<Object> getContent() {
-        return this.content;
-    }
+public interface KeyValueType {
 }

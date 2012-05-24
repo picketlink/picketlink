@@ -217,8 +217,8 @@ public class WSTrustResponseWriter {
                             WSTrustConstants.BASE_NAMESPACE);
                     StaxUtil.writeCharacters(this.writer, computedKey.getAlgorithm());
                     StaxUtil.writeEndElement(this.writer);
-                }
-
+                } else
+                    throw new ProcessingException(ErrorCodes.UNSUPPORTED_TYPE + content);
             }
 
             StaxUtil.writeEndElement(this.writer);

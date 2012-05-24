@@ -27,6 +27,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -58,11 +60,15 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.transfer.SignatureUtilTransferObject;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.KeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.SignatureType;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -325,7 +331,7 @@ public class XMLSignatureUtil {
      * @throws MarshalException
      */
     public static Document sign(SignatureUtilTransferObject dto) throws GeneralSecurityException, MarshalException,
-            XMLSignatureException {
+    XMLSignatureException {
         Document doc = dto.getDocumentToBeSigned();
         KeyPair keyPair = dto.getKeyPair();
         Node nextSibling = dto.getNextSibling();
@@ -467,5 +473,108 @@ public class XMLSignatureUtil {
             throw new ProcessingException(e);
         }
         return cert;
+    }
+
+    /**
+     * Given a dsig:DSAKeyValue element, return {@link DSAKeyValueType}
+     * @param element
+     * @return
+     * @throws ProcessingException
+     */
+    public static DSAKeyValueType getDSAKeyValue(Element element) throws ParsingException {
+        DSAKeyValueType dsa = new DSAKeyValueType();
+        NodeList nl  = element.getChildNodes();
+        int length = nl.getLength();
+
+        for(int i = 0; i < length; i++){
+            Node node  = nl.item(i);
+            if(node instanceof Element){
+                Element childElement = (Element) node;
+                String tag = childElement.getLocalName();
+                
+                byte[] text = childElement.getTextContent().getBytes();
+                
+                if(WSTrustConstants.XMLDSig.P.equals(tag)){
+                    dsa.setP(text);
+                } else if(WSTrustConstants.XMLDSig.Q.equals(tag)){
+                    dsa.setQ(text);
+                } else if(WSTrustConstants.XMLDSig.G.equals(tag)){
+                    dsa.setG(text);
+                } else if(WSTrustConstants.XMLDSig.Y.equals(tag)){
+                    dsa.setY(text);
+                } else if(WSTrustConstants.XMLDSig.SEED.equals(tag)){
+                    dsa.setSeed(text);
+                } else if(WSTrustConstants.XMLDSig.PGEN_COUNTER.equals(tag)){
+                    dsa.setPgenCounter(text);
+                }
+            }
+        }
+
+        return dsa;
+    }
+    
+    /**
+     * Given a dsig:DSAKeyValue element, return {@link DSAKeyValueType}
+     * @param element
+     * @return
+     * @throws ProcessingException
+     */
+    public static RSAKeyValueType getRSAKeyValue(Element element) throws ParsingException {
+        RSAKeyValueType rsa = new RSAKeyValueType();
+        NodeList nl  = element.getChildNodes();
+        int length = nl.getLength();
+
+        for(int i = 0; i < length; i++){
+            Node node  = nl.item(i);
+            if(node instanceof Element){
+                Element childElement = (Element) node;
+                String tag = childElement.getLocalName();
+                
+                byte[] text = childElement.getTextContent().getBytes();
+                
+                if(WSTrustConstants.XMLDSig.MODULUS.equals(tag)){
+                    rsa.setModulus(text);
+                } else if(WSTrustConstants.XMLDSig.EXPONENT.equals(tag)){
+                    rsa.setExponent(text);
+                }
+            }
+        }
+
+        return rsa;
+    }
+
+    /**
+     * <p>
+     * Creates a {@code KeyValueType} that wraps the specified public key. This method supports DSA and RSA keys.
+     * </p>
+     *
+     * @param key the {@code PublicKey} that will be represented as a {@code KeyValueType}.
+     * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA key.
+     */
+    public static KeyValueType createKeyValue(PublicKey key) {
+        if (key instanceof RSAPublicKey) {
+            RSAPublicKey pubKey = (RSAPublicKey) key;
+            byte[] modulus = pubKey.getModulus().toByteArray();
+            byte[] exponent = pubKey.getPublicExponent().toByteArray();
+
+            RSAKeyValueType rsaKeyValue = new RSAKeyValueType();
+            rsaKeyValue.setModulus(Base64.encodeBytes(modulus).getBytes());
+            rsaKeyValue.setExponent(Base64.encodeBytes(exponent).getBytes());
+            return rsaKeyValue;
+        } else if (key instanceof DSAPublicKey) {
+            DSAPublicKey pubKey = (DSAPublicKey) key;
+            byte[] P = pubKey.getParams().getP().toByteArray();
+            byte[] Q = pubKey.getParams().getQ().toByteArray();
+            byte[] G = pubKey.getParams().getG().toByteArray();
+            byte[] Y = pubKey.getY().toByteArray();
+
+            DSAKeyValueType dsaKeyValue = new DSAKeyValueType();
+            dsaKeyValue.setP(Base64.encodeBytes(P).getBytes());
+            dsaKeyValue.setQ(Base64.encodeBytes(Q).getBytes());
+            dsaKeyValue.setG(Base64.encodeBytes(G).getBytes());
+            dsaKeyValue.setY(Base64.encodeBytes(Y).getBytes());
+            return dsaKeyValue;
+        }
+        throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE);
     }
 }

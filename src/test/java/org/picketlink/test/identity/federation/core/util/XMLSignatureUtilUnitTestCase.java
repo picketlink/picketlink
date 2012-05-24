@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.security.KeyPair;
+import java.security.interfaces.DSAPublicKey;
+import java.security.interfaces.RSAPublicKey;
 
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
@@ -36,6 +38,8 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.KeyStoreUtil;
 import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
+import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -108,5 +112,59 @@ public class XMLSignatureUtilUnitTestCase {
         Logger.getLogger(XMLSignatureUtilUnitTestCase.class).debug(DocumentUtil.asString(rstrDocument));
 
         assertTrue(XMLSignatureUtil.validate(rstrDocument, keyPair.getPublic()));
+    }
+    
+    @Test
+    public void testDSAKeyValueParsing() throws Exception {
+        String fileName = "signatures/dsakeyvalue.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(fileName);
+        if (is == null)
+            throw new RuntimeException("InputStream is null");
+
+        Document doc = DocumentUtil.getDocument(is);
+        assertNotNull(doc);
+        assertNotNull(doc.getDocumentElement());
+        
+        Element dsaEl = (Element) doc.getElementsByTagName("ds:DSAKeyValue").item(0);
+        assertNotNull(dsaEl);
+        
+        DSAKeyValueType dsa = XMLSignatureUtil.getDSAKeyValue(dsaEl);
+        assertNotNull(dsa);
+        assertNotNull(dsa.getP());
+        assertNotNull(dsa.getQ());
+        assertNotNull(dsa.getG());
+        assertNotNull(dsa.getY());
+        
+        System.out.println(dsa);
+
+        DSAPublicKey publicKey = dsa.convertToPublicKey();
+        assertNotNull(publicKey);
+    }
+    
+    @Test
+    public void testRSAKeyValueParsing() throws Exception {
+        String fileName = "signatures/rsakeyvalue.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(fileName);
+        if (is == null)
+            throw new RuntimeException("InputStream is null");
+
+        Document doc = DocumentUtil.getDocument(is);
+        assertNotNull(doc);
+        assertNotNull(doc.getDocumentElement());
+        
+        Element rsaEl = (Element) doc.getElementsByTagName("ds:RSAKeyValue").item(0);
+        assertNotNull(rsaEl);
+        
+        RSAKeyValueType rsa = XMLSignatureUtil.getRSAKeyValue(rsaEl);
+        assertNotNull(rsa);
+        assertNotNull(rsa.getModulus());
+        assertNotNull(rsa.getExponent()); 
+        
+        System.out.println(rsa);
+        
+        RSAPublicKey publicKey = rsa.convertToPublicKey();
+        assertNotNull(publicKey);
     }
 }

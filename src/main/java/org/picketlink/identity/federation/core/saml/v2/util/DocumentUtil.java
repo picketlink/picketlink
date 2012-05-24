@@ -279,6 +279,31 @@ public class DocumentUtil {
         }
         return (Element) nl.item(0);
     }
+    
+    /**
+     * <p>
+     * Get an child element from the parent element given its {@link QName}
+     * </p>
+     * <p>
+     * First an attempt to get the element based on its namespace is made, failing which an element with the localpart ignoring
+     * any namespace is returned.
+     * </p>
+     *
+     * @param doc
+     * @param elementQName
+     * @return
+     */
+    public static Element getChildElement(Element doc, QName elementQName) {
+        NodeList nl = doc.getElementsByTagNameNS(elementQName.getNamespaceURI(), elementQName.getLocalPart());
+        if (nl.getLength() == 0) {
+            nl = doc.getElementsByTagNameNS("*", elementQName.getLocalPart());
+            if (nl.getLength() == 0)
+                nl = doc.getElementsByTagName(elementQName.getPrefix() + ":" + elementQName.getLocalPart());
+            if (nl.getLength() == 0)
+                return null;
+        }
+        return (Element) nl.item(0);
+    }
 
     /**
      * Stream a DOM Node as an input stream
