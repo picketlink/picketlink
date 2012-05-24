@@ -979,12 +979,23 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         // Work on the IDP Configuration
         if (configProvider != null) {
             try {
-                idpConfiguration = configProvider.getIDPConfiguration();
-
-                // Additionally parse the config file
-                if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
-                    ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+                if (is == null) {
+                    // Try the older version
+                    is = getContext().getServletContext().getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+                    
+                    // Additionally parse the deprecated config file
+                    if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
+                        ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+                    }
+                } else {
+                    // Additionally parse the consolidated config file
+                    if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
+                        ((AbstractSAMLConfigurationProvider) configProvider).setConsolidatedConfigFile(is);
+                    }
                 }
+
+                picketLinkConfiguration = configProvider.getPicketLinkConfiguration();
+                idpConfiguration = configProvider.getIDPConfiguration();
             } catch (ProcessingException e) {
                 throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + e.getLocalizedMessage());
             } catch (ParsingException e) {
@@ -1021,6 +1032,7 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
                     throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
                 }
             }
+            
             if (is == null) {
                 // Try the older version
                 is = getContext().getServletContext().getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
@@ -1175,6 +1187,10 @@ public class IDPWebBrowserSSOValve extends ValveBase implements Lifecycle {
         } catch (Exception e) {
             throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
         }
+    }
+
+    public void setConfigProvider(SAMLConfigurationProvider configurationProvider) {
+        this.configProvider = configurationProvider;
     }
 
     @Deprecated
