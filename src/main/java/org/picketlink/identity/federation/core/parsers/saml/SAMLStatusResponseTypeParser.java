@@ -38,8 +38,10 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusCodeType;
+import org.picketlink.identity.federation.saml.v2.protocol.StatusDetailType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
+import org.w3c.dom.Element;
 
 /**
  * Base Class for all Response Type parsing for SAML2
@@ -147,6 +149,22 @@ public abstract class SAMLStatusResponseTypeParser {
                     StaxParserUtil.validate(endElement, JBossSAMLConstants.STATUS_CODE.get());
                     continue;
                 }
+            }
+            if (JBossSAMLConstants.STATUS_MESSAGE.get().equals(elementTag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                if (startElement == null)
+                    break;
+                status.setStatusMessage(StaxParserUtil.getElementText(xmlEventReader));
+            }
+            
+            if (JBossSAMLConstants.STATUS_DETAIL.get().equals(elementTag)) {
+                startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+                if (startElement == null)
+                    break;
+                Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
+                StatusDetailType statusDetailType = new StatusDetailType();
+                statusDetailType.addStatusDetail(domElement);
+                status.setStatusDetail(statusDetailType);
             }
 
             // Get the next end element
