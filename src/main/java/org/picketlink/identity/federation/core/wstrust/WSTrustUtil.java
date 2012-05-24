@@ -37,12 +37,18 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.StartElement;
 
 import org.apache.log4j.Logger;
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.STSType;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
@@ -55,6 +61,7 @@ import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.trust.BinarySecretType;
 import org.picketlink.identity.federation.ws.trust.EntropyType;
 import org.picketlink.identity.federation.ws.trust.OnBehalfOfType;
+import org.picketlink.identity.federation.ws.trust.RenewingType;
 import org.picketlink.identity.federation.ws.trust.RequestedReferenceType;
 import org.picketlink.identity.federation.ws.wss.secext.AttributedString;
 import org.picketlink.identity.federation.ws.wss.secext.KeyIdentifierType;
@@ -171,6 +178,29 @@ public class WSTrustUtil {
                 return reference.getAddress().getValue();
         }
         return null;
+    }
+    
+
+
+    public static RenewingType parseRenewingType(XMLEventReader xmlEventReader) throws ParsingException {
+        RenewingType renewingType = new RenewingType();
+
+        StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+        StaxParserUtil.validate(startElement, WSTrustConstants.RENEWING);
+
+        Attribute allowAttribute = startElement.getAttributeByName(new QName(WSTrustConstants.ALLOW));
+        if (allowAttribute != null) {
+            renewingType.setAllow(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(allowAttribute)));
+        }
+
+        Attribute okAttribute = startElement.getAttributeByName(new QName(WSTrustConstants.OK));
+        if (allowAttribute != null) {
+            renewingType.setOK(Boolean.parseBoolean(StaxParserUtil.getAttributeValue(okAttribute)));
+        }
+
+        EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
+        StaxParserUtil.validate(endElement, WSTrustConstants.RENEWING);
+        return renewingType;
     }
 
     /**
