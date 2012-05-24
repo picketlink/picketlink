@@ -305,37 +305,15 @@ public class WSTrustRequestWriter {
         StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
         if (type instanceof RSAKeyValueType) {
             RSAKeyValueType rsaKeyValue = (RSAKeyValueType) type;
-            writeRSAKeyValueType(rsaKeyValue);
+            StaxUtil.writeRSAKeyValueType(writer,rsaKeyValue);
         } else if(type instanceof DSAKeyValueType) {
             DSAKeyValueType dsaKeyValue = (DSAKeyValueType)type;
-            writeDSAKeyValueType(dsaKeyValue);
+            StaxUtil.writeDSAKeyValueType(writer, dsaKeyValue);
         }
         StaxUtil.writeEndElement(writer);
     }
 
-    private void writeRSAKeyValueType(RSAKeyValueType type) throws ProcessingException {
-        StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.RSA_KEYVALUE, WSTrustConstants.DSIG_NS);
-        // write the rsa key modulus.
-        byte[] modulus = type.getModulus();
-        StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.MODULUS, WSTrustConstants.DSIG_NS);
-        StaxUtil.writeCharacters(writer, new String(modulus));
-        StaxUtil.writeEndElement(writer);
-
-        // write the rsa key exponent.
-        byte[] exponent = type.getExponent();
-        StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.EXPONENT, WSTrustConstants.DSIG_NS);
-        StaxUtil.writeCharacters(writer, new String(exponent));
-        StaxUtil.writeEndElement(writer);
-
-        StaxUtil.writeEndElement(writer);
-    }
     
-    private void writeDSAKeyValueType(DSAKeyValueType type) throws ProcessingException {
-        StaxUtil.writeStartElement(writer, "dsig", WSTrustConstants.XMLDSig.DSA_KEYVALUE, WSTrustConstants.DSIG_NS);
-        
-        //TODO: write
-        StaxUtil.writeEndElement(writer);
-    }
 
     /**
      * Write an {@code OnBehalfOfType} to stream
