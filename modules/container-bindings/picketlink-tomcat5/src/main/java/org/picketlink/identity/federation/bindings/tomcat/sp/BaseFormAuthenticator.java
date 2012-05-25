@@ -198,6 +198,10 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
             throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
         }
     }
+    
+    public void setConfigProvider(SAMLConfigurationProvider configProvider) {
+        this.configProvider = configProvider;
+    }
 
     public SPType getConfiguration() {
         return spConfiguration;
@@ -380,10 +384,30 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         InputStream is = servletContext.getResourceAsStream(configFile);
 
         try {
+            // Work on the IDP Configuration
             if (configProvider != null) {
-                spConfiguration = configProvider.getSPConfiguration();
-                if (configProvider instanceof AbstractSAMLConfigurationProvider) {
-                    ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+                try {
+                    if (is == null) {
+                        // Try the older version
+                        is = servletContext.getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
+                        
+                        // Additionally parse the deprecated config file
+                        if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
+                            ((AbstractSAMLConfigurationProvider) configProvider).setConfigFile(is);
+                        }
+                    } else {
+                        // Additionally parse the consolidated config file
+                        if (is != null && configProvider instanceof AbstractSAMLConfigurationProvider) {
+                            ((AbstractSAMLConfigurationProvider) configProvider).setConsolidatedConfigFile(is);
+                        }
+                    }
+
+                    picketLinkConfiguration = configProvider.getPicketLinkConfiguration();
+                    spConfiguration = configProvider.getSPConfiguration();
+                } catch (ProcessingException e) {
+                    throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + e.getLocalizedMessage());
+                } catch (ParsingException e) {
+                    throw new RuntimeException(ErrorCodes.PARSING_ERROR + e.getLocalizedMessage());
                 }
             } else {
                 if (is != null) {

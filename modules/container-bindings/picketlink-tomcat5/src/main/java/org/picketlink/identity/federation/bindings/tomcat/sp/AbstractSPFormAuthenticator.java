@@ -477,8 +477,9 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 baseProcessor.setIssuer(issuerID);
 
             baseProcessor.setIdentityURL(identityURL);
-            
             baseProcessor.setAuditHelper(auditHelper);
+            baseProcessor.setConfiguration(this.spConfiguration);
+            
             saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
         } catch (ProcessingException pe) {
             log.error("Processing Exception:", pe);
