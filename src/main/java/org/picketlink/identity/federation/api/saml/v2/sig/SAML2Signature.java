@@ -58,6 +58,8 @@ import org.xml.sax.SAXException;
  * @since May 26, 2009
  */
 public class SAML2Signature {
+    private static final String ID_ATTRIBUTE_NAME = "ID";
+
     private String signatureMethod = SignatureMethod.RSA_SHA1;
 
     private String digestMethod = DigestMethod.SHA1;
@@ -247,7 +249,7 @@ public class SAML2Signature {
      */
     public void signSAMLDocument(Document samlDocument, KeyPair keypair) throws ProcessingException {
         // Get the ID from the root
-        String id = samlDocument.getDocumentElement().getAttribute("ID");
+        String id = samlDocument.getDocumentElement().getAttribute(ID_ATTRIBUTE_NAME);
         try {
             sign(samlDocument, id, keypair);
         } catch (Exception e) {
@@ -284,15 +286,15 @@ public class SAML2Signature {
      */
     private void configureIdAttribute(Document document) {
         // Estabilish the IDness of the ID attribute.
-        document.getDocumentElement().setIdAttribute("ID", true);
-
+        document.getDocumentElement().setIdAttribute(ID_ATTRIBUTE_NAME, true);
+        
         NodeList nodes = document.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
                 JBossSAMLConstants.ASSERTION.get());
 
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);
             if (n instanceof Element) {
-                ((Element) n).setIdAttribute("ID", true);
+                ((Element) n).setIdAttribute(ID_ATTRIBUTE_NAME, true);
             }
         }
     }
