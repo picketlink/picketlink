@@ -100,6 +100,7 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
         // Set some request options
         setRequestOptions(saml2HandlerRequest);
         saml2HandlerRequest.addOption(GeneralConstants.CONTEXT_PATH, httpContext.getServletContext().getContextPath());
+        saml2HandlerRequest.addOption(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
 
         chainProcessor.callHandlerChain(documentHolder.getSamlObject(), saml2HandlerRequest, saml2HandlerResponse, httpContext,
                 chainLock);
