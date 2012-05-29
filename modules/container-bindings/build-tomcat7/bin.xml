@@ -14,7 +14,7 @@
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${basedir}/../picketlink-tomcat5/target/classes/</directory>
+      <directory>${basedir}/../picketlink-tomcat7/target/classes/</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>

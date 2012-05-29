@@ -21,25 +21,21 @@
  */
 package org.picketlink.identity.federation.bindings.tomcat.sp;
 
-import org.apache.catalina.LifecycleException;
-
 /**
- * Authenticator at the Service Provider that handles HTTP/Post binding of SAML 2 but falls back on Form Authentication
+ * JBID-142: POST form authenticator that can handle signatures at the SP side
  *
  * @author Anil.Saldhana@redhat.com
- * @since Dec 12, 2008
+ * @since Jul 24, 2009
  */
-public class SPPostFormAuthenticator extends ServiceProviderAuthenticator {
+public class SPPostSignatureFormAuthenticator extends SPPostFormAuthenticator {
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.picketlink.identity.federation.bindings.tomcat.sp.AbstractSPFormAuthenticator#doSupportSignature()
+     */
     @Override
-    protected String getContextPath() {
-        return getContext().getServletContext().getContextPath();
+    protected boolean doSupportSignature() {
+        return true;
     }
-
-    @Override
-    protected void startPicketLink() throws LifecycleException{
-        super.startPicketLink();
-        this.spConfiguration.setBindingType("POST"); 
-    }
-
 }

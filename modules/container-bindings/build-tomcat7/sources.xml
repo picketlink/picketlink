@@ -6,7 +6,15 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>${basedir}/../picketlink-core/src/main/java</directory>
+      <directory>${basedir}/../../picketlink-core/src/main/java</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/../picketlink-tomcat-common/src/main/java</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/../picketlink-tomcat7/src/main/java</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
   </fileSets>

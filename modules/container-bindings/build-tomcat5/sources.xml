@@ -6,7 +6,7 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
-      <directory>${basedir}/../picketlink-core/src/main/java</directory>
+      <directory>${basedir}/../../picketlink-core/src/main/java</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>

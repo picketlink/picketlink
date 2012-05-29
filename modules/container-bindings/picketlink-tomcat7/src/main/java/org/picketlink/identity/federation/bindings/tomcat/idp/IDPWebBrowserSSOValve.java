@@ -1,6 +1,6 @@
 /*
  * JBoss, Home of Professional Open Source.
- * Copyright 2008, Red Hat Middleware LLC, and individual contributors
+ * Copyright 2012, Red Hat Middleware LLC, and individual contributors
  * as indicated by the @author tags. See the copyright.txt file in the
  * distribution for a full listing of individual contributors.
  *
@@ -25,21 +25,13 @@ import org.apache.catalina.Lifecycle;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.LifecycleListener;
 import org.apache.catalina.util.LifecycleSupport;
-import org.picketlink.identity.federation.bindings.tomcat.idp.AbstractIDPValve;
 import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
- * Generic Web Browser SSO valve for the IDP
- * 
- * Handles both the SAML Redirect as well as Post Bindings
- * 
- * Note: Most of the work is done by {@code IDPWebRequestUtil}
- * 
- * @author Anil.Saldhana@redhat.com
- * @since May 18, 2009
+ * IDP Valve for Apache Tomcat 7 and beyond
+ * @author anil saldhana
  */
 public class IDPWebBrowserSSOValve extends AbstractIDPValve implements Lifecycle {
-    
 
     // ***************Lifecycle
     /**
@@ -84,16 +76,15 @@ public class IDPWebBrowserSSOValve extends AbstractIDPValve implements Lifecycle
      * 
      * @exception LifecycleException if this component detects a fatal error that prevents this component from being used
      */
-    public void start() throws LifecycleException {
+    protected synchronized void startInternal() throws LifecycleException {
         // Validate and update our current component state
         if (started)
             throw new LifecycleException(ErrorCodes.IDP_WEBBROWSER_VALVE_ALREADY_STARTED);
-        lifecycle.fireLifecycleEvent(START_EVENT, null);
+        super.startInternal();
         started = true;
         
         startPicketLink();
     } 
-    
 
     /**
      * Gracefully terminate the active use of the public methods of this component. This method should be the last one called on
@@ -101,11 +92,11 @@ public class IDPWebBrowserSSOValve extends AbstractIDPValve implements Lifecycle
      * 
      * @exception LifecycleException if this component detects a fatal error that needs to be reported
      */
-    public void stop() throws LifecycleException {
+    protected synchronized void stopInternal() throws LifecycleException {
         // Validate and update our current component state
         if (!started)
             throw new LifecycleException(ErrorCodes.IDP_WEBBROWSER_VALVE_NOT_STARTED);
-        lifecycle.fireLifecycleEvent(STOP_EVENT, null);
+        super.stopInternal();
         started = false;
     }
 

@@ -59,6 +59,13 @@ public class SPUtil {
         return saml2Request.createAuthnRequestType(id, serviceURL, identityURL, serviceURL);
     }
 
+    /**
+     * Create an instance of the {@link GenericPrincipal}
+     * @param request
+     * @param username
+     * @param roles
+     * @return
+     */
     public Principal createGenericPrincipal(Request request, String username, List<String> roles) {
         Context ctx = request.getContext();
         return new GenericPrincipal(ctx.getRealm(), username, null, roles);

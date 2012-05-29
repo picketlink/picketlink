@@ -25,6 +25,7 @@ package org.picketlink.identity.federation.bindings.tomcat.sp;
 import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.security.Principal;
 import java.util.Arrays;
@@ -53,9 +54,12 @@ import org.picketlink.identity.federation.core.exceptions.ConfigurationException
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
@@ -63,6 +67,10 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.process.ServiceProviderBaseProcessor;
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLRequestProcessor;
 import org.picketlink.identity.federation.web.process.ServiceProviderSAMLResponseProcessor;
+import org.picketlink.identity.federation.web.util.HTTPRedirectUtil;
+import org.picketlink.identity.federation.web.util.PostBindingUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil;
+import org.picketlink.identity.federation.web.util.RedirectBindingUtil.RedirectBindingUtilDestHolder;
 import org.picketlink.identity.federation.web.util.ServerDetector;
 import org.w3c.dom.Document;
 
@@ -95,9 +103,95 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @see org.picketlink.identity.federation.bindings.tomcat.sp.BaseFormAuthenticator#processStart()
      */
     @Override
-    protected void processStart() throws LifecycleException {
-        super.processStart();
+    protected void startPicketLink() throws LifecycleException {
+        super.startPicketLink();
         initKeyProvider(context);
+    }
+    
+    /**
+     * <p>
+     * Send the request to the IDP. Subclasses should override this method to implement how requests must be sent to the IDP.
+     * </p>
+     *
+     * @param destination idp url
+     * @param samlDocument request or response document
+     * @param relayState
+     * @param response
+     * @param willSendRequest are we sending Request or Response to IDP
+     * @param destinationQueryStringWithSignature used only with Redirect binding and with signature enabled.
+     * @throws ProcessingException
+     * @throws ConfigurationException
+     * @throws IOException
+     */ 
+    protected void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
+            boolean willSendRequest, String destinationQueryStringWithSignature) throws ProcessingException, ConfigurationException, IOException {
+        if (isHttpPostBinding()) {
+            sendHttpPostBindingRequest(destination, samlDocument, relayState, response, willSendRequest);
+        } else {
+            sendHttpRedirectRequest(destination, samlDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
+        }
+    }
+
+    /**
+     * <p>
+     * Sends a HTTP Redirect request to the IDP.
+     * </p>
+     *
+     * @param destination
+     * @param relayState
+     * @param response
+     * @param willSendRequest
+     * @param destinationQueryStringWithSignature
+     * @throws IOException
+     * @throws UnsupportedEncodingException
+     * @throws ConfigurationException
+     * @throws ProcessingException
+     */
+    protected void sendHttpRedirectRequest(String destination, Document samlDocument, String relayState, Response response,
+            boolean willSendRequest, String destinationQueryStringWithSignature) throws IOException,
+            ProcessingException, ConfigurationException {
+        String destinationQueryString = null;
+
+        // We already have queryString with signature from SAML2SignatureGenerationHandler
+        if (destinationQueryStringWithSignature != null) {
+            destinationQueryString = destinationQueryStringWithSignature;
+        }
+        else {
+            String samlMessage = DocumentUtil.getDocumentAsString(samlDocument);
+            String base64Request = RedirectBindingUtil.deflateBase64URLEncode(samlMessage.getBytes("UTF-8"));
+            destinationQueryString = RedirectBindingUtil.getDestinationQueryString(base64Request, relayState, willSendRequest);
+        }
+
+        RedirectBindingUtilDestHolder holder = new RedirectBindingUtilDestHolder();
+
+        holder.setDestination(destination).setDestinationQueryString(destinationQueryString);
+
+        HTTPRedirectUtil.sendRedirectForRequestor(RedirectBindingUtil.getDestinationURL(holder), response);
+    }
+
+    /**
+     * <p>
+     * Sends a HTTP POST request to the IDP.
+     * </p>
+     *
+     * @param destination
+     * @param samlDocument
+     * @param relayState
+     * @param response
+     * @param willSendRequest
+     * @throws TrustKeyProcessingException
+     * @throws ProcessingException
+     * @throws IOException
+     * @throws ConfigurationException
+     */
+    protected void sendHttpPostBindingRequest(String destination, Document samlDocument, String relayState, Response response,
+            boolean willSendRequest) throws ProcessingException, IOException,
+            ConfigurationException {
+        String samlMessage = PostBindingUtil.base64Encode(DocumentUtil.getDocumentAsString(samlDocument));
+
+        DestinationInfoHolder destinationHolder = new DestinationInfoHolder(destination, samlMessage, relayState);
+
+        PostBindingUtil.sendPost(destinationHolder, response, willSendRequest);
     }
 
     /**
@@ -278,7 +372,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             if (enableAudit) {
                 PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                 auditEvent.setType(PicketLinkAuditEventType.REQUEST_FROM_IDP);
-                auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                auditEvent.setWhoIsAuditing(getContextPath());
                 auditHelper.audit(auditEvent);
             }
 
@@ -306,7 +400,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      * @throws IOException
      */
     private boolean handleSAMLResponse(Request request, Response response, LoginConfig loginConfig) throws IOException {
-        SPUtil spUtil = new SPUtil();
         Session session = request.getSessionInternal(true);
         String samlResponse = request.getParameter(GeneralConstants.SAML_RESPONSE_KEY);
 
@@ -374,7 +467,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     ServiceProviderSAMLContext.clear();
                 } else {
                     // tomcat env
-                    principal = spUtil.createGenericPrincipal(request, username, roles);
+                    principal = getGenericPrincipal(request, username, roles);
                 }
 
                 session.setNote(Constants.SESS_USERNAME_NOTE, username);
@@ -389,7 +482,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                     auditEvent.setType(PicketLinkAuditEventType.RESPONSE_FROM_IDP);
                     auditEvent.setSubjectName(username);
-                    auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                    auditEvent.setWhoIsAuditing(getContextPath());
                     auditHelper.audit(auditEvent);
                 }
                 register(request, response, principal, Constants.FORM_METHOD, username, password);
@@ -423,24 +516,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         return spConfiguration.isIdpUsesPostBinding();
     }
 
-    /**
-     * <p>
-     * Send the request to the IDP. Subclasses should override this method to implement how requests must be sent to the IDP.
-     * </p>
-     *
-     * @param destination idp url
-     * @param samlDocument request or response document
-     * @param relayState
-     * @param response
-     * @param willSendRequest are we sending Request or Response to IDP
-     * @param destinationQueryStringWithSignature used only with Redirect binding and with signature enabled.
-     * @throws ProcessingException
-     * @throws ConfigurationException
-     * @throws IOException
-     */
-    protected abstract void sendRequestToIDP(String destination, Document samlDocument, String relayState, Response response,
-            boolean willSendRequest, String destinationQueryStringWithSignature) throws ProcessingException, ConfigurationException, IOException;
-
+     
     /*
      * (non-Javadoc)
      *
@@ -508,7 +584,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                     auditEvent.setType(PicketLinkAuditEventType.REQUEST_TO_IDP);
-                    auditEvent.setWhoIsAuditing(context.getServletContext().getContextPath());
+                    auditEvent.setWhoIsAuditing(getContextPath());
                     auditHelper.audit(auditEvent);
                 }
                 sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
@@ -531,5 +607,21 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
      */
     protected boolean isHttpPostBinding() {
         return getBinding().equalsIgnoreCase("POST");
+    }
+    
+
+    protected Context getContext() {
+        return (Context) getContainer();
+    }
+    
+    /**
+     * Subclasses need to return the context path
+     * based on the capability of their servlet api
+     * @return
+     */
+    protected abstract String getContextPath();
+    
+    protected Principal getGenericPrincipal(Request request, String username, List<String> roles){
+        return (new SPUtil()).createGenericPrincipal(request, username, roles);
     }
 }

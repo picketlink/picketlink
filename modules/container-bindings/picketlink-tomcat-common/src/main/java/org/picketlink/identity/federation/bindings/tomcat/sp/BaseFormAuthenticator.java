@@ -166,26 +166,51 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         this.idpAddress = idpAddress;
     }
 
+    /**
+     * Get the name of the configuration file
+     * @return
+     */
     public String getConfigFile() {
         return configFile;
     }
 
+    /**
+     * Set the name of the configuration file
+     * @param configFile
+     */
     public void setConfigFile(String configFile) {
         this.configFile = configFile;
     }
 
+    /**
+     * Set the SAML Handler Chain Class fqn
+     * @param samlHandlerChainClass
+     */
     public void setSamlHandlerChainClass(String samlHandlerChainClass) {
         this.samlHandlerChainClass = samlHandlerChainClass;
     }
 
+    /**
+     * Set the service URL
+     * @param serviceURL
+     */
     public void setServiceURL(String serviceURL) {
         this.serviceURL = serviceURL;
     }
 
+    /**
+     * Set whether the authenticator saves/restores the request
+     * during form authentication
+     * @param saveRestoreRequest
+     */
     public void setSaveRestoreRequest(boolean saveRestoreRequest) {
         this.saveRestoreRequest = saveRestoreRequest;
     }
 
+    /**
+     * Set the {@link SAMLConfigurationProvider} fqn
+     * @param cp fqn of a {@link SAMLConfigurationProvider}
+     */
     public void setConfigProvider(String cp) {
         if (cp == null)
             throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
@@ -199,10 +224,18 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         }
     }
     
+    /**
+     * Set an instance of the {@link SAMLConfigurationProvider}
+     * @param configProvider
+     */
     public void setConfigProvider(SAMLConfigurationProvider configProvider) {
         this.configProvider = configProvider;
     }
 
+    /**
+     * Get the {@link SPType}
+     * @return
+     */
     public SPType getConfiguration() {
         return spConfiguration;
     }
@@ -216,6 +249,10 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         this.issuerID = issuerID;
     }
 
+    /**
+     * Set the logout page
+     * @param logOutPage
+     */
     public void setLogOutPage(String logOutPage) {
         this.logOutPage = logOutPage;
     }
@@ -230,13 +267,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
      */
     protected boolean validate(Request request) {
         return request.getParameter("SAMLResponse") != null;
-    }
-
-    @Override
-    public void start() throws LifecycleException {
-        super.start();
-        SystemPropertiesUtil.ensure();
-        processStart();
     }
 
     /**
@@ -379,6 +409,7 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
     /**
      * Process the configuration from the configuration file
      */
+    @SuppressWarnings("deprecation")
     protected void processConfiguration() {
         ServletContext servletContext = context.getServletContext();
         InputStream is = servletContext.getResourceAsStream(configFile);
@@ -532,10 +563,11 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
         this.saveRestoreRequest = false;
         if (context == null)
             throw new RuntimeException("Catalina Context not set up");
-        processStart();
+        startPicketLink();
     }
 
-    protected void processStart() throws LifecycleException {
+    protected void startPicketLink() throws LifecycleException {
+        SystemPropertiesUtil.ensure();
         Handlers handlers = null;
 
         // Get the chain from config
