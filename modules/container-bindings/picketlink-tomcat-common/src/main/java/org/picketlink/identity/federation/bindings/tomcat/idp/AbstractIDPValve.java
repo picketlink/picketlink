@@ -1015,7 +1015,7 @@ public abstract class AbstractIDPValve extends ValveBase {
     protected void initIDPConfiguration() {
         String configFile = GeneralConstants.CONFIG_FILE_LOCATION;
         InputStream is = getContext().getServletContext().getResourceAsStream(configFile);
-
+        
         // Work on the IDP Configuration
         if (configProvider != null) {
             try {
@@ -1048,25 +1048,7 @@ public abstract class AbstractIDPValve extends ValveBase {
                 try {
                     picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
                     idpConfiguration = (IDPType) picketLinkConfiguration.getIdpOrSP();
-                    enableAudit = picketLinkConfiguration.isEnableAudit();
-
-                    //See if we have the system property enabled
-                    if(!enableAudit){
-                        String sysProp = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_ENABLE, "NULL");
-                        if(!"NULL".equals(sysProp)){
-                            enableAudit = Boolean.parseBoolean(sysProp);   
-                        }
-                    }
-
-                    if (enableAudit) {
-                        String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(getContext().getServletContext());
-                        auditHelper = new PicketLinkAuditHelper(securityDomainName);
-                    }
                 } catch (ParsingException e) {
-                    if (trace)
-                        log.trace(e);
-                    throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
-                } catch (ConfigurationException e) {
                     if (trace)
                         log.trace(e);
                     throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
@@ -1087,8 +1069,28 @@ public abstract class AbstractIDPValve extends ValveBase {
                 }
             }
         }
-
+        
         try {
+            if (this.picketLinkConfiguration != null) {
+                enableAudit = picketLinkConfiguration.isEnableAudit();
+
+                //See if we have the system property enabled
+                if(!enableAudit){
+                    String sysProp = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_ENABLE, "NULL");
+                    if(!"NULL".equals(sysProp)){
+                        enableAudit = Boolean.parseBoolean(sysProp);   
+                    }
+                }
+
+                if (enableAudit) {
+                    String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(getContext().getServletContext());
+                    
+                    if (auditHelper == null) {
+                        auditHelper = new PicketLinkAuditHelper(securityDomainName);
+                    }
+                }
+            }
+            
             if (trace)
                 log.trace("Identity Provider URL=" + getIdentityURL());
 
@@ -1211,5 +1213,9 @@ public abstract class AbstractIDPValve extends ValveBase {
             attrStatement.add(attr);
         }
         return attrStatement;
+    }
+    
+    public void setAuditHelper(PicketLinkAuditHelper auditHelper) {
+        this.auditHelper = auditHelper;
     }
 }

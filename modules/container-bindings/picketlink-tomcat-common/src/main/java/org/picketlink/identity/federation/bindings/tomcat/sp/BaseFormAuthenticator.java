@@ -445,20 +445,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
                     try {
                         picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
                         spConfiguration = (SPType) picketLinkConfiguration.getIdpOrSP();
-                        enableAudit = picketLinkConfiguration.isEnableAudit();
-                        //See if we have the system property enabled
-                        if(!enableAudit){
-                            String sysProp = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_ENABLE, "NULL");
-                            if(!"NULL".equals(sysProp)){
-                                enableAudit = Boolean.parseBoolean(sysProp);   
-                            }
-                        }
-                        
-                        if (enableAudit) {
-                            String securityDomainName = PicketLinkAuditHelper
-                                    .getSecurityDomainName(context.getServletContext());
-                            auditHelper = new PicketLinkAuditHelper(securityDomainName);
-                        }
                     } catch (ParsingException e) {
                         if (trace)
                             log.trace(e);
@@ -469,6 +455,26 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
                     if (is == null)
                         throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_CONF_FILE_MISSING + configFile);
                     spConfiguration = ConfigurationUtil.getSPConfiguration(is);
+                }
+            }
+            
+            if (this.picketLinkConfiguration != null) {
+                enableAudit = picketLinkConfiguration.isEnableAudit();
+
+                //See if we have the system property enabled
+                if(!enableAudit){
+                    String sysProp = SecurityActions.getSystemProperty(GeneralConstants.AUDIT_ENABLE, "NULL");
+                    if(!"NULL".equals(sysProp)){
+                        enableAudit = Boolean.parseBoolean(sysProp);   
+                    }
+                }
+
+                if (enableAudit) {
+                    String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(servletContext);
+                    
+                    if (auditHelper == null) {
+                        auditHelper = new PicketLinkAuditHelper(securityDomainName);
+                    }
                 }
             }
 
@@ -628,4 +634,8 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
     }
 
     protected abstract void initKeyProvider(Context context) throws LifecycleException;
+    
+    public void setAuditHelper(PicketLinkAuditHelper auditHelper) {
+        this.auditHelper = auditHelper;
+    }
 }
