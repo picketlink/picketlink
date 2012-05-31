@@ -193,15 +193,15 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
      * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#cancelToken(org.picketlink.identity.federation.core.interfaces.ProtocolContext)
      */
     public void cancelToken(ProtocolContext context) throws ProcessingException {
-        if (!(context instanceof SAMLProtocolContext))
+        if (!(context instanceof SAML11ProtocolContext))
             return;
 
         SecurityManager sm = System.getSecurityManager();
         if (sm != null)
             sm.checkPermission(PicketLinkCoreSTS.rte);
 
-        SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
-        AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
+        SAML11ProtocolContext samlProtocolContext = (SAML11ProtocolContext) context;
+        SAML11AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
         try {
             this.tokenRegistry.removeToken(issuedAssertion.getID());
         } catch (IOException e) {
@@ -213,16 +213,16 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
      * @see org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider#validateToken(org.picketlink.identity.federation.core.interfaces.ProtocolContext)
      */
     public void validateToken(ProtocolContext context) throws ProcessingException {
-        if (!(context instanceof SAMLProtocolContext))
+        if (!(context instanceof SAML11ProtocolContext))
             return;
 
         SecurityManager sm = System.getSecurityManager();
         if (sm != null)
             sm.checkPermission(PicketLinkCoreSTS.rte);
 
-        SAMLProtocolContext samlProtocolContext = (SAMLProtocolContext) context;
+        SAML11ProtocolContext samlProtocolContext = (SAML11ProtocolContext) context;
 
-        AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
+        SAML11AssertionType issuedAssertion = samlProtocolContext.getIssuedAssertion();
 
         try {
             if (!AssertionUtil.hasExpired(issuedAssertion))
