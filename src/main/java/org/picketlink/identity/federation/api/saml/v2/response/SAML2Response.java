@@ -184,7 +184,7 @@ public class SAML2Response {
         SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
         subjectConfirmationData.setInResponseTo(sp.getRequestID());
         subjectConfirmationData.setRecipient(responseDestinationURI);
-        subjectConfirmationData.setNotBefore(issueInstant);
+        //subjectConfirmationData.setNotBefore(issueInstant);
         subjectConfirmationData.setNotOnOrAfter(issueInstant);
 
         subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
@@ -245,7 +245,7 @@ public class SAML2Response {
         SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
         subjectConfirmationData.setInResponseTo(sp.getRequestID());
         subjectConfirmationData.setRecipient(responseDestinationURI);
-        subjectConfirmationData.setNotBefore(issueInstant);
+        //subjectConfirmationData.setNotBefore(issueInstant);
         subjectConfirmationData.setNotOnOrAfter(issueInstant);
 
         subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);

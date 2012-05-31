@@ -104,7 +104,7 @@ public class JBossSAMLBaseFactory {
         SubjectConfirmationDataType subjectConfirmationData = new SubjectConfirmationDataType();
         subjectConfirmationData.setInResponseTo(inResponseTo);
         subjectConfirmationData.setRecipient(destinationURI);
-        subjectConfirmationData.setNotBefore(issueInstant);
+        //subjectConfirmationData.setNotBefore(issueInstant);
         subjectConfirmationData.setNotOnOrAfter(issueInstant);
 
         return subjectConfirmationData;
