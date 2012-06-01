@@ -63,8 +63,10 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthzDecisionStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.DecisionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
@@ -190,10 +192,15 @@ public class SAML2Response {
         subjectConfirmation.setSubjectConfirmationData(subjectConfirmationData);
 
         subjectType.addConfirmation(subjectConfirmation);
-
+        
+        ConditionsType conditions = assertion.getConditions();
         // Update the subjectConfirmationData expiry based on the assertion
-        if (assertion.getConditions() != null) {
-            subjectConfirmationData.setNotOnOrAfter(assertion.getConditions().getNotOnOrAfter());
+        if (conditions != null) {
+            subjectConfirmationData.setNotOnOrAfter(conditions.getNotOnOrAfter());
+            //Add conditions -> AudienceRestriction
+            AudienceRestrictionType audience = new AudienceRestrictionType();
+            audience.addAudience(URI.create(sp.getResponseDestinationURI()));
+            conditions.addCondition(audience);
         }
 
         ResponseType responseType = createResponseType(ID, issuerInfo, assertion);
@@ -267,9 +274,15 @@ public class SAML2Response {
 
         assertionType = samlProtocolContext.getIssuedAssertion();
 
+        ConditionsType conditions = assertionType.getConditions();
         // Update the subjectConfirmationData expiry based on the assertion
-        if (assertionType.getConditions() != null) {
-            subjectConfirmationData.setNotOnOrAfter(assertionType.getConditions().getNotOnOrAfter());
+        if (conditions != null) {
+            subjectConfirmationData.setNotOnOrAfter(conditions.getNotOnOrAfter());
+            
+            //Add conditions -> AudienceRestriction
+            AudienceRestrictionType audience = new AudienceRestrictionType();
+            audience.addAudience(URI.create(sp.getResponseDestinationURI()));
+            conditions.addCondition(audience);
         }
 
         ResponseType responseType = createResponseType(ID, issuerInfo, assertionType);

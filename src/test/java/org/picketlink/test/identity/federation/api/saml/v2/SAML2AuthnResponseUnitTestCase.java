@@ -56,7 +56,9 @@ public class SAML2AuthnResponseUnitTestCase {
 
         SAML2Response saml2Response = new SAML2Response();
 
-        ResponseType rt = saml2Response.createResponseType("response111", new SPInfoHolder(), idp, issuerHolder);
+        SPInfoHolder sp = new SPInfoHolder();
+        sp.setResponseDestinationURI("http://fakesp");
+        ResponseType rt = saml2Response.createResponseType("response111", sp, idp, issuerHolder);
         Assert.assertNotNull(rt);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
