@@ -48,7 +48,6 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -333,7 +332,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
 
                     // If the user has configured cache invalidation of subject based on saml token expiry
                     if (enableCacheInvalidation) {
-                        TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
+                        TimeCacheExpiry cacheExpiry = this.getCacheExpiry();
                         XMLGregorianCalendar expiry = AssertionUtil.getExpiration(assertion);
                         if (expiry != null) {
                             Date expiryDate = expiry.toGregorianCalendar().getTime();
@@ -472,4 +471,6 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
      * @throws Exception
      */
     protected abstract boolean localValidation(Element assertionElement) throws Exception;
+
+    protected abstract TimeCacheExpiry getCacheExpiry() throws Exception;
 }

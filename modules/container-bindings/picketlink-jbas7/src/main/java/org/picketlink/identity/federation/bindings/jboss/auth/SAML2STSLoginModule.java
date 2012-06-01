@@ -31,11 +31,10 @@ import javax.naming.NamingException;
 import javax.security.auth.login.LoginException;
 
 import org.apache.log4j.Logger;
-import org.jboss.security.plugins.JaasSecurityDomain;
+import org.jboss.security.JBossJSSESecurityDomain;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
@@ -43,60 +42,12 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * This {@code LoginModule} authenticates clients by validating their SAML assertions with an external security token service
- * (such as PicketLinkSTS). If the supplied assertion contains roles, these roles are extracted and included in the
- * {@code Group} returned by the {@code getRoleSets} method.
- * </p>
- * <p>
- * This module defines the following module options:
- * <li>
- * <ul>
- * configFile - this property identifies the properties file that will be used to establish communication with the external
- * security token service.
- * </ul>
- * <ul>
- * cache.invalidation: set it to true if you require invalidation of JBoss Auth Cache at SAML Principal expiration.
- * </ul>
- * <ul>
- * jboss.security.security_domain: name of the security domain where this login module is configured. This is only required if
- * the cache.invalidation option is configured.
- * </ul>
- * <ul>
- * roleKey: a comma separated list of strings that define the attributes in SAML assertion for user roles
- * </ul>
- * <ul>
- * localValidation: if you want to validate the assertion locally for signature and expiry
- * </ul>
- * </li>
- * </p>
- * <p>
- * Any properties specified besides the above properties are assumed to be used to configure how the {@code STSClient} will
- * connect to the STS. For example, the JBossWS {@code StubExt.PROPERTY_SOCKET_FACTORY} can be specified in order to inform the
- * socket factory that must be used to connect to the STS. All properties will be set in the request context of the
- * {@code Dispatch} instance used by the {@code STSClient} to send requests to the STS.
- * </p>
- * <p>
- * An example of a {@code configFile} can be seen bellow:
- *
- * <pre>
- * serviceName=PicketLinkSTS
- * portName=PicketLinkSTSPort
- * endpointAddress=http://localhost:8080/picketlink-sts/PicketLinkSTS
- * username=JBoss
- * password=JBoss
- * </pre>
- *
- * The first three properties specify the STS endpoint URL, service name, and port name. The last two properties specify the
- * username and password that are to be used by the application server to authenticate to the STS and have the SAML assertions
- * validated.
- * </p>
- * <p>
- * <b>NOTE:</b> Sub-classes can use {@link #getSTSClient()} method to customize the {@link STSClient} class to make calls to
- * STS/
+ * This {@code LoginModule} implements the local validation of SAML assertions on AS7. The specified
+ * {@code localValidationSecurityDomain} property must correspond to a AS7 JSSE domain that configures a truststore and
+ * a server-alias that identifies the certificate used to validate the assertions.
  * </p>
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
- * @author Anil.Saldhana@redhat.com
  */
 public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
     protected static Logger log = Logger.getLogger(SAML2STSCommonLoginModule.class);
@@ -110,30 +61,29 @@ public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
 
         try {
             Context ctx = new InitialContext();
+            String jsseLookupString = super.localValidationSecurityDomain + "/jsse";
 
-            JaasSecurityDomain sd = (JaasSecurityDomain) ctx.lookup(localValidationSecurityDomain);
+            JBossJSSESecurityDomain sd = (JBossJSSESecurityDomain) ctx.lookup(jsseLookupString);
+            String securityDomain = sd.getSecurityDomain();
+
             KeyStore ts = sd.getTrustStore();
-
             if (ts == null) {
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null truststore for " + sd.getName());
+                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null truststore for " + securityDomain);
             }
 
-            String alias = sd.getKeyStoreAlias();
-
+            String alias = sd.getServerAlias();
             if (alias == null) {
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null KeyStoreAlias for " + sd.getName()
-                        + "; set 'KeyStoreAlias' in '" + sd.getName() + "' security domain configuration");
+                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null KeyStoreAlias for " + securityDomain
+                        + "; set 'server-alias' in '" + securityDomain + "' JSSE security domain configuration");
             }
 
             Certificate cert = ts.getCertificate(alias);
-
             if (cert == null) {
                 throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: no certificate found for alias '"
-                        + alias + "' in the '" + sd.getName() + "' security domain");
+                        + alias + "' in the '" + securityDomain + "' security domain");
             }
 
             PublicKey publicKey = cert.getPublicKey();
-
             boolean sigValid = AssertionUtil.isSignatureValid(assertionElement, publicKey);
             if (!sigValid) {
                 throw new LoginException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "SAML2STSLoginModule: "
@@ -141,7 +91,6 @@ public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
             }
 
             AssertionType assertion = SAMLUtil.fromElement(assertionElement);
-
             if (AssertionUtil.hasExpired(assertion)) {
                 throw new LoginException(ErrorCodes.EXPIRED_ASSERTION + "SAML2STSLoginModule: "
                         + WSTrustConstants.STATUS_CODE_INVALID + "::assertion expired or used before its lifetime period");
@@ -154,6 +103,6 @@ public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
 
     @Override
     protected JBossAuthCacheInvalidationFactory.TimeCacheExpiry getCacheExpiry() throws Exception {
-        return JBossAuthCacheInvalidationFactory.getCacheExpiry();
+        return AS7AuthCacheInvalidationFactory.getCacheExpiry();
     }
 }
