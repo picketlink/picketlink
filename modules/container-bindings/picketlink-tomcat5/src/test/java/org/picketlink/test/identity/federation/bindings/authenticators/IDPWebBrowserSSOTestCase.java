@@ -30,8 +30,6 @@ import static junit.framework.Assert.fail;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -50,8 +48,6 @@ import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -59,6 +55,8 @@ import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.ConditionAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
@@ -226,7 +224,15 @@ public class IDPWebBrowserSSOTestCase {
 
         assertNotNull(responseType);
         assertEquals(1, responseType.getAssertions().size());
-        assertEquals(responseType.getAssertions().get(0).getAssertion().getIssuer().getValue(), IDENTITY_PROVIDER_URL);
+        AssertionType assertion = responseType.getAssertions().get(0).getAssertion(); 
+        assertEquals(assertion.getIssuer().getValue(), IDENTITY_PROVIDER_URL);
+        
+        ConditionsType conditions = assertion.getConditions();
+        assertNotNull(conditions);
+        List<ConditionAbstractType> conditionList = conditions.getConditions();
+        assertEquals(1, conditionList.size());
+        AudienceRestrictionType audience = (AudienceRestrictionType) conditionList.get(0);
+        assertEquals(SERVICE_PROVIDER_URL, audience.getAudience().get(0).toString());
     }
 
     /**
