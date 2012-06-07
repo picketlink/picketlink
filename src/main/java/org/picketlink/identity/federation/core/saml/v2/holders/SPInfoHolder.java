@@ -35,6 +35,7 @@ package org.picketlink.identity.federation.core.saml.v2.holders;
 public class SPInfoHolder {
     private String requestID;
     private String responseDestinationURI;
+    private String issuer;
 
     public String getRequestID() {
         return requestID;
@@ -50,5 +51,13 @@ public class SPInfoHolder {
 
     public void setResponseDestinationURI(String responseDestinationURI) {
         this.responseDestinationURI = responseDestinationURI;
+    }
+
+    public String getIssuer() {
+        return issuer;
+    }
+
+    public void setIssuer(String issuer) {
+        this.issuer = issuer;
     }
 }

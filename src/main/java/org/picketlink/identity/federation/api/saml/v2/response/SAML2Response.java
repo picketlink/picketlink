@@ -281,7 +281,7 @@ public class SAML2Response {
             
             //Add conditions -> AudienceRestriction
             AudienceRestrictionType audience = new AudienceRestrictionType();
-            audience.addAudience(URI.create(sp.getResponseDestinationURI()));
+            audience.addAudience(URI.create(sp.getIssuer()));
             conditions.addCondition(audience);
         }
 

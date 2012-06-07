@@ -171,6 +171,7 @@ public class XMLEncryptionUnitTestCase extends TestCase {
 
         SPInfoHolder sp = new SPInfoHolder();
         sp.setResponseDestinationURI("http://service");
+        sp.setIssuer("http://service.issuer");
         responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
         AssertionType assertion = responseType.getAssertions().get(0).getAssertion();
 

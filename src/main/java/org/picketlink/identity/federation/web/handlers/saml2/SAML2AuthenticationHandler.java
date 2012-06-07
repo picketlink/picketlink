@@ -257,6 +257,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             SPInfoHolder sp = new SPInfoHolder();
             sp.setResponseDestinationURI(assertionConsumerURL);
             sp.setRequestID(requestID);
+            sp.setIssuer(art.getIssuer().getValue());
             responseType = saml2Response.createResponseType(id, sp, idp, issuerHolder);
 
             // Add information on the roles
