@@ -272,12 +272,16 @@ public class IDPWebBrowserSSOTestCase {
     public void testRequestFromInvalidValidatingAlias() {
         logger.info("testRequestFromInvalidValidatingAlias");
         String notTrustedDomain = "123.123.123.123";
+        String notTrustedDomainForIssuer = "145.145.145.145";
         String notTrustedServiceProviderURL = SERVICE_PROVIDER_URL.replace(SERVICE_PROVIDER_HOST_ADDRESS, notTrustedDomain);
+        String notTrustedIssuerURL = SERVICE_PROVIDER_URL.replace(SERVICE_PROVIDER_HOST_ADDRESS, notTrustedDomainForIssuer);
 
         MockCatalinaRequest request = AuthenticatorTestUtils.createRequest(notTrustedDomain, true);
         MockCatalinaResponse response = new MockCatalinaResponse();
 
-        sendAuthenticationRequest(request, response, notTrustedServiceProviderURL, true);
+        // We will use different URL for assertionConsumerServiceURL and for issuerURL to ensure that error response
+        // will be redirected to assertionConsumerServiceURL
+        sendAuthenticationRequest(request, response, notTrustedIssuerURL, notTrustedServiceProviderURL, true);
 
         ResponseType responseType = getResponseTypeAndCheckSignature(response, null);
 
@@ -476,6 +480,12 @@ public class IDPWebBrowserSSOTestCase {
         return responseType;
     }
 
+    // We use same URL for assertionConsumerServiceURL and for issuer in this case
+    private void sendAuthenticationRequest(MockCatalinaRequest request, MockCatalinaResponse response, String issuer,
+                                           boolean signToken) {
+       sendAuthenticationRequest(request, response, issuer, issuer, signToken);
+    }
+
     /**
      * <p>
      * Sends an authentication request ({@link AuthnRequestType}) to the IDP.
@@ -484,15 +494,16 @@ public class IDPWebBrowserSSOTestCase {
      * @param request
      * @param response
      * @param issuer
+     * @param assertionConsumerURL
      * @param signToken
      */
     private void sendAuthenticationRequest(MockCatalinaRequest request, MockCatalinaResponse response, String issuer,
-            boolean signToken) {
+            String assertionConsumerURL, boolean signToken) {
         try {
             SAML2Request samlRequest = new SAML2Request();
 
             AuthnRequestType authnRequestType = samlRequest.createAuthnRequestType(IDGenerator.create("ID_"),
-                    SERVICE_PROVIDER_URL, getAuthenticator().getConfiguration().getIdpOrSP().getIdentityURL(), issuer);
+                  assertionConsumerURL, getAuthenticator().getConfiguration().getIdpOrSP().getIdentityURL(), issuer);
 
             Document authnRequestDocument = samlRequest.convert(authnRequestType);
 

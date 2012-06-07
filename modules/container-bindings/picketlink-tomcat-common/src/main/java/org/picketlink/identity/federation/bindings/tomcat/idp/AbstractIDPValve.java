@@ -598,11 +598,11 @@ public abstract class AbstractIDPValve extends ValveBase {
         } finally {
             try {
                 // if the destination is null, probably because some error occur during authentication, use the AuthnRequest
-                // issuer as the destination
+                // AssertionConsumerServiceURL as the destination
                 if (destination == null && samlObject instanceof AuthnRequestType) {
                     AuthnRequestType authRequest = (AuthnRequestType) samlObject;
 
-                    destination = authRequest.getIssuer().getValue();
+                    destination = authRequest.getAssertionConsumerServiceURL().toASCIIString();
                 }
 
                 boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
