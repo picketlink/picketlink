@@ -235,20 +235,9 @@ public class IDPWebRequestUtil {
                log.trace("Redirecting to=" + finalDest);
             HTTPRedirectUtil.sendRedirectForResponder(finalDest, response);
         } else {
-            // If we support signature, we will sign message but only for error response.
-            // Normal response is already signed thanks to SAML2SignatureGenerationHandler
-            if (supportSignature && isErrorResponse) {
-                // Sign the document
-                SAML2Signature samlSignature = new SAML2Signature();
 
-                Node nextSibling = samlSignature.getNextSiblingOfIssuer(responseDoc);
-                samlSignature.setNextSibling(nextSibling);
-                KeyPair keypair = keyManager.getSigningKeyPair();
-                samlSignature.signSAMLDocument(responseDoc, keypair);
-
-                if (trace)
-                    log.trace("Sending over to SP:" + DocumentUtil.asString(responseDoc));
-            }
+            if (trace)
+               log.trace("Sending over to SP:" + DocumentUtil.asString(responseDoc));
             byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8");
 
             String samlResponse = PostBindingUtil.base64Encode(new String(responseBytes));
