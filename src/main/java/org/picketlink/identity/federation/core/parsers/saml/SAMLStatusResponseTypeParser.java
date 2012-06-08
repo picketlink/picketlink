@@ -131,7 +131,9 @@ public abstract class SAMLStatusResponseTypeParser {
                 if (startElement == null) {
                     // Go to Status code end element.
                     EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
-                    StaxParserUtil.validate(endElement, JBossSAMLConstants.STATUS_CODE.get());
+                    if (endElement != null) {
+                        StaxParserUtil.validate(endElement, JBossSAMLConstants.STATUS_CODE.get());
+                    }
                     continue;
                 }
                 elementTag = startElement.getName().getLocalPart();

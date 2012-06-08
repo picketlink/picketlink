@@ -23,6 +23,7 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
 import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
@@ -107,5 +108,27 @@ public class SAMLSloResponseParserTestCase extends AbstractParserTest {
         StatusType status = response.getStatus();
         assertEquals("urn:oasis:names:tc:SAML:2.0:status:Responder", status.getStatusCode().getValue().toString());
         assertEquals("urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getStatusCode().getValue().toString());
+    }
+
+    @Test
+    public void testSLOResponseFromSalesforce() throws Exception {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/saml2/saml2-logout-response-salesforce.xml");
+
+        SAMLParser parser = new SAMLParser();
+        StatusResponseType response = (StatusResponseType) parser.parse(configStream);
+        assertNotNull("ResponseType is not null", response);
+
+        assertEquals(XMLTimeUtil.parse("2012-06-08T10:00:31.924Z"), response.getIssueInstant());
+        assertEquals("2.0", response.getVersion());
+        assertEquals("_580ef9943601e7d453514edab43ff2d01339149631922", response.getID());
+
+        // Issuer
+        assertEquals("https://saml.salesforce.com", response.getIssuer().getValue());
+
+        // Status
+        StatusType status = response.getStatus();
+        assertEquals("urn:oasis:names:tc:SAML:2.0:status:Success", status.getStatusCode().getValue().toString());
+        assertNull(status.getStatusCode().getStatusCode());
     }
 }
