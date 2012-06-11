@@ -60,7 +60,7 @@ public class IdentityServer implements HttpSessionListener {
 
     private IdentityParticipantStack stack = new STACK();
 
-    public class STACK implements IdentityParticipantStack {
+    public static class STACK implements IdentityParticipantStack {
         private final ConcurrentHashMap<String, Stack<String>> sessionParticipantsMap = new ConcurrentHashMap<String, Stack<String>>();
 
         private final ConcurrentHashMap<String, Set<String>> inTransitMap = new ConcurrentHashMap<String, Set<String>>();
