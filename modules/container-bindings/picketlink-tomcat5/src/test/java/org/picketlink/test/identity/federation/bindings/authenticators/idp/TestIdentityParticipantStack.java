@@ -35,7 +35,7 @@ public class TestIdentityParticipantStack implements IdentityParticipantStack {
     private static IdentityServer.STACK delegate = createDelegate();
     
     private static STACK createDelegate() {
-        return new IdentityServer().new STACK();
+        return new IdentityServer.STACK();
     }
     
     public static IdentityParticipantStack getDelegate() {
