@@ -22,6 +22,7 @@
 package org.picketlink.identity.federation.web.handlers.saml2;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -197,7 +198,15 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
      * @throws IOException
      */
     private static String getDomain(String domainURL) throws IOException {
-        URL url = new URL(domainURL);
-        return url.getHost();
+       try {
+          URL url = new URL(domainURL);
+          return url.getHost();
+       }
+       // This could be the case if argument is not full URL (like "google.com" or "google.com/a/mydomain.com")
+       catch (MalformedURLException me) {
+          domainURL = "http://" + domainURL;
+          URL url = new URL(domainURL);
+          return url.getHost();
+       }
     }
 }
