@@ -77,4 +77,11 @@ public class XMLTimeUtilUnitTestCase extends TestCase {
         assertTrue(XMLTimeUtil.isValid(after5M, now, after10M));
         assertFalse(XMLTimeUtil.isValid(now, after5M, after10M));
     }
+
+    public void testGMTFormat() throws Exception {
+        String now = XMLTimeUtil.getIssueInstant().toString();
+
+        assertTrue(now.endsWith("Z"));
+        assertFalse(now.contains("+"));
+    }
 }

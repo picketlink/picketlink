@@ -105,7 +105,7 @@ public class XMLTimeUtil {
      * @throws ConfigurationException
      */
     public static XMLGregorianCalendar getIssueInstant() throws ConfigurationException {
-        return getIssueInstant(TimeZone.getDefault().getID());
+        return getIssueInstant(TimeZone.getTimeZone("GMT").getID());
     }
 
     /**
