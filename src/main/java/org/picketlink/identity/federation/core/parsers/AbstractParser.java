@@ -80,7 +80,7 @@ public abstract class AbstractParser implements ParserNamespaceSupport {
                 }
             });
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
 
         return parse(xmlEventReader);

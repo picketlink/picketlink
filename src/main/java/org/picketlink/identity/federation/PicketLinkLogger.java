@@ -249,4 +249,28 @@ public interface PicketLinkLogger {
      * @return
      */
     IllegalStateException parserNullStartElement();
+
+    /**
+     * @param xsiTypeValue
+     * @return
+     */
+    ParsingException parserUnknownXSI(String xsiTypeValue);
+
+    /**
+     * @param string
+     * @return
+     */
+    ParsingException parserExpectedEndTag(String tagName);
+
+    /**
+     * @param e
+     * @return
+     */
+    ParsingException parserException(Throwable t);
+
+    /**
+     * @param string
+     * @return
+     */
+    ParsingException parserExpectedTextValue(String string);
 }

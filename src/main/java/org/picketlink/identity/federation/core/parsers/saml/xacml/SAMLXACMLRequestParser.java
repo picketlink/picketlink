@@ -60,12 +60,12 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
             if (xsiTypeValue.contains(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY_TYPE.get())) {
                 return parseXACMLAuthzDecisionQuery(startElement, xmlEventReader);
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_XSI + xsiTypeValue);
+                throw logger.parserUnknownXSI(xsiTypeValue);
         } else if (tag.equals(JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get())) {
             return parseXACMLAuthzDecisionQuery(startElement, xmlEventReader);
         }
 
-        throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + tag + "::location=" + startElement.getLocation());
+        throw logger.parserUnknownStartElement(tag, startElement.getLocation());
     }
 
     public boolean supports(QName qname) {
@@ -96,7 +96,7 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
                 EndElement endElement = (EndElement) xmlEvent;
                 if (!(StaxParserUtil.matches(endElement, JBossSAMLConstants.REQUEST_ABSTRACT.get()) || StaxParserUtil.matches(
                         endElement, JBossSAMLConstants.XACML_AUTHZ_DECISION_QUERY.get())))
-                    throw new ParsingException(ErrorCodes.EXPECTED_END_TAG + "RequestAbstract or XACMLAuthzDecisionQuery");
+                    throw logger.parserExpectedEndTag("RequestAbstract or XACMLAuthzDecisionQuery");
                 break;
             }
             startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -118,7 +118,7 @@ public class SAMLXACMLRequestParser extends SAMLRequestAbstractParser implements
                     RequestType req = jaxbRequestType.getValue();
                     xacmlQuery.setRequest(req);
                 } catch (Exception e) {
-                    throw new ParsingException(e);
+                    throw logger.parserException(e);
                 }
             }
         }

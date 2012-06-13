@@ -31,7 +31,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
@@ -67,6 +68,9 @@ import org.w3c.dom.Element;
  * @since Dec 14, 2010
  */
 public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private final String EDT = JBossSAMLConstants.ENTITY_DESCRIPTOR.get();
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
@@ -123,11 +127,11 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
                 EDTChoiceType edtChoice = EDTChoiceType.oneValue(edtDescChoice);
                 entityDescriptorType.addChoiceType(edtChoice);
             } else if (JBossSAMLConstants.AUTHN_AUTHORITY_DESCRIPTOR.get().equals(localPart)) {
-                throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + " AuthnAuthorityDescriptor");
+                throw logger.unsupportedType("AuthnAuthorityDescriptor");
             } else if (JBossSAMLConstants.AFFILIATION_DESCRIPTOR.get().equals(localPart)) {
-                throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + " AffiliationDescriptor");
+                throw logger.unsupportedType(" AffiliationDescriptor");
             } else if (JBossSAMLConstants.PDP_DESCRIPTOR.get().equals(localPart)) {
-                throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + " PDPDescriptor");
+                throw logger.unsupportedType(" PDPDescriptor");
             } else if (localPart.equals(JBossSAMLConstants.SIGNATURE.get())) {
                 entityDescriptorType.setSignature(StaxParserUtil.getDOMElement(xmlEventReader));
             } else if (JBossSAMLConstants.ORGANIZATION.get().equals(localPart)) {
@@ -137,12 +141,11 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
             } else if (JBossSAMLConstants.CONTACT_PERSON.get().equals(localPart)) {
                 entityDescriptorType.addContactPerson(parseContactPerson(xmlEventReader));
             } else if (JBossSAMLConstants.ADDITIONAL_METADATA_LOCATION.get().equals(localPart)) {
-                throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + " AdditionalMetadataLocation");
+                throw logger.unsupportedType("AdditionalMetadataLocation");
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 entityDescriptorType.setExtensions(parseExtensions(xmlEventReader));
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_START_ELEMENT + localPart + "::location="
-                        + startElement.getLocation());
+                throw logger.parserUnknownStartElement(localPart, startElement.getLocation());
         }
         return entityDescriptorType;
     }
@@ -224,7 +227,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 spSSODescriptor.setExtensions(parseExtensions(xmlEventReader));
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
         }
         return spSSODescriptor;
     }
@@ -316,7 +319,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 idpSSODescriptor.setExtensions(parseExtensions(xmlEventReader));
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
         }
         return idpSSODescriptor;
     }
@@ -385,7 +388,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 attributeAuthority.setExtensions(parseExtensions(xmlEventReader));
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
 
         }
         return attributeAuthority;
@@ -426,7 +429,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 org.setExtensions(parseExtensions(xmlEventReader));
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
         }
         return org;
     }
@@ -437,7 +440,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
 
         Attribute attr = startElement.getAttributeByName(new QName(JBossSAMLConstants.CONTACT_TYPE.get()));
         if (attr == null)
-            throw new ParsingException(ErrorCodes.REQD_ATTRIBUTE + "contactType");
+            throw logger.parserRequiredAttribute("contactType");
         ContactType contactType = new ContactType(ContactTypeType.fromValue(StaxParserUtil.getAttributeValue(attr)));
 
         while (xmlEventReader.hasNext()) {
@@ -469,7 +472,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
             } else if (JBossSAMLConstants.EXTENSIONS.get().equalsIgnoreCase(localPart)) {
                 contactType.setExtensions(parseExtensions(xmlEventReader));
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
         }
         return contactType;
     }
@@ -530,7 +533,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
 
         Attribute indexAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.INDEX.get()));
         if (indexAttr == null)
-            throw new ParsingException(ErrorCodes.REQD_ATTRIBUTE + "index");
+            throw logger.parserRequiredAttribute("index");
 
         AttributeConsumingServiceType attributeConsumer = new AttributeConsumingServiceType(Integer.parseInt(StaxParserUtil
                 .getAttributeValue(indexAttr)));
@@ -557,7 +560,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
                 RequestedAttributeType attType = parseRequestedAttributeType(xmlEventReader, startElement);
                 attributeConsumer.addRequestedAttribute(attType);
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + localPart);
+                throw logger.parserUnknownTag(localPart, startElement.getLocation());
         }
 
         return attributeConsumer;
@@ -571,7 +574,7 @@ public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
 
         Attribute name = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME.get()));
         if (name == null)
-            throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Name");
+            throw logger.parserRequiredAttribute("Name");
         attributeType = new RequestedAttributeType(StaxParserUtil.getAttributeValue(name));
 
         Attribute isRequired = startElement.getAttributeByName(new QName(JBossSAMLConstants.IS_REQUIRED.get()));

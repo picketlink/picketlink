@@ -163,7 +163,7 @@ public class STSConfigParser extends AbstractParser {
                 if (endElementName.equals(ROOT_ELEMENT))
                     break;
                 else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -184,7 +184,7 @@ public class STSConfigParser extends AbstractParser {
             } else if (SERVICE_PROVIDERS_ELEMENT.equalsIgnoreCase(elementName)) {
                 configType.setServiceProviders(this.parseServiceProviders(xmlEventReader));
             } else
-                throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName + "::Location=" + subEvent.getLocation());
+                throw logger.parserUnknownTag(elementName, subEvent.getLocation());
         }
         return configType;
     }
@@ -217,7 +217,7 @@ public class STSConfigParser extends AbstractParser {
         QName attributeQName = new QName("", CLASS_NAME_ATTRIB);
         Attribute attribute = startElement.getAttributeByName(attributeQName);
         if (attribute == null)
-            throw new ParsingException(ErrorCodes.REQD_ATTRIBUTE + "ClassName");
+            throw logger.parserRequiredAttribute("ClassName");
         keyProvider.setClassName(StaxParserUtil.getAttributeValue(attribute));
 
         // parse the inner elements.
@@ -231,7 +231,7 @@ public class STSConfigParser extends AbstractParser {
                 if (endElementName.equals(KEY_PROVIDER_ELEMENT))
                     break;
                 else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -242,7 +242,7 @@ public class STSConfigParser extends AbstractParser {
             if (SIGNING_ALIAS_ELEMENT.equalsIgnoreCase(elementName)) {
                 subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
                 if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                    throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "SigningAlias");
+                    throw logger.parserExpectedTextValue("SigningAlias");
                 keyProvider.setSigningAlias(StaxParserUtil.getElementText(xmlEventReader));
             } else if (VALIDATING_ALIAS_ELEMENT.equalsIgnoreCase(elementName)) {
                 subEvent = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -277,7 +277,7 @@ public class STSConfigParser extends AbstractParser {
                 StaxParserUtil.validate(endElement, AUTH_ELEMENT);
                 keyProvider.add(authProperty);
             } else
-                throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
+                throw logger.parserUnknownTag(elementName, subEvent.getLocation());
         }
         return keyProvider;
     }
@@ -308,7 +308,7 @@ public class STSConfigParser extends AbstractParser {
                 if (endElementName.equals(CLAIMS_PROCESSORS_ELEMENT))
                     break;
                 else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -342,7 +342,7 @@ public class STSConfigParser extends AbstractParser {
                         if (endElementName.equals(CLAIMS_PROCESSOR_ELEMENT))
                             break;
                         else
-                            throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+                            throw logger.parserUnknownEndElement(endElementName);
                     }
 
                     subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -367,11 +367,11 @@ public class STSConfigParser extends AbstractParser {
                         StaxParserUtil.validate(endElement, PROPERTY_ELEMENT);
                         claimsProcessor.add(keyValue);
                     } else
-                        throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
+                        throw logger.parserUnknownTag(elementName, subEvent.getLocation());
                 }
                 claimsProcessors.add(claimsProcessor);
             } else
-                throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
+                throw logger.parserUnknownTag(elementName, subEvent.getLocation());
         }
         return claimsProcessors;
     }
@@ -402,7 +402,7 @@ public class STSConfigParser extends AbstractParser {
                 if (endElementName.equals(TOKEN_PROVIDERS_ELEMENT))
                     break;
                 else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -444,7 +444,7 @@ public class STSConfigParser extends AbstractParser {
                         if (endElementName.equals(TOKEN_PROVIDER_ELEMENT))
                             break;
                         else
-                            throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+                            throw logger.parserUnknownEndElement(endElementName);
                     }
 
                     subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -469,11 +469,11 @@ public class STSConfigParser extends AbstractParser {
                         StaxParserUtil.validate(endElement, PROPERTY_ELEMENT);
                         tokenProvider.add(keyValue);
                     } else
-                        throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
+                        throw logger.parserUnknownTag(elementName, subEvent.getLocation());
                 }
                 tokenProviders.add(tokenProvider);
             } else
-                throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
+                throw logger.parserUnknownTag(elementName, subEvent.getLocation());
         }
         return tokenProviders;
     }
@@ -504,7 +504,7 @@ public class STSConfigParser extends AbstractParser {
                 if (endElementName.equals(SERVICE_PROVIDERS_ELEMENT))
                     break;
                 else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             StartElement subEvent = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -535,7 +535,7 @@ public class STSConfigParser extends AbstractParser {
                 StaxParserUtil.validate(endElement, SERVICE_PROVIDER_ELEMENT);
                 serviceProviders.add(serviceProvider);
             } else
-                throw new ParsingException(ErrorCodes.UNKNOWN_TAG + elementName);
+                throw logger.parserUnknownTag(elementName, subEvent.getLocation());
         }
         return serviceProviders;
     }

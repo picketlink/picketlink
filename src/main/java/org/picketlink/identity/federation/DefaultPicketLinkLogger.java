@@ -286,4 +286,37 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     public IllegalStateException parserNullStartElement() {
         return new IllegalStateException(ErrorCodes.NULL_START_ELEMENT);
     }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownXSI(java.lang.String)
+     */
+    @Override
+    public ParsingException parserUnknownXSI(String xsiTypeValue) {
+        return new ParsingException(ErrorCodes.UNKNOWN_XSI + xsiTypeValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedEndTag(java.lang.String)
+     */
+    @Override
+    public ParsingException parserExpectedEndTag(String tagName) {
+        return new ParsingException(ErrorCodes.EXPECTED_END_TAG + "RequestAbstract or XACMLAuthzDecisionQuery");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserException(java.lang.Exception)
+     */
+    @Override
+    public ParsingException parserException(Throwable t) {
+        return new ParsingException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTextValue(java.lang.String)
+     */
+    @Override
+    public ParsingException parserExpectedTextValue(String string) {
+        return new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "SigningAlias");
+    }
+ 
 }
