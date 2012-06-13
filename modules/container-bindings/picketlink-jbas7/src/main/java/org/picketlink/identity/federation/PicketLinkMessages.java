@@ -26,7 +26,10 @@ import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -53,6 +56,42 @@ public interface PicketLinkMessages {
     RuntimeException unsupportedType(String name);
 
     @Message(id = 100, value = "Signing Process Failure")
-    ProcessingException signatureError(Throwable e);
+    ProcessingException signatureError(@Cause Throwable e);
+
+    @Message (id = 92, value = "Null Value: %s")
+    RuntimeException nullValue(String nullValue);
+
+    @Message (id = 82, value = "Not Implemented Yet")
+    RuntimeException notImplementedYet();
+
+    @Message (id = 83, value = "Error while configuring the audit capabilities")
+    ConfigurationException auditConfigurationError(@Cause Throwable t);
+
+    @Message (id = 28, value = "Audit Manager Is Not Set")
+    IllegalStateException auditNullAuditManager();
+
+    @Message (id = 77, value = "Injected Value Missing: %s")
+    RuntimeException injectedValueMissing(String value);
+
+    @Message (id = 55, value = "KeyStoreKeyManager : KeyStore is null")
+    IllegalStateException keyStoreNullStore();
+
+    @Message (id = 60, value = "KeyStoreKeyManager : Configuration error.")
+    TrustKeyConfigurationException keyStoreConfigurationError(@Cause Throwable t);
+
+    @Message (id = 61, value = "KeyStoreKeyManager : Processing error.")
+    TrustKeyProcessingException keyStoreProcessingError(@Cause Throwable t);
+
+    @Message (id = 58, value = "KeyStoreKeyManager : Domain Alias missing for : %s")
+    IllegalStateException keyStoreMissingDomainAlias(String domain);
+
+    @Message (id = 57, value = "KeyStoreKeyManager : Signing Key Pass is null")
+    RuntimeException keyStoreNullSigningKeyPass();
+
+    @Message (id = 56, value = "KeyStoreKeyManager : Keystore not located: %s")
+    RuntimeException keyStoreNotLocated(String keyStore);
+
+    @Message (id = 59, value = "KeyStoreKeyManager : Alias is null")
+    IllegalStateException keyStoreNullAlias();
 
 }

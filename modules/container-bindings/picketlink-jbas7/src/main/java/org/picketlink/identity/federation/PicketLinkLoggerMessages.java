@@ -41,5 +41,21 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage (level=Level.TRACE)
     @Message(id = 70, value = "SAML Response Document: %s")
     void samlResponseDocument(String samlResponseDocumentAsString);
+
+    @LogMessage (level=Level.DEBUG)
+    @Message(id = 71, value = "Sending XACML Decision Query:: %s")
+    void sendingXACMLDecisionQuery(String xacmlDecisionQueryDocument);
+
+    @LogMessage (level=Level.INFO)
+    @Message(id = 72, value = "PicketLink Audit Event raised:: %s")
+    void auditEvent(String auditEvent);
+
+    @LogMessage (level=Level.INFO)
+    @Message(id = 73, value = "Keystore is null. so setting it up")
+    void keyStoreSetup();
+
+    @LogMessage (level=Level.INFO)
+    @Message(id = 74, value = "No public key found for alias = %s")
+    void keyStoreNullPublicKeyForAlias(String alias);
     
 }
