@@ -22,11 +22,14 @@
 
 package org.picketlink.identity.federation;
 
+import javax.xml.stream.Location;
+
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
@@ -93,5 +96,20 @@ public interface PicketLinkMessages {
 
     @Message (id = 59, value = "KeyStoreKeyManager : Alias is null")
     IllegalStateException keyStoreNullAlias();
+
+    @Message (id = 62, value = "Parser: Unknown End Element: %s")
+    RuntimeException parserUnknownEndElement(String endElementName);
+
+    @Message (id = 63, value = "Parser : Unknown tag: %s ::location= %s")
+    RuntimeException parseUnknownTag(String tag, Location location);
+
+    @Message (id = 64, value = "Parser: Required attribute missing: %s")
+    ParsingException parseRequiredAttribute(String attribute);
+
+    @Message (id = 65, value = "Parser: Unknown Start Element: %s ::location= %s")
+    RuntimeException parserUnknownStartElement(String elementName, Location location);
+
+    @Message (id = 68, value = "Parser : Start Element is null")
+    IllegalStateException parserNullStartElement();
 
 }

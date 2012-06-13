@@ -22,7 +22,10 @@
 
 package org.picketlink.identity.federation;
 
+import javax.xml.stream.Location;
+
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
@@ -204,5 +207,40 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public IllegalStateException keyStoreNullAlias() {
         return PicketLinkMessages.MESSAGES.keyStoreNullAlias();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownEndElement(java.lang.String)
+     */
+    public RuntimeException parserUnknownEndElement(String endElementName) {
+        return PicketLinkMessages.MESSAGES.parserUnknownEndElement(endElementName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parseUnknownTag(java.lang.String, javax.xml.stream.Location)
+     */
+    public RuntimeException parserUnknownTag(String tag, Location location) {
+        return PicketLinkMessages.MESSAGES.parseUnknownTag(tag, location);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parseRequiredAttribute(java.lang.String)
+     */
+    public ParsingException parserRequiredAttribute(String attribute) {
+        return PicketLinkMessages.MESSAGES.parseRequiredAttribute(attribute);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownStartElement(java.lang.String, javax.xml.stream.Location)
+     */
+    public RuntimeException parserUnknownStartElement(String elementName, Location location) {
+        return PicketLinkMessages.MESSAGES.parserUnknownStartElement(elementName, location);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserNullStartElement()
+     */
+    public IllegalStateException parserNullStartElement() {
+        return PicketLinkMessages.MESSAGES.parserNullStartElement();
     }
 }
