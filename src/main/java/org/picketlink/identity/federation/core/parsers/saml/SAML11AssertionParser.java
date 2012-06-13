@@ -21,10 +21,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
-
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -33,6 +29,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -61,6 +59,9 @@ import org.w3c.dom.Element;
  * @since Oct 12, 2010
  */
 public class SAML11AssertionParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private final String ASSERTION = JBossSAMLConstants.ASSERTION.get();
 
     public SAML11AssertionType fromElement(Element element) throws ConfigurationException, ProcessingException,
@@ -98,7 +99,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport {
                 if (endElementTag.equals(JBossSAMLConstants.ASSERTION.get()))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
+                    throw logger.parserUnknownEndElement(endElementTag);
             }
 
             StartElement peekedElement = null;
@@ -143,7 +144,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport {
                         .parseSAML11AuthorizationDecisionStatement(xmlEventReader);
                 assertion.add(authzStat);
             } else
-                throw new RuntimeException(UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
+                throw logger.parserUnknownTag(tag, peekedElement.getLocation());
         }
         return assertion;
     }
@@ -162,7 +163,7 @@ public class SAML11AssertionParser implements ParserNamespaceSupport {
     private SAML11AssertionType parseBaseAttributes(StartElement nextElement) throws ParsingException {
         Attribute idAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.ASSERTIONID));
         if (idAttribute == null)
-            throw new ParsingException(REQD_ATTRIBUTE + "AssertionID");
+            throw logger.parserRequiredAttribute("AssertionID");
         String id = StaxParserUtil.getAttributeValue(idAttribute);
 
         Attribute majVersionAttribute = nextElement.getAttributeByName(new QName(SAML11Constants.MAJOR_VERSION));

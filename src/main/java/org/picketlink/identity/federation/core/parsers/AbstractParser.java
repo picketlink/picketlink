@@ -21,8 +21,6 @@
  */
 package org.picketlink.identity.federation.core.parsers;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.NULL_INPUT_STREAM;
-
 import java.io.InputStream;
 
 import javax.xml.stream.EventFilter;
@@ -32,6 +30,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 
@@ -42,6 +42,9 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
  * @since Oct 12, 2010
  */
 public abstract class AbstractParser implements ParserNamespaceSupport {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Parse an InputStream for payload
      *
@@ -52,7 +55,7 @@ public abstract class AbstractParser implements ParserNamespaceSupport {
      */
     public Object parse(InputStream configStream) throws ParsingException {
         if (configStream == null)
-            throw new IllegalArgumentException(NULL_INPUT_STREAM);
+            throw logger.nullArgument("InputStream");
 
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 

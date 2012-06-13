@@ -22,7 +22,10 @@
 
 package org.picketlink.identity.federation;
 
+import javax.xml.stream.Location;
+
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
@@ -200,13 +203,50 @@ public interface PicketLinkLogger {
     RuntimeException keyStoreNullSigningKeyPass();
 
     /**
+     * <p>Creates a {@link RuntimeException} for the case where key store are not located.</p>
+     * 
      * @param keyStore
      * @return
      */
     RuntimeException keyStoreNotLocated(String keyStore);
 
     /**
+     * <p>Creates a {@link IllegalStateException} for the case where the alias is null.</p>
+     * 
      * @return
      */
     IllegalStateException keyStoreNullAlias();
+
+    /**
+     * <p>Creates a {@link RuntimeException} for the case where parser founds a unknown end element.</p>
+     * 
+     * @param endElementName
+     * @return
+     */
+    RuntimeException parserUnknownEndElement(String endElementName);
+
+    /**
+     * @param tag
+     * @param location
+     * @return
+     */
+    RuntimeException parserUnknownTag(String tag, Location location);
+
+    /**
+     * @param string
+     * @return
+     */
+    ParsingException parserRequiredAttribute(String string);
+
+    /**
+     * @param elementName
+     * @param location
+     * @return
+     */
+    RuntimeException parserUnknownStartElement(String elementName, Location location);
+
+    /**
+     * @return
+     */
+    IllegalStateException parserNullStartElement();
 }

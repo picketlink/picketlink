@@ -21,10 +21,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_ELEMENT;
-
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
@@ -33,6 +29,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -53,6 +51,9 @@ import org.w3c.dom.Element;
  * @since 23 June 2011
  */
 public class SAML11ResponseParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private final String RESPONSE = JBossSAMLConstants.RESPONSE.get();
 
     /**
@@ -65,12 +66,12 @@ public class SAML11ResponseParser implements ParserNamespaceSupport {
 
         Attribute idAttr = startElement.getAttributeByName(new QName(SAML11Constants.RESPONSE_ID));
         if (idAttr == null)
-            throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.RESPONSE_ID);
+            throw logger.parserRequiredAttribute(SAML11Constants.RESPONSE_ID);
         String id = StaxParserUtil.getAttributeValue(idAttr);
 
         Attribute issueInstant = startElement.getAttributeByName(new QName(SAML11Constants.ISSUE_INSTANT));
         if (issueInstant == null)
-            throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.ISSUE_INSTANT);
+            throw logger.parserRequiredAttribute(SAML11Constants.ISSUE_INSTANT);
         XMLGregorianCalendar issueInstantVal = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstant));
 
         SAML11ResponseType response = new SAML11ResponseType(id, issueInstantVal);
@@ -90,7 +91,7 @@ public class SAML11ResponseParser implements ParserNamespaceSupport {
             } else if (JBossSAMLConstants.STATUS.get().equals(elementName)) {
                 response.setStatus(parseStatus(xmlEventReader));
             } else
-                throw new RuntimeException(UNKNOWN_START_ELEMENT + startElement +  "::location=" + startElement.getLocation());
+                throw logger.parserUnknownStartElement(elementName, startElement.getLocation());
         }
 
         return response;
@@ -174,7 +175,7 @@ public class SAML11ResponseParser implements ParserNamespaceSupport {
                 if (StaxParserUtil.matches(endElement, STATUS))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
+                    throw logger.parserUnknownEndElement(StaxParserUtil.getEndElementName(endElement));
             } else
                 break;
         }

@@ -21,15 +21,14 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_ELEMENT;
-
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAML11ParserUtil;
@@ -50,17 +49,19 @@ import org.picketlink.identity.federation.saml.v1.protocol.SAML11RequestType;
  * @since June 24, 2011
  */
 public class SAML11RequestParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected SAML11RequestType parseRequiredAttributes(StartElement startElement) throws ParsingException {
         Attribute idAttr = startElement.getAttributeByName(new QName(SAML11Constants.REQUEST_ID));
         if (idAttr == null)
-            throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.REQUEST_ID);
+            throw logger.parserRequiredAttribute(SAML11Constants.REQUEST_ID);
 
         String id = StaxParserUtil.getAttributeValue(idAttr);
 
         Attribute issueInstantAttr = startElement.getAttributeByName(new QName(SAML11Constants.ISSUE_INSTANT));
         if (issueInstantAttr == null)
-            throw new RuntimeException(REQD_ATTRIBUTE + SAML11Constants.ISSUE_INSTANT);
+            throw logger.parserRequiredAttribute(SAML11Constants.ISSUE_INSTANT);
         XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttr));
         return new SAML11RequestType(id, issueInstant);
     }
@@ -105,7 +106,7 @@ public class SAML11RequestParser implements ParserNamespaceSupport {
                 startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
                 request.addAssertionIDRef(StaxParserUtil.getElementText(xmlEventReader));
             } else
-                throw new RuntimeException(UNKNOWN_START_ELEMENT + elementName + "::location=" + startElement.getLocation());
+                throw logger.parserUnknownStartElement(elementName, startElement.getLocation());
         }
         return request;
     }

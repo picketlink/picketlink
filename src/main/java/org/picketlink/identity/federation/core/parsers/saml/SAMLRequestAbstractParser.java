@@ -29,6 +29,8 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -45,6 +47,9 @@ import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
  * @since Nov 2, 2010
  */
 public abstract class SAMLRequestAbstractParser {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     protected String id;
 
     protected String version;
@@ -54,18 +59,18 @@ public abstract class SAMLRequestAbstractParser {
     protected void parseRequiredAttributes(StartElement startElement) throws ParsingException {
         Attribute idAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.ID.get()));
         if (idAttr == null)
-            throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "ID");
+            throw logger.parserRequiredAttribute("ID");
 
         id = StaxParserUtil.getAttributeValue(idAttr);
 
         Attribute versionAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.VERSION.get()));
         if (versionAttr == null)
-            throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Version");
+            throw logger.parserRequiredAttribute("Version");
         version = StaxParserUtil.getAttributeValue(versionAttr);
 
         Attribute issueInstantAttr = startElement.getAttributeByName(new QName(JBossSAMLConstants.ISSUE_INSTANT.get()));
         if (issueInstantAttr == null)
-            throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "IssueInstant");
+            throw logger.parserRequiredAttribute("IssueInstant");
         issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(issueInstantAttr));
     }
 
@@ -89,7 +94,7 @@ public abstract class SAMLRequestAbstractParser {
     protected void parseCommonElements(StartElement startElement, XMLEventReader xmlEventReader, RequestAbstractType request)
             throws ParsingException {
         if (startElement == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_START_ELEMENT);
+            throw logger.parserNullStartElement();
         String elementName = StaxParserUtil.getStartElementName(startElement);
 
         if (JBossSAMLConstants.ISSUER.get().equals(elementName)) {

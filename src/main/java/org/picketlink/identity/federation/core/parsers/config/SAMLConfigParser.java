@@ -21,8 +21,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.config;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
-
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
@@ -150,7 +148,7 @@ public class SAMLConfigParser extends AbstractParser {
                 if (endElementName.equals(HANDLERS))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -219,7 +217,7 @@ public class SAMLConfigParser extends AbstractParser {
                 if (endElementName.equals(IDP))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -303,7 +301,7 @@ public class SAMLConfigParser extends AbstractParser {
                 if (endElementName.equals(SP))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementName);
+                    throw logger.parserUnknownEndElement(endElementName);
             }
 
             startElement = StaxParserUtil.getNextStartElement(xmlEventReader);

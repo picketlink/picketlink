@@ -29,7 +29,6 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAMLParserUtil;
@@ -81,7 +80,7 @@ public class SAMLSloRequestParser extends SAMLRequestAbstractParser implements P
             } else if (JBossSAMLConstants.SIGNATURE.get().equals(elementName)) {
                 continue;
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + elementName);
+                throw logger.parserUnknownTag(elementName, startElement.getLocation());
         }
         return logoutRequest;
     }

@@ -24,6 +24,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -49,6 +51,9 @@ import org.w3c.dom.Element;
  * @since Oct 12, 2010
  */
 public class SAMLSubjectParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */
@@ -66,7 +71,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport {
                     endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                     break;
                 } else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
+                    throw logger.parserUnknownEndElement(StaxParserUtil.getEndElementName(endElement));
             }
 
             StartElement peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -107,7 +112,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport {
                         NameIDType nameID = SAMLParserUtil.parseNameIDType(xmlEventReader);
                         subjectConfirmationType.setNameID(nameID);
                     } else if (JBossSAMLConstants.BASEID.get().equalsIgnoreCase(tag)) {
-                        throw new ParsingException(ErrorCodes.UNSUPPORTED_TYPE + JBossSAMLConstants.BASEID.get());
+                        throw logger.unsupportedType(JBossSAMLConstants.BASEID.get());
                     } else if (JBossSAMLConstants.ENCRYPTED_ID.get().equals(tag)) {
                         Element domElement = StaxParserUtil.getDOMElement(xmlEventReader);
                         subjectConfirmationType.setEncryptedID(new EncryptedElementType(domElement));
@@ -123,7 +128,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport {
                 EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
                 StaxParserUtil.matches(endElement, JBossSAMLConstants.SUBJECT_CONFIRMATION.get());
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
+                throw logger.parserUnknownTag(tag, peekedElement.getLocation());
         }
         return subject;
     }
@@ -179,7 +184,7 @@ public class SAMLSubjectParser implements ParserNamespaceSupport {
             } else if (tag.equals(WSTrustConstants.XMLEnc.ENCRYPTED_KEY)) {
                 subjectConfirmationData.setAnyType(StaxParserUtil.getDOMElement(xmlEventReader));
             } else
-                throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag);
+                throw logger.parserUnknownTag(tag, startElement.getLocation());
         }
 
         // Get the end tag

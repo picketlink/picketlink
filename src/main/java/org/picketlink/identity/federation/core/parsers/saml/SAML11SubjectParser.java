@@ -17,9 +17,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.saml;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
-
 import java.net.URI;
 
 import javax.xml.namespace.QName;
@@ -29,6 +26,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.SAML11ParserUtil;
@@ -48,6 +47,9 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SA
  * @since Oct 12, 2010
  */
 public class SAML11SubjectParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */
@@ -65,7 +67,7 @@ public class SAML11SubjectParser implements ParserNamespaceSupport {
                     endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                     break;
                 } else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + StaxParserUtil.getEndElementName(endElement));
+                    throw logger.parserUnknownEndElement(StaxParserUtil.getEndElementName(endElement));
             }
 
             StartElement peekedElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
@@ -95,7 +97,7 @@ public class SAML11SubjectParser implements ParserNamespaceSupport {
                         .parseSAML11SubjectConfirmation(xmlEventReader);
                 subject.setSubjectConfirmation(subjectConfirmationType);
             } else
-                throw new RuntimeException(UNKNOWN_TAG + tag + "::location=" + peekedElement.getLocation());
+                throw logger.parserUnknownTag(tag, peekedElement.getLocation());
         }
         return subject;
     }

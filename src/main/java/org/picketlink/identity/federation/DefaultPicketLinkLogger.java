@@ -22,9 +22,16 @@
 
 package org.picketlink.identity.federation;
 
+import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_ELEMENT;
+import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
+
+import javax.xml.stream.Location;
+
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
@@ -238,5 +245,45 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public IllegalStateException keyStoreNullAlias() {
         return new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_ALIAS);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownEndElement(java.lang.String)
+     */
+    @Override
+    public RuntimeException parserUnknownEndElement(String endElementName) {
+        return new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + endElementName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parseUnknownTag(java.lang.String, javax.xml.stream.Location)
+     */
+    @Override
+    public RuntimeException parserUnknownTag(String tag, Location location) {
+        return new RuntimeException(UNKNOWN_TAG + tag + "::location=" + location);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parseRequiredAttribute(java.lang.String)
+     */
+    @Override
+    public ParsingException parserRequiredAttribute(String string) {
+        return new ParsingException(REQD_ATTRIBUTE + "AssertionID");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownStartElement(java.lang.String, javax.xml.stream.Location)
+     */
+    @Override
+    public RuntimeException parserUnknownStartElement(String elementName, Location location) {
+        return new RuntimeException(UNKNOWN_START_ELEMENT + elementName + "::location=" + location);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserNullStartElement()
+     */
+    @Override
+    public IllegalStateException parserNullStartElement() {
+        return new IllegalStateException(ErrorCodes.NULL_START_ELEMENT);
     }
 }
