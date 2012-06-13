@@ -21,6 +21,10 @@
       <directory>${basedir}/../picketlink-jbas-common/src/main/java</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
+    <fileSet>
+      <directory>${basedir}/../picketlink-jbas7/src/main/java</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
   </fileSets>
 
 </assembly>

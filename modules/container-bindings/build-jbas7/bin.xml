@@ -21,5 +21,9 @@
       <directory>${basedir}/../picketlink-jbas-common/target/classes/</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
+    <fileSet>
+      <directory>${basedir}/../picketlink-jbas7/target/classes/</directory>
+      <outputDirectory>/</outputDirectory>
+    </fileSet>
   </fileSets>
 </assembly>
