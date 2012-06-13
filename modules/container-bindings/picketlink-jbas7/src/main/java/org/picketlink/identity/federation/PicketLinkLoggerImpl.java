@@ -70,7 +70,17 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         return PicketLinkMessages.MESSAGES.unsupportedType(name);
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlResponseDocument(java.lang.String)
+     */
     public void samlResponseDocument(String samlResponseDocumentAsString) {
         PicketLinkLoggerMessages.ROOT_LOGGER.samlResponseDocument(samlResponseDocumentAsString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureError(java.lang.Throwable)
+     */
+    public ProcessingException signatureError(Throwable e) {
+        return PicketLinkMessages.MESSAGES.signatureError(e);
     }
 }

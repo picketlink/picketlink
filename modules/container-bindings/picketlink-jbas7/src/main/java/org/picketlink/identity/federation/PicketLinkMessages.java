@@ -52,4 +52,7 @@ public interface PicketLinkMessages {
     @Message(id = 69, value = "Parser: Type not supported: %s")
     RuntimeException unsupportedType(String name);
 
+    @Message(id = 100, value = "Signing Process Failure")
+    ProcessingException signatureError(Throwable e);
+
 }
