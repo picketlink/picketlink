@@ -22,7 +22,10 @@
 
 package org.picketlink.identity.federation;
 
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 
 /**
  * <p>This interface acts as a Logger Facade for PicketLink, from which exceptions and messages should be created or logged.</p>
@@ -88,4 +91,122 @@ public interface PicketLinkLogger {
      * @return
      */
     ProcessingException signatureError(Throwable e);
+
+    /**
+     * <p>Logs a XACML decision query document.</p>
+     * 
+     * @param xacmlDecisionQueryDocument
+     */
+    void sendingXACMLDecisionQuery(String xacmlDecisionQueryDocument);
+
+    /**
+     * <p>Creates a {@link RuntimeException} for null values.</p>
+     * 
+     * @param nullValue
+     * @return
+     */
+    RuntimeException nullValue(String nullValue);
+
+    /**
+     * <p>Creates a {@link RuntimeException} for not implemented methods or features.</p>
+     * 
+     * @return
+     */
+    RuntimeException notImplementedYet();
+
+    /**
+     * <p>Creates a {@link ConfigurationException} for exceptions raised during the PicketLink Audit configuration.
+     * 
+     * @param t
+     * @return
+     */
+    ConfigurationException auditConfigurationError(Throwable t);
+
+    /**
+     * <p>Creates a {@link IllegalStateException} for the case the Audit Manager is null.</p>
+     * 
+     * @return
+     */
+    IllegalStateException auditNullAuditManager();
+
+    /**
+     * <p>Indicates if the logging level is set to INFO.</p>
+     * 
+     * @return
+     */
+    boolean isInfoEnabled();
+
+    /**
+     * <p>Logs a PicketLink Audit Event.</p>
+     * 
+     * @param auditEvent
+     */
+    void auditEvent(String auditEvent);
+
+    /**
+     * <p>Creates a {@link RuntimeException} for missing values.</p>
+     * 
+     * @param string
+     * @return
+     */
+    RuntimeException injectedValueMissing(String value);
+
+    /**
+     * <p>Logs a message during the KeyStore setup.</p>
+     */
+    void keyStoreSetup();
+
+    /**
+     * <p>Creates a {@link IllegalStateException} for the case where the KeyStore is null.</p>
+     * 
+     * @return
+     */
+    IllegalStateException keyStoreNullStore();
+
+    /**
+     * <p>Logs a message for the cases where no public key was found for a given alias.</p>
+     * 
+     * @param alias
+     */
+    void keyStoreNullPublicKeyForAlias(String alias);
+
+    /**
+     * <p>Creates a {@link TrustKeyConfigurationException} for exceptions raised during the KeyStore configuration.</p>
+     * 
+     * @param t
+     * @return
+     */
+    TrustKeyConfigurationException keyStoreConfigurationError(Throwable t);
+
+    /**
+     * <p>Creates a {@link TrustKeyConfigurationException} for exceptions raised during the KeyStore processing.</p>
+     * 
+     * @param t
+     * @return
+     */
+    TrustKeyProcessingException keyStoreProcessingError(Throwable t);
+
+    /**
+     * @param domain
+     * @return
+     */
+    IllegalStateException keyStoreMissingDomainAlias(String domain);
+
+    /**
+     * <p>Creates a {@link RuntimeException} for the case where the signing key password is null.</p>
+     * 
+     * @return
+     */
+    RuntimeException keyStoreNullSigningKeyPass();
+
+    /**
+     * @param keyStore
+     * @return
+     */
+    RuntimeException keyStoreNotLocated(String keyStore);
+
+    /**
+     * @return
+     */
+    IllegalStateException keyStoreNullAlias();
 }

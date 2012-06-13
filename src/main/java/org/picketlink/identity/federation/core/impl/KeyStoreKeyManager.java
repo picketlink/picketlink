@@ -42,8 +42,8 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
@@ -59,6 +59,9 @@ import org.picketlink.identity.federation.core.util.KeyStoreUtil;
  * @since Jan 22, 2009
  */
 public class KeyStoreKeyManager implements TrustKeyManager {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * An map of secret keys alive only for the duration of the program. The keys are generated on the fly. If you need
      * sophisticated key storage, then a custom version of the {@code TrustKeyManager} needs to be written that either uses a
@@ -67,10 +70,6 @@ public class KeyStoreKeyManager implements TrustKeyManager {
     private final Map<String, SecretKey> keys = new HashMap<String, SecretKey>();
 
     private final Map<String, Object> options = new HashMap<String, Object>();
-
-    private static Logger log = Logger.getLogger(KeyStoreKeyManager.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     private final HashMap<String, String> domainAliasMap = new HashMap<String, String>();
 
@@ -99,22 +98,18 @@ public class KeyStoreKeyManager implements TrustKeyManager {
      */
     public PrivateKey getSigningKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
         try {
-            if (ks == null)
-                this.setUpKeyStore();
-
-            if (ks == null)
-                throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
+            initKeyStore();
             return (PrivateKey) ks.getKey(this.signingAlias, this.signingKeyPass);
         } catch (KeyStoreException e) {
-            throw new TrustKeyConfigurationException(e);
+            throw logger.keyStoreConfigurationError(e);
         } catch (NoSuchAlgorithmException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         } catch (UnrecoverableKeyException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         } catch (GeneralSecurityException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         } catch (IOException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         }
     }
 
@@ -125,18 +120,16 @@ public class KeyStoreKeyManager implements TrustKeyManager {
      */
     public KeyPair getSigningKeyPair() throws TrustKeyConfigurationException, TrustKeyProcessingException {
         try {
-            if (this.ks == null)
-                this.setUpKeyStore();
-
+            initKeyStore();
             PrivateKey privateKey = this.getSigningKey();
             PublicKey publicKey = KeyStoreUtil.getPublicKey(this.ks, this.signingAlias, this.signingKeyPass);
             return new KeyPair(publicKey, privateKey);
         } catch (KeyStoreException e) {
-            throw new TrustKeyConfigurationException(e);
+            throw logger.keyStoreConfigurationError(e);
         } catch (GeneralSecurityException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         } catch (IOException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         }
     }
 
@@ -145,22 +138,18 @@ public class KeyStoreKeyManager implements TrustKeyManager {
      */
     public Certificate getCertificate(String alias) throws TrustKeyConfigurationException, TrustKeyProcessingException {
         try {
-            if (ks == null)
-                this.setUpKeyStore();
-
-            if (ks == null)
-                throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
-
+            initKeyStore();
+            
             if (alias == null || alias.length() == 0)
-                throw new IllegalArgumentException(ErrorCodes.KEYSTOREKEYMGR_NULL_ALIAS);
+                throw logger.keyStoreNullAlias();
 
             return ks.getCertificate(alias);
         } catch (KeyStoreException e) {
-            throw new TrustKeyConfigurationException(e);
+            throw logger.keyStoreConfigurationError(e);
         } catch (GeneralSecurityException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         } catch (IOException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         }
     }
 
@@ -171,27 +160,21 @@ public class KeyStoreKeyManager implements TrustKeyManager {
         PublicKey publicKey = null;
 
         try {
-            if (ks == null) {
-                if (trace)
-                    log.trace("getPublicKey::Keystore is null. so setting it up");
-                this.setUpKeyStore();
-            }
-
-            if (ks == null)
-                throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
+            initKeyStore();
+            
             Certificate cert = ks.getCertificate(alias);
             if (cert != null)
                 publicKey = cert.getPublicKey();
-            else if (trace)
-                log.trace("No public key found for alias=" + alias);
+            else
+                logger.keyStoreNullPublicKeyForAlias(alias);
 
             return publicKey;
         } catch (KeyStoreException e) {
-            throw new TrustKeyConfigurationException(e);
+            throw logger.keyStoreConfigurationError(e);
         } catch (GeneralSecurityException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         } catch (IOException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         }
     }
 
@@ -205,15 +188,13 @@ public class KeyStoreKeyManager implements TrustKeyManager {
     public PublicKey getValidatingKey(String domain) throws TrustKeyConfigurationException, TrustKeyProcessingException {
         PublicKey publicKey = null;
         try {
-            if (ks == null)
-                this.setUpKeyStore();
-
-            if (ks == null)
-                throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
+            initKeyStore();
+            
             String domainAlias = this.domainAliasMap.get(domain);
+            
             if (domainAlias == null)
-                throw new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_DOMAIN_ALIAS_MISSING + domain);
-            publicKey = null;
+                throw logger.keyStoreMissingDomainAlias(domain);
+
             try {
                 publicKey = KeyStoreUtil.getPublicKey(ks, domainAlias, this.keyStorePass.toCharArray());
             } catch (UnrecoverableKeyException urke) {
@@ -221,17 +202,27 @@ public class KeyStoreKeyManager implements TrustKeyManager {
                 publicKey = KeyStoreUtil.getPublicKey(ks, domainAlias, this.signingKeyPass);
             }
         } catch (KeyStoreException e) {
-            throw new TrustKeyConfigurationException(e);
+            throw logger.keyStoreConfigurationError(e);
         } catch (NoSuchAlgorithmException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         } catch (GeneralSecurityException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         } catch (IOException e) {
-            throw new TrustKeyProcessingException(e);
+            throw logger.keyStoreProcessingError(e);
         }
         return publicKey;
     }
 
+    private void initKeyStore() throws GeneralSecurityException, IOException {
+        if (ks == null) {
+            logger.keyStoreSetup();
+            this.setUpKeyStore();
+        }
+
+        if (ks == null)
+            throw logger.keyStoreNullStore();
+    }
+    
     /**
      * @see TrustKeyManager#setAuthProperties(List)
      */
@@ -248,7 +239,7 @@ public class KeyStoreKeyManager implements TrustKeyManager {
 
         String keypass = this.authPropsMap.get(SIGNING_KEY_PASS);
         if (keypass == null || keypass.length() == 0)
-            throw new RuntimeException(ErrorCodes.KEYSTOREKEYMGR_NULL_SIGNING_KEYPASS);
+            throw logger.keyStoreNullSigningKeyPass();
         this.signingKeyPass = keypass.toCharArray();
     }
 
@@ -273,7 +264,7 @@ public class KeyStoreKeyManager implements TrustKeyManager {
             try {
                 key = EncryptionKeyUtil.getSecretKey(encryptionAlgorithm, keyLength);
             } catch (GeneralSecurityException e) {
-                throw new TrustKeyProcessingException(e);
+                throw logger.keyStoreProcessingError(e);
             }
             keys.put(domain, key);
         }
@@ -351,7 +342,7 @@ public class KeyStoreKeyManager implements TrustKeyManager {
             }
         }
         if (is == null)
-            throw new RuntimeException(ErrorCodes.KEYSTOREKEYMGR_KEYSTORE_NOT_LOCATED + keyStore);
+            throw logger.keyStoreNotLocated(keyStore);
         return is;
     }
 }

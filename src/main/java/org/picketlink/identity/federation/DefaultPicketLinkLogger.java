@@ -24,7 +24,10 @@ package org.picketlink.identity.federation;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -97,5 +100,143 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public ProcessingException signatureError(Throwable e) {
         return new ProcessingException(ErrorCodes.SIGNING_PROCESS_FAILURE, e);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#sendingXACMLDecisionQuery(java.lang.String)
+     */
+    @Override
+    public void sendingXACMLDecisionQuery(String xacmlDecisionQueryDocument) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Sending XACML Decision Query::" + xacmlDecisionQueryDocument);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#nullValue(java.lang.String)
+     */
+    @Override
+    public RuntimeException nullValue(String nullValue) {
+        return new RuntimeException(ErrorCodes.NULL_VALUE + "Did not find Response node");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#notImplementedYet()
+     */
+    @Override
+    public RuntimeException notImplementedYet() {
+        return new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#auditConfigurationError(javax.naming.NamingException)
+     */
+    @Override
+    public ConfigurationException auditConfigurationError(Throwable t) {
+        return new ConfigurationException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#auditNullAuditManager()
+     */
+    @Override
+    public IllegalStateException auditNullAuditManager() {
+        return new IllegalStateException(ErrorCodes.AUDIT_MANAGER_NULL);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#isInfoEnabled()
+     */
+    @Override
+    public boolean isInfoEnabled() {
+        return logger.isInfoEnabled();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#auditEvent(java.lang.String)
+     */
+    @Override
+    public void auditEvent(String auditEvent) {
+        logger.info(auditEvent);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#injectedValueMissing(java.lang.String)
+     */
+    @Override
+    public RuntimeException injectedValueMissing(String value) {
+        return new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + value);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keystoreSetup()
+     */
+    @Override
+    public void keyStoreSetup() {
+        logger.trace("getPublicKey::Keystore is null. so setting it up");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullStore()
+     */
+    @Override
+    public IllegalStateException keyStoreNullStore() {
+        return new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_KEYSTORE);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullPublicKeyForAlias(java.lang.String)
+     */
+    @Override
+    public void keyStoreNullPublicKeyForAlias(String alias) {
+        logger.trace("No public key found for alias=" + alias);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreConfigurationError(java.lang.Throwable)
+     */
+    @Override
+    public TrustKeyConfigurationException keyStoreConfigurationError(Throwable t) {
+        return new TrustKeyConfigurationException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreProcessingError(java.lang.Throwable)
+     */
+    @Override
+    public TrustKeyProcessingException keyStoreProcessingError(Throwable t) {
+        return new TrustKeyProcessingException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreMissingDomainAlias(java.lang.String)
+     */
+    @Override
+    public IllegalStateException keyStoreMissingDomainAlias(String domain) {
+        return new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_DOMAIN_ALIAS_MISSING + domain);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullSigningKeyPass()
+     */
+    @Override
+    public RuntimeException keyStoreNullSigningKeyPass() {
+        return new RuntimeException(ErrorCodes.KEYSTOREKEYMGR_NULL_SIGNING_KEYPASS);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNotLocated(java.lang.String)
+     */
+    @Override
+    public RuntimeException keyStoreNotLocated(String keyStore) {
+        return new RuntimeException(ErrorCodes.KEYSTOREKEYMGR_KEYSTORE_NOT_LOCATED + keyStore);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#keyStoreNullAlias()
+     */
+    @Override
+    public IllegalStateException keyStoreNullAlias() {
+        return new IllegalStateException(ErrorCodes.KEYSTOREKEYMGR_NULL_ALIAS);
     }
 }

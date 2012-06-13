@@ -25,7 +25,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
@@ -35,6 +36,9 @@ import org.picketlink.identity.federation.core.interfaces.AttributeManager;
  * @since Aug 31, 2009
  */
 public class DelegatedAttributeManager implements AttributeManager {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private AttributeManager delegate = new EmptyAttributeManager();
 
     public DelegatedAttributeManager() {
@@ -63,7 +67,7 @@ public class DelegatedAttributeManager implements AttributeManager {
      */
     public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys) {
         if (delegate == null)
-            throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Delegate");
+            throw logger.injectedValueMissing("Delegate");
         return delegate.getAttributes(userPrincipal, attributeKeys);
     }
 }

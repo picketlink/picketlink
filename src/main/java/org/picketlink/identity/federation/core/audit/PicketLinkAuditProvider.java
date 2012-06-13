@@ -21,10 +21,11 @@
  */
 package org.picketlink.identity.federation.core.audit;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.audit.AuditEvent;
 import org.jboss.security.audit.AuditProvider;
 import org.jboss.security.audit.providers.LogAuditProvider;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 
 /**
  * An implementation of {@link AuditProvider} that extends PicketBox's {@link LogAuditProvider}
@@ -32,9 +33,9 @@ import org.jboss.security.audit.providers.LogAuditProvider;
  * @author anil saldhana
  */
 public class PicketLinkAuditProvider extends LogAuditProvider implements AuditProvider {
-    private static final Logger log = Logger.getLogger(PicketLinkAuditProvider.class);
-    protected boolean info = log.isInfoEnabled();
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public PicketLinkAuditProvider() {
         super();
     }
@@ -42,11 +43,11 @@ public class PicketLinkAuditProvider extends LogAuditProvider implements AuditPr
     @Override
     public void audit(AuditEvent auditEvent) {
         if (auditEvent instanceof PicketLinkAuditEvent) {
-            if (info == false)
+            if (logger.isInfoEnabled())
                 return;
 
             PicketLinkAuditEvent picketLinkAuditEvent = (PicketLinkAuditEvent) auditEvent;
-            log.info(picketLinkAuditEvent.toString());
+            logger.auditEvent(picketLinkAuditEvent.toString());
         } else {
             super.audit(auditEvent);
         }

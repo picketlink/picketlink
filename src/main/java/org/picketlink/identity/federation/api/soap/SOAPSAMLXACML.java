@@ -33,11 +33,11 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.xacml.core.model.context.DecisionType;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResultType;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -67,7 +67,8 @@ import org.w3c.dom.NodeList;
  * @since Jul 30, 2009
  */
 public class SOAPSAMLXACML {
-    protected Logger log = Logger.getLogger(SOAPSAMLXACML.class);
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * Given an xacml request
@@ -102,9 +103,7 @@ public class SOAPSAMLXACML {
             SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter(xmlStreamWriter);
             samlRequestWriter.write(queryType);
 
-            if (log.isDebugEnabled()) {
-                log.debug("Sending::" + new String(baos.toByteArray()));
-            }
+            logger.sendingXACMLDecisionQuery(new String(baos.toByteArray()));
 
             Document reqDocument = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
 
@@ -139,7 +138,7 @@ public class SOAPSAMLXACML {
                 }
             }
             if (node == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "Did not find Response node");
+                throw logger.nullValue("Did not find Response node");
 
             XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(node));
             SAMLResponseParser samlResponseParser = new SAMLResponseParser();
@@ -153,9 +152,9 @@ public class SOAPSAMLXACML {
 
             return new Result(dt, null);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 

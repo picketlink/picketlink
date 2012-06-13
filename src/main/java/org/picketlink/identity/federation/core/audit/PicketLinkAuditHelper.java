@@ -31,7 +31,8 @@ import javax.servlet.ServletContext;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.audit.AuditEvent;
 import org.jboss.security.audit.AuditManager;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -48,6 +49,9 @@ import org.w3c.dom.Text;
  * @author anil saldhana
  */
 public class PicketLinkAuditHelper {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private AuditManager auditManager = null;
 
     /**
@@ -61,7 +65,7 @@ public class PicketLinkAuditHelper {
             auditManager = (AuditManager) context
                     .lookup(SecurityConstants.JAAS_CONTEXT_ROOT + securityDomainName + "/auditMgr");
         } catch (NamingException e) {
-            throw new ConfigurationException(e);
+            throw logger.auditConfigurationError(e);
         }
     }
 
@@ -72,7 +76,7 @@ public class PicketLinkAuditHelper {
      */
     public void audit(AuditEvent ae) {
         if (auditManager == null) {
-            throw new IllegalStateException(ErrorCodes.AUDIT_MANAGER_NULL);
+            throw logger.auditNullAuditManager();
         }
         auditManager.audit(ae);
     }
@@ -97,7 +101,7 @@ public class PicketLinkAuditHelper {
                     Document dom = DocumentUtil.getDocument(is);
                     return getSecurityDomainNameViaDom(dom);
                 } catch (Exception e1) {
-                    throw new ConfigurationException(e1);
+                    throw logger.auditConfigurationError(e1);
                 }
             }
             /**
@@ -108,7 +112,7 @@ public class PicketLinkAuditHelper {
             if (StringUtil.isNotNull(secDomain))
                 return secDomain;
 
-            throw new ConfigurationException(e);
+            throw logger.auditConfigurationError(e);
         }
     }
 

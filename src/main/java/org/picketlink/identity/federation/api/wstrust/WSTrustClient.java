@@ -20,6 +20,8 @@ package org.picketlink.identity.federation.api.wstrust;
 import java.net.URI;
 import java.security.Principal;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
@@ -38,6 +40,9 @@ import org.w3c.dom.Element;
  * @since Aug 29, 2009
  */
 public class WSTrustClient {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * The array of STSClient instances that this class delegates to.
      */
@@ -66,10 +71,9 @@ public class WSTrustClient {
     public WSTrustClient(String serviceName, String port, String[] endpointURIs, SecurityInfo secInfo) throws ParsingException {
         // basic input validation.
         if (serviceName == null || port == null || endpointURIs == null || secInfo == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT
-                    + "The service name, port, endpoint URIs and security info parameters cannot be null");
+            throw logger.nullArgument("The service name, port, endpoint URIs and security info parameters cannot be null");
         if (endpointURIs.length == 0)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "At least one endpoint URI must be provided");
+            throw logger.nullArgument("At least one endpoint URI must be provided");
 
         // create an STSClient for each endpointURI.
         this.clients = new STSClient[endpointURIs.length];
@@ -94,7 +98,7 @@ public class WSTrustClient {
      */
     public Element issueToken(String tokenType) throws WSTrustException {
         if (tokenType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "The token type");
+            throw logger.nullArgument("The token type");
         RequestSecurityToken request = new RequestSecurityToken();
         request.setTokenType(URI.create(tokenType));
         return this.issueInternal(request, 0);
@@ -111,7 +115,7 @@ public class WSTrustClient {
      */
     public Element issueTokenForEndpoint(String endpointURI) throws WSTrustException {
         if (endpointURI == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "The endpoint URI");
+            throw logger.nullArgument("The endpoint URI");
         RequestSecurityToken request = new RequestSecurityToken();
         request.setAppliesTo(WSTrustUtil.createAppliesTo(endpointURI));
         return this.issueInternal(request, 0);
@@ -129,8 +133,7 @@ public class WSTrustClient {
      */
     public Element issueToken(String endpointURI, String tokenType) throws WSTrustException {
         if (endpointURI == null && tokenType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT
-                    + "Either the token type or endpoint URI must be specified");
+            throw logger.nullArgument("Either the token type or endpoint URI must be specified");
 
         RequestSecurityToken request = new RequestSecurityToken();
         if (tokenType != null)
@@ -154,10 +157,9 @@ public class WSTrustClient {
      */
     public Element issueTokenOnBehalfOf(String endpointURI, String tokenType, Principal principal) throws WSTrustException {
         if (endpointURI == null && tokenType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT
-                    + "Either the token type or endpoint URI must be specified");
+            throw logger.nullArgument("Either the token type or endpoint URI must be specified");
         if (principal == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "The on-behalf-of principal");
+            throw logger.nullArgument("The on-behalf-of principal");
 
         RequestSecurityToken request = new RequestSecurityToken();
         if (tokenType != null)
@@ -180,7 +182,7 @@ public class WSTrustClient {
      */
     public Element issueToken(RequestSecurityToken request) throws WSTrustException {
         if (request == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "request");
+            throw logger.nullArgument("request");
         return this.issueInternal(request, 0);
     }
 
