@@ -22,7 +22,6 @@
 
 package org.picketlink.identity.federation;
 
-import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
