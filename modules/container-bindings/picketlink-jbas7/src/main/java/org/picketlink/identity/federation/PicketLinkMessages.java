@@ -28,6 +28,7 @@ import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -111,5 +112,17 @@ public interface PicketLinkMessages {
 
     @Message (id = 68, value = "Parser : Start Element is null")
     IllegalStateException parserNullStartElement();
+
+    @Message (id = 69, value = "Parser : Unknown xsi:type= %s")
+    ParsingException parserUnknownXSI(String xsiTypeValue);
+
+    @Message (id = 66, value = "Parser : Expected end tag: %s")
+    ParsingException parserExpectedEndTag(String tagName);
+
+    @Message (id = 70, value = "Parser : Parsing exception.")
+    ParsingException parserException(@Cause Throwable t);
+
+    @Message (id = 71, value = "Parser: Expected text value: %s")
+    ParsingException parserExpectedTextValue(String string);
 
 }

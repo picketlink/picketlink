@@ -243,4 +243,32 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     public IllegalStateException parserNullStartElement() {
         return PicketLinkMessages.MESSAGES.parserNullStartElement();
     }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserUnknownXSI(java.lang.String)
+     */
+    public ParsingException parserUnknownXSI(String xsiTypeValue) {
+        return PicketLinkMessages.MESSAGES.parserUnknownXSI(xsiTypeValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedEndTag(java.lang.String)
+     */
+    public ParsingException parserExpectedEndTag(String tagName) {
+        return PicketLinkMessages.MESSAGES.parserExpectedEndTag(tagName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserException(java.lang.Throwable)
+     */
+    public ParsingException parserException(Throwable t) {
+        return PicketLinkMessages.MESSAGES.parserException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#parserExpectedTextValue(java.lang.String)
+     */
+    public ParsingException parserExpectedTextValue(String string) {
+        return PicketLinkMessages.MESSAGES.parserExpectedTextValue(string);
+    }
 }
