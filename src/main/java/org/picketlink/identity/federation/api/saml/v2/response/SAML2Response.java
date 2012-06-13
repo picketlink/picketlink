@@ -36,7 +36,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -60,10 +61,10 @@ import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.ActionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextClassRefType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnContextType.AuthnContextTypeSequence;
-import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AuthzDecisionStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
@@ -88,9 +89,8 @@ import org.w3c.dom.Node;
  * @since Jan 5, 2009
  */
 public class SAML2Response {
-    private static Logger log = Logger.getLogger(SAML2Response.class);
-
-    private final boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private SAMLDocumentHolder samlDocumentHolder = null;
 
@@ -360,7 +360,7 @@ public class SAML2Response {
     public EncryptedAssertionType getEncryptedAssertion(InputStream is) throws ParsingException, ConfigurationException,
             ProcessingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgument("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
         SAMLParser samlParser = new SAMLParser();
@@ -381,7 +381,7 @@ public class SAML2Response {
      */
     public AssertionType getAssertionType(InputStream is) throws ParsingException, ConfigurationException, ProcessingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgument("InputStream");
         Document samlDocument = DocumentUtil.getDocument(is);
 
         SAMLParser samlParser = new SAMLParser();
@@ -408,7 +408,7 @@ public class SAML2Response {
      */
     public ResponseType getResponseType(InputStream is) throws ParsingException, ConfigurationException, ProcessingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgument("InputStream");
 
         Document samlResponseDocument = DocumentUtil.getDocument(is);
 
@@ -433,12 +433,11 @@ public class SAML2Response {
     public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ParsingException, ConfigurationException,
             ProcessingException {
         if (is == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "inputstream");
+            throw logger.nullArgument("InputStream");
 
         Document samlResponseDocument = DocumentUtil.getDocument(is);
 
-        if (trace)
-            log.trace("RESPONSE=" + DocumentUtil.asString(samlResponseDocument));
+        logger.samlResponseDocument(DocumentUtil.asString(samlResponseDocument));
 
         SAMLParser samlParser = new SAMLParser();
         JAXPValidationUtil.checkSchemaValidation(samlResponseDocument);

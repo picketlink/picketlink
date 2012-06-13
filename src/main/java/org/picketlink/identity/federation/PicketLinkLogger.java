@@ -74,4 +74,10 @@ public interface PicketLinkLogger {
      */
     RuntimeException unsupportedType(String name);
 
+    /**
+     * <p>Logs the SAML Response document.</p>
+     * 
+     * @param samlResponseDocumentAsString
+     */
+    void samlResponseDocument(String samlResponseDocumentAsString);
 }

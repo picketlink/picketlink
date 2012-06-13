@@ -80,4 +80,14 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     public RuntimeException unsupportedType(String name) {
         return new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + name);
     }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlResponseDocument(java.lang.String)
+     */
+    @Override
+    public void samlResponseDocument(String samlResponseDocumentAsString) {
+        if (logger.isTraceEnabled()) {
+            logger.trace("SAML Response Document=" + samlResponseDocumentAsString);
+        }
+    }
 }
