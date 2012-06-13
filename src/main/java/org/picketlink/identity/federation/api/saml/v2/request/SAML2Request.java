@@ -33,7 +33,8 @@ import java.net.URL;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -65,6 +66,9 @@ import org.xml.sax.SAXException;
  * @since Jan 5, 2009
  */
 public class SAML2Request {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private SAMLDocumentHolder samlDocumentHolder = null;
 
     private String nameIDFormat = JBossSAMLURIConstants.NAMEID_FORMAT_TRANSIENT.get();
@@ -129,16 +133,16 @@ public class SAML2Request {
     public AuthnRequestType getAuthnRequestType(String fileName) throws ConfigurationException, ProcessingException,
             ParsingException {
         if (fileName == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "fileName");
+            throw logger.nullArgument("fileName");
         URL resourceURL = SecurityActions.loadResource(getClass(), fileName);
         if (resourceURL == null)
-            throw new ProcessingException(ErrorCodes.RESOURCE_NOT_FOUND + fileName + " could not be loaded");
+            throw logger.resourceNotFound(fileName);
 
         InputStream is = null;
         try {
             is = resourceURL.openStream();
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         return getAuthnRequestType(is);
     }
@@ -154,7 +158,7 @@ public class SAML2Request {
     public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ConfigurationException, ParsingException,
             ProcessingException {
         if (is == null)
-            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "InputStream");
+            throw logger.nullArgument("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
 
@@ -179,7 +183,7 @@ public class SAML2Request {
     public RequestAbstractType getRequestType(InputStream is) throws ParsingException, ConfigurationException,
             ProcessingException {
         if (is == null)
-            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "InputStream");
+            throw logger.nullArgument("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
 
@@ -204,7 +208,7 @@ public class SAML2Request {
     public AuthnRequestType getAuthnRequestType(InputStream is) throws ConfigurationException, ProcessingException,
             ParsingException {
         if (is == null)
-            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "InputStream");
+            throw logger.nullArgument("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
 
@@ -296,7 +300,7 @@ public class SAML2Request {
         } else if (requestType instanceof LogoutRequestType) {
             samlRequestWriter.write((LogoutRequestType) requestType);
         } else
-            throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + requestType.getClass().getName());
+            throw logger.unsupportedType(requestType.getClass().getName());
     }
 
     /**
@@ -313,6 +317,6 @@ public class SAML2Request {
         } else if (requestType instanceof LogoutRequestType) {
             samlRequestWriter.write((LogoutRequestType) requestType);
         } else
-            throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + requestType.getClass().getName());
+            throw logger.unsupportedType(requestType.getClass().getName());
     }
 }
