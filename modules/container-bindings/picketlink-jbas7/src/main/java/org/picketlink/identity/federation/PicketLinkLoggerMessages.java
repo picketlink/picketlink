@@ -23,34 +23,23 @@
 package org.picketlink.identity.federation;
 
 import org.jboss.logging.BasicLogger;
-import org.jboss.logging.Cause;
+import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
+import org.jboss.logging.Logger.Level;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
 @MessageLogger(projectCode = "PLFED")
-public interface PicketLinkLoggerJBL extends BasicLogger {
+public interface PicketLinkLoggerMessages extends BasicLogger {
 
-    PicketLinkLoggerJBL ROOT_LOGGER = Logger.getMessageLogger(PicketLinkLoggerJBL.class, PicketLinkLoggerJBL.class.getPackage().getName());
+    PicketLinkLoggerMessages ROOT_LOGGER = Logger.getMessageLogger(PicketLinkLoggerMessages.class, PicketLinkLoggerMessages.class.getPackage().getName());
 
-    @Message(id = 78, value = "Null Parameter: %s")
-    IllegalArgumentException nullArgument(String argument);
-
-    @Message(id = 16, value = "Should not be the same: %s")
-    IllegalArgumentException shouldNotBeTheSame(String message);
-
-    @Message(id = 18, value = "Resource not found: %s")
-    ProcessingException resourceNotFound(String fileName);
-
-    @Message(id = 102, value = "Processing Exception.")
-    ProcessingException processingError(@Cause Throwable t);
-
-    @Message(id = 69, value = "Parser: Type not supported: %s")
-    RuntimeException unsupportedType(String name);
+    @LogMessage (level=Level.TRACE)
+    @Message(id = 70, value = "SAML Response Document: %s")
+    void samlResponseDocument(String samlResponseDocumentAsString);
     
 }

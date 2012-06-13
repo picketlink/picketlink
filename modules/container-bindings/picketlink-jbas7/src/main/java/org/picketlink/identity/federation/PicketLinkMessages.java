@@ -22,16 +22,35 @@
 
 package org.picketlink.identity.federation;
 
+import org.jboss.logging.BasicLogger;
+import org.jboss.logging.Cause;
+import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
+import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@MessageBundle (projectCode="PLFED")
-public class PicketLinkMessages {
+@MessageBundle(projectCode = "PLFED")
+public interface PicketLinkMessages {
 
     PicketLinkMessages MESSAGES = Messages.getBundle(PicketLinkMessages.class);
-    
+
+    @Message(id = 78, value = "Null Parameter: %s")
+    IllegalArgumentException nullArgument(String argument);
+
+    @Message(id = 16, value = "Should not be the same: %s")
+    IllegalArgumentException shouldNotBeTheSame(String message);
+
+    @Message(id = 18, value = "Resource not found: %s")
+    ProcessingException resourceNotFound(String fileName);
+
+    @Message(id = 102, value = "Processing Exception.")
+    ProcessingException processingError(@Cause Throwable t);
+
+    @Message(id = 69, value = "Parser: Type not supported: %s")
+    RuntimeException unsupportedType(String name);
+
 }

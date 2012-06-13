@@ -39,34 +39,38 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#nullArgument(java.lang.String)
      */
     public IllegalArgumentException nullArgument(String argument) {
-        return PicketLinkLoggerJBL.ROOT_LOGGER.nullArgument(argument);
+        return PicketLinkMessages.MESSAGES.nullArgument(argument);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#shouldNotBeTheSame(java.lang.String)
      */
     public IllegalArgumentException shouldNotBeTheSame(String message) {
-        return PicketLinkLoggerJBL.ROOT_LOGGER.shouldNotBeTheSame(message);
+        return PicketLinkMessages.MESSAGES.shouldNotBeTheSame(message);
     }
     
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#resourceNotFound(java.lang.String)
      */
     public ProcessingException resourceNotFound(String resource) {
-        return PicketLinkLoggerJBL.ROOT_LOGGER.resourceNotFound(resource);
+        return PicketLinkMessages.MESSAGES.resourceNotFound(resource);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#processingError(java.lang.Throwable)
      */
     public ProcessingException processingError(Throwable t) {
-        return PicketLinkLoggerJBL.ROOT_LOGGER.processingError(t);
+        return PicketLinkMessages.MESSAGES.processingError(t);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#unsupportedType(java.lang.String)
      */
     public RuntimeException unsupportedType(String name) {
-        return PicketLinkLoggerJBL.ROOT_LOGGER.unsupportedType(name);
+        return PicketLinkMessages.MESSAGES.unsupportedType(name);
+    }
+
+    public void samlResponseDocument(String samlResponseDocumentAsString) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlResponseDocument(samlResponseDocumentAsString);
     }
 }
