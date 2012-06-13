@@ -35,6 +35,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.xpath.XPathException;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -58,6 +60,9 @@ import org.xml.sax.SAXException;
  * @since May 26, 2009
  */
 public class SAML2Signature {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private static final String ID_ATTRIBUTE_NAME = "ID";
 
     private String signatureMethod = SignatureMethod.RSA_SHA1;
@@ -253,7 +258,7 @@ public class SAML2Signature {
         try {
             sign(samlDocument, id, keypair);
         } catch (Exception e) {
-            throw new ProcessingException(e);
+            throw logger.signatureError(e);
         }
     }
 
@@ -270,9 +275,9 @@ public class SAML2Signature {
             configureIdAttribute(signedDocument);
             return XMLSignatureUtil.validate(signedDocument, publicKey);
         } catch (MarshalException me) {
-            throw new ProcessingException(me.getLocalizedMessage());
+            throw logger.signatureError(me);
         } catch (XMLSignatureException xse) {
-            throw new ProcessingException(xse.getLocalizedMessage());
+            throw logger.signatureError(xse);
         }
     }
 

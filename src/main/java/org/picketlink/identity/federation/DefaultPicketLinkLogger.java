@@ -90,4 +90,12 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
             logger.trace("SAML Response Document=" + samlResponseDocumentAsString);
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureError(java.lang.Throwable)
+     */
+    @Override
+    public ProcessingException signatureError(Throwable e) {
+        return new ProcessingException(ErrorCodes.SIGNING_PROCESS_FAILURE, e);
+    }
 }

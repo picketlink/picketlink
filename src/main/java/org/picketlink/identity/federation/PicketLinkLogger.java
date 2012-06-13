@@ -80,4 +80,12 @@ public interface PicketLinkLogger {
      * @param samlResponseDocumentAsString
      */
     void samlResponseDocument(String samlResponseDocumentAsString);
+
+    /**
+     * <p>Creates a {@link ProcessingException} for exceptions raised during signature processing.</p>
+     * 
+     * @param e
+     * @return
+     */
+    ProcessingException signatureError(Throwable e);
 }
