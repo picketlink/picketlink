@@ -459,7 +459,7 @@ public class SAML2Response {
      */
     public Document convert(EncryptedElementType encryptedElementType) throws ConfigurationException {
         if (encryptedElementType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "encryptedElementType");
+            throw logger.nullArgument("encryptedElementType");
         Document doc = DocumentUtil.createDocument();
         Node importedNode = doc.importNode(encryptedElementType.getEncryptedElement(), true);
         doc.appendChild(importedNode);
