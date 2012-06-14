@@ -32,6 +32,7 @@ import java.io.IOException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
+import javax.xml.ws.WebServiceException;
 
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.ErrorCodes;
@@ -40,6 +41,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -783,5 +785,106 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     public IllegalArgumentException wrongTypeError(String message) {
         return new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "xmlSource should be a stax source");
     }
- 
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#encryptUnknownAlgoError(java.lang.String)
+     */
+    @Override
+    public RuntimeException encryptUnknownAlgoError(String certAlgo) {
+        return new RuntimeException(ErrorCodes.UNKNOWN_ENC_ALGO + certAlgo);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#domMissingDocElementError(java.lang.String)
+     */
+    @Override
+    public IllegalStateException domMissingDocElementError(String element) {
+        return new IllegalStateException(ErrorCodes.DOM_MISSING_DOC_ELEMENT + element);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#domMissingElementError(java.lang.String)
+     */
+    @Override
+    public IllegalStateException domMissingElementError(String element) {
+        return new IllegalStateException(ErrorCodes.DOM_MISSING_ELEMENT + element);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSInvalidTokenRequestError()
+     */
+    @Override
+    public WebServiceException stsWSInvalidTokenRequestError() {
+        return new WebServiceException(ErrorCodes.STS_INVALID_TOKEN_REQUEST);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSError(java.lang.Throwable)
+     */
+    @Override
+    public WebServiceException stsWSError(Throwable t) {
+        return new WebServiceException("Security Token Service Exception", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSConfigurationError(java.lang.Throwable)
+     */
+    @Override
+    public WebServiceException stsWSConfigurationError(Throwable t) {
+        return new WebServiceException(ErrorCodes.STS_CONFIGURATION_EXCEPTION, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSInvalidRequestTypeError(java.lang.String)
+     */
+    @Override
+    public WSTrustException stsWSInvalidRequestTypeError(String requestType) {
+        return new WSTrustException(ErrorCodes.STS_INVALID_REQUEST_TYPE + requestType);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSHandlingTokenRequestError(java.lang.Throwable)
+     */
+    @Override
+    public WebServiceException stsWSHandlingTokenRequestError(Throwable t) {
+        return new WebServiceException(ErrorCodes.STS_EXCEPTION_HANDLING_TOKEN_REQ + t.getMessage(), t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSResponseWritingError(java.lang.Throwable)
+     */
+    @Override
+    public WebServiceException stsWSResponseWritingError(Throwable t) {
+        return new WebServiceException(ErrorCodes.STS_RESPONSE_WRITING_ERROR + t.getMessage(), t);
+    }
+
+    @Override
+    public RuntimeException stsUnableToConstructKeyManagerError(Throwable t) {
+        return new RuntimeException(ErrorCodes.STS_UNABLE_TO_CONSTRUCT_KEYMGR, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsPublicKeyError(java.lang.String, java.lang.Throwable)
+     */
+    @Override
+    public RuntimeException stsPublicKeyError(String serviceName, Throwable t) {
+        return new RuntimeException(ErrorCodes.STS_PUBLIC_KEY_ERROR + serviceName, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSigningKeyPairError(java.lang.Exception)
+     */
+    @Override
+    public RuntimeException stsSigningKeyPairError(Throwable t) {
+        return new RuntimeException(ErrorCodes.STS_SIGNING_KEYPAIR_ERROR, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsPublicKeyCertError(java.lang.Throwable)
+     */
+    @Override
+    public RuntimeException stsPublicKeyCertError(Throwable t) {
+        return new RuntimeException(ErrorCodes.STS_PUBLIC_KEY_CERT, t);
+    }
+
 }

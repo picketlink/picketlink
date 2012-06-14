@@ -17,6 +17,7 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
@@ -38,7 +39,8 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceException;
 import javax.xml.ws.WebServiceProvider;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -62,14 +64,14 @@ import org.w3c.dom.NodeList;
  * <p>
  * Default implementation of the {@code SecurityTokenService} interface.
  * </p>
- *
+ * 
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 @WebServiceProvider(serviceName = "PicketLinkSTS", portName = "PicketLinkSTSPort", targetNamespace = "urn:picketlink:identity-federation:sts", wsdlLocation = "WEB-INF/wsdl/PicketLinkSTS.wsdl")
 @ServiceMode(value = Service.Mode.MESSAGE)
 public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenService
 {
-    private static Logger logger = Logger.getLogger(PicketLinkSTS.class);
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private static final String SEPARATOR = AccessController.doPrivileged(new PrivilegedAction<String>() {
         public String run() {
@@ -115,7 +117,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
                 }
             }
         } catch (SOAPException e) {
-            throw new WebServiceException(e);
+            throw logger.stsWSError(e);
         }
         Node payLoad;
         BaseRequestSecurityToken baseRequest;
@@ -126,7 +128,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
 
             baseRequest = (BaseRequestSecurityToken) parser.parse(DocumentUtil.getNodeAsStream(payLoad));
         } catch (Exception e) {
-            throw new WebServiceException(e);
+            throw logger.stsWSError(e);
         }
 
         if (baseRequest instanceof RequestSecurityToken) {
@@ -149,7 +151,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
         } else if (baseRequest instanceof RequestSecurityTokenCollection) {
             return convert(this.handleTokenRequestCollection((RequestSecurityTokenCollection) baseRequest), soap12);
         } else
-            throw new WebServiceException(ErrorCodes.STS_INVALID_TOKEN_REQUEST);
+            throw logger.stsWSInvalidTokenRequestError();
     }
 
     private SOAPMessage convert(Source theResponse, boolean wantSOAP12) {
@@ -165,7 +167,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
             response.getSOAPBody().addDocument(theResponseDoc);
             return response;
         } catch (Exception e) {
-            throw new WebServiceException(e);
+            throw logger.stsWSError(e);
         }
     }
 
@@ -187,7 +189,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
      * <p>
      * Process a security token request.
      * </p>
-     *
+     * 
      * @param request a {@code RequestSecurityToken} instance that contains the request information.
      * @return a {@code Source} instance representing the marshalled response.
      * @throws WebServiceException Any exception encountered in handling token
@@ -201,14 +203,15 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
                     logger.info("Loading STS configuration");
                 this.config = this.getConfiguration();
             } catch (ConfigurationException e) {
-                throw new WebServiceException(ErrorCodes.STS_CONFIGURATION_EXCEPTION, e);
+                throw logger.stsWSConfigurationError(e);
             }
 
         WSTrustRequestHandler handler = this.config.getRequestHandler();
         if (handler == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "WSTrustRequestHandler");
+            throw logger.nullValueError("WSTrustRequestHandler");
 
         String requestType = request.getRequestType().toString();
+        
         if (logger.isDebugEnabled())
             logger.debug("STS received request of type " + requestType);
 
@@ -227,9 +230,9 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
             else if (requestType.equals(WSTrustConstants.VALIDATE_REQUEST))
                 return this.marshallResponse(handler.validate(request, this.context.getUserPrincipal()));
             else
-                throw new WSTrustException(ErrorCodes.STS_INVALID_REQUEST_TYPE + requestType);
+                throw logger.stsWSInvalidRequestTypeError(requestType);
         } catch (WSTrustException we) {
-            throw new WebServiceException(ErrorCodes.STS_EXCEPTION_HANDLING_TOKEN_REQ + we.getMessage(), we);
+            throw logger.stsWSHandlingTokenRequestError(we);
         }
     }
 
@@ -237,7 +240,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
      * <p>
      * Process a collection of security token requests.
      * </p>
-     *
+     * 
      * @param requestCollection a {@code RequestSecurityTokenCollection} containing the various requests information.
      * @return a {@code Source} instance representing the marshalled response.
      */
@@ -249,7 +252,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
      * <p>
      * Marshalls the specified {@code RequestSecurityTokenResponse} into a {@code Source} instance.
      * </p>
-     *
+     * 
      * @param response the {@code RequestSecurityTokenResponse} to be marshalled.
      * @return the resulting {@code Source} instance.
      */
@@ -264,7 +267,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
             writer.write(responseCollection);
             return new DOMSource(result.getNode());
         } catch (Exception e) {
-            throw new WebServiceException(ErrorCodes.STS_RESPONSE_WRITING_ERROR + e.getMessage(), e);
+            throw logger.stsWSResponseWritingError(e);
         }
     }
 
@@ -272,7 +275,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
      * <p>
      * Obtains the STS configuration options.
      * </p>
-     *
+     * 
      * @return an instance of {@code STSConfiguration} containing the STS configuration properties.
      */
     protected STSConfiguration getConfiguration() throws ConfigurationException {
@@ -290,7 +293,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
 
             // if no configuration file was found, log a warn message and use default configuration values.
             if (configurationFileURL == null) {
-                logger.warn(STS_CONFIG_FILE + " configuration file not found. Using default configuration values");
+                logger.stsUsingDefaultConfiguration(configurationFileURL.getPath());
                 return new PicketLinkSTSConfiguration();
             }
 
@@ -298,10 +301,10 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
             STSType stsConfig = (STSType) new STSConfigParser().parse(stream);
             STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
             if (logger.isInfoEnabled())
-                logger.info(STS_CONFIG_FILE + " configuration file loaded");
+                logger.stsConfigurationFileLoaded(STS_CONFIG_FILE);
             return configuration;
         } catch (Exception e) {
-            throw new ConfigurationException(ErrorCodes.STS_CONFIGURATION_FILE_PARSING_ERROR + configurationFileURL + "]", e);
+            throw logger.stsConfigurationFileParsingError(e);
         }
     }
 }

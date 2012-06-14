@@ -22,17 +22,20 @@
 
 package org.picketlink.identity.federation;
 
+
 import java.io.IOException;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
+import javax.xml.ws.WebServiceException;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 
 /**
  * <p>This interface acts as a Logger Facade for PicketLink, from which exceptions and messages should be created or logged.</p>
@@ -598,4 +601,82 @@ public interface PicketLinkLogger {
      * @return
      */
     IllegalArgumentException wrongTypeError(String message);
+
+    /**
+     * @param certAlgo
+     * @return
+     */
+    RuntimeException encryptUnknownAlgoError(String certAlgo);
+
+    /**
+     * @param element
+     * @return
+     */
+    IllegalStateException domMissingDocElementError(String element);
+
+    /**
+     * @param element
+     * @return
+     */
+    IllegalStateException domMissingElementError(String element);
+
+    /**
+     * @return
+     */
+    WebServiceException stsWSInvalidTokenRequestError();
+
+    /**
+     * @param t
+     * @return
+     */
+    WebServiceException stsWSError(Throwable t);
+
+    /**
+     * @param t
+     * @return
+     */
+    WebServiceException stsWSConfigurationError(Throwable t);
+
+    /**
+     * @param requestType
+     * @return
+     */
+    WSTrustException stsWSInvalidRequestTypeError(String requestType);
+
+    /**
+     * @param t
+     * @return
+     */
+    WebServiceException stsWSHandlingTokenRequestError(Throwable t);
+
+    /**
+     * @param t
+     * @return
+     */
+    WebServiceException stsWSResponseWritingError(Throwable t);
+
+    /**
+     * @param t
+     * @return
+     */
+    RuntimeException stsUnableToConstructKeyManagerError(Throwable t);
+
+    /**
+     * @param serviceName
+     * @param t
+     * @return
+     */
+    RuntimeException stsPublicKeyError(String serviceName, Throwable t);
+
+    /**
+     * @param t
+     * @return
+     */
+    RuntimeException stsSigningKeyPairError(Throwable t);
+
+    /**
+     * @param t
+     * @return
+     */
+    RuntimeException stsPublicKeyCertError(Throwable t);
 }

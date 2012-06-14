@@ -342,7 +342,7 @@ public class TransformerUtil {
                         el.appendChild(textNode);
                     } catch (Exception e) {
                         Location location = characterEvent.getLocation();
-                        throw new ParsingException(" Location:" + location.toString(), e);
+                        throw logger.parserException(e);
                     }
                 }
             }

@@ -32,7 +32,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -48,6 +49,9 @@ import org.w3c.dom.Element;
  *
  */
 public final class SamlCredential implements Serializable {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private static final long serialVersionUID = -8496414959425288835L;
 
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
@@ -56,14 +60,14 @@ public final class SamlCredential implements Serializable {
 
     public SamlCredential(final Element assertion) {
         if (assertion == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
+            throw logger.nullArgumentError("assertion");
 
         this.assertion = SamlCredential.assertionToString(assertion);
     }
 
     public SamlCredential(final String assertion) {
         if (StringUtil.isNullOrEmpty(assertion))
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
+            throw logger.nullArgumentError("assertion");
 
         this.assertion = assertion;
     }
@@ -113,7 +117,7 @@ public final class SamlCredential implements Serializable {
 
     public static String assertionToString(final Element assertion) {
         if (assertion == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "assertion");
+            throw logger.nullArgumentError("assertion");
 
         try {
             final Transformer transformer = TRANSFORMER_FACTORY.newTransformer();

@@ -58,8 +58,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -87,6 +87,9 @@ import org.xml.sax.SAXException;
  * @since Dec 15, 2008
  */
 public class XMLSignatureUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     // Set some system properties and Santuario providers. Run this block before any other class initialization.
     static {
         ProvidersUtil.ensure();
@@ -96,10 +99,6 @@ public class XMLSignatureUtil {
             includeKeyInfoInSignature = Boolean.parseBoolean(keyInfoProp);
         }
     };
-
-    private static Logger log = Logger.getLogger(XMLSignatureUtil.class);
-
-    private static boolean trace = log.isTraceEnabled();
 
     private static String canonicalizationMethodType = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
@@ -119,7 +118,7 @@ public class XMLSignatureUtil {
             try {
                 xsf = XMLSignatureFactory.getInstance("DOM");
             } catch (Exception err) {
-                throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + err.getLocalizedMessage());
+                throw new RuntimeException(logger.couldNotCreateInstance("DOM", err));
             }
         }
         return xsf;
@@ -199,10 +198,9 @@ public class XMLSignatureUtil {
             String signatureMethod, String referenceURI) throws ParserConfigurationException, GeneralSecurityException,
             MarshalException, XMLSignatureException {
         if (nodeToBeSigned == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Node to be signed");
-        if (trace) {
-            log.trace("Document to be signed=" + DocumentUtil.asString(doc));
-        }
+            throw logger.nullArgumentError("Node to be signed");
+        
+        logger.trace("Document to be signed=" + DocumentUtil.asString(doc));
 
         Node parentNode = nodeToBeSigned.getParentNode();
 
@@ -276,9 +274,7 @@ public class XMLSignatureUtil {
      */
     public static Document sign(Document doc, KeyPair keyPair, String digestMethod, String signatureMethod, String referenceURI)
             throws GeneralSecurityException, MarshalException, XMLSignatureException {
-        if (trace) {
-            log.trace("Document to be signed=" + DocumentUtil.asString(doc));
-        }
+        logger.trace("Document to be signed=" + DocumentUtil.asString(doc));
         PrivateKey signingKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
 
@@ -339,9 +335,8 @@ public class XMLSignatureUtil {
         String referenceURI = dto.getReferenceURI();
         String signatureMethod = dto.getSignatureMethod();
 
-        if (trace) {
-            log.trace("Document to be signed=" + DocumentUtil.asString(doc));
-        }
+        logger.trace("Document to be signed=" + DocumentUtil.asString(doc));
+
         PrivateKey signingKey = keyPair.getPrivate();
         PublicKey publicKey = keyPair.getPublic();
 
@@ -391,29 +386,29 @@ public class XMLSignatureUtil {
     @SuppressWarnings("unchecked")
     public static boolean validate(Document signedDoc, Key publicKey) throws MarshalException, XMLSignatureException {
         if (signedDoc == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Signed Document");
+            throw logger.nullArgumentError("Signed Document");
 
         propagateIDAttributeSetup(signedDoc.getDocumentElement(), signedDoc.getDocumentElement());
 
         NodeList nl = signedDoc.getElementsByTagNameNS(XMLSignature.XMLNS, "Signature");
         if (nl == null || nl.getLength() == 0) {
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Cannot find Signature element");
+            throw logger.nullValueError("Cannot find Signature element");
         }
         if (publicKey == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Public Key");
+            throw logger.nullValueError("Public Key");
 
         DOMValidateContext valContext = new DOMValidateContext(publicKey, nl.item(0));
         XMLSignature signature = fac.unmarshalXMLSignature(valContext);
 
         boolean coreValidity = signature.validate(valContext);
 
-        if (trace && !coreValidity) {
+        if (logger.isTraceEnabled() && !coreValidity) {
             boolean sv = signature.getSignatureValue().validate(valContext);
-            log.trace("Signature validation status: " + sv);
+            logger.trace("Signature validation status: " + sv);
 
             List<Reference> references = signature.getSignedInfo().getReferences();
             for (Reference ref : references) {
-                log.trace("[Ref id=" + ref.getId() + ":uri=" + ref.getURI() + "]validity status:" + ref.validate(valContext));
+                logger.trace("[Ref id=" + ref.getId() + ":uri=" + ref.getURI() + "]validity status:" + ref.validate(valContext));
             }
         }
         return coreValidity;
@@ -428,7 +423,7 @@ public class XMLSignatureUtil {
      * @throws JAXBException
      */
     public static void marshall(SignatureType signature, OutputStream os) throws JAXBException, SAXException {
-        throw new RuntimeException("NYI");
+        throw logger.notImplementedYet("NYI");
         /*
          * JAXBElement<SignatureType> jsig = objectFactory.createSignature(signature); Marshaller marshaller =
          * JAXBUtil.getValidatingMarshaller(pkgName, schemaLocation); marshaller.marshal(jsig, os);
@@ -470,7 +465,7 @@ public class XMLSignatureUtil {
                 cert = (X509Certificate) cf.generateCertificate(bais);
             }
         } catch (java.security.cert.CertificateException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         return cert;
     }
@@ -575,6 +570,6 @@ public class XMLSignatureUtil {
             dsaKeyValue.setY(Base64.encodeBytes(Y).getBytes());
             return dsaKeyValue;
         }
-        throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE);
+        throw logger.unsupportedType(key.toString());
     }
 }
