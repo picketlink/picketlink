@@ -28,7 +28,9 @@ import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_E
 import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
 
 import java.io.IOException;
+import java.security.Principal;
 
+import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -53,6 +55,42 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
 
     DefaultPicketLinkLogger() {
 
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#info(java.lang.String)
+     */
+    @Override
+    public void info(String message) {
+        if (logger.isInfoEnabled()) {
+            logger.info(message);            
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#debug(java.lang.String)
+     */
+    @Override
+    public void debug(String message) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(message);            
+        }
+    }
+
+    public void debug(String message, Throwable t) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(message, t);            
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String)
+     */
+    @Override
+    public void trace(String message) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(message);            
+        }
     }
 
     /*
@@ -103,17 +141,15 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void samlResponseDocument(String samlResponseDocumentAsString) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("SAML Response Document=" + samlResponseDocumentAsString);
-        }
+        this.trace("SAML Response Document=" + samlResponseDocumentAsString);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#signatureError(java.lang.Throwable)
      */
     @Override
-    public ProcessingException signatureError(Throwable e) {
-        return new ProcessingException(ErrorCodes.SIGNING_PROCESS_FAILURE, e);
+    public XMLSignatureException signatureError(Throwable e) {
+        return new XMLSignatureException(ErrorCodes.SIGNING_PROCESS_FAILURE, e);
     }
 
     /* (non-Javadoc)
@@ -121,9 +157,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void sendingXACMLDecisionQuery(String xacmlDecisionQueryDocument) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Sending XACML Decision Query::" + xacmlDecisionQueryDocument);
-        }
+        this.debug("Sending XACML Decision Query::" + xacmlDecisionQueryDocument);
     }
 
     /* (non-Javadoc)
@@ -131,7 +165,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public RuntimeException nullValueError(String nullValue) {
-        return new RuntimeException(ErrorCodes.NULL_VALUE + "Did not find Response node");
+        return new RuntimeException(ErrorCodes.NULL_VALUE + nullValue);
     }
 
     /* (non-Javadoc)
@@ -171,7 +205,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void auditEvent(String auditEvent) {
-        logger.info(auditEvent);
+        this.info(auditEvent);
     }
 
     /* (non-Javadoc)
@@ -187,7 +221,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void keyStoreSetup() {
-        logger.trace("getPublicKey::Keystore is null. so setting it up");
+        this.trace("getPublicKey::Keystore is null. so setting it up");
     }
 
     /* (non-Javadoc)
@@ -203,7 +237,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void keyStoreNullPublicKeyForAlias(String alias) {
-        logger.trace("No public key found for alias=" + alias);
+        this.trace("No public key found for alias=" + alias);
     }
 
     /* (non-Javadoc)
@@ -371,7 +405,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void lookingParserForElement(QName qname) {
-        logger.trace("Looking for Parser for :" + qname);
+        this.trace("Looking for Parser for :" + qname);
     }
 
     /* (non-Javadoc)
@@ -379,7 +413,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void receivedXACMLMessage(String asString) {
-        logger.debug("Received Message::" + asString);
+        this.debug("Received Message::" + asString);
     }
 
     /* (non-Javadoc)
@@ -411,7 +445,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void securityTokenRegistryNotSpecified() {
-        logger.debug("Security Token registry option not specified: Issued Tokens will not be persisted!");
+        this.debug("Security Token registry option not specified: Issued Tokens will not be persisted!");
     }
 
     /* (non-Javadoc)
@@ -435,7 +469,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void revocationRegistryNotSpecified() {
-        logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
+        this.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
     }
 
     /* (non-Javadoc)
@@ -525,7 +559,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
 
     @Override
     public void metaDataStoreDirectoryCreation(String directory) {
-        logger.trace(directory + " does not exist. Hence creating.");
+        this.trace(directory + " does not exist. Hence creating.");
     }
 
     /* (non-Javadoc)
@@ -549,7 +583,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void metaDataPersistEntityDescriptor(String path) {
-        logger.trace("Persisted into " + path);
+        this.trace("Persisted into " + path);
     }
 
     /* (non-Javadoc)
@@ -557,7 +591,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void metaDataPersistTrustedMap(String path) {
-        logger.trace("Persisted trusted map into " + path);
+        this.trace("Persisted trusted map into " + path);
     }
 
     /* (non-Javadoc)
@@ -573,7 +607,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void assertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter) {
-        logger.trace("Now=" + now + " ::notBefore=" + notBefore + "::notOnOrAfter="
+        this.trace("Now=" + now + " ::notBefore=" + notBefore + "::notOnOrAfter="
                         + notOnOrAfter);
     }
 
@@ -582,7 +616,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void assertionExpired(String id) {
-        logger.info("Assertion has expired with id=" + id);
+        this.info("Assertion has expired with id=" + id);
     }
 
     /* (non-Javadoc)
@@ -599,14 +633,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public ConfigurationException configurationError(Throwable t) {
         return new ConfigurationException(t);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String)
-     */
-    @Override
-    public void trace(String message) {
-        logger.trace(message);
     }
 
     /* (non-Javadoc)
@@ -630,7 +656,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void stsCreatingDefaultSTSConfig() {
-        logger.debug("[InstallDefaultConfiguration] Configuration is null. Creating a new configuration");
+        this.debug("[InstallDefaultConfiguration] Configuration is null. Creating a new configuration");
     }
 
     /* (non-Javadoc)
@@ -638,7 +664,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void stsLoadingConfiguration(String fileName) {
-        logger.debug("[InstallDefaultConfiguration] Configuration file name=" + fileName);
+        this.debug("[InstallDefaultConfiguration] Configuration file name=" + fileName);
     }
 
     /* (non-Javadoc)
@@ -648,14 +674,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     public ProcessingException stsNoTokenProviderError(String configuration, String protocolContext) {
         return new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + configuration + "][ProtoCtx=" + protocolContext
                     + "]");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#debug(java.lang.String)
-     */
-    @Override
-    public void debug(String message) {
-        logger.debug(message);
     }
 
     /* (non-Javadoc)
@@ -687,7 +705,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void stsConfigurationFileLoaded(String fileName) {
-        logger.info(fileName + " configuration file loaded");
+        this.info(fileName + " configuration file loaded");
     }
 
     /* (non-Javadoc)
@@ -712,14 +730,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public void trustKeyManagerCreationError(Throwable t) {
         logger.error("Exception in getting TrustKeyManager:", t);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#info(java.lang.String)
-     */
-    @Override
-    public void info(String message) {
-        logger.info(message);
     }
 
     /* (non-Javadoc)
@@ -759,7 +769,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void jceProviderCouldNotBeLoaded(String name, Throwable t) {
-        logger.debug("The provider " + name + " could not be added: " + t.getMessage(), t);
+        this.debug("The provider " + name + " could not be added: " + t.getMessage(), t);
     }
 
     /* (non-Javadoc)
@@ -885,6 +895,152 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public RuntimeException stsPublicKeyCertError(Throwable t) {
         return new RuntimeException(ErrorCodes.STS_PUBLIC_KEY_CERT, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#issuingTokenForPrincipal(java.security.Principal)
+     */
+    @Override
+    public void issuingTokenForPrincipal(Principal callerPrincipal) {
+        this.trace("Issuing token for principal " + callerPrincipal);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#tokenTimeoutNotSpecified()
+     */
+    @Override
+    public void tokenTimeoutNotSpecified() {
+        this.debug("Lifetime has not been specified. Using the default timeout value.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#claimsDialectProcessorNotFound(java.lang.String)
+     */
+    @Override
+    public void claimsDialectProcessorNotFound(String dialect) {
+        this.debug("Claims have been specified in the request but no processor was found for dialect "
+                        + dialect);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsCombinedSecretKeyError(java.lang.Throwable)
+     */
+    @Override
+    public WSTrustException stsCombinedSecretKeyError(Throwable t) {
+        return new WSTrustException(ErrorCodes.STS_COMBINED_SECRET_KEY_ERROR, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsClientPublicKeyError()
+     */
+    @Override
+    public WSTrustException stsClientPublicKeyError() {
+        return new WSTrustException(ErrorCodes.STS_CLIENT_PUBLIC_KEY_ERROR);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsError(java.lang.Throwable)
+     */
+    @Override
+    public WSTrustException stsError(Throwable t) {
+        return new WSTrustException(t.getMessage(), t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsValidatingTokenForRenewal(java.lang.String)
+     */
+    @Override
+    public void stsValidatingTokenForRenewal(String details) {
+        this.trace("Validating token for renew request " + details);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureInvalidError(java.lang.String, java.lang.Throwable)
+     */
+    @Override
+    public XMLSignatureException signatureInvalidError(String message, Throwable t) {
+        return new XMLSignatureException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenSignatureNotVerified()
+     */
+    @Override
+    public void stsSecurityTokenSignatureNotVerified() {
+        this.trace("Security Token digital signature has NOT been verified. Either the STS has been configured"
+                        + "not to sign tokens or the STS key pair has not been properly specified.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsStartedValidationForRequest(java.lang.String)
+     */
+    @Override
+    public void stsStartedValidationForRequest(String details) {
+        this.trace("Started validation for request " + details);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureValidatingDocument(java.lang.String)
+     */
+    @Override
+    public void signatureValidatingDocument(String nodeAsString) {
+        this.trace("Going to validate signature for:" + nodeAsString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsDelegatingValidationToTokenProvider()
+     */
+    @Override
+    public void stsDelegatingValidationToTokenProvider() {
+        this.trace("Delegating token validation to token provider");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureElementToBeSigned(java.lang.String)
+     */
+    @Override
+    public void signatureElementToBeSigned(String namespaceURI) {
+        this.trace("NamespaceURI of element to be signed:" + namespaceURI);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureSignedElement(java.lang.String)
+     */
+    @Override
+    public void signatureSignedElement(String nodeAsString) {
+        this.trace("Signed Element:" + nodeAsString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#encryptProcessError(java.lang.Throwable)
+     */
+    @Override
+    public RuntimeException encryptProcessError(Throwable t) {
+        return new RuntimeException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#pkiLocatingPublic(java.lang.String)
+     */
+    @Override
+    public void pkiLocatingPublic(String alias) {
+        logger.trace("Locating public key for " + alias);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenShouldBeEncrypted()
+     */
+    @Override
+    public void stsSecurityTokenShouldBeEncrypted() {
+        logger.warn("Security token should be encrypted but no encrypting key could be found");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsReceivedRequestType(java.lang.String)
+     */
+    @Override
+    public void stsReceivedRequestType(String requestType) {
+        logger.debug("STS received request of type " + requestType);
     }
 
 }

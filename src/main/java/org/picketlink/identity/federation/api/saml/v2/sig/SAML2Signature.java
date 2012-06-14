@@ -258,7 +258,7 @@ public class SAML2Signature {
         try {
             sign(samlDocument, id, keypair);
         } catch (Exception e) {
-            throw logger.signatureError(e);
+            throw new ProcessingException(logger.signatureError(e));
         }
     }
 
@@ -275,9 +275,9 @@ public class SAML2Signature {
             configureIdAttribute(signedDocument);
             return XMLSignatureUtil.validate(signedDocument, publicKey);
         } catch (MarshalException me) {
-            throw logger.signatureError(me);
+            throw new ProcessingException(logger.signatureError(me));
         } catch (XMLSignatureException xse) {
-            throw logger.signatureError(xse);
+            throw new ProcessingException(logger.signatureError(xse));
         }
     }
 

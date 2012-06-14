@@ -199,8 +199,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
             throw new IllegalStateException(ErrorCodes.NULL_VALUE + "WebServiceContext");
         if (this.config == null)
             try {
-                if (logger.isInfoEnabled())
-                    logger.info("Loading STS configuration");
+                logger.info("Loading STS configuration");
                 this.config = this.getConfiguration();
             } catch (ConfigurationException e) {
                 throw logger.stsWSConfigurationError(e);
@@ -212,8 +211,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
 
         String requestType = request.getRequestType().toString();
         
-        if (logger.isDebugEnabled())
-            logger.debug("STS received request of type " + requestType);
+        logger.stsReceivedRequestType(requestType);
 
         try {
             if (requestType.equals(WSTrustConstants.ISSUE_REQUEST)) {

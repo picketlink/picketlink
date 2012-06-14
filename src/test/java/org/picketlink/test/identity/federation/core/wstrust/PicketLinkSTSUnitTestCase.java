@@ -1170,7 +1170,7 @@ public class PicketLinkSTSUnitTestCase {
             assertNotNull("Unexpected null cause", t);
             assertTrue("Unexpected cause type", t instanceof WSTrustException);
             String msg = t.getMessage();
-            if (msg.contains("Unable to renew token: request does not have a renew target") == false)
+            if (msg.contains("PL00092: Null Value:renew target") == false)
                 throw new RuntimeException("Unexpected exception message");
         }
 

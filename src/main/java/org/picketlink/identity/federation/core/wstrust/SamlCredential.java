@@ -109,9 +109,9 @@ public final class SamlCredential implements Serializable {
             Document document = DocumentUtil.getDocument(assertion);
             return (Element) document.getFirstChild();
         } catch (final ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         } catch (final ParsingException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 

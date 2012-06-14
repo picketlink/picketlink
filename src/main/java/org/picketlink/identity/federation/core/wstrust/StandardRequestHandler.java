@@ -30,8 +30,8 @@ import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
@@ -70,10 +70,9 @@ import org.w3c.dom.Node;
  * @author <a href="mailto:alessio.soldano@jboss.com">Alessio Soldano</a>
  */
 public class StandardRequestHandler implements WSTrustRequestHandler {
-    private static Logger log = Logger.getLogger(StandardRequestHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private static long KEY_SIZE = 128;
 
     private STSConfiguration configuration;
@@ -95,8 +94,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
      * org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken, java.security.Principal)
      */
     public RequestSecurityTokenResponse issue(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException {
-        if (trace)
-            log.trace("Issuing token for principal " + callerPrincipal);
+
+        logger.issuingTokenForPrincipal(callerPrincipal);
 
         // SecurityTokenProvider provider = null;
 
@@ -136,8 +135,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         requestContext.setTokenIssuer(this.configuration.getSTSName());
         if (request.getLifetime() == null && this.configuration.getIssuedTokenTimeout() != 0) {
             // if no lifetime has been specified, use the configured timeout value.
-            if (log.isDebugEnabled())
-                log.debug("Lifetime has not been specified. Using the default timeout value.");
+            logger.tokenTimeoutNotSpecified();
             request.setLifetime(WSTrustUtil.createDefaultLifetime(this.configuration.getIssuedTokenTimeout()));
         }
         requestContext.setServiceProviderPublicKey(providerPublicKey);
@@ -149,9 +147,8 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             // if there is a processor, process the claims and set the resulting attributes in the context.
             if (processor != null)
                 requestContext.setClaimedAttributes(processor.processClaims(claims, callerPrincipal));
-            else if (log.isDebugEnabled())
-                log.debug("Claims have been specified in the request but no processor was found for dialect "
-                        + claims.getDialect());
+            else if (logger.isDebugEnabled())
+                logger.claimsDialectProcessorNotFound(claims.getDialect());
         }
 
         // get the OnBehalfOf principal, if one has been specified.
@@ -163,15 +160,15 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         // get the key type and size from the request, setting default values if not specified.
         URI keyType = request.getKeyType();
         if (keyType == null) {
-            if (log.isDebugEnabled())
-                log.debug("No key type could be found in the request. Using the default BEARER type.");
+            if (logger.isDebugEnabled())
+                logger.debug("No key type could be found in the request. Using the default BEARER type.");
             keyType = URI.create(WSTrustConstants.KEY_TYPE_BEARER);
             request.setKeyType(keyType);
         }
         long keySize = request.getKeySize();
         if (keySize == 0) {
-            if (log.isDebugEnabled())
-                log.debug("No key size could be found in the request. Using the default size. (" + KEY_SIZE + ")");
+            if (logger.isDebugEnabled())
+                logger.debug("No key size could be found in the request. Using the default size. (" + KEY_SIZE + ")");
             keySize = KEY_SIZE;
             request.setKeySize(keySize);
         }
@@ -208,7 +205,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                     combinedSecret = Base64.encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8))
                             .getBytes();
                 } catch (Exception e) {
-                    throw new WSTrustException(ErrorCodes.STS_COMBINED_SECRET_KEY_ERROR, e);
+                    throw logger.stsCombinedSecretKeyError(e);
                 }
                 requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(combinedSecret, providerPublicKey, keyWrapAlgo));
             } else {
@@ -242,7 +239,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                                try {
                                 keyValue = XMLSignatureUtil.getRSAKeyValue(child);
                             } catch (ParsingException e) {
-                                throw new WSTrustException("Ex" ,e);
+                                throw logger.stsError(e);
                             }
                            }
                            if(keyValue == null && child == null){
@@ -251,7 +248,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                                    try {
                                     keyValue = XMLSignatureUtil.getDSAKeyValue(child);
                                 } catch (ParsingException e) {
-                                    throw new WSTrustException("Ex" ,e);
+                                    throw logger.stsError(e);
                                 }
                                }
                                value = keyValue;
@@ -263,10 +260,10 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                     } else if (value instanceof KeyInfoType) {
                         requestContext.setProofTokenInfo((KeyInfoType) value);
                     } else
-                        throw new WSTrustException(ErrorCodes.UNSUPPORTED_TYPE + value);
+                        throw new WSTrustException(logger.unsupportedType(value.toString()));
                 }
             } else
-                throw new WSTrustException(ErrorCodes.STS_CLIENT_PUBLIC_KEY_ERROR);
+                throw logger.stsClientPublicKeyError();
         }
 
         // issue the security token using the constructed context.
@@ -278,18 +275,18 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             sts.issueToken(requestContext);
             // provider.issueToken(requestContext);
         } catch (ProcessingException e) {
-            throw new WSTrustException(e.getMessage(), e);
+            throw logger.stsError(e);
         }
 
         if (requestContext.getSecurityToken() == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "Token issued by STS");
+            throw new WSTrustException(logger.nullValueError("Token issued by STS"));
 
         // construct the ws-trust security token response.
         RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
 
         SecurityToken contextSecurityToken = requestContext.getSecurityToken();
         if (contextSecurityToken == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "Security Token from context");
+            throw new WSTrustException(logger.nullValueError("Security Token from context"));
 
         requestedSecurityToken.add(contextSecurityToken.getTokenValue());
 
@@ -327,14 +324,15 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
     public RequestSecurityTokenResponse renew(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException {
         // first validate the provided token signature to make sure it has been issued by this STS and hasn't been
         // tempered.
-        if (trace)
-            log.trace("Validating token for renew request " + request.getContext());
+        
+        logger.stsValidatingTokenForRenewal(request.getContext().toString());
+        
         if (request.getRenewTargetElement() == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "Unable to renew token: request does not have a renew target");
+            throw new WSTrustException(logger.nullValueError("renew target"));
 
         Node securityToken = request.getRenewTargetElement().getFirstChild();
         if (securityToken == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "Unable to renew token: security token is null");
+            throw new WSTrustException(logger.nullValueError("security token"));
 
         /*
          * SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
@@ -353,21 +351,18 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 tokenDocument.appendChild(importedNode);
                 XMLSignatureUtil.propagateIDAttributeSetup(securityToken, tokenDocument.getDocumentElement());
                 if (!XMLSignatureUtil.validate(tokenDocument, keyPair.getPublic()))
-                    throw new WSTrustException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Validation failure during renewal");
+                    throw new WSTrustException(logger.signatureInvalidError("Validation failure during renewal", null));
             } catch (Exception e) {
-                throw new WSTrustException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Validation failure during renewal:", e);
+                throw new WSTrustException(logger.signatureInvalidError("Validation failure during renewal:", e));
             }
         } else {
-            if (trace)
-                log.trace("Security Token digital signature has NOT been verified. Either the STS has been configured"
-                        + "not to sign tokens or the STS key pair has not been properly specified.");
+            logger.stsSecurityTokenSignatureNotVerified();
         }
 
         // set default values where needed.
         if (request.getLifetime() == null && this.configuration.getIssuedTokenTimeout() != 0) {
             // if no lifetime has been specified, use the configured timeout value.
-            if (log.isDebugEnabled())
-                log.debug("Lifetime has not been specified. Using the default timeout value.");
+            logger.tokenTimeoutNotSpecified();
             request.setLifetime(WSTrustUtil.createDefaultLifetime(this.configuration.getIssuedTokenTimeout()));
         }
 
@@ -397,7 +392,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         RequestedSecurityTokenType requestedSecurityToken = new RequestedSecurityTokenType();
         SecurityToken contextSecurityToken = context.getSecurityToken();
         if (contextSecurityToken == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "Security Token from context");
+            throw new WSTrustException(logger.nullValueError("Security Token from context"));
         requestedSecurityToken.add(contextSecurityToken.getTokenValue());
 
         RequestSecurityTokenResponse response = new RequestSecurityTokenResponse();
@@ -421,19 +416,18 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
      */
     public RequestSecurityTokenResponse validate(RequestSecurityToken request, Principal callerPrincipal)
             throws WSTrustException {
-        if (trace)
-            log.trace("Started validation for request " + request.getContext());
+
+        logger.stsStartedValidationForRequest(request.getContext().toString());
 
         if (request.getValidateTargetElement() == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE
-                    + "request does not have a validate target. Unable to validate token");
+            throw new WSTrustException(logger.nullValueError("request does not have a validate target. Unable to validate token"));
 
         if (request.getTokenType() == null)
             request.setTokenType(URI.create(WSTrustConstants.STATUS_TYPE));
 
         Node securityToken = request.getValidateTargetElement().getFirstChild();
         if (securityToken == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "security token:Unable to validate token");
+            throw new WSTrustException(logger.nullValueError("security token:Unable to validate token"));
 
         setupIDAttribute(securityToken);
 
@@ -449,9 +443,9 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         if (this.configuration.signIssuedToken() && this.configuration.getSTSKeyPair() != null) {
             KeyPair keyPair = this.configuration.getSTSKeyPair();
             try {
-                if (trace) {
+                if (logger.isTraceEnabled()) {
                     try {
-                        log.trace("Going to validate:" + DocumentUtil.getNodeAsString(securityToken));
+                        logger.signatureValidatingDocument(DocumentUtil.getNodeAsString(securityToken));
                     } catch (Exception e) {
                     }
                 }
@@ -470,15 +464,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 status.setReason("Validation failure: unable to verify digital signature: " + e.getMessage());
             }
         } else {
-            if (trace)
-                log.trace("Security Token digital signature has NOT been verified. Either the STS has been configured"
-                        + "not to sign tokens or the STS key pair has not been properly specified.");
+            logger.stsSecurityTokenSignatureNotVerified();
         }
 
         // if the signature is valid, then let the provider perform any additional validation checks.
         if (status == null) {
-            if (trace)
-                log.trace("Delegating token validation to token provider");
+            logger.stsDelegatingValidationToTokenProvider();
             try {
                 if (securityToken != null)
                     context.setQName(new QName(securityToken.getNamespaceURI(), securityToken.getLocalName()));
@@ -487,7 +478,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 sts.validateToken(context);
                 // provider.validateToken(context);
             } catch (ProcessingException e) {
-                throw new WSTrustException(e.getMessage(), e);
+                throw logger.stsError(e);
             }
             status = context.getStatus();
         }
@@ -511,12 +502,12 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
     public RequestSecurityTokenResponse cancel(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException {
         // check if request contains all required elements.
         if (request.getCancelTargetElement() == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "request does not have a cancel target. Unable to cancel token");
+            throw new WSTrustException(logger.nullValueError("request does not have a cancel target. Unable to cancel token"));
 
         // obtain the token provider that will handle the request.
         Node securityToken = request.getCancelTargetElement().getFirstChild();
         if (securityToken == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "security token. Unable to cancel token");
+            throw new WSTrustException(logger.nullValueError("security token. Unable to cancel token"));
 
         /*
          * SecurityTokenProvider provider = this.configuration.getProviderForTokenElementNS(securityToken.getLocalName(),
@@ -540,7 +531,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             sts.cancelToken(context);
             // provider.cancelToken(context);
         } catch (ProcessingException e) {
-            throw new WSTrustException(e.getMessage(), e);
+            throw logger.stsError(e);
         }
 
         // if no exception has been raised, the token has been successfully canceled.
@@ -565,27 +556,27 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                     Node rst = rstrDocument.getElementsByTagNameNS(WSTrustConstants.BASE_NAMESPACE, "RequestedSecurityToken")
                             .item(0);
                     Element tokenElement = (Element) rst.getFirstChild();
-                    if (trace)
-                        log.trace("NamespaceURI of element to be signed:" + tokenElement.getNamespaceURI());
+
+                    logger.signatureElementToBeSigned(tokenElement.getNamespaceURI());
 
                     // Set the CanonicalizationMethod if any
                     XMLSignatureUtil.setCanonicalizationMethodType(configuration.getXMLDSigCanonicalizationMethod());
 
                     rstrDocument = XMLSignatureUtil.sign(rstrDocument, tokenElement, keyPair, DigestMethod.SHA1,
                             signatureMethod, setupIDAttribute(tokenElement));
-                    if (trace) {
+                    if (logger.isTraceEnabled()) {
                         try {
-                            log.trace("Signed Token:" + DocumentUtil.getNodeAsString(tokenElement));
+                            logger.signatureSignedElement(DocumentUtil.getNodeAsString(tokenElement));
 
                             Document tokenDocument = DocumentUtil.createDocument();
                             tokenDocument.appendChild(tokenDocument.importNode(tokenElement, true));
-                            log.trace("valid=" + XMLSignatureUtil.validate(tokenDocument, keyPair.getPublic()));
+                            logger.trace("valid=" + XMLSignatureUtil.validate(tokenDocument, keyPair.getPublic()));
 
                         } catch (Exception ignore) {
                         }
                     }
                 } catch (Exception e) {
-                    throw new WSTrustException(ErrorCodes.SIGNING_PROCESS_FAILURE, e);
+                    throw new WSTrustException(logger.signatureError(e));
                 }
             }
 
@@ -595,13 +586,14 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 PublicKey providerPublicKey = null;
                 if (request.getAppliesTo() != null) {
                     String serviceName = WSTrustUtil.parseAppliesTo(request.getAppliesTo());
-                    if (trace)
-                        log.trace("Locating public key for service provider " + serviceName);
+
+                    logger.pkiLocatingPublic(serviceName);
+                    
                     if (serviceName != null)
                         providerPublicKey = this.configuration.getServiceProviderPublicKey(serviceName);
                 }
                 if (providerPublicKey == null) {
-                    log.warn("Security token should be encrypted but no encrypting key could be found");
+                    logger.stsSecurityTokenShouldBeEncrypted();
                 } else {
                     // generate the secret key.
                     long keySize = request.getKeySize();
@@ -616,7 +608,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                         XMLEncryptionUtil.encryptElement(rstrDocument, tokenElement, providerPublicKey, secretKey,
                                 (int) keySize);
                     } catch (ProcessingException e) {
-                        throw new WSTrustException(ErrorCodes.ENCRYPTION_PROCESS_FAILURE, e);
+                        throw new WSTrustException(logger.encryptProcessError(e));
                     }
                 }
             }

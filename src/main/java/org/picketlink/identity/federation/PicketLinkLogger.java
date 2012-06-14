@@ -24,7 +24,9 @@ package org.picketlink.identity.federation;
 
 
 import java.io.IOException;
+import java.security.Principal;
 
+import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -100,7 +102,7 @@ public interface PicketLinkLogger {
      * @param e
      * @return
      */
-    ProcessingException signatureError(Throwable e);
+    XMLSignatureException signatureError(Throwable e);
 
     /**
      * <p>Logs a XACML decision query document.</p>
@@ -679,4 +681,100 @@ public interface PicketLinkLogger {
      * @return
      */
     RuntimeException stsPublicKeyCertError(Throwable t);
+
+    /**
+     * @param callerPrincipal
+     */
+    void issuingTokenForPrincipal(Principal callerPrincipal);
+
+    /**
+     * 
+     */
+    void tokenTimeoutNotSpecified();
+
+    /**
+     * @param dialect
+     */
+    void claimsDialectProcessorNotFound(String dialect);
+
+    /**
+     * @param t
+     * @return
+     */
+    WSTrustException stsCombinedSecretKeyError(Throwable t);
+
+    /**
+     * @return
+     */
+    WSTrustException stsClientPublicKeyError();
+
+    /**
+     * @param t
+     * @return
+     */
+    WSTrustException stsError(Throwable t);
+
+    /**
+     * @param details
+     */
+    void stsValidatingTokenForRenewal(String details);
+
+    /**
+     * @param message
+     * @param t
+     * @return
+     */
+    XMLSignatureException signatureInvalidError(String message, Throwable t);
+
+    /**
+     * 
+     */
+    void stsSecurityTokenSignatureNotVerified();
+
+    /**
+     * @param details
+     */
+    void stsStartedValidationForRequest(String details);
+
+    /**
+     * @param nodeAsString
+     */
+    void signatureValidatingDocument(String nodeAsString);
+
+    /**
+     * 
+     */
+    void stsDelegatingValidationToTokenProvider();
+
+    /**
+     * @param namespaceURI
+     */
+    void signatureElementToBeSigned(String namespaceURI);
+
+    /**
+     * @param nodeAsString
+     */
+    void signatureSignedElement(String nodeAsString);
+
+    /**
+     * @param e
+     * @return
+     */
+    RuntimeException encryptProcessError(Throwable t);
+
+    /**
+     * @param alias
+     */
+    void pkiLocatingPublic(String alias);
+
+    /**
+     * 
+     */
+    void stsSecurityTokenShouldBeEncrypted();
+
+    /**
+     * @param requestType
+     */
+    void stsReceivedRequestType(String requestType);
+
 }

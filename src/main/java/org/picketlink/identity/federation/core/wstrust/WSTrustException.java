@@ -55,4 +55,16 @@ public class WSTrustException extends GeneralSecurityException {
     public WSTrustException(String message, Throwable cause) {
         super(message, cause);
     }
+    
+    /**
+     * <p>
+     * Creates an instance of {@code WSTrustException} using the specified {@link Throwable}.
+     * </p>
+     *
+     * @param message the error message.
+     */
+    public WSTrustException(Throwable t) {
+        super(t);
+    }
+
 }
