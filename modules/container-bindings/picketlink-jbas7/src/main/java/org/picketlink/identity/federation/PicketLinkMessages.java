@@ -25,6 +25,7 @@ package org.picketlink.identity.federation;
 import java.io.IOException;
 
 import javax.xml.stream.Location;
+import javax.xml.ws.WebServiceException;
 
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
@@ -35,6 +36,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -45,8 +47,35 @@ public interface PicketLinkMessages {
 
     PicketLinkMessages MESSAGES = Messages.getBundle(PicketLinkMessages.class);
 
+    @Message (id = 1, value = "Invalid security token request")
+    WebServiceException stsWSInvalidTokenRequestError();
+
+    @Message (id = 2, value = "Encountered configuration exception")
+    WebServiceException stsWSConfigurationError(@Cause Throwable t);
+
+    @Message (id = 3, value = "Exception in handling token request")
+    WebServiceException stsWSHandlingTokenRequestError(@Cause Throwable t);
+
+    @Message (id = 4, value = "Error writing response")
+    WebServiceException stsWSResponseWritingError(@Cause Throwable t);
+
     @Message (id = 5, value = "Error parsing the configuration file")
     ConfigurationException stsConfigurationFileParsingError(@Cause Throwable t);
+
+    @Message (id = 6, value = "Invalid request type: %s")
+    WSTrustException stsWSInvalidRequestTypeError(String requestType);
+
+    @Message (id = 7, value = "Unable to construct the key manager")
+    RuntimeException stsUnableToConstructKeyManagerError(@Cause Throwable t);
+
+    @Message (id = 10, value = "Error obtaining public key for service: %s")
+    RuntimeException stsPublicKeyError(String serviceName, @Cause Throwable t);
+
+    @Message (id = 11, value = "Error obtaining signing key pair")
+    RuntimeException stsSigningKeyPairError(@Cause Throwable t);
+
+    @Message (id = 12, value = "Error obtaining public key certificate")
+    RuntimeException stsPublicKeyCertError(@Cause Throwable t);
 
     @Message (id = 13, value = "No Security Token Provider found in configuration:[%s][ProtoCtx=%s]")
     ProcessingException stsNoTokenProviderError(String configuration, String protocolContext);
@@ -180,6 +209,15 @@ public interface PicketLinkMessages {
     @Message (id = 95, value = "Wrong type: %s")
     IllegalArgumentException wrongTypeError(String message);
 
+    @Message (id = 97, value = "Unknown Encryption Algorithm: %s")
+    RuntimeException encryptUnknownAlgoError(String certAlgo);
+
+    @Message (id = 98, value = "Missing Document Element: %s")
+    IllegalStateException domMissingDocElementError(String element);
+
+    @Message (id = 99, value = "Missing Element: %s")
+    IllegalStateException domMissingElementError(String element);
+
     @Message(id = 100, value = "Signing Process Failure")
     ProcessingException signatureError(@Cause Throwable e);
 
@@ -207,4 +245,6 @@ public interface PicketLinkMessages {
     @Message (id = 109, value = "KeyStoreKeyManager : Configuration error.")
     TrustKeyConfigurationException keyStoreConfigurationError(@Cause Throwable t);
 
+    @Message (id = 110, value = "Security Token Service Exception")
+    WebServiceException stsWSError(@Cause Throwable t);
 }
