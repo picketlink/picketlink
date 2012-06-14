@@ -28,7 +28,6 @@ import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -44,85 +43,121 @@ public interface PicketLinkMessages {
 
     PicketLinkMessages MESSAGES = Messages.getBundle(PicketLinkMessages.class);
 
-    @Message(id = 78, value = "Null Parameter: %s")
-    IllegalArgumentException nullArgument(String argument);
-
     @Message(id = 16, value = "Should not be the same: %s")
     IllegalArgumentException shouldNotBeTheSame(String message);
 
     @Message(id = 18, value = "Resource not found: %s")
     ProcessingException resourceNotFound(String fileName);
 
-    @Message(id = 102, value = "Processing Exception.")
-    ProcessingException processingError(@Cause Throwable t);
-
-    @Message(id = 69, value = "Parser: Type not supported: %s")
-    RuntimeException unsupportedType(String name);
-
-    @Message(id = 100, value = "Signing Process Failure")
-    ProcessingException signatureError(@Cause Throwable e);
-
-    @Message (id = 92, value = "Null Value: %s")
-    RuntimeException nullValue(String nullValue);
-
-    @Message (id = 82, value = "Not Implemented Yet")
-    RuntimeException notImplementedYet();
-
-    @Message (id = 83, value = "Error while configuring the audit capabilities")
-    ConfigurationException auditConfigurationError(@Cause Throwable t);
-
     @Message (id = 28, value = "Audit Manager Is Not Set")
     IllegalStateException auditNullAuditManager();
-
-    @Message (id = 77, value = "Injected Value Missing: %s")
-    RuntimeException injectedValueMissing(String value);
 
     @Message (id = 55, value = "KeyStoreKeyManager : KeyStore is null")
     IllegalStateException keyStoreNullStore();
 
-    @Message (id = 60, value = "KeyStoreKeyManager : Configuration error.")
-    TrustKeyConfigurationException keyStoreConfigurationError(@Cause Throwable t);
-
-    @Message (id = 61, value = "KeyStoreKeyManager : Processing error.")
-    TrustKeyProcessingException keyStoreProcessingError(@Cause Throwable t);
-
-    @Message (id = 58, value = "KeyStoreKeyManager : Domain Alias missing for : %s")
-    IllegalStateException keyStoreMissingDomainAlias(String domain);
+    @Message (id = 56, value = "KeyStoreKeyManager : Keystore not located: %s")
+    RuntimeException keyStoreNotLocated(String keyStore);
 
     @Message (id = 57, value = "KeyStoreKeyManager : Signing Key Pass is null")
     RuntimeException keyStoreNullSigningKeyPass();
 
-    @Message (id = 56, value = "KeyStoreKeyManager : Keystore not located: %s")
-    RuntimeException keyStoreNotLocated(String keyStore);
+    @Message (id = 58, value = "KeyStoreKeyManager : Domain Alias missing for : %s")
+    IllegalStateException keyStoreMissingDomainAlias(String domain);
 
     @Message (id = 59, value = "KeyStoreKeyManager : Alias is null")
     IllegalStateException keyStoreNullAlias();
 
-    @Message (id = 62, value = "Parser: Unknown End Element: %s")
+    @Message (id = 61, value = "Parser: Unknown End Element: %s")
     RuntimeException parserUnknownEndElement(String endElementName);
 
-    @Message (id = 63, value = "Parser : Unknown tag: %s ::location= %s")
+    @Message (id = 62, value = "Parser : Unknown tag: %s ::location= %s")
     RuntimeException parseUnknownTag(String tag, Location location);
 
-    @Message (id = 64, value = "Parser: Required attribute missing: %s")
+    @Message (id = 63, value = "Parser: Required attribute missing: %s")
     ParsingException parseRequiredAttribute(String attribute);
 
-    @Message (id = 65, value = "Parser: Unknown Start Element: %s ::location= %s")
+    @Message (id = 64, value = "Parser: Unknown Start Element: %s ::location= %s")
     RuntimeException parserUnknownStartElement(String elementName, Location location);
 
-    @Message (id = 68, value = "Parser : Start Element is null")
-    IllegalStateException parserNullStartElement();
-
-    @Message (id = 69, value = "Parser : Unknown xsi:type= %s")
+    @Message (id = 65, value = "Parser : Unknown xsi:type= %s")
     ParsingException parserUnknownXSI(String xsiTypeValue);
 
     @Message (id = 66, value = "Parser : Expected end tag: %s")
     ParsingException parserExpectedEndTag(String tagName);
+
+    @Message (id = 67, value = "Parser : Parsing has failed: %s")
+    RuntimeException parserFailed(String elementName);
+
+    @Message (id = 68, value = "Parser : Start Element is null")
+    IllegalStateException parserNullStartElement();
+
+    @Message(id = 69, value = "Parser: Type not supported: %s")
+    RuntimeException unsupportedType(String name);
 
     @Message (id = 70, value = "Parser : Parsing exception.")
     ParsingException parserException(@Cause Throwable t);
 
     @Message (id = 71, value = "Parser: Expected text value: %s")
     ParsingException parserExpectedTextValue(String string);
+    
+    @Message (id = 72, value = "Parser: Expected xsi:type: %s")
+    RuntimeException parserExpectedXSI(String expectedXsi);
+    
+    @Message (id = 73, value = "Parser: Unable to parse token request: security token is null")
+    ParsingException parserUnableParsingNullToken();
+
+    @Message (id = 74, value = "Parsing Error.")
+    ParsingException parserError(@Cause Throwable t);
+
+    @Message (id = 75, value = "File could not be located : %s")
+    IllegalStateException fileNotLocated(String policyConfigFileName);
+
+    @Message(id = 76, value = "Option not set: %s")
+    IllegalStateException optionNotSet(String option);
+
+    @Message (id = 77, value = "Injected Value Missing: %s")
+    RuntimeException injectedValueMissing(String value);
+
+    @Message(id = 78, value = "Null Parameter: %s")
+    IllegalArgumentException nullArgument(String argument);
+    
+    @Message(id = 79, value = "Assertion has expired")
+    ProcessingException assertionExpiredError();
+
+    @Message(id = 80, value = "Invalid Assertion")
+    ProcessingException assertionInvalidError();
+
+    @Message(id = 81, value = "Writer: Unknown Type: %s")
+    RuntimeException writerUnknownTypeError(String name);    
+
+    @Message (id = 82, value = "Not Implemented Yet: %s")
+    RuntimeException notImplementedYet(String feature);
+
+    @Message(id = 83, value = "Writer: Null Value: %s")
+    ProcessingException writerNullValueError(String value);
+
+    @Message (id = 90, value = "PDP : Error while processing the message.")
+    RuntimeException pdpMessageProcessingError(@Cause Throwable t);
+
+    @Message (id = 91, value = "KeyStoreKeyManager : Configuration error.")
+    TrustKeyConfigurationException keyStoreConfigurationError(@Cause Throwable t);
+
+    @Message (id = 92, value = "Null Value: %s")
+    RuntimeException nullValue(String nullValue);
+
+    @Message (id = 93, value = "KeyStoreKeyManager : Processing error")
+    TrustKeyProcessingException keyStoreProcessingError(@Cause Throwable t);
+
+    @Message (id = 94, value = "Parser : Expected start tag: %s ::Found <%s>")
+    RuntimeException parserExpectedTag(String tag, String foundElementTag);
+
+    @Message(id = 100, value = "Signing Process Failure")
+    ProcessingException signatureError(@Cause Throwable e);
+
+    @Message(id = 102, value = "Processing Exception")
+    ProcessingException processingError(@Cause Throwable t);
+
+    @Message (id = 103, value = "Error while configuring the audit capabilities")
+    ConfigurationException auditConfigurationError(@Cause Throwable t);
 
 }
