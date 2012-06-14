@@ -23,9 +23,15 @@ package org.picketlink.identity.federation.core.saml.md.providers;
 
 import java.io.InputStream;
 import java.security.PublicKey;
+import java.util.Map;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
+import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntitiesDescriptorParser;
+import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
+import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
  * File based provider that handles multiple entities
@@ -33,26 +39,24 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorTyp
  * @author Anil.Saldhana@redhat.com
  * @since Apr 21, 2009
  */
-public class FileBasedEntitiesMetadataProvider extends AbstractMetadataProvider implements
-        IMetadataProvider<EntitiesDescriptorType> {
+public class FileBasedEntitiesMetadataProvider extends AbstractFileBasedMetadataProvider<EntitiesDescriptorType> {
+
+    /**
+     * @see IMetadataProvider#getMetaData()
+     */
     public EntitiesDescriptorType getMetaData() {
-        throw new RuntimeException("NYI");
+        if (this.metadataFileStream == null)
+            throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Metadata file");
+
+        try {
+            SAMLEntitiesDescriptorParser parser = new SAMLEntitiesDescriptorParser();
+            return (EntitiesDescriptorType) parser.parse(StaxParserUtil.getXMLEventReader(metadataFileStream));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean isMultiple() {
         return true;
-    }
-
-    public void injectEncryptionKey(PublicKey publicKey) {
-    }
-
-    public void injectFileStream(InputStream fileStream) {
-    }
-
-    public void injectSigningKey(PublicKey publicKey) {
-    }
-
-    public String requireFileInjection() {
-        return null;
     }
 }

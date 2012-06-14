@@ -74,6 +74,8 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType.STSubType;
+import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType.RTChoiceType;
@@ -194,7 +196,15 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 // Update the Identity Server
                 boolean isPost = httpContext.getRequest().getMethod().equalsIgnoreCase("POST");
                 IdentityServer identityServer = (IdentityServer) servletContext.getAttribute(GeneralConstants.IDENTITY_SERVER);
-                identityServer.stack().register(session.getId(), destination, isPost);
+                // We will try to find URL for global logout from SP metadata (if they are provided) and use SP logout URL
+                // for registration to IdentityServer
+                String participantLogoutURL = getParticipantURL(destination, request);
+                if (trace)
+                    log.trace("Participant " + destination + " will be registered to IdentityServer with logout URL " + participantLogoutURL);
+                // If URL is null, participant doesn't support global logout
+                if (participantLogoutURL != null) {
+                    identityServer.stack().register(session.getId(), participantLogoutURL, isPost);
+                }
 
                 // Check whether we use POST binding for response
                 boolean strictPostBinding = request.getOptions().get(GeneralConstants.SAML_IDP_STRICT_POST_BINDING) != null
@@ -317,6 +327,26 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                     log.trace(e);
             }
             return samlResponseDocument;
+        }
+
+        private String getParticipantURL(String destination, SAML2HandlerRequest request) {
+            SPSSODescriptorType spMetadata = (SPSSODescriptorType)request.getOptions().get(GeneralConstants.SP_SSO_METADATA_DESCRIPTOR);
+
+            // Metadata not found. We will use destination for registration to IdentityServer
+            if (spMetadata == null) {
+                return destination;
+            }
+
+            List<EndpointType> logoutEndpoints = spMetadata.getSingleLogoutService();
+
+            // If endpoint not found, we assume that SP doesn't support logout profile
+            if (logoutEndpoints == null || logoutEndpoints.size() == 0) {
+                return null;
+            }
+
+            // Use first endpoint for now (Maybe later we can find logoutType according to bindingType from SAMLRequest)
+            EndpointType logoutEndpoint = logoutEndpoints.get(0);
+            return logoutEndpoint.getLocation().toASCIIString();
         }
     }
 

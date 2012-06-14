@@ -25,8 +25,12 @@ import java.net.URI;
 import java.util.List;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
@@ -66,10 +70,13 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Dec 14, 2010
  */
-public class SAMLEntityDescriptorParser implements ParserNamespaceSupport {
+public class SAMLEntityDescriptorParser extends AbstractDescriptorParser implements ParserNamespaceSupport {
     private final String EDT = JBossSAMLConstants.ENTITY_DESCRIPTOR.get();
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+
+        xmlEventReader = filterWhiteSpaceCharacters(xmlEventReader);
+
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, EDT);
 

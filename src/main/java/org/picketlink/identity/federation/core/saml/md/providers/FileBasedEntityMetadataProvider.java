@@ -29,6 +29,7 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**
@@ -37,28 +38,7 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
  * @author Anil.Saldhana@redhat.com
  * @since Apr 21, 2009
  */
-public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider implements
-        IMetadataProvider<EntityDescriptorType> {
-
-    private static final String FILENAME_KEY = "FileName";
-
-    private String fileName;
-
-    private InputStream metadataFileStream;
-
-    @SuppressWarnings("unused")
-    private PublicKey encryptionKey;
-
-    @SuppressWarnings("unused")
-    private PublicKey signingKey;
-
-    @Override
-    public void init(Map<String, String> options) {
-        super.init(options);
-        fileName = options.get(FILENAME_KEY);
-        if (fileName == null)
-            throw new IllegalStateException(ErrorCodes.OPTION_NOT_SET + "FileName");
-    }
+public class FileBasedEntityMetadataProvider extends AbstractFileBasedMetadataProvider<EntityDescriptorType> {
 
     /**
      * @see IMetadataProvider#getMetaData()
@@ -80,21 +60,5 @@ public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider im
      */
     public boolean isMultiple() {
         return false;
-    }
-
-    public void injectEncryptionKey(PublicKey publicKey) {
-        this.encryptionKey = publicKey;
-    }
-
-    public void injectFileStream(InputStream fileStream) {
-        this.metadataFileStream = fileStream;
-    }
-
-    public void injectSigningKey(PublicKey publicKey) {
-        this.signingKey = publicKey;
-    }
-
-    public String requireFileInjection() {
-        return this.fileName;
     }
 }
