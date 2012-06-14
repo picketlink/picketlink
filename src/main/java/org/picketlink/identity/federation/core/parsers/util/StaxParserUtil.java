@@ -21,8 +21,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.util;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_END_TAG;
-import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_TAG;
 import static org.picketlink.identity.federation.core.ErrorCodes.EXPECTED_XSI;
 
 import java.io.IOException;
@@ -42,8 +40,8 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.validation.Validator;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -63,9 +61,8 @@ import org.xml.sax.SAXException;
  * @since Feb 8, 2010
  */
 public class StaxParserUtil {
-    protected static Logger log = Logger.getLogger(StaxParserUtil.class);
-
-    protected static boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected static Validator validator = null;
 
@@ -145,9 +142,9 @@ public class StaxParserUtil {
             Document doc = (Document) domResult.getNode();
             return doc.getDocumentElement();
         } catch (ConfigurationException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
     }
 
@@ -164,7 +161,7 @@ public class StaxParserUtil {
             str = xmlEventReader.getElementText().trim();
             str = StringUtil.getSystemPropertyAsString(str);
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
         return str;
     }
@@ -215,7 +212,7 @@ public class StaxParserUtil {
         try {
             return xmlEventReader.nextEvent();
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
     }
 
@@ -235,7 +232,7 @@ public class StaxParserUtil {
                     return (StartElement) xmlEvent;
             }
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
         return null;
     }
@@ -256,7 +253,7 @@ public class StaxParserUtil {
                     return (EndElement) xmlEvent;
             }
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
         return null;
     }
@@ -292,7 +289,7 @@ public class StaxParserUtil {
         Attribute xsiType = startElement.getAttributeByName(new QName(JBossSAMLURIConstants.XSI_NSURI.get(),
                 JBossSAMLConstants.TYPE.get()));
         if (xsiType == null)
-            throw new RuntimeException(EXPECTED_XSI);
+            throw logger.parserExpectedXSI(EXPECTED_XSI);
         return StaxParserUtil.getAttributeValue(xsiType);
     }
 
@@ -343,7 +340,7 @@ public class StaxParserUtil {
         try {
             return xmlEventReader.peek();
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
     }
 
@@ -365,7 +362,7 @@ public class StaxParserUtil {
                     xmlEvent = xmlEventReader.nextEvent();
             }
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
     }
 
@@ -387,7 +384,7 @@ public class StaxParserUtil {
                     xmlEvent = xmlEventReader.nextEvent();
             }
         } catch (XMLStreamException e) {
-            throw new ParsingException(e);
+            throw logger.parserException(e);
         }
     }
 
@@ -400,7 +397,7 @@ public class StaxParserUtil {
      */
     public static final String trim(String str) {
         if (str == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT);
+            throw logger.nullArgument("String to trim");
         return str.trim();
     }
 
@@ -412,9 +409,9 @@ public class StaxParserUtil {
      * @throws RuntimeException mismatch
      */
     public static void validate(StartElement startElement, String tag) {
-        String elementTag = getStartElementName(startElement);
-        if (!tag.equals(elementTag))
-            throw new RuntimeException(EXPECTED_TAG + tag + ">.  Found <" + elementTag + ">");
+        String foundElementTag = getStartElementName(startElement);
+        if (!tag.equals(foundElementTag))
+            throw logger.parserExpectedTag(tag, foundElementTag);
     }
 
     /**
@@ -427,7 +424,7 @@ public class StaxParserUtil {
     public static void validate(EndElement endElement, String tag) {
         String elementTag = getEndElementName(endElement);
         if (!tag.equals(elementTag))
-            throw new RuntimeException(EXPECTED_END_TAG + "</" + tag + ">.  Found </" + elementTag + ">");
+            throw new RuntimeException(logger.parserExpectedEndTag("</" + tag + ">.  Found </" + elementTag + ">"));
     }
 
     /**

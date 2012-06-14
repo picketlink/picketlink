@@ -26,7 +26,6 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
@@ -64,12 +63,12 @@ public class WSTrustParser extends AbstractParser {
                     WSTRequestSecurityTokenResponseParser wst = new WSTRequestSecurityTokenResponseParser();
                     return wst.parse(xmlEventReader);
                 }
-                throw new RuntimeException(ErrorCodes.FAILED_PARSING + elementName);
+                throw logger.parserFailed(elementName);
             } else {
                 StaxParserUtil.getNextEvent(xmlEventReader);
             }
         }
-        throw new RuntimeException(ErrorCodes.FAILED_PARSING);
+        throw logger.parserFailed(WSTrustConstants.BASE_NAMESPACE);
     }
 
     /**

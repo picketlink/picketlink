@@ -82,7 +82,7 @@ public class WSPolicyParser extends AbstractParser {
                 StaxParserUtil.getNextEvent(xmlEventReader);
             }
         }
-        throw new RuntimeException(ErrorCodes.FAILED_PARSING);
+        throw logger.parserFailed(WSTrustConstants.WSP_NS);
     }
 
     /**

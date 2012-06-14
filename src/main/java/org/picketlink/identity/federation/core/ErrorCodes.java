@@ -90,7 +90,7 @@ public interface ErrorCodes {
 
     String NOT_EQUAL = "PL00094: Not equal:";
 
-    String NOT_IMPLEMENTED_YET = "PL00082: Not Implemented Yet:";
+    String NOT_IMPLEMENTED_YET = "PL00082: Not Implemented Yet: ";
 
     String NOT_SERIALIZABLE = "PL00093: Not Serializable:";
 

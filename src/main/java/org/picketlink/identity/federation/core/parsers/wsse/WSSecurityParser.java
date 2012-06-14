@@ -49,6 +49,7 @@ import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
  * @since Oct 14, 2010
  */
 public class WSSecurityParser extends AbstractParser {
+    
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */
@@ -70,7 +71,7 @@ public class WSSecurityParser extends AbstractParser {
                     Attribute idAttribute = startElement.getAttributeByName(idQName);
 
                     if (idAttribute == null)
-                        throw new RuntimeException(ErrorCodes.REQD_ATTRIBUTE + "Id");
+                        throw logger.parserRequiredAttribute("Id");
 
                     userNameToken.setId(StaxParserUtil.getAttributeValue(idAttribute));
 
@@ -98,7 +99,7 @@ public class WSSecurityParser extends AbstractParser {
                 StaxParserUtil.getNextEvent(xmlEventReader);
             }
         }
-        throw new RuntimeException(ErrorCodes.FAILED_PARSING);
+        throw logger.parserFailed(WSTrustConstants.WSSE_NS);
     }
 
     /**
@@ -140,7 +141,7 @@ public class WSSecurityParser extends AbstractParser {
                     endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                     continue;
                 } else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
+                    throw logger.parserUnknownEndElement(tag);
             }
 
             startElement = (StartElement) xmlEvent;

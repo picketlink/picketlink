@@ -23,7 +23,8 @@ package org.picketlink.identity.federation.core.sts;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.sts.registry.DefaultRevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.DefaultTokenRegistry;
@@ -41,7 +42,8 @@ import org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistr
  * @since Jan 4, 2011
  */
 public abstract class AbstractSecurityTokenProvider implements SecurityTokenProvider {
-    protected static Logger logger = Logger.getLogger(AbstractSecurityTokenProvider.class);
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected static final String TOKEN_REGISTRY = "TokenRegistry";
 
@@ -67,8 +69,7 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
         // Check for token registry
         String tokenRegistryOption = this.properties.get(TOKEN_REGISTRY);
         if (tokenRegistryOption == null) {
-            if (logger.isDebugEnabled())
-                logger.debug("Security Token registry option not specified: Issued Tokens will not be persisted!");
+            logger.securityTokenRegistryNotSpecified();
         } else {
             // if a file is to be used as registry, check if the user has specified the file name.
             if ("FILE".equalsIgnoreCase(tokenRegistryOption)) {
@@ -87,12 +88,11 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                         if (object instanceof RevocationRegistry)
                             this.tokenRegistry = (SecurityTokenRegistry) object;
                         else {
-                            logger.warn(tokenRegistryOption
-                                    + " is not an instance of SecurityTokenRegistry - using default registry");
+                            logger.securityTokenRegistryInvalidType(tokenRegistryOption);
                         }
                     }
                 } catch (Exception pae) {
-                    logger.warn("Error instantiating revocation registry class - using default registry");
+                    logger.securityTokenRegistryInstantiationError();
                     pae.printStackTrace();
                 }
             }
@@ -103,8 +103,7 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
         // check if a revocation registry option has been set.
         String registryOption = this.properties.get(REVOCATION_REGISTRY);
         if (registryOption == null) {
-            if (logger.isDebugEnabled())
-                logger.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
+            logger.revocationRegistryNotSpecified();
         } else {
             // if a file is to be used as registry, check if the user has specified the file name.
             if ("FILE".equalsIgnoreCase(registryOption)) {
@@ -131,11 +130,11 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                         if (object instanceof RevocationRegistry)
                             this.revocationRegistry = (RevocationRegistry) object;
                         else {
-                            logger.warn(registryOption + " is not an instance of RevocationRegistry - using default registry");
+                            logger.revocationRegistryInvalidType(registryOption);
                         }
                     }
                 } catch (Exception pae) {
-                    logger.warn("Error instantiating revocation registry class - using default registry");
+                    logger.revocationRegistryInstantiationError();
                     pae.printStackTrace();
                 }
             }

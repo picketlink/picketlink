@@ -21,7 +21,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -35,6 +36,9 @@ import org.picketlink.identity.federation.ws.trust.RenewTargetType;
  * @since Oct 13, 2010
  */
 public class WSTRenewTargetParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */
@@ -44,14 +48,14 @@ public class WSTRenewTargetParser implements ParserNamespaceSupport {
         StartElement startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
         // null start element indicates that the original token hasn't been specified.
         if (startElement == null) {
-            throw new ParsingException(ErrorCodes.UNABLE_PARSING_NULL_TOKEN);
+            throw logger.parserUnableParsingNullToken();
         }
 
         // this is an unknown type - parse using the transformer.
         try {
             renewTargetType.add(StaxParserUtil.getDOMElement(xmlEventReader));
         } catch (Exception e) {
-            throw new ParsingException(ErrorCodes.PARSING_ERROR + e.getMessage(), e);
+            throw logger.parserError(e);
         }
         return renewTargetType;
     }

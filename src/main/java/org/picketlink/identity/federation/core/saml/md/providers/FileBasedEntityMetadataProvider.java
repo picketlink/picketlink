@@ -25,7 +25,8 @@ import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.Map;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -39,7 +40,9 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
  */
 public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider implements
         IMetadataProvider<EntityDescriptorType> {
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private static final String FILENAME_KEY = "FileName";
 
     private String fileName;
@@ -57,7 +60,7 @@ public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider im
         super.init(options);
         fileName = options.get(FILENAME_KEY);
         if (fileName == null)
-            throw new IllegalStateException(ErrorCodes.OPTION_NOT_SET + "FileName");
+            throw logger.optionNotSet("FileName");
     }
 
     /**
@@ -65,7 +68,7 @@ public class FileBasedEntityMetadataProvider extends AbstractMetadataProvider im
      */
     public EntityDescriptorType getMetaData() {
         if (this.metadataFileStream == null)
-            throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Metadata file");
+            throw logger.injectedValueMissing("Metadata file");
 
         try {
             SAMLEntityDescriptorParser parser = new SAMLEntityDescriptorParser();

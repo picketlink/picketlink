@@ -23,11 +23,17 @@ package org.picketlink.identity.federation.core.saml.v1.writers;
 
 import javax.xml.stream.XMLStreamWriter;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+
 /**
  * @author Anil.Saldhana@redhat.com
  * @since Jun 27, 2011
  */
 public abstract class BaseSAML11Writer {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     protected static String PROTOCOL_PREFIX = "samlp";
 
     protected static String ASSERTION_PREFIX = "saml";

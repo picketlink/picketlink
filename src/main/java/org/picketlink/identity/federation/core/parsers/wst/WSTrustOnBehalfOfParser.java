@@ -25,7 +25,8 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
@@ -41,6 +42,9 @@ import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
  * @since Oct 18, 2010
  */
 public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */
@@ -55,7 +59,7 @@ public class WSTrustOnBehalfOfParser implements ParserNamespaceSupport {
             UsernameTokenType userNameToken = (UsernameTokenType) wsseParser.parse(xmlEventReader);
             onBehalfType.add(userNameToken);
         } else
-            throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag);
+            throw logger.parserUnknownTag(tag, startElement.getLocation());
 
         return onBehalfType;
     }

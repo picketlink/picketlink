@@ -69,7 +69,7 @@ public class WSAddressingParser extends AbstractParser {
                     StaxParserUtil.validate(startElement, ADDRESS);
 
                     if (!StaxParserUtil.hasTextAhead(xmlEventReader))
-                        throw new ParsingException(ErrorCodes.EXPECTED_TEXT_VALUE + "endpointURI");
+                        throw logger.parserExpectedTextValue("endpointURI");
 
                     String endpointURI = StaxParserUtil.getElementText(xmlEventReader);
 
@@ -89,7 +89,7 @@ public class WSAddressingParser extends AbstractParser {
                 StaxParserUtil.getNextEvent(xmlEventReader);
             }
         }
-        throw new RuntimeException(ErrorCodes.FAILED_PARSING);
+        throw logger.parserFailed(WSTrustConstants.WSA_NS);
     }
 
     /**

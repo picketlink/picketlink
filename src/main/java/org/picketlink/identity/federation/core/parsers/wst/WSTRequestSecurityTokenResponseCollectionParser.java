@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityT
  * @since Nov 11, 2010
  */
 public class WSTRequestSecurityTokenResponseCollectionParser implements ParserNamespaceSupport {
+    
     /**
      * @see {@link ParserNamespaceSupport#parse(XMLEventReader)}
      */

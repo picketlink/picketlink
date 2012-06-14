@@ -21,11 +21,6 @@
  */
 package org.picketlink.identity.federation.core.parsers.util;
 
-import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_END_ELEMENT;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
-import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_XSI;
-
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +34,8 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -73,6 +69,9 @@ import org.w3c.dom.Element;
  * @since Nov 4, 2010
  */
 public class SAMLParserUtil {
+
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+
     public static KeyInfoType parseKeyInfo(XMLEventReader xmlEventReader) throws ParsingException {
         KeyInfoType keyInfo = new KeyInfoType();
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -89,7 +88,7 @@ public class SAMLParserUtil {
                     xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
                     break;
                 } else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
+                    throw logger.parserUnknownEndElement(tag);
             }
             startElement = (StartElement) xmlEvent;
             tag = StaxParserUtil.getStartElementName(startElement);
@@ -122,7 +121,7 @@ public class SAMLParserUtil {
                 } else if (tag.equals(WSTrustConstants.XMLDSig.DSA_KEYVALUE)) {
                     keyValue = parseDSAKeyValue(xmlEventReader);
                 } else
-                    throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
+                    throw logger.parserUnknownTag(tag, startElement.getLocation());
 
                 EndElement endElement = StaxParserUtil.getNextEndElement(xmlEventReader);
                 StaxParserUtil.validate(endElement, WSTrustConstants.XMLDSig.KEYVALUE);
@@ -150,7 +149,7 @@ public class SAMLParserUtil {
                     xmlEvent = StaxParserUtil.getNextEndElement(xmlEventReader);
                     break;
                 } else
-                    throw new RuntimeException(ErrorCodes.UNKNOWN_END_ELEMENT + tag);
+                    throw logger.parserUnknownEndElement(tag);
             }
 
             startElement = (StartElement) xmlEvent;
@@ -164,7 +163,7 @@ public class SAMLParserUtil {
                 String text = StaxParserUtil.getElementText(xmlEventReader);
                 rsaKeyValue.setExponent(text.getBytes());
             } else
-                throw new ParsingException(ErrorCodes.UNKNOWN_TAG + tag);
+                throw logger.parserUnknownTag(tag, startElement.getLocation());
         }
         return rsaKeyValue;
     }
@@ -205,7 +204,7 @@ public class SAMLParserUtil {
                 AttributeType attribute = parseAttribute(xmlEventReader);
                 attributeStatementType.addAttribute(new ASTChoiceType(attribute));
             } else
-                throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
+                throw logger.parserUnknownTag(tag, startElement.getLocation());
         }
         return attributeStatementType;
     }
@@ -224,7 +223,7 @@ public class SAMLParserUtil {
 
         Attribute name = startElement.getAttributeByName(new QName(JBossSAMLConstants.NAME.get()));
         if (name == null)
-            throw new RuntimeException(REQD_ATTRIBUTE + "Name");
+            throw logger.parserRequiredAttribute("Name");
         attributeType = new AttributeType(StaxParserUtil.getAttributeValue(name));
 
         parseAttributeType(xmlEventReader, startElement, JBossSAMLConstants.ATTRIBUTE.get(), attributeType);
@@ -277,7 +276,7 @@ public class SAMLParserUtil {
                 Object attributeValue = parseAttributeValue(xmlEventReader);
                 attributeType.addAttributeValue(attributeValue);
             } else
-                throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
+                throw logger.parserUnknownTag(tag, startElement.getLocation());
         }
     }
 
@@ -305,7 +304,7 @@ public class SAMLParserUtil {
             return StaxParserUtil.getElementText(xmlEventReader);
         }
 
-        throw new RuntimeException(UNKNOWN_XSI + typeValue);
+        throw logger.parserUnknownXSI(typeValue);
     }
 
     /**
@@ -322,7 +321,7 @@ public class SAMLParserUtil {
 
         Attribute authnInstant = startElement.getAttributeByName(new QName("AuthnInstant"));
         if (authnInstant == null)
-            throw new RuntimeException(REQD_ATTRIBUTE + "AuthnInstant");
+            throw logger.parserRequiredAttribute("AuthnInstant");
 
         XMLGregorianCalendar issueInstant = XMLTimeUtil.parse(StaxParserUtil.getAttributeValue(authnInstant));
         AuthnStatementType authnStatementType = new AuthnStatementType(issueInstant);
@@ -343,7 +342,7 @@ public class SAMLParserUtil {
                 if (endElementTag.equals(AUTHNSTATEMENT))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
+                    throw logger.parserUnknownEndElement(endElementTag);
             }
             startElement = null;
 
@@ -374,7 +373,7 @@ public class SAMLParserUtil {
             } else if (JBossSAMLConstants.AUTHN_CONTEXT.get().equals(tag)) {
                 authnStatementType.setAuthnContext(parseAuthnContextType(xmlEventReader));
             } else
-                throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
+                throw logger.parserUnknownTag(tag, startElement.getLocation());
 
         }
 
@@ -406,7 +405,7 @@ public class SAMLParserUtil {
                 if (endElementTag.equals(JBossSAMLConstants.AUTHN_CONTEXT.get()))
                     break;
                 else
-                    throw new RuntimeException(UNKNOWN_END_ELEMENT + endElementTag);
+                    throw logger.parserUnknownEndElement(endElementTag);
             }
             startElement = null;
 
@@ -448,7 +447,7 @@ public class SAMLParserUtil {
 
                 authnContextType.setSequence(authnContextSequence);
             } else
-                throw new RuntimeException(UNKNOWN_TAG + tag + "::Location=" + startElement.getLocation());
+                throw logger.parserUnknownTag(tag, startElement.getLocation());
         }
 
         return authnContextType;

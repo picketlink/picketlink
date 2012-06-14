@@ -36,10 +36,10 @@ import javax.xml.ws.Provider;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.WebServiceProvider;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.xacml.core.JBossPDP;
 import org.jboss.security.xacml.interfaces.PolicyDecisionPoint;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
@@ -57,7 +57,8 @@ import org.w3c.dom.Document;
  */
 @WebServiceProvider(serviceName = "SOAPSAMLXACMLPDP", portName = "SOAPSAMLXACMLPort", targetNamespace = "urn:picketlink:identity-federation:pdp", wsdlLocation = "WEB-INF/wsdl/SOAPSAMLXACMLPDP.wsdl")
 public class SOAPSAMLXACMLPDP implements Provider<Source> {
-    protected Logger log = Logger.getLogger(SOAPSAMLXACMLPDP.class);
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     @Resource
     protected WebServiceContext context;
@@ -79,9 +80,9 @@ public class SOAPSAMLXACMLPDP implements Provider<Source> {
     public Source invoke(Source request) {
         try {
             Document doc = (Document) DocumentUtil.getNodeFromSource(request);
-            if (log.isDebugEnabled()) {
-                log.debug("Received Message::" + DocumentUtil.asString(doc));
-            }
+            
+            logger.receivedXACMLMessage(DocumentUtil.asString(doc));
+            
             XACMLAuthzDecisionQueryType xacmlQuery = SOAPSAMLXACMLUtil.getXACMLQueryType(doc);
             ResponseType samlResponseType = SOAPSAMLXACMLUtil.handleXACMLQuery(pdp, issuer, xacmlQuery);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -93,7 +94,7 @@ public class SOAPSAMLXACMLPDP implements Provider<Source> {
 
             return new DOMSource(responseDocument.getDocumentElement());
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw logger.pdpMessageProcessingError(e);
         }
     }
 
@@ -102,13 +103,13 @@ public class SOAPSAMLXACMLPDP implements Provider<Source> {
 
         URL url = SecurityActions.loadResource(getClass(), policyConfigFileName);
         if (url == null)
-            throw new IllegalStateException(ErrorCodes.FILE_NOT_LOCATED + policyConfigFileName);
+            throw logger.fileNotLocated(policyConfigFileName);
 
         InputStream is;
         try {
             is = url.openStream();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(logger.resourceNotFound(url.getPath()));
         }
         return new JBossPDP(is);
     }
