@@ -29,7 +29,8 @@ import java.util.Set;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -62,9 +63,8 @@ import org.w3c.dom.Node;
  * @since Jun 3, 2009
  */
 public class AssertionUtil {
-    private static Logger log = Logger.getLogger(AssertionUtil.class);
-
-    private static boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * Given {@code AssertionType}, convert it into a String
@@ -239,7 +239,7 @@ public class AssertionUtil {
 
             return new SAML2Signature().validate(doc, publicKey);
         } catch (Exception e) {
-            log.error("Cannot validate signature of assertion", e);
+            logger.signatureAssertionValidationError(e);
         }
         return false;
     }
@@ -260,12 +260,13 @@ public class AssertionUtil {
             XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
             XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
-            if (trace)
-                log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
-                        + notOnOrAfter);
+
+            logger.assertionConditions(now.toXMLFormat(), notBefore.toXMLFormat(), notOnOrAfter);
+            
             expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
+            
             if (expiry) {
-                log.info("Assertion has expired with id=" + assertion.getID());
+                logger.assertionExpired(assertion.getID());
             }
         }
 
@@ -294,12 +295,10 @@ public class AssertionUtil {
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
             XMLGregorianCalendar updatedOnOrAfter = XMLTimeUtil.add(notOnOrAfter, clockSkewInMilis);
 
-            if (trace)
-                log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
-                        + notOnOrAfter);
+            logger.assertionConditions(now.toXMLFormat(), notBefore.toXMLFormat(), notOnOrAfter);
             expiry = !XMLTimeUtil.isValid(now, updatedNotBefore, updatedOnOrAfter);
             if (expiry) {
-                log.info("Assertion has expired with id=" + assertion.getID());
+                logger.assertionExpired(assertion.getID());
             }
         }
 
@@ -323,12 +322,12 @@ public class AssertionUtil {
             XMLGregorianCalendar now = XMLTimeUtil.getIssueInstant();
             XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
-            if (trace)
-                log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
-                        + notOnOrAfter);
+            
+            logger.assertionConditions(now.toXMLFormat(), notBefore.toXMLFormat(), notOnOrAfter);
+            
             expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
             if (expiry) {
-                log.info("Assertion has expired with id=" + assertion.getID());
+                logger.assertionExpired(assertion.getID());
             }
         }
 
@@ -357,12 +356,11 @@ public class AssertionUtil {
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
             XMLGregorianCalendar updatedOnOrAfter = XMLTimeUtil.add(notOnOrAfter, clockSkewInMilis);
 
-            if (trace)
-                log.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + "::notOnOrAfter="
-                        + notOnOrAfter);
+            logger.assertionConditions(now.toXMLFormat(), notBefore.toXMLFormat(), notOnOrAfter);
+            
             expiry = !XMLTimeUtil.isValid(now, updatedNotBefore, updatedOnOrAfter);
             if (expiry) {
-                log.info("Assertion has expired with id=" + assertion.getID());
+                logger.assertionExpired(assertion.getID());
             }
         }
 
@@ -415,7 +413,7 @@ public class AssertionUtil {
                                 Node roleNode = (Node) attrValue;
                                 roles.add(roleNode.getFirstChild().getNodeValue());
                             } else
-                                throw new RuntimeException(ErrorCodes.UNKNOWN_OBJECT_TYPE + attrValue);
+                                throw logger.unknownObjectType(attrValue);
                         }
                     }
                 }
@@ -452,7 +450,7 @@ public class AssertionUtil {
                                 Node roleNode = (Node) attrValue;
                                 roles.add(roleNode.getFirstChild().getNodeValue());
                             } else
-                                throw new RuntimeException(ErrorCodes.UNKNOWN_OBJECT_TYPE + attrValue);
+                                throw logger.unknownObjectType(attrValue);
                         }
                     }
                 }

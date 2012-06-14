@@ -360,7 +360,7 @@ public class SAML2Response {
     public EncryptedAssertionType getEncryptedAssertion(InputStream is) throws ParsingException, ConfigurationException,
             ProcessingException {
         if (is == null)
-            throw logger.nullArgument("InputStream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
         SAMLParser samlParser = new SAMLParser();
@@ -381,7 +381,7 @@ public class SAML2Response {
      */
     public AssertionType getAssertionType(InputStream is) throws ParsingException, ConfigurationException, ProcessingException {
         if (is == null)
-            throw logger.nullArgument("InputStream");
+            throw logger.nullArgumentError("InputStream");
         Document samlDocument = DocumentUtil.getDocument(is);
 
         SAMLParser samlParser = new SAMLParser();
@@ -408,7 +408,7 @@ public class SAML2Response {
      */
     public ResponseType getResponseType(InputStream is) throws ParsingException, ConfigurationException, ProcessingException {
         if (is == null)
-            throw logger.nullArgument("InputStream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlResponseDocument = DocumentUtil.getDocument(is);
 
@@ -433,7 +433,7 @@ public class SAML2Response {
     public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ParsingException, ConfigurationException,
             ProcessingException {
         if (is == null)
-            throw logger.nullArgument("InputStream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlResponseDocument = DocumentUtil.getDocument(is);
 
@@ -459,7 +459,7 @@ public class SAML2Response {
      */
     public Document convert(EncryptedElementType encryptedElementType) throws ConfigurationException {
         if (encryptedElementType == null)
-            throw logger.nullArgument("encryptedElementType");
+            throw logger.nullArgumentError("encryptedElementType");
         Document doc = DocumentUtil.createDocument();
         Node importedNode = doc.importNode(encryptedElementType.getEncryptedElement(), true);
         doc.appendChild(importedNode);

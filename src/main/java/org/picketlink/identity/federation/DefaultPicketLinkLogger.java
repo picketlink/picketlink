@@ -27,6 +27,7 @@ import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
 import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_ELEMENT;
 import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 
@@ -56,7 +57,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#nullArgument(java.lang.String)
      */
     @Override
-    public IllegalArgumentException nullArgument(String argument) {
+    public IllegalArgumentException nullArgumentError(String argument) {
         return new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + argument);
     }
 
@@ -476,6 +477,116 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public ProcessingException writerNullValueError(String value) {
         return new ProcessingException(ErrorCodes.WRITER_NULL_VALUE + value);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#writerUnsupportedAttributeValueError(java.lang.String)
+     */
+    @Override
+    public RuntimeException writerUnsupportedAttributeValueError(String value) {
+        return new RuntimeException(ErrorCodes.WRITER_UNSUPPORTED_ATTRIB_VALUE + value);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#issuerInfoMissingStatusCodeError()
+     */
+    @Override
+    public IllegalArgumentException issuerInfoMissingStatusCodeError() {
+        return new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#classNotLoadedError(java.lang.String)
+     */
+    @Override
+    public ProcessingException classNotLoadedError(String fqn) {
+        return new ProcessingException(ErrorCodes.CLASS_NOT_LOADED);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotCreateInstance(java.lang.String, java.lang.Exception)
+     */
+    @Override
+    public ProcessingException couldNotCreateInstance(String fqn, Throwable t) {
+        return new ProcessingException(ErrorCodes.CANNOT_CREATE_INSTANCE, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#systemPropertyMissingError(java.lang.String)
+     */
+    @Override
+    public RuntimeException systemPropertyMissingError(String property) {
+        return new RuntimeException(ErrorCodes.SYSTEM_PROPERTY_MISSING + property);
+    }
+
+    @Override
+    public void metaDataStoreDirectoryCreation(String directory) {
+        logger.trace(directory + " does not exist. Hence creating.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataIdentityProviderLoadingError(java.lang.Exception)
+     */
+    @Override
+    public void metaDataIdentityProviderLoadingError(Throwable t) {
+        logger.error("Exception loading the identity providers:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataServiceProviderLoadingError(java.lang.Throwable)
+     */
+    @Override
+    public void metaDataServiceProviderLoadingError(Throwable t) {
+        logger.error("Exception loading the service providers:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistEntityDescriptor(java.lang.String)
+     */
+    @Override
+    public void metaDataPersistEntityDescriptor(String path) {
+        logger.trace("Persisted into " + path);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistTrustedMap(java.lang.String)
+     */
+    @Override
+    public void metaDataPersistTrustedMap(String path) {
+        logger.trace("Persisted trusted map into " + path);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureAssertionValidationError(java.lang.Exception)
+     */
+    @Override
+    public void signatureAssertionValidationError(Throwable t) {
+        logger.error("Cannot validate signature of assertion", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionConditions(java.lang.String, java.lang.String, javax.xml.datatype.XMLGregorianCalendar)
+     */
+    @Override
+    public void assertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter) {
+        logger.trace("Now=" + now + " ::notBefore=" + notBefore + "::notOnOrAfter="
+                        + notOnOrAfter);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpired(java.lang.String)
+     */
+    @Override
+    public void assertionExpired(String id) {
+        logger.info("Assertion has expired with id=" + id);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#unknownObjectType(java.lang.Object)
+     */
+    @Override
+    public RuntimeException unknownObjectType(Object attrValue) {
+        return new RuntimeException(ErrorCodes.UNKNOWN_OBJECT_TYPE + attrValue);
     }
  
 }

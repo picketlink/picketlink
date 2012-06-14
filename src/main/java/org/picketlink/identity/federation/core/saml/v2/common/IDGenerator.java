@@ -23,6 +23,8 @@ package org.picketlink.identity.federation.core.saml.v2.common;
 
 import java.util.UUID;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
@@ -32,6 +34,9 @@ import org.picketlink.identity.federation.core.ErrorCodes;
  * @since Jan 5, 2009
  */
 public class IDGenerator {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /*
      * Create a basic unique ID
      */
@@ -48,7 +53,7 @@ public class IDGenerator {
      */
     public static String create(String prefix) {
         if (prefix == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "prefix");
+            throw logger.nullArgumentError("prefix");
         StringBuilder sb = new StringBuilder(prefix);
         sb.append(IDGenerator.create());
         return sb.toString();

@@ -117,7 +117,7 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
         try {
             issueInstant = XMLTimeUtil.getIssueInstant();
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         ConditionsType conditions = samlProtocolContext.getConditions();
         SubjectType subject = samlProtocolContext.getSubjectType();
@@ -132,15 +132,15 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
         try {
             AssertionUtil.createTimedConditions(assertionType, ASSERTION_VALIDITY, CLOCK_SKEW);
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         } catch (IssueInstantMissingException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         try {
             this.tokenRegistry.addToken(assertionID, assertionType);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         samlProtocolContext.setIssuedAssertion(assertionType);
     }
@@ -164,21 +164,21 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
             XMLGregorianCalendar currentTime = XMLTimeUtil.getIssueInstant();
             issuedAssertion.updateIssueInstant(currentTime);
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         try {
             AssertionUtil.createTimedConditions(issuedAssertion, ASSERTION_VALIDITY, CLOCK_SKEW);
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         } catch (IssueInstantMissingException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         try {
             this.tokenRegistry.addToken(issuedAssertion.getID(), issuedAssertion);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         samlProtocolContext.setIssuedAssertion(issuedAssertion);
     }
@@ -199,7 +199,7 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
         try {
             this.tokenRegistry.removeToken(issuedAssertion.getID());
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -220,15 +220,15 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
 
         try {
             if (!AssertionUtil.hasExpired(issuedAssertion))
-                throw new ProcessingException(ErrorCodes.EXPIRED_ASSERTION);
+                throw logger.assertionExpiredError();
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         if (issuedAssertion == null)
-            throw new ProcessingException(ErrorCodes.NULL_ASSERTION);
+            throw logger.assertionInvalidError();
         if (this.tokenRegistry.getToken(issuedAssertion.getID()) == null)
-            throw new ProcessingException(ErrorCodes.INVALID_ASSERTION);
+            throw logger.assertionInvalidError();
     }
 
     /**

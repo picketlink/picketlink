@@ -26,7 +26,8 @@ import java.util.List;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.holders.IDPInfoHolder;
@@ -54,6 +55,9 @@ import org.w3c.dom.Element;
  * @since Dec 9, 2008
  */
 public class JBossSAMLAuthnResponseFactory {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Create a StatusType given the status code uri
      *
@@ -146,7 +150,7 @@ public class JBossSAMLAuthnResponseFactory {
         // Status
         String statusCode = issuerInfo.getStatusCode();
         if (statusCode == null)
-            throw new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
+            throw logger.issuerInfoMissingStatusCodeError();
 
         responseType.setStatus(createStatusType(statusCode));
 
@@ -174,7 +178,7 @@ public class JBossSAMLAuthnResponseFactory {
         // Status
         String statusCode = issuerInfo.getStatusCode();
         if (statusCode == null)
-            throw new IllegalArgumentException(ErrorCodes.ISSUER_INFO_MISSING_STATUS_CODE);
+            throw logger.issuerInfoMissingStatusCodeError();
 
         responseType.setStatus(createStatusType(statusCode));
 

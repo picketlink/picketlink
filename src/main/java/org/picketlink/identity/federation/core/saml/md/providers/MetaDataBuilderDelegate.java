@@ -78,11 +78,11 @@ public class MetaDataBuilderDelegate {
     public static OrganizationType createOrganization(String organizationName, String organizationDisplayName,
             String organizationURL, String lang) {
         if (organizationName == null)
-            throw logger.nullArgument("organizationName");
+            throw logger.nullArgumentError("organizationName");
         if (organizationDisplayName == null)
-            throw logger.nullArgument("organizationDisplayName");
+            throw logger.nullArgumentError("organizationDisplayName");
         if (organizationURL == null)
-            throw logger.nullArgument("organizationURL");
+            throw logger.nullArgumentError("organizationURL");
         if (lang == null)
             lang = JBossSAMLConstants.LANG_EN.get();
 

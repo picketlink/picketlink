@@ -22,6 +22,7 @@
 
 package org.picketlink.identity.federation;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 
@@ -47,7 +48,7 @@ public interface PicketLinkLogger {
      * @param argument
      * @return
      */
-    IllegalArgumentException nullArgument(String argument);
+    IllegalArgumentException nullArgumentError(String argument);
 
     /**
      * <p>Creates an {@link IllegalArgumentException} for arguments that should not be the same.</p>
@@ -386,4 +387,82 @@ public interface PicketLinkLogger {
      * @return
      */
     ProcessingException writerNullValueError(String value);
+
+    /**
+     * @param value
+     * @return
+     */
+    RuntimeException writerUnsupportedAttributeValueError(String value);
+
+    /**
+     * @return
+     */
+    IllegalArgumentException issuerInfoMissingStatusCodeError();
+
+    /**
+     * @param fqn
+     * @return
+     */
+    ProcessingException classNotLoadedError(String fqn);
+
+    /**
+     * @param fqn
+     * @param e
+     * @return
+     */
+    ProcessingException couldNotCreateInstance(String fqn, Throwable t);
+
+    /**
+     * @param property
+     * @return
+     */
+    RuntimeException systemPropertyMissingError(String property);
+
+    /**
+     * @param directory
+     */
+    void metaDataStoreDirectoryCreation(String directory);
+
+    /**
+     * @param t
+     */
+    void metaDataIdentityProviderLoadingError(Throwable t);
+
+    /**
+     * @param t
+     */
+    void metaDataServiceProviderLoadingError(Throwable t);
+
+    /**
+     * @param path
+     */
+    void metaDataPersistEntityDescriptor(String path);
+
+    /**
+     * @param path
+     */
+    void metaDataPersistTrustedMap(String path);
+
+    /**
+     * @param t
+     */
+    void signatureAssertionValidationError(Throwable t);
+
+    /**
+     * @param now
+     * @param notBefore
+     * @param notOnOrAfter
+     */
+    void assertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
+
+    /**
+     * @param id
+     */
+    void assertionExpired(String id);
+
+    /**
+     * @param attrValue
+     * @return
+     */
+    RuntimeException unknownObjectType(Object attrValue);
 }

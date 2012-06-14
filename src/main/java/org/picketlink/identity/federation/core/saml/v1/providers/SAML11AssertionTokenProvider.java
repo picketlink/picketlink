@@ -113,7 +113,7 @@ public class SAML11AssertionTokenProvider extends AbstractSecurityTokenProvider 
 
         String issuerID = samlProtocolContext.getIssuerID();
         if (issuerID == null)
-            throw logger.nullArgument("Issuer in SAML Protocol Context");
+            throw logger.nullArgumentError("Issuer in SAML Protocol Context");
 
         XMLGregorianCalendar issueInstant;
         try {

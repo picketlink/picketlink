@@ -133,7 +133,7 @@ public class SAML2Request {
     public AuthnRequestType getAuthnRequestType(String fileName) throws ConfigurationException, ProcessingException,
             ParsingException {
         if (fileName == null)
-            throw logger.nullArgument("fileName");
+            throw logger.nullArgumentError("fileName");
         URL resourceURL = SecurityActions.loadResource(getClass(), fileName);
         if (resourceURL == null)
             throw logger.resourceNotFound(fileName);
@@ -158,7 +158,7 @@ public class SAML2Request {
     public SAML2Object getSAML2ObjectFromStream(InputStream is) throws ConfigurationException, ParsingException,
             ProcessingException {
         if (is == null)
-            throw logger.nullArgument("InputStream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
 
@@ -183,7 +183,7 @@ public class SAML2Request {
     public RequestAbstractType getRequestType(InputStream is) throws ParsingException, ConfigurationException,
             ProcessingException {
         if (is == null)
-            throw logger.nullArgument("InputStream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
 
@@ -208,7 +208,7 @@ public class SAML2Request {
     public AuthnRequestType getAuthnRequestType(InputStream is) throws ConfigurationException, ProcessingException,
             ParsingException {
         if (is == null)
-            throw logger.nullArgument("InputStream");
+            throw logger.nullArgumentError("InputStream");
 
         Document samlDocument = DocumentUtil.getDocument(is);
 

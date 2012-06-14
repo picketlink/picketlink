@@ -397,7 +397,7 @@ public class StaxParserUtil {
      */
     public static final String trim(String str) {
         if (str == null)
-            throw logger.nullArgument("String to trim");
+            throw logger.nullArgumentError("String to trim");
         return str.trim();
     }
 

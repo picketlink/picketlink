@@ -140,7 +140,7 @@ public class SAML11RequestWriter extends BaseSAML11Writer {
                 SAML11AttributeType sat = (SAML11AttributeType) attribute;
                 assertionWriter.write(sat);
             } else
-                throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + attribute.getClass());
+                throw logger.writerUnknownTypeError(attribute.getClass().getName());
         }
 
         StaxUtil.writeEndElement(writer);

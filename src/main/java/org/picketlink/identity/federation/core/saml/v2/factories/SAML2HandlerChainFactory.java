@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.factories;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChain;
@@ -33,22 +35,25 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCh
  * @since Nov 6, 2009
  */
 public class SAML2HandlerChainFactory {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public static SAML2HandlerChain createChain() {
         return new DefaultSAML2HandlerChain();
     }
 
     public static SAML2HandlerChain createChain(String fqn) throws ProcessingException {
         if (fqn == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "fqn");
+            throw logger.nullArgumentError("fqn");
 
         Class<?> clazz = SecurityActions.loadClass(SAML2HandlerChainFactory.class, fqn);
         if (clazz == null)
-            throw new ProcessingException(ErrorCodes.CLASS_NOT_LOADED + fqn);
+            throw logger.classNotLoadedError(fqn);
 
         try {
             return (SAML2HandlerChain) clazz.newInstance();
         } catch (Exception e) {
-            throw new ProcessingException(ErrorCodes.CANNOT_CREATE_INSTANCE + fqn, e);
+            throw logger.couldNotCreateInstance(fqn, e);
         }
     }
 }

@@ -55,7 +55,7 @@ public abstract class AbstractParser implements ParserNamespaceSupport {
      */
     public Object parse(InputStream configStream) throws ParsingException {
         if (configStream == null)
-            throw logger.nullArgument("InputStream");
+            throw logger.nullArgumentError("InputStream");
 
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 

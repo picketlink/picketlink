@@ -387,7 +387,7 @@ public class SAML11AssertionWriter extends BaseSAML11Writer {
                 if (attributeValue instanceof String) {
                     writeStringAttributeValue((String) attributeValue);
                 } else
-                    throw new RuntimeException(ErrorCodes.WRITER_UNSUPPORTED_ATTRIB_VALUE + attributeValue.getClass().getName());
+                    throw logger.writerUnsupportedAttributeValueError(attributeValue.getClass().getName());
             }
         }
     }

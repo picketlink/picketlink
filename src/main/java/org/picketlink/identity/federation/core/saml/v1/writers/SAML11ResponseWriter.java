@@ -27,7 +27,6 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
@@ -128,7 +127,7 @@ public class SAML11ResponseWriter extends BaseSAML11Writer {
 
         QName value = statusCode.getValue();
         if (value == null)
-            throw new ProcessingException(ErrorCodes.WRITER_NULL_VALUE + "Attribute Value");
+            throw logger.writerNullValueError("Attribute Value");
         StaxUtil.writeAttribute(writer, SAML11Constants.VALUE, value);
 
         SAML11StatusCodeType secondCode = statusCode.getStatusCode();

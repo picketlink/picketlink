@@ -58,7 +58,7 @@ public class KeyDescriptorMetaDataBuilder {
     public static KeyDescriptorType createKeyDescriptor(Element keyInfo, String algorithm, int keySize, boolean isSigningKey,
             boolean isEncryptionKey) {
         if (keyInfo == null)
-            throw logger.nullArgument("keyInfo");
+            throw logger.nullArgumentError("keyInfo");
 
         if (isSigningKey == isEncryptionKey)
             throw logger.shouldNotBeTheSame("Only one of isSigningKey and isEncryptionKey should be true");
@@ -93,7 +93,7 @@ public class KeyDescriptorMetaDataBuilder {
      */
     public static KeyDescriptorType createKeyDescriptor(Element keyInfo, String algorithm, int keySize) {
         if (keyInfo == null)
-            throw logger.nullArgument("keyInfo");
+            throw logger.nullArgumentError("keyInfo");
         KeyDescriptorType keyDescriptor = new KeyDescriptorType();
 
         if (isNotNull(algorithm)) {

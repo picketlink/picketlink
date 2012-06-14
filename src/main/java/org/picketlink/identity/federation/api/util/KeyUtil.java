@@ -74,7 +74,7 @@ public class KeyUtil {
     public static Element getKeyInfo(Certificate certificate) throws CertificateException, ConfigurationException,
             ParsingException, ProcessingException {
         if (certificate == null)
-            throw logger.nullArgument("certificate is null");
+            throw logger.nullArgumentError("certificate is null");
 
         StringBuilder builder = new StringBuilder();
 
@@ -88,7 +88,7 @@ public class KeyUtil {
                     .append(EOL).append("<X509Certificate>").append(EOL).append(certStr).append(EOL)
                     .append("</X509Certificate>").append("</X509Data>").append("</KeyInfo>");
         } else
-            throw logger.notImplementedYet();
+            throw logger.notImplementedYet("Only X509Certificate are supported");
 
         return DocumentUtil.getDocument(builder.toString()).getDocumentElement();
     }

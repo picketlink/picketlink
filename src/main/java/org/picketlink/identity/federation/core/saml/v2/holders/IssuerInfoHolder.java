@@ -21,7 +21,8 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.holders;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
@@ -34,6 +35,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
  * @since Dec 10, 2008
  */
 public class IssuerInfoHolder {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private NameIDType issuer;
 
     private String statusCodeURI = JBossSAMLURIConstants.STATUS_SUCCESS.get();
@@ -42,13 +46,13 @@ public class IssuerInfoHolder {
 
     public IssuerInfoHolder(NameIDType issuer) {
         if (issuer == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "issuer");
+            throw logger.nullArgumentError("issuer");
         this.issuer = issuer;
     }
 
     public IssuerInfoHolder(String issuerAsString) {
         if (issuerAsString == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "issuerAsString");
+            throw logger.nullArgumentError("issuerAsString");
         issuer = new NameIDType();
         issuer.setValue(issuerAsString);
     }

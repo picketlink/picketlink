@@ -37,7 +37,8 @@ import java.util.StringTokenizer;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -60,9 +61,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
  * @since Apr 27, 2009
  */
 public class FileBasedMetadataConfigurationStore implements IMetadataConfigurationStore {
-    private static Logger log = Logger.getLogger(FileBasedMetadataConfigurationStore.class);
-
-    private final boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private String userHome = null;
 
@@ -78,7 +78,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
     public void bootstrap() {
         userHome = SecurityActions.getSystemProperty("user.home");
         if (userHome == null)
-            throw new RuntimeException(ErrorCodes.SYSTEM_PROPERTY_MISSING + "user.home");
+            throw logger.systemPropertyMissingError("user.home");
 
         StringBuilder builder = new StringBuilder(userHome);
         builder.append(PicketLinkFederationConstants.FILE_STORE_DIRECTORY);
@@ -86,8 +86,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
         File plStore = new File(baseDirectory);
         if (plStore.exists() == false) {
-            if (trace)
-                log.trace(plStore.getPath() + " does not exist. Hence creating.");
+            logger.metaDataStoreDirectoryCreation(plStore.getPath());
             plStore.mkdir();
         }
     }
@@ -112,7 +111,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                     identityProviders.addAll(StringUtil.tokenize(listOfIDP));
                 }
             } catch (Exception e) {
-                log.error("Exception loading the identity providers:", e);
+                logger.metaDataIdentityProviderLoadingError(e);
             }
         }
         return identityProviders;
@@ -142,7 +141,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                     serviceProviders.add(token);
                 }
             } catch (Exception e) {
-                log.error("Exception loading the service providers:", e);
+                logger.metaDataServiceProviderLoadingError(e);
             }
         }
         return serviceProviders;
@@ -176,8 +175,8 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
         } catch (ProcessingException e) {
             throw new RuntimeException(e);
         }
-        if (trace)
-            log.trace("Persisted into " + persistedFile.getPath());
+        
+        logger.metaDataPersistEntityDescriptor(persistedFile.getPath());
 
         // Process the EDT
         List<EDTChoiceType> edtChoiceTypeList = entity.getChoiceType();
@@ -240,8 +239,8 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
             if (oos != null)
                 oos.close();
         }
-        if (trace)
-            log.trace("Persisted trusted map into " + trustedFile.getPath());
+
+        logger.metaDataPersistTrustedMap(trustedFile.getPath());
     }
 
     /**
@@ -303,7 +302,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
             sp.store(new FileWriter(serviceProviderFile), "");
         } catch (Exception e) {
-            log.error("Exception loading the service providers:", e);
+            logger.metaDataServiceProviderLoadingError(e);
         }
     }
 
@@ -330,7 +329,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
             idp.store(new FileWriter(idpProviderFile), "");
         } catch (Exception e) {
-            log.error("Exception loading the identity providers:", e);
+            logger.metaDataIdentityProviderLoadingError(e);
         }
     }
 
