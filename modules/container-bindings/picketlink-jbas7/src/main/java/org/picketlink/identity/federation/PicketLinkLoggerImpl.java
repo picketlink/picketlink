@@ -22,6 +22,8 @@
 
 package org.picketlink.identity.federation;
 
+import java.io.IOException;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -110,7 +112,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#nullValue(java.lang.String)
      */
-    public RuntimeException nullValue(String nullValue) {
+    public RuntimeException nullValueError(String nullValue) {
         return PicketLinkMessages.MESSAGES.nullValue(nullValue);
     }
 
@@ -512,5 +514,173 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public RuntimeException unknownObjectType(Object attrValue) {
         return PicketLinkMessages.MESSAGES.unknownObjectType(attrValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#configurationError(java.lang.Throwable)
+     */
+    public ConfigurationException configurationError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.configurationError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String)
+     */
+    public void trace(String message) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.trace(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureUnknownAlgo(java.lang.String)
+     */
+    public RuntimeException signatureUnknownAlgo(String algo) {
+        return PicketLinkMessages.MESSAGES.signatureUnknownAlgo(algo);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#invalidArgumentError(java.lang.String)
+     */
+    public IllegalArgumentException invalidArgumentError(String message) {
+        return PicketLinkMessages.MESSAGES.invalidArgumentError(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#creatingDefaultSTSConfig()
+     */
+    public void stsCreatingDefaultSTSConfig() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.creatingDefaultSTSConfig();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsLoadingConfiguration(java.lang.String)
+     */
+    public void stsLoadingConfiguration(String fileName) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsLoadingConfiguration(fileName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsNoTokenProviderError(java.lang.String, java.lang.String)
+     */
+    public ProcessingException stsNoTokenProviderError(String configuration, String protocolContext) {
+        return PicketLinkMessages.MESSAGES.stsNoTokenProviderError(configuration, protocolContext);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#debug(java.lang.String)
+     */
+    public void debug(String message) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.debug(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileNotFoundTCL(java.lang.String)
+     */
+    public void stsConfigurationFileNotFoundTCL(String fileName) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsConfigurationFileNotFoundTCL(fileName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileNotFoundClassLoader(java.lang.String)
+     */
+    public void stsConfigurationFileNotFoundClassLoader(String fileName) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsConfigurationFileNotFoundClassLoader(fileName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsUsingDefaultConfiguration(java.lang.String)
+     */
+    public void stsUsingDefaultConfiguration(String fileName) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsUsingDefaultConfiguration(fileName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileLoaded(java.lang.String)
+     */
+    public void stsConfigurationFileLoaded(String fileName) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsConfigurationFileLoaded(fileName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileParsingError(java.lang.Throwable)
+     */
+    public ConfigurationException stsConfigurationFileParsingError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.stsConfigurationFileParsingError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#notSerializableError(java.lang.String)
+     */
+    public IOException notSerializableError(String message) {
+        return PicketLinkMessages.MESSAGES.notSerializableError(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trustKeyCreationError(java.lang.Throwable)
+     */
+    public void trustKeyManagerCreationError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.trustKeyManagerCreationError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#info(java.lang.String)
+     */
+    public void info(String message) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.info(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.String)
+     */
+    public void error(String message) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.error(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotGetXMLSchema(java.lang.Throwable)
+     */
+    public void couldNotGetXMLSchema(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.couldNotGetXMLSchema(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#isTraceEnabled()
+     */
+    public boolean isTraceEnabled() {
+        return PicketLinkLoggerMessages.ROOT_LOGGER.isTraceEnabled();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#isDebugEnabled()
+     */
+    public boolean isDebugEnabled() {
+        return PicketLinkLoggerMessages.ROOT_LOGGER.isDebugEnabled();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jceProviderCouldNotBeLoaded(java.lang.String, java.lang.Throwable)
+     */
+    public void jceProviderCouldNotBeLoaded(String name, Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jceProviderCouldNotBeLoaded(name, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#writerInvalidKeyInfoNullContent()
+     */
+    public ProcessingException writerInvalidKeyInfoNullContentError() {
+        return PicketLinkMessages.MESSAGES.writerInvalidKeyInfoNullContentError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#notEqualError(java.lang.String, java.lang.String)
+     */
+    public RuntimeException notEqualError(String first, String second) {
+        return PicketLinkMessages.MESSAGES.notEqualError(first, second);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#wrongTypeError(java.lang.String)
+     */
+    public IllegalArgumentException wrongTypeError(String message) {
+        return PicketLinkMessages.MESSAGES.wrongTypeError(message);
     }
 }

@@ -126,5 +126,41 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage (level=Level.INFO)
     @Message(id = 220, value = "Assertion has expired with id=%s")
     void assertionExpired(String id);
-    
+
+    @LogMessage (level=Level.DEBUG)
+    @Message(id = 221, value = "[InstallDefaultConfiguration] Configuration is null. Creating a new configuration")
+    void creatingDefaultSTSConfig();
+
+    @LogMessage (level=Level.DEBUG)
+    @Message(id = 222, value = "[InstallDefaultConfiguration] Configuration file name=%s")
+    void stsLoadingConfiguration(String fileName);
+
+    @LogMessage (level=Level.WARN)
+    @Message(id = 223, value = "%s configuration file not found using TCCL")
+    void stsConfigurationFileNotFoundTCL(String fileName);
+
+    @LogMessage (level=Level.WARN)
+    @Message(id = 224, value = "%s configuration file not found using TCCL")
+    void stsConfigurationFileNotFoundClassLoader(String fileName);
+
+    @LogMessage (level=Level.WARN)
+    @Message(id = 225, value = "%s configuration file not found using URL. Using default configuration values")
+    void stsUsingDefaultConfiguration(String fileName);
+
+    @LogMessage (level=Level.INFO)
+    @Message(id = 226, value = "%s configuration file loaded")
+    void stsConfigurationFileLoaded(String fileName);
+
+    @LogMessage (level=Level.ERROR)
+    @Message(id = 227, value = "Exception in getting TrustKeyManager")
+    void trustKeyManagerCreationError(@Cause Throwable t);
+
+    @LogMessage (level=Level.ERROR)
+    @Message(id = 228, value = "Cannot get schema")
+    void couldNotGetXMLSchema(@Cause Throwable t);
+
+    @LogMessage (level=Level.DEBUG)
+    @Message(id = 229, value = "The provider %s could not be added")
+    void jceProviderCouldNotBeLoaded(String name, @Cause Throwable t);
+
 }

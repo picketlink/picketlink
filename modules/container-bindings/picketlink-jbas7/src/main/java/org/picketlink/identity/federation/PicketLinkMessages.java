@@ -22,6 +22,8 @@
 
 package org.picketlink.identity.federation;
 
+import java.io.IOException;
+
 import javax.xml.stream.Location;
 
 import org.jboss.logging.Cause;
@@ -42,6 +44,12 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingExce
 public interface PicketLinkMessages {
 
     PicketLinkMessages MESSAGES = Messages.getBundle(PicketLinkMessages.class);
+
+    @Message (id = 5, value = "Error parsing the configuration file")
+    ConfigurationException stsConfigurationFileParsingError(@Cause Throwable t);
+
+    @Message (id = 13, value = "No Security Token Provider found in configuration:[%s][ProtoCtx=%s]")
+    ProcessingException stsNoTokenProviderError(String configuration, String protocolContext);
 
     @Message(id = 16, value = "Should not be the same: %s")
     IllegalArgumentException shouldNotBeTheSame(String message);
@@ -66,6 +74,9 @@ public interface PicketLinkMessages {
 
     @Message (id = 59, value = "KeyStoreKeyManager : Alias is null")
     IllegalStateException keyStoreNullAlias();
+
+    @Message (id = 60, value = "Parser : Expected start tag: %s ::Found <%s>")
+    RuntimeException parserExpectedTag(String tag, String foundElementTag);
 
     @Message (id = 61, value = "Parser: Unknown End Element: %s")
     RuntimeException parserUnknownEndElement(String endElementName);
@@ -151,20 +162,23 @@ public interface PicketLinkMessages {
     @Message (id = 89, value = "Unknown Object Type: %s")
     RuntimeException unknownObjectType(Object attrValue);
 
-    @Message (id = 90, value = "PDP : Error while processing the message.")
-    RuntimeException pdpMessageProcessingError(@Cause Throwable t);
+    @Message (id = 90, value = "Unknown Signature Algorithm: %s")
+    RuntimeException signatureUnknownAlgo(String algo);
 
-    @Message (id = 91, value = "KeyStoreKeyManager : Configuration error.")
-    TrustKeyConfigurationException keyStoreConfigurationError(@Cause Throwable t);
+    @Message (id = 91, value = "Writer: Invalid KeyInfo object: content cannot be empty")
+    ProcessingException writerInvalidKeyInfoNullContentError();
 
     @Message (id = 92, value = "Null Value: %s")
     RuntimeException nullValue(String nullValue);
-
-    @Message (id = 93, value = "KeyStoreKeyManager : Processing error")
-    TrustKeyProcessingException keyStoreProcessingError(@Cause Throwable t);
-
-    @Message (id = 94, value = "Parser : Expected start tag: %s ::Found <%s>")
-    RuntimeException parserExpectedTag(String tag, String foundElementTag);
+    
+    @Message (id = 93, value = "Not Serializable: %s")
+    IOException notSerializableError(String message);
+    
+    @Message (id = 94, value = "Not equal: %s and %s")
+    RuntimeException notEqualError(String first, String second);
+    
+    @Message (id = 95, value = "Wrong type: %s")
+    IllegalArgumentException wrongTypeError(String message);
 
     @Message(id = 100, value = "Signing Process Failure")
     ProcessingException signatureError(@Cause Throwable e);
@@ -177,5 +191,20 @@ public interface PicketLinkMessages {
 
     @Message (id = 104, value = "Class Not Loaded: %s")
     ProcessingException classNotLoadedError(String fqn);
+
+    @Message (id = 105, value = "Configuration Exception")
+    ConfigurationException configurationError(@Cause Throwable t);
+
+    @Message (id = 106, value = "PDP : Error while processing the message.")
+    RuntimeException pdpMessageProcessingError(@Cause Throwable t);
+
+    @Message (id = 107, value = "Invalid Argument Exception: %s")
+    IllegalArgumentException invalidArgumentError(String message);
+
+    @Message (id = 108, value = "KeyStoreKeyManager : Processing error")
+    TrustKeyProcessingException keyStoreProcessingError(@Cause Throwable t);
+
+    @Message (id = 109, value = "KeyStoreKeyManager : Configuration error.")
+    TrustKeyConfigurationException keyStoreConfigurationError(@Cause Throwable t);
 
 }
