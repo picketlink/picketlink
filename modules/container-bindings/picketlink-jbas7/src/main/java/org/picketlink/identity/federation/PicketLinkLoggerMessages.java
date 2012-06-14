@@ -22,14 +22,17 @@
 
 package org.picketlink.identity.federation;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 
 import org.jboss.logging.BasicLogger;
+import org.jboss.logging.Cause;
 import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
+
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -91,5 +94,37 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage (level=Level.WARN)
     @Message(id = 212, value = "Error instantiating revocation registry class - using default registry")
     void revocationRegistryInstantiationError();
+
+    @LogMessage (level=Level.TRACE)
+    @Message(id = 213, value = "%s does not exist. Hence creating.")
+    void metaDataDirectoryCreation(String directory);
+
+    @LogMessage (level=Level.ERROR)
+    @Message(id = 214, value = "Exception loading the identity providers")
+    void metaDataIdentityProviderLoadingError(@Cause Throwable t);
+
+    @LogMessage (level=Level.ERROR)
+    @Message(id = 215, value = "Exception loading the service providers")
+    void metaDataServiceProviderLoadingError(@Cause Throwable t);
+
+    @LogMessage (level=Level.TRACE)
+    @Message(id = 216, value = "Persisted entity descriptor into %s")
+    void metaDataPersistEntityDescriptor(String path);
+
+    @LogMessage (level = Level.TRACE)
+    @Message (id = 217, value="Persisted trusted map into %s")
+    void metaDataPersistTrustedMap(String path);
+
+    @LogMessage (level=Level.ERROR)
+    @Message(id = 218, value = "Cannot validate signature of assertion")
+    void signatureAssertionValidationError(@Cause Throwable t);
+
+    @LogMessage (level=Level.TRACE)
+    @Message(id = 219, value = "Now=%s ::notBefore=%s ::notOnOrAfter=%s")
+    void assertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
+
+    @LogMessage (level=Level.INFO)
+    @Message(id = 220, value = "Assertion has expired with id=%s")
+    void assertionExpired(String id);
     
 }

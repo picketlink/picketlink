@@ -136,6 +136,21 @@ public interface PicketLinkMessages {
     @Message(id = 83, value = "Writer: Null Value: %s")
     ProcessingException writerNullValueError(String value);
 
+    @Message (id = 84, value = "Writer: Unsupported Attribute Value: %s")
+    RuntimeException writerUnsupportedAttributeValueError(String value);
+
+    @Message (id = 85, value = "IssuerInfo missing status code")
+    IllegalArgumentException issuerInfoMissingStatusCodeError();
+
+    @Message (id = 86, value = "Cannot create instance of: %s")
+    ProcessingException couldNotCreateInstance(String fqn, @Cause Throwable t);
+
+    @Message (id = 87, value = "System Property missing: %s")
+    RuntimeException systemPropertyMissingError(String property);
+
+    @Message (id = 89, value = "Unknown Object Type: %s")
+    RuntimeException unknownObjectType(Object attrValue);
+
     @Message (id = 90, value = "PDP : Error while processing the message.")
     RuntimeException pdpMessageProcessingError(@Cause Throwable t);
 
@@ -159,5 +174,8 @@ public interface PicketLinkMessages {
 
     @Message (id = 103, value = "Error while configuring the audit capabilities")
     ConfigurationException auditConfigurationError(@Cause Throwable t);
+
+    @Message (id = 104, value = "Class Not Loaded: %s")
+    ProcessingException classNotLoadedError(String fqn);
 
 }

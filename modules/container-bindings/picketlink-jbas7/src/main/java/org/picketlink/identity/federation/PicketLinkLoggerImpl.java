@@ -22,6 +22,7 @@
 
 package org.picketlink.identity.federation;
 
+import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 
@@ -40,6 +41,10 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingExce
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+/**
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ *
+ */
 public final class PicketLinkLoggerImpl implements PicketLinkLogger {
 
     PicketLinkLoggerImpl() {
@@ -49,7 +54,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#nullArgument(java.lang.String)
      */
-    public IllegalArgumentException nullArgument(String argument) {
+    public IllegalArgumentException nullArgumentError(String argument) {
         return PicketLinkMessages.MESSAGES.nullArgument(argument);
     }
 
@@ -412,5 +417,100 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public ProcessingException writerNullValueError(String value) {
         return PicketLinkMessages.MESSAGES.writerNullValueError(value);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#writerUnsupportedAttributeValueError(java.lang.String)
+     */
+    public RuntimeException writerUnsupportedAttributeValueError(String value) {
+        return PicketLinkMessages.MESSAGES.writerUnsupportedAttributeValueError(value);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#issuerInfoMissingStatusCodeError()
+     */
+    public IllegalArgumentException issuerInfoMissingStatusCodeError() {
+        return PicketLinkMessages.MESSAGES.issuerInfoMissingStatusCodeError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#classNotLoadedError(java.lang.String)
+     */
+    public ProcessingException classNotLoadedError(String fqn) {
+        return PicketLinkMessages.MESSAGES.classNotLoadedError(fqn);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotCreateInstance(java.lang.String, java.lang.Throwable)
+     */
+    public ProcessingException couldNotCreateInstance(String fqn, Throwable t) {
+        return PicketLinkMessages.MESSAGES.couldNotCreateInstance(fqn, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#systemPropertyMissingError(java.lang.String)
+     */
+    public RuntimeException systemPropertyMissingError(String property) {
+        return PicketLinkMessages.MESSAGES.systemPropertyMissingError(property);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#metadataStoreDirectoryCreation(java.lang.String)
+     */
+    public void metaDataStoreDirectoryCreation(String directory) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.metaDataDirectoryCreation(directory);
+    }
+
+    public void metaDataIdentityProviderLoadingError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.metaDataIdentityProviderLoadingError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataServiceProviderLoadingError(java.lang.Throwable)
+     */
+    public void metaDataServiceProviderLoadingError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.metaDataServiceProviderLoadingError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistEntityDescriptor(java.lang.String)
+     */
+    public void metaDataPersistEntityDescriptor(String path) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.metaDataPersistEntityDescriptor(path);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistTrustedMap(java.lang.String)
+     */
+    public void metaDataPersistTrustedMap(String path) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.metaDataPersistTrustedMap(path);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureAssertionValidationError(java.lang.Throwable)
+     */
+    public void signatureAssertionValidationError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.signatureAssertionValidationError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionConditions(java.lang.String, java.lang.String, javax.xml.datatype.XMLGregorianCalendar)
+     */
+    public void assertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.assertionConditions(now, notBefore, notOnOrAfter);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpired(java.lang.String)
+     */
+    public void assertionExpired(String id) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.assertionExpired(id);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#unknownObjectType(java.lang.Object)
+     */
+    public RuntimeException unknownObjectType(Object attrValue) {
+        return PicketLinkMessages.MESSAGES.unknownObjectType(attrValue);
     }
 }
