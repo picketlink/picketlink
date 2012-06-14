@@ -34,8 +34,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -47,9 +47,8 @@ import org.xml.sax.SAXParseException;
  * @since May 26, 2009
  */
 public class JAXBUtil {
-    private static Logger log = Logger.getLogger(JAXBUtil.class);
-
-    private static boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final String W3C_XML_SCHEMA_NS_URI = "http://www.w3.org/2001/XMLSchema";
 
@@ -88,7 +87,7 @@ public class JAXBUtil {
      */
     public static Marshaller getMarshaller(String pkgName) throws JAXBException {
         if (pkgName == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "pkgName");
+            throw logger.nullArgumentError("pkgName");
 
         JAXBContext jc = getJAXBContext(pkgName);
         Marshaller marshaller = jc.createMarshaller();
@@ -106,7 +105,7 @@ public class JAXBUtil {
      */
     public static Unmarshaller getUnmarshaller(String pkgName) throws JAXBException {
         if (pkgName == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "pkgName");
+            throw logger.nullArgumentError("pkgName");
         JAXBContext jc = getJAXBContext(pkgName);
         return jc.createUnmarshaller();
     }
@@ -120,7 +119,7 @@ public class JAXBUtil {
      */
     public static Unmarshaller getUnmarshaller(String... pkgNames) throws JAXBException {
         if (pkgNames == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "pkgName");
+            throw logger.nullArgumentError("pkgName");
         int len = pkgNames.length;
         if (len == 0)
             return getUnmarshaller(pkgNames[0]);
@@ -152,7 +151,7 @@ public class JAXBUtil {
         StringBuilder builder = new StringBuilder();
         int len = pkgNames.length;
         if (len == 0)
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Packages are empty");
+            throw logger.nullValueError("Packages are empty");
 
         for (String pkg : pkgNames) {
             builder.append(pkg);
@@ -170,7 +169,7 @@ public class JAXBUtil {
         for (String schemaLocation : schemaLocations) {
             URL schemaURL = SecurityActions.loadResource(JAXBUtil.class, schemaLocation);
             if (schemaURL == null)
-                throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Schema URL :" + schemaLocation);
+                throw logger.nullValueError("Schema URL :" + schemaLocation);
 
             schemaSources[i++] = new StreamSource(schemaURL.openStream());
         }
@@ -184,7 +183,7 @@ public class JAXBUtil {
     private static Schema getJAXPSchemaInstance(String schemaLocation) throws SAXException {
         URL schemaURL = SecurityActions.loadResource(JAXBUtil.class, schemaLocation);
         if (schemaURL == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Schema URL :" + schemaLocation);
+            throw logger.nullValueError("Schema URL :" + schemaLocation);
         SchemaFactory scFact = getSchemaFactory();
         Schema schema = scFact.newSchema(schemaURL);
         return schema;
@@ -206,8 +205,7 @@ public class JAXBUtil {
                 builder.append(" System ID=").append(exception.getSystemId());
                 builder.append(" exc=").append(exception.getLocalizedMessage());
 
-                if (trace)
-                    log.trace("SAX Error:" + builder.toString());
+                logger.trace("SAX Error:" + builder.toString());
             }
 
             public void fatalError(SAXParseException exception) throws SAXException {
@@ -218,7 +216,7 @@ public class JAXBUtil {
                 builder.append(" System ID=").append(exception.getSystemId());
                 builder.append(" exc=").append(exception.getLocalizedMessage());
 
-                log.error("SAX Fatal Error:" + builder.toString());
+                logger.error("SAX Fatal Error:" + builder.toString());
             }
 
             public void warning(SAXParseException exception) throws SAXException {
@@ -229,8 +227,7 @@ public class JAXBUtil {
                 builder.append(" System ID=").append(exception.getSystemId());
                 builder.append(" exc=").append(exception.getLocalizedMessage());
 
-                if (trace)
-                    log.trace("SAX Warn:" + builder.toString());
+                logger.trace("SAX Warn:" + builder.toString());
             }
         });
         return scFact;

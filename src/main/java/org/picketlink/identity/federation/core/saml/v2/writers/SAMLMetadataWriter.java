@@ -143,14 +143,14 @@ public class SAMLMetadataWriter extends BaseWriter {
         for (EDTChoiceType edtChoice : choiceTypes) {
             AffiliationDescriptorType affliationDesc = edtChoice.getAffiliationDescriptor();
             if (affliationDesc != null)
-                throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + "affliation"); // TODO: affiliation
+                throw logger.notImplementedYet("affliation"); // TODO: affiliation
 
             List<EDTDescriptorChoiceType> edtDescChoices = edtChoice.getDescriptors();
             for (EDTDescriptorChoiceType edtDescChoice : edtDescChoices) {
                 RoleDescriptorType roleDesc = edtDescChoice.getRoleDescriptor();
 
                 if (roleDesc != null)
-                    throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + "Role Descriptor type");
+                    throw logger.notImplementedYet("Role Descriptor type");
 
                 IDPSSODescriptorType idpSSO = edtDescChoice.getIdpDescriptor();
                 if (idpSSO != null)
@@ -166,11 +166,11 @@ public class SAMLMetadataWriter extends BaseWriter {
 
                 AuthnAuthorityDescriptorType authNDesc = edtDescChoice.getAuthnDescriptor();
                 if (authNDesc != null)
-                    throw new RuntimeException("NYI");
+                    throw logger.notImplementedYet("AuthnAuthorityDescriptorType");
 
                 PDPDescriptorType pdpDesc = edtDescChoice.getPdpDescriptor();
                 if (pdpDesc != null)
-                    throw new RuntimeException("NYI");
+                    throw logger.notImplementedYet("PDPDescriptorType");
             }
         }
         OrganizationType organization = entityDescriptor.getOrganization();
@@ -185,7 +185,7 @@ public class SAMLMetadataWriter extends BaseWriter {
 
         List<AdditionalMetadataLocationType> addl = entityDescriptor.getAdditionalMetadataLocation();
         if (addl.size() > 0)
-            throw new RuntimeException("NYI");
+            throw logger.notImplementedYet("AdditionalMetadataLocationType");
 
         StaxUtil.writeEndElement(writer);
         StaxUtil.flush(writer);
@@ -249,7 +249,7 @@ public class SAMLMetadataWriter extends BaseWriter {
 
     public void write(IDPSSODescriptorType idpSSODescriptor) throws ProcessingException {
         if (idpSSODescriptor == null)
-            throw new ProcessingException(ErrorCodes.NULL_ARGUMENT + "IDPSSODescriptorType");
+            throw new ProcessingException(logger.nullArgumentError("IDPSSODescriptorType"));
 
         StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.IDP_SSO_DESCRIPTOR.get(), METADATA_NSURI.get());
 
@@ -390,7 +390,7 @@ public class SAMLMetadataWriter extends BaseWriter {
 
     public void writeOrganization(OrganizationType org) throws ProcessingException {
         if (org == null)
-            throw new ProcessingException(ErrorCodes.NULL_ARGUMENT + "Organization");
+            throw new ProcessingException(logger.nullArgumentError("Organization"));
         StaxUtil.writeStartElement(writer, METADATA_PREFIX, JBossSAMLConstants.ORGANIZATION.get(), METADATA_NSURI.get());
 
         ExtensionsType extensions = org.getExtensions();

@@ -138,7 +138,7 @@ public class SOAPSAMLXACML {
                 }
             }
             if (node == null)
-                throw logger.nullValue("Did not find Response node");
+                throw logger.nullValueError("Did not find Response node");
 
             XMLEventReader xmlEventReader = StaxParserUtil.getXMLEventReader(DocumentUtil.getNodeAsStream(node));
             SAMLResponseParser samlResponseParser = new SAMLResponseParser();

@@ -22,6 +22,8 @@
 
 package org.picketlink.identity.federation;
 
+import java.io.IOException;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -110,7 +112,7 @@ public interface PicketLinkLogger {
      * @param nullValue
      * @return
      */
-    RuntimeException nullValue(String nullValue);
+    RuntimeException nullValueError(String nullValue);
 
     /**
      * <p>Creates a {@link RuntimeException} for not implemented methods or features.</p>
@@ -465,4 +467,135 @@ public interface PicketLinkLogger {
      * @return
      */
     RuntimeException unknownObjectType(Object attrValue);
+
+    /**
+     * @param e
+     * @return
+     */
+    ConfigurationException configurationError(Throwable t);
+
+    /**
+     * @param message
+     */
+    void trace(String message);
+
+    /**
+     * @param algo
+     * @return
+     */
+    RuntimeException signatureUnknownAlgo(String algo);
+
+    /**
+     * @param message
+     * @return
+     */
+    IllegalArgumentException invalidArgumentError(String message);
+
+    /**
+     * 
+     */
+    void stsCreatingDefaultSTSConfig();
+
+    /**
+     * @param fileName
+     */
+    void stsLoadingConfiguration(String fileName);
+
+    /**
+     * @param configuration
+     * @param protocolContext
+     * @return
+     */
+    ProcessingException stsNoTokenProviderError(String configuration, String protocolContext);
+
+    /**
+     * @param message
+     */
+    void debug(String message);
+
+    /**
+     * @param fileName
+     */
+    void stsConfigurationFileNotFoundTCL(String fileName);
+
+    /**
+     * @param fileName
+     */
+    void stsConfigurationFileNotFoundClassLoader(String fileName);
+
+    /**
+     * @param fileName
+     */
+    void stsUsingDefaultConfiguration(String fileName);
+
+    /**
+     * @param fileName
+     */
+    void stsConfigurationFileLoaded(String fileName);
+
+    /**
+     * @param t
+     * @return
+     */
+    ConfigurationException stsConfigurationFileParsingError(Throwable t);
+
+    /**
+     * @param message
+     * @return
+     */
+    IOException notSerializableError(String message);
+
+    /**
+     * 
+     */
+    void trustKeyManagerCreationError(Throwable t);
+
+    /**
+     * @param message
+     */
+    void info(String message);
+
+    /**
+     * @param message
+     */
+    void error(String message);
+
+    /**
+     * @param t
+     */
+    void couldNotGetXMLSchema(Throwable t);
+
+    /**
+     * @return
+     */
+    boolean isTraceEnabled();
+
+    /**
+     * @return
+     */
+    boolean isDebugEnabled();
+
+    /**
+     * @param name
+     * @param t
+     */
+    void jceProviderCouldNotBeLoaded(String name, Throwable t);
+
+    /**
+     * @return
+     */
+    ProcessingException writerInvalidKeyInfoNullContentError();
+
+    /**
+     * @param first
+     * @param second
+     * @return
+     */
+    RuntimeException notEqualError(String first, String second);
+
+    /**
+     * @param message
+     * @return
+     */
+    IllegalArgumentException wrongTypeError(String message);
 }

@@ -24,8 +24,8 @@ package org.picketlink.identity.federation.core.sts.registry;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 
 /**
  * A base class for file based STS operations
@@ -34,7 +34,8 @@ import org.picketlink.identity.federation.core.ErrorCodes;
  * @since Jan 4, 2011
  */
 public abstract class FileBasedSTSOperations {
-    private static Logger logger = Logger.getLogger(FileBasedSTSOperations.class);
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected File directory;
 
@@ -59,7 +60,7 @@ public abstract class FileBasedSTSOperations {
      */
     protected File create(String fileName) {
         if (fileName == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "file name");
+            throw logger.nullArgumentError("file name");
 
         // check if the specified file exists. If not, create it.
         File createdFile = new File(fileName);
@@ -67,8 +68,7 @@ public abstract class FileBasedSTSOperations {
             try {
                 createdFile.createNewFile();
             } catch (IOException ioe) {
-                if (logger.isDebugEnabled())
-                    logger.debug("Error creating file: " + ioe.getMessage());
+                logger.debug("Error creating file: " + ioe.getMessage());
                 ioe.printStackTrace();
             }
         }

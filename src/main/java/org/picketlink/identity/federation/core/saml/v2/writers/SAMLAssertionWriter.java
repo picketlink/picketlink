@@ -133,7 +133,7 @@ public class SAMLAssertionWriter extends BaseWriter {
 
         AdviceType advice = assertion.getAdvice();
         if (advice != null)
-            throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + "Advice");
+            throw logger.notImplementedYet("Advice");
 
         Set<StatementAbstractType> statements = assertion.getStatements();
         if (statements != null) {
@@ -145,7 +145,7 @@ public class SAMLAssertionWriter extends BaseWriter {
                 } else if (statement instanceof XACMLAuthzDecisionStatementType) {
                     write((XACMLAuthzDecisionStatementType) statement);
                 } else
-                    throw new RuntimeException(ErrorCodes.WRITER_UNKNOWN_TYPE + statement.getClass().getName());
+                    throw logger.writerUnknownTypeError(statement.getClass().getName());
             }
         }
 
@@ -162,7 +162,7 @@ public class SAMLAssertionWriter extends BaseWriter {
      */
     public void write(StatementAbstractType statement) throws ProcessingException {
         // TODO: handle this section
-        throw new RuntimeException("NYI");
+        throw logger.notImplementedYet("NYI");
     }
 
     public void write(AttributeStatementType statement) throws ProcessingException {
@@ -178,7 +178,7 @@ public class SAMLAssertionWriter extends BaseWriter {
                 }
                 EncryptedElementType encType = attr.getEncryptedAssertion();
                 if (encType != null)
-                    throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
+                    throw logger.notImplementedYet("EncryptedElementType");
             }
         }
 
@@ -222,7 +222,7 @@ public class SAMLAssertionWriter extends BaseWriter {
 
         ResponseType responseType = xacmlStat.getResponse();
         if (responseType == null)
-            throw new RuntimeException(ErrorCodes.WRITER_NULL_VALUE + "XACML response");
+            throw logger.writerNullValueError("XACML response");
 
         Document doc = SAMLXACMLUtil.getXACMLResponse(responseType);
         StaxUtil.writeDOMElement(writer, doc.getDocumentElement());

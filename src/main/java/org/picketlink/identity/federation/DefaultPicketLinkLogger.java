@@ -27,6 +27,8 @@ import static org.picketlink.identity.federation.core.ErrorCodes.REQD_ATTRIBUTE;
 import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_ELEMENT;
 import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
 
+import java.io.IOException;
+
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -126,7 +128,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#nullValue(java.lang.String)
      */
     @Override
-    public RuntimeException nullValue(String nullValue) {
+    public RuntimeException nullValueError(String nullValue) {
         return new RuntimeException(ErrorCodes.NULL_VALUE + "Did not find Response node");
     }
 
@@ -587,6 +589,199 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public RuntimeException unknownObjectType(Object attrValue) {
         return new RuntimeException(ErrorCodes.UNKNOWN_OBJECT_TYPE + attrValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#configurationError(javax.xml.parsers.ParserConfigurationException)
+     */
+    @Override
+    public ConfigurationException configurationError(Throwable t) {
+        return new ConfigurationException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String)
+     */
+    @Override
+    public void trace(String message) {
+        logger.trace(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureUnknownAlgo(java.lang.String)
+     */
+    @Override
+    public RuntimeException signatureUnknownAlgo(String algo) {
+        return new RuntimeException(ErrorCodes.UNKNOWN_SIG_ALGO + algo);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#invalidArgumentError(java.lang.String)
+     */
+    @Override
+    public IllegalArgumentException invalidArgumentError(String message) {
+        return new IllegalArgumentException(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#creatingDefaultSTSConfig()
+     */
+    @Override
+    public void stsCreatingDefaultSTSConfig() {
+        logger.debug("[InstallDefaultConfiguration] Configuration is null. Creating a new configuration");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsLoadingConfiguration(java.lang.String)
+     */
+    @Override
+    public void stsLoadingConfiguration(String fileName) {
+        logger.debug("[InstallDefaultConfiguration] Configuration file name=" + fileName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsNoTokenProviderError(java.lang.String)
+     */
+    @Override
+    public ProcessingException stsNoTokenProviderError(String configuration, String protocolContext) {
+        return new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + configuration + "][ProtoCtx=" + protocolContext
+                    + "]");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#debug(java.lang.String)
+     */
+    @Override
+    public void debug(String message) {
+        logger.debug(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileNotFoundTCL(java.lang.String)
+     */
+    @Override
+    public void stsConfigurationFileNotFoundTCL(String fileName) {
+        logger.warn(fileName + " configuration file not found using TCCL");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileNotFoundClassLoader(java.lang.String)
+     */
+    @Override
+    public void stsConfigurationFileNotFoundClassLoader(String fileName) {
+        logger.warn(fileName + " configuration file not found using class loader");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsUsingDefaultConfiguration(java.lang.String)
+     */
+    @Override
+    public void stsUsingDefaultConfiguration(String fileName) {
+        logger.warn(fileName + " configuration file not found using URL. Using default configuration values");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileLoaded(java.lang.String)
+     */
+    @Override
+    public void stsConfigurationFileLoaded(String fileName) {
+        logger.info(fileName + " configuration file loaded");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsConfigurationFileParsingError(java.lang.Throwable)
+     */
+    @Override
+    public ConfigurationException stsConfigurationFileParsingError(Throwable t) {
+        return new ConfigurationException(ErrorCodes.STS_CONFIGURATION_FILE_PARSING_ERROR, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#notSerializableError(java.lang.String)
+     */
+    @Override
+    public IOException notSerializableError(String message) {
+        return new IOException(ErrorCodes.NOT_SERIALIZABLE + message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trustKeyCreationError()
+     */
+    @Override
+    public void trustKeyManagerCreationError(Throwable t) {
+        logger.error("Exception in getting TrustKeyManager:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#info(java.lang.String)
+     */
+    @Override
+    public void info(String message) {
+        logger.info(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.String)
+     */
+    @Override
+    public void error(String message) {
+        logger.error(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotGetXMLSchema(java.lang.Throwable)
+     */
+    @Override
+    public void couldNotGetXMLSchema(Throwable t) {
+        logger.error("Cannot get schema", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#isTraceEnabled()
+     */
+    @Override
+    public boolean isTraceEnabled() {
+        return logger.isTraceEnabled();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#isDebugEnabled()
+     */
+    @Override
+    public boolean isDebugEnabled() {
+        return logger.isDebugEnabled();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jceProviderCouldNotBeLoaded(java.lang.Throwable)
+     */
+    @Override
+    public void jceProviderCouldNotBeLoaded(String name, Throwable t) {
+        logger.debug("The provider " + name + " could not be added: " + t.getMessage(), t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#writerInvalidKeyInfoNullContent()
+     */
+    @Override
+    public ProcessingException writerInvalidKeyInfoNullContentError() {
+        return new ProcessingException(ErrorCodes.WRITER_INVALID_KEYINFO_NULL_CONTENT);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#notEqualError(java.lang.String, java.lang.String)
+     */
+    @Override
+    public RuntimeException notEqualError(String first, String second) {
+        return new RuntimeException(ErrorCodes.NOT_EQUAL + first + " and " + second);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#wrongTypeError(java.lang.String)
+     */
+    @Override
+    public IllegalArgumentException wrongTypeError(String message) {
+        return new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "xmlSource should be a stax source");
     }
  
 }

@@ -341,16 +341,16 @@ public class SAMLRequestWriter extends BaseWriter {
             Marshaller m = JAXBUtil.getMarshaller(RequestType.class.getPackage().getName());
             m.marshal(of.createRequest(xacmlRequest), sw);
         } catch (JAXBException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         try {
             Document xacmlDoc = DocumentUtil.getDocument(sw.toString());
             StaxUtil.writeDOMNode(writer, xacmlDoc.getDocumentElement());
         } catch (ConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         } catch (ParsingException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         StaxUtil.writeEndElement(writer);

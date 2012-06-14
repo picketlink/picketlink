@@ -33,7 +33,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
@@ -58,6 +59,9 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
  * @since Nov 2, 2010
  */
 public class BaseWriter {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     protected static String PROTOCOL_PREFIX = "samlp";
 
     protected static String ASSERTION_PREFIX = "saml";
@@ -173,8 +177,7 @@ public class BaseWriter {
                     if (attributeValue instanceof String) {
                         writeStringAttributeValue((String) attributeValue);
                     } else
-                        throw new RuntimeException(ErrorCodes.WRITER_UNSUPPORTED_ATTRIB_VALUE
-                                + attributeValue.getClass().getName());
+                        throw logger.writerUnsupportedAttributeValueError(attributeValue.getClass().getName());
                 }
             }
         }
@@ -316,6 +319,6 @@ public class BaseWriter {
     }
 
     private void write(BaseIDAbstractType baseId) throws ProcessingException {
-        throw new RuntimeException("NYI");
+        throw logger.notImplementedYet("Method not implemented.");
     }
 }

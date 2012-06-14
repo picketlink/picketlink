@@ -26,8 +26,8 @@ import java.security.PrivilegedAction;
 import java.security.Provider;
 import java.security.Security;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 
 /**
  * Utility dealing with the Santuario (XMLSec) providers registration for PicketLink
@@ -36,8 +36,8 @@ import org.picketlink.identity.federation.core.ErrorCodes;
  * @since 07-May-2012
  */
 public class ProvidersUtil {
-
-    private static Logger log = Logger.getLogger(ProvidersUtil.class);
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * No-op call such that the default system properties are set
@@ -59,7 +59,7 @@ public class ProvidersUtil {
             Class<?> clazz = SecurityActions
                     .loadClass(XMLSignatureUtil.class, "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
             if (clazz == null)
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + "org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
+                throw logger.classNotLoadedError("org.apache.jcp.xml.dsig.internal.dom.XMLDSigRI");
             addJceProvider("ApacheXMLDSig", (Provider) clazz.newInstance());
         } catch (Throwable t) {
             // ignore - may be a NoClassDefFound if XMLDSigRI isn't avail
@@ -96,14 +96,14 @@ public class ProvidersUtil {
                 if (ret == 0) {
                     ret = Security.insertProviderAt(provider, 2);
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug("The provider " + provider.getName() + " - " + provider.getVersion() + " was added at position: "
+                if (logger.isDebugEnabled()) {
+                    logger.debug("The provider " + provider.getName() + " - " + provider.getVersion() + " was added at position: "
                             + ret);
                 }
                 return provider.getName();
             } catch (Throwable t) {
-                if (log.isDebugEnabled()) {
-                    log.debug("The provider " + name + " could not be added: " + t.getMessage(), t);
+                if (logger.isDebugEnabled()) {
+                    logger.jceProviderCouldNotBeLoaded(name, t);
                 }
                 return null;
             }
@@ -120,8 +120,8 @@ public class ProvidersUtil {
                 Provider provider = clazz.newInstance();
                 return addJceProvider(name, provider);
             } catch (Throwable t) {
-                if (log.isDebugEnabled()) {
-                    log.debug("The provider " + name + " could not be added: " + t.getMessage(), t);
+                if (logger.isDebugEnabled()) {
+                    logger.jceProviderCouldNotBeLoaded(name, t);
                 }
                 return null;
             }

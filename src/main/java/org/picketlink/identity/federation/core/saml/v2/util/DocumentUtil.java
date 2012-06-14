@@ -44,7 +44,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPathException;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -65,9 +66,8 @@ import org.xml.sax.SAXException;
  * @since Jan 14, 2009
  */
 public class DocumentUtil {
-    private static Logger log = Logger.getLogger(DocumentUtil.class);
-
-    private static boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * Check whether a node belongs to a document
@@ -118,9 +118,9 @@ public class DocumentUtil {
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.getDOMImplementation().createDocument(baseNamespace, localPart, null);
         } catch (DOMException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         } catch (ParserConfigurationException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -153,11 +153,11 @@ public class DocumentUtil {
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(new InputSource(reader));
         } catch (ParserConfigurationException e) {
-            throw new ConfigurationException(e);
+            throw logger.configurationError(e);
         } catch (SAXException e) {
-            throw new ParsingException(e);
+            throw logger.parserError(e);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -176,11 +176,11 @@ public class DocumentUtil {
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(file);
         } catch (ParserConfigurationException e) {
-            throw new ConfigurationException(e);
+            throw logger.configurationError(e);
         } catch (SAXException e) {
-            throw new ParsingException(e);
+            throw logger.parserError(e);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -199,11 +199,11 @@ public class DocumentUtil {
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.parse(is);
         } catch (ParserConfigurationException e) {
-            throw new ConfigurationException(e);
+            throw logger.configurationError(e);
         } catch (SAXException e) {
-            throw new ParsingException(e);
+            throw logger.parserError(e);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -225,7 +225,7 @@ public class DocumentUtil {
         try {
             xformer.transform(source, streamResult);
         } catch (TransformerException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         return sw.toString();
@@ -249,7 +249,7 @@ public class DocumentUtil {
         try {
             xformer.transform(source, streamResult);
         } catch (TransformerException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         return sw.toString();
@@ -333,7 +333,7 @@ public class DocumentUtil {
         try {
             transformer.transform(source, streamResult);
         } catch (TransformerException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         return new ByteArrayInputStream(baos.toByteArray());
@@ -358,7 +358,7 @@ public class DocumentUtil {
         try {
             transformer.transform(source, streamResult);
         } catch (TransformerException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
 
         return new String(baos.toByteArray());
@@ -453,7 +453,7 @@ public class DocumentUtil {
             transformer.transform(source, result);
             return result.getNode();
         } catch (TransformerException te) {
-            throw new ProcessingException(te);
+            throw logger.processingError(te);
         }
     }
 
@@ -464,7 +464,7 @@ public class DocumentUtil {
             transformer.transform(source, result);
             return (Document) result.getNode();
         } catch (TransformerException te) {
-            throw new ProcessingException(te);
+            throw logger.processingError(te);
         }
     }
 
@@ -474,8 +474,9 @@ public class DocumentUtil {
         for (int i = 0; i < list.getLength(); i++) {
             // Get child node
             Node childNode = list.item(i);
-            if (trace)
-                log.trace("Node=" + childNode.getNamespaceURI() + "::" + childNode.getLocalName());
+            
+            logger.trace("Node=" + childNode.getNamespaceURI() + "::" + childNode.getLocalName());
+            
             // Visit child node
             visit(childNode, level + 1);
         }

@@ -27,7 +27,8 @@ import java.security.PublicKey;
 import java.security.Signature;
 import java.security.cert.X509Certificate;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
 
@@ -38,6 +39,9 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConsta
  * @since Dec 16, 2008
  */
 public class SignatureUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Get the XML Signature URI for the algo (RSA, DSA)
      *
@@ -65,9 +69,9 @@ public class SignatureUtil {
      */
     public static byte[] sign(String stringToBeSigned, PrivateKey signingKey) throws GeneralSecurityException {
         if (stringToBeSigned == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "stringToBeSigned");
+            throw logger.nullArgumentError("stringToBeSigned");
         if (signingKey == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "signingKey");
+            throw logger.nullArgumentError("signingKey");
 
         String algo = signingKey.getAlgorithm();
         Signature sig = getSignature(algo);
@@ -88,11 +92,11 @@ public class SignatureUtil {
     public static boolean validate(byte[] signedContent, byte[] signatureValue, PublicKey validatingKey)
             throws GeneralSecurityException {
         if (signedContent == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "signedContent");
+            throw logger.nullArgumentError("signedContent");
         if (signatureValue == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "signatureValue");
+            throw logger.nullArgumentError("signatureValue");
         if (validatingKey == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "validatingKey");
+            throw logger.nullArgumentError("validatingKey");
 
         // We assume that the sigatureValue has the same algorithm as the public key
         // If not, there will be an exception anyway
@@ -117,13 +121,13 @@ public class SignatureUtil {
     public static boolean validate(byte[] signedContent, byte[] signatureValue, String signatureAlgorithm,
             X509Certificate validatingCert) throws GeneralSecurityException {
         if (signedContent == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "signedContent");
+            throw logger.nullArgumentError("signedContent");
         if (signatureValue == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "signatureValue");
+            throw logger.nullArgumentError("signatureValue");
         if (signatureAlgorithm == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "signatureAlgorithm");
+            throw logger.nullArgumentError("signatureAlgorithm");
         if (validatingCert == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "validatingCert");
+            throw logger.nullArgumentError("validatingCert");
 
         Signature sig = getSignature(signatureAlgorithm);
 
@@ -140,7 +144,7 @@ public class SignatureUtil {
         } else if ("RSA".equalsIgnoreCase(algo)) {
             sig = Signature.getInstance(PicketLinkFederationConstants.RSA_SIGNATURE_ALGORITHM);
         } else
-            throw new RuntimeException(ErrorCodes.UNKNOWN_SIG_ALGO + algo);
+            throw logger.signatureUnknownAlgo(algo);
         return sig;
     }
 }

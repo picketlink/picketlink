@@ -26,8 +26,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 
 /**
  * <p>
@@ -45,8 +45,8 @@ import org.picketlink.identity.federation.core.ErrorCodes;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class JPABasedRevocationRegistry implements RevocationRegistry {
-
-    private static Logger logger = Logger.getLogger(JPABasedRevocationRegistry.class);
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private final EntityManagerFactory factory;
 
@@ -70,7 +70,7 @@ public class JPABasedRevocationRegistry implements RevocationRegistry {
      */
     public JPABasedRevocationRegistry(String configuration) {
         if (configuration == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "JPA configuration name");
+            throw logger.nullArgumentError("JPA configuration name");
         this.factory = Persistence.createEntityManagerFactory(configuration);
     }
 
@@ -99,8 +99,7 @@ public class JPABasedRevocationRegistry implements RevocationRegistry {
         // if a RevokedToken entity with the specified id doesn't exist in the database, create one and insert it.
         EntityManager manager = this.factory.createEntityManager();
         if (manager.find(RevokedToken.class, id) != null) {
-            if (logger.isDebugEnabled())
-                logger.debug("Token with id=" + id + " has already been cancelled");
+            logger.debug("Token with id=" + id + " has already been cancelled");
         } else {
             RevokedToken revokedToken = new RevokedToken(tokenType, id);
             EntityTransaction transaction = manager.getTransaction();

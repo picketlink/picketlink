@@ -31,7 +31,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 
 /**
@@ -55,7 +54,7 @@ public class FileBasedTokenRegistry extends FileBasedSTSOperations implements Se
     public FileBasedTokenRegistry(String fileName) {
         super();
         if (directory == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "directory");
+            throw logger.nullValueError("directory");
 
         // check if the default registry file exists.
         this.registryFile = create(fileName);
@@ -77,7 +76,7 @@ public class FileBasedTokenRegistry extends FileBasedSTSOperations implements Se
             sm.checkPermission(PicketLinkCoreSTS.rte);
 
         if (!(token instanceof Serializable))
-            throw new IOException(ErrorCodes.NOT_SERIALIZABLE + "Token");
+            throw logger.notSerializableError("Token");
 
         holders.put(tokenID, new TokenHolder(tokenID, token));
         flush();

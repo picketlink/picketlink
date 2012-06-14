@@ -27,7 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.handler.config.Handler;
@@ -43,9 +44,12 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCo
  * @since Oct 7, 2009
  */
 public class HandlerUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public static Set<SAML2Handler> getHandlers(Handlers handlers) throws ConfigurationException {
         if (handlers == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "handlers");
+            throw logger.nullArgumentError("handlers");
         List<Handler> handlerList = handlers.getHandler();
 
         Set<SAML2Handler> handlerSet = new LinkedHashSet<SAML2Handler>();
@@ -57,7 +61,7 @@ public class HandlerUtil {
             try {
                 clazz = SecurityActions.loadClass(HandlerUtil.class, clazzName);
                 if (clazz == null)
-                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + clazzName);
+                    throw new RuntimeException(logger.classNotLoadedError(clazzName));
                 SAML2Handler samlhandler = (SAML2Handler) clazz.newInstance();
                 List<KeyValueType> options = handler.getOption();
 
@@ -73,9 +77,9 @@ public class HandlerUtil {
 
                 handlerSet.add(samlhandler);
             } catch (InstantiationException e) {
-                throw new ConfigurationException(e);
+                throw logger.configurationError(e);
             } catch (IllegalAccessException e) {
-                throw new ConfigurationException(e);
+                throw logger.configurationError(e);
             }
         }
         return handlerSet;

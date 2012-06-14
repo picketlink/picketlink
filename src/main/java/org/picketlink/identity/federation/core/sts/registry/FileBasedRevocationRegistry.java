@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 
 /**
@@ -49,8 +48,7 @@ import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class FileBasedRevocationRegistry extends FileBasedSTSOperations implements RevocationRegistry {
-    private static Logger logger = Logger.getLogger(FileBasedRevocationRegistry.class);
-
+    
     protected static final String FILE_NAME = "revoked.ids";
 
     // this set contains the ids of the revoked security tokens.
@@ -111,8 +109,7 @@ public class FileBasedRevocationRegistry extends FileBasedSTSOperations implemen
             writer.write(id + "\n");
             writer.close();
         } catch (IOException ioe) {
-            if (logger.isDebugEnabled())
-                logger.debug("Error appending content to registry file: " + ioe.getMessage());
+            logger.debug("Error appending content to registry file: " + ioe.getMessage());
             ioe.printStackTrace();
         }
         // add the revoked id to the local cache.
@@ -136,8 +133,7 @@ public class FileBasedRevocationRegistry extends FileBasedSTSOperations implemen
             }
             reader.close();
         } catch (IOException ioe) {
-            if (logger.isDebugEnabled())
-                logger.debug("Error opening registry file: " + ioe.getMessage());
+            logger.debug("Error opening registry file: " + ioe.getMessage());
             ioe.printStackTrace();
         }
     }

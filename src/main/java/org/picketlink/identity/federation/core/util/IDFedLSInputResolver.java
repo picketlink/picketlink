@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;
 
@@ -42,9 +42,8 @@ import org.w3c.dom.ls.LSResourceResolver;
  * @since Jun 9, 2009
  */
 public class IDFedLSInputResolver implements LSResourceResolver {
-    protected static Logger log = Logger.getLogger(IDFedLSInputResolver.class);
-
-    protected static boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private static Map<String, LSInput> lsmap = new HashMap<String, LSInput>();
 
@@ -109,7 +108,7 @@ public class IDFedLSInputResolver implements LSResourceResolver {
         Collection<String> schemaValues = schemaLocationMap.values();
         schemaValues.remove("schema/w3c/xmlschema/datatypes.dtd");
         schemaValues.remove("schema/w3c/xmlschema/XMLSchema.dtd");
-        log.info("Considered the schemas:" + schemaValues);
+        logger.info("Considered the schemas:" + schemaValues);
         return schemaValues;
     }
 
@@ -117,7 +116,7 @@ public class IDFedLSInputResolver implements LSResourceResolver {
             final String baseURI) {
         LSInput lsi = null;
         if (systemId == null)
-            throw new RuntimeException(ErrorCodes.NULL_VALUE + "systemid");
+            throw logger.nullValueError("systemid");
         if (StringUtil.isNotNull(systemId) && systemId.endsWith("dtd") && StringUtil.isNotNull(baseURI)) {
             lsi = lsmap.get(baseURI);
         }
@@ -130,8 +129,8 @@ public class IDFedLSInputResolver implements LSResourceResolver {
 
             lsi = new PicketLinkLSInput(baseURI, loc, publicId, systemId);
 
-            if (trace)
-                log.trace("Loaded:" + lsi);
+            logger.trace("Loaded:" + lsi);
+            
             lsmap.put(systemId, lsi);
         }
         return lsi;
@@ -163,10 +162,10 @@ public class IDFedLSInputResolver implements LSResourceResolver {
             try {
                 is = url.openStream();
             } catch (IOException e) {
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + loc);
+                throw new RuntimeException(logger.classNotLoadedError(loc));
             }
             if (is == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "inputstream is null for " + loc);
+                throw logger.nullValueError("inputstream is null for " + loc);
             return is;
         }
 

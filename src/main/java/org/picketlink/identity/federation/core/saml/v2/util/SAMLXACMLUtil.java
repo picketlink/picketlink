@@ -31,6 +31,8 @@ import javax.xml.transform.stream.StreamResult;
 import org.jboss.security.xacml.core.model.context.ObjectFactory;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.TransformerUtil;
 import org.w3c.dom.Document;
@@ -42,6 +44,9 @@ import org.w3c.dom.Document;
  * @since Dec 20, 2010
  */
 public class SAMLXACMLUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public final static String XACML_PKG_PATH = "org.jboss.security.xacml.core.model.context";
 
     public static JAXBContext getJAXBContext() throws JAXBException {
@@ -58,7 +63,7 @@ public class SAMLXACMLUtil {
             TransformerUtil.transform(SAMLXACMLUtil.getJAXBContext(), jaxb, result);
             return DocumentUtil.getDocument(new String(baos.toByteArray()));
         } catch (Exception e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 
@@ -73,7 +78,7 @@ public class SAMLXACMLUtil {
             TransformerUtil.transform(getJAXBContext(), jaxb, result);
             return DocumentUtil.getDocument(new String(baos.toByteArray()));
         } catch (Exception e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
     }
 }

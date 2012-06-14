@@ -29,7 +29,8 @@ import java.security.PrivilegedAction;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -54,7 +55,8 @@ import org.picketlink.identity.federation.core.wstrust.STSConfiguration;
  * @since Dec 27, 2010
  */
 public class PicketLinkCoreSTS {
-    private static final Logger logger = Logger.getLogger(PicketLinkCoreSTS.class);
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final RuntimePermission rte = new RuntimePermission("org.picketlink.sts");
 
@@ -94,15 +96,13 @@ public class PicketLinkCoreSTS {
             fileName = configFileName[0];
 
         if (configuration == null) {
-            if (logger.isDebugEnabled())
-                logger.debug("[InstallDefaultConfiguration] Configuration is null. Creating a new configuration");
+            logger.stsCreatingDefaultSTSConfig();
             configuration = new PicketLinkSTSConfiguration();
         }
 
         try {
 
-            if (logger.isDebugEnabled())
-                logger.debug("[InstallDefaultConfiguration] Configuration file name=" + fileName);
+            logger.stsLoadingConfiguration(fileName);
 
             STSConfiguration config = getConfiguration(fileName);
             configuration.copy(config);
@@ -126,12 +126,9 @@ public class PicketLinkCoreSTS {
         SecurityTokenProvider provider = getProvider(protocolContext);
 
         if (provider == null)
-            throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + configuration + "][ProtoCtx=" + protocolContext
-                    + "]");
+            throw logger.stsNoTokenProviderError(configuration.toString(), protocolContext.toString());
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("issueToken::provider=" + provider);
-        }
+        logger.debug("issueToken::provider=" + provider);
 
         provider.issueToken(protocolContext);
     }
@@ -157,11 +154,10 @@ public class PicketLinkCoreSTS {
             provider = getProviderBasedOnQName(protocolContext);
 
         if (provider == null)
-            throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + configuration + "[ProtoCtx=]" + protocolContext);
+            throw logger.stsNoTokenProviderError(configuration.toString(), protocolContext.toString());
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("renewToken::provider=" + provider);
-        }
+        logger.debug("renewToken::provider=" + provider);
+
         provider.renewToken(protocolContext);
     }
 
@@ -186,11 +182,9 @@ public class PicketLinkCoreSTS {
             provider = getProviderBasedOnQName(protocolContext);
 
         if (provider == null)
-            throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + protocolContext);
+            throw logger.stsNoTokenProviderError("", protocolContext.toString());
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("cancelToken::provider=" + provider);
-        }
+        logger.debug("cancelToken::provider=" + provider);
 
         provider.cancelToken(protocolContext);
     }
@@ -216,11 +210,9 @@ public class PicketLinkCoreSTS {
             provider = getProviderBasedOnQName(protocolContext);
 
         if (provider == null)
-            throw new ProcessingException(ErrorCodes.STS_NO_TOKEN_PROVIDER + configuration + "[ProtoCtx=]" + protocolContext);
+            throw logger.stsNoTokenProviderError(configuration.toString(), protocolContext.toString());
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("validateToken::provider=" + provider);
-        }
+        logger.debug("validateToken::provider=" + provider);
 
         provider.validateToken(protocolContext);
     }
@@ -287,21 +279,21 @@ public class PicketLinkCoreSTS {
 
             // if no configuration file was found, log a warn message and use default configuration values.
             if (configurationFileURL == null) {
-                logger.warn(fileName + " configuration file not found using TCCL");
+                logger.stsConfigurationFileNotFoundTCL(fileName);
                 ClassLoader clazzLoader = SecurityActions.getClassLoader(getClass());
                 configurationFileURL = clazzLoader.getResource(fileName);
             }
 
             // if no configuration file was found, log a warn message and use default configuration values.
             if (configurationFileURL == null) {
-                logger.warn(fileName + " configuration file not found using classloader");
+                logger.stsConfigurationFileNotFoundClassLoader(fileName);
                 try {
                     configurationFileURL = new URL(fileName);
                 } catch (Exception e) {
                     return new PicketLinkSTSConfiguration();
                 } finally {
                     if (configurationFileURL == null) {
-                        logger.warn(fileName + " configuration file not found using URL. Using default configuration values");
+                        logger.stsUsingDefaultConfiguration(fileName);
                         return new PicketLinkSTSConfiguration();
                     }
                 }
@@ -310,11 +302,12 @@ public class PicketLinkCoreSTS {
             InputStream stream = configurationFileURL.openStream();
             STSType stsConfig = (STSType) new STSConfigParser().parse(stream);
             STSConfiguration configuration = new PicketLinkSTSConfiguration(stsConfig);
-            if (logger.isInfoEnabled())
-                logger.info(fileName + " configuration file loaded");
+
+            logger.stsConfigurationFileLoaded(fileName);
+            
             return configuration;
         } catch (Exception e) {
-            throw new ConfigurationException(ErrorCodes.STS_CONFIGURATION_FILE_PARSING_ERROR, e);
+            throw logger.stsConfigurationFileParsingError(e);
         }
     }
 

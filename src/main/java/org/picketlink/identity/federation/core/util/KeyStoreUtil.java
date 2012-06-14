@@ -38,7 +38,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 
 /**
  * Utility to handle Java Keystore
@@ -47,6 +48,9 @@ import org.picketlink.identity.federation.core.ErrorCodes;
  * @since Jan 12, 2009
  */
 public class KeyStoreUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Get the KeyStore
      *
@@ -72,7 +76,7 @@ public class KeyStoreUtil {
      */
     public static KeyStore getKeyStore(String fileURL, char[] storePass) throws GeneralSecurityException, IOException {
         if (fileURL == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "fileURL");
+            throw logger.nullArgumentError("fileURL");
 
         File file = new File(fileURL);
         FileInputStream fis = new FileInputStream(file);
@@ -90,7 +94,7 @@ public class KeyStoreUtil {
      */
     public static KeyStore getKeyStore(URL url, char[] storePass) throws GeneralSecurityException, IOException {
         if (url == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "url");
+            throw logger.nullArgumentError("url");
 
         return getKeyStore(url.openStream(), storePass);
     }
@@ -107,7 +111,7 @@ public class KeyStoreUtil {
      */
     public static KeyStore getKeyStore(InputStream ksStream, char[] storePass) throws GeneralSecurityException, IOException {
         if (ksStream == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "InputStream for the KeyStore");
+            throw logger.nullArgumentError("InputStream for the KeyStore");
         KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
         ks.load(ksStream, storePass);
         return ks;

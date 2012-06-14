@@ -32,8 +32,8 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.w3c.dom.Node;
@@ -48,10 +48,9 @@ import org.xml.sax.SAXParseException;
  * @since Jun 30, 2011
  */
 public class JAXPValidationUtil {
-    protected static Logger log = Logger.getLogger(JAXPValidationUtil.class);
-
-    protected static boolean trace = log.isTraceEnabled();
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     protected static Validator validator;
 
     protected static SchemaFactory schemaFactory;
@@ -75,7 +74,7 @@ public class JAXPValidationUtil {
             try {
                 JAXPValidationUtil.validate(DocumentUtil.getNodeAsStream(samlDocument));
             } catch (Exception e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
         }
     }
@@ -86,7 +85,7 @@ public class JAXPValidationUtil {
         if (validator == null) {
             Schema schema = getSchema();
             if (schema == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "schema");
+                throw logger.nullValueError("schema");
 
             validator = schema.newValidator();
             validator.setErrorHandler(new CustomErrorHandler());
@@ -103,7 +102,7 @@ public class JAXPValidationUtil {
         try {
             schemaGrammar = schemaFactory.newSchema(sources());
         } catch (SAXException e) {
-            log.error("Cannot get schema", e);
+            logger.couldNotGetXMLSchema(e);
         }
         return schemaGrammar;
     }
@@ -117,7 +116,7 @@ public class JAXPValidationUtil {
         for (String schema : schemas) {
             URL url = SecurityActions.loadResource(JAXPValidationUtil.class, schema);
             if (url == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "schema url:" + schema);
+                throw logger.nullValueError("schema url:" + schema);
             sourceArr[i++] = new StreamSource(url.openStream());
         }
         return sourceArr;
@@ -143,13 +142,13 @@ public class JAXPValidationUtil {
         private void logException(SAXParseException sax) {
             StringBuilder builder = new StringBuilder();
 
-            if (trace) {
+            if (logger.isTraceEnabled()) {
                 builder.append("[line:").append(sax.getLineNumber()).append(",").append("::col=").append(sax.getColumnNumber())
                         .append("]");
                 builder.append("[publicID:").append(sax.getPublicId()).append(",systemId=").append(sax.getSystemId())
                         .append("]");
                 builder.append(":").append(sax.getLocalizedMessage());
-                log.trace(builder.toString());
+                logger.trace(builder.toString());
             }
         }
     };

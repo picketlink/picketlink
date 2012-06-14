@@ -32,7 +32,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
@@ -63,7 +64,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
  * @since Nov 13, 2009
  */
 public class CoreConfigUtil {
-    private static Logger log = Logger.getLogger(CoreConfigUtil.class);
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * Given either the IDP Configuration or the SP Configuration, derive the TrustKeyManager
@@ -87,14 +89,14 @@ public class CoreConfigUtil {
         try {
             String keyManagerClassName = keyProvider.getClassName();
             if (keyManagerClassName == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "KeyManager class name");
+                throw logger.nullValueError("KeyManager class name");
 
             Class<?> clazz = SecurityActions.loadClass(CoreConfigUtil.class, keyManagerClassName);
             if (clazz == null)
-                throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + keyManagerClassName);
+                throw logger.classNotLoadedError(keyManagerClassName);
             trustKeyManager = (TrustKeyManager) clazz.newInstance();
         } catch (Exception e) {
-            log.error("Exception in getting TrustKeyManager:", e);
+            logger.trustKeyManagerCreationError(e);
         }
         return trustKeyManager;
     }
@@ -127,7 +129,7 @@ public class CoreConfigUtil {
     public static PublicKey getValidatingKey(TrustKeyManager trustKeyManager, String domain) throws ConfigurationException,
             ProcessingException {
         if (trustKeyManager == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Trust Key Manager");
+            throw logger.nullValueError("Trust Key Manager");
 
         return trustKeyManager.getValidatingKey(domain);
     }
@@ -477,7 +479,7 @@ public class CoreConfigUtil {
         }
 
         if (StringUtil.isNullOrEmpty(idp.getIdentityURL())) {
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "identity url");
+            throw logger.nullValueError("identity url");
         }
         return idp;
     }

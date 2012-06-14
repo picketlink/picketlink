@@ -34,7 +34,8 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 
 /**
@@ -44,6 +45,9 @@ import org.picketlink.identity.federation.core.constants.PicketLinkFederationCon
  * @since Oct 21, 2009
  */
 public class StringUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Check whether the passed string is null or empty
      *
@@ -87,7 +91,7 @@ public class StringUtil {
      */
     public static String getSystemPropertyAsString(String str) {
         if (str == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "str");
+            throw logger.nullArgumentError("str");
         if (str.contains("${")) {
             Pattern pattern = Pattern.compile("\\$\\{([^}]+)}");
             Matcher matcher = pattern.matcher(str);
@@ -107,7 +111,7 @@ public class StringUtil {
                 }
                 sysPropertyValue = SecurityActions.getSystemProperty(subString, defaultValue);
                 if (sysPropertyValue.isEmpty()) {
-                    throw new IllegalArgumentException(ErrorCodes.SYSTEM_PROPERTY_MISSING + matcher.group(1));
+                    throw logger.systemPropertyMissingError(matcher.group(1));
                 }
                 matcher.appendReplacement(buffer, sysPropertyValue);
             }
@@ -126,7 +130,7 @@ public class StringUtil {
      */
     public static void match(String first, String second) {
         if (first.equals(second) == false)
-            throw new RuntimeException(ErrorCodes.NOT_EQUAL + first + " and " + second);
+            throw logger.notEqualError(first, second);
     }
 
     /**
