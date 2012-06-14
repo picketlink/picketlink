@@ -24,6 +24,7 @@ package org.picketlink.identity.federation;
 
 import java.io.IOException;
 
+import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
@@ -62,11 +63,14 @@ public interface PicketLinkMessages {
     @Message (id = 5, value = "Error parsing the configuration file")
     ConfigurationException stsConfigurationFileParsingError(@Cause Throwable t);
 
-    @Message (id = 6, value = "Invalid request type: %s")
-    WSTrustException stsWSInvalidRequestTypeError(String requestType);
+    @Message (id = 6, value = "Error generating combined secret key")
+    WSTrustException stsCombinedSecretKeyError(@Cause Throwable t);
 
     @Message (id = 7, value = "Unable to construct the key manager")
     RuntimeException stsUnableToConstructKeyManagerError(@Cause Throwable t);
+
+    @Message (id = 8, value = "Unable to locate client public key")
+    WSTrustException stsClientPublicKeyError();
 
     @Message (id = 10, value = "Error obtaining public key for service: %s")
     RuntimeException stsPublicKeyError(String serviceName, @Cause Throwable t);
@@ -218,8 +222,11 @@ public interface PicketLinkMessages {
     @Message (id = 99, value = "Missing Element: %s")
     IllegalStateException domMissingElementError(String element);
 
-    @Message(id = 100, value = "Signing Process Failure")
-    ProcessingException signatureError(@Cause Throwable e);
+    @Message (id = 100, value = "Signing Process Failure")
+    XMLSignatureException signatureError(@Cause Throwable t);
+
+    @Message (id = 101, value = "Encryption Process Failure")
+    RuntimeException encryptProcessError(@Cause Throwable t);
 
     @Message(id = 102, value = "Processing Exception")
     ProcessingException processingError(@Cause Throwable t);
@@ -247,4 +254,14 @@ public interface PicketLinkMessages {
 
     @Message (id = 110, value = "Security Token Service Exception")
     WebServiceException stsWSError(@Cause Throwable t);
+
+    @Message (id = 111, value = "Invalid request type: %s")
+    WSTrustException stsWSInvalidRequestTypeError(String requestType);
+
+    @Message (id = 112, value = "WS-Trust Processing Exception")
+    WSTrustException stsError(@Cause Throwable t);
+
+    @Message (id = 9, value = "Invalid Digital Signature: %s")
+    XMLSignatureException signatureInvalidError(String message, @Cause Throwable t);
+
 }

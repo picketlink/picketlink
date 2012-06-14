@@ -23,7 +23,9 @@
 package org.picketlink.identity.federation;
 
 import java.io.IOException;
+import java.security.Principal;
 
+import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -100,7 +102,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#signatureError(java.lang.Throwable)
      */
-    public ProcessingException signatureError(Throwable e) {
+    public XMLSignatureException signatureError(Throwable e) {
         return PicketLinkMessages.MESSAGES.signatureError(e);
     }
 
@@ -773,4 +775,131 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     public RuntimeException stsPublicKeyCertError(Throwable t) {
         return PicketLinkMessages.MESSAGES.stsPublicKeyCertError(t);
     }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#issuingTokenForPrincipal(java.security.Principal)
+     */
+    public void issuingTokenForPrincipal(Principal callerPrincipal) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.issuingTokenForPrincipal(callerPrincipal);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#tokenTimeoutNotSpecified()
+     */
+    public void tokenTimeoutNotSpecified() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.tokenTimeoutNotSpecified();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#claimsDialectProcessorNotFound(java.lang.String)
+     */
+    public void claimsDialectProcessorNotFound(String dialect) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.claimsDialectProcessorNotFound(dialect);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsCombinedSecretKeyError(java.lang.Throwable)
+     */
+    public WSTrustException stsCombinedSecretKeyError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.stsCombinedSecretKeyError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsClientPublicKeyError()
+     */
+    public WSTrustException stsClientPublicKeyError() {
+        return PicketLinkMessages.MESSAGES.stsClientPublicKeyError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsError(java.lang.Throwable)
+     */
+    public WSTrustException stsError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.stsError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsValidatingTokenForRenewal(java.lang.String)
+     */
+    public void stsValidatingTokenForRenewal(String details) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsValidatingTokenForRenewal(details);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureInvalidError(java.lang.String, java.lang.Throwable)
+     */
+    public XMLSignatureException signatureInvalidError(String message, Throwable t) {
+        return PicketLinkMessages.MESSAGES.signatureInvalidError(message, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenSignatureNotVerified()
+     */
+    public void stsSecurityTokenSignatureNotVerified() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsSecurityTokenSignatureNotVerified();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsStartedValidationForRequest(java.lang.String)
+     */
+    public void stsStartedValidationForRequest(String details) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsStartedValidationForRequest(details);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureValidatingDocument(java.lang.String)
+     */
+    public void signatureValidatingDocument(String nodeAsString) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.signatureValidatingDocument(nodeAsString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsDelegatingValidationToTokenProvider()
+     */
+    public void stsDelegatingValidationToTokenProvider() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsDelegatingValidationToTokenProvider();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureElementToBeSigned(java.lang.String)
+     */
+    public void signatureElementToBeSigned(String namespaceURI) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.signatureElementToBeSigned(namespaceURI);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureSignedElement(java.lang.String)
+     */
+    public void signatureSignedElement(String nodeAsString) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.signatureSignedElement(nodeAsString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#encryptProcessError(java.lang.Throwable)
+     */
+    public RuntimeException encryptProcessError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.encryptProcessError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#pkiLocatingPublic(java.lang.String)
+     */
+    public void pkiLocatingPublic(String alias) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.pkiLocatingPublicKey(alias);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenShouldBeEncrypted()
+     */
+    public void stsSecurityTokenShouldBeEncrypted() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsSecurityTokenShouldBeEncrypted();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsReceivedRequestType(java.lang.String)
+     */
+    public void stsReceivedRequestType(String requestType) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsReceivedRequestType(requestType);
+    }
+
 }
