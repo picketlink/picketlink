@@ -32,6 +32,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * Util class dealing with xml based time
@@ -105,9 +106,21 @@ public class XMLTimeUtil {
      * @throws ConfigurationException
      */
     public static XMLGregorianCalendar getIssueInstant() throws ConfigurationException {
-        return getIssueInstant(TimeZone.getTimeZone("GMT").getID());
+        return getIssueInstant(getCurrentTimeZoneID());
     }
 
+    public static String getCurrentTimeZoneID() {
+       String timezonePropertyValue = SecurityActions.getSystemProperty(GeneralConstants.TIMEZONE, "GMT");
+
+       TimeZone timezone;
+       if (GeneralConstants.TIMEZONE_DEFAULT.equals(timezonePropertyValue)) {
+          timezone = TimeZone.getDefault();
+       } else {
+          timezone = TimeZone.getTimeZone(timezonePropertyValue);
+       }
+
+       return timezone.getID();
+    }
     /**
      * Convert the minutes into miliseconds
      *
