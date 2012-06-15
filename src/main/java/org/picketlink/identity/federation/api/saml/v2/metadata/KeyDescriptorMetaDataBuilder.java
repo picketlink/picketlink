@@ -61,7 +61,7 @@ public class KeyDescriptorMetaDataBuilder {
             throw logger.nullArgumentError("keyInfo");
 
         if (isSigningKey == isEncryptionKey)
-            throw logger.shouldNotBeTheSame("Only one of isSigningKey and isEncryptionKey should be true");
+            throw logger.shouldNotBeTheSameError("Only one of isSigningKey and isEncryptionKey should be true");
 
         KeyDescriptorType keyDescriptor = new KeyDescriptorType();
 

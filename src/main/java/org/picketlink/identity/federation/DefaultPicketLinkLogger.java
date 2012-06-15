@@ -45,6 +45,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -111,7 +112,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#shouldNotBeTheSame(java.lang.String)
      */
     @Override
-    public IllegalArgumentException shouldNotBeTheSame(String string) {
+    public IllegalArgumentException shouldNotBeTheSameError(String string) {
         return new IllegalArgumentException(ErrorCodes.SHOULD_NOT_BE_THE_SAME
                 + "Only one of isSigningKey and isEncryptionKey should be true");
     }
@@ -930,7 +931,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsCombinedSecretKeyError(java.lang.Throwable)
      */
     @Override
-    public WSTrustException stsCombinedSecretKeyError(Throwable t) {
+    public WSTrustException wsTrustCombinedSecretKeyError(Throwable t) {
         return new WSTrustException(ErrorCodes.STS_COMBINED_SECRET_KEY_ERROR, t);
     }
 
@@ -938,7 +939,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsClientPublicKeyError()
      */
     @Override
-    public WSTrustException stsClientPublicKeyError() {
+    public WSTrustException wsTrustClientPublicKeyError() {
         return new WSTrustException(ErrorCodes.STS_CLIENT_PUBLIC_KEY_ERROR);
     }
 
@@ -1417,6 +1418,95 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public RuntimeException unsupportedRoleType(Object attrValue) {
         return new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown role object type : " + attrValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSavedAuthnRequestIdIntoSession(java.lang.String)
+     */
+    @Override
+    public void samlHandlerSavedAuthnRequestIdIntoSession(String authnRequestId) {
+        trace("ID of authentication request " + authnRequestId + " saved into HTTP session.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSuccessfulInResponseToValidation(java.lang.String)
+     */
+    @Override
+    public void samlHandlerSuccessfulInResponseToValidation(String inResponseTo) {
+        trace("Successful verification of InResponseTo for request " + inResponseTo);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerification(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void samlHandlerFailedInResponseToVerification(String inResponseTo, String authnRequestId) {
+        trace("Verification of InResponseTo failed. InResponseTo from SAML response is " + inResponseTo
+                    + ". Value of request Id from HTTP session is " + authnRequestId);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerificarionError()
+     */
+    @Override
+    public ProcessingException samlHandlerFailedInResponseToVerificarionError() {
+        return new ProcessingException(ErrorCodes.AUTHN_REQUEST_ID_VERIFICATION_FAILED);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerDomainsTrustedByIDP(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void samlHandlerDomainsTrustedByIDP(String domainsTrusted, String issuerDomain) {
+        trace("Domains that IDP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustDomainCheck(java.lang.String)
+     */
+    @Override
+    public void samlHandlerTrustDomainCheck(String uriBit) {
+        trace("Matching uri bit=" + uriBit);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustedDomainMatched(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void samlHandlerTrustedDomainMatched(String uriBit, String issuerDomain) {
+        trace("Matched " + uriBit + " trust for " + issuerDomain);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.String)
+     */
+    @Override
+    public IssuerNotTrustedException samlHandlerIssuerNotTrustedError(String issuer) {
+        return new IssuerNotTrustedException("Issuer not Trusted by the IDP: " + issuer);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.Throwable)
+     */
+    @Override
+    public IssuerNotTrustedException samlHandlerIssuerNotTrustedError(Throwable t) {
+        return new IssuerNotTrustedException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerDomainsTrustedBySP(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain) {
+        trace("Domains that SP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustElementMissingError()
+     */
+    @Override
+    public ConfigurationException samlHandlerTrustElementMissingError() {
+        return new ConfigurationException(ErrorCodes.NULL_VALUE + "trust element missing");
     }
 
 }

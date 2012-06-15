@@ -26,18 +26,14 @@ import java.net.URL;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.audit.AuditLevel;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.TrustType;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
@@ -53,9 +49,6 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
  * @since Oct 8, 2009
  */
 public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
-    private static Logger log = Logger.getLogger(SAML2IssuerTrustHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     private final IDPTrustHandler idp = new IDPTrustHandler();
 
@@ -87,7 +80,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
             RequestAbstractType requestType = (RequestAbstractType) request.getSAML2Object();
             
             if (requestType == null)
-                throw new ProcessingException(ErrorCodes.NULL_VALUE + "AuthnRequest is null");
+                throw logger.nullValueError("AuthnRequest");
             
             String issuer = requestType.getIssuer().getValue();
 
@@ -103,33 +96,34 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
 
         private void trustIssuer(IDPType idpConfiguration, String issuer) throws ProcessingException {
             if (idpConfiguration == null)
-                throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "IDP Configuration");
+                throw logger.nullArgumentError("IDP Configuration");
             try {
                 String issuerDomain = getDomain(issuer);
                 TrustType idpTrust = idpConfiguration.getTrust();
                 if (idpTrust != null) {
                     String domainsTrusted = idpTrust.getDomains();
-                    if (trace)
-                        log.trace("Domains that IDP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
+
+                    logger.samlHandlerDomainsTrustedByIDP(domainsTrusted, issuerDomain);
+                    
                     if (domainsTrusted.indexOf(issuerDomain) < 0) {
                         // Let us do string parts checking
                         StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
                         while (st != null && st.hasMoreTokens()) {
                             String uriBit = st.nextToken();
-                            if (trace)
-                                log.trace("Matching uri bit=" + uriBit);
+
+                            logger.samlHandlerTrustDomainCheck(uriBit);
+                            
                             if (issuerDomain.indexOf(uriBit) > 0) {
-                                if (trace)
-                                    log.trace("Matched " + uriBit + " trust for " + issuerDomain);
+                                logger.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
                                 return;
                             }
                         }
-                        throw new IssuerNotTrustedException(issuer);
+                        throw logger.samlHandlerIssuerNotTrustedError(issuer);
                     }
                 } else
-                    throw new ConfigurationException(ErrorCodes.NULL_VALUE + "trust element missing");
+                    throw logger.samlHandlerTrustElementMissingError();
             } catch (Exception e) {
-                throw new ProcessingException(new IssuerNotTrustedException(e.getLocalizedMessage(), e));
+                throw new ProcessingException(logger.samlHandlerIssuerNotTrustedError(e));
             }
         }
     }
@@ -147,7 +141,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
 
         private void trustIssuer(ProviderType spConfiguration, SAML2HandlerRequest request) throws ProcessingException {
             if (spConfiguration == null)
-                throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "SP Configuration");
+                throw logger.nullArgumentError("SP Configuration");
 
             String issuer = request.getIssuer().getValue();
             Map<String, Object> requestOptions = request.getOptions();
@@ -158,18 +152,19 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                 TrustType spTrust = spConfiguration.getTrust();
                 if (spTrust != null) {
                     String domainsTrusted = spTrust.getDomains();
-                    if (trace)
-                        log.trace("Domains that SP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
+
+                    logger.samlHandlerDomainsTrustedBySP(domainsTrusted, issuerDomain);
+                    
                     if (domainsTrusted.indexOf(issuerDomain) < 0) {
                         // Let us do string parts checking
                         StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
                         while (st != null && st.hasMoreTokens()) {
                             String uriBit = st.nextToken();
-                            if (trace)
-                                log.trace("Matching uri bit=" + uriBit);
+
+                            logger.samlHandlerTrustDomainCheck(uriBit);
+                            
                             if (issuerDomain.indexOf(uriBit) > 0) {
-                                if (trace)
-                                    log.trace("Matched " + uriBit + " trust for " + issuerDomain);
+                                logger.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
                                 return;
                             }
                         }
@@ -179,12 +174,12 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                             auditEvent.setType(PicketLinkAuditEventType.ERROR_TRUSTED_DOMAIN);
                             auditHelper.audit(auditEvent);
                         }
-                        throw new IssuerNotTrustedException(issuer);
+                        throw logger.samlHandlerIssuerNotTrustedError(issuer);
                     }
                 } else
-                    throw new ConfigurationException(ErrorCodes.NULL_VALUE + "trust element missing");
+                    throw logger.samlHandlerTrustElementMissingError();
             } catch (Exception e) {
-                throw new ProcessingException(new IssuerNotTrustedException(e.getLocalizedMessage(), e));
+                throw new ProcessingException(logger.samlHandlerIssuerNotTrustedError(e));
             }
         }
     }

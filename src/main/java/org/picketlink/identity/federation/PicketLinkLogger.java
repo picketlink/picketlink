@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -67,7 +68,7 @@ public interface PicketLinkLogger {
      * @param string
      * @return
      */
-    IllegalArgumentException shouldNotBeTheSame(String string);
+    IllegalArgumentException shouldNotBeTheSameError(String string);
 
     /**
      * <p>Creates an {@link ProcessingException} for resources that are not found.</p>
@@ -706,12 +707,12 @@ public interface PicketLinkLogger {
      * @param t
      * @return
      */
-    WSTrustException stsCombinedSecretKeyError(Throwable t);
+    WSTrustException wsTrustCombinedSecretKeyError(Throwable t);
 
     /**
      * @return
      */
-    WSTrustException stsClientPublicKeyError();
+    WSTrustException wsTrustClientPublicKeyError();
 
     /**
      * @param t
@@ -1030,5 +1031,66 @@ public interface PicketLinkLogger {
      * @return
      */
     RuntimeException unsupportedRoleType(Object attrValue);
+
+    /**
+     * @param authnRequestId
+     */
+    void samlHandlerSavedAuthnRequestIdIntoSession(String authnRequestId);
+
+    /**
+     * @param inResponseTo
+     */
+    void samlHandlerSuccessfulInResponseToValidation(String inResponseTo);
+
+    /**
+     * @param inResponseTo
+     * @param authnRequestId
+     */
+    void samlHandlerFailedInResponseToVerification(String inResponseTo, String authnRequestId);
+
+    /**
+     * @return
+     */
+    ProcessingException samlHandlerFailedInResponseToVerificarionError();
+
+    /**
+     * @param domainsTrusted
+     * @param issuerDomain
+     */
+    void samlHandlerDomainsTrustedByIDP(String domainsTrusted, String issuerDomain);
+
+    /**
+     * @param uriBit
+     */
+    void samlHandlerTrustDomainCheck(String uriBit);
+
+    /**
+     * @param uriBit
+     * @param issuerDomain
+     */
+    void samlHandlerTrustedDomainMatched(String uriBit, String issuerDomain);
+
+    /**
+     * @param issuer
+     * @return
+     */
+    IssuerNotTrustedException samlHandlerIssuerNotTrustedError(String issuer);
+
+    /**
+     * @param e
+     * @return
+     */
+    IssuerNotTrustedException samlHandlerIssuerNotTrustedError(Throwable t);
+
+    /**
+     * @param domainsTrusted
+     * @param issuerDomain
+     */
+    void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain);
+
+    /**
+     * @return
+     */
+    ConfigurationException samlHandlerTrustElementMissingError();
 
 }

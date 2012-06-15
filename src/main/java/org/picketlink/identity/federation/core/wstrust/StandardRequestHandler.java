@@ -204,7 +204,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                     combinedSecret = Base64.encodeBytes(WSTrustUtil.P_SHA1(clientSecret, serverSecret, (int) keySize / 8))
                             .getBytes();
                 } catch (Exception e) {
-                    throw logger.stsCombinedSecretKeyError(e);
+                    throw logger.wsTrustCombinedSecretKeyError(e);
                 }
                 requestContext.setProofTokenInfo(WSTrustUtil.createKeyInfo(combinedSecret, providerPublicKey, keyWrapAlgo));
             } else {
@@ -262,7 +262,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                         throw new WSTrustException(logger.unsupportedType(value.toString()));
                 }
             } else
-                throw logger.stsClientPublicKeyError();
+                throw logger.wsTrustClientPublicKeyError();
         }
 
         // issue the security token using the constructed context.

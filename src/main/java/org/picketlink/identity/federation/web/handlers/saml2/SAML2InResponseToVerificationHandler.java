@@ -25,8 +25,6 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
@@ -40,9 +38,6 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class SAML2InResponseToVerificationHandler extends BaseSAML2Handler {
-    private static Logger log = Logger.getLogger(SAML2InResponseToVerificationHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     @Override
     public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
@@ -59,9 +54,7 @@ public class SAML2InResponseToVerificationHandler extends BaseSAML2Handler {
         HttpSession session = BaseSAML2Handler.getHttpSession(request);
         session.setAttribute(GeneralConstants.AUTH_REQUEST_ID, authnRequestId);
 
-        if (trace) {
-            log.trace("ID of authentication request " + authnRequestId + " saved into HTTP session.");
-        }
+        logger.samlHandlerSavedAuthnRequestIdIntoSession(authnRequestId);
     }
 
     public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
@@ -88,13 +81,10 @@ public class SAML2InResponseToVerificationHandler extends BaseSAML2Handler {
 
         // Compare both ID
         if (inResponseTo != null && inResponseTo.equals(authnRequestId)) {
-            if (trace) {
-                log.trace("Successful verification of InResponseTo for request " + inResponseTo);
-            }
+            logger.samlHandlerSuccessfulInResponseToValidation(inResponseTo);
         } else {
-            log.error("Verification of InResponseTo failed. InResponseTo from SAML response is " + inResponseTo
-                    + ". Value of request Id from HTTP session is " + authnRequestId);
-            throw new ProcessingException(ErrorCodes.AUTHN_REQUEST_ID_VERIFICATION_FAILED);
+            logger.samlHandlerFailedInResponseToVerification(inResponseTo, authnRequestId);
+            throw logger.samlHandlerFailedInResponseToVerificarionError();
         }
     }
 }

@@ -486,7 +486,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 IRoleValidator roleValidator = (IRoleValidator) handlerChainConfig
                         .getParameter(GeneralConstants.ROLE_VALIDATOR);
                 if (roleValidator == null)
-                    throw new ProcessingException(ErrorCodes.NULL_VALUE + "Role Validator not provided");
+                    throw logger.nullValueError("Role Validator");
 
                 boolean validRole = roleValidator.userInRole(principal, roles);
                 
