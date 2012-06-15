@@ -24,6 +24,7 @@ package org.picketlink.identity.federation;
 
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.util.Date;
 
@@ -31,7 +32,6 @@ import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
@@ -492,6 +492,12 @@ public interface PicketLinkLogger {
      * @param message
      */
     void trace(String message);
+    
+    /**
+     * @param string
+     * @param t
+     */
+    void trace(String message, Throwable t);
 
     /**
      * @param algo
@@ -569,6 +575,11 @@ public interface PicketLinkLogger {
      */
     void info(String message);
 
+    /**
+     * @param string
+     */
+    void warn(String message);
+    
     /**
      * @param message
      */
@@ -994,11 +1005,6 @@ public interface PicketLinkLogger {
     ProcessingException samlHandlerAuthnRequestIsNull();
 
     /**
-     * @param destination
-     */
-    void destination(String destination);
-
-    /**
      * @param t
      */
     void samlHandlerAuthenticationError(Throwable t);
@@ -1342,7 +1348,7 @@ public interface PicketLinkLogger {
     /**
      * @param t
      */
-    void authSAMLAssertionPasingFailed(Throwable t);
+    void samlAssertionPasingFailed(Throwable t);
 
     void determinedSecurityDomain(String securityDomain);
 
@@ -1463,5 +1469,125 @@ public interface PicketLinkLogger {
      * @param t
      */
     void jbossWSErrorGettingOperationName(Throwable t);
+
+    /**
+     * @return
+     */
+    LoginException authSAMLCredentialNotAvailable();
+
+    /**
+     * @param token
+     * @param t
+     * @return
+     */
+    RuntimeException authUnableToInstantiateHandler(String token, Throwable t);
+
+    /**
+     * @param e1
+     * @return
+     */
+    RuntimeException jbossWSUnableToCreateSSLSocketFactory(Throwable t);
+
+    /**
+     * @return
+     */
+    RuntimeException jbossWSUnableToFindSSLSocketFactory();
+
+    /**
+     * @return
+     */
+    RuntimeException authUnableToGetIdentityFromSubject();
+
+    /**
+     * @return
+     */
+    RuntimeException authSAMLAssertionNullOrEmpty();
+
+    /**
+     * @return
+     */
+    ProcessingException jbossWSUncheckedAndRolesCannotBeTogether();
+
+    /**
+     * @param t
+     */
+    void samlIDPHandlingSAML11Error(Throwable t);
+
+    /**
+     * @return
+     */
+    GeneralSecurityException samlIDPValidationCheckFailed();
+
+    /**
+     * @param t
+     */
+    void samlIDPRequestProcessingError(Throwable t);
+
+    /**
+     * @param issuer
+     * @param e
+     */
+    void samlIDPIssuerIsNotValidURLUsingRemoteAddr(String issuer, Throwable t);
+
+    /**
+     * @param t
+     */
+    void samlIDPUnableToSetParticipantStackUsingDefault(Throwable t);
+
+    /**
+     * @param t
+     */
+    void samlHandlerConfigurationError(Throwable t);
+
+    /**
+     * @param canonicalizationMethod
+     */
+    void samlIDPSettingCanonicalizationMethod(String canonicalizationMethod);
+
+    /**
+     * @param t
+     * @return
+     */
+    RuntimeException samlIDPConfigurationError(Throwable t);
+
+    /**
+     * @param configFile
+     * @return
+     */
+    RuntimeException configurationFileMissing(String configFile);
+
+    /**
+     * 
+     */
+    void samlIDPInstallingDefaultSTSConfig();
+
+    void samlSPFallingBackToLocalFormAuthentication();
+
+    /**
+     * @param ex
+     * @return
+     */
+    IOException unableLocalAuthentication(Throwable t);
+
+    /**
+     * 
+     */
+    void samlSPUnableToGetIDPDescriptorFromMetadata();
+
+    /**
+     * @param t
+     * @return
+     */
+    RuntimeException samlSPConfigurationError(Throwable t);
+
+    /**
+     * @param canonicalizationMethod
+     */
+    void samlSPSettingCanonicalizationMethod(String canonicalizationMethod);
+
+    /**
+     * @param logOutPage
+     */
+    void samlSPCouldNotDispatchToLogoutPage(String logOutPage);
 
 }

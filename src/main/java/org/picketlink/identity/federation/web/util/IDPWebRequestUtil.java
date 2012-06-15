@@ -218,7 +218,7 @@ public class IDPWebRequestUtil {
                     ,sendRequest, isErrorResponse);
             }
 
-            logger.destination(finalDest);
+            logger.trace("Destination = " + finalDest);
             HTTPRedirectUtil.sendRedirectForResponder(finalDest, response);
         } else {
             if (logger.isTraceEnabled()) {

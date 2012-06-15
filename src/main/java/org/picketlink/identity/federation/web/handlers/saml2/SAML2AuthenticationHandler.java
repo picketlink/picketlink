@@ -35,7 +35,6 @@ import javax.xml.namespace.QName;
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.SerializablePrincipal;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
@@ -164,7 +163,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             String destination = art.getAssertionConsumerServiceURL().toASCIIString();
             
-            logger.destination(destination);
+            logger.trace("Destination = " + destination);
 
             response.setDestination(destination);
 

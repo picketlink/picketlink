@@ -28,6 +28,7 @@ import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_START_E
 import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.util.Date;
 
@@ -35,7 +36,6 @@ import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
@@ -105,6 +105,17 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
             logger.trace(message);            
         }
     }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String, java.lang.Throwable)
+     */
+    @Override
+    public void trace(String message, Throwable t) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(message, t);
+        }
+    }
+
     
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.Throwable)
@@ -760,7 +771,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void trustKeyManagerCreationError(Throwable t) {
-        logger.error("Exception in getting TrustKeyManager:", t);
+        logger.error("Exception creating TrustKeyManager:", t);
     }
 
     /* (non-Javadoc)
@@ -1383,14 +1394,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#destination(java.lang.String)
-     */
-    @Override
-    public void destination(String destination) {
-        trace(destination);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAuthenticationError(java.lang.Throwable)
      */
     @Override
@@ -1928,8 +1931,8 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionPasingFailed(java.lang.Throwable)
      */
     @Override
-    public void authSAMLAssertionPasingFailed(Throwable t) {
-        logger.error("Failed to parse token", t);
+    public void samlAssertionPasingFailed(Throwable t) {
+        logger.error("SAML Assertion parsing failed", t);
     }
 
     /* (non-Javadoc)
@@ -2155,6 +2158,201 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public void jbossWSErrorGettingOperationName(Throwable t) {
         logger.error("Exception using backup method to get op name=", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLCredentialNotAvailable()
+     */
+    @Override
+    public LoginException authSAMLCredentialNotAvailable() {
+        return new LoginException(ErrorCodes.NULL_VALUE + "SamlCredential is not available in subject");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#unableToInstantiateHandler(java.lang.String, java.lang.Throwable)
+     */
+    @Override
+    public RuntimeException authUnableToInstantiateHandler(String token, Throwable t) {
+        return new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + "Unable to instantiate handler:"
+                                    + token, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateSSLSocketFactory(java.lang.Throwable)
+     */
+    @Override
+    public RuntimeException jbossWSUnableToCreateSSLSocketFactory(Throwable t) {
+        return new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION
+                                        + "Unable to create SSL Socket Factory:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToFindSSLSocketFactory()
+     */
+    @Override
+    public RuntimeException jbossWSUnableToFindSSLSocketFactory() {
+        return new RuntimeException("We did not find SSL Socket Factory");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authUnableToGetIdentityFromSubject()
+     */
+    @Override
+    public RuntimeException authUnableToGetIdentityFromSubject() {
+        return new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to get the Identity from the subject.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionNullOrEmpty()
+     */
+    @Override
+    public RuntimeException authSAMLAssertionNullOrEmpty() {
+        return new RuntimeException("SAML Assertion is null or empty");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUncheckedAndRolesCannotBeTogether()
+     */
+    @Override
+    public ProcessingException jbossWSUncheckedAndRolesCannotBeTogether() {
+        return new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "unchecked and role(s) cannot be together");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPHandlingSAML11Error(java.lang.Throwable)
+     */
+    @Override
+    public void samlIDPHandlingSAML11Error(Throwable t) {
+        logger.error("Exception handling saml 11 use case:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPValidationCheckFailed()
+     */
+    @Override
+    public GeneralSecurityException samlIDPValidationCheckFailed() {
+        return new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPRequestProcessingError(java.lang.Throwable)
+     */
+    @Override
+    public void samlIDPRequestProcessingError(Throwable t) {
+        logger.error("Exception in processing request:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPIssuerIsNotValidURLUsingRemoteAddr(java.lang.String, java.lang.Throwable)
+     */
+    @Override
+    public void samlIDPIssuerIsNotValidURLUsingRemoteAddr(String issuer, Throwable t) {
+        logger.warn("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPUnableToSetParticipantStackUsingDefault(java.lang.Throwable)
+     */
+    @Override
+    public void samlIDPUnableToSetParticipantStackUsingDefault(Throwable t) {
+        logger.warn("Unable to set the Identity Participant Stack Class. Will just use the default");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerConfigurationError(java.lang.Throwable)
+     */
+    @Override
+    public void samlHandlerConfigurationError(Throwable t) {
+        logger.error("Exception dealing with handler configuration:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPSettingCanonicalizationMethod(java.lang.String)
+     */
+    @Override
+    public void samlIDPSettingCanonicalizationMethod(String canonicalizationMethod) {
+        logger.info("IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
+                    + canonicalizationMethod);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPConfigurationError(java.lang.Throwable)
+     */
+    @Override
+    public RuntimeException samlIDPConfigurationError(Throwable t) {
+        return new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + t.getMessage(), t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#configurationFileMissing(java.lang.String)
+     */
+    @Override
+    public RuntimeException configurationFileMissing(String configFile) {
+        return new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPInstallingDefaultSTSConfig()
+     */
+    @Override
+    public void samlIDPInstallingDefaultSTSConfig() {
+        logger.info("Did not find picketlink-sts.xml. We will install default configuration");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#warn(java.lang.String)
+     */
+    @Override
+    public void warn(String message) {
+        logger.warn(message);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPFallingBackToLocalFormAuthentication()
+     */
+    @Override
+    public void samlSPFallingBackToLocalFormAuthentication() {
+        logger.error("Falling back on local Form Authentication if available");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#unableLocalAuthentication(java.lang.Throwable)
+     */
+    @Override
+    public IOException unableLocalAuthentication(Throwable t) {
+        return new IOException(ErrorCodes.UNABLE_LOCAL_AUTH, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPUnableToGetIDPDescriptorFromMetadata()
+     */
+    @Override
+    public void samlSPUnableToGetIDPDescriptorFromMetadata() {
+        logger.error("Unable to obtain the IDP SSO Descriptor from metadata");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPConfigurationError(java.lang.Throwable)
+     */
+    @Override
+    public RuntimeException samlSPConfigurationError(Throwable t) {
+        return new RuntimeException(t.getMessage(), t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPSettingCanonicalizationMethod(java.lang.String)
+     */
+    @Override
+    public void samlSPSettingCanonicalizationMethod(String canonicalizationMethod) {
+        logger.info("Service Provider is setting the CanonicalizationMethod on XMLSignatureUtil::" + canonicalizationMethod);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPCouldNotDispatchToLogoutPage(java.lang.String)
+     */
+    @Override
+    public void samlSPCouldNotDispatchToLogoutPage(String logOutPage) {
+        logger.error("Cannot dispatch to the logout page: no request dispatcher:" + logOutPage);
     }
 
 }
