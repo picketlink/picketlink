@@ -23,6 +23,7 @@
 package org.picketlink.identity.federation;
 
 import java.security.Principal;
+import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -397,4 +398,152 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.ERROR)
     @Message(id = 287, value = "Exception in parsing saml message")
     void samlParsingError(@Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 288, value = "Mapping Context returned is null")
+    void attributeManagerMappingContextNull();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 289, value = "Exception in attribute mapping")
+    void attributeManagerError(@Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 290, value = "Could not obtain security context.")
+    void couldNotObtainSecurityContext();
+    
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 291, value = "Final attribute map size: %s")
+    void attributeManagerMapSize(int size);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 292, value = "No authentication Subject found, cannot provide any user roles!")
+    void authenticationSubjectNotFound();
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 293, value = "Returning an AttributeStatement with a [%s] attribute containing: %s")
+    void returningAttributeStatement(String tokenRoleAttributeName, String attributes);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 294, value = "Local Validation is being Performed")
+    void authPerformingLocalValidation();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 295, value = "Local Validation passed.")
+    void authSuccessfulLocalValidation();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 296, value = "Local Validation is disabled. Verifying with STS")
+    void authLocalValidationDisabledCheckSTS();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 297, value = "Creating Cache Entry for JBoss at [%s] , with expiration set to SAML expiry = %s")
+    void authCreatingCacheEntry(Date date, Date expiryDate);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 298, value = "Assertion from where roles will be sought = %s")
+    void authSAMLAssertionToGetRolesFrom(String samlAssertion);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 299, value = "Initialized with %s")
+    void initializedWith(String string);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 300, value = "Did not find a token %s under %s in the map")
+    void authSharedTokenNotFound(String name, String sharedToken);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 301, value = "Mapped roles to %s")
+    void authMappedRoles(String roles);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 302, value = "Mapped principal = %s")
+    void authMappedPrincipal(String principal);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 303, value = "Failed to parse token")
+    void authSAMLAssertionParsingFailed(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 304, value = "Determined Security Domain = %s")
+    void determinedSecurityDomain(String securityDomain);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 305, value = "Will expire from cache in %s seconds, principal = %s")
+    void cacheWillExpireForPrincipal(int seconds, String principal);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 306, value = "Constructing STSClientInterceptor using %s as the configuration file")
+    void authConstructingSTSClientInterceptor(String propertiesFile);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 307, value = "Retrieved SecurityContext from invocation: %s")
+    void authRetrievedSecurityContextFromInvocation(String string);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 308, value = "Invoking token service to get SAML assertion for %s")
+    void authInvokingSTSForSAMLAssertion(String principalName);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 309, value = "SAML assertion for %s successfully obtained")
+    void authSAMLAssertionObtainedForPrincipal(String principalName);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 310, value = "Unable to issue assertion")
+    void authSAMLAssertionIssuingFailed(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 311, value = "Handling Outbound Message")
+    void jbossWSHandlingOutboundMessage();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 312, value = "Unable to create binary token")
+    void jbossWSUnableToCreateBinaryToken(@Cause Throwable t);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 313, value = "Was not able to create security token. Just sending message without binary token")
+    void jbossWSUnableToCreateSecurityToken();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 314, value = "Exception writing SOAP Message")
+    void jbossWSUnableToWriteSOAPMessage(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 315, value = "Header value has been identified %s")
+    void jbossWSHeaderValueIdentified(String headerValue);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 316, value = "Cookie value has been identified %s")
+    void jbossWSCookieValueIdentified(String cookie);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 317, value = "Handling Inbound Message")
+    void jbossWSHandlingInboundMessage();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 318, value = "Assertion included in SOAP payload: %s")
+    void jbossWSSAMLAssertionFoundInPayload(String assertionAsString);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 319, value = "Rolekeys to extract roles from the assertion: %s")
+    void jbossWSRoleKeysExtractRolesFromAssertion(String string);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 320, value = "Roles in the assertion: %s")
+    void jbossWSRolesInAssertion(String roles);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 321, value = "Did not find roles in the assertion")
+    void jbossWSNoRolesFoundInAssertion();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 322, value = "We did not find any assertion")
+    void jbossWSNoAssertionsFound();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 323, value = "Successfully Authenticated:Principal= %s ::subject = %s")
+    void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 324, value = "Exception using backup method to get op name")
+    void jbossWSErrorGettingOperationname(@Cause Throwable t);
 }

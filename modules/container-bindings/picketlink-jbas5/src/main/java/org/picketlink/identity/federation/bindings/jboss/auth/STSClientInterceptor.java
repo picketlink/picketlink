@@ -28,11 +28,11 @@ import javax.security.auth.Subject;
 
 import org.jboss.aop.advice.Interceptor;
 import org.jboss.aop.joinpoint.Invocation;
-import org.jboss.logging.Logger;
 import org.jboss.security.SecurityContext;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.wstrust.WSTrustClient;
 import org.picketlink.identity.federation.api.wstrust.WSTrustClient.SecurityInfo;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
@@ -68,10 +68,8 @@ import org.w3c.dom.Element;
 public class STSClientInterceptor implements Interceptor, Serializable {
     private static final long serialVersionUID = -4351623612864518960L;
 
-    private static final Logger log = Logger.getLogger(STSClientInterceptor.class);
-
-    private static boolean trace = log.isTraceEnabled();
-
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private String propertiesFile;
 
     private Builder builder;
@@ -82,14 +80,12 @@ public class STSClientInterceptor implements Interceptor, Serializable {
 
     public void setPropertiesFile(String propertiesFile) {
         this.propertiesFile = propertiesFile;
-        if (trace)
-            log.trace("Constructing STSClientInterceptor using " + propertiesFile + " as the configuration file");
+        logger.authConstructingSTSClientInterceptor(propertiesFile);
     }
 
     public Object invoke(Invocation invocation) throws Throwable {
         SecurityContext sc = (SecurityContext) invocation.getMetaData("security", "context");
-        if (trace)
-            log.trace("Retrieved SecurityContext from invocation: " + sc);
+        logger.authRetrievedSecurityContextFromInvocation(sc.toString());
         if (sc != null) {
             // retrieve username and credential from invocation
             Principal principal = sc.getUtil().getUserPrincipal();
@@ -99,20 +95,19 @@ public class STSClientInterceptor implements Interceptor, Serializable {
                 if (propertiesFile != null) {
                     builder = new Builder(propertiesFile);
                 } else
-                    throw new IllegalStateException(ErrorCodes.OPTION_NOT_SET + "Attribute propertiesFile must be set");
+                    throw logger.optionNotSet("propertiesFile");
             }
             WSTrustClient client = new WSTrustClient(builder.getServiceName(), builder.getPortName(),
                     builder.getEndpointAddress(), new SecurityInfo(principal.getName(), credential));
             Element assertion = null;
             try {
-                if (trace)
-                    log.trace("Invoking token service to get SAML assertion for " + principal.getName());
+                logger.authInvokingSTSForSAMLAssertion(principal.getName());
                 // create the token
                 assertion = client.issueToken(SAMLUtil.SAML2_TOKEN_TYPE);
-                if (trace)
-                    log.trace("SAML assertion for " + principal.getName() + " successfully obtained");
+
+                logger.authSAMLAssertionObtainedForPrincipal(principal.getName());
             } catch (WSTrustException wse) {
-                log.error("Unable to issue assertion", wse);
+                logger.authSAMLAssertionIssuingFailed(wse);
             }
 
             if (assertion != null) {

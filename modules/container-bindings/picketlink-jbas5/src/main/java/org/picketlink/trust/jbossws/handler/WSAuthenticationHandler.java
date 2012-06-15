@@ -42,10 +42,11 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 public class WSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
     @Override
     protected boolean handleInbound(MessageContext msgContext) {
-        if (trace) {
-            log.trace("Handling Inbound Message");
-            trace(msgContext);
-        }
+
+        logger.jbossWSHandlingInboundMessage();
+        
+        trace(msgContext);
+
         AuthenticationManager authenticationManager = getAuthenticationManager();
         SecurityAdaptor securityAdaptor = secAdapterfactory.newSecurityAdapter();
         Principal principal = securityAdaptor.getPrincipal();
@@ -55,13 +56,13 @@ public class WSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
 
         if (authenticationManager.isValid(principal, credential, subject) == false) {
             String msg = ErrorCodes.PROCESSING_EXCEPTION + "Authentication failed, principal=" + principal;
-            log.error(msg);
+            logger.error(msg);
             SecurityException e = new SecurityException(msg);
             throw new RuntimeException(e);
         }
-        if (trace) {
-            log.trace("Successfully Authenticated:Principal=" + principal + "::subject=" + subject);
-        }
+
+        logger.jbosswsSuccessfullyAuthenticatedPrincipal(principal.toString(), subject.toString());
+
         securityAdaptor.pushSubjectContext(subject, principal, credential);
 
         return true;

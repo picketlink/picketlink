@@ -24,6 +24,7 @@ package org.picketlink.identity.federation;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
 
 import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
@@ -32,6 +33,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -406,7 +408,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError()
      */
-    public ProcessingException assertionExpiredError() {
+    public ProcessingException samlAssertionExpiredError() {
         return PicketLinkMessages.MESSAGES.assertionExpiredError();
     }
 
@@ -1002,7 +1004,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionWithoutExpiration(java.lang.String)
      */
-    public void authSAMLAssertionWithoutExpiration(String id) {
+    public void samlAssertionWithoutExpiration(String id) {
         PicketLinkLoggerMessages.ROOT_LOGGER.authSAMLAssertionWithoutExpiration(id);
     }
 
@@ -1491,6 +1493,342 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         if (isTraceEnabled()) {
             PicketLinkLoggerMessages.ROOT_LOGGER.trace(t);
         }
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerMappingContextNull()
+     */
+    public void mappingContextNull() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.attributeManagerMappingContextNull();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerError(java.lang.Throwable)
+     */
+    public void attributeManagerError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.attributeManagerError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotObtainSecurityContext()
+     */
+    public void couldNotObtainSecurityContext() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.couldNotObtainSecurityContext();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerMapSize(int)
+     */
+    public void attributeManagerMapSize(int size) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.attributeManagerMapSize(size);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authenticationSubjectNotFound()
+     */
+    public void authenticationSubjectNotFound() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authenticationSubjectNotFound();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#returningAttributeStatement(java.lang.String, java.lang.String)
+     */
+    public void returningAttributeStatement(String tokenRoleAttributeName, String attributes) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.returningAttributeStatement(tokenRoleAttributeName, attributes);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authFailedToCreatePrincipal(java.lang.Throwable)
+     */
+    public LoginException authFailedToCreatePrincipal(Throwable t) {
+        return PicketLinkMessages.MESSAGES.authFailedToCreatePrincipal(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSharedCredentialIsNotSAMLCredential()
+     */
+    public LoginException authSharedCredentialIsNotSAMLCredential(String className) {
+        return PicketLinkMessages.MESSAGES.authSharedCredentialIsNotSAMLCredential(className);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSTSConfigFileNotFound()
+     */
+    public LoginException authSTSConfigFileNotFound() {
+        return PicketLinkMessages.MESSAGES.authSTSConfigFileNotFound();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authErrorHandlingCallback(java.lang.Throwable)
+     */
+    public LoginException authErrorHandlingCallback(Throwable t) {
+        return PicketLinkMessages.MESSAGES.authErrorHandlingCallbackError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authPerformingLocalValidation()
+     */
+    public void authPerformingLocalValidation() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authPerformingLocalValidation();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSuccessfulLocalValidation()
+     */
+    public void authSuccessfulLocalValidation() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authSuccessfulLocalValidation();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authLocalValidationDisabledCheckSTS()
+     */
+    public void authLocalValidationDisabledCheckSTS() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authLocalValidationDisabledCheckSTS();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authInvalidSAMLAssertionBySTS()
+     */
+    public LoginException authInvalidSAMLAssertionBySTS() {
+        return PicketLinkMessages.MESSAGES.authInvalidSAMLAssertionBySTSError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authAssertionValidationValies(java.lang.Throwable)
+     */
+    public LoginException authAssertionValidationError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.authAssertionValidationValidationError(t);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCreatingCacheEntry(java.util.Date, java.util.Date)
+     */
+    public void authCreatingCacheEntry(Date date, Date expiryDate) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authCreatingCacheEntry(date, expiryDate);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authFailedToParseSAMLAssertion(java.lang.Throwable)
+     */
+    public LoginException authFailedToParseSAMLAssertion(Throwable t) {
+        return PicketLinkMessages.MESSAGES.authFailedToParseSAMLAssertionError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionToGetRolesFrom(java.lang.String)
+     */ 
+    public void authSAMLAssertionToGetRolesFrom(String samlAssertion) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authSAMLAssertionToGetRolesFrom(samlAssertion);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#initializedWith(java.lang.String)
+     */
+    public void initializedWith(String string) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.initializedWith(string);
+    }
+
+    public void authSharedTokenNotFound(String name, String sharedToken) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authSharedTokenNotFound(name, sharedToken);
+    }
+
+    public void authMappedRoles(String roles) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authMappedRoles(roles);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authMappedPrincipal(java.lang.String)
+     */
+    public void authMappedPrincipal(String principal) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authMappedPrincipal(principal);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionPasingFailed(java.lang.Throwable)
+     */
+    public void authSAMLAssertionPasingFailed(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authSAMLAssertionParsingFailed(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#determinedSecurityDomain(java.lang.String)
+     */
+    public void determinedSecurityDomain(String securityDomain) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.determinedSecurityDomain(securityDomain);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#cacheWillExpireForPrincipal(int, java.lang.String)
+     */
+    public void cacheWillExpireForPrincipal(int seconds, String principal) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.cacheWillExpireForPrincipal(seconds, principal);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreFromSecurityDomainError(java.lang.String)
+     */
+    public LoginException authNullKeyStoreFromSecurityDomainError(String name) {
+        return PicketLinkMessages.MESSAGES.authNullKeyStoreFromSecurityDomainError(name);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreAliasFromSecurityDomainError(java.lang.String)
+     */
+    public LoginException authNullKeyStoreAliasFromSecurityDomainError(String name) {
+        return PicketLinkMessages.MESSAGES.authNullKeyStoreAliasFromSecurityDomainError(name);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authNoCertificateFoundForAlias(java.lang.String, java.lang.String)
+     */
+    public LoginException authNoCertificateFoundForAliasError(String alias, String name) {
+        return PicketLinkMessages.MESSAGES.authNoCertificateFoundForAliasError(alias, name);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLInvalidSignature()
+     */
+    public LoginException authSAMLInvalidSignatureError() {
+        return PicketLinkMessages.MESSAGES.authSAMLInvalidSignatureError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionExpiredError()
+     */
+    public LoginException authSAMLAssertionExpiredError() {
+        return PicketLinkMessages.MESSAGES.authSAMLAssertionExpiredError();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authConstructingSTSClientInterceptor(java.lang.String)
+     */
+    public void authConstructingSTSClientInterceptor(String propertiesFile) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authConstructingSTSClientInterceptor(propertiesFile);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authRetrievedSecurityContextFromInvocation(java.lang.String)
+     */
+    public void authRetrievedSecurityContextFromInvocation(String string) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authRetrievedSecurityContextFromInvocation(string);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authInvokingSTSForSAMLAssertion(java.lang.String)
+     */
+    public void authInvokingSTSForSAMLAssertion(String principalName) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authInvokingSTSForSAMLAssertion(principalName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionObtainedForPrincipal(java.lang.String)
+     */
+    public void authSAMLAssertionObtainedForPrincipal(String principalName) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authSAMLAssertionObtainedForPrincipal(principalName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionIssuingFailed(java.lang.Throwable)
+     */
+    public void authSAMLAssertionIssuingFailed(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authSAMLAssertionIssuingFailed(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHandlingOutboundMessage()
+     */
+    public void jbossWSHandlingOutboundMessage() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSHandlingOutboundMessage();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateBinaryToken(java.lang.Throwable)
+     */
+    public void jbossWSUnableToCreateBinaryToken(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSUnableToCreateBinaryToken(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateSecurityToken()
+     */
+    public void jbossWSUnableToCreateSecurityToken() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSUnableToCreateSecurityToken();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToWriteSOAPMessage(java.lang.Throwable)
+     */
+    public void jbossWSUnableToWriteSOAPMessage(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSUnableToWriteSOAPMessage(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHeaderValueIdentified(java.lang.String)
+     */
+    public void jbossWSHeaderValueIdentified(String headerValue) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSHeaderValueIdentified(headerValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSCookieValueIdentified(java.lang.String)
+     */
+    public void jbossWSCookieValueIdentified(String cookie) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSCookieValueIdentified(cookie);
+    }
+
+    public void jbossWSHandlingInboundMessage() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSHandlingInboundMessage();       
+    }
+
+    public void jbossWSSAMLAssertionFoundInPayload(String assertionAsString) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSSAMLAssertionFoundInPayload(assertionAsString);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSRoleKeysExtractRolesFromAssertion(java.lang.String)
+     */
+    public void jbossWSRoleKeysExtractRolesFromAssertion(String string) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSRoleKeysExtractRolesFromAssertion(string);
+    }
+
+    public void jbossWSRolesInAssertion(String roles) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSRolesInAssertion(roles);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSNoRolesFoundInAssertion()
+     */
+    public void jbossWSNoRolesFoundInAssertion() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSNoRolesFoundInAssertion();
+    }
+
+    public void jbossWSNoAssertionsFound() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSNoAssertionsFound();
+    }
+
+    public void jbosswsSuccessfullyAuthenticatedPrincipal(String principal, String subject) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSSuccessfullyAuthenticatedPrincipal(principal, subject);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToLoadJBossWSSEConfigError()
+     */
+    public RuntimeException jbossWSUnableToLoadJBossWSSEConfigError() {
+        return PicketLinkMessages.MESSAGES.jbossWSUnableToLoadJBossWSSEConfigError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSAuthorizationFailed()
+     */
+    public RuntimeException jbossWSAuthorizationFailed() {
+        return PicketLinkMessages.MESSAGES.jbossWSAuthorizationFailed();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSErrorGettingOperationName(java.lang.Throwable)
+     */
+    public void jbossWSErrorGettingOperationName(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSErrorGettingOperationname(t);
     }
 
 }

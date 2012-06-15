@@ -27,13 +27,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.identity.Attribute;
 import org.jboss.security.mapping.MappingContext;
 import org.jboss.security.mapping.MappingManager;
 import org.jboss.security.mapping.MappingType;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
@@ -43,9 +44,9 @@ import org.picketlink.identity.federation.core.interfaces.AttributeManager;
  * @since Sep 8, 2009
  */
 public class JBossAppServerAttributeManager implements AttributeManager {
-    private static Logger log = Logger.getLogger(JBossAppServerAttributeManager.class);
-    private boolean trace = log.isTraceEnabled();
 
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * @see AttributeManager#getAttributes(Principal, List)
      */
@@ -59,7 +60,7 @@ public class JBossAppServerAttributeManager implements AttributeManager {
             MappingContext<List<Attribute<Object>>> mc = mm.getMappingContext(mappingType);
 
             if (mc == null) {
-                log.error("Mapping Context returned is null");
+                logger.mappingContextNull();
                 return attributeMap;
             }
 
@@ -71,7 +72,7 @@ public class JBossAppServerAttributeManager implements AttributeManager {
             try {
                 mc.performMapping(contextMap, attList);
             } catch (Exception e) {
-                log.error("Exception in attribute mapping:", e);
+                logger.attributeManagerError(e);
             }
             attList = (List<Attribute<Object>>) mc.getMappingResult().getMappedObject();
 
@@ -81,13 +82,11 @@ public class JBossAppServerAttributeManager implements AttributeManager {
                 }
             }
         } else {
-            if (trace) {
-                log.trace("Could not obtain security context.");
-            }
+            logger.couldNotObtainSecurityContext();
         }
 
-        if (trace && attributeMap != null)
-            log.trace("Final attribute map size:" + attributeMap.size());
+        if (attributeMap != null)
+            logger.attributeManagerMapSize(attributeMap.size());
 
         return attributeMap;
     }

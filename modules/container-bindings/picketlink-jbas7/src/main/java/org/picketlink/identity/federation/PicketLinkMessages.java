@@ -113,6 +113,15 @@ public interface PicketLinkMessages {
     @Message (id = 28, value = "Audit Manager Is Not Set")
     IllegalStateException auditNullAuditManagerError();
 
+    @Message(id = 39, value = "Failed to validate assertion: STS configuration file not specified")
+    LoginException authSTSConfigFileNotFound();
+
+    @Message(id = 41, value = "Error handling callback")
+    LoginException authErrorHandlingCallbackError(@Cause Throwable t);
+
+    @Message(id = 44, value = "Failed to parse assertion element")
+    LoginException authFailedToParseSAMLAssertionError(@Cause Throwable t);
+
     @Message (id = 55, value = "KeyStoreKeyManager : KeyStore is null")
     IllegalStateException keyStoreNullStore();
 
@@ -382,5 +391,38 @@ public interface PicketLinkMessages {
 
     @Message(id = 146, value = "Error during processing the SAML Handler Chain.")
     RuntimeException samlHandlerChainProcessingError(@Cause Throwable t);
+
+    @Message(id = 147, value = "Failed to create principal")
+    LoginException authFailedToCreatePrincipal(@Cause Throwable t);
+
+    @Message(id = 148, value = "Shared credential is not a SAML credential. Got %s")
+    LoginException authSharedCredentialIsNotSAMLCredential(String className);
+
+    @Message(id = 149, value = "Supplied assertion was considered invalid by the STS")
+    LoginException authInvalidSAMLAssertionBySTSError();
+
+    @Message(id = 150, value = "Failed to validate assertion using STS")
+    LoginException authAssertionValidationValidationError(@Cause Throwable t);
+
+    @Message(id = 151, value = "Null truststore for security domain : %s")
+    LoginException authNullKeyStoreFromSecurityDomainError(String name);
+
+    @Message(id = 152, value = "Null KeyStoreAlias for %s; set 'KeyStoreAlias' in '%s' security domain configuration")
+    LoginException authNullKeyStoreAliasFromSecurityDomainError(String name);
+
+    @Message(id = 153, value = "No certificate found for alias '%s' in the '%s' security domain")
+    LoginException authNoCertificateFoundForAliasError(String alias, String name);
+
+    @Message(id = 154, value = "Invalid SAML assertion signature")
+    LoginException authSAMLInvalidSignatureError();
+
+    @Message(id = 155, value = "Assertion expired or used before its lifetime period")
+    LoginException authSAMLAssertionExpiredError();
+
+    @Message(id = 156, value = "Resource not found. Unable to load jboss-wsse.xml")
+    RuntimeException jbossWSUnableToLoadJBossWSSEConfigError();
+
+    @Message(id = 157, value = "Authorization Failed")
+    RuntimeException jbossWSAuthorizationFailed();
 
 }

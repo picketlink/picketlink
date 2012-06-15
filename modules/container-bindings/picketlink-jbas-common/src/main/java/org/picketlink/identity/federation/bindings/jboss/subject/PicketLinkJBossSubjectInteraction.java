@@ -30,9 +30,10 @@ import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 
-import org.jboss.logging.Logger;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.SubjectSecurityManager;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.tomcat.SubjectSecurityInteraction;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
@@ -44,25 +45,24 @@ import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidat
  * @since Sep 13, 2011
  */
 public class PicketLinkJBossSubjectInteraction implements SubjectSecurityInteraction {
-    protected static Logger log = Logger.getLogger(PicketLinkJBossSubjectInteraction.class);
-
-    protected boolean trace = log.isTraceEnabled();
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * @see org.picketlink.identity.federation.bindings.tomcat.SubjectSecurityInteraction#cleanup(java.security.Principal)
      */
     public boolean cleanup(Principal principal) {
         try {
             String securityDomain = getSecurityDomain();
-            if (trace) {
-                log.trace("Determined Security Domain=" + securityDomain);
-            }
+
+            logger.determinedSecurityDomain(securityDomain);
+
             TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.SECOND, 10);// Add 25 seconds
-            if (trace) {
-                log.trace("Will expire from cache in 10 seconds, principal=" + principal);
-            }
+
+            logger.cacheWillExpireForPrincipal(10, principal.toString());
+
             cacheExpiry.register(securityDomain, calendar.getTime(), principal);
             // Additional expiry of simple principal
             cacheExpiry.register(securityDomain, calendar.getTime(), new SimplePrincipal(principal.getName()));
@@ -89,7 +89,7 @@ public class PicketLinkJBossSubjectInteraction implements SubjectSecurityInterac
         InitialContext ctx = new InitialContext();
         SubjectSecurityManager ssm = (SubjectSecurityManager) ctx.lookup("java:comp/env/security/securityMgr");
         if (ssm == null)
-            throw new RuntimeException("Unable to get the subject security manager");
+            throw logger.nullValueError("Unable to get the subject security manager");
         return ssm.getSecurityDomain();
     }
 }

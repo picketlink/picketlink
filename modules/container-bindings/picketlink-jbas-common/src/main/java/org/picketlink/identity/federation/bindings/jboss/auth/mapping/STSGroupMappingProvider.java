@@ -4,12 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.identity.RoleGroup;
 import org.jboss.security.identity.plugins.SimpleRole;
 import org.jboss.security.identity.plugins.SimpleRoleGroup;
 import org.jboss.security.mapping.MappingProvider;
 import org.jboss.security.mapping.MappingResult;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.jboss.auth.SAML20CommonTokenRoleAttributeProvider;
 import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
@@ -59,8 +60,9 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:Babak@redhat.com">Babak Mozaffari</a>
  */
 public class STSGroupMappingProvider implements MappingProvider<RoleGroup> {
-    private Logger log = Logger.getLogger(STSGroupMappingProvider.class);
 
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private MappingResult<RoleGroup> result;
 
     private String tokenRoleAttributeName;
@@ -74,25 +76,22 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup> {
         }
 
         // No initialization needed
-        if (log.isDebugEnabled()) {
-            log.debug("Initialized with " + contextMap);
-        }
+
+        logger.initializedWith(contextMap.toString());
     }
 
     public void performMapping(Map<String, Object> contextMap, RoleGroup Group) {
-        if (log.isDebugEnabled()) {
-            log.debug("performMapping with map as " + contextMap);
-        }
+        logger.debug("performMapping with map as " + contextMap);
+
         if (contextMap == null) {
-            log.warn("Empty context map. SAML Token must be provided in the context map to extract a Principal");
+            logger.mappingContextNull();
         }
 
         Object tokenObject = contextMap.get(AbstractSTSLoginModule.SHARED_TOKEN);
         if (!(tokenObject instanceof Element)) {
             // With Tomcat SSO Valves, mapping providers DO get called automatically, so there may be no tokens and errors
             // should be expected and handled
-            log.warn("Did not find a token " + Element.class.getName() + " under " + AbstractSTSLoginModule.SHARED_TOKEN
-                    + " in the map");
+            logger.authSharedTokenNotFound(Element.class.getName(), AbstractSTSLoginModule.SHARED_TOKEN);
         }
 
         try {
@@ -116,12 +115,11 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup> {
                     }
                 }
                 result.setMappedObject(rolesGroup);
-                if (log.isDebugEnabled()) {
-                    log.debug("Mapped roles to " + rolesGroup);
-                }
+
+                logger.authMappedRoles(rolesGroup.toString());
             }
         } catch (Exception e) {
-            log.error("Failed to parse token", e);
+            logger.authFailedToParseSAMLAssertion(e);
         }
     }
 

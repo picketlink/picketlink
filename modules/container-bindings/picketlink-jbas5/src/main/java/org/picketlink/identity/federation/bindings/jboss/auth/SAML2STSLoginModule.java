@@ -30,13 +30,10 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.security.auth.login.LoginException;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.plugins.JaasSecurityDomain;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Element;
@@ -99,9 +96,6 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  */
 public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
-    protected static Logger log = Logger.getLogger(SAML2STSCommonLoginModule.class);
-
-    protected boolean trace = log.isTraceEnabled();
 
     protected boolean localValidation(Element assertionElement) throws Exception {
         // For unit tests
@@ -115,36 +109,32 @@ public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
             KeyStore ts = sd.getTrustStore();
 
             if (ts == null) {
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null truststore for " + sd.getName());
+                throw logger.authNullKeyStoreFromSecurityDomainError(sd.getName());
             }
 
             String alias = sd.getKeyStoreAlias();
 
             if (alias == null) {
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null KeyStoreAlias for " + sd.getName()
-                        + "; set 'KeyStoreAlias' in '" + sd.getName() + "' security domain configuration");
+                throw logger.authNullKeyStoreAliasFromSecurityDomainError(sd.getName());
             }
 
             Certificate cert = ts.getCertificate(alias);
 
             if (cert == null) {
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: no certificate found for alias '"
-                        + alias + "' in the '" + sd.getName() + "' security domain");
+                throw logger.authNoCertificateFoundForAliasError(alias, sd.getName());
             }
 
             PublicKey publicKey = cert.getPublicKey();
 
             boolean sigValid = AssertionUtil.isSignatureValid(assertionElement, publicKey);
             if (!sigValid) {
-                throw new LoginException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "SAML2STSLoginModule: "
-                        + WSTrustConstants.STATUS_CODE_INVALID + " : invalid SAML V2.0 assertion signature");
+                throw logger.authSAMLInvalidSignatureError();
             }
 
             AssertionType assertion = SAMLUtil.fromElement(assertionElement);
 
             if (AssertionUtil.hasExpired(assertion)) {
-                throw new LoginException(ErrorCodes.EXPIRED_ASSERTION + "SAML2STSLoginModule: "
-                        + WSTrustConstants.STATUS_CODE_INVALID + "::assertion expired or used before its lifetime period");
+                throw logger.authSAMLAssertionExpiredError();
             }
         } catch (NamingException e) {
             throw new LoginException(e.toString());

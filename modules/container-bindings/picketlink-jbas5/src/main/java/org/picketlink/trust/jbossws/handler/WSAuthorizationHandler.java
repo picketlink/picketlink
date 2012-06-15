@@ -43,7 +43,6 @@ import org.jboss.security.SecurityContext;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.callbacks.SecurityContextCallbackHandler;
 import org.jboss.wsf.spi.invocation.SecurityAdaptor;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.trust.jbossws.util.JBossWSNativeStackUtil;
 import org.picketlink.trust.jbossws.util.JBossWSSERoleExtractor;
@@ -64,15 +63,16 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
 
     @Override
     protected boolean handleInbound(MessageContext msgContext) {
-        if (trace) {
-            log.trace("Handling Inbound Message");
-            trace(msgContext);
-        }
+
+        logger.jbossWSHandlingInboundMessage();
+        
+        trace(msgContext);
+        
         ServletContext context = (ServletContext) msgContext.get(MessageContext.SERVLET_CONTEXT);
         // Read the jboss-wsse.xml file
         InputStream is = getWSSE(context);
         if (is == null)
-            throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + "unable to load jboss-wsse.xml");
+            throw logger.jbossWSUnableToLoadJBossWSSEConfigError();
 
         QName portName = (QName) msgContext.get(MessageContext.WSDL_PORT);
         QName opName = (QName) msgContext.get(MessageContext.WSDL_OPERATION);
@@ -81,13 +81,13 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
             portName = JBossWSNativeStackUtil.getPortNameViaReflection(getClass(), msgContext);
 
         if (portName == null)
-            throw new RuntimeException(ErrorCodes.NULL_VALUE + "Unable to determine port name from the message context");
+            throw logger.nullValueError("port name from the message context");
 
         if (opName == null)
             opName = getOperationName(msgContext);
 
         if (opName == null)
-            throw new RuntimeException(ErrorCodes.NULL_VALUE + "Unable to determine operation name from the message context");
+            throw logger.nullValueError("operation name from the message context");
 
         List<String> roles = null;
 
@@ -119,9 +119,9 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
                 builder.append(principal).append(":Expected Roles=").append(expectedRoles);
                 SecurityContextCallbackHandler scbh = new SecurityContextCallbackHandler(sc);
                 builder.append("::Actual Roles=").append(authorizationManager.getSubjectRoles(subject, scbh));
-                log.error(builder.toString());
+                logger.error(builder.toString());
 
-                throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Authorization Failed");
+                throw logger.jbossWSAuthorizationFailed();
             }
         }
         return true;
@@ -137,7 +137,7 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
 
     protected InputStream getWSSE(ServletContext context) {
         if (context == null)
-            throw new RuntimeException(ErrorCodes.NULL_VALUE + "Servlet Context is null");
+            throw logger.nullValueError("Servlet Context");
 
         InputStream is = context.getResourceAsStream("/WEB-INF/jboss-wsse.xml");
         return is;
@@ -162,8 +162,7 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
             String childName = child.getLocalName();
             return new QName(childNamespace, childName);
         } catch (SOAPException e) {
-            if (trace)
-                log.trace("Exception using backup method to get op name=", e);
+            logger.jbossWSErrorGettingOperationName(e);
         }
         return null;
     }

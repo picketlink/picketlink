@@ -38,7 +38,6 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.trust.jbossws.Constants;
 import org.picketlink.trust.jbossws.Util;
@@ -214,29 +213,27 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
 
     @Override
     protected boolean handleOutbound(MessageContext msgContext) {
-        if (trace) {
-            log.trace("Handling Outbound Message");
-        }
+
+        logger.jbossWSHandlingOutboundMessage();
 
         if (httpHeaderName == null && httpCookieName == null)
-            throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING
-                    + "Either httpHeaderName or httpCookieName should be set");
+            throw logger.injectedValueMissing("Either httpHeaderName or httpCookieName should be set");
 
         HttpServletRequest servletRequest = getHttpRequest(msgContext);
         if (servletRequest == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Unable to proceed as Http request is null");
+            throw logger.nullValueError("Http request");
 
         String token = getTokenValue(servletRequest);
         if (token == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Null Token");
+            throw logger.nullValueError("Null Token");
         SOAPElement security = null;
         try {
             security = create(token);
         } catch (SOAPException e) {
-            log.error("Unable to create binary token", e);
+            logger.jbossWSUnableToCreateBinaryToken(e);
         }
         if (security == null) {
-            log.warn("Was not able to create security token. Just sending message without binary token");
+            logger.jbossWSUnableToCreateSecurityToken();
             return true;
         }
         SOAPMessage sm = ((SOAPMessageContext) msgContext).getMessage();
@@ -251,14 +248,14 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
             }
             header.addChildElement(security);
         } catch (SOAPException e) {
-            log.error("Unable to create WSSE Binary Header::", e);
+            logger.jbossWSUnableToCreateBinaryToken(e);
         }
-        if (trace) {
-            log.trace("SOAP Message=");
+        if (logger.isTraceEnabled()) {
+            logger.trace("SOAP Message=");
             try {
                 sm.writeTo(System.out);
             } catch (Exception ignore) {
-                log.trace("Exception tracing out SOAP Message", ignore);
+                logger.jbossWSUnableToWriteSOAPMessage(ignore);
             }
         }
         return true;
@@ -299,15 +296,15 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
                     if (value != null)
                         builder.append(value);
                 }
-                String str = builder.toString();
-                if (trace)
-                    log.trace("Header value has been identified:" + str);
-                return clean(str);
+                String headerValue = builder.toString();
+
+                logger.jbossWSHeaderValueIdentified(headerValue);
+                
+                return clean(headerValue);
             } else {
                 String header = http.getHeader(httpHeaderName);
                 if (header != null) {
-                    if (trace)
-                        log.trace("Header value has been identified:" + header);
+                    logger.jbossWSHeaderValueIdentified(header);
                     return clean(header);
                 }
             }
@@ -317,8 +314,7 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     if (cookie.getName().equals(httpCookieName)) {
-                        if (trace)
-                            log.trace("Cookie value has been identified:" + cookie.getValue());
+                        logger.jbossWSCookieValueIdentified(cookie.getValue());
                         return clean(cookie.getValue());
                     }
                 }
@@ -372,9 +368,6 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
      * @return
      */
     private String clean(String value) {
-        if (trace) {
-            log.trace("Cleaning:" + value);
-        }
         int i = -1;
 
         if (cleanToken) {
@@ -382,9 +375,6 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
             while ((i = value.indexOf(' ')) != -1) {
                 value = value.substring(i + 1);
             }
-        }
-        if (trace) {
-            log.trace("Cleaned:" + value);
         }
         return value;
     }

@@ -33,13 +33,14 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.jboss.logging.Logger;
 import org.jboss.security.AuthenticationManager;
 import org.jboss.security.AuthorizationManager;
 import org.jboss.wsf.common.handler.GenericSOAPHandler;
 import org.jboss.wsf.spi.SPIProvider;
 import org.jboss.wsf.spi.SPIProviderResolver;
 import org.jboss.wsf.spi.invocation.SecurityAdaptorFactory;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.trust.jbossws.Constants;
@@ -57,9 +58,9 @@ import org.w3c.dom.NodeList;
  */
 @SuppressWarnings("rawtypes")
 public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler {
-    protected Logger log = Logger.getLogger(this.getClass());
-    protected boolean trace = log.isTraceEnabled();
-
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     protected static Set<QName> headers;
 
     protected static final String SEC_MGR_LOOKUP = "java:comp/env/security/securityMgr";
@@ -121,13 +122,13 @@ public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler 
     }
 
     protected void trace(MessageContext msgContext) {
-        if (trace) {
+        if (logger.isTraceEnabled()) {
             if (msgContext instanceof SOAPMessageContext) {
                 SOAPMessageContext soapMessageContext = (SOAPMessageContext) msgContext;
-                log.trace("WSDL_PORT=" + soapMessageContext.get(SOAPMessageContext.WSDL_PORT));
-                log.trace("WSDL_OPERATION=" + soapMessageContext.get(SOAPMessageContext.WSDL_OPERATION));
-                log.trace("WSDL_INTERFACE=" + soapMessageContext.get(SOAPMessageContext.WSDL_INTERFACE));
-                log.trace("WSDL_SERVICE=" + soapMessageContext.get(SOAPMessageContext.WSDL_SERVICE));
+                logger.trace("WSDL_PORT=" + soapMessageContext.get(SOAPMessageContext.WSDL_PORT));
+                logger.trace("WSDL_OPERATION=" + soapMessageContext.get(SOAPMessageContext.WSDL_OPERATION));
+                logger.trace("WSDL_INTERFACE=" + soapMessageContext.get(SOAPMessageContext.WSDL_INTERFACE));
+                logger.trace("WSDL_SERVICE=" + soapMessageContext.get(SOAPMessageContext.WSDL_SERVICE));
             }
         }
     }
@@ -163,7 +164,7 @@ public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler 
         Subject subject = SecurityActions.getAuthenticatedSubject();
 
         if (subject == null) {
-            log.error("null subject, cannot extract SAML token required for WS-TRUST");
+            logger.authenticationSubjectNotFound();
             return assertion;
         }
 
@@ -175,7 +176,7 @@ public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler 
                     try {
                         assertion = samlCredential.getAssertionAsElement();
                     } catch (ProcessingException e) {
-                        log.error("failed to process SAML credential", e);
+                        logger.authSAMLAssertionPasingFailed(e);
                     }
                     break;
                 }

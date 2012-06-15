@@ -7,7 +7,8 @@ import java.util.Map;
 
 import javax.security.auth.Subject;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenAttributeProvider;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -44,8 +45,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
  * @author <a href="mailto:Babak@redhat.com">Babak Mozaffari</a>
  */
 public abstract class SAML20CommonTokenRoleAttributeProvider implements SAML20TokenAttributeProvider {
-    private static Logger logger = Logger.getLogger(SAML20CommonTokenRoleAttributeProvider.class);
 
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * The name of the principal in JBoss that is expected to include user roles
      */
@@ -72,8 +74,7 @@ public abstract class SAML20CommonTokenRoleAttributeProvider implements SAML20To
     public AttributeStatementType getAttributeStatement() {
         Subject subject = SecurityActions.getSecurityContext().getSubjectInfo().getAuthenticatedSubject();
         if (subject == null) {
-            if (logger.isDebugEnabled())
-                logger.debug("No authentication Subject found, cannot provide any user roles!");
+            logger.authenticationSubjectNotFound();
             return null;
         } else {
             AttributeStatementType attributeStatement = new AttributeStatementType();
@@ -92,9 +93,7 @@ public abstract class SAML20CommonTokenRoleAttributeProvider implements SAML20To
                     }
                 }
             }
-            if (logger.isDebugEnabled())
-                logger.debug("Returning an AttributeStatement with a [" + tokenRoleAttributeName + "] attribute containing: "
-                        + rolesAttribute.getAttributeValue());
+            logger.returningAttributeStatement(tokenRoleAttributeName, rolesAttribute.getAttributeValue().toString());
             return attributeStatement;
         }
     }
