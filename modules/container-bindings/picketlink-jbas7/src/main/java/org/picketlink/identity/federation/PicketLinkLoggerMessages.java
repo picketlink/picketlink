@@ -337,4 +337,44 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.TRACE)
     @Message(id = 272, value = "Domains that SP trusts = %s and issuer domain = %s")
     void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 273, value = "Generating Success Status Response for %s")
+    void samlHandlerGeneratingSuccessStatusResponse(String originalIssuer);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 274, value = "No document generated in the handler chain. Cannot generate signature")
+    void samlHandlerNoDocumentToSign();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 275, value = "No response document found")
+    void samlHandlerNoResponseDocumentFound();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 276, value = "Going to sign response document with POST binding type")
+    void samlHandlerSigningDocumentForPOSTBinding();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 277, value = "Going to sign response document with REDIRECT binding type")
+    void samlHandlerSigningDocumentForRedirectBinding();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 278, value = "Key Pair cannot be found")
+    void samlHandlerKeyPairNotFound();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 279, value = "Error when trying to sign message for redirection")
+    void samlHandlerErrorSigningRedirectBindingMessage(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 280, value = "HTTP method for validating response: %s")
+    void samlHandlerValidatingResponseForHTTPMethod(String method);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 281, value = "Error validating signature")
+    void samlHandlerErrorValidatingSignature(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 282, value = "User has closed the browser. So we proceed to cancel the STS issued token.")
+    void samlIDPUserClosedBrowserCancelingToken();
 }

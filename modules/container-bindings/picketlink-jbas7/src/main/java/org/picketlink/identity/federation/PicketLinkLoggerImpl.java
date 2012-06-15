@@ -40,6 +40,7 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationE
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -1303,6 +1304,139 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public ConfigurationException samlHandlerTrustElementMissingError() {
         return PicketLinkMessages.MESSAGES.samlHandlerTrustElementMissingError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIdentityServerNotFound()
+     */
+    public ProcessingException samlHandlerIdentityServerNotFoundError() {
+        return PicketLinkMessages.MESSAGES.samlHandlerIdentityServerNotFoundError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerPrincipalNotFoundError()
+     */
+    public ProcessingException samlHandlerPrincipalNotFoundError() {
+        return PicketLinkMessages.MESSAGES.samlHandlerPrincipalNotFoundError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerGeneratingSuccessStatusResponse(java.lang.String)
+     */ 
+    public void samlHandlerGeneratingSuccessStatusResponse(String originalIssuer) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerGeneratingSuccessStatusResponse(originalIssuer);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoDocumentToSign()
+     */
+    public void samlHandlerNoDocumentToSign() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerNoDocumentToSign();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoResponseDocumentFound()
+     */
+    public void samlHandlerNoResponseDocumentFound() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerNoResponseDocumentFound();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningDocumentForPOSTBinding()
+     */
+    public void samlHandlerSigningDocumentForPOSTBinding() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerSigningDocumentForPOSTBinding();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningDocumentForRedirectBinding()
+     */
+    public void samlHandlerSigningDocumentForRedirectBinding() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerSigningDocumentForRedirectBinding();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFound()
+     */
+    public void samlHandlerKeyPairNotFound() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerKeyPairNotFound();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFoundError()
+     */
+    public ProcessingException samlHandlerKeyPairNotFoundError() {
+        return PicketLinkMessages.MESSAGES.samlHandlerKeyPairNotFoundError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerErrorSigningRedirectBindingMessage(java.lang.Throwable)
+     */
+    public void samlHandlerErrorSigningRedirectBindingMessage(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerErrorSigningRedirectBindingMessage(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningRedirectBindingMessageError(java.lang.Throwable)
+     */
+    public RuntimeException samlHandlerSigningRedirectBindingMessageError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.samlHandlerSigningRedirectBindingMessageError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerValidatingResponseForHTTPMethod(java.lang.String)
+     */
+    public void samlHandlerValidatingResponseForHTTPMethod(String method) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerValidatingResponseForHTTPMethod(method);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureValidationError()
+     */
+    public SignatureValidationException samlHandlerSignatureValidationFailed() {
+        return PicketLinkMessages.MESSAGES.signatureValidationFailed();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerErrorValidatingSignature(java.lang.Throwable)
+     */
+    public void samlHandlerErrorValidatingSignature(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerErrorValidatingSignature(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerInvalidSignatureError()
+     */
+    public ProcessingException samlHandlerInvalidSignatureError() {
+        return PicketLinkMessages.MESSAGES.samlHandlerInvalidSignatureError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSignatureNorPresentError()
+     */
+    public ProcessingException samlHandlerSignatureNorPresentError() {
+        return PicketLinkMessages.MESSAGES.samlHandlerSignatureNorPresentError();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSignatureValidationError(java.lang.Throwable)
+     */
+    public ProcessingException samlHandlerSignatureValidationError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.samlHandlerSignatureValidationError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPUserClosedBrowserCancelingToken()
+     */
+    public void samlIDPUserClosedBrowserCancelingToken() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPUserClosedBrowserCancelingToken();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.Throwable)
+     */
+    public void error(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.error(t);
     }
 
 }

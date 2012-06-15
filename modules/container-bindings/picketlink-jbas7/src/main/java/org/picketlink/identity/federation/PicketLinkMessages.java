@@ -40,6 +40,7 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationE
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
@@ -102,6 +103,9 @@ public interface PicketLinkMessages {
 
     @Message(id = 18, value = "Resource not found: %s")
     ProcessingException resourceNotFoundError(String fileName);
+
+    @Message(id = 22, value = "Principal Not Found")
+    ProcessingException samlHandlerPrincipalNotFoundError();
 
     @Message (id = 28, value = "Audit Manager Is Not Set")
     IllegalStateException auditNullAuditManagerError();
@@ -351,5 +355,26 @@ public interface PicketLinkMessages {
 
     @Message(id = 138, value = "Trust or Domains element is missing. Check your configuration.")
     ConfigurationException samlHandlerTrustElementMissingError();
+
+    @Message(id = 139, value = "Identity Server not found")
+    ProcessingException samlHandlerIdentityServerNotFoundError();
+
+    @Message(id = 140, value = "Key Pair not found")
+    ProcessingException samlHandlerKeyPairNotFoundError();
+
+    @Message(id = 141, value = "Error signing REDIRECT binding message")
+    RuntimeException samlHandlerSigningRedirectBindingMessageError(@Cause Throwable t);
+
+    @Message(id = 142, value = "Signature Validation failed")
+    SignatureValidationException signatureValidationFailed();
+
+    @Message(id = 143, value = "Invalid signature")
+    ProcessingException samlHandlerInvalidSignatureError();
+
+    @Message(id = 144, value = "Signature Validation failed. Signature is not present. Check if the IDP is supporting signatures.")
+    ProcessingException samlHandlerSignatureNorPresentError();
+
+    @Message(id = 145, value = "Signature Validation failed")
+    ProcessingException samlHandlerSignatureValidationError(@Cause Throwable t);
 
 }
