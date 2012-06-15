@@ -30,6 +30,7 @@ import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
 import java.io.IOException;
 import java.security.Principal;
 
+import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -43,7 +44,9 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.w3c.dom.Element;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -77,12 +80,12 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         }
     }
 
-    public void debug(String message, Throwable t) {
+    private void debug(String message, Throwable t) {
         if (logger.isDebugEnabled()) {
             logger.debug(message, t);            
         }
     }
-
+    
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String)
      */
@@ -125,7 +128,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public ProcessingException processingError(Throwable t) {
-        return new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + t.getMessage());
+        return new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION, t);
     }
 
     /* (non-Javadoc)
@@ -538,7 +541,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public ProcessingException classNotLoadedError(String fqn) {
-        return new ProcessingException(ErrorCodes.CLASS_NOT_LOADED);
+        return new ProcessingException(ErrorCodes.CLASS_NOT_LOADED + fqn);
     }
 
     /* (non-Javadoc)
@@ -546,7 +549,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public ProcessingException couldNotCreateInstance(String fqn, Throwable t) {
-        return new ProcessingException(ErrorCodes.CANNOT_CREATE_INSTANCE, t);
+        return new ProcessingException(ErrorCodes.CANNOT_CREATE_INSTANCE + fqn, t);
     }
 
     /* (non-Javadoc)
@@ -1024,7 +1027,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void pkiLocatingPublic(String alias) {
-        logger.trace("Locating public key for " + alias);
+        this.trace("Locating public key for " + alias);
     }
 
     /* (non-Javadoc)
@@ -1040,7 +1043,143 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void stsReceivedRequestType(String requestType) {
-        logger.debug("STS received request of type " + requestType);
+        this.debug("STS received request of type " + requestType);
+    }
+
+    @Override
+    public void stsKeyTypeNotFoundUsingDefaultBearer() {
+        this.debug("No key type could be found in the request. Using the default BEARER type.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsKeySizeNotFoundUsingDefault(long)
+     */
+    @Override
+    public void stsKeySizeNotFoundUsingDefault(long kEY_SIZE) {
+        this.debug("No key size could be found in the request. Using the default size. (" + kEY_SIZE + ")");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsUnableToDecodePasswordError(java.lang.String)
+     */
+    @Override
+    public RuntimeException unableToDecodePasswordError(String password) {
+        return new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to decode password:" + password);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotLoadProperties(java.lang.String)
+     */
+    @Override
+    public IllegalStateException couldNotLoadProperties(String configFile) {
+        return new IllegalStateException(ErrorCodes.PROCESSING_EXCEPTION + "Could not load properties from "
+                        + configFile);
+    }
+
+    /**
+     * @param type
+     */
+    @Override
+    public void stsUnableToParseOnBehalfType(Object type) {
+        this.debug("Unable to parse the contents of the OnBehalfOfType: " + type);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsKeyInfoTypeCreationError(java.lang.Throwable)
+     */
+    @Override
+    public WSTrustException stsKeyInfoTypeCreationError(Throwable t) {
+        return new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "Error creating KeyInfoType", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecretKeyNotEncrypted()
+     */
+    @Override
+    public void stsSecretKeyNotEncrypted() {
+        logger.warn("Secret key could not be encrypted because the endpoint's PKC has not been specified");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotIssueSAMLToken()
+     */
+    @Override
+    public LoginException authCouldNotIssueSAMLToken() {
+        return new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Could not issue a SAML Security Token");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authLoginError(java.lang.Throwable)
+     */
+    @Override
+    public LoginException authLoginError(Throwable t) {
+        LoginException loginException = new LoginException("Error during login/authentication");
+        
+        loginException.initCause(t);
+        
+        return loginException;
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authAddedCredential(org.picketlink.identity.federation.core.wstrust.SamlCredential)
+     */
+    @Override
+    public void authAddedSAMLCredential(SamlCredential samlCredential) {
+        logger.debug("Added SAML Credential :" + samlCredential);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authUserNameFromCallbackIsNull()
+     */
+    @Override
+    public void authUserNameFromCallbackIsNull() {
+        trace("UserName from callback is null");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authPasswordFromCallbackIsNull()
+     */
+    @Override
+    public void authPasswordFromCallbackIsNull() {
+        trace("Password from callback is null");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotCreateWSTrustClient(java.lang.Throwable)
+     */
+    @Override
+    public IllegalStateException authCouldNotCreateWSTrustClient(Throwable t) {
+        return new IllegalStateException(ErrorCodes.PROCESSING_EXCEPTION + "Could not create WSTrustClient:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionWithoutExpiration(java.lang.String)
+     */
+    @Override
+    public void authSAMLAssertionWithoutExpiration(String id) {
+        logger.warn("SAML Assertion has been found to have no expiration: ID = " + id);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotValidateSAMLToken(org.w3c.dom.Element)
+     */
+    @Override
+    public LoginException authCouldNotValidateSAMLToken(Element token) {
+        return new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Could not validate the SAML Security Token :"
+                        + token);
+    }
+
+    @Override
+    public void authSAMLValidationResult(boolean result) {
+        debug("SAML Token Validation result: " + result);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotLocateSecurityToken()
+     */
+    @Override
+    public LoginException authCouldNotLocateSecurityToken() {
+        return new LoginException(ErrorCodes.NULL_VALUE + "Could not locate a Security Token from the callback.");
     }
 
 }

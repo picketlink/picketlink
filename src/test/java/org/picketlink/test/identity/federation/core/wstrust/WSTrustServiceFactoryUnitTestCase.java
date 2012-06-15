@@ -94,7 +94,7 @@ public class WSTrustServiceFactoryUnitTestCase extends TestCase {
             fail("An exception should have been raised");
         } catch (RuntimeException re) {
             String msg = re.getCause().getMessage();
-            assertTrue(msg.contains("Class Not Loaded"));
+            assertTrue(msg.contains("Cannot create instance"));
         }
     }
 }

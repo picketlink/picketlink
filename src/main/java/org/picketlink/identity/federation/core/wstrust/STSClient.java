@@ -35,7 +35,8 @@ import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -59,6 +60,9 @@ import org.w3c.dom.NodeList;
  * @since Aug 29, 2009
  */
 public class STSClient {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private final ThreadLocal<Dispatch<Source>> dispatchLocal = new InheritableThreadLocal<Dispatch<Source>>();
 
     private final String targetNS = "http://org.picketlink.trust/sts/";
@@ -121,7 +125,7 @@ public class STSClient {
      */
     public void setDispatch(Dispatch<Source> dispatch) {
         if (dispatch == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "dispatch");
+            throw logger.nullArgumentError("dispatch");
 
         dispatchLocal.set(dispatch);
     }
@@ -178,7 +182,7 @@ public class STSClient {
      */
     public Element issueToken(String endpointURI, String tokenType) throws WSTrustException {
         if (endpointURI == null && tokenType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "endpointURI or tokenType");
+            throw logger.nullArgumentError("endpointURI or tokenType");
 
         RequestSecurityToken request = new RequestSecurityToken();
         if (wsaIssuerAddress != null) {
@@ -204,7 +208,7 @@ public class STSClient {
      */
     public Element issueTokenOnBehalfOf(String endpointURI, String tokenType, Principal principal) throws WSTrustException {
         if (endpointURI == null && tokenType == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "endpointURI or tokenType");
+            throw logger.nullArgumentError("endpointURI or tokenType");
 
         RequestSecurityToken request = new RequestSecurityToken();
         if (wsaIssuerAddress != null) {
@@ -279,15 +283,15 @@ public class STSClient {
                     nodes = responseDoc.getElementsByTagName("RequestedSecurityToken");
             }
         } catch (Exception e) {
-            throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + " issuing token:", e);
+            throw new WSTrustException(logger.processingError(e));
         }
 
         if (nodes == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "NodeList");
+            throw new WSTrustException(logger.nullValueError("NodeList"));
 
         Node rstr = nodes.item(0);
         if (rstr == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "RSTR in the payload");
+            throw new WSTrustException(logger.nullValueError("RSTR in the payload"));
 
         return (Element) rstr.getFirstChild();
     }
@@ -334,11 +338,11 @@ public class STSClient {
                     nodes = responseDoc.getElementsByTagName("RequestedSecurityToken");
             }
         } catch (Exception e) {
-            throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "renewing token:", e);
+            throw new WSTrustException(logger.processingError(e));
         }
 
         if (nodes == null)
-            throw new WSTrustException(ErrorCodes.NULL_VALUE + "NodeList");
+            throw new WSTrustException(logger.nullValueError("NodeList"));
 
         Node rstr = nodes.item(0);
 
@@ -379,7 +383,7 @@ public class STSClient {
             }
             return false;
         } catch (Exception e) {
-            throw new WSTrustException(ErrorCodes.PARSING_ERROR + "WS-Trust response: " + e.getMessage(), e);
+            throw new WSTrustException(logger.parserError(e));
         }
     }
 
@@ -414,7 +418,7 @@ public class STSClient {
                 return true;
             return false;
         } catch (Exception e) {
-            throw new WSTrustException(ErrorCodes.PARSING_ERROR + "WS-Trust response: " + e.getMessage(), e);
+            throw new WSTrustException(logger.parserError(e));
         }
     }
 
@@ -434,7 +438,7 @@ public class STSClient {
             writer.write(request);
             return new DOMSource(result.getNode());
         } catch (Exception e) {
-            throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "creating source from request: " + e.getMessage(), e);
+            throw new WSTrustException(logger.processingError(e));
         }
     }
 
@@ -443,6 +447,6 @@ public class STSClient {
      */
     private void validateDispatch() {
         if (getDispatch() == null)
-            throw new RuntimeException(ErrorCodes.INJECTED_VALUE_MISSING + "Dispatch");
+            throw logger.injectedValueMissing("Dispatch");
     }
 }

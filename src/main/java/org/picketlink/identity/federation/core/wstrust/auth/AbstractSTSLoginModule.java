@@ -39,7 +39,6 @@ import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SimpleGroup;
@@ -49,7 +48,8 @@ import org.jboss.security.identity.RoleGroup;
 import org.jboss.security.mapping.MappingContext;
 import org.jboss.security.mapping.MappingManager;
 import org.jboss.security.mapping.MappingType;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -176,9 +176,8 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  */
 public abstract class AbstractSTSLoginModule implements LoginModule {
-    private final Logger log = Logger.getLogger(AbstractSTSLoginModule.class);
-
-    private final boolean trace = log.isTraceEnabled();
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * Key used in share state map when LMs are stacked.
@@ -333,7 +332,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             enableCacheInvalidation = Boolean.parseBoolean(cacheInvalidation);
             securityDomain = (String) options.get(SecurityConstants.SECURITY_DOMAIN_OPTION);
             if (securityDomain == null || securityDomain.isEmpty())
-                throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + SecurityConstants.SECURITY_DOMAIN_OPTION);
+                throw logger.optionNotSet(SecurityConstants.SECURITY_DOMAIN_OPTION);
         }
 
         String callerPrincipalGroup = (String) options.get("inject.callerprincipal");
@@ -376,14 +375,14 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
 
             if (token == null) {
                 // Throw an exception as returing false only says that this login module should be ignored.
-                throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Could not issue a SAML Security Token");
+                throw logger.authCouldNotIssueSAMLToken();
             }
             setSuccess(true);
             setSamlToken(token);
             setSharedToken(token);
             return true;
         } catch (WSTrustException e) {
-            throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "WSTrustException : " + e.getMessage());
+            throw logger.authLoginError(e);
         }
     }
 
@@ -398,8 +397,8 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             final SamlCredential samlCredential = new SamlCredential(samlToken);
             final boolean added = subject.getPublicCredentials().add(samlCredential);
             populateSubject();
-            if (added && log.isDebugEnabled())
-                log.debug("Added Credential :" + samlCredential);
+            if (added)
+                logger.authAddedSAMLCredential(samlCredential);
 
             return true;
         } else {
@@ -442,17 +441,17 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
                 // password is masked
                 String salt = (String) options.get(PicketLinkFederationConstants.SALT);
                 if (StringUtil.isNullOrEmpty(salt))
-                    throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + "Salt");
+                    throw logger.optionNotSet("Salt");
 
                 String iCount = (String) options.get(PicketLinkFederationConstants.ITERATION_COUNT);
                 if (StringUtil.isNullOrEmpty(iCount))
-                    throw new RuntimeException(ErrorCodes.OPTION_NOT_SET + "Iteration Count");
+                    throw logger.optionNotSet("Iteration Count");
 
                 int iterationCount = Integer.parseInt(iCount);
                 try {
                     builder.password(StringUtil.decode(passwordString, salt, iterationCount));
                 } catch (Exception e) {
-                    throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to decode password:" + passwordString);
+                    throw logger.unableToDecodePasswordError("Unable to decode password:" + passwordString);
                 }
             }
             return builder;
@@ -468,20 +467,18 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             if (StringUtil.isNotNull(userNameStr)) {
                 builder.username(userNameStr);
             } else {
-                if (trace)
-                    log.trace("UserName from callback is null");
+                logger.authUserNameFromCallbackIsNull();
             }
             char[] passChars = passwordCallback.getPassword();
             if (passChars != null) {
                 builder.password(new String(passChars));
             } else {
-                if (trace)
-                    log.trace("Password from callback is null");
+                logger.authPasswordFromCallbackIsNull();
             }
         } catch (final IOException e) {
-            throw new LoginException(e.getMessage());
+            throw logger.authLoginError(e);
         } catch (final UnsupportedCallbackException e) {
-            throw new LoginException(e.getMessage());
+            throw logger.authLoginError(e);
         }
     }
 
@@ -523,14 +520,14 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         try {
             return STSClientFactory.getInstance().create(config);
         } catch (final ParsingException e) {
-            throw new IllegalStateException(ErrorCodes.PROCESSING_EXCEPTION + "Could not create WSTrustClient:", e);
+            throw logger.authCouldNotCreateWSTrustClient(e);
         }
     }
 
     protected String getRequiredOption(final Map<String, ?> options, final String optionName) {
         final String option = (String) options.get(optionName);
         if (option == null)
-            throw new IllegalArgumentException(ErrorCodes.OPTION_NOT_SET + optionName);
+            throw logger.optionNotSet(optionName);
 
         return option;
     }
@@ -680,7 +677,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
                 if (expiry != null) {
                     cacheExpiry.register(securityDomain, expiry.toGregorianCalendar().getTime(), principal);
                 } else {
-                    log.warn("SAML Assertion has been found to have no expiration: ID = " + assertion.getID());
+                    logger.authSAMLAssertionWithoutExpiration(assertion.getID());
                 }
             }
         }

@@ -160,15 +160,14 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         // get the key type and size from the request, setting default values if not specified.
         URI keyType = request.getKeyType();
         if (keyType == null) {
-            if (logger.isDebugEnabled())
-                logger.debug("No key type could be found in the request. Using the default BEARER type.");
+            logger.stsKeyTypeNotFoundUsingDefaultBearer();
             keyType = URI.create(WSTrustConstants.KEY_TYPE_BEARER);
             request.setKeyType(keyType);
         }
         long keySize = request.getKeySize();
         if (keySize == 0) {
             if (logger.isDebugEnabled())
-                logger.debug("No key size could be found in the request. Using the default size. (" + KEY_SIZE + ")");
+                logger.stsKeySizeNotFoundUsingDefault(KEY_SIZE);
             keySize = KEY_SIZE;
             request.setKeySize(keySize);
         }

@@ -27,8 +27,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
@@ -64,9 +64,8 @@ import org.picketlink.identity.federation.core.util.StringUtil;
  * @author Anil Saldhana
  */
 public class STSClientConfig {
-    protected static Logger log = Logger.getLogger(STSClientConfig.class);
-
-    protected static boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final String DEFAULT_CONFIG_FILE = "sts-client.properties";
 
@@ -250,7 +249,7 @@ public class STSClientConfig {
             try {
                 in = getResource(configFile);
                 if (in == null) {
-                    throw new IllegalStateException(ErrorCodes.NULL_VALUE + "properties file " + configFile);
+                    throw logger.nullValueError("properties file " + configFile);
 
                 }
                 final Properties properties = new Properties();
@@ -273,13 +272,11 @@ public class STSClientConfig {
                     try {
                         this.password = StringUtil.decode(password, salt, iterationCount);
                     } catch (Exception e) {
-                        throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to decode password:"
-                                + this.password);
+                        throw logger.unableToDecodePasswordError(this.password);
                     }
                 }
             } catch (IOException e) {
-                throw new IllegalStateException(ErrorCodes.PROCESSING_EXCEPTION + "Could not load properties from "
-                        + configFile);
+                throw logger.couldNotLoadProperties(configFile);
             } finally {
                 try {
                     if (in != null)
@@ -291,40 +288,35 @@ public class STSClientConfig {
         }
 
         private void validate(Builder builder) {
-            if (trace) {
-                log.trace("Checkin ServiceName:");
-            }
+            logger.trace("Checkin ServiceName:");
+            
             checkPropertyShowValue(serviceName, SERVICE_NAME);
 
-            if (trace) {
-                log.trace("Checkin portName:");
-            }
+            logger.trace("Checkin portName:");
+
             checkPropertyShowValue(portName, PORT_NAME);
 
-            if (trace) {
-                log.trace("Checkin endpointAddress:");
-            }
+            logger.trace("Checkin endpointAddress:");
+
             checkPropertyShowValue(endpointAddress, endpointAddress);
 
-            if (trace) {
-                log.trace("Checkin username:");
-            }
+            logger.trace("Checkin username:");
+
             checkProperty(username, USERNAME);
 
-            if (trace) {
-                log.trace("password portName:");
-            }
+            logger.trace("password portName:");
+
             checkProperty(password, PASSWORD);
         }
 
         private void checkPropertyShowValue(final String propertyName, final String propertyValue) {
             if (propertyValue == null || propertyValue.equals(""))
-                throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + propertyName + " : was:" + propertyValue);
+                throw logger.nullValueError(propertyName + " : was:" + propertyValue);
         }
 
         private void checkProperty(final String propertyName, final String propertyValue) {
             if (propertyValue == null || propertyValue.equals(""))
-                throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + propertyValue);
+                throw logger.nullValueError(propertyValue);
         }
     }
 

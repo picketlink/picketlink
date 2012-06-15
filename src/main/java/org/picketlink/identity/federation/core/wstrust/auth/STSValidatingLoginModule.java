@@ -26,8 +26,6 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.LoginException;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -53,7 +51,6 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public class STSValidatingLoginModule extends AbstractSTSLoginModule {
-    private final Logger log = Logger.getLogger(STSValidatingLoginModule.class);
 
     /**
      * This method will validate the token with the configured STS.
@@ -70,18 +67,19 @@ public class STSValidatingLoginModule extends AbstractSTSLoginModule {
                 token = getSamlTokenFromCaller();
 
             final boolean result = stsClient.validateToken(token);
-            log.debug("Validation result: " + result);
+            
+            logger.authSAMLValidationResult(result);
+            
             if (result == false) {
                 // Throw an exception as returing false only says that this login module should be ignored.
-                throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Could not validate the SAML Security Token :"
-                        + token);
+                throw logger.authCouldNotValidateSAMLToken(token);
             }
 
             return token;
         } catch (final IOException e) {
-            throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "IOException : " + e.getMessage());
+            throw logger.authLoginError(e);
         } catch (final UnsupportedCallbackException e) {
-            throw new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "UnsupportedCallbackException : " + e.getMessage());
+            throw logger.authLoginError(e);
         }
     }
 
@@ -92,7 +90,7 @@ public class STSValidatingLoginModule extends AbstractSTSLoginModule {
 
         final Element token = (Element) callback.getToken();
         if (token == null)
-            throw new LoginException(ErrorCodes.NULL_VALUE + "Could not locate a Security Token from the callback.");
+            throw logger.authCouldNotLocateSecurityToken();
 
         return token;
     }

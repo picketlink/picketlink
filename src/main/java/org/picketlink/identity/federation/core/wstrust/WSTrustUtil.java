@@ -42,9 +42,10 @@ import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 
-import org.apache.log4j.Logger;
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
@@ -83,7 +84,7 @@ import org.w3c.dom.Element;
  */
 public class WSTrustUtil {
 
-    private static Logger logger = Logger.getLogger(WSTrustUtil.class);
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * <p>
@@ -258,9 +259,8 @@ public class WSTrustUtil {
             };
         }
 
-        // TODO: check for other types of tokens that could be included in the OnBehalfOfType.
-        if (logger.isDebugEnabled())
-            logger.debug("Unable to parse the contents of the OnBehalfOfType: " + onBehalfOf.getAny());
+        logger.stsUnableToParseOnBehalfType(onBehalfOf.getAny());
+        
         return null;
     }
 
@@ -426,10 +426,10 @@ public class WSTrustUtil {
                 keyInfo = new KeyInfoType();
                 keyInfo.addContent(encryptedKeyElement);
             } catch (Exception e) {
-                throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "Error creating KeyInfoType", e);
+                throw logger.stsKeyInfoTypeCreationError(e);
             }
         } else {
-            logger.warn("Secret key could not be encrypted because the endpoint's PKC has not been specified");
+            logger.stsSecretKeyNotEncrypted();
         }
         return keyInfo;
     }
@@ -459,7 +459,7 @@ public class WSTrustUtil {
             keyInfo = new KeyInfoType();
             keyInfo.addContent(x509);
         } catch (Exception e) {
-            throw new WSTrustException(ErrorCodes.PROCESSING_EXCEPTION + "Error creating KeyInfoType", e);
+            throw logger.stsKeyInfoTypeCreationError(e);
         }
         return keyInfo;
     }

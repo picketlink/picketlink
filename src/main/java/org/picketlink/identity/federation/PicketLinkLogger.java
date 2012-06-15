@@ -26,6 +26,7 @@ package org.picketlink.identity.federation;
 import java.io.IOException;
 import java.security.Principal;
 
+import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -37,7 +38,9 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.w3c.dom.Element;
 
 /**
  * <p>This interface acts as a Logger Facade for PicketLink, from which exceptions and messages should be created or logged.</p>
@@ -75,6 +78,7 @@ public interface PicketLinkLogger {
 
     /**
      * <p>Creates an {@link ProcessingException} for generics processing errors.</p>
+     * @param message 
      * 
      * @param t
      * @return
@@ -776,5 +780,96 @@ public interface PicketLinkLogger {
      * @param requestType
      */
     void stsReceivedRequestType(String requestType);
+
+    /**
+     * 
+     */
+    void stsKeyTypeNotFoundUsingDefaultBearer();
+
+    /**
+     * @param kEY_SIZE
+     */
+    void stsKeySizeNotFoundUsingDefault(long kEY_SIZE);
+
+    /**
+     * @param password
+     * @return
+     */
+    RuntimeException unableToDecodePasswordError(String password);
+
+    /**
+     * @param configFile
+     * @return
+     */
+    IllegalStateException couldNotLoadProperties(String configFile);
+
+    /**
+     * @param any
+     */
+    void stsUnableToParseOnBehalfType(Object type);
+
+    /**
+     * @param t
+     * @return
+     */
+    WSTrustException stsKeyInfoTypeCreationError(Throwable t);
+
+    /**
+     * 
+     */
+    void stsSecretKeyNotEncrypted();
+
+    /**
+     * @return
+     */
+    LoginException authCouldNotIssueSAMLToken();
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authLoginError(Throwable t);
+
+    /**
+     * @param samlCredential
+     */
+    void authAddedSAMLCredential(SamlCredential samlCredential);
+
+    /**
+     * 
+     */
+    void authUserNameFromCallbackIsNull();
+
+    /**
+     * 
+     */
+    void authPasswordFromCallbackIsNull();
+
+    /**
+     * @param e
+     * @return
+     */
+    IllegalStateException authCouldNotCreateWSTrustClient(Throwable t);
+
+    /**
+     * @param id
+     */
+    void authSAMLAssertionWithoutExpiration(String id);
+
+    /**
+     * @param token
+     * @return
+     */
+    LoginException authCouldNotValidateSAMLToken(Element token);
+
+    /**
+     * @param result
+     */
+    void authSAMLValidationResult(boolean result);
+
+    /**
+     * @return
+     */
+    LoginException authCouldNotLocateSecurityToken();
 
 }
