@@ -107,6 +107,9 @@ public interface PicketLinkMessages {
     @Message(id = 22, value = "Principal Not Found")
     ProcessingException samlHandlerPrincipalNotFoundError();
 
+    @Message(id = 23, value = "Trust Key Manager Missing")
+    TrustKeyConfigurationException trustKeyManagerMissing();
+
     @Message (id = 28, value = "Audit Manager Is Not Set")
     IllegalStateException auditNullAuditManagerError();
 
@@ -258,7 +261,7 @@ public interface PicketLinkMessages {
     ConfigurationException configurationError(@Cause Throwable t);
 
     @Message (id = 106, value = "PDP : Error while processing the message.")
-    RuntimeException pdpMessageProcessingError(@Cause Throwable t);
+    RuntimeException xacmlPDPMessageProcessingError(@Cause Throwable t);
 
     @Message (id = 107, value = "Invalid Argument Exception: %s")
     IllegalArgumentException invalidArgumentError(String message);
@@ -376,5 +379,8 @@ public interface PicketLinkMessages {
 
     @Message(id = 145, value = "Signature Validation failed")
     ProcessingException samlHandlerSignatureValidationError(@Cause Throwable t);
+
+    @Message(id = 146, value = "Error during processing the SAML Handler Chain.")
+    RuntimeException samlHandlerChainProcessingError(@Cause Throwable t);
 
 }
