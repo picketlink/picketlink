@@ -30,6 +30,8 @@ import java.util.List;
 import org.apache.catalina.Role;
 import org.apache.catalina.User;
 import org.apache.catalina.realm.GenericPrincipal;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 
@@ -40,6 +42,9 @@ import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
  * @since Jan 21, 2009
  */
 public class TomcatRoleGenerator implements RoleGenerator {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * @see RoleGenerator#generateRoles(Principal)
      * @throws IllegalArgumentException if principal is not of type GenericPrincipal or User
@@ -48,7 +53,7 @@ public class TomcatRoleGenerator implements RoleGenerator {
         String className = principal.getClass().getCanonicalName();
 
         if (principal instanceof GenericPrincipal == false && principal instanceof User == false)
-            throw new IllegalArgumentException(ErrorCodes.WRONG_TYPE + "principal is not tomcat principal:" + className);
+            throw logger.wrongTypeError("principal is not tomcat principal:" + className);
         List<String> userRoles = new ArrayList<String>();
 
         if (principal instanceof GenericPrincipal) {

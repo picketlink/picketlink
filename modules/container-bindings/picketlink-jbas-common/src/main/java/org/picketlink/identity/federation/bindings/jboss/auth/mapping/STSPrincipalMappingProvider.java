@@ -80,7 +80,7 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
                 }
             }
         } catch (Exception e) {
-            logger.authSAMLAssertionPasingFailed(e);
+            logger.samlAssertionPasingFailed(e);
         }
     }
 

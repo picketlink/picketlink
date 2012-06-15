@@ -28,7 +28,8 @@ import javax.servlet.ServletException;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.valves.ValveBase;
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
@@ -38,9 +39,9 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
  * @since May 22, 2009
  */
 public class IDPSAMLDebugValve extends ValveBase {
-    private static Logger log = Logger.getLogger(IDPSAMLDebugValve.class);
-    private boolean debugEnabled = log.isDebugEnabled();
 
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     @Override
     public void invoke(Request request, Response response) throws IOException, ServletException {
         StringBuilder builder = new StringBuilder();
@@ -50,8 +51,8 @@ public class IDPSAMLDebugValve extends ValveBase {
         builder.append("SAMLResponse=" + request.getParameter(GeneralConstants.SAML_RESPONSE_KEY)).append("\n");
         builder.append("Parameter exists?=" + param != null).append("\n");
         String debugInfo = builder.toString();
-        if (debugEnabled)
-            log.debug("SP Sent::" + debugInfo);
+
+        logger.debug("SP Sent::" + debugInfo);
 
         getNext().invoke(request, response);
     }

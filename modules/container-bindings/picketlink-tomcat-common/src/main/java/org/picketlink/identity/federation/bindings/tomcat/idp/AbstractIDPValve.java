@@ -55,10 +55,10 @@ import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.apache.catalina.valves.ValveBase;
-import org.apache.log4j.Logger;
 import org.jboss.security.audit.AuditLevel;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
@@ -134,9 +134,7 @@ import org.w3c.dom.Document;
  */
 public abstract class AbstractIDPValve extends ValveBase {
 
-    private static Logger log = Logger.getLogger(AbstractIDPValve.class);
-
-    private final boolean trace = log.isTraceEnabled();
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected boolean enableAudit = false;
 
@@ -180,14 +178,14 @@ public abstract class AbstractIDPValve extends ValveBase {
      */
     public void setConfigProvider(String cp) {
         if (cp == null)
-            throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + cp);
+            throw logger.nullArgumentError("configProvider");
         Class<?> clazz = SecurityActions.loadClass(getClass(), cp);
         if (clazz == null)
-            throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + cp);
+            throw new RuntimeException(logger.classNotLoadedError(cp));
         try {
             configProvider = (SAMLConfigurationProvider) clazz.newInstance();
         } catch (Exception e) {
-            throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + cp + ":" + e.getMessage());
+            throw new RuntimeException(logger.couldNotCreateInstance(cp, e));
         }
     }
 
@@ -197,34 +195,34 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     @Deprecated
     public void setRoleGenerator(String rgName) {
-        log.warn("Option 'roleGenerator' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
+        logger.warn("Option 'roleGenerator' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
 
     @Deprecated
     public void setSamlHandlerChainClass(String samlHandlerChainClass) {
-        log.warn("Option 'samlHandlerChainClass' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
+        logger.warn("Option 'samlHandlerChainClass' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
 
     @Deprecated
     public void setIdentityParticipantStack(String fqn) {
-        log.warn("Option 'identityParticipantStack' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
+        logger.warn("Option 'identityParticipantStack' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
 
     @Deprecated
     public void setStrictPostBinding(Boolean strictPostBinding) {
-        log.warn("Option 'strictPostBinding' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
+        logger.warn("Option 'strictPostBinding' is deprecated and should not be used. This configuration is now set in picketlink.xml.");
     }
 
     @Deprecated
     public Boolean getIgnoreIncomingSignatures() {
-        log.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if "
+        logger.warn("Option 'ignoreIncomingSignatures' is deprecated and should not be used. Signatures are verified if "
                 + "SAML2SignatureValidationHandler is available.");
         return false;
     }
 
     @Deprecated
     public void setIgnoreIncomingSignatures(Boolean ignoreIncomingSignature) {
-        log.warn("Option 'ignoreIncomingSignatures' is deprecated and not used. Signatures are verified if "
+        logger.warn("Option 'ignoreIncomingSignatures' is deprecated and not used. Signatures are verified if "
                 + "SAML2SignatureValidationHandler is available.");
     }
 
@@ -233,7 +231,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      */
     @Deprecated
     public void setValidatingAliasToTokenIssuer(Boolean validatingAliasToTokenIssuer) {
-        log.warn("Option 'validatingAliasToTokenIssuer' is deprecated and not used. The IDP will always use the issuer host to validate signatures.");
+        logger.warn("Option 'validatingAliasToTokenIssuer' is deprecated and not used. The IDP will always use the issuer host to validate signatures.");
     }
 
     /**
@@ -248,14 +246,14 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     @Deprecated
     public Boolean getSignOutgoingMessages() {
-        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
+        logger.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
                 + "signed by SAML2SignatureGenerationHandler.");
         return true;
     }
 
     @Deprecated
     public void setSignOutgoingMessages(Boolean signOutgoingMessages) {
-        log.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
+        logger.warn("Option signOutgoingMessages is used for signing of error messages. Normal SAML messages are "
                 + "signed by SAML2SignatureGenerationHandler.");
     }
 
@@ -298,8 +296,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         Session session = request.getSessionInternal();
 
         if (containsSAMLRequestMessage || containsSAMLResponseMessage) {
-            if (trace)
-                log.trace("Storing the SAMLRequest/SAMLResponse and RelayState in session");
+            logger.trace("Storing the SAMLRequest/SAMLResponse and RelayState in session");
             if (isNotNull(samlRequestMessage))
                 session.setNote(GeneralConstants.SAML_REQUEST_KEY, samlRequestMessage);
             if (isNotNull(samlResponseMessage))
@@ -321,8 +318,8 @@ public abstract class AbstractIDPValve extends ValveBase {
             } finally {
                 userPrincipal = request.getPrincipal();
                 referer = request.getHeader("Referer");
-                if (trace)
-                    log.trace("Referer in finally block=" + referer + ":user principal=" + userPrincipal);
+
+                logger.trace("Referer in finally block=" + referer + ":user principal=" + userPrincipal);
             }
         }
 
@@ -366,7 +363,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             signature = (String) session.getNote(GeneralConstants.SAML_SIGNATURE_REQUEST_KEY);
             sigAlg = (String) session.getNote(GeneralConstants.SAML_SIG_ALG_REQUEST_KEY);
 
-            if (trace) {
+            if (logger.isTraceEnabled()) {
                 StringBuilder builder = new StringBuilder();
                 builder.append("Retrieved saml messages and relay state from session");
                 builder.append("saml Request message=").append(samlRequestMessage);
@@ -374,7 +371,7 @@ public abstract class AbstractIDPValve extends ValveBase {
                 builder.append(samlResponseMessage).append(":").append("relay state=").append(relayState);
 
                 builder.append("Signature=").append(signature).append("::sigAlg=").append(sigAlg);
-                log.trace(builder.toString());
+                logger.trace(builder.toString());
             }
 
             // Send valid saml response after processing the request
@@ -389,8 +386,7 @@ public abstract class AbstractIDPValve extends ValveBase {
                     // to SP as per target
                     handleSAML11(webRequestUtil, request, response);
                 } else {
-                    if (trace)
-                        log.trace("SAML 1.1::Proceeding to IDP index page");
+                    logger.trace("SAML 1.1::Proceeding to IDP index page");
                     RequestDispatcher dispatch = getContext().getServletContext().getRequestDispatcher("/hosted/");
                     try {
                         dispatch.forward(request, response);
@@ -465,7 +461,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             }
             webRequestUtil.send(holder);
         } catch (GeneralSecurityException e) {
-            log.error("Exception handling saml 11 use case:", e);
+            logger.samlIDPHandlingSAML11Error(e);
             throw new ServletException();
         }
     }
@@ -505,7 +501,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             samlObject = samlDocumentHolder.getSamlObject();
 
             if (!(samlObject instanceof RequestAbstractType)) {
-                throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
+                throw logger.wrongTypeError(samlObject.getClass().getName());
             }
 
             // Get the SAML Request Message
@@ -513,7 +509,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             String issuer = requestAbstractType.getIssuer().getValue();
 
             if (samlRequestMessage == null)
-                throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
+                throw logger.samlIDPValidationCheckFailed();
 
             IssuerInfoHolder idpIssuer = new IssuerInfoHolder(getIdentityURL());
             ProtocolContext protocolContext = new HTTPContext(request, response, getContext().getServletContext());
@@ -561,9 +557,7 @@ public abstract class AbstractIDPValve extends ValveBase {
 
             Set<SAML2Handler> handlers = chain.handlers();
 
-            if (trace) {
-                log.trace("Handlers are=" + handlers);
-            }
+            logger.trace("Handlers are=" + handlers);
 
             // the trusted domains is done by a handler
             // webRequestUtil.isTrusted(issuer);
@@ -592,7 +586,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             if (e instanceof IssuerNotTrustedException || e.getCause() instanceof IssuerNotTrustedException) {
                 status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
             }
-            log.error("Exception in processing request:", e);
+            logger.samlIDPRequestProcessingError(e);
             samlResponse = webRequestUtil.getErrorResponse(referer, status, getIdentityURL(), this.idpConfiguration.isSupportsSignature());
             isErrorResponse = true;
         } finally {
@@ -636,11 +630,9 @@ public abstract class AbstractIDPValve extends ValveBase {
                 }
                 webRequestUtil.send(holder);
             } catch (ParsingException e) {
-                if (trace)
-                    log.trace("Parsing exception:", e);
+                logger.samlAssertionPasingFailed(e);
             } catch (GeneralSecurityException e) {
-                if (trace)
-                    log.trace("Security Exception:", e);
+                logger.trace("Security Exception:", e);
             }
         }
         return;
@@ -662,17 +654,14 @@ public abstract class AbstractIDPValve extends ValveBase {
         try {
             issuerHost = new URL(issuer).getHost();
         } catch (MalformedURLException e) {
-            if (trace) {
-                log.warn("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
-            }
+            logger.samlIDPIssuerIsNotValidURLUsingRemoteAddr(issuer, e);
         }
 
         PublicKey issuerPublicKey = CoreConfigUtil.getValidatingKey(keyManager, issuerHost);
 
-        if (trace) {
-            log.trace("Remote Host=" + request.getRemoteAddr());
-            log.trace("Using Validating Alias=" + issuerHost + " to check signatures.");
-        }
+
+        logger.trace("Remote Host=" + request.getRemoteAddr());
+        logger.trace("Using Validating Alias=" + issuerHost + " to check signatures.");
 
         return issuerPublicKey;
     }
@@ -707,7 +696,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             samlObject = samlDocumentHolder.getSamlObject();
 
             if (!(samlObject instanceof StatusResponseType)) {
-                throw new RuntimeException(ErrorCodes.WRONG_TYPE + samlObject.getClass().getName());
+                throw logger.wrongTypeError(samlObject.getClass().getName());
             }
 
             StatusResponseType statusResponseType = (StatusResponseType) samlObject;
@@ -716,7 +705,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             boolean isValid = samlResponseMessage != null;
 
             if (!isValid)
-                throw new GeneralSecurityException(ErrorCodes.VALIDATION_CHECK_FAILED);
+                throw logger.samlIDPValidationCheckFailed();
 
             IssuerInfoHolder idpIssuer = new IssuerInfoHolder(getIdentityURL());
             ProtocolContext protocolContext = new HTTPContext(request, response, getContext().getServletContext());
@@ -771,7 +760,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             if (e instanceof IssuerNotTrustedException) {
                 status = JBossSAMLURIConstants.STATUS_REQUEST_DENIED.get();
             }
-            log.error("Exception in processing request:", e);
+            logger.samlIDPRequestProcessingError(e);
             samlResponse = webRequestUtil.getErrorResponse(referer, status, getIdentityURL(), this.idpConfiguration.isSupportsSignature());
             isErrorResponse = true;
         } finally {
@@ -782,7 +771,7 @@ public abstract class AbstractIDPValve extends ValveBase {
 
                 WebRequestUtilHolder holder = webRequestUtil.getHolder();
                 if (destination == null)
-                    throw new ServletException(ErrorCodes.NULL_VALUE + "Destination");
+                    throw new ServletException(logger.nullValueError("Destination"));
                 holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
                 .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
                 .setErrorResponse(isErrorResponse).setServletResponse(response)
@@ -809,11 +798,9 @@ public abstract class AbstractIDPValve extends ValveBase {
                 }
                 webRequestUtil.send(holder);
             } catch (ParsingException e) {
-                if (trace)
-                    log.trace("Parsing exception:", e);
+                logger.samlAssertionPasingFailed(e);
             } catch (GeneralSecurityException e) {
-                if (trace)
-                    log.trace("Security Exception:", e);
+                logger.trace("Security Exception:", e);
             }
         }
         return;
@@ -832,7 +819,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         String signature = (String) session.getNote(GeneralConstants.SAML_SIGNATURE_REQUEST_KEY);
         String sigAlg = (String) session.getNote(GeneralConstants.SAML_SIG_ALG_REQUEST_KEY);
 
-        if (trace) {
+        if (logger.isTraceEnabled()) {
             StringBuilder builder = new StringBuilder();
             builder.append("Retrieved saml messages and relay state from session");
             builder.append("saml Request message=").append(samlRequestMessage);
@@ -840,7 +827,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             builder.append(samlResponseMessage).append(":").append("relay state=").append(relayState);
 
             builder.append("Signature=").append(signature).append("::sigAlg=").append(sigAlg);
-            log.trace(builder.toString());
+            logger.trace(builder.toString());
         }
 
         if (isNotNull(samlRequestMessage))
@@ -859,8 +846,8 @@ public abstract class AbstractIDPValve extends ValveBase {
 
     protected void sendErrorResponseToSP(String referrer, Response response, String relayState, IDPWebRequestUtil webRequestUtil)
             throws ServletException, IOException, ConfigurationException {
-        if (trace)
-            log.trace("About to send error response to SP:" + referrer);
+
+        logger.trace("About to send error response to SP:" + referrer);
 
         String contextPath = getContextPath();
 
@@ -916,11 +903,11 @@ public abstract class AbstractIDPValve extends ValveBase {
                 try {
                     Class<?> clazz = SecurityActions.loadClass(getClass(), this.idpConfiguration.getIdentityParticipantStack());
                     if (clazz == null)
-                        throw new ClassNotFoundException(ErrorCodes.CLASS_NOT_LOADED + this.idpConfiguration.getIdentityParticipantStack());
+                        throw logger.classNotLoadedError(this.idpConfiguration.getIdentityParticipantStack());
 
                     identityServer.setStack((IdentityParticipantStack) clazz.newInstance());
                 } catch (Exception e) {
-                    log.error("Unable to set the Identity Participant Stack Class. Will just use the default", e);
+                    logger.samlIDPUnableToSetParticipantStackUsingDefault(e);
                 }
             }
         }
@@ -975,7 +962,7 @@ public abstract class AbstractIDPValve extends ValveBase {
                 handler.initChainConfig(handlerChainConfig);
             }
         } catch (Exception e) {
-            log.error("Exception dealing with handler configuration:", e);
+            logger.samlHandlerConfigurationError(e);
             throw new LifecycleException(e.getLocalizedMessage());
         }
     }
@@ -984,7 +971,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         if (this.idpConfiguration.isSupportsSignature()) {
             KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
             if (keyProvider == null)
-                throw new LifecycleException(ErrorCodes.NULL_VALUE + "Key Provider is null for context=" + getContext().getName());
+                throw new LifecycleException(logger.nullValueError("Key Provider is null for context=" + getContext().getName()));
 
             try {
                 this.keyManager = CoreConfigUtil.getTrustKeyManager(keyProvider);
@@ -993,16 +980,15 @@ public abstract class AbstractIDPValve extends ValveBase {
                 keyManager.setAuthProperties(authProperties);
                 keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
             } catch (Exception e) {
-                log.error("Exception reading configuration:", e);
+                logger.trustKeyManagerCreationError(e);
                 throw new LifecycleException(e.getLocalizedMessage());
             }
 
-            log.info("IDPWebBrowserSSOValve:: Setting the CanonicalizationMethod on XMLSignatureUtil::"
-                    + idpConfiguration.getCanonicalizationMethod());
+            logger.samlIDPSettingCanonicalizationMethod(idpConfiguration.getCanonicalizationMethod());
+            
             XMLSignatureUtil.setCanonicalizationMethodType(idpConfiguration.getCanonicalizationMethod());
 
-            if (trace)
-                log.trace("Key Provider=" + keyProvider.getClassName());
+            logger.trace("Key Provider=" + keyProvider.getClassName());
         }
     }
 
@@ -1037,9 +1023,9 @@ public abstract class AbstractIDPValve extends ValveBase {
                 picketLinkConfiguration = configProvider.getPicketLinkConfiguration();
                 idpConfiguration = configProvider.getIDPConfiguration();
             } catch (ProcessingException e) {
-                throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + e.getLocalizedMessage());
+                throw logger.samlIDPConfigurationError(e);
             } catch (ParsingException e) {
-                throw new RuntimeException(ErrorCodes.PARSING_ERROR + e.getLocalizedMessage());
+                throw logger.samlIDPConfigurationError(e);
             }
         }
 
@@ -1049,9 +1035,8 @@ public abstract class AbstractIDPValve extends ValveBase {
                     picketLinkConfiguration = ConfigurationUtil.getConfiguration(is);
                     idpConfiguration = (IDPType) picketLinkConfiguration.getIdpOrSP();
                 } catch (ParsingException e) {
-                    if (trace)
-                        log.trace(e);
-                    throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+                    logger.trace(e);
+                    logger.samlIDPConfigurationError(e);
                 }
             }
             
@@ -1059,13 +1044,11 @@ public abstract class AbstractIDPValve extends ValveBase {
                 // Try the older version
                 is = getContext().getServletContext().getResourceAsStream(GeneralConstants.DEPRECATED_CONFIG_FILE_LOCATION);
                 if (is == null)
-                    throw new RuntimeException(ErrorCodes.IDP_WEBBROWSER_VALVE_CONF_FILE_MISSING + configFile);
+                    throw logger.configurationFileMissing(configFile);
                 try {
                     idpConfiguration = ConfigurationUtil.getIDPConfiguration(is);
                 } catch (ParsingException e) {
-                    if (trace)
-                        log.trace(e);
-                    throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+                    logger.samlIDPConfigurationError(e);
                 }
             }
         }
@@ -1091,15 +1074,14 @@ public abstract class AbstractIDPValve extends ValveBase {
                 }
             }
             
-            if (trace)
-                log.trace("Identity Provider URL=" + getIdentityURL());
+            logger.trace("Identity Provider URL=" + getIdentityURL());
 
             // Get the attribute manager
             String attributeManager = idpConfiguration.getAttributeManager();
             if (attributeManager != null && !"".equals(attributeManager)) {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), attributeManager);
                 if (clazz == null)
-                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + attributeManager);
+                    throw new RuntimeException(logger.classNotLoadedError(attributeManager));
                 AttributeManager delegate = (AttributeManager) clazz.newInstance();
                 this.attribManager.setDelegate(delegate);
             }
@@ -1110,11 +1092,11 @@ public abstract class AbstractIDPValve extends ValveBase {
             if (roleGeneratorAttribute != null && !"".equals(roleGeneratorAttribute)) {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), roleGeneratorAttribute);
                 if (clazz == null)
-                    throw new RuntimeException(ErrorCodes.CLASS_NOT_LOADED + roleGeneratorAttribute);
+                    throw new RuntimeException(logger.classNotLoadedError(roleGeneratorAttribute));
                 roleGenerator = (RoleGenerator) clazz.newInstance();
             }
         } catch (Exception e) {
-            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION, e);
+            throw logger.samlIDPConfigurationError(e);
         }
     }
 
@@ -1136,7 +1118,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             File stsTokenConfigFile = configPath != null ? new File(configPath) : null;
 
             if (stsTokenConfigFile == null || stsTokenConfigFile.exists() == false) {
-                log.info("Did not find picketlink-sts.xml. We will install default configuration");
+                logger.samlIDPInstallingDefaultSTSConfig();
                 sts.installDefaultConfiguration();
             } else
                 sts.installDefaultConfiguration(stsTokenConfigFile.toURI().toString());

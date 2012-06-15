@@ -176,7 +176,7 @@ public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler 
                     try {
                         assertion = samlCredential.getAssertionAsElement();
                     } catch (ProcessingException e) {
-                        logger.authSAMLAssertionPasingFailed(e);
+                        logger.samlAssertionPasingFailed(e);
                     }
                     break;
                 }

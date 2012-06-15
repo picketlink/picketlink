@@ -27,6 +27,8 @@ import java.util.List;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.realm.GenericPrincipal;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -40,6 +42,9 @@ import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
  * @since Jan 9, 2009
  */
 public class SPUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Create a SAML2 auth request
      *
@@ -50,9 +55,9 @@ public class SPUtil {
      */
     public AuthnRequestType createSAMLRequest(String serviceURL, String identityURL) throws ConfigurationException {
         if (serviceURL == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "serviceURL");
+            throw logger.nullArgumentError("serviceURL");
         if (identityURL == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "identityURL");
+            throw logger.nullArgumentError("identityURL");
 
         SAML2Request saml2Request = new SAML2Request();
         String id = IDGenerator.create("ID_");

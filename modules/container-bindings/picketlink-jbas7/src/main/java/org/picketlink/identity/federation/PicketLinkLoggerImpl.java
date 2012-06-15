@@ -23,6 +23,7 @@
 package org.picketlink.identity.federation;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.Principal;
 import java.util.Date;
 
@@ -33,7 +34,6 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -1183,13 +1183,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         return PicketLinkMessages.MESSAGES.samlHandlerAuthnRequestIsNullError();
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#destination(java.lang.String)
-     */
-    public void destination(String destination) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.destination(destination);
-    }
-
     public void samlHandlerAuthenticationError(Throwable t) {
         PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerAuthenticationError(t);
     }
@@ -1646,7 +1639,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionPasingFailed(java.lang.Throwable)
      */
-    public void authSAMLAssertionPasingFailed(Throwable t) {
+    public void samlAssertionPasingFailed(Throwable t) {
         PicketLinkLoggerMessages.ROOT_LOGGER.authSAMLAssertionParsingFailed(t);
     }
 
@@ -1829,6 +1822,178 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public void jbossWSErrorGettingOperationName(Throwable t) {
         PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSErrorGettingOperationname(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLCredentialNotAvailable()
+     */
+    public LoginException authSAMLCredentialNotAvailable() {
+        return PicketLinkMessages.MESSAGES.authSAMLCredentialNotAvailable();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#unableToInstantiateHandler(java.lang.String, java.lang.Throwable)
+     */
+    public RuntimeException authUnableToInstantiateHandler(String token, Throwable t) {
+        return PicketLinkMessages.MESSAGES.authUnableToInstantiateHandler(token, t);
+    }
+
+    public RuntimeException jbossWSUnableToCreateSSLSocketFactory(Throwable t) {
+        return PicketLinkMessages.MESSAGES.jbossWSUnableToCreateSSLSocketFactory(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToFindSSLSocketFactory()
+     */
+    public RuntimeException jbossWSUnableToFindSSLSocketFactory() {
+        return PicketLinkMessages.MESSAGES.jbossWSUnableToFindSSLSocketFactory();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authUnableToGetIdentityFromSubject()
+     */
+    public RuntimeException authUnableToGetIdentityFromSubject() {
+        return PicketLinkMessages.MESSAGES.authUnableToGetIdentityFromSubject();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionNullOrEmpty()
+     */
+    public RuntimeException authSAMLAssertionNullOrEmpty() {
+        return PicketLinkMessages.MESSAGES.authSAMLAssertionNullOrEmpty();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUncheckedAndRolesCannotBeTogether()
+     */
+    public ProcessingException jbossWSUncheckedAndRolesCannotBeTogether() {
+        return PicketLinkMessages.MESSAGES.jbossWSUncheckedAndRolesCannotBeTogether();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String, java.lang.Throwable)
+     */
+    public void trace(String message, Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.trace(message, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPHandlingSAML11Error(java.lang.Throwable)
+     */
+    public void samlIDPHandlingSAML11Error(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPHandlingSAML11Error(t);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPValidationCheckFailed()
+     */
+    public GeneralSecurityException samlIDPValidationCheckFailed() {
+        return PicketLinkMessages.MESSAGES.samlIDPValidationCheckFailed();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPRequestProcessingError(java.lang.Throwable)
+     */
+    public void samlIDPRequestProcessingError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPRequestProcessingError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPIssuerIsNotValidURLUsingRemoteAddr(java.lang.String, java.lang.Throwable)
+     */
+    public void samlIDPIssuerIsNotValidURLUsingRemoteAddr(String issuer, Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPIssuerIsNotValidURLUsingRemoteAddr(issuer, t);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPUnableToSetParticipantStackUsingDefault(java.lang.Throwable)
+     */
+    public void samlIDPUnableToSetParticipantStackUsingDefault(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPUnableToSetParticipantStackUsingDefault(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerConfigurationError(java.lang.Throwable)
+     */
+    public void samlHandlerConfigurationError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerConfigurationError(t);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPSettingCanonicalizationMethod(java.lang.String)
+     */
+    public void samlIDPSettingCanonicalizationMethod(String canonicalizationMethod) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPSettingCanonicalizationMethod(canonicalizationMethod);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPConfigurationError(java.lang.Throwable)
+     */
+    public RuntimeException samlIDPConfigurationError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.samlIDPConfigurationError(t);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#configurationFileMissing(java.lang.String)
+     */
+    public RuntimeException configurationFileMissing(String configFile) {
+        return PicketLinkMessages.MESSAGES.configurationFileMissing(configFile);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPInstallingDefaultSTSConfig()
+     */
+    public void samlIDPInstallingDefaultSTSConfig() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPInstallingDefaultSTSConfig();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#warn(java.lang.String)
+     */
+    public void warn(String message) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.warn(message);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPFallingBackToLocalFormAuthentication()
+     */
+    public void samlSPFallingBackToLocalFormAuthentication() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlSPFallingBackToLocalFormAuthentication();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#unableLocalAuthentication(java.lang.Throwable)
+     */ 
+    public IOException unableLocalAuthentication(Throwable t) {
+        return PicketLinkMessages.MESSAGES.unableLocalAuthentication(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPUnableToGetIDPDescriptorFromMetadata()
+     */
+    public void samlSPUnableToGetIDPDescriptorFromMetadata() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlSPUnableToGetIDPDescriptorFromMetadata();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPConfigurationError(java.lang.Throwable)
+     */
+    public RuntimeException samlSPConfigurationError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.samlSPConfigurationError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPSettingCanonicalizationMethod(java.lang.String)
+     */
+    public void samlSPSettingCanonicalizationMethod(String canonicalizationMethod) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlSPSettingCanonicalizationMethod(canonicalizationMethod);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPCouldNotDispatchToLogoutPage(java.lang.String)
+     */ 
+    public void samlSPCouldNotDispatchToLogoutPage(String logOutPage) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlSPCouldNotDispatchToLogoutPage(logOutPage);
     }
 
 }

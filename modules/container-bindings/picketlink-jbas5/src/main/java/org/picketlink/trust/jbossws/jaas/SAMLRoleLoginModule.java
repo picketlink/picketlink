@@ -35,7 +35,8 @@ import org.jboss.security.SecurityConstants;
 import org.jboss.security.SimpleGroup;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.spi.AbstractServerLoginModule;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -57,6 +58,9 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
  * @since Jun 6, 2011
  */
 public class SAMLRoleLoginModule extends AbstractServerLoginModule {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     @Override
     public boolean commit() throws LoginException {
         super.loginOk = true;
@@ -89,7 +93,7 @@ public class SAMLRoleLoginModule extends AbstractServerLoginModule {
                 return p;
             }
         }
-        throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to get the Identity from the subject.");
+        throw logger.authUnableToGetIdentityFromSubject();
     }
 
     @Override
@@ -104,12 +108,12 @@ public class SAMLRoleLoginModule extends AbstractServerLoginModule {
             }
         }
         if (samlCredential == null)
-            throw new RuntimeException(ErrorCodes.NULL_VALUE + "SAML Credential not found in the subject");
+            throw logger.authSAMLCredentialNotAvailable();
 
         try {
             String assertionStr = samlCredential.getAssertionAsString();
             if (StringUtil.isNullOrEmpty(assertionStr))
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "Assertion String is null or empty");
+                throw logger.authSAMLAssertionNullOrEmpty();
 
             SAMLParser parser = new SAMLParser();
             AssertionType assertion = (AssertionType) parser.parse(new ByteArrayInputStream(assertionStr.getBytes()));

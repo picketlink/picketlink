@@ -33,9 +33,9 @@ import javax.xml.ws.Binding;
 import javax.xml.ws.Dispatch;
 import javax.xml.ws.handler.Handler;
 
-import org.jboss.logging.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
@@ -53,6 +53,9 @@ import org.picketlink.trust.jbossws.handler.SAML2Handler;
  * @since Apr 22, 2011
  */
 public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
+
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+
     /**
      * Key in the options to customize the WS-Addressing Issuer in the WS-T Call
      */
@@ -90,7 +93,7 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
                 }
             }
             if (samlCredential == null)
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SamlCredential is not available in subject");
+                throw logger.authSAMLCredentialNotAvailable();
             Principal principal = new PicketLinkPrincipal("");
             if (super.isUseFirstPass()) {
                 this.sharedState.put("javax.security.auth.login.name", principal);
@@ -102,8 +105,6 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
     }
 
     public class JBWSTokenClient extends STSClient {
-        private Logger log = Logger.getLogger(JBWSTokenClient.class);
-        private boolean trace = log.isTraceEnabled();
 
         public JBWSTokenClient() {
             super();
@@ -152,8 +153,7 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
                         try {
                             handlers.add((Handler) cl.loadClass(token).newInstance());
                         } catch (Exception e) {
-                            throw new RuntimeException(ErrorCodes.CANNOT_CREATE_INSTANCE + "Unable to instantiate handler:"
-                                    + token, e);
+                            throw logger.authUnableToInstantiateHandler(token, e);
                         }
                     }
                 }
@@ -165,10 +165,9 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
 
             String securityDomainForFactory = (String) options.get("securityDomainForFactory");
             if (StringUtil.isNotNull(securityDomainForFactory)) {
-                if (trace) {
-                    log.trace("We got security domain for domain ssl factory = " + securityDomainForFactory);
-                    log.trace("Setting it on the system property org.jboss.security.ssl.domain.name");
-                }
+                logger.trace("We got security domain for domain ssl factory = " + securityDomainForFactory);
+                logger.trace("Setting it on the system property org.jboss.security.ssl.domain.name");
+
                 String sslFactoryName = "org.jboss.security.ssl.JaasSecurityDomainSocketFactory";
                 SecurityActions.setSystemProperty("org.jboss.security.ssl.domain.name", securityDomainForFactory);
                 // StubExt.PROPERTY_SOCKET_FACTORY
@@ -188,19 +187,16 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
                                 Class<?> clazz = cl.loadClass(sslFactoryName);
                                 socketFactory = (SSLSocketFactory) clazz.newInstance();
                             } catch (Exception e1) {
-                                throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION
-                                        + "Unable to create SSL Socket Factory:", e1);
+                                throw logger.jbossWSUnableToCreateSSLSocketFactory(e1);
                             }
                         } finally {
                             if (socketFactory != null) {
                                 ((PicketLinkDispatch) dispatch).setSSLSocketFactory(socketFactory);
                             } else
-                                throw new RuntimeException(" We did not find SSL Socket Factory");
+                                throw logger.jbossWSUnableToFindSSLSocketFactory();
                         }
                     } else {
-                        if (trace) {
-                            log.trace("Classloader is null. Unable to set the SSLSocketFactory on PicketLinkDispatch");
-                        }
+                        logger.trace("Classloader is null. Unable to set the SSLSocketFactory on PicketLinkDispatch");
                     }
                 }
             }

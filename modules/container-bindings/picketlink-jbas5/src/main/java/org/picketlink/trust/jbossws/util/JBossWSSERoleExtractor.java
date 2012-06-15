@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
@@ -40,6 +42,9 @@ import org.w3c.dom.NodeList;
  * @since Apr 11, 2011
  */
 public class JBossWSSERoleExtractor {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public static final String UNCHECKED = "unchecked";
 
     /**
@@ -141,7 +146,7 @@ public class JBossWSSERoleExtractor {
     private static List<String> validate(List<String> roles) throws ProcessingException {
         // Validate that we do not have unchecked and roles
         if (roles.contains(UNCHECKED) && roles.size() > 1)
-            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "unchecked and role(s) cannot be together");
+            throw logger.jbossWSUncheckedAndRolesCannotBeTogether();
         return roles;
     }
 

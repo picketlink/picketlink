@@ -39,7 +39,8 @@ import org.apache.catalina.authenticator.FormAuthenticator;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 
 /**
  * An authenticator that delegates actual authentication to a realm, and in turn to a security manager, by presenting a
@@ -51,10 +52,9 @@ import org.apache.log4j.Logger;
  * @since Apr 11, 2011
  */
 public class PicketLinkAuthenticator extends FormAuthenticator {
-    protected static Logger log = Logger.getLogger(PicketLinkAuthenticator.class);
 
-    protected boolean trace = log.isTraceEnabled();
-
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * This is the auth method used in the register method
      */
@@ -72,9 +72,7 @@ public class PicketLinkAuthenticator extends FormAuthenticator {
     protected String subjectInteractionClassName = "org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkJBossSubjectInteraction";
 
     public PicketLinkAuthenticator() {
-        if (trace) {
-            log.trace("PicketLinkAuthenticator Created");
-        }
+        logger.trace("PicketLinkAuthenticator Created");
     }
 
     /**
@@ -101,12 +99,11 @@ public class PicketLinkAuthenticator extends FormAuthenticator {
 
     @Override
     public boolean authenticate(Request request, Response response, LoginConfig loginConfig) throws IOException {
-        log.trace("Authenticating user");
+        logger.trace("Authenticating user");
 
         Principal principal = request.getUserPrincipal();
         if (principal != null) {
-            if (trace)
-                log.trace("Already authenticated '" + principal.getName() + "'");
+            logger.trace("Already authenticated '" + principal.getName() + "'");
             return true;
         }
 

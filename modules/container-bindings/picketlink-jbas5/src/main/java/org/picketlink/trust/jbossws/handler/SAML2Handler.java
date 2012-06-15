@@ -80,7 +80,7 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
                 if (AssertionUtil.hasExpired(assertionType))
                     throw new RuntimeException(logger.samlAssertionExpiredError());
             } catch (Exception e) {
-                logger.authSAMLAssertionPasingFailed(e);
+                logger.samlAssertionPasingFailed(e);
             }
             SamlCredential credential = new SamlCredential(assertion);
             if (logger.isTraceEnabled()) {

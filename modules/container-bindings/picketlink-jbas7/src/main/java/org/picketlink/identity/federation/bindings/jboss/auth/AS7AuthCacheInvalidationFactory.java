@@ -7,9 +7,10 @@ import java.util.TimerTask;
 
 import javax.naming.InitialContext;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.CacheableManager;
 import org.jboss.security.SecurityConstants;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 
 public class AS7AuthCacheInvalidationFactory {
@@ -20,9 +21,7 @@ public class AS7AuthCacheInvalidationFactory {
 
     protected static class AS7ExpiringPrincipalCacheInvalidation implements TimeCacheExpiry {
 
-        private static Logger log = Logger.getLogger(AS7ExpiringPrincipalCacheInvalidation.class);
-
-        private final boolean trace = log.isTraceEnabled();
+        private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
         protected static Timer timer = new Timer();
 
@@ -41,9 +40,7 @@ public class AS7AuthCacheInvalidationFactory {
             try {
                 timer.purge();
             } catch (Exception e) {
-                if (trace) {
-                    log.trace("Exception in purging timer tasks:", e);
-                }
+                logger.trace("Exception in purging timer tasks:", e);
             }
             try {
                 timer.schedule(new TimerTask() {
@@ -61,16 +58,12 @@ public class AS7AuthCacheInvalidationFactory {
                             // Flush the Authentication Cache
                             manager.flushCache(principal);
                         } catch (Exception e) {
-                            if (trace) {
-                                log.trace("Exception in scheduling timer:", e);
-                            }
+                            logger.trace("Exception in scheduling timer:", e);
                         }
                     }
                 }, expiry);
             } catch (Exception e) {
-                if (trace) {
-                    log.trace("Exception in scheduling timer:", e);
-                }
+                logger.trace("Exception in scheduling timer:", e);
             }
         }
     }

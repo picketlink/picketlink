@@ -23,6 +23,7 @@
 package org.picketlink.identity.federation;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 
 import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
@@ -101,8 +102,14 @@ public interface PicketLinkMessages {
     @Message(id = 16, value = "Should not be the same: %s")
     IllegalArgumentException shouldNotBeTheSameError(String message);
 
+    @Message(id = 17, value = "Configuration File missing: %s")
+    RuntimeException configurationFileMissing(String configFile);
+
     @Message(id = 18, value = "Resource not found: %s")
     ProcessingException resourceNotFoundError(String fileName);
+
+    @Message(id = 19, value = "Validation check failed")
+    GeneralSecurityException samlIDPValidationCheckFailed();
 
     @Message(id = 22, value = "Principal Not Found")
     ProcessingException samlHandlerPrincipalNotFoundError();
@@ -112,6 +119,9 @@ public interface PicketLinkMessages {
 
     @Message (id = 28, value = "Audit Manager Is Not Set")
     IllegalStateException auditNullAuditManagerError();
+
+    @Message(id = 35, value = "Unable to fallback on local auth")
+    IOException unableLocalAuthentication(@Cause Throwable t);
 
     @Message(id = 39, value = "Failed to validate assertion: STS configuration file not specified")
     LoginException authSTSConfigFileNotFound();
@@ -424,5 +434,32 @@ public interface PicketLinkMessages {
 
     @Message(id = 157, value = "Authorization Failed")
     RuntimeException jbossWSAuthorizationFailed();
+
+    @Message(id = 158, value = "SamlCredential is not available in subject")
+    LoginException authSAMLCredentialNotAvailable();
+    
+    @Message(id = 159, value = "Unable to instantiate handler: %s")
+    RuntimeException authUnableToInstantiateHandler(String token, @Cause Throwable t);
+
+    @Message(id = 160, value = "Unable to create SSL Socket Factory")
+    RuntimeException jbossWSUnableToCreateSSLSocketFactory(@Cause Throwable t);
+
+    @Message(id = 161, value = "We did not find SSL Socket Factory")
+    RuntimeException jbossWSUnableToFindSSLSocketFactory();
+
+    @Message(id = 162, value = "Unable to get the Identity from the subject")
+    RuntimeException authUnableToGetIdentityFromSubject();
+
+    @Message(id = 163, value = "SAML Assertion is null or empty")
+    RuntimeException authSAMLAssertionNullOrEmpty();
+
+    @Message(id = 164, value = "Unchecked and role(s) cannot be together")
+    ProcessingException jbossWSUncheckedAndRolesCannotBeTogether();
+
+    @Message(id = 165, value = "Identity Provider configuration error")
+    RuntimeException samlIDPConfigurationError(@Cause Throwable t);
+
+    @Message(id = 166, value = "Service Provider configuration error")
+    RuntimeException samlSPConfigurationError(@Cause Throwable t);
 
 }

@@ -50,9 +50,6 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
-    protected static Logger log = Logger.getLogger(SAML2STSCommonLoginModule.class);
-
-    protected boolean trace = log.isTraceEnabled();
 
     protected boolean localValidation(Element assertionElement) throws Exception {
         // For unit tests
@@ -68,32 +65,28 @@ public class SAML2STSLoginModule extends SAML2STSCommonLoginModule {
 
             KeyStore ts = sd.getTrustStore();
             if (ts == null) {
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null truststore for " + securityDomain);
+                throw logger.authNullKeyStoreFromSecurityDomainError(securityDomain);
             }
 
             String alias = sd.getServerAlias();
             if (alias == null) {
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null KeyStoreAlias for " + securityDomain
-                        + "; set 'server-alias' in '" + securityDomain + "' JSSE security domain configuration");
+                throw logger.authNullKeyStoreAliasFromSecurityDomainError(securityDomain);
             }
 
             Certificate cert = ts.getCertificate(alias);
             if (cert == null) {
-                throw new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: no certificate found for alias '"
-                        + alias + "' in the '" + securityDomain + "' security domain");
+                throw logger.authNoCertificateFoundForAliasError(alias, securityDomain);
             }
 
             PublicKey publicKey = cert.getPublicKey();
             boolean sigValid = AssertionUtil.isSignatureValid(assertionElement, publicKey);
             if (!sigValid) {
-                throw new LoginException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "SAML2STSLoginModule: "
-                        + WSTrustConstants.STATUS_CODE_INVALID + " : invalid SAML V2.0 assertion signature");
+                throw logger.authSAMLInvalidSignatureError();
             }
 
             AssertionType assertion = SAMLUtil.fromElement(assertionElement);
             if (AssertionUtil.hasExpired(assertion)) {
-                throw new LoginException(ErrorCodes.EXPIRED_ASSERTION + "SAML2STSLoginModule: "
-                        + WSTrustConstants.STATUS_CODE_INVALID + "::assertion expired or used before its lifetime period");
+                throw logger.authSAMLAssertionExpiredError();
             }
         } catch (NamingException e) {
             throw new LoginException(e.toString());
