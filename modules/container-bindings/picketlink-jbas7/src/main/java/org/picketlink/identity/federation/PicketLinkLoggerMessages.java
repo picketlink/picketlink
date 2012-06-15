@@ -310,4 +310,31 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @Message(id = 265, value = "Session Destroyed with id = %s ::active session count = %s")
     void identityServerSessionDestroyed(String id, int activeSessionCount);
 
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 266, value = "ID of authentication request %s saved into HTTP session.")
+    void samlHandlerSavedAuthnRequestIdIntoSession(String authnRequestId);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 267, value = "Successful verification of InResponseTo for request %s")
+    void samlHandlerSuccessfulInResponseToValidation(String inResponseTo);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 268, value = "Verification of InResponseTo failed. InResponseTo from SAML response is %s. Value of request Id from HTTP session is %s")
+    void samlHandlerFailedInResponseToVerification(String inResponseTo, String authnRequestId);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 269, value = "Domains that IDP trusts = %s and issuer domain = %s")
+    void samlHandlerDomainsTrustedByIDP(String domainsTrusted, String issuerDomain);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 270, value = "Matching uri bit = %s")
+    void samlHandlerTrustDomainCheck(String uriBit);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 271, value = "Matched %s trust for %s")
+    void samlHandlerTrustedDomainMatched(String uriBit, String issuerDomain);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 272, value = "Domains that SP trusts = %s and issuer domain = %s")
+    void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain);
 }

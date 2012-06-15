@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
@@ -52,28 +53,28 @@ public interface PicketLinkMessages {
     PicketLinkMessages MESSAGES = Messages.getBundle(PicketLinkMessages.class);
 
     @Message (id = 1, value = "Invalid security token request")
-    WebServiceException stsWSInvalidTokenRequestError();
+    WebServiceException wsTrustInvalidTokenRequestError();
 
     @Message (id = 2, value = "Encountered configuration exception")
-    WebServiceException stsWSConfigurationError(@Cause Throwable t);
+    WebServiceException wsTrustConfigurationError(@Cause Throwable t);
 
     @Message (id = 3, value = "Exception in handling token request")
-    WebServiceException stsWSHandlingTokenRequestError(@Cause Throwable t);
+    WebServiceException wsTrustHandlingTokenRequestError(@Cause Throwable t);
 
     @Message (id = 4, value = "Error writing response")
-    WebServiceException stsWSResponseWritingError(@Cause Throwable t);
+    WebServiceException wsTrustResponseWritingError(@Cause Throwable t);
 
     @Message (id = 5, value = "Error parsing the configuration file")
     ConfigurationException stsConfigurationFileParsingError(@Cause Throwable t);
 
     @Message (id = 6, value = "Error generating combined secret key")
-    WSTrustException stsCombinedSecretKeyError(@Cause Throwable t);
+    WSTrustException wsTrustCombinedSecretKeyError(@Cause Throwable t);
 
     @Message (id = 7, value = "Unable to construct the key manager")
     RuntimeException stsUnableToConstructKeyManagerError(@Cause Throwable t);
 
     @Message (id = 8, value = "Unable to locate client public key")
-    WSTrustException stsClientPublicKeyError();
+    WSTrustException wsTrustClientPublicKeyError();
 
     @Message (id = 9, value = "Invalid Digital Signature: %s")
     XMLSignatureException signatureInvalidError(String message, @Cause Throwable t);
@@ -90,17 +91,20 @@ public interface PicketLinkMessages {
     @Message (id = 13, value = "No Security Token Provider found in configuration:[%s][ProtoCtx=%s]")
     ProcessingException stsNoTokenProviderError(String configuration, String protocolContext);
 
+    @Message(id = 14, value = "Authn Request ID verification failed")
+    ProcessingException samlHandlerFailedInResponseToVerificarionError();
+
     @Message (id =15, value = "IDP Authentication Failed")
     SecurityException samlHandlerIDPAuthenticationFailedError();
 
     @Message(id = 16, value = "Should not be the same: %s")
-    IllegalArgumentException shouldNotBeTheSame(String message);
+    IllegalArgumentException shouldNotBeTheSameError(String message);
 
     @Message(id = 18, value = "Resource not found: %s")
-    ProcessingException resourceNotFound(String fileName);
+    ProcessingException resourceNotFoundError(String fileName);
 
     @Message (id = 28, value = "Audit Manager Is Not Set")
-    IllegalStateException auditNullAuditManager();
+    IllegalStateException auditNullAuditManagerError();
 
     @Message (id = 55, value = "KeyStoreKeyManager : KeyStore is null")
     IllegalStateException keyStoreNullStore();
@@ -338,6 +342,14 @@ public interface PicketLinkMessages {
 
     @Message(id = 135, value = "Unknown role object type : %s")
     RuntimeException unsupportedRoleType(Object attrValue);
-   
+
+    @Message(id = 136, value = "Issuer not Trusted by the IDP: %s")
+    IssuerNotTrustedException samlHandlerIssuerNotTrustedError(String issuer);
+
+    @Message(id = 137, value = "Error while checking the trusted domains.")
+    IssuerNotTrustedException samlHandlerIssuerNotTrustedError(@Cause Throwable t);
+
+    @Message(id = 138, value = "Trust or Domains element is missing. Check your configuration.")
+    ConfigurationException samlHandlerTrustElementMissingError();
 
 }

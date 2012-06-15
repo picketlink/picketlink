@@ -32,12 +32,14 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -71,15 +73,15 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#shouldNotBeTheSame(java.lang.String)
      */
-    public IllegalArgumentException shouldNotBeTheSame(String message) {
-        return PicketLinkMessages.MESSAGES.shouldNotBeTheSame(message);
+    public IllegalArgumentException shouldNotBeTheSameError(String message) {
+        return PicketLinkMessages.MESSAGES.shouldNotBeTheSameError(message);
     }
     
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#resourceNotFound(java.lang.String)
      */
     public ProcessingException resourceNotFound(String resource) {
-        return PicketLinkMessages.MESSAGES.resourceNotFound(resource);
+        return PicketLinkMessages.MESSAGES.resourceNotFoundError(resource);
     }
 
     /* (non-Javadoc)
@@ -142,7 +144,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#auditNullAuditManager()
      */
     public IllegalStateException auditNullAuditManager() {
-        return PicketLinkMessages.MESSAGES.auditNullAuditManager();
+        return PicketLinkMessages.MESSAGES.auditNullAuditManagerError();
     }
 
     /* (non-Javadoc)
@@ -717,7 +719,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSInvalidTokenRequestError()
      */
     public WebServiceException stsWSInvalidTokenRequestError() {
-        return PicketLinkMessages.MESSAGES.stsWSInvalidTokenRequestError();
+        return PicketLinkMessages.MESSAGES.wsTrustInvalidTokenRequestError();
     }
 
     /* (non-Javadoc)
@@ -731,7 +733,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSConfigurationError(java.lang.Throwable)
      */
     public WebServiceException stsWSConfigurationError(Throwable t) {
-        return PicketLinkMessages.MESSAGES.stsWSConfigurationError(t);
+        return PicketLinkMessages.MESSAGES.wsTrustConfigurationError(t);
     }
 
     /* (non-Javadoc)
@@ -742,14 +744,14 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     public WebServiceException stsWSHandlingTokenRequestError(Throwable t) {
-        return PicketLinkMessages.MESSAGES.stsWSHandlingTokenRequestError(t);
+        return PicketLinkMessages.MESSAGES.wsTrustHandlingTokenRequestError(t);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsWSResponseWritingError(java.lang.Throwable)
      */
     public WebServiceException stsWSResponseWritingError(Throwable t) {
-        return PicketLinkMessages.MESSAGES.stsWSResponseWritingError(t);
+        return PicketLinkMessages.MESSAGES.wsTrustResponseWritingError(t);
     }
 
     /* (non-Javadoc)
@@ -804,15 +806,15 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsCombinedSecretKeyError(java.lang.Throwable)
      */
-    public WSTrustException stsCombinedSecretKeyError(Throwable t) {
-        return PicketLinkMessages.MESSAGES.stsCombinedSecretKeyError(t);
+    public WSTrustException wsTrustCombinedSecretKeyError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.wsTrustCombinedSecretKeyError(t);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsClientPublicKeyError()
      */
-    public WSTrustException stsClientPublicKeyError() {
-        return PicketLinkMessages.MESSAGES.stsClientPublicKeyError();
+    public WSTrustException wsTrustClientPublicKeyError() {
+        return PicketLinkMessages.MESSAGES.wsTrustClientPublicKeyError();
     }
 
     /* (non-Javadoc)
@@ -1230,6 +1232,77 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public RuntimeException unsupportedRoleType(Object attrValue) {
         return PicketLinkMessages.MESSAGES.unsupportedRoleType(attrValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSavedAuthnRequestIdIntoSession(java.lang.String)
+     */
+    public void samlHandlerSavedAuthnRequestIdIntoSession(String authnRequestId) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerSavedAuthnRequestIdIntoSession(authnRequestId);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSuccessfulInResponseToValidation(java.lang.String)
+     */
+    public void samlHandlerSuccessfulInResponseToValidation(String inResponseTo) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerSuccessfulInResponseToValidation(inResponseTo);
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerification(java.lang.String, java.lang.String)
+     */
+    public void samlHandlerFailedInResponseToVerification(String inResponseTo, String authnRequestId) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerFailedInResponseToVerification(inResponseTo, authnRequestId);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerificarionError()
+     */
+    public ProcessingException samlHandlerFailedInResponseToVerificarionError() {
+        return PicketLinkMessages.MESSAGES.samlHandlerFailedInResponseToVerificarionError();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerDomainsTrustedByIDP(java.lang.String, java.lang.String)
+     */
+    public void samlHandlerDomainsTrustedByIDP(String domainsTrusted, String issuerDomain) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerDomainsTrustedByIDP(domainsTrusted, issuerDomain);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustDomainCheck(java.lang.String)
+     */
+    public void samlHandlerTrustDomainCheck(String uriBit) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerTrustDomainCheck(uriBit);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustedDomainMatched(java.lang.String, java.lang.String)
+     */
+    public void samlHandlerTrustedDomainMatched(String uriBit, String issuerDomain) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.String)
+     */
+    public IssuerNotTrustedException samlHandlerIssuerNotTrustedError(String issuer) {
+        return PicketLinkMessages.MESSAGES.samlHandlerIssuerNotTrustedError(issuer);
+    }
+
+    public IssuerNotTrustedException samlHandlerIssuerNotTrustedError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.samlHandlerIssuerNotTrustedError(t);
+    }
+
+    public void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerDomainsTrustedBySP(domainsTrusted, issuerDomain);       
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustElementMissingError()
+     */
+    public ConfigurationException samlHandlerTrustElementMissingError() {
+        return PicketLinkMessages.MESSAGES.samlHandlerTrustElementMissingError();
     }
 
 }
