@@ -46,6 +46,7 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationE
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -53,6 +54,10 @@ import org.w3c.dom.Element;
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
+ */
+/**
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ *
  */
 public class DefaultPicketLinkLogger implements PicketLinkLogger {
 
@@ -96,6 +101,14 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         if (logger.isTraceEnabled()) {
             logger.trace(message);            
         }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.Throwable)
+     */
+    @Override
+    public void error(Throwable t) {
+        logger.error("Unexpected error", t);
     }
 
     /*
@@ -1507,6 +1520,147 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public ConfigurationException samlHandlerTrustElementMissingError() {
         return new ConfigurationException(ErrorCodes.NULL_VALUE + "trust element missing");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIdentityServerNotFound()
+     */
+    @Override
+    public ProcessingException samlHandlerIdentityServerNotFoundError() {
+        return new ProcessingException(ErrorCodes.NULL_VALUE + "Identity Server not found");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerPrincipalNotFoundError()
+     */
+    @Override
+    public ProcessingException samlHandlerPrincipalNotFoundError() {
+        return new ProcessingException(ErrorCodes.PRINCIPAL_NOT_FOUND);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerGeneratingSuccessStatusResponse(java.lang.String)
+     */
+    @Override
+    public void samlHandlerGeneratingSuccessStatusResponse(String originalIssuer) {
+        trace("Generating Success Status Response for " + originalIssuer);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoDocumentToSign()
+     */
+    @Override
+    public void samlHandlerNoDocumentToSign() {
+        trace("No document generated in the handler chain. Cannot generate signature");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoResponseDocumentFound()
+     */
+    @Override
+    public void samlHandlerNoResponseDocumentFound() {
+        trace("No response document found");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningDocumentForPOSTBinding()
+     */
+    @Override
+    public void samlHandlerSigningDocumentForPOSTBinding() {
+        trace("Going to sign response document with POST binding type");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningDocumentForRedirectBinding()
+     */
+    @Override
+    public void samlHandlerSigningDocumentForRedirectBinding() {
+        trace("Going to sign response document with REDIRECT binding type");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFound()
+     */
+    @Override
+    public void samlHandlerKeyPairNotFound() {
+        trace("Key Pair cannot be found");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFoundError()
+     */
+    @Override
+    public ProcessingException samlHandlerKeyPairNotFoundError() {
+        return new ProcessingException("Key Pair cannot be found");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerErrorSigningRedirectBindingMessage(java.lang.Throwable)
+     */
+    @Override
+    public void samlHandlerErrorSigningRedirectBindingMessage(Throwable t) {
+        logger.error("Error when trying to sign message for redirection", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningRedirectBindingMessageError(org.picketlink.identity.federation.core.exceptions.ConfigurationException)
+     */
+    @Override
+    public RuntimeException samlHandlerSigningRedirectBindingMessageError(Throwable t) {
+        return new RuntimeException(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerValidatingResponseForHTTPMethod(java.lang.String)
+     */
+    @Override
+    public void samlHandlerValidatingResponseForHTTPMethod(String method) {
+        trace("HTTP method for validating response: " + method);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureValidationError()
+     */
+    @Override
+    public SignatureValidationException samlHandlerSignatureValidationFailed() {
+        return new SignatureValidationException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation Failed");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerErrorValidatingSignature(java.lang.Throwable)
+     */
+    @Override
+    public void samlHandlerErrorValidatingSignature(Throwable t) {
+        logger.error("Error validating signature:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerInvalidSignatureError()
+     */
+    @Override
+    public ProcessingException samlHandlerInvalidSignatureError() {
+        return new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Error validating signature.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSignatureNorPresentError()
+     */
+    @Override
+    public ProcessingException samlHandlerSignatureNorPresentError() {
+        return new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed. Signature is not present. Check if the IDP is supporting signatures.");
+    }
+
+    @Override
+    public ProcessingException samlHandlerSignatureValidationError(Throwable t) {
+        return new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPUserClosedBrowserCancelingToken()
+     */
+    @Override
+    public void samlIDPUserClosedBrowserCancelingToken() {
+        trace("User has closed the browser. So we proceed to cancel the STS issued token.");
     }
 
 }

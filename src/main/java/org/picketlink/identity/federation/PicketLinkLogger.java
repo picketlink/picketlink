@@ -40,6 +40,7 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationE
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -1092,5 +1093,102 @@ public interface PicketLinkLogger {
      * @return
      */
     ConfigurationException samlHandlerTrustElementMissingError();
+
+    /**
+     * @return
+     */
+    ProcessingException samlHandlerIdentityServerNotFoundError();
+
+    /**
+     * @return
+     */
+    ProcessingException samlHandlerPrincipalNotFoundError();
+
+    /**
+     * @param originalIssuer
+     */
+    void samlHandlerGeneratingSuccessStatusResponse(String originalIssuer);
+
+    /**
+     * 
+     */
+    void samlHandlerNoDocumentToSign();
+
+    /**
+     * 
+     */
+    void samlHandlerNoResponseDocumentFound();
+
+    /**
+     * 
+     */
+    void samlHandlerSigningDocumentForPOSTBinding();
+
+    /**
+     * 
+     */
+    void samlHandlerSigningDocumentForRedirectBinding();
+
+    /**
+     * 
+     */
+    void samlHandlerKeyPairNotFound();
+
+    /**
+     * @return
+     */
+    ProcessingException samlHandlerKeyPairNotFoundError();
+
+    /**
+     * @param t
+     */
+    void samlHandlerErrorSigningRedirectBindingMessage(Throwable t);
+
+    /**
+     * @param t
+     * @return
+     */
+    RuntimeException samlHandlerSigningRedirectBindingMessageError(Throwable t);
+
+    /**
+     * @param method
+     */
+    void samlHandlerValidatingResponseForHTTPMethod(String method);
+
+    /**
+     * @return
+     */
+    SignatureValidationException samlHandlerSignatureValidationFailed();
+
+    /**
+     * @param t
+     */
+    void samlHandlerErrorValidatingSignature(Throwable t);
+
+    /**
+     * @return
+     */
+    ProcessingException samlHandlerInvalidSignatureError();
+
+    /**
+     * @return
+     */
+    ProcessingException samlHandlerSignatureNorPresentError();
+
+    /**
+     * @param t
+     * @return
+     */
+    ProcessingException samlHandlerSignatureValidationError(Throwable t);
+
+    /**
+     * 
+     */
+    void samlIDPUserClosedBrowserCancelingToken();
+
+    /**
+     * @param t
+     */
+    void error(Throwable t);
 
 }

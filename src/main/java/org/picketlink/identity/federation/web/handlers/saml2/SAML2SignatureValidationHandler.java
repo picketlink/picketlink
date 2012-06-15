@@ -24,7 +24,6 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 import java.security.PublicKey;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.ErrorCodes;
@@ -32,7 +31,6 @@ import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
@@ -49,9 +47,6 @@ import org.w3c.dom.Document;
  * @since Nov 13, 2009
  */
 public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
-    private static Logger log = Logger.getLogger(SAML2SignatureValidationHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     private SAML2Signature saml2Signature = new SAML2Signature();
 
@@ -81,17 +76,18 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
 
         Document signedDocument = request.getRequestDocument();
 
-        if (trace) {
-            log.trace("Will validate :" + DocumentUtil.asString(signedDocument));
+        if (logger.isTraceEnabled()) {
+            logger.signatureValidatingDocument(DocumentUtil.asString(signedDocument));
         }
+
         PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);
         try {
             boolean isValid;
 
             HTTPContext httpContext = (HTTPContext) request.getContext();
             boolean isPost = httpContext.getRequest().getMethod().equalsIgnoreCase("POST");
-            if (trace)
-                log.trace("HTTP method for validating response: " + httpContext.getRequest().getMethod());
+
+            logger.samlHandlerValidatingResponseForHTTPMethod(httpContext.getRequest().getMethod());
 
             if (isPost) {
                 isValid = verifyPostBindingSignature(signedDocument, publicKey);
@@ -125,8 +121,8 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
         try {
             return this.saml2Signature.validate(signedDocument, publicKey);
         } catch (Exception e) {
-            log.error("Error validating signature:", e);
-            throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Error validating signature.");
+            logger.samlHandlerErrorValidatingSignature(e);
+            throw logger.samlHandlerInvalidSignatureError();
         }
     }
 
@@ -149,19 +145,16 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
             sigValue = RedirectBindingSignatureUtil.getSignatureValueFromSignedURL(queryString);
 
             if (sigValue == null) {
-                throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
-                        + "Signature Validation failed. Signature is not present. Check if the IDP is supporting signatures.");
+                throw logger.samlHandlerSignatureNorPresentError();
             }
 
             return RedirectBindingSignatureUtil.validateSignature(queryString, publicKey, sigValue);
         } catch (Exception e) {
-            throw new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed", e);
+            throw logger.samlHandlerSignatureValidationError(e);
         }
     }
 
     private ProcessingException constructSignatureException() {
-        SignatureValidationException sv = new SignatureValidationException(ErrorCodes.INVALID_DIGITAL_SIGNATURE
-                + "Signature Validation Failed");
-        return new ProcessingException(sv);
+        return new ProcessingException(logger.samlHandlerSignatureValidationFailed());
     }
 }

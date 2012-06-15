@@ -25,7 +25,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 
 /**
@@ -35,10 +36,13 @@ import org.picketlink.identity.federation.core.interfaces.AttributeManager;
  * @since Sep 10, 2009
  */
 public class WebAttributeManager implements AttributeManager {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * @see AttributeManager#getAttributes(Principal, List)
      */
     public Map<String, Object> getAttributes(Principal userPrincipal, List<String> attributeKeys) {
-        throw new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET);
+        throw logger.notImplementedYet("getAttributes");
     }
 }

@@ -25,7 +25,8 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
@@ -41,33 +42,32 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
  * @since Feb 3, 2012
  */
 public class IDPHttpSessionListener implements HttpSessionListener {
-    private static Logger log = Logger.getLogger(IDPHttpSessionListener.class);
 
-    private final boolean trace = log.isTraceEnabled();
-
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public void sessionCreated(HttpSessionEvent se) {
     }
 
     public void sessionDestroyed(HttpSessionEvent se) {
         HttpSession httpSession = se.getSession();
         if (httpSession == null)
-            throw new RuntimeException(ErrorCodes.NULL_ARGUMENT + ":session");
+            throw logger.nullArgumentError("session");
         AssertionType assertion = (AssertionType) httpSession.getAttribute(GeneralConstants.ASSERTION);
 
         // If the user had logged out, then the assertion would not be available in the session.
         // The case when the user closes the browser and does not logout, the session will time out on the
         // server. So we know that the token has not been canceled by the STS.
         if (assertion != null) {
-            if (trace) {
-                log.trace("User has closed the browser. So we proceed to cancel the STS issued token.");
-            }
+
+            logger.samlIDPUserClosedBrowserCancelingToken();
+
             PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
             SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();
             samlProtocolContext.setIssuedAssertion(assertion);
             try {
                 sts.cancelToken(samlProtocolContext);
             } catch (ProcessingException e) {
-                log.error(ErrorCodes.PROCESSING_EXCEPTION, e);
+                logger.error(e);
             }
             httpSession.removeAttribute(GeneralConstants.ASSERTION);
         }

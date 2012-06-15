@@ -30,11 +30,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
@@ -70,9 +68,6 @@ import org.picketlink.identity.federation.web.core.IdentityServer;
  * @since Sep 17, 2009
  */
 public class SAML2LogOutHandler extends BaseSAML2Handler {
-    private static Logger log = Logger.getLogger(SAML2LogOutHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     private final IDPLogOutHandler idp = new IDPLogOutHandler();
 
@@ -83,9 +78,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
      */
     public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         if (request.getTypeOfRequestToBeGenerated() == null) {
-            if (trace) {
-                log.trace("Request type to be generated=null");
-            }
             return;
         }
         if (GENERATE_REQUEST_TYPE.LOGOUT != request.getTypeOfRequestToBeGenerated())
@@ -150,7 +142,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             IdentityServer server = (IdentityServer) servletCtx.getAttribute("IDENTITY_SERVER");
 
             if (server == null)
-                throw new ProcessingException(ErrorCodes.NULL_VALUE + "Identity Server not found");
+                throw logger.samlHandlerIdentityServerNotFoundError();
 
             String sessionID = httpSession.getId();
 
@@ -177,7 +169,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     boolean isPost = isPostBindingForResponse(server, relayState, request);
                     response.setPostBindingForResponse(isPost);
                 } catch (Exception e) {
-                    throw new ProcessingException(e);
+                    throw logger.processingError(e);
                 }
                 Map<String, Object> requestOptions = request.getOptions();
                 PicketLinkAuditHelper auditHelper = (PicketLinkAuditHelper) requestOptions.get(GeneralConstants.AUDIT_HELPER);
@@ -207,7 +199,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     response.setResultingDocument(saml2Request.convert(lort));
                     response.setSendRequest(true);
                 } catch (Exception e) {
-                    throw new ProcessingException(e);
+                    throw logger.processingError(e);
                 }
             }
         }
@@ -229,7 +221,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 IdentityServer server = (IdentityServer) servletCtx.getAttribute(GeneralConstants.IDENTITY_SERVER);
 
                 if (server == null)
-                    throw new ProcessingException(ErrorCodes.NULL_VALUE + "Identity Server not found");
+                    throw logger.samlHandlerIdentityServerNotFoundError();
 
                 String originalIssuer = (relayState == null) ? issuer : relayState;
 
@@ -265,7 +257,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                     Principal userPrincipal = httpServletRequest.getUserPrincipal();
                     if (userPrincipal == null) {
-                        throw new ProcessingException(ErrorCodes.PRINCIPAL_NOT_FOUND);
+                        throw logger.samlHandlerPrincipalNotFoundError();
                     }
                     NameIDType nameID = new NameIDType();
                     nameID.setValue(userPrincipal.getName());
@@ -280,11 +272,11 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                     response.setSendRequest(true);
                 }
             } catch (ParserConfigurationException pe) {
-                throw new ProcessingException(pe);
+                throw logger.processingError(pe);
             } catch (ConfigurationException pe) {
-                throw new ProcessingException(pe);
+                throw logger.processingError(pe);
             } catch (ParsingException e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
 
             return;
@@ -293,9 +285,9 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
         private void generateSuccessStatusResponseType(String logOutRequestID, SAML2HandlerRequest request,
                 SAML2HandlerResponse response, String originalIssuer) throws ConfigurationException,
                 ParserConfigurationException, ProcessingException {
-            if (trace) {
-                log.trace("Generating Success Status Response for " + originalIssuer);
-            }
+
+            logger.samlHandlerGeneratingSuccessStatusResponse(originalIssuer);
+
             StatusResponseType statusResponse = new StatusResponseType(IDGenerator.create("ID_"), XMLTimeUtil.getIssueInstant());
 
             // Status
@@ -320,7 +312,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 SAML2Response saml2Response = new SAML2Response();
                 response.setResultingDocument(saml2Response.convert(statusResponse));
             } catch (ParsingException je) {
-                throw new ProcessingException(je);
+                throw logger.processingError(je);
             }
 
             response.setDestination(originalIssuer);
@@ -338,9 +330,6 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 } while (participants > 0 && participant.equals(originalRequestor));
             }
 
-            if (trace) {
-                log.trace("Participant = " + participant);
-            }
             return participant;
         }
 
@@ -367,7 +356,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             HttpServletRequest httpRequest = httpContext.getRequest();
             Principal userPrincipal = httpRequest.getUserPrincipal();
             if (userPrincipal == null) {
-                throw new ProcessingException(ErrorCodes.PRINCIPAL_NOT_FOUND);
+                throw logger.samlHandlerPrincipalNotFoundError();
             }
             try {
                 LogoutRequestType lot = samlRequest.createLogoutRequest(request.getIssuer().getValue());
@@ -379,7 +368,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 response.setResultingDocument(samlRequest.convert(lot));
                 response.setSendRequest(true);
             } catch (Exception e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
         }
 
@@ -422,7 +411,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             try {
                 statusResponse = new StatusResponseType(IDGenerator.create("ID_"), XMLTimeUtil.getIssueInstant());
             } catch (ConfigurationException e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
 
             // Status
@@ -447,7 +436,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
             try {
                 response.setResultingDocument(saml2Response.convert(statusResponse));
             } catch (Exception je) {
-                throw new ProcessingException(je);
+                throw logger.processingError(je);
             }
 
             response.setRelayState(relayState);

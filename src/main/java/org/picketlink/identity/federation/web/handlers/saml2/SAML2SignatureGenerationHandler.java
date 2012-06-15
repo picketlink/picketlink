@@ -28,9 +28,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 
-import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
@@ -49,17 +47,14 @@ import org.w3c.dom.Node;
  * @since Oct 12, 2009
  */
 public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
-    private static Logger log = Logger.getLogger(SAML2SignatureGenerationHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     @Override
     public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         // Generate the signature
         Document samlDocument = response.getResultingDocument();
 
-        if (samlDocument == null && trace) {
-            log.trace("No document generated in the handler chain. Cannot generate signature");
+        if (samlDocument == null) {
+            logger.samlHandlerNoDocumentToSign();
             return;
         }
 
@@ -70,9 +65,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         Document responseDocument = response.getResultingDocument();
 
         if (responseDocument == null) {
-            if (trace) {
-                log.trace("handleRequestType:No response document found");
-            }
+            logger.samlHandlerNoResponseDocumentFound();
             return;
         }
 
@@ -83,9 +76,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
     public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         Document responseDocument = response.getResultingDocument();
         if (responseDocument == null) {
-            if (trace) {
-                log.trace("handleStatusResponseType:No response document found");
-            }
+            logger.samlHandlerNoResponseDocumentFound();
             return;
         }
 
@@ -102,17 +93,15 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         KeyPair keypair = (KeyPair) this.handlerChainConfig.getParameter(GeneralConstants.KEYPAIR);
 
         if (keypair == null) {
-            log.error("Key Pair cannot be found");
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "KeyPair not found");
+            logger.samlHandlerKeyPairNotFound();
+            throw logger.samlHandlerKeyPairNotFoundError();
         }
 
         if (response.isPostBindingForResponse()) {
-            if (trace)
-                log.trace("Going to sign response document with POST binding type");
+            logger.samlHandlerSigningDocumentForPOSTBinding();
             signPost(samlDocument, keypair);
         } else {
-            if (trace)
-                log.trace("Going to sign response document with REDIRECT binding type");
+            logger.samlHandlerSigningDocumentForRedirectBinding();
             String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair,
                     response.getSendRequest());
             response.setDestinationQueryStringWithSignature(destinationQueryString);
@@ -147,14 +136,14 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
 
             return url;
         } catch (ConfigurationException ce) {
-            log.error("Error when trying to sign message for redirection", ce);
-            throw new RuntimeException(ce);
+            logger.samlHandlerErrorSigningRedirectBindingMessage(ce);
+            throw logger.samlHandlerSigningRedirectBindingMessageError(ce);
         } catch (GeneralSecurityException ce) {
-            log.error("Error when trying to sign message for redirection", ce);
-            throw new RuntimeException(ce);
+            logger.samlHandlerErrorSigningRedirectBindingMessage(ce);
+            throw logger.samlHandlerSigningRedirectBindingMessageError(ce);
         } catch (IOException ce) {
-            log.error("Error when trying to sign message for redirection", ce);
-            throw new RuntimeException(ce);
+            logger.samlHandlerErrorSigningRedirectBindingMessage(ce);
+            throw logger.samlHandlerSigningRedirectBindingMessageError(ce);
         }
     }
 }
