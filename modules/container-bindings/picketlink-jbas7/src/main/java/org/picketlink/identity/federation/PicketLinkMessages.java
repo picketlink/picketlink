@@ -24,6 +24,7 @@ package org.picketlink.identity.federation;
 
 import java.io.IOException;
 
+import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
@@ -38,6 +39,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.w3c.dom.Element;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -71,6 +73,9 @@ public interface PicketLinkMessages {
 
     @Message (id = 8, value = "Unable to locate client public key")
     WSTrustException stsClientPublicKeyError();
+
+    @Message (id = 9, value = "Invalid Digital Signature: %s")
+    XMLSignatureException signatureInvalidError(String message, @Cause Throwable t);
 
     @Message (id = 10, value = "Error obtaining public key for service: %s")
     RuntimeException stsPublicKeyError(String serviceName, @Cause Throwable t);
@@ -261,7 +266,28 @@ public interface PicketLinkMessages {
     @Message (id = 112, value = "WS-Trust Processing Exception")
     WSTrustException stsError(@Cause Throwable t);
 
-    @Message (id = 9, value = "Invalid Digital Signature: %s")
-    XMLSignatureException signatureInvalidError(String message, @Cause Throwable t);
+    @Message (id =113, value = "Unable to decode password: %s")
+    RuntimeException stsUnableToDecodePasswordError(String password);
+
+    @Message (id =114, value = "Could not load properties from %s")
+    IllegalStateException couldNotLoadProperties(String configFile);
+
+    @Message (id =115, value = "Error creating KeyInfoType")
+    WSTrustException stsKeyInfoTypeCreationError(@Cause Throwable t);
+
+    @Message (id =116, value = "Could not issue a SAML Security Token")
+    LoginException authCouldNotIssueSAMLToken();
+
+    @Message (id =117, value = "Error during login/authentication")
+    LoginException authLoginError(@Cause Throwable t);
+
+    @Message (id =118, value = "Could not create WSTrustClient")
+    IllegalStateException authCouldNotCreateWSTrustClient(@Cause Throwable t);
+
+    @Message (id =119, value = "Could not validate the SAML Security Token : %s")
+    LoginException authCouldNotValidateSAMLToken(Element token);
+
+    @Message (id =120, value = "Could not locate a Security Token from the callback")
+    LoginException authCouldNotLocateSecurityTokenError();
 
 }

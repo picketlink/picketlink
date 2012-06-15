@@ -34,6 +34,7 @@ import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
+import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -216,5 +217,41 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.DEBUG)
     @Message(id = 242, value = "STS received request of type %s")
     void stsReceivedRequestType(String requestType);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 243, value = "No key type could be found in the request. Using the default BEARER type.")
+    void stsKeyTypeNotFoundUsingDefaultBearer();
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 244, value = "No key size could be found in the request. Using the default size. (%s)")
+    void stsKeySizeNotFoundUsingDefault(long keySize);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 245, value = "Unable to parse the contents of the OnBehalfOfType: %s")
+    void stsUnableToParseOnBehalfType(Object type);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 246, value = "Secret key could not be encrypted because the endpoint's PKC has not been specified")
+    void stsSecretKeyNotEncrypted();
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 247, value = "Added Credential %s")
+    void authAddedSAMLCredential(SamlCredential samlCredential);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 248, value = "UserName from callback is null")
+    void userNameFromCallbackisNull();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 249, value = "Password from callback is null")
+    void authPasswordFromCallbackIsNull();
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 250, value = "SAML Assertion has been found to have no expiration: ID = %s")
+    void authSAMLAssertionWithoutExpiration(String id);
+
+    @LogMessage(level = Level.DEBUG)
+    @Message(id = 251, value = "SAML Token Validation result: %s")
+    void authSAMLValidationResult(boolean result);
 
 }

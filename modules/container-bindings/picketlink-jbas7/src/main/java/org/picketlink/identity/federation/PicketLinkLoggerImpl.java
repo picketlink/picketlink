@@ -25,6 +25,7 @@ package org.picketlink.identity.federation;
 import java.io.IOException;
 import java.security.Principal;
 
+import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
@@ -36,7 +37,9 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.w3c.dom.Element;
 
 
 /**
@@ -900,6 +903,125 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public void stsReceivedRequestType(String requestType) {
         PicketLinkLoggerMessages.ROOT_LOGGER.stsReceivedRequestType(requestType);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsKeyTypeNotFoundUsingDefaultBearer()
+     */
+    public void stsKeyTypeNotFoundUsingDefaultBearer() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsKeyTypeNotFoundUsingDefaultBearer();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsKeySizeNotFoundUsingDefault(long)
+     */
+    public void stsKeySizeNotFoundUsingDefault(long keySize) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsKeySizeNotFoundUsingDefault(keySize);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsUnableToDecodePasswordError(java.lang.String)
+     */
+    public RuntimeException unableToDecodePasswordError(String password) {
+        return PicketLinkMessages.MESSAGES.stsUnableToDecodePasswordError(password);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotLoadProperties(java.lang.String)
+     */
+    public IllegalStateException couldNotLoadProperties(String configFile) {
+        return PicketLinkMessages.MESSAGES.couldNotLoadProperties(configFile);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsUnableToParseOnBehalfType(java.lang.Object)
+     */
+    public void stsUnableToParseOnBehalfType(Object type) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsUnableToParseOnBehalfType(type);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsKeyInfoTypeCreationError(java.lang.Throwable)
+     */
+    public WSTrustException stsKeyInfoTypeCreationError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.stsKeyInfoTypeCreationError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecretKeyNotEncrypted()
+     */
+    public void stsSecretKeyNotEncrypted() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.stsSecretKeyNotEncrypted();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotIssueSAMLToken()
+     */
+    public LoginException authCouldNotIssueSAMLToken() {
+        return PicketLinkMessages.MESSAGES.authCouldNotIssueSAMLToken();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authLoginError(java.lang.Throwable)
+     */
+    public LoginException authLoginError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.authLoginError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authAddedSAMLCredential(org.picketlink.identity.federation.core.wstrust.SamlCredential)
+     */
+    public void authAddedSAMLCredential(SamlCredential samlCredential) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authAddedSAMLCredential(samlCredential);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authUserNameFromCallbackIsNull()
+     */
+    public void authUserNameFromCallbackIsNull() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.userNameFromCallbackisNull();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authPasswordFromCallbackIsNull()
+     */
+    public void authPasswordFromCallbackIsNull() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authPasswordFromCallbackIsNull();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotCreateWSTrustClient(java.lang.Throwable)
+     */
+    public IllegalStateException authCouldNotCreateWSTrustClient(Throwable t) {
+        return PicketLinkMessages.MESSAGES.authCouldNotCreateWSTrustClient(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionWithoutExpiration(java.lang.String)
+     */
+    public void authSAMLAssertionWithoutExpiration(String id) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authSAMLAssertionWithoutExpiration(id);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotValidateSAMLToken(org.w3c.dom.Element)
+     */
+    public LoginException authCouldNotValidateSAMLToken(Element token) {
+        return PicketLinkMessages.MESSAGES.authCouldNotValidateSAMLToken(token);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLValidationResult(boolean)
+     */
+    public void authSAMLValidationResult(boolean result) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.authSAMLValidationResult(result);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotLocateSecurityToken()
+     */
+    public LoginException authCouldNotLocateSecurityToken() {
+        return PicketLinkMessages.MESSAGES.authCouldNotLocateSecurityTokenError();
     }
 
 }
