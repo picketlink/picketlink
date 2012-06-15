@@ -25,8 +25,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
@@ -66,10 +66,9 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class SAML20TokenProvider extends AbstractSecurityTokenProvider implements SecurityTokenProvider {
-    protected static Logger logger = Logger.getLogger(SAML20TokenProvider.class);
-
-    protected boolean trace = logger.isTraceEnabled();
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private SAML20TokenAttributeProvider attributeProvider;
 
     /*
@@ -83,8 +82,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         // Check if an attribute provider has been set.
         String attributeProviderClassName = this.properties.get(ATTRIBUTE_PROVIDER);
         if (attributeProviderClassName == null) {
-            if (logger.isDebugEnabled())
-                logger.debug("No attribute provider set");
+            logger.stsNoAttributeProviderSet();
         } else {
             try {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), attributeProviderClassName);
@@ -93,11 +91,9 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
                     this.attributeProvider = (SAML20TokenAttributeProvider) object;
                     this.attributeProvider.setProperties(this.properties);
                 } else
-                    logger.warn("Attribute provider not installed: " + attributeProviderClassName
-                            + "is not an instance of SAML20TokenAttributeProvider");
+                    logger.stsWrongAttributeProviderTypeNotInstalled(attributeProviderClassName);
             } catch (Exception pae) {
-                logger.warn("Error instantiating attribute provider: " + pae.getMessage());
-                pae.printStackTrace();
+                logger.attributeProviderInstationError(pae);
             }
         }
     }
@@ -117,11 +113,10 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         // get the assertion that must be canceled.
         Element token = context.getRequestSecurityToken().getCancelTargetElement();
         if (token == null)
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Invalid cancel request: missing required CancelTarget");
+            throw logger.wsTrustNullCancelTargetError();
         Element assertionElement = (Element) token.getFirstChild();
         if (!this.isAssertion(assertionElement))
-            throw new ProcessingException(ErrorCodes.INVALID_ASSERTION
-                    + "CancelTarget doesn't not contain a SAMLV2.0 assertion");
+            throw logger.assertionInvalidError();
 
         // get the assertion ID and add it to the canceled assertions set.
         String assertionId = assertionElement.getAttribute("ID");
@@ -201,7 +196,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         try {
             assertionElement = SAMLUtil.toElement(assertion);
         } catch (Exception e) {
-            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall SAMLV2 assertion", e);
+            throw logger.samlAssertionMarshallError(e);
         }
 
         SecurityToken token = new StandardSecurityToken(context.getRequestSecurityToken().getTokenType().toString(),
@@ -231,24 +226,22 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         // get the specified assertion that must be renewed.
         Element token = context.getRequestSecurityToken().getRenewTargetElement();
         if (token == null)
-            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION
-                    + "Invalid renew request: missing required RenewTarget");
+            throw logger.wsTrustNullRenewTargetError();
         Element oldAssertionElement = (Element) token.getFirstChild();
         if (!this.isAssertion(oldAssertionElement))
-            throw new ProcessingException(ErrorCodes.INVALID_ASSERTION + "RenewTarget doesn't not contain a SAMLV2.0 assertion");
+            throw logger.assertionInvalidError();
 
         // get the JAXB representation of the old assertion.
         AssertionType oldAssertion = null;
         try {
             oldAssertion = SAMLUtil.fromElement(oldAssertionElement);
         } catch (Exception je) {
-            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Error unmarshalling assertion", je);
+            throw logger.samlAssertionUnmarshallError(je);
         }
 
         // canceled assertions cannot be renewed.
         if (this.revocationRegistry.isRevoked(SAMLUtil.SAML2_TOKEN_TYPE, oldAssertion.getID()))
-            throw new ProcessingException(ErrorCodes.ASSERTION_RENEWAL_EXCEPTION + "Assertion with id " + oldAssertion.getID()
-                    + " has been canceled and cannot be renewed");
+            throw logger.samlAssertionRevokedCouldNotRenew(oldAssertion.getID());
 
         // adjust the lifetime for the renewed assertion.
         ConditionsType conditions = oldAssertion.getConditions();
@@ -270,7 +263,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         try {
             assertionElement = SAMLUtil.toElement(newAssertion);
         } catch (Exception e) {
-            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall SAMLV2 assertion", e);
+            throw logger.samlAssertionMarshallError(e);
         }
         SecurityToken securityToken = new StandardSecurityToken(context.getRequestSecurityToken().getTokenType().toString(),
                 assertionElement, assertionID);
@@ -295,13 +288,13 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
             return;
 
         WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
-        if (logger.isTraceEnabled())
-            logger.trace("SAML V2.0 token validation started");
+
+        logger.samlAssertionStartingValidation();
 
         // get the SAML assertion that must be validated.
         Element token = context.getRequestSecurityToken().getValidateTargetElement();
         if (token == null)
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Bad validate request: missing required ValidateTarget");
+            throw logger.wsTrustNullValidationTargetError();
 
         String code = WSTrustConstants.STATUS_CODE_VALID;
         String reason = "SAMLV2.0 Assertion successfuly validated";
@@ -313,12 +306,12 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
             reason = "Validation failure: supplied token is not a SAMLV2.0 Assertion";
         } else {
             try {
-                if (trace) {
-                    logger.trace("Assertion Element=" + DocumentUtil.getNodeAsString(assertionElement));
+                if (logger.isTraceEnabled()) {
+                    logger.samlAssertion(DocumentUtil.getNodeAsString(assertionElement));
                 }
                 assertion = SAMLUtil.fromElement(assertionElement);
             } catch (Exception e) {
-                throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Unmarshalling error:", e);
+                throw logger.samlAssertionUnmarshallError(e);
             }
         }
 

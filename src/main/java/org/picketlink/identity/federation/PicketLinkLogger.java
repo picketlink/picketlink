@@ -38,6 +38,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -871,5 +872,163 @@ public interface PicketLinkLogger {
      * @return
      */
     LoginException authCouldNotLocateSecurityToken();
+
+    /**
+     * @return
+     */
+    ProcessingException wsTrustNullCancelTargetError();
+
+    /**
+     * @param t
+     * @return
+     */
+    ProcessingException samlAssertionMarshallError(Throwable t);
+
+    /**
+     * @return
+     */
+    ProcessingException wsTrustNullRenewTargetError();
+
+    /**
+     * @param t
+     * @return
+     */
+    ProcessingException samlAssertionUnmarshallError(Throwable t);
+
+    /**
+     * @return
+     */
+    ProcessingException samlAssertionRevokedCouldNotRenew(String id);
+
+    /**
+     * 
+     */
+    void samlAssertionStartingValidation();
+
+    /**
+     * @return
+     */
+    ProcessingException wsTrustNullValidationTargetError();
+
+    /**
+     * 
+     */
+    void stsNoAttributeProviderSet();
+
+    /**
+     * @param attributeProviderClassName
+     */
+    void stsWrongAttributeProviderTypeNotInstalled(String attributeProviderClassName);
+
+    /**
+     * @param t
+     */
+    void attributeProviderInstationError(Throwable t);
+
+    /**
+     * @param nodeAsString
+     */
+    void samlAssertion(String nodeAsString);
+
+    /**
+     * @param dce
+     * @return
+     */
+    RuntimeException wsTrustUnableToGetDataTypeFactory(Throwable t);
+
+    /**
+     * @return
+     */
+    ProcessingException wsTrustValidationStatusCodeMissing();
+
+    /**
+     * @param activeSessionCount
+     */
+    void identityServerActiveSessionCount(int activeSessionCount);
+
+    /**
+     * @param id
+     * @param activeSessionCount
+     */
+    void identityServerSessionCreated(String id, int activeSessionCount);
+
+    /**
+     * @param id
+     * @param activeSessionCount
+     */
+    void identityServerSessionDestroyed(String id, int activeSessionCount);
+
+    /**
+     * @param name
+     * @return
+     */
+    RuntimeException unknowCredentialType(String name);
+
+    /**
+     * @param name
+     */
+    void samlHandlerRoleGeneratorSetup(String name);
+
+    /**
+     * @param t
+     */
+    void samlHandlerRoleGeneratorSetupError(Throwable t);
+
+    /**
+     * @param name
+     */
+    void samlHandlerAttributeSetup(String name);
+
+    /**
+     * @return
+     */
+    RuntimeException samlHandlerAssertionNotFound();
+
+    /**
+     * @return
+     */
+    ProcessingException samlHandlerAuthnRequestIsNull();
+
+    /**
+     * @param destination
+     */
+    void destination(String destination);
+
+    /**
+     * @param t
+     */
+    void samlHandlerAuthenticationError(Throwable t);
+
+    /**
+     * @return
+     */
+    IllegalArgumentException samlHandlerNoAssertionFromIDP();
+
+    /**
+     * @return
+     */
+    ProcessingException samlHandlerNullEncryptedAssertion();
+
+    /**
+     * @return
+     */
+    SecurityException samlHandlerIDPAuthenticationFailedError();
+
+    /**
+     * @param aee
+     * @return
+     */
+    ProcessingException assertionExpiredError(AssertionExpiredException aee);
+
+    /**
+     * @param roles
+     */
+    void invalidRole(String roles);
+
+    /**
+     * @param attrValue
+     * @return
+     */
+    RuntimeException unsupportedRoleType(Object attrValue);
 
 }

@@ -44,6 +44,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
@@ -1180,6 +1181,242 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public LoginException authCouldNotLocateSecurityToken() {
         return new LoginException(ErrorCodes.NULL_VALUE + "Could not locate a Security Token from the callback.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullCancelTargetError()
+     */
+    @Override
+    public ProcessingException wsTrustNullCancelTargetError() {
+        return new ProcessingException(ErrorCodes.NULL_VALUE + "Invalid cancel request: missing required CancelTarget");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#saml11MarshallError(java.lang.Throwable)
+     */
+    @Override
+    public ProcessingException samlAssertionMarshallError(Throwable t) {
+        return new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall SAMLV1.1 assertion", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullRenewTargetError()
+     */
+    @Override
+    public ProcessingException wsTrustNullRenewTargetError() {
+        return new ProcessingException(ErrorCodes.NULL_VALUE + "Invalid renew request: missing required RenewTarget");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#saml11UnmarshallError(java.lang.Throwable)
+     */
+    @Override
+    public ProcessingException samlAssertionUnmarshallError(Throwable t) {
+        return new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Error unmarshalling assertion", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlAssertionRevokedCouldNotRenew()
+     */
+    @Override
+    public ProcessingException samlAssertionRevokedCouldNotRenew(String id) {
+        return new ProcessingException(ErrorCodes.ASSERTION_RENEWAL_EXCEPTION + "SAMLV1.1 Assertion with id "
+                    + id + " has been canceled and cannot be renewed");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlStartingValidation()
+     */
+    @Override
+    public void samlAssertionStartingValidation() {
+        trace("SAML token validation started");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullValidationTargetError()
+     */
+    @Override
+    public ProcessingException wsTrustNullValidationTargetError() {
+        return new ProcessingException(ErrorCodes.NULL_VALUE + "Bad validate request: missing required ValidateTarget");
+    }
+
+    @Override
+    public void stsNoAttributeProviderSet() {
+        debug("No attribute provider set");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsWrongAttributeProviderTypeNotInstalled(java.lang.String)
+     */
+    @Override
+    public void stsWrongAttributeProviderTypeNotInstalled(String attributeProviderClassName) {
+        logger.warn("Attribute provider not installed: " + attributeProviderClassName
+                            + "is not an instance of SAML20TokenAttributeProvider");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#stsAttributeProviderInstationError(java.lang.Throwable)
+     */
+    @Override
+    public void attributeProviderInstationError(Throwable t) {
+        logger.warn("Error instantiating attribute provider: " + t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlAssertion(java.lang.String)
+     */
+    @Override
+    public void samlAssertion(String nodeAsString) {
+        trace("SAML Assertion Element=" + nodeAsString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustUnableToGetDataTypeFactory(javax.xml.datatype.DatatypeConfigurationException)
+     */
+    @Override
+    public RuntimeException wsTrustUnableToGetDataTypeFactory(Throwable t) {
+        return new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to get DatatypeFactory instance", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustValidationStatusCodeMissing()
+     */
+    @Override
+    public ProcessingException wsTrustValidationStatusCodeMissing() {
+        return new ProcessingException(ErrorCodes.NULL_VALUE + "Validation status code is missing");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerActiveSessionCount(int)
+     */
+    @Override
+    public void identityServerActiveSessionCount(int activeSessionCount) {
+        info("Active Session Count=" + activeSessionCount);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerSessionCreated(java.lang.String, int)
+     */
+    @Override
+    public void identityServerSessionCreated(String id, int activeSessionCount) {
+        trace("Session Created with id=" + id + "::active session count=" + activeSessionCount);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerSessionDestroyed(java.lang.String, int)
+     */
+    @Override
+    public void identityServerSessionDestroyed(String id, int activeSessionCount) {
+        trace("Session Destroyed with id=" + id + "::active session count=" + activeSessionCount);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#unknowCredentialType(java.lang.String)
+     */
+    @Override
+    public RuntimeException unknowCredentialType(String name) {
+        return new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown credential type:" + name);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerRoleGeneratorSetup(java.lang.String)
+     */
+    @Override
+    public void samlHandlerRoleGeneratorSetup(String name) {
+        trace("RoleGenerator set to " + name);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerRoleGeneratorSetupError(java.lang.Throwable)
+     */
+    @Override
+    public void samlHandlerRoleGeneratorSetupError(Throwable t) {
+        logger.error("Exception initializing role generator:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAttributeSetup(java.lang.String)
+     */
+    @Override
+    public void samlHandlerAttributeSetup(String name) {
+        logger.trace("AttributeManager set to " + name);
+    }
+
+    @Override
+    public RuntimeException samlHandlerAssertionNotFound() {
+        return new RuntimeException(ErrorCodes.NULL_VALUE + "Assertion not found in the handler request");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAuthnRequestIsNull()
+     */
+    @Override
+    public ProcessingException samlHandlerAuthnRequestIsNull() {
+        return new ProcessingException(ErrorCodes.NULL_VALUE + "AuthnRequest is null");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#destination(java.lang.String)
+     */
+    @Override
+    public void destination(String destination) {
+        trace(destination);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAuthenticationError(java.lang.Throwable)
+     */
+    @Override
+    public void samlHandlerAuthenticationError(Throwable t) {
+        logger.error("Exception in processing authentication:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoAssertionFromIDP()
+     */
+    @Override
+    public IllegalArgumentException samlHandlerNoAssertionFromIDP() {
+        return new IllegalArgumentException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNullEncryptedAssertion()
+     */
+    @Override
+    public ProcessingException samlHandlerNullEncryptedAssertion() {
+        return new ProcessingException(ErrorCodes.NULL_VALUE + "Null encrypted assertion element");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIDPAuthenticationFailedError()
+     */
+    @Override
+    public SecurityException samlHandlerIDPAuthenticationFailedError() {
+        return new SecurityException(ErrorCodes.IDP_AUTH_FAILED + "IDP forbid the user");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError(org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException)
+     */
+    @Override
+    public ProcessingException assertionExpiredError(AssertionExpiredException aee) {
+        return new ProcessingException(new ProcessingException(ErrorCodes.EXPIRED_ASSERTION + "Assertion has expired", aee));
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#invalidRole(java.lang.String)
+     */
+    @Override
+    public void invalidRole(String roles) {
+        trace(roles);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#unsupportedRoleType(java.lang.Object)
+     */
+    @Override
+    public RuntimeException unsupportedRoleType(Object attrValue) {
+        return new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown role object type : " + attrValue);
     }
 
 }

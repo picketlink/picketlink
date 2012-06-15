@@ -73,7 +73,7 @@ public class SPRedirectMetadataConfigurationProvider extends AbstractSAMLConfigu
                 EntitiesDescriptorType entities = parseMDFile();
                 spType = CoreConfigUtil.getSPConfiguration(entities, bindingURI);
             } catch (ParsingException e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
         }
         if (configParsedSPType != null) {
@@ -91,7 +91,7 @@ public class SPRedirectMetadataConfigurationProvider extends AbstractSAMLConfigu
         InputStream is = SecurityActions.loadStream(getClass(), SP_MD_FILE);
 
         if (is == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + SP_MD_FILE);
+            throw logger.nullValueError(SP_MD_FILE);
 
         SAMLParser parser = new SAMLParser();
         return (EntitiesDescriptorType) parser.parse(is);

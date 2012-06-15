@@ -9,8 +9,6 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
@@ -41,7 +39,6 @@ import org.picketlink.identity.xmlsec.w3.xmldsig.KeyInfoType;
 import org.w3c.dom.Element;
 
 public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
-    protected static Logger logger = Logger.getLogger(SAML11TokenProvider.class);
 
     /*
      * (non-Javadoc)
@@ -58,11 +55,10 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         // get the SAML assertion that will be canceled.
         Element token = wstContext.getRequestSecurityToken().getCancelTargetElement();
         if (token == null)
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Invalid cancel request: missing required CancelTarget");
+            throw logger.wsTrustNullCancelTargetError();
         Element assertionElement = (Element) token.getFirstChild();
-        if (!this.isSAMLAssertion(assertionElement))
-            throw new ProcessingException(ErrorCodes.INVALID_ASSERTION
-                    + "CancelTarget doesn't not contain a SAMLV1.1 assertion");
+        if (!this.isSAMLAssertion(assertionElement)) 
+            throw logger.assertionInvalidError();
 
         // get the assertion ID and add it to the canceled assertions set.
         String assertionId = assertionElement.getAttribute("AssertionID");
@@ -118,7 +114,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         subjectConfirmation.addConfirmationMethod(URI.create(confirmationMethod));
         // TODO: set the key info.
         if (keyInfoType != null)
-            throw new IllegalStateException(ErrorCodes.NOT_IMPLEMENTED_YET);
+            throw logger.notImplementedYet("KeyInfoType");
 
         // create a subject using the caller principal or on-behalf-of principal.
         String subjectName = principal == null ? "ANONYMOUS" : principal.getName();
@@ -146,7 +142,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         try {
             assertionElement = SAMLUtil.toElement(assertion);
         } catch (Exception e) {
-            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall SAMLV1.1 assertion", e);
+            throw logger.samlAssertionMarshallError(e);
         }
         SecurityToken token = new StandardSecurityToken(wstContext.getRequestSecurityToken().getTokenType().toString(),
                 assertionElement, assertionID);
@@ -177,23 +173,22 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         // get the specified assertion that must be renewed.
         Element token = wstContext.getRequestSecurityToken().getRenewTargetElement();
         if (token == null)
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Invalid renew request: missing required RenewTarget");
+            throw logger.wsTrustNullRenewTargetError();
         Element oldAssertionElement = (Element) token.getFirstChild();
         if (!this.isSAMLAssertion(oldAssertionElement))
-            throw new ProcessingException(ErrorCodes.INVALID_ASSERTION + "RenewTarget doesn't not contain a SAMLV1.1 assertion");
+            throw logger.assertionInvalidError();
 
         // get the JAXB representation of the old assertion.
         SAML11AssertionType oldAssertion = null;
         try {
             oldAssertion = SAMLUtil.saml11FromElement(oldAssertionElement);
         } catch (Exception je) {
-            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Error unmarshalling assertion", je);
+            throw logger.samlAssertionUnmarshallError(je);
         }
 
         // canceled assertions cannot be renewed.
         if (this.revocationRegistry.isRevoked(SAMLUtil.SAML11_TOKEN_TYPE, oldAssertion.getID()))
-            throw new ProcessingException(ErrorCodes.ASSERTION_RENEWAL_EXCEPTION + "SAMLV1.1 Assertion with id "
-                    + oldAssertion.getID() + " has been canceled and cannot be renewed");
+            throw logger.samlAssertionRevokedCouldNotRenew(oldAssertion.getID());
 
         // adjust the lifetime for the renewed assertion.
         SAML11ConditionsType conditions = oldAssertion.getConditions();
@@ -218,7 +213,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
         try {
             assertionElement = SAMLUtil.toElement(newAssertion);
         } catch (Exception e) {
-            throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to marshall SAMLV1.1 assertion", e);
+            throw logger.samlAssertionMarshallError(e);
         }
         SecurityToken securityToken = new StandardSecurityToken(wstContext.getRequestSecurityToken().getTokenType().toString(),
                 assertionElement, assertionID);
@@ -243,13 +238,13 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
             return;
 
         WSTrustRequestContext wstContext = (WSTrustRequestContext) context;
-        if (logger.isTraceEnabled())
-            logger.trace("SAML V1.1 token validation started");
+
+        logger.samlAssertionStartingValidation();
 
         // get the SAML assertion that must be validated.
         Element token = wstContext.getRequestSecurityToken().getValidateTargetElement();
         if (token == null)
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Bad validate request: missing required ValidateTarget");
+            throw logger.wsTrustNullValidationTargetError();
 
         String code = WSTrustConstants.STATUS_CODE_VALID;
         String reason = "SAMLV1.1 Assertion successfuly validated";
@@ -263,7 +258,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
             try {
                 assertion = SAMLUtil.saml11FromElement(assertionElement);
             } catch (Exception e) {
-                throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "Unmarshalling error:", e);
+                throw logger.samlAssertionUnmarshallError(e);
             }
         }
 

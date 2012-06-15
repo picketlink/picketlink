@@ -25,7 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
@@ -42,6 +43,9 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
  * @since Aug 9, 2011
  */
 public class PropertiesConfigurationProvider implements SAMLConfigurationProvider {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public static final String IDP_FILE = "idp_config.properties";
 
     public static final String SP_FILE = "sp_config.properties";
@@ -49,12 +53,12 @@ public class PropertiesConfigurationProvider implements SAMLConfigurationProvide
     public IDPType getIDPConfiguration() throws ProcessingException {
         InputStream is = SecurityActions.loadStream(getClass(), IDP_FILE);
         if (is == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + IDP_FILE);
+            throw logger.nullValueError(IDP_FILE);
         Properties props = new Properties();
         try {
             props.load(is);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         IDPType idp = new IDPType();
         idp.setIdentityURL(props.getProperty("idp.url"));
@@ -71,12 +75,12 @@ public class PropertiesConfigurationProvider implements SAMLConfigurationProvide
     public SPType getSPConfiguration() throws ProcessingException {
         InputStream is = SecurityActions.loadStream(getClass(), SP_FILE);
         if (is == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + SP_FILE);
+            throw logger.nullValueError(SP_FILE);
         Properties props = new Properties();
         try {
             props.load(is);
         } catch (IOException e) {
-            throw new ProcessingException(e);
+            throw logger.processingError(e);
         }
         SPType sp = new SPType();
         sp.setIdentityURL(props.getProperty("idp.url"));

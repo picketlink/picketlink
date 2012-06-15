@@ -24,6 +24,8 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -42,6 +44,9 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
  * @since Oct 7, 2009
  */
 public abstract class BaseSAML2Handler implements SAML2Handler {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     protected SAML2HandlerConfig handlerConfig = null;
     protected SAML2HandlerChainConfig handlerChainConfig = null;
     protected HANDLER_TYPE handlerType;

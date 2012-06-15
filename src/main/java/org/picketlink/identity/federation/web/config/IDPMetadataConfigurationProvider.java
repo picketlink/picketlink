@@ -65,7 +65,7 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
                     idpType = CoreConfigUtil.getIDPType(idpSSO);
                 }
             } catch (ParsingException e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
         }
 
@@ -89,7 +89,7 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
         InputStream is = SecurityActions.loadStream(getClass(), IDP_MD_FILE);
 
         if (is == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + IDP_MD_FILE);
+            throw logger.nullValueError(IDP_MD_FILE);
 
         SAMLParser parser = new SAMLParser();
         return (EntitiesDescriptorType) parser.parse(is);

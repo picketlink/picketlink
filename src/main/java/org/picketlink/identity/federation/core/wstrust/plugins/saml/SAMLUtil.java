@@ -25,7 +25,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.security.GeneralSecurityException;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -48,9 +49,8 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class SAMLUtil {
-    protected static Logger log = Logger.getLogger(SAMLUtil.class);
-
-    protected static boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     public static final String SAML11_BEARER_URI = "urn:oasis:names:tc:SAML:1.0:cm:bearer";
 
@@ -90,8 +90,8 @@ public class SAMLUtil {
         ByteArrayInputStream bis = new ByteArrayInputStream(assertionBytes);
         Document document = DocumentUtil.getDocument(bis);
 
-        if (trace) {
-            log.trace("Written Assertion=" + DocumentUtil.asString(document));
+        if (logger.isTraceEnabled()) {
+            logger.samlAssertion(DocumentUtil.asString(document));
         }
 
         return document.getDocumentElement();

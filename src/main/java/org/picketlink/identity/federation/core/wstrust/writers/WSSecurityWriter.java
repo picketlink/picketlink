@@ -33,7 +33,8 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
@@ -50,6 +51,9 @@ import org.picketlink.identity.federation.ws.wss.secext.UsernameTokenType;
  * @since Nov 8, 2010
  */
 public class WSSecurityWriter {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private final XMLStreamWriter writer;
 
     public WSSecurityWriter(XMLStreamWriter writer) {
@@ -62,7 +66,7 @@ public class WSSecurityWriter {
 
         String id = usernameToken.getId();
         if (StringUtil.isNullOrEmpty(id))
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "Id on the UsernameToken");
+            throw logger.nullValueError("Id on the UsernameToken");
 
         QName wsuIDQName = new QName(WSU_NS, ID, WSU_PREFIX);
         StaxUtil.writeNameSpace(writer, WSU_PREFIX, WSU_NS);
@@ -70,7 +74,7 @@ public class WSSecurityWriter {
 
         AttributedString userNameAttr = usernameToken.getUsername();
         if (userNameAttr == null)
-            throw new ProcessingException(ErrorCodes.NULL_VALUE + "User Name is null on the UsernameToken");
+            throw logger.nullValueError("User Name is null on the UsernameToken");
 
         StaxUtil.writeStartElement(writer, WSSE_PREFIX, USERNAME, WSSE_NS);
         StaxUtil.writeCharacters(writer, userNameAttr.getValue());

@@ -28,7 +28,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
@@ -53,9 +52,6 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
  * @since Oct 7, 2009
  */
 public class RolesGenerationHandler extends BaseSAML2Handler {
-    private static Logger log = Logger.getLogger(RolesGenerationHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     private transient RoleGenerator roleGenerator = new EmptyRoleGenerator();
 
@@ -119,11 +115,10 @@ public class RolesGenerationHandler extends BaseSAML2Handler {
             try {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), attribStr);
                 roleGenerator = (RoleGenerator) clazz.newInstance();
-                if (trace)
-                    log.trace("RoleGenerator set to " + this.roleGenerator);
+                logger.samlHandlerRoleGeneratorSetup(this.roleGenerator.getClass().getName());
             } catch (Exception e) {
-                log.error("Exception initializing role generator:", e);
-                throw new ConfigurationException();
+                logger.samlHandlerRoleGeneratorSetupError(e);
+                throw logger.configurationError(e);
             }
         }
     }

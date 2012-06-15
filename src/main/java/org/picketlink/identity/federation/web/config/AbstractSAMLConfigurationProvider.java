@@ -23,7 +23,8 @@ package org.picketlink.identity.federation.web.config;
 
 import java.io.InputStream;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
@@ -40,6 +41,9 @@ import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
  * @since Feb 22, 2012
  */
 public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigurationProvider {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     public static final String VALIDATING_ALIAS = "ValidatingAlias";
 
     protected IDPType configParsedIDPType = null;
@@ -60,7 +64,7 @@ public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigura
     @Deprecated
     public void setConfigFile(InputStream is) throws ParsingException {
         if (is == null) {
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT);
+            throw logger.nullArgumentError("InputStream");
         }
         
         SAMLConfigParser parser = new SAMLConfigParser();
@@ -85,7 +89,7 @@ public abstract class AbstractSAMLConfigurationProvider implements SAMLConfigura
      */
     public void setConsolidatedConfigFile(InputStream is) throws ParsingException {
         if (is == null) {
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT);
+            throw logger.nullArgumentError("InputStream");
         }
         
         PicketLinkConfigParser parser = new PicketLinkConfigParser();

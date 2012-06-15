@@ -42,6 +42,8 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
@@ -116,6 +118,9 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:dbevenius@jboss.com">Daniel Bevenius</a>
  */
 public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageContext> {
+    
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Constant that can be used by handlers to set the username in the SOAPMessageContext.
      */
@@ -200,9 +205,9 @@ public abstract class STSSecurityHandler implements SOAPHandler<SOAPMessageConte
             final QName tokenQName) {
         try {
             if (securityQName == null)
-                throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "securityQName from subclass");
+                throw logger.nullArgumentError("securityQName from subclass");
             if (tokenQName == null)
-                throw new IllegalStateException(ErrorCodes.NULL_ARGUMENT + "tokenQName from subclass");
+                throw logger.nullArgumentError("tokenQName from subclass");
 
             final SOAPHeader soapHeader = messageContext.getMessage().getSOAPHeader();
             final Iterator securityHeaders = soapHeader.getChildElements(securityQName);

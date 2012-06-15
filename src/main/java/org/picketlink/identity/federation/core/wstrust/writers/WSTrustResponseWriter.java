@@ -23,6 +23,8 @@ import java.util.List;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
@@ -49,6 +51,9 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class WSTrustResponseWriter {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private final XMLStreamWriter writer;
 
     /**
@@ -173,8 +178,7 @@ public class WSTrustResponseWriter {
                 } else if (securityToken instanceof Element) {
                     StaxUtil.writeDOMElement(this.writer, (Element) securityToken);
                 } else
-                    throw new ProcessingException(ErrorCodes.WRITER_UNKNOWN_TYPE + "Unknown security token type="
-                            + securityToken.getClass().getName());
+                    throw logger.writerUnknownTypeError(securityToken.getClass().getName());
             }
             /*
              * Object securityToken = response.getRequestedSecurityToken().getAny(); if (securityToken != null) { if
@@ -256,7 +260,7 @@ public class WSTrustResponseWriter {
 
             // write the status code.
             if (status.getCode() == null || status.getCode() == "")
-                throw new ProcessingException(ErrorCodes.NULL_VALUE + "Validation status code is missing");
+                throw logger.wsTrustValidationStatusCodeMissing();
             StaxUtil.writeStartElement(this.writer, WSTrustConstants.PREFIX, WSTrustConstants.CODE,
                     WSTrustConstants.BASE_NAMESPACE);
             StaxUtil.writeCharacters(this.writer, response.getStatus().getCode());

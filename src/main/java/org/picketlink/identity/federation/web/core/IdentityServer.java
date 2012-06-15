@@ -33,8 +33,8 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
@@ -44,9 +44,8 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
  * @since Sep 17, 2009
  */
 public class IdentityServer implements HttpSessionListener {
-    private static Logger log = Logger.getLogger(IdentityServer.class);
-
-    private final boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     // Configurable count for the active session count
     private static int count = AccessController.doPrivileged(new PrivilegedAction<Integer>() {
@@ -217,12 +216,11 @@ public class IdentityServer implements HttpSessionListener {
         activeSessionCount++;
 
         if (activeSessionCount % count == 0)
-            log.info("Active Session Count=" + activeSessionCount);
+            logger.identityServerActiveSessionCount(activeSessionCount);
 
         HttpSession session = sessionEvent.getSession();
 
-        if (trace)
-            log.trace("Session Created with id=" + session.getId() + "::active session count=" + activeSessionCount);
+        logger.identityServerSessionCreated(session.getId(), activeSessionCount);
 
         // Ensure that the IdentityServer instance is set on the servlet context
         ServletContext servletContext = session.getServletContext();
@@ -235,7 +233,7 @@ public class IdentityServer implements HttpSessionListener {
         }
 
         if (idserver != this)
-            throw new IllegalStateException(ErrorCodes.NOT_EQUAL + "Identity Server mismatch");
+            throw logger.notEqualError(idserver.toString(), this.toString());
 
         String id = sessionEvent.getSession().getId();
         stack.createSession(id);
@@ -248,8 +246,9 @@ public class IdentityServer implements HttpSessionListener {
         --activeSessionCount;
 
         String id = sessionEvent.getSession().getId();
-        if (trace)
-            log.trace("Session Destroyed with id=" + id + "::active session count=" + activeSessionCount);
+        
+        logger.identityServerSessionDestroyed(id, activeSessionCount);
+        
         stack.removeSession(id);
     }
 }

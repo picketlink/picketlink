@@ -21,7 +21,6 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
-import java.io.StringWriter;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -33,7 +32,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
@@ -106,9 +104,6 @@ import org.w3c.dom.Node;
  * @since Oct 8, 2009
  */
 public class SAML2AuthenticationHandler extends BaseSAML2Handler {
-    private static Logger log = Logger.getLogger(SAML2AuthenticationHandler.class);
-
-    private final boolean trace = log.isTraceEnabled();
 
     private final IDPAuthenticationHandler idp = new IDPAuthenticationHandler();
 
@@ -165,11 +160,11 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             AuthnRequestType art = (AuthnRequestType) request.getSAML2Object();
             if (art == null)
-                throw new ProcessingException(ErrorCodes.NULL_VALUE + "AuthnRequest is null");
+                throw logger.samlHandlerAuthnRequestIsNull();
 
             String destination = art.getAssertionConsumerServiceURL().toASCIIString();
-            if (trace)
-                log.trace("Destination=" + destination);
+            
+            logger.destination(destination);
 
             response.setDestination(destination);
 
@@ -205,8 +200,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 response.setRelayState(request.getRelayState());
                 response.setPostBindingForResponse(postBindingForResponse);
             } catch (Exception e) {
-                log.error("Exception in processing authentication:", e);
-                throw new ProcessingException(ErrorCodes.PROCESSING_EXCEPTION + "authentication issue");
+                logger.samlHandlerAuthenticationError(e);
+                throw logger.processingError(e);
             }
         }
 
@@ -229,8 +224,8 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
             String authMethod = (String) request.getOptions().get(GeneralConstants.LOGIN_TYPE);
 
-            if (trace)
-                log.trace("AssertionConsumerURL=" + assertionConsumerURL);
+            logger.trace("AssertionConsumerURL=" + assertionConsumerURL);
+            
             ResponseType responseType = null;
 
             SAML2Response saml2Response = new SAML2Response();
@@ -300,22 +295,16 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 auditHelper.audit(auditEvent);
             }
 
-            // Lets see how the response looks like
-            if (log.isTraceEnabled()) {
-                StringWriter sw = new StringWriter();
-                try {
-                    saml2Response.marshall(responseType, sw);
-                } catch (ProcessingException e) {
-                    log.trace(e);
-                }
-                log.trace("Response=" + sw.toString());
-            }
             try {
                 samlResponseDocument = saml2Response.convert(responseType);
+                
+                if (logger.isTraceEnabled()) {
+                    logger.samlResponseDocument(DocumentUtil.asString(samlResponseDocument));
+                }
             } catch (Exception e) {
-                if (trace)
-                    log.trace(e);
+                logger.samlAssertionMarshallError(e);
             }
+            
             return samlResponseDocument;
         }
     }
@@ -357,7 +346,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 // Save AuthnRequest ID into sharedState, so that we can later process it by another handler
                 request.addOption(GeneralConstants.AUTH_REQUEST_ID, id);
             } catch (Exception e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
         }
 
@@ -367,7 +356,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             ResponseType responseType = (ResponseType) request.getSAML2Object();
             List<RTChoiceType> assertions = responseType.getAssertions();
             if (assertions.size() == 0)
-                throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
+                throw logger.samlHandlerNoAssertionFromIDP();
 
             PrivateKey privateKey = (PrivateKey) request.getOptions().get(GeneralConstants.DECRYPTING_KEY);
 
@@ -397,14 +386,14 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
 
         private ResponseType decryptAssertion(ResponseType responseType, PrivateKey privateKey) throws ProcessingException {
             if (privateKey == null)
-                throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "privateKey");
+                throw logger.nullArgumentError("privateKey");
             SAML2Response saml2Response = new SAML2Response();
             try {
                 Document doc = saml2Response.convert(responseType);
 
                 Element enc = DocumentUtil.getElement(doc, new QName(JBossSAMLConstants.ENCRYPTED_ASSERTION.get()));
                 if (enc == null)
-                    throw new ProcessingException(ErrorCodes.NULL_VALUE + "Null encrypted assertion element");
+                    throw logger.samlHandlerNullEncryptedAssertion();
                 String oldID = enc.getAttribute(JBossSAMLConstants.ID.get());
                 Document newDoc = DocumentUtil.createDocument();
                 Node importedNode = newDoc.importNode(enc, true);
@@ -420,26 +409,26 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 responseType.replaceAssertion(oldID, new RTChoiceType(assertion));
                 return responseType;
             } catch (Exception e) {
-                throw new ProcessingException(e);
+                throw logger.processingError(e);
             }
         }
 
         private Principal handleSAMLResponse(ResponseType responseType, SAML2HandlerResponse response)
                 throws ProcessingException {
             if (responseType == null)
-                throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "response type");
+                throw logger.nullArgumentError("response type");
 
             StatusType statusType = responseType.getStatus();
             if (statusType == null)
-                throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "Status Type from the IDP");
+                throw logger.nullArgumentError("Status Type from the IDP");
 
             String statusValue = statusType.getStatusCode().getValue().toASCIIString();
             if (JBossSAMLURIConstants.STATUS_SUCCESS.get().equals(statusValue) == false)
-                throw new SecurityException(ErrorCodes.IDP_AUTH_FAILED + "IDP forbid the user");
+                throw logger.samlHandlerIDPAuthenticationFailedError();
 
             List<RTChoiceType> assertions = responseType.getAssertions();
             if (assertions.size() == 0)
-                throw new IllegalStateException(ErrorCodes.NULL_VALUE + "No assertions in reply from IDP");
+                throw logger.samlHandlerNoAssertionFromIDP();
 
             AssertionType assertion = assertions.get(0).getAssertion();
             // Check for validity of assertion
@@ -457,7 +446,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             if (expiredAssertion) {
                 AssertionExpiredException aee = new AssertionExpiredException();
                 aee.setId(assertion.getID());
-                throw new ProcessingException(ErrorCodes.EXPIRED_ASSERTION + "Assertion has expired", aee);
+                throw logger.assertionExpiredError(aee);
             }
 
             SubjectType subject = assertion.getSubject();
@@ -466,15 +455,15 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
              * jnameID.getValue();
              */
             if (subject == null)
-                throw new ProcessingException(ErrorCodes.NULL_VALUE + "Subject in the assertion");
+                throw logger.nullValueError("Subject in the assertion");
 
             STSubType subType = subject.getSubType();
             if (subType == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "Unable to find subtype via subject");
+                throw logger.nullValueError("Unable to find subtype via subject");
             NameIDType nameID = (NameIDType) subType.getBaseID();
 
             if (nameID == null)
-                throw new RuntimeException(ErrorCodes.NULL_VALUE + "Unable to find username via subject");
+                throw logger.nullValueError("Unable to find username via subject");
 
             final String userName = nameID.getValue();
             List<String> roles = new ArrayList<String>();
@@ -500,9 +489,9 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                     throw new ProcessingException(ErrorCodes.NULL_VALUE + "Role Validator not provided");
 
                 boolean validRole = roleValidator.userInRole(principal, roles);
+                
                 if (!validRole) {
-                    if (trace)
-                        log.trace("Invalid role:" + roles);
+                    logger.invalidRole(roles.toString());
                     principal = null;
                 }
             }
@@ -551,7 +540,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                             Node roleNode = (Node) attrValue;
                             roles.add(roleNode.getFirstChild().getNodeValue());
                         } else
-                            throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown role object type : " + attrValue);
+                            throw logger.unsupportedRoleType(attrValue);
                     }
                 }
             }

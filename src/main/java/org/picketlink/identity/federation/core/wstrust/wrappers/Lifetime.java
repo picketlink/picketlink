@@ -27,7 +27,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.ws.trust.LifetimeType;
 import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
 
@@ -40,6 +41,8 @@ import org.picketlink.identity.federation.ws.wss.utility.AttributedDateTime;
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
 public class Lifetime {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     private final LifetimeType delegate;
 
@@ -61,7 +64,7 @@ public class Lifetime {
         try {
             this.factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException dce) {
-            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to get DatatypeFactory instance", dce);
+            throw logger.wsTrustUnableToGetDataTypeFactory(dce);
         }
 
         // normalize the parameters (convert to UTC).
@@ -89,12 +92,12 @@ public class Lifetime {
      */
     public Lifetime(LifetimeType lifetime) {
         if (lifetime == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "LifetimeType");
+            throw logger.nullArgumentError("LifetimeType");
 
         try {
             this.factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException dce) {
-            throw new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Unable to get DatatypeFactory instance", dce);
+            throw logger.wsTrustUnableToGetDataTypeFactory(dce);
         }
         this.delegate = lifetime;
 

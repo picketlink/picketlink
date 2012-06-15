@@ -27,6 +27,8 @@ import java.util.Properties;
 
 import javax.security.auth.login.LoginException;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 
@@ -38,13 +40,16 @@ import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
  * @since Aug 18, 2009
  */
 public class DefaultLoginHandler implements ILoginHandler {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private static Properties props = new Properties();
 
     static {
         try {
             URL url = SecurityActions.loadResource(DefaultLoginHandler.class, "users.properties");
             if (url == null)
-                throw new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + "users.properties not found");
+                throw new RuntimeException(logger.resourceNotFound("users.properties"));
             props.load(url.openStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -58,7 +63,7 @@ public class DefaultLoginHandler implements ILoginHandler {
         } else if (credential instanceof String) {
             pass = (String) credential;
         } else
-            throw new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown credential type:" + credential.getClass());
+            throw logger.unknowCredentialType(credential.getClass().getName());
 
         String storedPass = (String) props.get(username);
         return storedPass != null ? storedPass.equals(pass) : false;
