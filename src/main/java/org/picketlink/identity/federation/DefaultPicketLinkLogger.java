@@ -29,11 +29,13 @@ import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
 
 import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
@@ -48,6 +50,7 @@ import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpir
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
@@ -520,7 +523,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpiredError()
      */
     @Override
-    public ProcessingException assertionExpiredError() {
+    public ProcessingException samlAssertionExpiredError() {
         return new ProcessingException(ErrorCodes.EXPIRED_ASSERTION);
     }
 
@@ -1181,7 +1184,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionWithoutExpiration(java.lang.String)
      */
     @Override
-    public void authSAMLAssertionWithoutExpiration(String id) {
+    public void samlAssertionWithoutExpiration(String id) {
         logger.warn("SAML Assertion has been found to have no expiration: ID = " + id);
     }
 
@@ -1727,6 +1730,431 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public void samlParsingError(Throwable t) {
         logger.error("Exception in parsing saml message:", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerMappingContextNull()
+     */
+    @Override
+    public void mappingContextNull() {
+        logger.error("Mapping Context returned is null");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerError(java.lang.Throwable)
+     */
+    @Override
+    public void attributeManagerError(Throwable t) {
+        logger.error("Exception in attribute mapping:", t);
+    }
+
+    @Override
+    public void couldNotObtainSecurityContext() {
+        logger.error("Could not obtain security context.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#attributeManagerMapSize(int)
+     */
+    @Override
+    public void attributeManagerMapSize(int size) {
+        trace("Final attribute map size:" + size);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authenticationSubjectNotFound()
+     */
+    @Override
+    public void authenticationSubjectNotFound() {
+        debug("No authentication Subject found, cannot provide any user roles!");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#returningAttributeStatement(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void returningAttributeStatement(String tokenRoleAttributeName, String attributes) {
+        debug("Returning an AttributeStatement with a [" + tokenRoleAttributeName + "] attribute containing: "
+                        + attributes);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authFailedToCreatePrincipal(java.lang.Throwable)
+     */
+    @Override
+    public LoginException authFailedToCreatePrincipal(Throwable t) {
+        LoginException loginException = new LoginException(ErrorCodes.PROCESSING_EXCEPTION + "Failed to create principal: " + t.getMessage());
+        
+        loginException.initCause(t);
+        
+        return loginException;
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSharedCredentialIsNotSAMLCredential()
+     */
+    @Override
+    public LoginException authSharedCredentialIsNotSAMLCredential(String className) {
+        return new LoginException(ErrorCodes.WRONG_TYPE
+                        + "SAML2STSLoginModule: Shared credential is not a SAML credential. Got " + className);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSTSConfigFileNotFound()
+     */
+    @Override
+    public LoginException authSTSConfigFileNotFound() {
+        return new LoginException(ErrorCodes.SAML2STSLM_CONF_FILE_MISSING);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authErrorHandlingCallback(java.lang.Throwable)
+     */
+    @Override
+    public LoginException authErrorHandlingCallback(Throwable t) {
+        LoginException loginException = new LoginException("Error handling callback.");
+        
+        loginException.initCause(t);
+        
+        return loginException;
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authPerformingLocalValidation()
+     */
+    @Override
+    public void authPerformingLocalValidation() {
+        trace("Local Validation is being Performed");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSuccessfulLocalValidation()
+     */
+    @Override
+    public void authSuccessfulLocalValidation() {
+        trace("Local Validation passed");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authLocalValidationDisabledCheckSTS()
+     */
+    @Override
+    public void authLocalValidationDisabledCheckSTS() {
+        trace("Local Validation is disabled. Verifying with STS");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authInvalidSAMLAssertionBySTS()
+     */
+    @Override
+    public LoginException authInvalidSAMLAssertionBySTS() {
+        return new LoginException(ErrorCodes.INVALID_ASSERTION
+                            + "SAML2STSLoginModule: Supplied assertion was considered invalid by the STS");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authAssertionValidationValies(java.lang.Throwable)
+     */
+    @Override
+    public LoginException authAssertionValidationError(Throwable t) {
+        LoginException loginException = new LoginException("Failed to validate assertion using STS");
+        
+        loginException.initCause(t);
+        
+        return loginException;
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authCreatingCacheEntry(java.util.Date, java.util.Date)
+     */
+    @Override
+    public void authCreatingCacheEntry(Date date, Date expiryDate) {
+        trace("Creating Cache Entry for JBoss at [" + new Date()
+                                        + " ] , with expiration set to SAML expiry=" + expiryDate);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authFailedToParseSAMLAssertion(java.lang.Throwable)
+     */
+    @Override
+    public LoginException authFailedToParseSAMLAssertion(Throwable t) {
+        LoginException exception = new LoginException("PL00044: SAML2STSLoginModule: Failed to parse assertion element:"
+                + t.getMessage());
+        exception.initCause(t);
+        return exception;
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionToGetRolesFrom(java.lang.String)
+     */
+    @Override
+    public void authSAMLAssertionToGetRolesFrom(String samlAssertion) {
+        trace("Assertion from where roles will be sought=" + samlAssertion);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#initializedWith(java.lang.String)
+     */
+    @Override
+    public void initializedWith(String string) {
+        debug("Initialized with " + string);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSharedTokenNotFound(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void authSharedTokenNotFound(String name, String sharedToken) {
+        debug("Did not find a token " + name + " under " + sharedToken + " in the map");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authMappedRoles(java.lang.String)
+     */
+    @Override
+    public void authMappedRoles(String roles) {
+        debug("Mapped roles to " + roles);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authMappedPrincipal(java.lang.String)
+     */
+    @Override
+    public void authMappedPrincipal(String principal) {
+        debug("Mapped principal = " + principal);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionPasingFailed(java.lang.Throwable)
+     */
+    @Override
+    public void authSAMLAssertionPasingFailed(Throwable t) {
+        logger.error("Failed to parse token", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#determinedSecurityDomain(java.lang.String)
+     */
+    @Override
+    public void determinedSecurityDomain(String securityDomain) {
+        trace("Determined Security Domain=" + securityDomain);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#cacheWillExpireForPrincipal(int, java.lang.String)
+     */
+    @Override
+    public void cacheWillExpireForPrincipal(int seconds, String principal) {
+        trace("Will expire from cache in " + seconds + " seconds, principal=" + principal);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreFromSecurityDomainError(java.lang.String)
+     */
+    @Override
+    public LoginException authNullKeyStoreFromSecurityDomainError(String name) {
+        return new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null truststore for " + name);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreAliasFromSecurityDomain(java.lang.String)
+     */
+    @Override
+    public LoginException authNullKeyStoreAliasFromSecurityDomainError(String name) {
+        return new LoginException(ErrorCodes.NULL_VALUE + "SAML2STSLoginModule: null KeyStoreAlias for " + name
+                        + "; set 'KeyStoreAlias' in '" + name + "' security domain configuration");
+    }
+
+    @Override
+    public LoginException authNoCertificateFoundForAliasError(String alias, String name) {
+        return new LoginException(ErrorCodes.NULL_VALUE + "No certificate found for alias '"
+                        + alias + "' in the '" + name + "' security domain");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLInvalidSignature()
+     */
+    @Override
+    public LoginException authSAMLInvalidSignatureError() {
+        return new LoginException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "SAML2STSLoginModule: "
+                        + WSTrustConstants.STATUS_CODE_INVALID + " : invalid SAML V2.0 assertion signature");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionExpiredError()
+     */
+    @Override
+    public LoginException authSAMLAssertionExpiredError() {
+        return new LoginException(ErrorCodes.EXPIRED_ASSERTION + "SAML2STSLoginModule: "
+                        + WSTrustConstants.STATUS_CODE_INVALID + "::assertion expired or used before its lifetime period");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authConstructingSTSClientInterceptor(java.lang.String)
+     */
+    @Override
+    public void authConstructingSTSClientInterceptor(String propertiesFile) {
+        trace("Constructing STSClientInterceptor using " + propertiesFile + " as the configuration file");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authRetrievedSecurityContextFromInvocation(java.lang.String)
+     */
+    @Override
+    public void authRetrievedSecurityContextFromInvocation(String string) {
+        trace("Retrieved SecurityContext from invocation: " + string);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authInvokingSTSForSAMLAssertion(java.lang.String)
+     */
+    @Override
+    public void authInvokingSTSForSAMLAssertion(String principalName) {
+        trace("Invoking token service to get SAML assertion for " + principalName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionObtainedForPrincipal(java.lang.String)
+     */
+    @Override
+    public void authSAMLAssertionObtainedForPrincipal(String name) {
+        trace("SAML assertion for " + name + " successfully obtained");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authSAMLAssertionIssuingFailed(java.lang.Throwable)
+     */
+    @Override
+    public void authSAMLAssertionIssuingFailed(Throwable t) {
+        logger.error("Unable to issue assertion", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHandlingOutboundMessage()
+     */
+    @Override
+    public void jbossWSHandlingOutboundMessage() {
+        trace("Handling Outbound Message");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateBinaryToken(java.lang.Throwable)
+     */
+    @Override
+    public void jbossWSUnableToCreateBinaryToken(Throwable t) {
+        logger.error("Unable to create binary token", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateSecurityToken()
+     */
+    @Override
+    public void jbossWSUnableToCreateSecurityToken() {
+        logger.warn("Was not able to create security token. Just sending message without binary token");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToWriteSOAPMessage(java.lang.Exception)
+     */
+    @Override
+    public void jbossWSUnableToWriteSOAPMessage(Throwable t) {
+        logger.error("Exception writing SOAP Message", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHeaderValueIdentified(java.lang.String)
+     */
+    @Override
+    public void jbossWSHeaderValueIdentified(String headerValue) {
+        trace("Header value has been identified:" + headerValue);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSCookieValueIdentified(java.lang.String)
+     */
+    @Override
+    public void jbossWSCookieValueIdentified(String cookie) {
+        trace("Cookie value has been identified:" + cookie);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHandlingInboundMessage()
+     */
+    @Override
+    public void jbossWSHandlingInboundMessage() {
+        trace("Handling Inbound Message");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSSAMLAssertionFoundInPayload(java.lang.String)
+     */
+    @Override
+    public void jbossWSSAMLAssertionFoundInPayload(String assertionAsString) {
+        trace("Assertion included in SOAP payload:" + assertionAsString);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSRoleKeysExtractRolesFromAssertion(java.lang.String)
+     */
+    @Override
+    public void jbossWSRoleKeysExtractRolesFromAssertion(String string) {
+        trace("Inbound::Rolekeys to extract roles from the assertion:" + string);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSRolesInAssertion(java.lang.String)
+     */
+    @Override
+    public void jbossWSRolesInAssertion(String roles) {
+        trace("Roles in the assertion:" + roles);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSNoRolesFoundInAssertion()
+     */
+    @Override
+    public void jbossWSNoRolesFoundInAssertion() {
+        trace("Inbound::Did not find roles in the assertion");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSNoAssertionsFound()
+     */
+    @Override
+    public void jbossWSNoAssertionsFound() {
+        trace("We did not find any assertion");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbosswsSuccessfullyAuthenticatedPrincipal(java.lang.String, java.lang.String)
+     */
+    @Override
+    public void jbosswsSuccessfullyAuthenticatedPrincipal(String principal, String subject) {
+        trace("Successfully Authenticated:Principal=" + principal + "::subject=" + subject);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToLoadJBossWSSEConfigError()
+     */
+    @Override
+    public RuntimeException jbossWSUnableToLoadJBossWSSEConfigError() {
+        return new RuntimeException(ErrorCodes.RESOURCE_NOT_FOUND + "unable to load jboss-wsse.xml");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSAuthorizationFailed()
+     */
+    @Override
+    public RuntimeException jbossWSAuthorizationFailed() {
+        return new RuntimeException(ErrorCodes.PROCESSING_EXCEPTION + "Authorization Failed");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSErrorGettingOperationName(java.lang.Throwable)
+     */
+    @Override
+    public void jbossWSErrorGettingOperationName(Throwable t) {
+        logger.error("Exception using backup method to get op name=", t);
     }
 
 }

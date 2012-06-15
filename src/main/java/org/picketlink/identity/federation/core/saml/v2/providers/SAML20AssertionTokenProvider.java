@@ -220,7 +220,7 @@ public class SAML20AssertionTokenProvider extends AbstractSecurityTokenProvider 
 
         try {
             if (!AssertionUtil.hasExpired(issuedAssertion))
-                throw logger.assertionExpiredError();
+                throw logger.samlAssertionExpiredError();
         } catch (ConfigurationException e) {
             throw logger.processingError(e);
         }

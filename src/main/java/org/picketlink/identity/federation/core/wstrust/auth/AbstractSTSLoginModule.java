@@ -677,7 +677,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
                 if (expiry != null) {
                     cacheExpiry.register(securityDomain, expiry.toGregorianCalendar().getTime(), principal);
                 } else {
-                    logger.authSAMLAssertionWithoutExpiration(assertion.getID());
+                    logger.samlAssertionWithoutExpiration(assertion.getID());
                 }
             }
         }

@@ -25,11 +25,13 @@ package org.picketlink.identity.federation;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Date;
 
 import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
@@ -383,7 +385,7 @@ public interface PicketLinkLogger {
     /**
      * @return
      */
-    ProcessingException assertionExpiredError();
+    ProcessingException samlAssertionExpiredError();
 
     /**
      * @return
@@ -857,7 +859,7 @@ public interface PicketLinkLogger {
     /**
      * @param id
      */
-    void authSAMLAssertionWithoutExpiration(String id);
+    void samlAssertionWithoutExpiration(String id);
 
     /**
      * @param token
@@ -1231,5 +1233,235 @@ public interface PicketLinkLogger {
      * @param t
      */
     void trace(Throwable t);
+
+    /**
+     * 
+     */
+    void mappingContextNull();
+
+    /**
+     * @param t
+     */
+    void attributeManagerError(Throwable t);
+
+    /**
+     * 
+     */
+    void couldNotObtainSecurityContext();
+
+    /**
+     * @param size
+     */
+    void attributeManagerMapSize(int size);
+
+    /**
+     * 
+     */
+    void authenticationSubjectNotFound();
+
+    /**
+     * @param tokenRoleAttributeName
+     * @param attributes
+     */
+    void returningAttributeStatement(String tokenRoleAttributeName, String attributes);
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authFailedToCreatePrincipal(Throwable t);
+
+    /**
+     * @param class1 
+     * @return
+     */
+    LoginException authSharedCredentialIsNotSAMLCredential(String className);
+
+    /**
+     * @return
+     */
+    LoginException authSTSConfigFileNotFound();
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authErrorHandlingCallback(Throwable t);
+
+    /**
+     * 
+     */
+    void authPerformingLocalValidation();
+
+    /**
+     * 
+     */
+    void authSuccessfulLocalValidation();
+
+    /**
+     * 
+     */
+    void authLocalValidationDisabledCheckSTS();
+
+    /**
+     * @return
+     */
+    LoginException authInvalidSAMLAssertionBySTS();
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authAssertionValidationError(Throwable t);
+
+    /**
+     * @param date
+     * @param expiryDate
+     */
+    void authCreatingCacheEntry(Date date, Date expiryDate);
+
+    /**
+     * @param t
+     * @return
+     */
+    LoginException authFailedToParseSAMLAssertion(Throwable t);
+
+    /**
+     * @param samlAssertion
+     */
+    void authSAMLAssertionToGetRolesFrom(String samlAssertion);
+
+    void initializedWith(String string);
+
+    void authSharedTokenNotFound(String name, String sharedToken);
+
+    void authMappedRoles(String roles);
+
+    void authMappedPrincipal(String principal);
+
+    /**
+     * @param t
+     */
+    void authSAMLAssertionPasingFailed(Throwable t);
+
+    void determinedSecurityDomain(String securityDomain);
+
+    void cacheWillExpireForPrincipal(int seconds, String principal);
+
+    LoginException authNullKeyStoreFromSecurityDomainError(String name);
+
+    LoginException authNullKeyStoreAliasFromSecurityDomainError(String name);
+
+    LoginException authNoCertificateFoundForAliasError(String alias, String name);
+
+    LoginException authSAMLInvalidSignatureError();
+
+    LoginException authSAMLAssertionExpiredError();
+
+    /**
+     * @param propertiesFile
+     */
+    void authConstructingSTSClientInterceptor(String propertiesFile);
+
+    /**
+     * @param string
+     */
+    void authRetrievedSecurityContextFromInvocation(String string);
+
+    /**
+     * @param principalName
+     */
+    void authInvokingSTSForSAMLAssertion(String principalName);
+
+    /**
+     * @param principalName
+     */
+    void authSAMLAssertionObtainedForPrincipal(String principalName);
+
+    /**
+     * @param t
+     */
+    void authSAMLAssertionIssuingFailed(Throwable t);
+
+    /**
+     * 
+     */
+    void jbossWSHandlingOutboundMessage();
+
+    /**
+     * 
+     */
+    void jbossWSHandlingInboundMessage();
+    
+    /**
+     * @param t
+     */
+    void jbossWSUnableToCreateBinaryToken(Throwable t);
+
+    /**
+     * 
+     */
+    void jbossWSUnableToCreateSecurityToken();
+
+    /**
+     * @param ignore
+     */
+    void jbossWSUnableToWriteSOAPMessage(Throwable t);
+
+    /**
+     * @param headerValue
+     */
+    void jbossWSHeaderValueIdentified(String headerValue);
+
+    /**
+     * @param cookie
+     */
+    void jbossWSCookieValueIdentified(String cookie);
+
+    /**
+     * @param assertionAsString
+     */
+    void jbossWSSAMLAssertionFoundInPayload(String assertionAsString);
+
+    /**
+     * @param string
+     */
+    void jbossWSRoleKeysExtractRolesFromAssertion(String string);
+
+    /**
+     * @param roles
+     */
+    void jbossWSRolesInAssertion(String roles);
+
+    /**
+     * 
+     */
+    void jbossWSNoRolesFoundInAssertion();
+
+    /**
+     * 
+     */
+    void jbossWSNoAssertionsFound();
+
+    /**
+     * @param principal
+     * @param subject
+     */
+    void jbosswsSuccessfullyAuthenticatedPrincipal(String principal, String subject);
+
+    /**
+     * @return
+     */
+    RuntimeException jbossWSUnableToLoadJBossWSSEConfigError();
+
+    /**
+     * @return
+     */
+    RuntimeException jbossWSAuthorizationFailed();
+
+    /**
+     * @param t
+     */
+    void jbossWSErrorGettingOperationName(Throwable t);
 
 }
