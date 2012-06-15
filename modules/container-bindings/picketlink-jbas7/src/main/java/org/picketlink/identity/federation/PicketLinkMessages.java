@@ -407,7 +407,7 @@ public interface PicketLinkMessages {
     @Message(id = 151, value = "Null truststore for security domain : %s")
     LoginException authNullKeyStoreFromSecurityDomainError(String name);
 
-    @Message(id = 152, value = "Null KeyStoreAlias for %s; set 'KeyStoreAlias' in '%s' security domain configuration")
+    @Message(id = 152, value = "Null KeyStoreAlias; set 'KeyStoreAlias' in '%s' security domain configuration")
     LoginException authNullKeyStoreAliasFromSecurityDomainError(String name);
 
     @Message(id = 153, value = "No certificate found for alias '%s' in the '%s' security domain")

@@ -1806,7 +1806,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSNoAssertionsFound();
     }
 
-    public void jbosswsSuccessfullyAuthenticatedPrincipal(String principal, String subject) {
+    public void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject) {
         PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSSuccessfullyAuthenticatedPrincipal(principal, subject);
     }
     

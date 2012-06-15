@@ -61,7 +61,7 @@ public class WSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
             throw new RuntimeException(e);
         }
 
-        logger.jbosswsSuccessfullyAuthenticatedPrincipal(principal.toString(), subject.toString());
+        logger.jbossWSSuccessfullyAuthenticatedPrincipal(principal.toString(), subject.toString());
 
         securityAdaptor.pushSubjectContext(subject, principal, credential);
 
