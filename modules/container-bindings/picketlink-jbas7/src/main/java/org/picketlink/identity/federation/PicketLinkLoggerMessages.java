@@ -254,4 +254,60 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @Message(id = 251, value = "SAML Token Validation result: %s")
     void authSAMLValidationResult(boolean result);
 
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 252, value = "SAML token validation started")
+    void samlStartingValidation();
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 253, value = "No attribute provider set")
+    void stsNoAttributeProviderSet();
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 254, value = "Attribute provider not installed: %s is not an instance of SAML20TokenAttributeProvider")
+    void stsWrongAttributeProviderTypeNotInstalled(String attributeProviderClassName);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 255, value = "Error instantiating attribute provider")
+    void stsAttributeProviderInstantiationError(@Cause Throwable t);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 256, value = "Assertion Element = %s")
+    void samlAssertion(String nodeAsString);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 257, value = "Active Session Count = %s")
+    void identityServerActiveSessionCount(int activeSessionCount);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 258, value = "Session Created with id = %s ::active session count = %s")
+    void identityServerSessionCreated(String id, int activeSessionCount);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 259, value = "RoleGenerator set to %s")
+    void samlHandlerRoleGeneratorSetup(String name);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 260, value = "Exception initializing role generator")
+    void samlHandlerRoleGeneratorSetupError(@Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 261, value = "AttributeManager set to %s")
+    void samlHandlerAttributeSetup(String name);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 262, value = "Destination = %s")
+    void destination(String destination);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 263, value = "Exception in processing authentication")
+    void samlHandlerAuthenticationError(@Cause Throwable t);
+
+    @LogMessage(level = Level.TRACE)
+    @Message(id = 264, value = "Invalid role: %s")
+    void invalidRole(String roles);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 265, value = "Session Destroyed with id = %s ::active session count = %s")
+    void identityServerSessionDestroyed(String id, int activeSessionCount);
+
 }

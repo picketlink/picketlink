@@ -38,6 +38,7 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
@@ -88,6 +89,9 @@ public interface PicketLinkMessages {
 
     @Message (id = 13, value = "No Security Token Provider found in configuration:[%s][ProtoCtx=%s]")
     ProcessingException stsNoTokenProviderError(String configuration, String protocolContext);
+
+    @Message (id =15, value = "IDP Authentication Failed")
+    SecurityException samlHandlerIDPAuthenticationFailedError();
 
     @Message(id = 16, value = "Should not be the same: %s")
     IllegalArgumentException shouldNotBeTheSame(String message);
@@ -172,7 +176,7 @@ public interface PicketLinkMessages {
     
     @Message(id = 79, value = "Assertion has expired")
     ProcessingException assertionExpiredError();
-
+    
     @Message(id = 80, value = "Invalid Assertion")
     ProcessingException assertionInvalidError();
 
@@ -289,5 +293,51 @@ public interface PicketLinkMessages {
 
     @Message (id =120, value = "Could not locate a Security Token from the callback")
     LoginException authCouldNotLocateSecurityTokenError();
+
+    @Message (id =121, value = "Invalid cancel request: missing required CancelTarget")
+    ProcessingException wsTrustNullCancelTargetError();
+
+    @Message (id =122, value = "Failed to marshall SAMLV1.1 assertion")
+    ProcessingException saml11MarshallError(@Cause Throwable t);
+
+    @Message (id =123, value = "Invalid renew request: missing required RenewTarget")
+    ProcessingException wsTrustNullRenewTargetError();
+
+    @Message (id =124, value = "Error unmarshalling assertion")
+    ProcessingException saml11UnmarshallError(@Cause Throwable t);
+
+    @Message (id =125, value = "SAML Assertion with id %s has been canceled and cannot be renewed")
+    ProcessingException samlAssertionRevokedCouldNotRenew(String id);
+
+    @Message (id =126, value = "Bad validate request: missing required ValidateTarget")
+    ProcessingException wsTrustNullValidationTargetError();
+
+    @Message (id =127, value = "Unable to get DatatypeFactory instance")
+    RuntimeException wsTrustUnableToGetDataTypeFactoryError(@Cause Throwable t);
+
+    @Message (id =128, value = "Validation status code is missing")
+    ProcessingException wsTrustValidationStatusCodeMissing();
+
+    @Message (id =129, value = "Unknown credential type: %s")
+    RuntimeException unknownCredentialTypeError(String name);
+
+    @Message (id =130, value = "Assertion not found in the handler request")
+    RuntimeException samlHandlerAssertionNotFound();
+
+    @Message (id =131, value = "AuthnRequest is null")
+    ProcessingException samlHandlerAuthnRequestIsNullError();
+
+    @Message (id =132, value = "No assertions in reply from IDP")
+    IllegalArgumentException samlHandlerNoAssertionFromIDPError();
+
+    @Message (id =133, value = "Null encrypted assertion element")
+    ProcessingException samlHandlerNullEncryptedAssertion();
+
+    @Message(id = 134, value = "Assertion has expired with errors")
+    ProcessingException assertionExpiredErrorWithException(@Cause AssertionExpiredException aee);
+
+    @Message(id = 135, value = "Unknown role object type : %s")
+    RuntimeException unsupportedRoleType(Object attrValue);
+   
 
 }
