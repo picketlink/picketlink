@@ -216,11 +216,11 @@ public class IdentityServer implements HttpSessionListener {
         activeSessionCount++;
 
         if (activeSessionCount % count == 0)
-            logger.identityServerActiveSessionCount(activeSessionCount);
+            logger.samlIdentityServerActiveSessionCount(activeSessionCount);
 
         HttpSession session = sessionEvent.getSession();
 
-        logger.identityServerSessionCreated(session.getId(), activeSessionCount);
+        logger.samlIdentityServerSessionCreated(session.getId(), activeSessionCount);
 
         // Ensure that the IdentityServer instance is set on the servlet context
         ServletContext servletContext = session.getServletContext();
@@ -247,7 +247,7 @@ public class IdentityServer implements HttpSessionListener {
 
         String id = sessionEvent.getSession().getId();
         
-        logger.identityServerSessionDestroyed(id, activeSessionCount);
+        logger.samlIdentityServerSessionDestroyed(id, activeSessionCount);
         
         stack.removeSession(id);
     }

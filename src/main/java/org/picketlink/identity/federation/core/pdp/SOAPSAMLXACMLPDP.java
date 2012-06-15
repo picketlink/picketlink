@@ -81,7 +81,7 @@ public class SOAPSAMLXACMLPDP implements Provider<Source> {
         try {
             Document doc = (Document) DocumentUtil.getNodeFromSource(request);
             
-            logger.receivedXACMLMessage(DocumentUtil.asString(doc));
+            logger.xacmlReceivedMessage(DocumentUtil.asString(doc));
             
             XACMLAuthzDecisionQueryType xacmlQuery = SOAPSAMLXACMLUtil.getXACMLQueryType(doc);
             ResponseType samlResponseType = SOAPSAMLXACMLUtil.handleXACMLQuery(pdp, issuer, xacmlQuery);
@@ -94,7 +94,7 @@ public class SOAPSAMLXACMLPDP implements Provider<Source> {
 
             return new DOMSource(responseDocument.getDocumentElement());
         } catch (Exception e) {
-            throw logger.pdpMessageProcessingError(e);
+            throw logger.xacmlPDPMessageProcessingError(e);
         }
     }
 

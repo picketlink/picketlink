@@ -30,7 +30,8 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.util.Base64;
@@ -43,10 +44,9 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
  * @since May 22, 2009
  */
 public class PostBindingUtil {
-    private static Logger log = Logger.getLogger(PostBindingUtil.class);
-
-    private static boolean trace = log.isTraceEnabled();
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     /**
      * Apply base64 encoding on the message
      *
@@ -65,7 +65,7 @@ public class PostBindingUtil {
      */
     public static byte[] base64Decode(String encodedString) {
         if (encodedString == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "encodedString");
+            throw logger.nullArgumentError("encodedString");
 
         return Base64.decode(encodedString);
     }
@@ -78,7 +78,7 @@ public class PostBindingUtil {
      */
     public static InputStream base64DecodeAsStream(String encodedString) {
         if (encodedString == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "encodedString");
+            throw logger.nullArgumentError("encodedString");
 
         return new ByteArrayInputStream(base64Decode(encodedString));
     }
@@ -99,7 +99,7 @@ public class PostBindingUtil {
         String samlMessage = holder.getSamlMessage();
 
         if (destination == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "Destination is null");
+            throw logger.nullValueError("Destination is null");
 
         response.setContentType("text/html");
         PrintWriter out = response.getWriter();
@@ -124,8 +124,7 @@ public class PostBindingUtil {
         builder.append("</FORM></BODY></HTML>");
 
         String str = builder.toString();
-        if (trace)
-            log.trace(str);
+        logger.trace(str);
         out.println(str);
         out.close();
     }

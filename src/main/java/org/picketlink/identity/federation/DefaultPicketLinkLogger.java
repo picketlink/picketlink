@@ -104,6 +104,16 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
     
     /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.Throwable)
+     */
+    @Override
+    public void trace(Throwable t) {
+        if (logger.isTraceEnabled()) {
+            logger.trace(t.getMessage(), t);
+        }
+    }
+    
+    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#error(java.lang.Throwable)
      */
     @Override
@@ -174,7 +184,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#sendingXACMLDecisionQuery(java.lang.String)
      */
     @Override
-    public void sendingXACMLDecisionQuery(String xacmlDecisionQueryDocument) {
+    public void xacmlSendingDecisionQuery(String xacmlDecisionQueryDocument) {
         this.debug("Sending XACML Decision Query::" + xacmlDecisionQueryDocument);
     }
 
@@ -422,7 +432,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#lookingParserForElement(javax.xml.namespace.QName)
      */
     @Override
-    public void lookingParserForElement(QName qname) {
+    public void xmlLookingParserForElement(QName qname) {
         this.trace("Looking for Parser for :" + qname);
     }
 
@@ -430,7 +440,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#receivedXACMLMessage(java.lang.String)
      */
     @Override
-    public void receivedXACMLMessage(String asString) {
+    public void xacmlReceivedMessage(String asString) {
         this.debug("Received Message::" + asString);
     }
 
@@ -438,7 +448,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#pdpMessageProcessingError(java.lang.Exception)
      */
     @Override
-    public RuntimeException pdpMessageProcessingError(Throwable t) {
+    public RuntimeException xacmlPDPMessageProcessingError(Throwable t) {
         return new RuntimeException(t);
     }
 
@@ -462,7 +472,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryNotSpecified()
      */
     @Override
-    public void securityTokenRegistryNotSpecified() {
+    public void stsTokenRegistryNotSpecified() {
         this.debug("Security Token registry option not specified: Issued Tokens will not be persisted!");
     }
 
@@ -470,7 +480,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInvalidType(java.lang.String)
      */
     @Override
-    public void securityTokenRegistryInvalidType(String tokenRegistryOption) {
+    public void stsTokenRegistryInvalidType(String tokenRegistryOption) {
         logger.warn(tokenRegistryOption + " is not an instance of SecurityTokenRegistry - using default registry");
     }
 
@@ -478,7 +488,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#securityTokenRegistryInstantiationError()
      */
     @Override
-    public void securityTokenRegistryInstantiationError() {
+    public void stsTokenRegistryInstantiationError() {
         logger.warn("Error instantiating token registry class - using default registry");
     }
 
@@ -486,7 +496,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryNotSpecified()
      */
     @Override
-    public void revocationRegistryNotSpecified() {
+    public void stsRevocationRegistryNotSpecified() {
         this.debug("Revocation registry option not specified: cancelled ids will not be persisted!");
     }
 
@@ -494,7 +504,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInvalidType(java.lang.String)
      */
     @Override
-    public void revocationRegistryInvalidType(String registryOption) {
+    public void stsRevocationRegistryInvalidType(String registryOption) {
         logger.warn(registryOption + " is not an instance of RevocationRegistry - using default registry");
     }
 
@@ -502,7 +512,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#revocationRegistryInstantiationError()
      */
     @Override
-    public void revocationRegistryInstantiationError() {
+    public void stsRevocationRegistryInstantiationError() {
         logger.warn("Error instantiating revocation registry class - using default registry");
     }
 
@@ -576,7 +586,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     @Override
-    public void metaDataStoreDirectoryCreation(String directory) {
+    public void samlMetaDataStoreDirectoryCreation(String directory) {
         this.trace(directory + " does not exist. Hence creating.");
     }
 
@@ -584,7 +594,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataIdentityProviderLoadingError(java.lang.Exception)
      */
     @Override
-    public void metaDataIdentityProviderLoadingError(Throwable t) {
+    public void samlMetaDataIdentityProviderLoadingError(Throwable t) {
         logger.error("Exception loading the identity providers:", t);
     }
 
@@ -592,7 +602,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataServiceProviderLoadingError(java.lang.Throwable)
      */
     @Override
-    public void metaDataServiceProviderLoadingError(Throwable t) {
+    public void samlMetaDataServiceProviderLoadingError(Throwable t) {
         logger.error("Exception loading the service providers:", t);
     }
 
@@ -600,7 +610,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistEntityDescriptor(java.lang.String)
      */
     @Override
-    public void metaDataPersistEntityDescriptor(String path) {
+    public void samlMetaDataPersistEntityDescriptor(String path) {
         this.trace("Persisted into " + path);
     }
 
@@ -608,7 +618,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistTrustedMap(java.lang.String)
      */
     @Override
-    public void metaDataPersistTrustedMap(String path) {
+    public void samlMetaDataPersistTrustedMap(String path) {
         this.trace("Persisted trusted map into " + path);
     }
 
@@ -624,7 +634,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#assertionConditions(java.lang.String, java.lang.String, javax.xml.datatype.XMLGregorianCalendar)
      */
     @Override
-    public void assertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter) {
+    public void samlAssertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter) {
         this.trace("Now=" + now + " ::notBefore=" + notBefore + "::notOnOrAfter="
                         + notOnOrAfter);
     }
@@ -633,7 +643,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#assertionExpired(java.lang.String)
      */
     @Override
-    public void assertionExpired(String id) {
+    public void samlAssertionExpired(String id) {
         this.info("Assertion has expired with id=" + id);
     }
 
@@ -762,7 +772,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#couldNotGetXMLSchema(java.lang.Throwable)
      */
     @Override
-    public void couldNotGetXMLSchema(Throwable t) {
+    public void xmlCouldNotGetSchema(Throwable t) {
         logger.error("Cannot get schema", t);
     }
 
@@ -919,7 +929,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#issuingTokenForPrincipal(java.security.Principal)
      */
     @Override
-    public void issuingTokenForPrincipal(Principal callerPrincipal) {
+    public void samlIssuingTokenForPrincipal(Principal callerPrincipal) {
         this.trace("Issuing token for principal " + callerPrincipal);
     }
 
@@ -927,7 +937,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#tokenTimeoutNotSpecified()
      */
     @Override
-    public void tokenTimeoutNotSpecified() {
+    public void stsTokenTimeoutNotSpecified() {
         this.debug("Lifetime has not been specified. Using the default timeout value.");
     }
 
@@ -935,7 +945,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#claimsDialectProcessorNotFound(java.lang.String)
      */
     @Override
-    public void claimsDialectProcessorNotFound(String dialect) {
+    public void wsTrustClaimsDialectProcessorNotFound(String dialect) {
         this.debug("Claims have been specified in the request but no processor was found for dialect "
                         + dialect);
     }
@@ -1304,7 +1314,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerActiveSessionCount(int)
      */
     @Override
-    public void identityServerActiveSessionCount(int activeSessionCount) {
+    public void samlIdentityServerActiveSessionCount(int activeSessionCount) {
         info("Active Session Count=" + activeSessionCount);
     }
 
@@ -1312,7 +1322,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerSessionCreated(java.lang.String, int)
      */
     @Override
-    public void identityServerSessionCreated(String id, int activeSessionCount) {
+    public void samlIdentityServerSessionCreated(String id, int activeSessionCount) {
         trace("Session Created with id=" + id + "::active session count=" + activeSessionCount);
     }
 
@@ -1320,7 +1330,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#identityServerSessionDestroyed(java.lang.String, int)
      */
     @Override
-    public void identityServerSessionDestroyed(String id, int activeSessionCount) {
+    public void samlIdentityServerSessionDestroyed(String id, int activeSessionCount) {
         trace("Session Destroyed with id=" + id + "::active session count=" + activeSessionCount);
     }
 
@@ -1470,7 +1480,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerDomainsTrustedByIDP(java.lang.String, java.lang.String)
      */
     @Override
-    public void samlHandlerDomainsTrustedByIDP(String domainsTrusted, String issuerDomain) {
+    public void samlTrustedDomains(String domainsTrusted, String issuerDomain) {
         trace("Domains that IDP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
     }
 
@@ -1478,7 +1488,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustDomainCheck(java.lang.String)
      */
     @Override
-    public void samlHandlerTrustDomainCheck(String uriBit) {
+    public void samlTrustedDomainCheck(String uriBit) {
         trace("Matching uri bit=" + uriBit);
     }
 
@@ -1494,7 +1504,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.String)
      */
     @Override
-    public IssuerNotTrustedException samlHandlerIssuerNotTrustedError(String issuer) {
+    public IssuerNotTrustedException samlIssuerNotTrustedError(String issuer) {
         return new IssuerNotTrustedException("Issuer not Trusted by the IDP: " + issuer);
     }
 
@@ -1502,7 +1512,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerIssuerNotTrustedError(java.lang.Throwable)
      */
     @Override
-    public IssuerNotTrustedException samlHandlerIssuerNotTrustedError(Throwable t) {
+    public IssuerNotTrustedException samlIssuerNotTrustedException(Throwable t) {
         return new IssuerNotTrustedException(t);
     }
 
@@ -1646,7 +1656,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSignatureNorPresentError()
      */
     @Override
-    public ProcessingException samlHandlerSignatureNorPresentError() {
+    public ProcessingException samlHandlerSignatureNotPresentError() {
         return new ProcessingException(ErrorCodes.INVALID_DIGITAL_SIGNATURE + "Signature Validation failed. Signature is not present. Check if the IDP is supporting signatures.");
     }
 
@@ -1661,6 +1671,62 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public void samlIDPUserClosedBrowserCancelingToken() {
         trace("User has closed the browser. So we proceed to cancel the STS issued token.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerList(java.lang.String)
+     */
+    @Override
+    public void samlHandlerList(String handlers) {
+        trace("Handlers are:" + handlers);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFinishedProcessing(java.lang.String)
+     */
+    @Override
+    public void samlHandlerFinishedProcessing(String handlerClassName) {
+        trace("Finished Processing handler:" + handlerClassName);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerChainProcessingError(java.lang.Throwable)
+     */
+    @Override
+    public RuntimeException samlHandlerChainProcessingError(Throwable t) {
+        return new RuntimeException("Error during processing the SAML Handler Chain.", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#trustKeyManagerMissing()
+     */
+    @Override
+    public TrustKeyConfigurationException trustKeyManagerMissing() {
+        return new TrustKeyConfigurationException(ErrorCodes.TRUST_MANAGER_MISSING);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlRequestDocument(java.lang.String)
+     */
+    @Override
+    public void samlRequestDocument(String samlRequestDocument) {
+        trace("SAML Request Document: " + samlRequestDocument);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlBase64DecodingError(java.lang.Throwable)
+     */
+    @Override
+    public void samlBase64DecodingError(Throwable t) {
+        error("Error in base64 decoding saml message: " + t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlParsingError(java.lang.Throwable)
+     */
+    @Override
+    public void samlParsingError(Throwable t) {
+        logger.error("Exception in parsing saml message:", t);
     }
 
 }

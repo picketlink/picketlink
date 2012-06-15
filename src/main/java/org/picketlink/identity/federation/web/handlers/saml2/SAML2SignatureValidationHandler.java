@@ -145,7 +145,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
             sigValue = RedirectBindingSignatureUtil.getSignatureValueFromSignedURL(queryString);
 
             if (sigValue == null) {
-                throw logger.samlHandlerSignatureNorPresentError();
+                throw logger.samlHandlerSignatureNotPresentError();
             }
 
             return RedirectBindingSignatureUtil.validateSignature(queryString, publicKey, sigValue);

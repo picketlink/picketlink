@@ -290,7 +290,7 @@ public class WSTRequestSecurityTokenParser implements ParserNamespaceSupport {
                 } else {
                     QName qname = subEvent.getName();
                     
-                    logger.lookingParserForElement(qname);
+                    logger.xmlLookingParserForElement(qname);
                     
                     ParserNamespaceSupport parser = ParserController.get(qname);
                     if (parser == null)

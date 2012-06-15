@@ -86,7 +86,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
         File plStore = new File(baseDirectory);
         if (plStore.exists() == false) {
-            logger.metaDataStoreDirectoryCreation(plStore.getPath());
+            logger.samlMetaDataStoreDirectoryCreation(plStore.getPath());
             plStore.mkdir();
         }
     }
@@ -111,7 +111,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                     identityProviders.addAll(StringUtil.tokenize(listOfIDP));
                 }
             } catch (Exception e) {
-                logger.metaDataIdentityProviderLoadingError(e);
+                logger.samlMetaDataIdentityProviderLoadingError(e);
             }
         }
         return identityProviders;
@@ -141,7 +141,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                     serviceProviders.add(token);
                 }
             } catch (Exception e) {
-                logger.metaDataServiceProviderLoadingError(e);
+                logger.samlMetaDataServiceProviderLoadingError(e);
             }
         }
         return serviceProviders;
@@ -176,7 +176,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
             throw new RuntimeException(e);
         }
         
-        logger.metaDataPersistEntityDescriptor(persistedFile.getPath());
+        logger.samlMetaDataPersistEntityDescriptor(persistedFile.getPath());
 
         // Process the EDT
         List<EDTChoiceType> edtChoiceTypeList = entity.getChoiceType();
@@ -240,7 +240,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                 oos.close();
         }
 
-        logger.metaDataPersistTrustedMap(trustedFile.getPath());
+        logger.samlMetaDataPersistTrustedMap(trustedFile.getPath());
     }
 
     /**
@@ -302,7 +302,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
             sp.store(new FileWriter(serviceProviderFile), "");
         } catch (Exception e) {
-            logger.metaDataServiceProviderLoadingError(e);
+            logger.samlMetaDataServiceProviderLoadingError(e);
         }
     }
 
@@ -329,7 +329,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
             idp.store(new FileWriter(idpProviderFile), "");
         } catch (Exception e) {
-            logger.metaDataIdentityProviderLoadingError(e);
+            logger.samlMetaDataIdentityProviderLoadingError(e);
         }
     }
 

@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
 import java.security.GeneralSecurityException;
-import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.util.StringTokenizer;
 
@@ -37,7 +36,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
@@ -61,7 +61,6 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 /**
  * Request Util <b> Not thread safe</b>
@@ -70,10 +69,9 @@ import org.w3c.dom.Node;
  * @since May 18, 2009
  */
 public class IDPWebRequestUtil {
-    private static Logger log = Logger.getLogger(IDPWebRequestUtil.class);
-
-    private final boolean trace = log.isTraceEnabled();
-
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
     private boolean redirectProfile = false;
 
     private boolean postProfile = false;
@@ -116,13 +114,11 @@ public class IDPWebRequestUtil {
         } else {
             try {
                 byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
-                if (trace)
-                    log.trace("SAMLRequest=" + new String(samlBytes));
+                logger.samlRequestDocument("SAMLRequest=" + new String(samlBytes));
                 is = new ByteArrayInputStream(samlBytes);
             } catch (Exception rte) {
-                if (trace)
-                    log.trace("Error in base64 decoding saml message: " + rte);
-                throw new ParsingException(rte);
+                logger.samlBase64DecodingError(rte);
+                throw logger.parserError(rte);
             }
         }
         saml2Request.getSAML2ObjectFromStream(is);
@@ -137,13 +133,12 @@ public class IDPWebRequestUtil {
             try {
                 is = RedirectBindingUtil.base64DeflateDecode(samlMessage);
             } catch (Exception e) {
-                log.error("Exception in parsing saml message:", e);
-                throw new ParsingException();
+                logger.samlParsingError(e);
+                throw logger.parserError(e);
             }
         } else {
             byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
-            if (trace)
-                log.trace("SAMLRequest=" + new String(samlBytes));
+            logger.samlRequestDocument(new String(samlBytes));
             is = new ByteArrayInputStream(samlBytes);
         }
         return saml2Request.getRequestType(is);
@@ -157,32 +152,29 @@ public class IDPWebRequestUtil {
      */
     public void isTrusted(String issuer) throws IssuerNotTrustedException {
         if (idpConfiguration == null)
-            throw new IllegalStateException(ErrorCodes.NULL_VALUE + "IDP Configuration");
+            throw logger.nullValueError("IDP Configuration");
         try {
             String issuerDomain = getDomain(issuer);
             TrustType idpTrust = idpConfiguration.getTrust();
             if (idpTrust != null) {
                 String domainsTrusted = idpTrust.getDomains();
-                if (trace)
-                    log.trace("Domains that IDP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
+                logger.samlTrustedDomains(domainsTrusted, issuerDomain);
                 if (domainsTrusted.indexOf(issuerDomain) < 0) {
                     // Let us do string parts checking
                     StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
                     while (st != null && st.hasMoreTokens()) {
                         String uriBit = st.nextToken();
-                        if (trace)
-                            log.trace("Matching uri bit=" + uriBit);
+                        logger.samlTrustedDomainCheck(uriBit);
                         if (issuerDomain.indexOf(uriBit) > 0) {
-                            if (trace)
-                                log.trace("Matched " + uriBit + " trust for " + issuerDomain);
+                            logger.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
                             return;
                         }
                     }
-                    throw new IssuerNotTrustedException(issuer);
+                    throw logger.samlIssuerNotTrustedError(issuer);
                 }
             }
         } catch (Exception e) {
-            throw new IssuerNotTrustedException(e.getLocalizedMessage(), e);
+            throw logger.samlIssuerNotTrustedException(e);
         }
     }
 
@@ -197,7 +189,7 @@ public class IDPWebRequestUtil {
         Document responseDoc = holder.getResponseDoc();
 
         if (responseDoc == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "responseType is null");
+            throw logger.nullValueError("responseType");
 
         String destination = holder.getDestination();
         String relayState = holder.getRelayState();
@@ -211,8 +203,6 @@ public class IDPWebRequestUtil {
 
             // This is the case with whole queryString including signature already generated by SAML2SignatureGenerationHandler
             if (holder.getDestinationQueryStringWithSignature() != null) {
-                if (trace)
-                    log.trace("IDP:Destination=" + destination);
                 finalDest = destination + "?" + holder.getDestinationQueryStringWithSignature();
             }
             // This is the case without signature
@@ -221,9 +211,6 @@ public class IDPWebRequestUtil {
 
                 String urlEncodedResponse = RedirectBindingUtil.deflateBase64URLEncode(responseBytes);
 
-                if (trace)
-                    log.trace("IDP:Destination=" + destination);
-
                 if (isNotNull(relayState))
                     relayState = RedirectBindingUtil.urlEncode(relayState);
 
@@ -231,13 +218,13 @@ public class IDPWebRequestUtil {
                     ,sendRequest, isErrorResponse);
             }
 
-            if (trace)
-               log.trace("Redirecting to=" + finalDest);
+            logger.destination(finalDest);
             HTTPRedirectUtil.sendRedirectForResponder(finalDest, response);
         } else {
-
-            if (trace)
-               log.trace("Sending over to SP:" + DocumentUtil.asString(responseDoc));
+            if (logger.isTraceEnabled()) {
+                logger.samlResponseDocument(DocumentUtil.asString(responseDoc));
+            }
+            
             byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8");
 
             String samlResponse = PostBindingUtil.base64Encode(new String(responseBytes));
@@ -264,8 +251,7 @@ public class IDPWebRequestUtil {
                 sb.append(RedirectBindingSignatureUtil.getSAMLResponseURLWithSignature(urlEncodedResponse,
                         urlEncodedRelayState, keyManager.getSigningKey()));
             } catch (Exception e) {
-                if (trace)
-                    log.trace(e);
+                logger.trace(e);
             }
         } else {
             if (sendRequest)
@@ -315,15 +301,14 @@ public class IDPWebRequestUtil {
         responseType.setStatus(JBossSAMLAuthnResponseFactory.createStatusType(status));
 
         // Lets see how the response looks like
-        if (log.isTraceEnabled()) {
-            log.trace("Error_ResponseType = ");
+        if (logger.isTraceEnabled()) {
             StringWriter sw = new StringWriter();
             try {
                 saml2Response.marshall(responseType, sw);
             } catch (ProcessingException e) {
-                log.trace(e);
+                logger.trace(e);
             }
-            log.trace("Response=" + sw.toString());
+            logger.samlResponseDocument(sw.toString());
         }
 
         if (supportSignature) {
@@ -331,18 +316,14 @@ public class IDPWebRequestUtil {
                 SAML2Signature ss = new SAML2Signature();
                 samlResponse = ss.sign(responseType, keyManager.getSigningKeyPair());
             } catch (Exception e) {
-                if (trace) {
-                    log.trace(e);
-                }
-                
-                throw new RuntimeException(ErrorCodes.SIGNING_PROCESS_FAILURE, e);
+                logger.trace(e);
+                throw new RuntimeException(logger.signatureError(e));
             }
         } else
             try {
                 samlResponse = saml2Response.convert(responseType);
             } catch (Exception e) {
-                if (trace)
-                    log.trace(e);
+                logger.trace(e);
             }
 
         return samlResponse;

@@ -103,7 +103,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                 if (idpTrust != null) {
                     String domainsTrusted = idpTrust.getDomains();
 
-                    logger.samlHandlerDomainsTrustedByIDP(domainsTrusted, issuerDomain);
+                    logger.samlTrustedDomains(domainsTrusted, issuerDomain);
                     
                     if (domainsTrusted.indexOf(issuerDomain) < 0) {
                         // Let us do string parts checking
@@ -111,19 +111,19 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                         while (st != null && st.hasMoreTokens()) {
                             String uriBit = st.nextToken();
 
-                            logger.samlHandlerTrustDomainCheck(uriBit);
+                            logger.samlTrustedDomainCheck(uriBit);
                             
                             if (issuerDomain.indexOf(uriBit) > 0) {
                                 logger.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
                                 return;
                             }
                         }
-                        throw logger.samlHandlerIssuerNotTrustedError(issuer);
+                        throw logger.samlIssuerNotTrustedError(issuer);
                     }
                 } else
                     throw logger.samlHandlerTrustElementMissingError();
             } catch (Exception e) {
-                throw new ProcessingException(logger.samlHandlerIssuerNotTrustedError(e));
+                throw new ProcessingException(logger.samlIssuerNotTrustedException(e));
             }
         }
     }
@@ -161,7 +161,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                         while (st != null && st.hasMoreTokens()) {
                             String uriBit = st.nextToken();
 
-                            logger.samlHandlerTrustDomainCheck(uriBit);
+                            logger.samlTrustedDomainCheck(uriBit);
                             
                             if (issuerDomain.indexOf(uriBit) > 0) {
                                 logger.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
@@ -174,12 +174,12 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                             auditEvent.setType(PicketLinkAuditEventType.ERROR_TRUSTED_DOMAIN);
                             auditHelper.audit(auditEvent);
                         }
-                        throw logger.samlHandlerIssuerNotTrustedError(issuer);
+                        throw logger.samlIssuerNotTrustedError(issuer);
                     }
                 } else
                     throw logger.samlHandlerTrustElementMissingError();
             } catch (Exception e) {
-                throw new ProcessingException(logger.samlHandlerIssuerNotTrustedError(e));
+                throw new ProcessingException(logger.samlIssuerNotTrustedException(e));
             }
         }
     }

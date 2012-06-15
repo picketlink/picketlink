@@ -69,7 +69,7 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
         // Check for token registry
         String tokenRegistryOption = this.properties.get(TOKEN_REGISTRY);
         if (tokenRegistryOption == null) {
-            logger.securityTokenRegistryNotSpecified();
+            logger.stsTokenRegistryNotSpecified();
         } else {
             // if a file is to be used as registry, check if the user has specified the file name.
             if ("FILE".equalsIgnoreCase(tokenRegistryOption)) {
@@ -88,11 +88,11 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                         if (object instanceof RevocationRegistry)
                             this.tokenRegistry = (SecurityTokenRegistry) object;
                         else {
-                            logger.securityTokenRegistryInvalidType(tokenRegistryOption);
+                            logger.stsTokenRegistryInvalidType(tokenRegistryOption);
                         }
                     }
                 } catch (Exception pae) {
-                    logger.securityTokenRegistryInstantiationError();
+                    logger.stsTokenRegistryInstantiationError();
                     pae.printStackTrace();
                 }
             }
@@ -103,7 +103,7 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
         // check if a revocation registry option has been set.
         String registryOption = this.properties.get(REVOCATION_REGISTRY);
         if (registryOption == null) {
-            logger.revocationRegistryNotSpecified();
+            logger.stsRevocationRegistryNotSpecified();
         } else {
             // if a file is to be used as registry, check if the user has specified the file name.
             if ("FILE".equalsIgnoreCase(registryOption)) {
@@ -130,11 +130,11 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                         if (object instanceof RevocationRegistry)
                             this.revocationRegistry = (RevocationRegistry) object;
                         else {
-                            logger.revocationRegistryInvalidType(registryOption);
+                            logger.stsRevocationRegistryInvalidType(registryOption);
                         }
                     }
                 } catch (Exception pae) {
-                    logger.revocationRegistryInstantiationError();
+                    logger.stsRevocationRegistryInstantiationError();
                     pae.printStackTrace();
                 }
             }

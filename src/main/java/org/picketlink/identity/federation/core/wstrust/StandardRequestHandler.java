@@ -95,7 +95,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
      */
     public RequestSecurityTokenResponse issue(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException {
 
-        logger.issuingTokenForPrincipal(callerPrincipal);
+        logger.samlIssuingTokenForPrincipal(callerPrincipal);
 
         // SecurityTokenProvider provider = null;
 
@@ -135,7 +135,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         requestContext.setTokenIssuer(this.configuration.getSTSName());
         if (request.getLifetime() == null && this.configuration.getIssuedTokenTimeout() != 0) {
             // if no lifetime has been specified, use the configured timeout value.
-            logger.tokenTimeoutNotSpecified();
+            logger.stsTokenTimeoutNotSpecified();
             request.setLifetime(WSTrustUtil.createDefaultLifetime(this.configuration.getIssuedTokenTimeout()));
         }
         requestContext.setServiceProviderPublicKey(providerPublicKey);
@@ -148,7 +148,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             if (processor != null)
                 requestContext.setClaimedAttributes(processor.processClaims(claims, callerPrincipal));
             else if (logger.isDebugEnabled())
-                logger.claimsDialectProcessorNotFound(claims.getDialect());
+                logger.wsTrustClaimsDialectProcessorNotFound(claims.getDialect());
         }
 
         // get the OnBehalfOf principal, if one has been specified.
@@ -361,7 +361,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         // set default values where needed.
         if (request.getLifetime() == null && this.configuration.getIssuedTokenTimeout() != 0) {
             // if no lifetime has been specified, use the configured timeout value.
-            logger.tokenTimeoutNotSpecified();
+            logger.stsTokenTimeoutNotSpecified();
             request.setLifetime(WSTrustUtil.createDefaultLifetime(this.configuration.getIssuedTokenTimeout()));
         }
 

@@ -33,7 +33,8 @@ import java.util.concurrent.locks.Lock;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.ProviderType;
@@ -63,9 +64,8 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
  * @since Oct 27, 2009
  */
 public class ServiceProviderBaseProcessor {
-    protected static Logger log = Logger.getLogger(ServiceProviderBaseProcessor.class);
-
-    protected boolean trace = log.isTraceEnabled();
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected boolean postBinding;
 
@@ -140,8 +140,8 @@ public class ServiceProviderBaseProcessor {
 
     public SAML2HandlerResponse process(HTTPContext httpContext, Set<SAML2Handler> handlers, Lock chainLock)
             throws ProcessingException, IOException, ParsingException, ConfigurationException {
-        if (trace)
-            log.trace("Handlers are:" + handlers);
+
+        logger.samlHandlerList(handlers.toString());
 
         // Neither saml request nor response from IDP
         // So this is a user request
@@ -160,8 +160,6 @@ public class ServiceProviderBaseProcessor {
 
         // Reset the state
         try {
-            if (trace)
-                log.trace("Handlers are : " + handlers);
 
             chainLock.lock();
 
@@ -177,12 +175,12 @@ public class ServiceProviderBaseProcessor {
                 else
                     saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
                 handler.generateSAMLRequest(saml2HandlerRequest, saml2HandlerResponse);
-                if (trace)
-                    log.trace("Finished Processing handler:" + handler.getClass().getCanonicalName());
+
+                logger.samlHandlerFinishedProcessing(handler.getClass().getCanonicalName());
             }
         } catch (ProcessingException pe) {
-            log.error("Processing Exception:", pe);
-            throw new RuntimeException(pe);
+            logger.error(pe);
+            throw logger.samlHandlerChainProcessingError(pe);
         } finally {
             chainLock.unlock();
         }
@@ -227,7 +225,7 @@ public class ServiceProviderBaseProcessor {
      */
     protected PublicKey getIDPPublicKey() throws TrustKeyConfigurationException, TrustKeyProcessingException {
         if (this.keyManager == null) {
-            throw new TrustKeyConfigurationException(ErrorCodes.TRUST_MANAGER_MISSING);
+            throw logger.trustKeyManagerMissing();
         }
         String idpValidatingAlias = (String) this.keyManager.getAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY);
 

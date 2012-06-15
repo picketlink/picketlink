@@ -102,7 +102,7 @@ public class JAXPValidationUtil {
         try {
             schemaGrammar = schemaFactory.newSchema(sources());
         } catch (SAXException e) {
-            logger.couldNotGetXMLSchema(e);
+            logger.xmlCouldNotGetSchema(e);
         }
         return schemaGrammar;
     }

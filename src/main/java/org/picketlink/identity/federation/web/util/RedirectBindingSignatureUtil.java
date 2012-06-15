@@ -31,9 +31,10 @@ import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -52,6 +53,8 @@ import org.xml.sax.SAXException;
  * @since Dec 16, 2008
  */
 public class RedirectBindingSignatureUtil {
+    
+    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     /**
      * Get the URL for the SAML request that contains the signature and signature algorithm
@@ -184,7 +187,7 @@ public class RedirectBindingSignatureUtil {
     public static byte[] getSignatureValueFromSignedURL(String signedURL) throws IOException {
         String sigValueTokenValue = getTokenValue(signedURL, GeneralConstants.SAML_SIGNATURE_REQUEST_KEY);
         if (sigValueTokenValue == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_VALUE + "Signature Token is not present");
+            throw new IllegalStateException(logger.samlHandlerSignatureNotPresentError());
         return RedirectBindingUtil.urlBase64Decode(sigValueTokenValue);
     }
 
@@ -303,7 +306,7 @@ public class RedirectBindingSignatureUtil {
 
     private static String getToken(String queryString, String token) {
         if (queryString == null)
-            throw new IllegalArgumentException(ErrorCodes.NULL_ARGUMENT + "queryString");
+            throw logger.nullArgumentError("queryString");
 
         token += "=";
 
