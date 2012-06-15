@@ -2129,7 +2129,7 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#jbosswsSuccessfullyAuthenticatedPrincipal(java.lang.String, java.lang.String)
      */
     @Override
-    public void jbosswsSuccessfullyAuthenticatedPrincipal(String principal, String subject) {
+    public void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject) {
         trace("Successfully Authenticated:Principal=" + principal + "::subject=" + subject);
     }
 

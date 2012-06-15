@@ -1447,7 +1447,7 @@ public interface PicketLinkLogger {
      * @param principal
      * @param subject
      */
-    void jbosswsSuccessfullyAuthenticatedPrincipal(String principal, String subject);
+    void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject);
 
     /**
      * @return
