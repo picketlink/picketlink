@@ -133,8 +133,6 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     protected String canonicalizationMethod = CanonicalizationMethod.EXCLUSIVE_WITH_COMMENTS;
 
-    protected String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
-
     /**
      * The user can inject a fully qualified name of a {@link SAMLConfigurationProvider}
      */
@@ -254,7 +252,8 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
      * @param logOutPage
      */
     public void setLogOutPage(String logOutPage) {
-        this.logOutPage = logOutPage;
+        logger.warn("Option logOutPage is now configured with the PicketLinkSP element.");
+
     }
 
     /**
@@ -547,10 +546,11 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
 
     protected void sendToLogoutPage(Request request, Response response, Session session) throws IOException, ServletException {
         // we are invalidated.
-        RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.logOutPage);
+        RequestDispatcher dispatch = context.getServletContext().getRequestDispatcher(this.getConfiguration().getLogOutPage());
         if (dispatch == null)
-            logger.samlSPCouldNotDispatchToLogoutPage(this.logOutPage);
+            logger.samlSPCouldNotDispatchToLogoutPage(this.getConfiguration().getLogOutPage());
         else {
+            logger.trace("Forwarding request to logOutPage: " + this.getConfiguration().getLogOutPage());
             session.expire();
             try {
                 dispatch.forward(request, response);
