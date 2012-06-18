@@ -42,6 +42,8 @@ import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 import static junit.framework.Assert.assertEquals;
 
 /**
+ * <p>Unit test for {@link FileBasedEntityMetadataProvider} and {@link FileBasedEntitiesMetadataProvider}</p>
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class FileBasedMetadataProviderUnitTestCase extends TestCase {
