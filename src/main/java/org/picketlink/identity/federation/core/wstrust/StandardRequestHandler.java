@@ -148,7 +148,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             if (processor != null)
                 requestContext.setClaimedAttributes(processor.processClaims(claims, callerPrincipal));
             else if (logger.isDebugEnabled())
-                logger.wsTrustClaimsDialectProcessorNotFound(claims.getDialect());
+                logger.debug("Claims have been specified in the request but no processor was found for dialect " + claims.getDialect());
         }
 
         // get the OnBehalfOf principal, if one has been specified.
@@ -160,14 +160,13 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         // get the key type and size from the request, setting default values if not specified.
         URI keyType = request.getKeyType();
         if (keyType == null) {
-            logger.stsKeyTypeNotFoundUsingDefaultBearer();
+            logger.debug("No key type could be found in the request. Using the default BEARER type.");
             keyType = URI.create(WSTrustConstants.KEY_TYPE_BEARER);
             request.setKeyType(keyType);
         }
         long keySize = request.getKeySize();
         if (keySize == 0) {
-            if (logger.isDebugEnabled())
-                logger.stsKeySizeNotFoundUsingDefault(KEY_SIZE);
+            logger.debug("No key size could be found in the request. Using the default size. (" + KEY_SIZE + ")");
             keySize = KEY_SIZE;
             request.setKeySize(keySize);
         }
@@ -444,7 +443,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
             try {
                 if (logger.isTraceEnabled()) {
                     try {
-                        logger.signatureValidatingDocument(DocumentUtil.getNodeAsString(securityToken));
+                        logger.trace("Going to validate signature for: " + DocumentUtil.getNodeAsString(securityToken));
                     } catch (Exception e) {
                     }
                 }

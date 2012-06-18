@@ -141,7 +141,7 @@ public class ServiceProviderBaseProcessor {
     public SAML2HandlerResponse process(HTTPContext httpContext, Set<SAML2Handler> handlers, Lock chainLock)
             throws ProcessingException, IOException, ParsingException, ConfigurationException {
 
-        logger.samlHandlerList(handlers.toString());
+        logger.trace("SAML Handlers are: " + handlers);
 
         // Neither saml request nor response from IDP
         // So this is a user request
@@ -176,7 +176,7 @@ public class ServiceProviderBaseProcessor {
                     saml2HandlerRequest.setTypeOfRequestToBeGenerated(GENERATE_REQUEST_TYPE.AUTH);
                 handler.generateSAMLRequest(saml2HandlerRequest, saml2HandlerResponse);
 
-                logger.samlHandlerFinishedProcessing(handler.getClass().getCanonicalName());
+                logger.trace("Finished Processing handler: " + handler.getClass().getCanonicalName());
             }
         } catch (ProcessingException pe) {
             logger.error(pe);

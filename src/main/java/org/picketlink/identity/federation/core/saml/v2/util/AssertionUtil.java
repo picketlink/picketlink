@@ -261,7 +261,7 @@ public class AssertionUtil {
             XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
 
-            logger.samlAssertionConditions(now.toXMLFormat(), notBefore.toXMLFormat(), notOnOrAfter);
+            logger.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
             
             expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
             
@@ -295,7 +295,7 @@ public class AssertionUtil {
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
             XMLGregorianCalendar updatedOnOrAfter = XMLTimeUtil.add(notOnOrAfter, clockSkewInMilis);
 
-            logger.samlAssertionConditions(now.toXMLFormat(), notBefore.toXMLFormat(), notOnOrAfter);
+            logger.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
             expiry = !XMLTimeUtil.isValid(now, updatedNotBefore, updatedOnOrAfter);
             if (expiry) {
                 logger.samlAssertionExpired(assertion.getID());
@@ -323,7 +323,7 @@ public class AssertionUtil {
             XMLGregorianCalendar notBefore = conditionsType.getNotBefore();
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
             
-            logger.samlAssertionConditions(now.toXMLFormat(), notBefore.toXMLFormat(), notOnOrAfter);
+            logger.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
             
             expiry = !XMLTimeUtil.isValid(now, notBefore, notOnOrAfter);
             if (expiry) {
@@ -356,7 +356,7 @@ public class AssertionUtil {
             XMLGregorianCalendar notOnOrAfter = conditionsType.getNotOnOrAfter();
             XMLGregorianCalendar updatedOnOrAfter = XMLTimeUtil.add(notOnOrAfter, clockSkewInMilis);
 
-            logger.samlAssertionConditions(now.toXMLFormat(), notBefore.toXMLFormat(), notOnOrAfter);
+            logger.trace("Now=" + now.toXMLFormat() + " ::notBefore=" + notBefore.toXMLFormat() + " ::notOnOrAfter=" + notOnOrAfter);
             
             expiry = !XMLTimeUtil.isValid(now, updatedNotBefore, updatedOnOrAfter);
             if (expiry) {

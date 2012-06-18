@@ -68,7 +68,7 @@ public class STSValidatingLoginModule extends AbstractSTSLoginModule {
 
             final boolean result = stsClient.validateToken(token);
             
-            logger.authSAMLValidationResult(result);
+            logger.debug("SAML Token Validation result: " + result);
             
             if (result == false) {
                 // Throw an exception as returing false only says that this login module should be ignored.

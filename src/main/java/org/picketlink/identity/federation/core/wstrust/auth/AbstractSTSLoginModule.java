@@ -398,7 +398,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             final boolean added = subject.getPublicCredentials().add(samlCredential);
             populateSubject();
             if (added)
-                logger.authAddedSAMLCredential(samlCredential);
+                logger.trace("Added Credential " + samlCredential);
 
             return true;
         } else {

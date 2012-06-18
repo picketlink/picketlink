@@ -259,7 +259,7 @@ public class WSTrustUtil {
             };
         }
 
-        logger.stsUnableToParseOnBehalfType(onBehalfOf.getAny());
+        logger.debug("Unable to parse the contents of the OnBehalfOfType: " + onBehalfOf.getAny());
         
         return null;
     }

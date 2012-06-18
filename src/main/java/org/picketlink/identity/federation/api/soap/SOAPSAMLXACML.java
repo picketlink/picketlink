@@ -103,7 +103,7 @@ public class SOAPSAMLXACML {
             SAMLRequestWriter samlRequestWriter = new SAMLRequestWriter(xmlStreamWriter);
             samlRequestWriter.write(queryType);
 
-            logger.xacmlSendingDecisionQuery(new String(baos.toByteArray()));
+            logger.trace("Sending XACML Decision Query: " + new String(baos.toByteArray()));
 
             Document reqDocument = DocumentUtil.getDocument(new ByteArrayInputStream(baos.toByteArray()));
 

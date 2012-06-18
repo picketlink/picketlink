@@ -25,12 +25,9 @@ package org.picketlink.identity.federation;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Date;
 
 import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
@@ -42,7 +39,6 @@ import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingExce
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
-import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.w3c.dom.Element;
 
@@ -98,26 +94,12 @@ public interface PicketLinkLogger {
     RuntimeException unsupportedType(String name);
 
     /**
-     * <p>Logs the SAML Response document.</p>
-     * 
-     * @param samlResponseDocumentAsString
-     */
-    void samlResponseDocument(String samlResponseDocumentAsString);
-
-    /**
      * <p>Creates a {@link ProcessingException} for exceptions raised during signature processing.</p>
      * 
      * @param e
      * @return
      */
     XMLSignatureException signatureError(Throwable e);
-
-    /**
-     * <p>Logs a XACML decision query document.</p>
-     * 
-     * @param xacmlDecisionQueryDocument
-     */
-    void xacmlSendingDecisionQuery(String xacmlDecisionQueryDocument);
 
     /**
      * <p>Creates a {@link RuntimeException} for null values.</p>
@@ -323,16 +305,6 @@ public interface PicketLinkLogger {
     ParsingException parserError(Throwable t);
 
     /**
-     * @param qname
-     */
-    void xmlLookingParserForElement(QName qname);
-
-    /**
-     * @param asString
-     */
-    void xacmlReceivedMessage(String asString);
-
-    /**
      * 
      * @param e
      * @return
@@ -449,13 +421,6 @@ public interface PicketLinkLogger {
     void signatureAssertionValidationError(Throwable t);
 
     /**
-     * @param now
-     * @param notBefore
-     * @param notOnOrAfter
-     */
-    void samlAssertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
-
-    /**
      * @param id
      */
     void samlAssertionExpired(String id);
@@ -494,16 +459,6 @@ public interface PicketLinkLogger {
      * @return
      */
     IllegalArgumentException invalidArgumentError(String message);
-
-    /**
-     * 
-     */
-    void stsCreatingDefaultSTSConfig();
-
-    /**
-     * @param fileName
-     */
-    void stsLoadingConfiguration(String fileName);
 
     /**
      * @param configuration
@@ -692,11 +647,6 @@ public interface PicketLinkLogger {
     void stsTokenTimeoutNotSpecified();
 
     /**
-     * @param dialect
-     */
-    void wsTrustClaimsDialectProcessorNotFound(String dialect);
-
-    /**
      * @param t
      * @return
      */
@@ -726,11 +676,6 @@ public interface PicketLinkLogger {
     void stsSecurityTokenSignatureNotVerified();
 
     /**
-     * @param nodeAsString
-     */
-    void signatureValidatingDocument(String nodeAsString);
-
-    /**
      * @param e
      * @return
      */
@@ -740,16 +685,6 @@ public interface PicketLinkLogger {
      * 
      */
     void stsSecurityTokenShouldBeEncrypted();
-
-    /**
-     * 
-     */
-    void stsKeyTypeNotFoundUsingDefaultBearer();
-
-    /**
-     * @param kEY_SIZE
-     */
-    void stsKeySizeNotFoundUsingDefault(long kEY_SIZE);
 
     /**
      * @param password
@@ -762,11 +697,6 @@ public interface PicketLinkLogger {
      * @return
      */
     IllegalStateException couldNotLoadProperties(String configFile);
-
-    /**
-     * @param any
-     */
-    void stsUnableToParseOnBehalfType(Object type);
 
     /**
      * @param t
@@ -791,11 +721,6 @@ public interface PicketLinkLogger {
     LoginException authLoginError(Throwable t);
 
     /**
-     * @param samlCredential
-     */
-    void authAddedSAMLCredential(SamlCredential samlCredential);
-
-    /**
      * @param e
      * @return
      */
@@ -811,11 +736,6 @@ public interface PicketLinkLogger {
      * @return
      */
     LoginException authCouldNotValidateSAMLToken(Element token);
-
-    /**
-     * @param result
-     */
-    void authSAMLValidationResult(boolean result);
 
     /**
      * @return
@@ -967,17 +887,6 @@ public interface PicketLinkLogger {
     ProcessingException samlHandlerFailedInResponseToVerificarionError();
 
     /**
-     * @param uriBit
-     */
-    void samlTrustedDomainCheck(String uriBit);
-
-    /**
-     * @param uriBit
-     * @param issuerDomain
-     */
-    void samlHandlerTrustedDomainMatched(String uriBit, String issuerDomain);
-
-    /**
      * @param issuer
      * @return
      */
@@ -1052,24 +961,9 @@ public interface PicketLinkLogger {
     ProcessingException samlHandlerSignatureValidationError(Throwable t);
 
     /**
-     * 
-     */
-    void samlIDPUserClosedBrowserCancelingToken();
-
-    /**
      * @param t
      */
     void error(Throwable t);
-
-    /**
-     * @param handlers
-     */
-    void samlHandlerList(String handlers);
-
-    /**
-     * @param handlerClassName
-     */
-    void samlHandlerFinishedProcessing(String handlerClassName);
 
     /**
      * @param t
@@ -1081,11 +975,6 @@ public interface PicketLinkLogger {
      * @return
      */
     TrustKeyConfigurationException trustKeyManagerMissing();
-
-    /**
-     * @param samlRequestDocument
-     */
-    void samlRequestDocument(String samlRequestDocument);
 
     /**
      * @param rte
@@ -1118,22 +1007,6 @@ public interface PicketLinkLogger {
     void couldNotObtainSecurityContext();
 
     /**
-     * @param size
-     */
-    void attributeManagerMapSize(int size);
-
-    /**
-     * 
-     */
-    void authenticationSubjectNotFound();
-
-    /**
-     * @param tokenRoleAttributeName
-     * @param attributes
-     */
-    void returningAttributeStatement(String tokenRoleAttributeName, String attributes);
-
-    /**
      * @param t
      * @return
      */
@@ -1157,21 +1030,6 @@ public interface PicketLinkLogger {
     LoginException authErrorHandlingCallback(Throwable t);
 
     /**
-     * 
-     */
-    void authPerformingLocalValidation();
-
-    /**
-     * 
-     */
-    void authSuccessfulLocalValidation();
-
-    /**
-     * 
-     */
-    void authLocalValidationDisabledCheckSTS();
-
-    /**
      * @return
      */
     LoginException authInvalidSAMLAssertionBySTS();
@@ -1183,29 +1041,10 @@ public interface PicketLinkLogger {
     LoginException authAssertionValidationError(Throwable t);
 
     /**
-     * @param date
-     * @param expiryDate
-     */
-    void authCreatingCacheEntry(Date date, Date expiryDate);
-
-    /**
      * @param t
      * @return
      */
     LoginException authFailedToParseSAMLAssertion(Throwable t);
-
-    /**
-     * @param samlAssertion
-     */
-    void authSAMLAssertionToGetRolesFrom(String samlAssertion);
-
-    void initializedWith(String string);
-
-    void authSharedTokenNotFound(String name, String sharedToken);
-
-    void authMappedRoles(String roles);
-
-    void authMappedPrincipal(String principal);
 
     /**
      * @param t
@@ -1221,26 +1060,6 @@ public interface PicketLinkLogger {
     LoginException authSAMLInvalidSignatureError();
 
     LoginException authSAMLAssertionExpiredError();
-
-    /**
-     * @param propertiesFile
-     */
-    void authConstructingSTSClientInterceptor(String propertiesFile);
-
-    /**
-     * @param string
-     */
-    void authRetrievedSecurityContextFromInvocation(String string);
-
-    /**
-     * @param principalName
-     */
-    void authInvokingSTSForSAMLAssertion(String principalName);
-
-    /**
-     * @param principalName
-     */
-    void authSAMLAssertionObtainedForPrincipal(String principalName);
 
     /**
      * @param t

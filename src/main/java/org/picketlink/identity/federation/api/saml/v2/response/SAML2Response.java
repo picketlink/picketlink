@@ -437,7 +437,9 @@ public class SAML2Response {
 
         Document samlResponseDocument = DocumentUtil.getDocument(is);
 
-        logger.samlResponseDocument(DocumentUtil.asString(samlResponseDocument));
+        if (logger.isTraceEnabled()) {
+            logger.trace("SAML Response Document: " + DocumentUtil.asString(samlResponseDocument));
+        }
 
         SAMLParser samlParser = new SAMLParser();
         JAXPValidationUtil.checkSchemaValidation(samlResponseDocument);

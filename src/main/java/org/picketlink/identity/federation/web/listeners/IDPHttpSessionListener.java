@@ -59,7 +59,7 @@ public class IDPHttpSessionListener implements HttpSessionListener {
         // server. So we know that the token has not been canceled by the STS.
         if (assertion != null) {
 
-            logger.samlIDPUserClosedBrowserCancelingToken();
+            logger.trace("User has closed the browser. So we proceed to cancel the STS issued token.");
 
             PicketLinkCoreSTS sts = PicketLinkCoreSTS.instance();
             SAMLProtocolContext samlProtocolContext = new SAMLProtocolContext();

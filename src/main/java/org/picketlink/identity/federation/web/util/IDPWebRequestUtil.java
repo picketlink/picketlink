@@ -114,7 +114,7 @@ public class IDPWebRequestUtil {
         } else {
             try {
                 byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
-                logger.samlRequestDocument("SAMLRequest=" + new String(samlBytes));
+                logger.trace("SAML Request Document: " + new String(samlBytes));
                 is = new ByteArrayInputStream(samlBytes);
             } catch (Exception rte) {
                 logger.samlBase64DecodingError(rte);
@@ -138,7 +138,7 @@ public class IDPWebRequestUtil {
             }
         } else {
             byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
-            logger.samlRequestDocument(new String(samlBytes));
+            logger.trace("SAML Request Document: " + new String(samlBytes));
             is = new ByteArrayInputStream(samlBytes);
         }
         return saml2Request.getRequestType(is);
@@ -164,9 +164,9 @@ public class IDPWebRequestUtil {
                     StringTokenizer st = new StringTokenizer(domainsTrusted, ",");
                     while (st != null && st.hasMoreTokens()) {
                         String uriBit = st.nextToken();
-                        logger.samlTrustedDomainCheck(uriBit);
+                        logger.trace("Matching uri bit = " + uriBit);
                         if (issuerDomain.indexOf(uriBit) > 0) {
-                            logger.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
+                            logger.trace("Matched " + uriBit + " trust for " + issuerDomain);
                             return;
                         }
                     }
@@ -222,7 +222,7 @@ public class IDPWebRequestUtil {
             HTTPRedirectUtil.sendRedirectForResponder(finalDest, response);
         } else {
             if (logger.isTraceEnabled()) {
-                logger.samlResponseDocument(DocumentUtil.asString(responseDoc));
+                logger.trace("SAML Response Document: " + DocumentUtil.asString(responseDoc));
             }
             
             byte[] responseBytes = DocumentUtil.getDocumentAsString(responseDoc).getBytes("UTF-8");
@@ -308,7 +308,7 @@ public class IDPWebRequestUtil {
             } catch (ProcessingException e) {
                 logger.trace(e);
             }
-            logger.samlResponseDocument(sw.toString());
+            logger.trace("SAML Response Document: " + sw.toString());
         }
 
         if (supportSignature) {

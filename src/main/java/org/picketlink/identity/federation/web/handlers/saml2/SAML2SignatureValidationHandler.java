@@ -77,7 +77,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
         Document signedDocument = request.getRequestDocument();
 
         if (logger.isTraceEnabled()) {
-            logger.signatureValidatingDocument(DocumentUtil.asString(signedDocument));
+            logger.trace("Going to validate signature for: " + DocumentUtil.asString(signedDocument));
         }
 
         PublicKey publicKey = (PublicKey) request.getOptions().get(GeneralConstants.SENDER_PUBLIC_KEY);

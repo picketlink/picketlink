@@ -96,13 +96,13 @@ public class PicketLinkCoreSTS {
             fileName = configFileName[0];
 
         if (configuration == null) {
-            logger.stsCreatingDefaultSTSConfig();
+            logger.trace("[InstallDefaultConfiguration] Configuration is null. Creating a new configuration");
             configuration = new PicketLinkSTSConfiguration();
         }
 
         try {
 
-            logger.stsLoadingConfiguration(fileName);
+            logger.trace("[InstallDefaultConfiguration] Configuration file name=" + fileName);
 
             STSConfiguration config = getConfiguration(fileName);
             configuration.copy(config);

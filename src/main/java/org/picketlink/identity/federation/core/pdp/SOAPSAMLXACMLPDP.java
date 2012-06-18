@@ -81,7 +81,9 @@ public class SOAPSAMLXACMLPDP implements Provider<Source> {
         try {
             Document doc = (Document) DocumentUtil.getNodeFromSource(request);
             
-            logger.xacmlReceivedMessage(DocumentUtil.asString(doc));
+            if (logger.isTraceEnabled()) {
+                logger.trace("XACML Received Message: " + DocumentUtil.asString(doc));
+            }
             
             XACMLAuthzDecisionQueryType xacmlQuery = SOAPSAMLXACMLUtil.getXACMLQueryType(doc);
             ResponseType samlResponseType = SOAPSAMLXACMLUtil.handleXACMLQuery(pdp, issuer, xacmlQuery);

@@ -112,10 +112,10 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                         while (st != null && st.hasMoreTokens()) {
                             String uriBit = st.nextToken();
 
-                            logger.samlTrustedDomainCheck(uriBit);
+                            logger.trace("Matching uri bit = " + uriBit);
                             
                             if (issuerDomain.indexOf(uriBit) > 0) {
-                                logger.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
+                                logger.trace("Matched " + uriBit + " trust for " + issuerDomain);
                                 return;
                             }
                         }
@@ -162,10 +162,10 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                         while (st != null && st.hasMoreTokens()) {
                             String uriBit = st.nextToken();
 
-                            logger.samlTrustedDomainCheck(uriBit);
+                            logger.trace("Matching uri bit = " + uriBit);
                             
                             if (issuerDomain.indexOf(uriBit) > 0) {
-                                logger.samlHandlerTrustedDomainMatched(uriBit, issuerDomain);
+                                logger.trace("Matched " + uriBit + " trust for " + issuerDomain);
                                 return;
                             }
                         }
