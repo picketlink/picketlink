@@ -278,11 +278,11 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
         }
 
         if (localValidation) {
-            logger.authPerformingLocalValidation();
+            logger.trace("Local Validation is being Performed");
             try {
                 boolean isValid = localValidation(assertionElement);
                 if (isValid) {
-                    logger.authSuccessfulLocalValidation();
+                    logger.trace("Local Validation passed.");
                 }
             } catch (Exception e) {
                 LoginException le = new LoginException();
@@ -290,7 +290,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
                 throw le;
             }
         } else {
-            logger.authLocalValidationDisabledCheckSTS();
+            logger.trace("Local Validation is disabled. Verifying with STS");
 
             // send the assertion to the STS for validation.
             STSClient client = this.getSTSClient();
@@ -321,7 +321,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
                         if (expiry != null) {
                             Date expiryDate = expiry.toGregorianCalendar().getTime();
 
-                            logger.authCreatingCacheEntry(new Date(), expiryDate);
+                            logger.trace("Creating Cache Entry for JBoss at [" + new Date() + "] , with expiration set to SAML expiry = " + expiryDate);
 
                             cacheExpiry.register(securityDomain, expiryDate, principal);
                         } else {
@@ -368,7 +368,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
         }
         if (logger.isTraceEnabled()) {
             try {
-                logger.authSAMLAssertionToGetRolesFrom(AssertionUtil.asString(assertion));
+                logger.trace("Assertion from where roles will be sought = " + AssertionUtil.asString(assertion));
             } catch (ProcessingException ignore) {
             }
         }

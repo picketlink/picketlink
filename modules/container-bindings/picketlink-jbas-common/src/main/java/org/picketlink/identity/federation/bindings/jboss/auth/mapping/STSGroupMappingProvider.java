@@ -77,7 +77,7 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup> {
 
         // No initialization needed
 
-        logger.initializedWith(contextMap.toString());
+        logger.trace("Initialized with " + contextMap);
     }
 
     public void performMapping(Map<String, Object> contextMap, RoleGroup Group) {
@@ -91,7 +91,7 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup> {
         if (!(tokenObject instanceof Element)) {
             // With Tomcat SSO Valves, mapping providers DO get called automatically, so there may be no tokens and errors
             // should be expected and handled
-            logger.authSharedTokenNotFound(Element.class.getName(), AbstractSTSLoginModule.SHARED_TOKEN);
+            logger.debug("Did not find a token " + Element.class.getName() + " under " + AbstractSTSLoginModule.SHARED_TOKEN + " in the map");
         }
 
         try {
@@ -116,7 +116,7 @@ public class STSGroupMappingProvider implements MappingProvider<RoleGroup> {
                 }
                 result.setMappedObject(rolesGroup);
 
-                logger.authMappedRoles(rolesGroup.toString());
+                logger.trace("Mapped roles to " + rolesGroup);
             }
         } catch (Exception e) {
             logger.authFailedToParseSAMLAssertion(e);

@@ -164,7 +164,7 @@ public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler 
         Subject subject = SecurityActions.getAuthenticatedSubject();
 
         if (subject == null) {
-            logger.authenticationSubjectNotFound();
+            logger.trace("No authentication Subject found, cannot provide any user roles!");
             return assertion;
         }
 

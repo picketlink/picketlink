@@ -80,12 +80,12 @@ public class STSClientInterceptor implements Interceptor, Serializable {
 
     public void setPropertiesFile(String propertiesFile) {
         this.propertiesFile = propertiesFile;
-        logger.authConstructingSTSClientInterceptor(propertiesFile);
+        logger.trace("Constructing STSClientInterceptor using " + propertiesFile + " as the configuration file");
     }
 
     public Object invoke(Invocation invocation) throws Throwable {
         SecurityContext sc = (SecurityContext) invocation.getMetaData("security", "context");
-        logger.authRetrievedSecurityContextFromInvocation(sc.toString());
+        logger.trace("Retrieved SecurityContext from invocation:" + sc);
         if (sc != null) {
             // retrieve username and credential from invocation
             Principal principal = sc.getUtil().getUserPrincipal();
@@ -101,11 +101,11 @@ public class STSClientInterceptor implements Interceptor, Serializable {
                     builder.getEndpointAddress(), new SecurityInfo(principal.getName(), credential));
             Element assertion = null;
             try {
-                logger.authInvokingSTSForSAMLAssertion(principal.getName());
+                logger.trace("Invoking token service to get SAML assertion for " + principal.getName());
                 // create the token
                 assertion = client.issueToken(SAMLUtil.SAML2_TOKEN_TYPE);
 
-                logger.authSAMLAssertionObtainedForPrincipal(principal.getName());
+                logger.trace("SAML assertion for " + principal.getName() + " successfully obtained");
             } catch (WSTrustException wse) {
                 logger.authSAMLAssertionIssuingFailed(wse);
             }

@@ -62,7 +62,7 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
         if (!(tokenObject instanceof Element)) {
             // With Tomcat SSO Valves, mapping providers DO get called automatically, so there may be no tokens and errors
             // should be expected and handled
-            logger.authSharedTokenNotFound(Element.class.getName(), AbstractSTSLoginModule.SHARED_TOKEN);
+            logger.debug("Did not find a token " + Element.class.getName() + " under " + AbstractSTSLoginModule.SHARED_TOKEN + " in the map");
         }
 
         try {
@@ -75,7 +75,7 @@ public class STSPrincipalMappingProvider extends AbstractPrincipalMappingProvide
                     NameIDType nameID = (NameIDType) baseID;
                     Principal mappedPrincipal = new SimplePrincipal(nameID.getValue());
                     result.setMappedObject(mappedPrincipal);
-                    logger.authMappedPrincipal(mappedPrincipal.toString());
+                    logger.trace("Mapped principal = " + mappedPrincipal);
                     return;
                 }
             }

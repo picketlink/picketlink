@@ -86,7 +86,7 @@ public class JBossAppServerAttributeManager implements AttributeManager {
         }
 
         if (attributeMap != null)
-            logger.attributeManagerMapSize(attributeMap.size());
+            logger.trace("Final attribute map size: " + attributeMap.size());
 
         return attributeMap;
     }

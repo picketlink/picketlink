@@ -74,7 +74,7 @@ public abstract class SAML20CommonTokenRoleAttributeProvider implements SAML20To
     public AttributeStatementType getAttributeStatement() {
         Subject subject = SecurityActions.getSecurityContext().getSubjectInfo().getAuthenticatedSubject();
         if (subject == null) {
-            logger.authenticationSubjectNotFound();
+            logger.trace("No authentication Subject found, cannot provide any user roles!");
             return null;
         } else {
             AttributeStatementType attributeStatement = new AttributeStatementType();
@@ -93,7 +93,7 @@ public abstract class SAML20CommonTokenRoleAttributeProvider implements SAML20To
                     }
                 }
             }
-            logger.returningAttributeStatement(tokenRoleAttributeName, rolesAttribute.getAttributeValue().toString());
+            logger.trace("Returning an AttributeStatement with a [" + tokenRoleAttributeName + "] attribute containing: " + rolesAttribute.getAttributeValue().toString());
             return attributeStatement;
         }
     }

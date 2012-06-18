@@ -22,11 +22,6 @@
 
 package org.picketlink.identity.federation;
 
-import java.util.Date;
-
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.namespace.QName;
-
 import org.jboss.logging.BasicLogger;
 import org.jboss.logging.Cause;
 import org.jboss.logging.LogMessage;
@@ -34,7 +29,6 @@ import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
-import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -166,7 +160,14 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @Message(id = 241, value = "Security token should be encrypted but no encrypting key could be found")
     void stsSecurityTokenShouldBeEncrypted();
 
-    
+    @LogMessage(level = Level.WARN)
+    @Message(id = 207, value = "Security Token registry option not specified: Issued Tokens will not be persisted!")
+    void stsTokenRegistryNotSpecified();
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 231, value = "Lifetime has not been specified. Using the default timeout value.")
+    void stsTokenTimeoutNotSpecified();
+
     /* ERROR */
     
     @LogMessage(level = Level.ERROR)
@@ -276,164 +277,9 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.ERROR)
     @Message(id = 263, value = "Exception in processing authentication")
     void samlHandlerAuthenticationError(@Cause Throwable t);
-
-    /* TRACE */
     
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 200, value = "SAML Response Document: %s")
-    void samlResponseDocument(String samlResponseDocumentAsString);
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 205, value = "Looking for parser for element: %s")
-    void xmllookingParserForElement(QName qname);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 219, value = "Now=%s ::notBefore=%s ::notOnOrAfter=%s")
-    void samlAssertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 236, value = "Going to validate signature for: %s")
-    void signatureValidatingDocument(String nodeAsString);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 270, value = "Matching uri bit = %s")
-    void samlHandlerTrustDomainCheck(String uriBit);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 271, value = "Matched %s trust for %s")
-    void samlHandlerTrustedDomainMatched(String uriBit, String issuerDomain);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 306, value = "Constructing STSClientInterceptor using %s as the configuration file")
-    void authConstructingSTSClientInterceptor(String propertiesFile);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 307, value = "Retrieved SecurityContext from invocation: %s")
-    void authRetrievedSecurityContextFromInvocation(String string);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 308, value = "Invoking token service to get SAML assertion for %s")
-    void authInvokingSTSForSAMLAssertion(String principalName);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 309, value = "SAML assertion for %s successfully obtained")
-    void authSAMLAssertionObtainedForPrincipal(String principalName);
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 291, value = "Final attribute map size: %s")
-    void attributeManagerMapSize(int size);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 292, value = "No authentication Subject found, cannot provide any user roles!")
-    void authenticationSubjectNotFound();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 294, value = "Local Validation is being Performed")
-    void authPerformingLocalValidation();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 295, value = "Local Validation passed.")
-    void authSuccessfulLocalValidation();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 296, value = "Local Validation is disabled. Verifying with STS")
-    void authLocalValidationDisabledCheckSTS();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 297, value = "Creating Cache Entry for JBoss at [%s] , with expiration set to SAML expiry = %s")
-    void authCreatingCacheEntry(Date date, Date expiryDate);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 298, value = "Assertion from where roles will be sought = %s")
-    void authSAMLAssertionToGetRolesFrom(String samlAssertion);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 299, value = "Initialized with %s")
-    void initializedWith(String string);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 282, value = "User has closed the browser. So we proceed to cancel the STS issued token.")
-    void samlIDPUserClosedBrowserCancelingToken();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 283, value = "SAML Handlers are: %s")
-    void samlHandlerList(String handlers);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 284, value = "Finished Processing handler: %s")
-    void samlHandlerFinishedProcessing(String handlerClassName);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 285, value = "SAML Request Document: %s")
-    void samlRequestDocument(String samlRequestDocument);
-    
-    /** DEBUG **/
-    
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 301, value = "Mapped roles to %s")
-    void authMappedRoles(String roles);
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 302, value = "Mapped principal = %s")
-    void authMappedPrincipal(String principal);
-    
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 293, value = "Returning an AttributeStatement with a [%s] attribute containing: %s")
-    void returningAttributeStatement(String tokenRoleAttributeName, String attributes);
-    
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 247, value = "Added Credential %s")
-    void authAddedSAMLCredential(SamlCredential samlCredential);
-
-    @LogMessage(level = Level.DEBUG)
+    @LogMessage(level = Level.ERROR)
     @Message(id = 229, value = "The provider %s could not be added")
     void jceProviderCouldNotBeLoaded(String name, @Cause Throwable t);
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 201, value = "Sending XACML Decision Query: %s")
-    void xacmlSendingDecisionQuery(String xacmlDecisionQueryDocument);
     
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 206, value = "XACML Received Message: %s")
-    void xacmlReceivedMessage(String asString);
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 207, value = "Security Token registry option not specified: Issued Tokens will not be persisted!")
-    void stsTokenRegistryNotSpecified();
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 221, value = "[InstallDefaultConfiguration] Configuration is null. Creating a new configuration")
-    void stsCreatingDefaultSTSConfig();
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 222, value = "[InstallDefaultConfiguration] Configuration file name=%s")
-    void stsLoadingConfiguration(String fileName);
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 231, value = "Lifetime has not been specified. Using the default timeout value.")
-    void stsTokenTimeoutNotSpecified();
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 232, value = "Claims have been specified in the request but no processor was found for dialect %s")
-    void wsTrustClaimsDialectProcessorNotFound(String dialect);
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 243, value = "No key type could be found in the request. Using the default BEARER type.")
-    void stsKeyTypeNotFoundUsingDefaultBearer();
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 244, value = "No key size could be found in the request. Using the default size. (%s)")
-    void stsKeySizeNotFoundUsingDefault(long keySize);
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 245, value = "Unable to parse the contents of the OnBehalfOfType: %s")
-    void stsUnableToParseOnBehalfType(Object type);
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 251, value = "SAML Token Validation result: %s")
-    void authSAMLValidationResult(boolean result);
-    
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 300, value = "Did not find a token %s under %s in the map")
-    void authSharedTokenNotFound(String name, String sharedToken);
 }
