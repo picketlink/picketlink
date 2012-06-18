@@ -105,7 +105,11 @@ public interface GeneralConstants {
 
     String SAML_IDP_STRICT_POST_BINDING = "SAML_IDP_STRICT_POST_BINDING";
 
-    String DECRYPTING_KEY = "DECRYPTING_KEY";
+    String TIMEZONE = "picketlink.timezone";
+
+    String TIMEZONE_DEFAULT = "TIMEZONE_DEFAULT";
+
+   String DECRYPTING_KEY = "DECRYPTING_KEY";
 
     String SENDER_PUBLIC_KEY = "SENDER_PUBLIC_KEY";
 

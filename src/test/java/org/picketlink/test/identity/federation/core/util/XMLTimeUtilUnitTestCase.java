@@ -21,8 +21,11 @@
  */
 package org.picketlink.test.identity.federation.core.util;
 
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
@@ -31,6 +34,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * Unit Test the XML Time Util
@@ -76,5 +80,18 @@ public class XMLTimeUtilUnitTestCase extends TestCase {
         // isValid(now, notbefore, notOnOrAfter)
         assertTrue(XMLTimeUtil.isValid(after5M, now, after10M));
         assertFalse(XMLTimeUtil.isValid(now, after5M, after10M));
+    }
+
+    public void testGMTFormat() throws Exception {
+        String now = XMLTimeUtil.getIssueInstant().toString();
+        assertTrue(now.endsWith("Z"));
+        assertFalse(now.contains("+"));
+
+        System.setProperty(GeneralConstants.TIMEZONE, "GMT+5");
+        String now2 = XMLTimeUtil.getIssueInstant().toString();
+        assertTrue(now2.endsWith("+05:00"));
+
+        System.setProperty(GeneralConstants.TIMEZONE, GeneralConstants.TIMEZONE_DEFAULT);
+        assertEquals(XMLTimeUtil.getCurrentTimeZoneID(), TimeZone.getDefault().getID());
     }
 }
