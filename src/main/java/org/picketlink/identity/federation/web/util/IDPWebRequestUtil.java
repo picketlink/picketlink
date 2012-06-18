@@ -158,7 +158,7 @@ public class IDPWebRequestUtil {
             TrustType idpTrust = idpConfiguration.getTrust();
             if (idpTrust != null) {
                 String domainsTrusted = idpTrust.getDomains();
-                logger.samlTrustedDomains(domainsTrusted, issuerDomain);
+                logger.trace("Domains that IDP trusts = " + domainsTrusted + " and issuer domain = " + issuerDomain);
                 if (domainsTrusted.indexOf(issuerDomain) < 0) {
                     // Let us do string parts checking
                     StringTokenizer st = new StringTokenizer(domainsTrusted, ",");

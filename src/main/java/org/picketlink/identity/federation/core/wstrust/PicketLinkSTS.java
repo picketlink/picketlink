@@ -211,7 +211,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
 
         String requestType = request.getRequestType().toString();
         
-        logger.stsReceivedRequestType(requestType);
+        logger.trace("STS received request of type " + requestType);
 
         try {
             if (requestType.equals(WSTrustConstants.ISSUE_REQUEST)) {

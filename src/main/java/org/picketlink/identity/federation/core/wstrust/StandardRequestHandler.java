@@ -95,7 +95,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
      */
     public RequestSecurityTokenResponse issue(RequestSecurityToken request, Principal callerPrincipal) throws WSTrustException {
 
-        logger.samlIssuingTokenForPrincipal(callerPrincipal);
+        logger.trace("Issuing token for principal " + callerPrincipal);
 
         // SecurityTokenProvider provider = null;
 
@@ -324,7 +324,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
         // first validate the provided token signature to make sure it has been issued by this STS and hasn't been
         // tempered.
         
-        logger.stsValidatingTokenForRenewal(request.getContext().toString());
+        logger.trace("Validating token for renew request " + request.getContext());
         
         if (request.getRenewTargetElement() == null)
             throw new WSTrustException(logger.nullValueError("renew target"));
@@ -416,7 +416,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
     public RequestSecurityTokenResponse validate(RequestSecurityToken request, Principal callerPrincipal)
             throws WSTrustException {
 
-        logger.stsStartedValidationForRequest(request.getContext().toString());
+        logger.trace("Started validation for request " + request.getContext().toString());
 
         if (request.getValidateTargetElement() == null)
             throw new WSTrustException(logger.nullValueError("request does not have a validate target. Unable to validate token"));
@@ -468,7 +468,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
 
         // if the signature is valid, then let the provider perform any additional validation checks.
         if (status == null) {
-            logger.stsDelegatingValidationToTokenProvider();
+            logger.trace("Delegating token validation to token provider. Token NS: " + securityToken.getNamespaceURI() + " ::LocalName: " + securityToken.getLocalName());
             try {
                 if (securityToken != null)
                     context.setQName(new QName(securityToken.getNamespaceURI(), securityToken.getLocalName()));
@@ -556,7 +556,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                             .item(0);
                     Element tokenElement = (Element) rst.getFirstChild();
 
-                    logger.signatureElementToBeSigned(tokenElement.getNamespaceURI());
+                    logger.trace("NamespaceURI of element to be signed: " + tokenElement.getNamespaceURI());
 
                     // Set the CanonicalizationMethod if any
                     XMLSignatureUtil.setCanonicalizationMethodType(configuration.getXMLDSigCanonicalizationMethod());
@@ -565,8 +565,6 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                             signatureMethod, setupIDAttribute(tokenElement));
                     if (logger.isTraceEnabled()) {
                         try {
-                            logger.signatureSignedElement(DocumentUtil.getNodeAsString(tokenElement));
-
                             Document tokenDocument = DocumentUtil.createDocument();
                             tokenDocument.appendChild(tokenDocument.importNode(tokenElement, true));
                             logger.trace("valid=" + XMLSignatureUtil.validate(tokenDocument, keyPair.getPublic()));
@@ -586,7 +584,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                 if (request.getAppliesTo() != null) {
                     String serviceName = WSTrustUtil.parseAppliesTo(request.getAppliesTo());
 
-                    logger.pkiLocatingPublic(serviceName);
+                    logger.trace("Locating public key for " + serviceName);
                     
                     if (serviceName != null)
                         providerPublicKey = this.configuration.getServiceProviderPublicKey(serviceName);

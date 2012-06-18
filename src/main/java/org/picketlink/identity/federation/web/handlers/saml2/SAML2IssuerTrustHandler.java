@@ -104,7 +104,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                 if (idpTrust != null) {
                     String domainsTrusted = idpTrust.getDomains();
 
-                    logger.samlTrustedDomains(domainsTrusted, issuerDomain);
+                    logger.trace("Domains that IDP trusts = " + domainsTrusted + " and issuer domain = " + issuerDomain);
                     
                     if (domainsTrusted.indexOf(issuerDomain) < 0) {
                         // Let us do string parts checking
@@ -154,7 +154,7 @@ public class SAML2IssuerTrustHandler extends BaseSAML2Handler {
                 if (spTrust != null) {
                     String domainsTrusted = spTrust.getDomains();
 
-                    logger.samlHandlerDomainsTrustedBySP(domainsTrusted, issuerDomain);
+                    logger.trace("Domains that SP trusts = " + domainsTrusted +" and issuer domain = " + issuerDomain);
                     
                     if (domainsTrusted.indexOf(issuerDomain) < 0) {
                         // Let us do string parts checking

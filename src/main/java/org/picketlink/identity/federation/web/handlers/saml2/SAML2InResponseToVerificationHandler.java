@@ -54,7 +54,7 @@ public class SAML2InResponseToVerificationHandler extends BaseSAML2Handler {
         HttpSession session = BaseSAML2Handler.getHttpSession(request);
         session.setAttribute(GeneralConstants.AUTH_REQUEST_ID, authnRequestId);
 
-        logger.samlHandlerSavedAuthnRequestIdIntoSession(authnRequestId);
+        logger.trace("ID of authentication request " + authnRequestId + " saved into HTTP session.");
     }
 
     public void handleRequestType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
@@ -81,7 +81,7 @@ public class SAML2InResponseToVerificationHandler extends BaseSAML2Handler {
 
         // Compare both ID
         if (inResponseTo != null && inResponseTo.equals(authnRequestId)) {
-            logger.samlHandlerSuccessfulInResponseToValidation(inResponseTo);
+            logger.trace("Successful verification of InResponseTo for request " + inResponseTo);
         } else {
             logger.samlHandlerFailedInResponseToVerification(inResponseTo, authnRequestId);
             throw logger.samlHandlerFailedInResponseToVerificarionError();

@@ -467,13 +467,13 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
             if (StringUtil.isNotNull(userNameStr)) {
                 builder.username(userNameStr);
             } else {
-                logger.authUserNameFromCallbackIsNull();
+                logger.trace("UserName from callback is null");
             }
             char[] passChars = passwordCallback.getPassword();
             if (passChars != null) {
                 builder.password(new String(passChars));
             } else {
-                logger.authPasswordFromCallbackIsNull();
+                logger.trace("Password from callback is null");
             }
         } catch (final IOException e) {
             throw logger.authLoginError(e);

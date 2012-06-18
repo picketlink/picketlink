@@ -54,7 +54,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         Document samlDocument = response.getResultingDocument();
 
         if (samlDocument == null) {
-            logger.samlHandlerNoDocumentToSign();
+            logger.trace("No document generated in the handler chain. Cannot generate signature");
             return;
         }
 
@@ -65,7 +65,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         Document responseDocument = response.getResultingDocument();
 
         if (responseDocument == null) {
-            logger.samlHandlerNoResponseDocumentFound();
+            logger.trace("No response document found");
             return;
         }
 
@@ -76,7 +76,7 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
     public void handleStatusResponseType(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         Document responseDocument = response.getResultingDocument();
         if (responseDocument == null) {
-            logger.samlHandlerNoResponseDocumentFound();
+            logger.trace("No response document found");
             return;
         }
 
@@ -98,10 +98,10 @@ public class SAML2SignatureGenerationHandler extends AbstractSignatureHandler {
         }
 
         if (response.isPostBindingForResponse()) {
-            logger.samlHandlerSigningDocumentForPOSTBinding();
+            logger.trace("Going to sign response document with POST binding type");
             signPost(samlDocument, keypair);
         } else {
-            logger.samlHandlerSigningDocumentForRedirectBinding();
+            logger.trace("Going to sign response document with REDIRECT binding type");
             String destinationQueryString = signRedirect(samlDocument, response.getRelayState(), keypair,
                     response.getSendRequest());
             response.setDestinationQueryStringWithSignature(destinationQueryString);

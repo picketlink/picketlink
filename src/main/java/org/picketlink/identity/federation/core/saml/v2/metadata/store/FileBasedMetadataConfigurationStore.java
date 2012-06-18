@@ -86,7 +86,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
 
         File plStore = new File(baseDirectory);
         if (plStore.exists() == false) {
-            logger.samlMetaDataStoreDirectoryCreation(plStore.getPath());
+            logger.trace(plStore.getPath() + " does not exist. Hence creating.");
             plStore.mkdir();
         }
     }
@@ -176,7 +176,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
             throw new RuntimeException(e);
         }
         
-        logger.samlMetaDataPersistEntityDescriptor(persistedFile.getPath());
+        logger.trace("Persisted entity descriptor into " + persistedFile.getPath());
 
         // Process the EDT
         List<EDTChoiceType> edtChoiceTypeList = entity.getChoiceType();
@@ -240,7 +240,7 @@ public class FileBasedMetadataConfigurationStore implements IMetadataConfigurati
                 oos.close();
         }
 
-        logger.samlMetaDataPersistTrustedMap(trustedFile.getPath());
+        logger.trace("Persisted trusted map into " + trustedFile.getPath());
     }
 
     /**

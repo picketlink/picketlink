@@ -82,7 +82,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         // Check if an attribute provider has been set.
         String attributeProviderClassName = this.properties.get(ATTRIBUTE_PROVIDER);
         if (attributeProviderClassName == null) {
-            logger.stsNoAttributeProviderSet();
+            logger.trace("No attribute provider set");
         } else {
             try {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), attributeProviderClassName);
@@ -289,7 +289,7 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
 
         WSTrustRequestContext context = (WSTrustRequestContext) protoContext;
 
-        logger.samlAssertionStartingValidation();
+        logger.trace("SAML token validation started");
 
         // get the SAML assertion that must be validated.
         Element token = context.getRequestSecurityToken().getValidateTargetElement();

@@ -200,7 +200,9 @@ public class XMLSignatureUtil {
         if (nodeToBeSigned == null)
             throw logger.nullArgumentError("Node to be signed");
         
-        logger.trace("Document to be signed=" + DocumentUtil.asString(doc));
+        if (logger.isTraceEnabled()) {
+            logger.trace("Document to be signed=" + DocumentUtil.asString(doc));
+        }
 
         Node parentNode = nodeToBeSigned.getParentNode();
 

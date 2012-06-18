@@ -521,7 +521,7 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
                 boolean validRole = roleValidator.userInRole(principal, roles);
                 
                 if (!validRole) {
-                    logger.invalidRole(roles.toString());
+                    logger.trace("Invalid role: " + roles);
                     principal = null;
                 }
             }

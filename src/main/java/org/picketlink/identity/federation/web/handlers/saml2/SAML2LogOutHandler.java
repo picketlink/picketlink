@@ -286,7 +286,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
                 SAML2HandlerResponse response, String originalIssuer) throws ConfigurationException,
                 ParserConfigurationException, ProcessingException {
 
-            logger.samlHandlerGeneratingSuccessStatusResponse(originalIssuer);
+            logger.trace("Generating Success Status Response for " + originalIssuer);
 
             StatusResponseType statusResponse = new StatusResponseType(IDGenerator.create("ID_"), XMLTimeUtil.getIssueInstant());
 

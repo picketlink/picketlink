@@ -87,7 +87,7 @@ public class SAML2SignatureValidationHandler extends AbstractSignatureHandler {
             HTTPContext httpContext = (HTTPContext) request.getContext();
             boolean isPost = httpContext.getRequest().getMethod().equalsIgnoreCase("POST");
 
-            logger.samlHandlerValidatingResponseForHTTPMethod(httpContext.getRequest().getMethod());
+            logger.trace("HTTP method for validating response: " + httpContext.getRequest().getMethod());
 
             if (isPost) {
                 isValid = verifyPostBindingSignature(signedDocument, publicKey);

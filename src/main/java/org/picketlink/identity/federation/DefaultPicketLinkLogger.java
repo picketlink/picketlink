@@ -29,7 +29,6 @@ import static org.picketlink.identity.federation.core.ErrorCodes.UNKNOWN_TAG;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.Principal;
 import java.util.Date;
 
 import javax.security.auth.login.LoginException;
@@ -599,11 +598,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         return new RuntimeException(ErrorCodes.SYSTEM_PROPERTY_MISSING + property);
     }
 
-    @Override
-    public void samlMetaDataStoreDirectoryCreation(String directory) {
-        this.trace(directory + " does not exist. Hence creating.");
-    }
-
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataIdentityProviderLoadingError(java.lang.Exception)
      */
@@ -618,22 +612,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public void samlMetaDataServiceProviderLoadingError(Throwable t) {
         logger.error("Exception loading the service providers:", t);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistEntityDescriptor(java.lang.String)
-     */
-    @Override
-    public void samlMetaDataPersistEntityDescriptor(String path) {
-        this.trace("Persisted into " + path);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistTrustedMap(java.lang.String)
-     */
-    @Override
-    public void samlMetaDataPersistTrustedMap(String path) {
-        this.trace("Persisted trusted map into " + path);
     }
 
     /* (non-Javadoc)
@@ -940,14 +918,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#issuingTokenForPrincipal(java.security.Principal)
-     */
-    @Override
-    public void samlIssuingTokenForPrincipal(Principal callerPrincipal) {
-        this.trace("Issuing token for principal " + callerPrincipal);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#tokenTimeoutNotSpecified()
      */
     @Override
@@ -989,14 +959,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsValidatingTokenForRenewal(java.lang.String)
-     */
-    @Override
-    public void stsValidatingTokenForRenewal(String details) {
-        this.trace("Validating token for renew request " + details);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#signatureInvalidError(java.lang.String, java.lang.Throwable)
      */
     @Override
@@ -1009,16 +971,8 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void stsSecurityTokenSignatureNotVerified() {
-        this.trace("Security Token digital signature has NOT been verified. Either the STS has been configured"
+        this.warn("Security Token digital signature has NOT been verified. Either the STS has been configured"
                         + "not to sign tokens or the STS key pair has not been properly specified.");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsStartedValidationForRequest(java.lang.String)
-     */
-    @Override
-    public void stsStartedValidationForRequest(String details) {
-        this.trace("Started validation for request " + details);
     }
 
     /* (non-Javadoc)
@@ -1030,30 +984,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsDelegatingValidationToTokenProvider()
-     */
-    @Override
-    public void stsDelegatingValidationToTokenProvider() {
-        this.trace("Delegating token validation to token provider");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureElementToBeSigned(java.lang.String)
-     */
-    @Override
-    public void signatureElementToBeSigned(String namespaceURI) {
-        this.trace("NamespaceURI of element to be signed:" + namespaceURI);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureSignedElement(java.lang.String)
-     */
-    @Override
-    public void signatureSignedElement(String nodeAsString) {
-        this.trace("Signed Element:" + nodeAsString);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#encryptProcessError(java.lang.Throwable)
      */
     @Override
@@ -1062,27 +992,11 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#pkiLocatingPublic(java.lang.String)
-     */
-    @Override
-    public void pkiLocatingPublic(String alias) {
-        this.trace("Locating public key for " + alias);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenShouldBeEncrypted()
      */
     @Override
     public void stsSecurityTokenShouldBeEncrypted() {
         logger.warn("Security token should be encrypted but no encrypting key could be found");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsReceivedRequestType(java.lang.String)
-     */
-    @Override
-    public void stsReceivedRequestType(String requestType) {
-        this.debug("STS received request of type " + requestType);
     }
 
     @Override
@@ -1168,22 +1082,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authUserNameFromCallbackIsNull()
-     */
-    @Override
-    public void authUserNameFromCallbackIsNull() {
-        trace("UserName from callback is null");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authPasswordFromCallbackIsNull()
-     */
-    @Override
-    public void authPasswordFromCallbackIsNull() {
-        trace("Password from callback is null");
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotCreateWSTrustClient(java.lang.Throwable)
      */
     @Override
@@ -1263,24 +1161,11 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlStartingValidation()
-     */
-    @Override
-    public void samlAssertionStartingValidation() {
-        trace("SAML token validation started");
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullValidationTargetError()
      */
     @Override
     public ProcessingException wsTrustNullValidationTargetError() {
         return new ProcessingException(ErrorCodes.NULL_VALUE + "Bad validate request: missing required ValidateTarget");
-    }
-
-    @Override
-    public void stsNoAttributeProviderSet() {
-        debug("No attribute provider set");
     }
 
     /* (non-Javadoc)
@@ -1357,14 +1242,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerRoleGeneratorSetup(java.lang.String)
-     */
-    @Override
-    public void samlHandlerRoleGeneratorSetup(String name) {
-        trace("RoleGenerator set to " + name);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerRoleGeneratorSetupError(java.lang.Throwable)
      */
     @Override
@@ -1434,35 +1311,11 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#invalidRole(java.lang.String)
-     */
-    @Override
-    public void invalidRole(String roles) {
-        trace(roles);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#unsupportedRoleType(java.lang.Object)
      */
     @Override
     public RuntimeException unsupportedRoleType(Object attrValue) {
         return new RuntimeException(ErrorCodes.UNSUPPORTED_TYPE + "Unknown role object type : " + attrValue);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSavedAuthnRequestIdIntoSession(java.lang.String)
-     */
-    @Override
-    public void samlHandlerSavedAuthnRequestIdIntoSession(String authnRequestId) {
-        trace("ID of authentication request " + authnRequestId + " saved into HTTP session.");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSuccessfulInResponseToValidation(java.lang.String)
-     */
-    @Override
-    public void samlHandlerSuccessfulInResponseToValidation(String inResponseTo) {
-        trace("Successful verification of InResponseTo for request " + inResponseTo);
     }
 
     /* (non-Javadoc)
@@ -1480,14 +1333,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public ProcessingException samlHandlerFailedInResponseToVerificarionError() {
         return new ProcessingException(ErrorCodes.AUTHN_REQUEST_ID_VERIFICATION_FAILED);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerDomainsTrustedByIDP(java.lang.String, java.lang.String)
-     */
-    @Override
-    public void samlTrustedDomains(String domainsTrusted, String issuerDomain) {
-        trace("Domains that IDP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
     }
 
     /* (non-Javadoc)
@@ -1523,14 +1368,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerDomainsTrustedBySP(java.lang.String, java.lang.String)
-     */
-    @Override
-    public void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain) {
-        trace("Domains that SP trusts=" + domainsTrusted + " and issuer domain=" + issuerDomain);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustElementMissingError()
      */
     @Override
@@ -1552,46 +1389,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public ProcessingException samlHandlerPrincipalNotFoundError() {
         return new ProcessingException(ErrorCodes.PRINCIPAL_NOT_FOUND);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerGeneratingSuccessStatusResponse(java.lang.String)
-     */
-    @Override
-    public void samlHandlerGeneratingSuccessStatusResponse(String originalIssuer) {
-        trace("Generating Success Status Response for " + originalIssuer);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoDocumentToSign()
-     */
-    @Override
-    public void samlHandlerNoDocumentToSign() {
-        trace("No document generated in the handler chain. Cannot generate signature");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoResponseDocumentFound()
-     */
-    @Override
-    public void samlHandlerNoResponseDocumentFound() {
-        trace("No response document found");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningDocumentForPOSTBinding()
-     */
-    @Override
-    public void samlHandlerSigningDocumentForPOSTBinding() {
-        trace("Going to sign response document with POST binding type");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningDocumentForRedirectBinding()
-     */
-    @Override
-    public void samlHandlerSigningDocumentForRedirectBinding() {
-        trace("Going to sign response document with REDIRECT binding type");
     }
 
     /* (non-Javadoc)
@@ -1624,14 +1421,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public RuntimeException samlHandlerSigningRedirectBindingMessageError(Throwable t) {
         return new RuntimeException(t);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerValidatingResponseForHTTPMethod(java.lang.String)
-     */
-    @Override
-    public void samlHandlerValidatingResponseForHTTPMethod(String method) {
-        trace("HTTP method for validating response: " + method);
     }
 
     /* (non-Javadoc)

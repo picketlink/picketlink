@@ -25,7 +25,6 @@ package org.picketlink.identity.federation;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.Principal;
 import java.util.Date;
 
 import javax.security.auth.login.LoginException;
@@ -435,11 +434,6 @@ public interface PicketLinkLogger {
     RuntimeException systemPropertyMissingError(String property);
 
     /**
-     * @param directory
-     */
-    void samlMetaDataStoreDirectoryCreation(String directory);
-
-    /**
      * @param t
      */
     void samlMetaDataIdentityProviderLoadingError(Throwable t);
@@ -448,16 +442,6 @@ public interface PicketLinkLogger {
      * @param t
      */
     void samlMetaDataServiceProviderLoadingError(Throwable t);
-
-    /**
-     * @param path
-     */
-    void samlMetaDataPersistEntityDescriptor(String path);
-
-    /**
-     * @param path
-     */
-    void samlMetaDataPersistTrustedMap(String path);
 
     /**
      * @param t
@@ -703,11 +687,6 @@ public interface PicketLinkLogger {
     RuntimeException stsPublicKeyCertError(Throwable t);
 
     /**
-     * @param callerPrincipal
-     */
-    void samlIssuingTokenForPrincipal(Principal callerPrincipal);
-
-    /**
      * 
      */
     void stsTokenTimeoutNotSpecified();
@@ -735,11 +714,6 @@ public interface PicketLinkLogger {
     WSTrustException stsError(Throwable t);
 
     /**
-     * @param details
-     */
-    void stsValidatingTokenForRenewal(String details);
-
-    /**
      * @param message
      * @param t
      * @return
@@ -752,29 +726,9 @@ public interface PicketLinkLogger {
     void stsSecurityTokenSignatureNotVerified();
 
     /**
-     * @param details
-     */
-    void stsStartedValidationForRequest(String details);
-
-    /**
      * @param nodeAsString
      */
     void signatureValidatingDocument(String nodeAsString);
-
-    /**
-     * 
-     */
-    void stsDelegatingValidationToTokenProvider();
-
-    /**
-     * @param namespaceURI
-     */
-    void signatureElementToBeSigned(String namespaceURI);
-
-    /**
-     * @param nodeAsString
-     */
-    void signatureSignedElement(String nodeAsString);
 
     /**
      * @param e
@@ -783,19 +737,9 @@ public interface PicketLinkLogger {
     RuntimeException encryptProcessError(Throwable t);
 
     /**
-     * @param alias
-     */
-    void pkiLocatingPublic(String alias);
-
-    /**
      * 
      */
     void stsSecurityTokenShouldBeEncrypted();
-
-    /**
-     * @param requestType
-     */
-    void stsReceivedRequestType(String requestType);
 
     /**
      * 
@@ -852,16 +796,6 @@ public interface PicketLinkLogger {
     void authAddedSAMLCredential(SamlCredential samlCredential);
 
     /**
-     * 
-     */
-    void authUserNameFromCallbackIsNull();
-
-    /**
-     * 
-     */
-    void authPasswordFromCallbackIsNull();
-
-    /**
      * @param e
      * @return
      */
@@ -916,19 +850,9 @@ public interface PicketLinkLogger {
     ProcessingException samlAssertionRevokedCouldNotRenew(String id);
 
     /**
-     * 
-     */
-    void samlAssertionStartingValidation();
-
-    /**
      * @return
      */
     ProcessingException wsTrustNullValidationTargetError();
-
-    /**
-     * 
-     */
-    void stsNoAttributeProviderSet();
 
     /**
      * @param attributeProviderClassName
@@ -980,11 +904,6 @@ public interface PicketLinkLogger {
     RuntimeException unknowCredentialType(String name);
 
     /**
-     * @param name
-     */
-    void samlHandlerRoleGeneratorSetup(String name);
-
-    /**
      * @param t
      */
     void samlHandlerRoleGeneratorSetupError(Throwable t);
@@ -1031,25 +950,10 @@ public interface PicketLinkLogger {
     ProcessingException assertionExpiredError(AssertionExpiredException aee);
 
     /**
-     * @param roles
-     */
-    void invalidRole(String roles);
-
-    /**
      * @param attrValue
      * @return
      */
     RuntimeException unsupportedRoleType(Object attrValue);
-
-    /**
-     * @param authnRequestId
-     */
-    void samlHandlerSavedAuthnRequestIdIntoSession(String authnRequestId);
-
-    /**
-     * @param inResponseTo
-     */
-    void samlHandlerSuccessfulInResponseToValidation(String inResponseTo);
 
     /**
      * @param inResponseTo
@@ -1061,12 +965,6 @@ public interface PicketLinkLogger {
      * @return
      */
     ProcessingException samlHandlerFailedInResponseToVerificarionError();
-
-    /**
-     * @param domainsTrusted
-     * @param issuerDomain
-     */
-    void samlTrustedDomains(String domainsTrusted, String issuerDomain);
 
     /**
      * @param uriBit
@@ -1092,12 +990,6 @@ public interface PicketLinkLogger {
     IssuerNotTrustedException samlIssuerNotTrustedException(Throwable t);
 
     /**
-     * @param domainsTrusted
-     * @param issuerDomain
-     */
-    void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain);
-
-    /**
      * @return
      */
     ConfigurationException samlHandlerTrustElementMissingError();
@@ -1111,31 +1003,6 @@ public interface PicketLinkLogger {
      * @return
      */
     ProcessingException samlHandlerPrincipalNotFoundError();
-
-    /**
-     * @param originalIssuer
-     */
-    void samlHandlerGeneratingSuccessStatusResponse(String originalIssuer);
-
-    /**
-     * 
-     */
-    void samlHandlerNoDocumentToSign();
-
-    /**
-     * 
-     */
-    void samlHandlerNoResponseDocumentFound();
-
-    /**
-     * 
-     */
-    void samlHandlerSigningDocumentForPOSTBinding();
-
-    /**
-     * 
-     */
-    void samlHandlerSigningDocumentForRedirectBinding();
 
     /**
      * 
@@ -1157,11 +1024,6 @@ public interface PicketLinkLogger {
      * @return
      */
     RuntimeException samlHandlerSigningRedirectBindingMessageError(Throwable t);
-
-    /**
-     * @param method
-     */
-    void samlHandlerValidatingResponseForHTTPMethod(String method);
 
     /**
      * @return

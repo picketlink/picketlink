@@ -115,7 +115,7 @@ public class RolesGenerationHandler extends BaseSAML2Handler {
             try {
                 Class<?> clazz = SecurityActions.loadClass(getClass(), attribStr);
                 roleGenerator = (RoleGenerator) clazz.newInstance();
-                logger.samlHandlerRoleGeneratorSetup(this.roleGenerator.getClass().getName());
+                logger.trace("RoleGenerator set to " + this.roleGenerator);
             } catch (Exception e) {
                 logger.samlHandlerRoleGeneratorSetupError(e);
                 throw logger.configurationError(e);

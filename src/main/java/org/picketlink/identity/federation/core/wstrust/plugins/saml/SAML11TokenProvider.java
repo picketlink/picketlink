@@ -239,7 +239,7 @@ public class SAML11TokenProvider extends AbstractSecurityTokenProvider {
 
         WSTrustRequestContext wstContext = (WSTrustRequestContext) context;
 
-        logger.samlAssertionStartingValidation();
+        logger.trace("SAML token validation started");
 
         // get the SAML assertion that must be validated.
         Element token = wstContext.getRequestSecurityToken().getValidateTargetElement();
