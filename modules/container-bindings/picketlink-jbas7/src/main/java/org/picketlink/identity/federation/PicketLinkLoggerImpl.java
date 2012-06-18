@@ -24,7 +24,6 @@ package org.picketlink.identity.federation;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.Principal;
 import java.util.Date;
 
 import javax.security.auth.login.LoginException;
@@ -468,13 +467,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         return PicketLinkMessages.MESSAGES.systemPropertyMissingError(property);
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#metadataStoreDirectoryCreation(java.lang.String)
-     */
-    public void samlMetaDataStoreDirectoryCreation(String directory) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlMetaDataDirectoryCreation(directory);
-    }
-
     public void samlMetaDataIdentityProviderLoadingError(Throwable t) {
         PicketLinkLoggerMessages.ROOT_LOGGER.samlMetaDataIdentityProviderLoadingError(t);
     }
@@ -484,20 +476,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public void samlMetaDataServiceProviderLoadingError(Throwable t) {
         PicketLinkLoggerMessages.ROOT_LOGGER.samlMetaDataServiceProviderLoadingError(t);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistEntityDescriptor(java.lang.String)
-     */
-    public void samlMetaDataPersistEntityDescriptor(String path) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlMetaDataPersistEntityDescriptor(path);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#metaDataPersistTrustedMap(java.lang.String)
-     */
-    public void samlMetaDataPersistTrustedMap(String path) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlMetaDataPersistTrustedMap(path);
     }
 
     /* (non-Javadoc)
@@ -785,13 +763,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#issuingTokenForPrincipal(java.security.Principal)
-     */
-    public void samlIssuingTokenForPrincipal(Principal callerPrincipal) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlIssuingTokenForPrincipal(callerPrincipal);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#tokenTimeoutNotSpecified()
      */
     public void stsTokenTimeoutNotSpecified() {
@@ -827,13 +798,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsValidatingTokenForRenewal(java.lang.String)
-     */
-    public void stsValidatingTokenForRenewal(String details) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.stsValidatingTokenForRenewal(details);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#signatureInvalidError(java.lang.String, java.lang.Throwable)
      */
     public XMLSignatureException signatureInvalidError(String message, Throwable t) {
@@ -848,38 +812,10 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsStartedValidationForRequest(java.lang.String)
-     */
-    public void stsStartedValidationForRequest(String details) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.stsStartedValidationForRequest(details);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#signatureValidatingDocument(java.lang.String)
      */
     public void signatureValidatingDocument(String nodeAsString) {
         PicketLinkLoggerMessages.ROOT_LOGGER.signatureValidatingDocument(nodeAsString);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsDelegatingValidationToTokenProvider()
-     */
-    public void stsDelegatingValidationToTokenProvider() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.stsDelegatingValidationToTokenProvider();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureElementToBeSigned(java.lang.String)
-     */
-    public void signatureElementToBeSigned(String namespaceURI) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.signatureElementToBeSigned(namespaceURI);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#signatureSignedElement(java.lang.String)
-     */
-    public void signatureSignedElement(String nodeAsString) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.signatureSignedElement(nodeAsString);
     }
 
     /* (non-Javadoc)
@@ -890,24 +826,10 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#pkiLocatingPublic(java.lang.String)
-     */
-    public void pkiLocatingPublic(String alias) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.pkiLocatingPublicKey(alias);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#stsSecurityTokenShouldBeEncrypted()
      */
     public void stsSecurityTokenShouldBeEncrypted() {
         PicketLinkLoggerMessages.ROOT_LOGGER.stsSecurityTokenShouldBeEncrypted();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsReceivedRequestType(java.lang.String)
-     */
-    public void stsReceivedRequestType(String requestType) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.stsReceivedRequestType(requestType);
     }
 
     /* (non-Javadoc)
@@ -981,20 +903,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authUserNameFromCallbackIsNull()
-     */
-    public void authUserNameFromCallbackIsNull() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.authUserNameFromCallbackisNull();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#authPasswordFromCallbackIsNull()
-     */
-    public void authPasswordFromCallbackIsNull() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.authPasswordFromCallbackIsNull();
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#authCouldNotCreateWSTrustClient(java.lang.Throwable)
      */
     public IllegalStateException authCouldNotCreateWSTrustClient(Throwable t) {
@@ -1065,24 +973,10 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlStartingValidation()
-     */
-    public void samlAssertionStartingValidation() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlStartingValidation();
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#wsTrustNullValidationTargetError()
      */
     public ProcessingException wsTrustNullValidationTargetError() {
         return PicketLinkMessages.MESSAGES.wsTrustNullValidationTargetError();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#stsNoAttributeProviderSet()
-     */
-    public void stsNoAttributeProviderSet() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.stsNoAttributeProviderSet();
     }
 
     /* (non-Javadoc)
@@ -1149,13 +1043,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerRoleGeneratorSetup(java.lang.String)
-     */
-    public void samlHandlerRoleGeneratorSetup(String name) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerRoleGeneratorSetup(name);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerRoleGeneratorSetupError(java.lang.Throwable)
      */
     public void samlHandlerRoleGeneratorSetupError(Throwable t) {
@@ -1216,33 +1103,12 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#invalidRole(java.lang.String)
-     */
-    public void invalidRole(String roles) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.invalidRole(roles);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#unsupportedRoleType(java.lang.Object)
      */
     public RuntimeException unsupportedRoleType(Object attrValue) {
         return PicketLinkMessages.MESSAGES.unsupportedRoleType(attrValue);
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSavedAuthnRequestIdIntoSession(java.lang.String)
-     */
-    public void samlHandlerSavedAuthnRequestIdIntoSession(String authnRequestId) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerSavedAuthnRequestIdIntoSession(authnRequestId);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSuccessfulInResponseToValidation(java.lang.String)
-     */
-    public void samlHandlerSuccessfulInResponseToValidation(String inResponseTo) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerSuccessfulInResponseToValidation(inResponseTo);
-    }
-    
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerFailedInResponseToVerification(java.lang.String, java.lang.String)
      */
@@ -1257,13 +1123,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         return PicketLinkMessages.MESSAGES.samlHandlerFailedInResponseToVerificarionError();
     }
     
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerDomainsTrustedByIDP(java.lang.String, java.lang.String)
-     */
-    public void samlTrustedDomains(String domainsTrusted, String issuerDomain) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerDomainsTrustedByIDP(domainsTrusted, issuerDomain);
-    }
-
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustDomainCheck(java.lang.String)
      */
@@ -1289,10 +1148,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         return PicketLinkMessages.MESSAGES.samlHandlerIssuerNotTrustedError(t);
     }
 
-    public void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerDomainsTrustedBySP(domainsTrusted, issuerDomain);       
-    }
-
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerTrustElementMissingError()
      */
@@ -1314,41 +1169,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         return PicketLinkMessages.MESSAGES.samlHandlerPrincipalNotFoundError();
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerGeneratingSuccessStatusResponse(java.lang.String)
-     */ 
-    public void samlHandlerGeneratingSuccessStatusResponse(String originalIssuer) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerGeneratingSuccessStatusResponse(originalIssuer);
-    }
-    
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoDocumentToSign()
-     */
-    public void samlHandlerNoDocumentToSign() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerNoDocumentToSign();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerNoResponseDocumentFound()
-     */
-    public void samlHandlerNoResponseDocumentFound() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerNoResponseDocumentFound();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningDocumentForPOSTBinding()
-     */
-    public void samlHandlerSigningDocumentForPOSTBinding() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerSigningDocumentForPOSTBinding();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerSigningDocumentForRedirectBinding()
-     */
-    public void samlHandlerSigningDocumentForRedirectBinding() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerSigningDocumentForRedirectBinding();
-    }
-    
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerKeyPairNotFound()
      */
@@ -1375,13 +1195,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public RuntimeException samlHandlerSigningRedirectBindingMessageError(Throwable t) {
         return PicketLinkMessages.MESSAGES.samlHandlerSigningRedirectBindingMessageError(t);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerValidatingResponseForHTTPMethod(java.lang.String)
-     */
-    public void samlHandlerValidatingResponseForHTTPMethod(String method) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerValidatingResponseForHTTPMethod(method);
     }
 
     /* (non-Javadoc)

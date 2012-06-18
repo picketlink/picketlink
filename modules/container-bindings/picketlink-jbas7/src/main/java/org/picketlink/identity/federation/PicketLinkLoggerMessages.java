@@ -22,7 +22,6 @@
 
 package org.picketlink.identity.federation;
 
-import java.security.Principal;
 import java.util.Date;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -163,6 +162,15 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @Message(id = 328, value = "Unable to set the Identity Participant Stack Class. Will just use the default")
     void samlIDPUnableToSetParticipantStackUsingDefault(@Cause Throwable t);
     
+    @LogMessage(level = Level.WARN)
+    @Message(id = 234, value = "Security Token digital signature has NOT been verified. Either the STS has been configured not to sign tokens or the STS key pair has not been properly specified.")
+    void stsSecurityTokenSignatureNotVerified();
+    
+    @LogMessage(level = Level.WARN)
+    @Message(id = 241, value = "Security token should be encrypted but no encrypting key could be found")
+    void stsSecurityTokenShouldBeEncrypted();
+
+    
     /* ERROR */
     
     @LogMessage(level = Level.ERROR)
@@ -269,6 +277,9 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @Message(id = 268, value = "Verification of InResponseTo failed. InResponseTo from SAML response is %s. Value of request Id from HTTP session is %s")
     void samlHandlerFailedInResponseToVerification(String inResponseTo, String authnRequestId);
 
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 263, value = "Exception in processing authentication")
+    void samlHandlerAuthenticationError(@Cause Throwable t);
 
     /* TRACE */
     
@@ -281,100 +292,12 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     void xmllookingParserForElement(QName qname);
 
     @LogMessage(level = Level.TRACE)
-    @Message(id = 213, value = "%s does not exist. Hence creating.")
-    void samlMetaDataDirectoryCreation(String directory);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 216, value = "Persisted entity descriptor into %s")
-    void samlMetaDataPersistEntityDescriptor(String path);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 217, value = "Persisted trusted map into %s")
-    void samlMetaDataPersistTrustedMap(String path);
-
-    @LogMessage(level = Level.TRACE)
     @Message(id = 219, value = "Now=%s ::notBefore=%s ::notOnOrAfter=%s")
     void samlAssertionConditions(String now, String notBefore, XMLGregorianCalendar notOnOrAfter);
     
     @LogMessage(level = Level.TRACE)
-    @Message(id = 230, value = "Issuing token for principal %s")
-    void samlIssuingTokenForPrincipal(Principal callerPrincipal);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 233, value = "Validating token for renew request %s")
-    void stsValidatingTokenForRenewal(String details);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 234, value = "Security Token digital signature has NOT been verified. Either the STS has been configured not to sign tokens or the STS key pair has not been properly specified.")
-    void stsSecurityTokenSignatureNotVerified();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 235, value = "Started validation for request %s")
-    void stsStartedValidationForRequest(String details);
-
-    @LogMessage(level = Level.TRACE)
     @Message(id = 236, value = "Going to validate signature for: %s")
     void signatureValidatingDocument(String nodeAsString);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 237, value = "Delegating token validation to token provider")
-    void stsDelegatingValidationToTokenProvider();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 238, value = "NamespaceURI of element to be signed: %s")
-    void signatureElementToBeSigned(String namespaceURI);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 239, value = "Signed Element: %s")
-    void signatureSignedElement(String nodeAsString);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 240, value = "Locating public key for %s")
-    void pkiLocatingPublicKey(String alias);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 241, value = "Security token should be encrypted but no encrypting key could be found")
-    void stsSecurityTokenShouldBeEncrypted();
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 248, value = "UserName from callback is null")
-    void authUserNameFromCallbackisNull();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 249, value = "Password from callback is null")
-    void authPasswordFromCallbackIsNull();
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 252, value = "SAML token validation started")
-    void samlStartingValidation();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 253, value = "No attribute provider set")
-    void stsNoAttributeProviderSet();
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 259, value = "RoleGenerator set to %s")
-    void samlHandlerRoleGeneratorSetup(String name);
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 263, value = "Exception in processing authentication")
-    void samlHandlerAuthenticationError(@Cause Throwable t);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 264, value = "Invalid role: %s")
-    void invalidRole(String roles);
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 266, value = "ID of authentication request %s saved into HTTP session.")
-    void samlHandlerSavedAuthnRequestIdIntoSession(String authnRequestId);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 267, value = "Successful verification of InResponseTo for request %s")
-    void samlHandlerSuccessfulInResponseToValidation(String inResponseTo);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 269, value = "Domains that IDP trusts = %s and issuer domain = %s")
-    void samlHandlerDomainsTrustedByIDP(String domainsTrusted, String issuerDomain);
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 270, value = "Matching uri bit = %s")
@@ -384,34 +307,6 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @Message(id = 271, value = "Matched %s trust for %s")
     void samlHandlerTrustedDomainMatched(String uriBit, String issuerDomain);
 
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 272, value = "Domains that SP trusts = %s and issuer domain = %s")
-    void samlHandlerDomainsTrustedBySP(String domainsTrusted, String issuerDomain);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 273, value = "Generating Success Status Response for %s")
-    void samlHandlerGeneratingSuccessStatusResponse(String originalIssuer);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 274, value = "No document generated in the handler chain. Cannot generate signature")
-    void samlHandlerNoDocumentToSign();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 275, value = "No response document found")
-    void samlHandlerNoResponseDocumentFound();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 276, value = "Going to sign response document with POST binding type")
-    void samlHandlerSigningDocumentForPOSTBinding();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 277, value = "Going to sign response document with REDIRECT binding type")
-    void samlHandlerSigningDocumentForRedirectBinding();
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 280, value = "HTTP method for validating response: %s")
-    void samlHandlerValidatingResponseForHTTPMethod(String method);
-    
     @LogMessage(level = Level.TRACE)
     @Message(id = 311, value = "Handling Outbound Message")
     void jbossWSHandlingOutboundMessage();
@@ -573,10 +468,6 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.DEBUG)
     @Message(id = 232, value = "Claims have been specified in the request but no processor was found for dialect %s")
     void wsTrustClaimsDialectProcessorNotFound(String dialect);
-
-    @LogMessage(level = Level.DEBUG)
-    @Message(id = 242, value = "STS received request of type %s")
-    void stsReceivedRequestType(String requestType);
 
     @LogMessage(level = Level.DEBUG)
     @Message(id = 243, value = "No key type could be found in the request. Using the default BEARER type.")
