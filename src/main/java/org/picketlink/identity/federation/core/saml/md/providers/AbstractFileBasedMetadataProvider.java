@@ -33,6 +33,8 @@ import java.security.PublicKey;
 import java.util.Map;
 
 /**
+ * <p>Base implementation of {@link IMetadataProvider}, which provides common functionality for other implementations.</p>
+ * 
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public abstract class AbstractFileBasedMetadataProvider<T> extends AbstractMetadataProvider

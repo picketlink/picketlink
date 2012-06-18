@@ -1212,10 +1212,6 @@ public interface PicketLinkLogger {
      */
     void samlAssertionPasingFailed(Throwable t);
 
-    void determinedSecurityDomain(String securityDomain);
-
-    void cacheWillExpireForPrincipal(int seconds, String principal);
-
     LoginException authNullKeyStoreFromSecurityDomainError(String name);
 
     LoginException authNullKeyStoreAliasFromSecurityDomainError(String name);
@@ -1252,16 +1248,6 @@ public interface PicketLinkLogger {
     void authSAMLAssertionIssuingFailed(Throwable t);
 
     /**
-     * 
-     */
-    void jbossWSHandlingOutboundMessage();
-
-    /**
-     * 
-     */
-    void jbossWSHandlingInboundMessage();
-    
-    /**
      * @param t
      */
     void jbossWSUnableToCreateBinaryToken(Throwable t);
@@ -1275,47 +1261,6 @@ public interface PicketLinkLogger {
      * @param ignore
      */
     void jbossWSUnableToWriteSOAPMessage(Throwable t);
-
-    /**
-     * @param headerValue
-     */
-    void jbossWSHeaderValueIdentified(String headerValue);
-
-    /**
-     * @param cookie
-     */
-    void jbossWSCookieValueIdentified(String cookie);
-
-    /**
-     * @param assertionAsString
-     */
-    void jbossWSSAMLAssertionFoundInPayload(String assertionAsString);
-
-    /**
-     * @param string
-     */
-    void jbossWSRoleKeysExtractRolesFromAssertion(String string);
-
-    /**
-     * @param roles
-     */
-    void jbossWSRolesInAssertion(String roles);
-
-    /**
-     * 
-     */
-    void jbossWSNoRolesFoundInAssertion();
-
-    /**
-     * 
-     */
-    void jbossWSNoAssertionsFound();
-
-    /**
-     * @param principal
-     * @param subject
-     */
-    void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject);
 
     /**
      * @return
@@ -1384,12 +1329,6 @@ public interface PicketLinkLogger {
      * @param t
      */
     void samlIDPRequestProcessingError(Throwable t);
-
-    /**
-     * @param issuer
-     * @param e
-     */
-    void samlIDPIssuerIsNotValidURLUsingRemoteAddr(String issuer, Throwable t);
 
     /**
      * @param t

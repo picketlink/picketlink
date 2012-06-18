@@ -33,6 +33,7 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.XMLEvent;
 
 /**
+ * <p>Abstract entity descriptor parser, which provides common parser functionality</p>
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class AbstractDescriptorParser {

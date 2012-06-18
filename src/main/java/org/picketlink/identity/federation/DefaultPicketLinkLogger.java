@@ -1725,22 +1725,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#determinedSecurityDomain(java.lang.String)
-     */
-    @Override
-    public void determinedSecurityDomain(String securityDomain) {
-        trace("Determined Security Domain=" + securityDomain);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#cacheWillExpireForPrincipal(int, java.lang.String)
-     */
-    @Override
-    public void cacheWillExpireForPrincipal(int seconds, String principal) {
-        trace("Will expire from cache in " + seconds + " seconds, principal=" + principal);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreFromSecurityDomainError(java.lang.String)
      */
     @Override
@@ -1822,14 +1806,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHandlingOutboundMessage()
-     */
-    @Override
-    public void jbossWSHandlingOutboundMessage() {
-        trace("Handling Outbound Message");
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateBinaryToken(java.lang.Throwable)
      */
     @Override
@@ -1851,78 +1827,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public void jbossWSUnableToWriteSOAPMessage(Throwable t) {
         logger.error("Exception writing SOAP Message", t);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHeaderValueIdentified(java.lang.String)
-     */
-    @Override
-    public void jbossWSHeaderValueIdentified(String headerValue) {
-        trace("Header value has been identified:" + headerValue);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSCookieValueIdentified(java.lang.String)
-     */
-    @Override
-    public void jbossWSCookieValueIdentified(String cookie) {
-        trace("Cookie value has been identified:" + cookie);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHandlingInboundMessage()
-     */
-    @Override
-    public void jbossWSHandlingInboundMessage() {
-        trace("Handling Inbound Message");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSSAMLAssertionFoundInPayload(java.lang.String)
-     */
-    @Override
-    public void jbossWSSAMLAssertionFoundInPayload(String assertionAsString) {
-        trace("Assertion included in SOAP payload:" + assertionAsString);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSRoleKeysExtractRolesFromAssertion(java.lang.String)
-     */
-    @Override
-    public void jbossWSRoleKeysExtractRolesFromAssertion(String string) {
-        trace("Inbound::Rolekeys to extract roles from the assertion:" + string);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSRolesInAssertion(java.lang.String)
-     */
-    @Override
-    public void jbossWSRolesInAssertion(String roles) {
-        trace("Roles in the assertion:" + roles);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSNoRolesFoundInAssertion()
-     */
-    @Override
-    public void jbossWSNoRolesFoundInAssertion() {
-        trace("Inbound::Did not find roles in the assertion");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSNoAssertionsFound()
-     */
-    @Override
-    public void jbossWSNoAssertionsFound() {
-        trace("We did not find any assertion");
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbosswsSuccessfullyAuthenticatedPrincipal(java.lang.String, java.lang.String)
-     */
-    @Override
-    public void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject) {
-        trace("Successfully Authenticated:Principal=" + principal + "::subject=" + subject);
     }
 
     /* (non-Javadoc)
@@ -2029,14 +1933,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public void samlIDPRequestProcessingError(Throwable t) {
         logger.error("Exception in processing request:", t);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPIssuerIsNotValidURLUsingRemoteAddr(java.lang.String, java.lang.Throwable)
-     */
-    @Override
-    public void samlIDPIssuerIsNotValidURLUsingRemoteAddr(String issuer, Throwable t) {
-        logger.warn("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", t);
     }
 
     /* (non-Javadoc)
