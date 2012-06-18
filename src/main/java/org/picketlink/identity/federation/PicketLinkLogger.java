@@ -1210,4 +1210,11 @@ public interface PicketLinkLogger {
      */
     void samlSPCouldNotDispatchToLogoutPage(String logOutPage);
 
+    /**
+     * <p>Logs the implementation being used to log messages and exceptions.</p>
+     * 
+     * @param name
+     */
+    void usingLoggerImplementation(String className);
+
 }

@@ -1750,4 +1750,12 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         logger.error("Cannot dispatch to the logout page: no request dispatcher:" + logOutPage);
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#usingLoggerImplementation(java.lang.String)
+     */
+    @Override
+    public void usingLoggerImplementation(String className) {
+        logger.info("Using logger implementation: " + className);
+    }
+
 }

@@ -48,9 +48,9 @@ public final class PicketLinkLoggerFactory {
         } catch (Exception e) {
             // if no implementation is found uses the default implementation.
             LOGGER = new DefaultPicketLinkLogger();
-        } finally {
-
         }
+        
+        LOGGER.usingLoggerImplementation(LOGGER.getClass().getName());
     }
 
     /**
