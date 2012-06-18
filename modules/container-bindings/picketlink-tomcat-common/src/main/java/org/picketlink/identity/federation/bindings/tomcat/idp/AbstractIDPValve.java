@@ -113,6 +113,8 @@ import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType.SA
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusType;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
@@ -163,6 +165,8 @@ public abstract class AbstractIDPValve extends ValveBase {
      * A Lock for Handler operations in the chain
      */
     private final Lock chainLock = new ReentrantLock();
+
+    private Map<String, SPSSODescriptorType> spSSOMetadataMap = new HashMap<String, SPSSODescriptorType>();
 
     // Set a list of attributes we are interested in separated by comma
     public void setAttributeList(String attribList) {
@@ -526,7 +530,8 @@ public abstract class AbstractIDPValve extends ValveBase {
             // Set the options on the handler request
             Map<String, Object> requestOptions = new HashMap<String, Object>();
 
-            requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, Boolean.FALSE);
+            requestOptions.put(GeneralConstants.IGNORE_SIGNATURES, willIgnoreSignatureOfCurrentRequest(issuer));
+            requestOptions.put(GeneralConstants.SP_SSO_METADATA_DESCRIPTOR, spSSOMetadataMap.get(issuer));
             requestOptions.put(GeneralConstants.ROLE_GENERATOR, roleGenerator);
             requestOptions.put(GeneralConstants.CONFIGURATION, this.idpConfiguration);
             requestOptions.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding());
@@ -720,7 +725,7 @@ public abstract class AbstractIDPValve extends ValveBase {
             }
 
             options.put(GeneralConstants.SAML_IDP_STRICT_POST_BINDING, this.idpConfiguration.isStrictPostBinding()); 
-            options.put(GeneralConstants.SUPPORTS_SIGNATURES, this.idpConfiguration.isSupportsSignature()); 
+            options.put(GeneralConstants.SUPPORTS_SIGNATURES, this.idpConfiguration.isSupportsSignature());
             if(auditHelper != null){
                 options.put(GeneralConstants.AUDIT_HELPER, auditHelper);
                 options.put(GeneralConstants.CONTEXT_PATH, contextPath);
@@ -1095,6 +1100,17 @@ public abstract class AbstractIDPValve extends ValveBase {
                     throw new RuntimeException(logger.classNotLoadedError(roleGeneratorAttribute));
                 roleGenerator = (RoleGenerator) clazz.newInstance();
             }
+
+            // Read SP Metadata if provided
+            List<EntityDescriptorType> entityDescriptors = CoreConfigUtil.getMetadataConfiguration(idpConfiguration, getContext().getServletContext());
+            if (entityDescriptors != null) {
+                for (EntityDescriptorType entityDescriptorType : entityDescriptors) {
+                    SPSSODescriptorType spSSODescriptor = CoreConfigUtil.getSPDescriptor(entityDescriptorType);
+                    if (spSSODescriptor != null) {
+                        spSSOMetadataMap.put(entityDescriptorType.getEntityID(), spSSODescriptor);
+                    }
+                }
+            }
         } catch (Exception e) {
             throw logger.samlIDPConfigurationError(e);
         }
@@ -1199,5 +1215,26 @@ public abstract class AbstractIDPValve extends ValveBase {
     
     public void setAuditHelper(PicketLinkAuditHelper auditHelper) {
         this.auditHelper = auditHelper;
+    }
+
+   /**
+    * We will ignore signatures of current SAMLRequest if SP Metadata are provided for current SP
+    * and if metadata specifies that SAMLRequest is not signed for this SP.
+    *
+    * @param spIssuer
+    * @return true if signature is not expected in SAMLRequest and so signature validation should be ignored
+    */
+    private Boolean willIgnoreSignatureOfCurrentRequest(String spIssuer) {
+        SPSSODescriptorType currentSPMetadata = spSSOMetadataMap.get(spIssuer);
+
+        if (currentSPMetadata == null) {
+            return false;
+        }
+
+        Boolean isRequestSigned = currentSPMetadata.isAuthnRequestsSigned();
+
+        logger.trace("Issuer: " + spIssuer + ", isRequestSigned: " + isRequestSigned);
+
+        return !isRequestSigned;
     }
 }
