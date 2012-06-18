@@ -1483,4 +1483,11 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         PicketLinkLoggerMessages.ROOT_LOGGER.samlSPCouldNotDispatchToLogoutPage(logOutPage);
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#usingLoggerImplementation(java.lang.String)
+     */
+    public void usingLoggerImplementation(String className) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.usingLoggerImplementation(className);
+    }
+
 }

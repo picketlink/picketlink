@@ -43,125 +43,129 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     /* INFO */
     
     @LogMessage(level = Level.INFO)
-    @Message(id = 202, value = "PicketLink Audit Event raised: %s")
+    @Message(id = 200, value = "PicketLink Audit Event raised: %s")
     void auditEvent(String auditEvent);
 
     @LogMessage(level = Level.INFO)
-    @Message(id = 203, value = "Keystore is null. so setting it up")
+    @Message(id = 201, value = "Keystore is null. so setting it up")
     void keyStoreSetup();
 
     @LogMessage(level = Level.INFO)
-    @Message(id = 204, value = "No public key found for alias = %s")
+    @Message(id = 202, value = "No public key found for alias = %s")
     void keyStoreNullPublicKeyForAlias(String alias);
     
     @LogMessage(level = Level.INFO)
-    @Message(id = 220, value = "Assertion has expired with id=%s")
+    @Message(id = 203, value = "Assertion has expired with id=%s")
     void samlAssertionExpired(String id);
     
     @LogMessage(level = Level.INFO)
-    @Message(id = 226, value = "%s configuration file loaded")
+    @Message(id = 204, value = "%s configuration file loaded")
     void stsConfigurationFileLoaded(String fileName);
     
     @LogMessage(level = Level.INFO)
-    @Message(id = 334, value = "Service Provider is setting the CanonicalizationMethod on XMLSignatureUtil: %s")
+    @Message(id = 205, value = "Service Provider is setting the CanonicalizationMethod on XMLSignatureUtil: %s")
     void samlSPSettingCanonicalizationMethod(String canonicalizationMethod);
     
     @LogMessage(level = Level.INFO)
-    @Message(id = 330, value = "Identity Provider is setting the CanonicalizationMethod on XMLSignatureUtil: %s")
+    @Message(id = 206, value = "Identity Provider is setting the CanonicalizationMethod on XMLSignatureUtil: %s")
     void samlIDPSettingCanonicalizationMethod(String canonicalizationMethod);
 
     @LogMessage(level = Level.INFO)
-    @Message(id = 331, value = "Did not find picketlink-sts.xml. We will install default configuration")
+    @Message(id = 207, value = "Did not find picketlink-sts.xml. We will install default configuration")
     void samlIDPInstallingDefaultSTSConfig();
 
     @LogMessage(level = Level.INFO)
-    @Message(id = 335, value = "Cannot dispatch to the logout page: no request dispatcher: %s")
+    @Message(id = 208, value = "Cannot dispatch to the logout page: no request dispatcher: %s")
     void samlSPCouldNotDispatchToLogoutPage(String logOutPage);
-    
+
+    @LogMessage(level = Level.INFO)
+    @Message(id = 209, value = "Using logger implementation: %s")
+    void usingLoggerImplementation(String className);
+
     /* WARN */
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 208, value = "%s is not an instance of SecurityTokenRegistry - using default registry")
+    @Message(id = 210, value = "%s is not an instance of SecurityTokenRegistry - using default registry")
     void stsTokenRegistryInvalidType(String tokenRegistryOption);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 209, value = "Error instantiating token registry class - using default registry")
+    @Message(id = 211, value = "Error instantiating token registry class - using default registry")
     void stsTokenRegistryInstantiationError();
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 210, value = "Revocation registry option not specified: cancelled ids will not be persisted!")
+    @Message(id = 212, value = "Revocation registry option not specified: cancelled ids will not be persisted!")
     void stsRevocationRegistryNotSpecified();
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 211, value = "%s is not an instance of RevocationRegistry - using default registry")
+    @Message(id = 213, value = "%s is not an instance of RevocationRegistry - using default registry")
     void stsRevocationRegistryInvalidType(String registryOption);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 212, value = "Error instantiating revocation registry class - using default registry")
+    @Message(id = 214, value = "Error instantiating revocation registry class - using default registry")
     void stsRevocationRegistryInstantiationError();
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 223, value = "%s configuration file not found using TCCL")
+    @Message(id = 215, value = "%s configuration file not found using TCCL")
     void stsConfigurationFileNotFoundTCL(String fileName);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 224, value = "%s configuration file not found using TCCL")
+    @Message(id = 216, value = "%s configuration file not found using TCCL")
     void stsConfigurationFileNotFoundClassLoader(String fileName);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 225, value = "%s configuration file not found using URL. Using default configuration values")
+    @Message(id = 217, value = "%s configuration file not found using URL. Using default configuration values")
     void stsUsingDefaultConfiguration(String fileName);
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 246, value = "Secret key could not be encrypted because the endpoint's PKC has not been specified")
+    @Message(id = 218, value = "Secret key could not be encrypted because the endpoint's PKC has not been specified")
     void stsSecretKeyNotEncrypted();
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 250, value = "SAML Assertion has been found to have no expiration: ID = %s")
+    @Message(id = 219, value = "SAML Assertion has been found to have no expiration: ID = %s")
     void authSAMLAssertionWithoutExpiration(String id);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 254, value = "Attribute provider not installed: %s is not an instance of SAML20TokenAttributeProvider")
+    @Message(id = 220, value = "Attribute provider not installed: %s is not an instance of SAML20TokenAttributeProvider")
     void stsWrongAttributeProviderTypeNotInstalled(String attributeProviderClassName);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 255, value = "Error instantiating attribute provider")
+    @Message(id = 221, value = "Error instantiating attribute provider")
     void stsAttributeProviderInstantiationError(@Cause Throwable t);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 256, value = "Assertion Element = %s")
+    @Message(id = 222, value = "Assertion Element = %s")
     void samlAssertion(String nodeAsString);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 257, value = "Active Session Count = %s")
+    @Message(id = 223, value = "Active Session Count = %s")
     void samlIdentityServerActiveSessionCount(int activeSessionCount);
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 258, value = "Session Created with id = %s ::active session count = %s")
+    @Message(id = 224, value = "Session Created with id = %s ::active session count = %s")
     void samlIdentityServerSessionCreated(String id, int activeSessionCount);
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 265, value = "Session Destroyed with id = %s ::active session count = %s")
+    @Message(id = 225, value = "Session Destroyed with id = %s ::active session count = %s")
     void samlIdentityServerSessionDestroyed(String id, int activeSessionCount);
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 313, value = "Was not able to create security token. Just sending message without binary token")
+    @Message(id = 226, value = "Was not able to create security token. Just sending message without binary token")
     void jbossWSUnableToCreateSecurityToken();
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 328, value = "Unable to set the Identity Participant Stack Class. Will just use the default")
+    @Message(id = 227, value = "Unable to set the Identity Participant Stack Class. Will just use the default")
     void samlIDPUnableToSetParticipantStackUsingDefault(@Cause Throwable t);
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 234, value = "Security Token digital signature has NOT been verified. Either the STS has been configured not to sign tokens or the STS key pair has not been properly specified.")
+    @Message(id = 228, value = "Security Token digital signature has NOT been verified. Either the STS has been configured not to sign tokens or the STS key pair has not been properly specified.")
     void stsSecurityTokenSignatureNotVerified();
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 241, value = "Security token should be encrypted but no encrypting key could be found")
+    @Message(id = 229, value = "Security token should be encrypted but no encrypting key could be found")
     void stsSecurityTokenShouldBeEncrypted();
 
     @LogMessage(level = Level.WARN)
-    @Message(id = 207, value = "Security Token registry option not specified: Issued Tokens will not be persisted!")
+    @Message(id = 230, value = "Security Token registry option not specified: Issued Tokens will not be persisted!")
     void stsTokenRegistryNotSpecified();
 
     @LogMessage(level = Level.WARN)
@@ -171,115 +175,115 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     /* ERROR */
     
     @LogMessage(level = Level.ERROR)
-    @Message(id = 214, value = "Exception loading the identity providers")
+    @Message(id = 232, value = "Exception loading the identity providers")
     void samlMetaDataIdentityProviderLoadingError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 215, value = "Exception loading the service providers")
+    @Message(id = 233, value = "Exception loading the service providers")
     void samlMetaDataServiceProviderLoadingError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 218, value = "Cannot validate signature of assertion")
+    @Message(id = 234, value = "Cannot validate signature of assertion")
     void signatureAssertionValidationError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 227, value = "Exception in getting TrustKeyManager")
+    @Message(id = 235, value = "Exception in getting TrustKeyManager")
     void trustKeyManagerCreationError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 228, value = "Cannot get schema")
+    @Message(id = 236, value = "Cannot get schema")
     void xmlCouldNotGetSchema(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 260, value = "Exception initializing role generator")
+    @Message(id = 237, value = "Exception initializing role generator")
     void samlHandlerRoleGeneratorSetupError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 261, value = "AttributeManager set to %s")
+    @Message(id = 238, value = "AttributeManager set to %s")
     void samlHandlerAttributeSetup(String name);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 278, value = "Key Pair cannot be found")
+    @Message(id = 239, value = "Key Pair cannot be found")
     void samlHandlerKeyPairNotFound();
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 279, value = "Error when trying to sign message for redirection")
+    @Message(id = 240, value = "Error when trying to sign message for redirection")
     void samlHandlerErrorSigningRedirectBindingMessage(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 281, value = "Error validating signature")
+    @Message(id = 241, value = "Error validating signature")
     void samlHandlerErrorValidatingSignature(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 286, value = "Error in base64 decoding saml message")
+    @Message(id = 242, value = "Error in base64 decoding saml message")
     void samlBase64DecodingError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 287, value = "Exception in parsing saml message")
+    @Message(id = 243, value = "Exception in parsing saml message")
     void samlParsingError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 288, value = "Mapping Context returned is null")
+    @Message(id = 244, value = "Mapping Context returned is null")
     void attributeManagerMappingContextNull();
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 289, value = "Exception in attribute mapping")
+    @Message(id = 245, value = "Exception in attribute mapping")
     void attributeManagerError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 290, value = "Could not obtain security context.")
+    @Message(id = 246, value = "Could not obtain security context.")
     void couldNotObtainSecurityContext();
     
     @LogMessage(level = Level.ERROR)
-    @Message(id = 303, value = "SAML Assertion parsing failed")
+    @Message(id = 247, value = "SAML Assertion parsing failed")
     void authSAMLAssertionParsingFailed(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 310, value = "Unable to issue assertion")
+    @Message(id = 248, value = "Unable to issue assertion")
     void authSAMLAssertionIssuingFailed(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 312, value = "Unable to create binary token")
+    @Message(id = 249, value = "Unable to create binary token")
     void jbossWSUnableToCreateBinaryToken(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 314, value = "Exception writing SOAP Message")
+    @Message(id = 250, value = "Exception writing SOAP Message")
     void jbossWSUnableToWriteSOAPMessage(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 324, value = "Exception using backup method to get op name")
+    @Message(id = 251, value = "Exception using backup method to get op name")
     void jbossWSErrorGettingOperationname(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 325, value = "Exception handling saml 11 use case")
+    @Message(id = 252, value = "Exception handling saml 11 use case")
     void samlIDPHandlingSAML11Error(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 326, value = "Exception in processing request")
+    @Message(id = 253, value = "Exception in processing request")
     void samlIDPRequestProcessingError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 329, value = "Exception dealing with handler configuration")
+    @Message(id = 254, value = "Exception dealing with handler configuration")
     void samlHandlerConfigurationError(@Cause Throwable t);
     
     @LogMessage(level = Level.ERROR)
-    @Message(id = 332, value = "Falling back on local Form Authentication if available")
+    @Message(id = 255, value = "Falling back on local Form Authentication if available")
     void samlSPFallingBackToLocalFormAuthentication();
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 333, value = "Unable to obtain the IDP SSO Descriptor from metadata")
+    @Message(id = 256, value = "Unable to obtain the IDP SSO Descriptor from metadata")
     void samlSPUnableToGetIDPDescriptorFromMetadata();
     
     @LogMessage(level = Level.ERROR)
-    @Message(id = 268, value = "Verification of InResponseTo failed. InResponseTo from SAML response is %s. Value of request Id from HTTP session is %s")
+    @Message(id = 257, value = "Verification of InResponseTo failed. InResponseTo from SAML response is %s. Value of request Id from HTTP session is %s")
     void samlHandlerFailedInResponseToVerification(String inResponseTo, String authnRequestId);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 263, value = "Exception in processing authentication")
+    @Message(id = 258, value = "Exception in processing authentication")
     void samlHandlerAuthenticationError(@Cause Throwable t);
     
     @LogMessage(level = Level.ERROR)
-    @Message(id = 229, value = "The provider %s could not be added")
+    @Message(id = 259, value = "The provider %s could not be added")
     void jceProviderCouldNotBeLoaded(String name, @Cause Throwable t);
     
 }
