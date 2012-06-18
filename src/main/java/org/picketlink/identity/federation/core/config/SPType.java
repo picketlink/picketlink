@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.config;
 
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
+
 /**
  * Service Provider Type
  *
@@ -62,12 +64,14 @@ public class SPType extends ProviderType {
     /**
      * User can configure an error page where the SP will redirect on encountering errors.
      */
-    protected String errorPage = "/error.jsp";
+    protected String errorPage = GeneralConstants.ERROR_PAGE_NAME;
 
     /**
      * Is the IDP sending POST binding request/response
      */
     protected boolean idpUsesPostBinding = true;
+
+    private String logOutPage = GeneralConstants.LOGOUT_PAGE_NAME;
 
     /**
      * Gets the value of the serviceURL property.
@@ -141,5 +145,13 @@ public class SPType extends ProviderType {
 
     public void setIdpUsesPostBinding(boolean idpPostBinding) {
         this.idpUsesPostBinding = idpPostBinding;
+    }
+
+    public String getLogOutPage() {
+        return this.logOutPage;
+    }
+    
+    public void setLogOutPage(String logOutPage) {
+        this.logOutPage = logOutPage;
     }
 }

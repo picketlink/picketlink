@@ -55,6 +55,7 @@ public class PicketLinkConsolidatedConfigParserUnitTestCase {
         assertEquals("tomcat", sp.getServerEnvironment());
         assertEquals("someURL", sp.getRelayState());
         assertEquals("/someerror.jsp", sp.getErrorPage());
+        assertEquals("/customLogoutPage.jsp", sp.getLogOutPage());
         assertTrue(sp.isSupportsSignature());
         assertTrue(picketlink.isEnableAudit());
     }

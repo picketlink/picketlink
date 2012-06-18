@@ -5,6 +5,7 @@
         BindingType="REDIRECT"
         RelayState="someURL"
         ErrorPage="/someerror.jsp"
+        LogOutPage="/customLogoutPage.jsp"
         IDPUsesPostBinding="true"
         SupportsSignatures="true"
         >

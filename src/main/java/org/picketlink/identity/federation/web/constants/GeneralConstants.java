@@ -126,4 +126,5 @@ public interface GeneralConstants {
     String PASS_FIELD = "JBID_PASSWORD";
 
     String AUTH_REQUEST_ID = "AUTH_REQUEST_ID";
+    String ERROR_PAGE_NAME = "/error.jsp";
 }

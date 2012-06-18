@@ -52,6 +52,8 @@ public class SAMLConfigParser extends AbstractParser {
     public static final String BINDING_TYPE = "BindingType";
 
     public static final String ERROR_PAGE = "ErrorPage";
+    
+    public static final String LOGOUT_PAGE = "LogOutPage";
 
     public static final String IDP = "PicketLinkIDP";
 
@@ -277,6 +279,12 @@ public class SAMLConfigParser extends AbstractParser {
         attribute = startElement.getAttributeByName(attributeQName);
         if (attribute != null) {
             sp.setErrorPage(StaxParserUtil.getAttributeValue(attribute));
+        }
+
+        attributeQName = new QName("", LOGOUT_PAGE);
+        attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null) {
+            sp.setLogOutPage(StaxParserUtil.getAttributeValue(attribute));
         }
 
         attributeQName = new QName("", IDP_USES_POST_BINDING);
