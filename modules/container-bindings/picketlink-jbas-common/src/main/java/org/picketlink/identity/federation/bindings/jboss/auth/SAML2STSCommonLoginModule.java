@@ -366,7 +366,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
                 throw logger.authFailedToParseSAMLAssertion(e);
             }
         }
-        if (trace) {
+        if (logger.isTraceEnabled()) {
             try {
                 logger.authSAMLAssertionToGetRolesFrom(AssertionUtil.asString(assertion));
             } catch (ProcessingException ignore) {
