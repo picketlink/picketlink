@@ -655,6 +655,7 @@ public abstract class AbstractIDPValve extends ValveBase {
      */
     private PublicKey getIssuerPublicKey(Request request, String issuer) throws ConfigurationException, ProcessingException {
         String issuerHost = null;
+        PublicKey issuerPublicKey = null;
 
         try {
             issuerHost = new URL(issuer).getHost();
@@ -664,7 +665,11 @@ public abstract class AbstractIDPValve extends ValveBase {
         }
         
         logger.trace("Trying to find a PK for issuer: " + issuerHost);
-        PublicKey issuerPublicKey = CoreConfigUtil.getValidatingKey(keyManager, issuerHost);
+        try {
+            issuerPublicKey = CoreConfigUtil.getValidatingKey(keyManager, issuerHost);
+        } catch (IllegalStateException ise) {
+            logger.trace("Token issuer is not found for: " + issuer, ise);
+        }
         
         if (issuerPublicKey == null) {
             issuerHost = request.getRemoteAddr();
