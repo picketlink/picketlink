@@ -1457,20 +1457,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#determinedSecurityDomain(java.lang.String)
-     */
-    public void determinedSecurityDomain(String securityDomain) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.determinedSecurityDomain(securityDomain);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#cacheWillExpireForPrincipal(int, java.lang.String)
-     */
-    public void cacheWillExpireForPrincipal(int seconds, String principal) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.cacheWillExpireForPrincipal(seconds, principal);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#authNullKeyStoreFromSecurityDomainError(java.lang.String)
      */
     public LoginException authNullKeyStoreFromSecurityDomainError(String name) {
@@ -1541,13 +1527,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHandlingOutboundMessage()
-     */
-    public void jbossWSHandlingOutboundMessage() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSHandlingOutboundMessage();
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToCreateBinaryToken(java.lang.Throwable)
      */
     public void jbossWSUnableToCreateBinaryToken(Throwable t) {
@@ -1568,54 +1547,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSUnableToWriteSOAPMessage(t);
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSHeaderValueIdentified(java.lang.String)
-     */
-    public void jbossWSHeaderValueIdentified(String headerValue) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSHeaderValueIdentified(headerValue);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSCookieValueIdentified(java.lang.String)
-     */
-    public void jbossWSCookieValueIdentified(String cookie) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSCookieValueIdentified(cookie);
-    }
-
-    public void jbossWSHandlingInboundMessage() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSHandlingInboundMessage();       
-    }
-
-    public void jbossWSSAMLAssertionFoundInPayload(String assertionAsString) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSSAMLAssertionFoundInPayload(assertionAsString);
-    }
-    
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSRoleKeysExtractRolesFromAssertion(java.lang.String)
-     */
-    public void jbossWSRoleKeysExtractRolesFromAssertion(String string) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSRoleKeysExtractRolesFromAssertion(string);
-    }
-
-    public void jbossWSRolesInAssertion(String roles) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSRolesInAssertion(roles);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSNoRolesFoundInAssertion()
-     */
-    public void jbossWSNoRolesFoundInAssertion() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSNoRolesFoundInAssertion();
-    }
-
-    public void jbossWSNoAssertionsFound() {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSNoAssertionsFound();
-    }
-
-    public void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.jbossWSSuccessfullyAuthenticatedPrincipal(principal, subject);
-    }
-    
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#jbossWSUnableToLoadJBossWSSEConfigError()
      */
@@ -1711,13 +1642,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPRequestProcessingError(t);
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPIssuerIsNotValidURLUsingRemoteAddr(java.lang.String, java.lang.Throwable)
-     */
-    public void samlIDPIssuerIsNotValidURLUsingRemoteAddr(String issuer, Throwable t) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlIDPIssuerIsNotValidURLUsingRemoteAddr(issuer, t);
-    }
-    
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlIDPUnableToSetParticipantStackUsingDefault(java.lang.Throwable)
      */

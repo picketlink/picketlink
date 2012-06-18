@@ -60,7 +60,7 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
      * Retrieves the SAML assertion from the SOAP payload and lets invocation go to JAAS for validation.
      */
     protected boolean handleInbound(MessageContext msgContext) {
-        logger.jbossWSHandlingInboundMessage();
+        logger.trace("Handling Inbound Message");
 
         String assertionNS = JBossSAMLURIConstants.ASSERTION_NSURI.get();
         SOAPMessageContext ctx = (SOAPMessageContext) msgContext;
@@ -84,7 +84,7 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
             }
             SamlCredential credential = new SamlCredential(assertion);
             if (logger.isTraceEnabled()) {
-                logger.jbossWSSAMLAssertionFoundInPayload(credential.getAssertionAsString());
+                logger.trace("Assertion included in SOAP payload: " + credential.getAssertionAsString());
             }
             Element subject = Util.findElement(assertion, new QName(assertionNS, "Subject"));
             Element nameID = Util.findElement(subject, new QName(assertionNS, "NameID"));
@@ -102,19 +102,19 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
                     roleKeys.addAll(StringUtil.tokenize(roleKey));
                 }
 
-                logger.jbossWSRoleKeysExtractRolesFromAssertion(roleKeys.toString());
+                logger.trace("Rolekeys to extract roles from the assertion: " + roleKeys);
 
                 List<String> roles = AssertionUtil.getRoles(assertionType, roleKeys);
                 if (roles.size() > 0) {
-                    logger.jbossWSRolesInAssertion(roles.toString());
+                    logger.trace("Roles in the assertion: " + roles);
                     Group roleGroup = SecurityActions.group(roles);
                     theSubject.getPrincipals().add(roleGroup);
                 } else {
-                    logger.jbossWSNoRolesFoundInAssertion();
+                    logger.trace("Did not find roles in the assertion");
                 }
             }
         } else {
-            logger.jbossWSNoAssertionsFound();
+            logger.trace("We did not find any assertion");
         }
         return true;
     }
@@ -124,7 +124,7 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
      * assertion is then included in the SOAP payload.
      */
     protected boolean handleOutbound(MessageContext msgContext) {
-        logger.jbossWSHandlingOutboundMessage();
+        logger.trace("Handling Outbound Message");
 
         SOAPMessageContext ctx = (SOAPMessageContext) msgContext;
         SOAPMessage soapMessage = ctx.getMessage();
@@ -138,7 +138,7 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
         }
 
         if (assertion == null) {
-            logger.jbossWSNoAssertionsFound();
+            logger.trace("We did not find any assertion");
             return true;
         }
 

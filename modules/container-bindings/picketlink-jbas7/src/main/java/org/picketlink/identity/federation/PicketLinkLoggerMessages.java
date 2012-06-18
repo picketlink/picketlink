@@ -155,10 +155,6 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     void jbossWSUnableToCreateSecurityToken();
     
     @LogMessage(level = Level.WARN)
-    @Message(id = 327, value = "Token issuer is not a valid URL: %s. Using the requester address instead.")
-    void samlIDPIssuerIsNotValidURLUsingRemoteAddr(String issuer, @Cause Throwable t);
-
-    @LogMessage(level = Level.WARN)
     @Message(id = 328, value = "Unable to set the Identity Participant Stack Class. Will just use the default")
     void samlIDPUnableToSetParticipantStackUsingDefault(@Cause Throwable t);
     
@@ -306,54 +302,6 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.TRACE)
     @Message(id = 271, value = "Matched %s trust for %s")
     void samlHandlerTrustedDomainMatched(String uriBit, String issuerDomain);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 311, value = "Handling Outbound Message")
-    void jbossWSHandlingOutboundMessage();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 315, value = "Header value has been identified %s")
-    void jbossWSHeaderValueIdentified(String headerValue);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 316, value = "Cookie value has been identified %s")
-    void jbossWSCookieValueIdentified(String cookie);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 317, value = "Handling Inbound Message")
-    void jbossWSHandlingInboundMessage();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 318, value = "Assertion included in SOAP payload: %s")
-    void jbossWSSAMLAssertionFoundInPayload(String assertionAsString);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 319, value = "Rolekeys to extract roles from the assertion: %s")
-    void jbossWSRoleKeysExtractRolesFromAssertion(String string);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 320, value = "Roles in the assertion: %s")
-    void jbossWSRolesInAssertion(String roles);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 321, value = "Did not find roles in the assertion")
-    void jbossWSNoRolesFoundInAssertion();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 322, value = "We did not find any assertion")
-    void jbossWSNoAssertionsFound();
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 323, value = "Successfully Authenticated:Principal= %s ::subject = %s")
-    void jbossWSSuccessfullyAuthenticatedPrincipal(String principal, String subject);
-    
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 304, value = "Determined Security Domain = %s")
-    void determinedSecurityDomain(String securityDomain);
-
-    @LogMessage(level = Level.TRACE)
-    @Message(id = 305, value = "Will expire from cache in %s seconds, principal = %s")
-    void cacheWillExpireForPrincipal(int seconds, String principal);
 
     @LogMessage(level = Level.TRACE)
     @Message(id = 306, value = "Constructing STSClientInterceptor using %s as the configuration file")

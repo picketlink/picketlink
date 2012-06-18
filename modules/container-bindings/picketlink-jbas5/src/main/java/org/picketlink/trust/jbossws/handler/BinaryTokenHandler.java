@@ -214,7 +214,7 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
     @Override
     protected boolean handleOutbound(MessageContext msgContext) {
 
-        logger.jbossWSHandlingOutboundMessage();
+        logger.trace("Handling Outbound Message");
 
         if (httpHeaderName == null && httpCookieName == null)
             throw logger.injectedValueMissing("Either httpHeaderName or httpCookieName should be set");
@@ -298,13 +298,13 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
                 }
                 String headerValue = builder.toString();
 
-                logger.jbossWSHeaderValueIdentified(headerValue);
+                logger.trace("Header value has been identified " + headerValue);
                 
                 return clean(headerValue);
             } else {
                 String header = http.getHeader(httpHeaderName);
                 if (header != null) {
-                    logger.jbossWSHeaderValueIdentified(header);
+                    logger.trace("Header value has been identified " + header);
                     return clean(header);
                 }
             }
@@ -314,7 +314,7 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     if (cookie.getName().equals(httpCookieName)) {
-                        logger.jbossWSCookieValueIdentified(cookie.getValue());
+                        logger.trace("Cookie value has been identified " + cookie.getValue());
                         return clean(cookie.getValue());
                     }
                 }

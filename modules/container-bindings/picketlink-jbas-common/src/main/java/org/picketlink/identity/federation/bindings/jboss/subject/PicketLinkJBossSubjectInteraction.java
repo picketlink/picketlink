@@ -55,13 +55,13 @@ public class PicketLinkJBossSubjectInteraction implements SubjectSecurityInterac
         try {
             String securityDomain = getSecurityDomain();
 
-            logger.determinedSecurityDomain(securityDomain);
+            logger.trace("Determined Security Domain = " + securityDomain);
 
             TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.SECOND, 10);// Add 25 seconds
 
-            logger.cacheWillExpireForPrincipal(10, principal.toString());
+            logger.trace("Will expire from cache in 10 seconds, principal = " + principal);
 
             cacheExpiry.register(securityDomain, calendar.getTime(), principal);
             // Additional expiry of simple principal

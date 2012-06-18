@@ -64,7 +64,7 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
     @Override
     protected boolean handleInbound(MessageContext msgContext) {
 
-        logger.jbossWSHandlingInboundMessage();
+        logger.trace("Handling Inbound Message");
         
         trace(msgContext);
         

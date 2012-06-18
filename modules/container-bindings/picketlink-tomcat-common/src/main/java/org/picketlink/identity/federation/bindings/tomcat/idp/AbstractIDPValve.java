@@ -654,18 +654,25 @@ public abstract class AbstractIDPValve extends ValveBase {
      * @throws ConfigurationException
      */
     private PublicKey getIssuerPublicKey(Request request, String issuer) throws ConfigurationException, ProcessingException {
-        String issuerHost = request.getRemoteAddr();
+        String issuerHost = null;
 
         try {
             issuerHost = new URL(issuer).getHost();
         } catch (MalformedURLException e) {
-            logger.samlIDPIssuerIsNotValidURLUsingRemoteAddr(issuer, e);
+            logger.trace("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
+            issuerHost = issuer;
         }
-
+        
+        logger.trace("Trying to find a PK for issuer: " + issuerHost);
         PublicKey issuerPublicKey = CoreConfigUtil.getValidatingKey(keyManager, issuerHost);
-
-
-        logger.trace("Remote Host=" + request.getRemoteAddr());
+        
+        if (issuerPublicKey == null) {
+            issuerHost = request.getRemoteAddr();
+            
+            logger.trace("Trying to find a PK for issuer " + issuerHost);
+            issuerPublicKey = CoreConfigUtil.getValidatingKey(keyManager, issuerHost);
+        }
+        
         logger.trace("Using Validating Alias=" + issuerHost + " to check signatures.");
 
         return issuerPublicKey;

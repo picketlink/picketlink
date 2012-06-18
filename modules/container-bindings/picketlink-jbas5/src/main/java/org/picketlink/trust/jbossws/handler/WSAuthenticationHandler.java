@@ -43,7 +43,7 @@ public class WSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
     @Override
     protected boolean handleInbound(MessageContext msgContext) {
 
-        logger.jbossWSHandlingInboundMessage();
+        logger.trace("Handling Inbound Message");
         
         trace(msgContext);
 
@@ -61,7 +61,7 @@ public class WSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
             throw new RuntimeException(e);
         }
 
-        logger.jbossWSSuccessfullyAuthenticatedPrincipal(principal.toString(), subject.toString());
+        logger.trace("Successfully Authenticated:Principal = " + principal + "  ::subject = " + subject);
 
         securityAdaptor.pushSubjectContext(subject, principal, credential);
 
