@@ -47,13 +47,16 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Jan 31, 2011
  */
-public class SAMLEntitiesDescriptorParser implements ParserNamespaceSupport {
+public class SAMLEntitiesDescriptorParser extends AbstractDescriptorParser implements ParserNamespaceSupport {
     
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     
     private final String EDT = JBossSAMLConstants.ENTITIES_DESCRIPTOR.get();
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
+
+        xmlEventReader = filterWhiteSpaceCharacters(xmlEventReader);
+
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
         StaxParserUtil.validate(startElement, EDT);
 
