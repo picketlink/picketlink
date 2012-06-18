@@ -25,12 +25,15 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import javax.servlet.ServletContext;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
@@ -40,12 +43,14 @@ import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
+import org.picketlink.identity.federation.core.config.MetadataProviderType;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TokenProviderType;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
@@ -56,6 +61,8 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
+
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * Utility for configuration
@@ -482,5 +489,69 @@ public class CoreConfigUtil {
             throw logger.nullValueError("identity url");
         }
         return idp;
+    }
+
+    /**
+     * Read metadata from ProviderType
+     * @param providerType
+     * @param servletContext
+     * @return
+     */
+    public static List<EntityDescriptorType> getMetadataConfiguration(ProviderType providerType, ServletContext servletContext) {
+        MetadataProviderType metadataProviderType = providerType.getMetaDataProvider();
+
+        if (metadataProviderType == null) {
+            return null;
+        }
+
+        String fqn = metadataProviderType.getClassName();
+        Class<?> clazz = SecurityActions.loadClass(CoreConfigUtil.class, fqn);
+        IMetadataProvider metadataProvider;
+        try {
+            metadataProvider = (IMetadataProvider) clazz.newInstance();
+        }
+        catch (Exception iae) {
+           throw new RuntimeException(iae);
+        }
+
+        List<KeyValueType> keyValues = metadataProviderType.getOption();
+        Map<String, String> options = new HashMap<String, String>();
+        if (keyValues != null) {
+            for (KeyValueType kvt : keyValues)
+                options.put(kvt.getKey(), kvt.getValue());
+        }
+        metadataProvider.init(options);
+
+        String fileInjectionStr = metadataProvider.requireFileInjection();
+        if (isNotNull(fileInjectionStr)) {
+            metadataProvider.injectFileStream(servletContext.getResourceAsStream(fileInjectionStr));
+        }
+
+        List<EntityDescriptorType> resultList = new ArrayList<EntityDescriptorType>();
+        if (metadataProvider.isMultiple()) {
+            EntitiesDescriptorType metadatas = (EntitiesDescriptorType) metadataProvider.getMetaData();
+            addAllEntityDescriptorsRecursively(resultList, metadatas);
+        }
+        else {
+            EntityDescriptorType metadata = (EntityDescriptorType) metadataProvider.getMetaData();
+            resultList.add(metadata);
+        }
+        return resultList;
+    }
+
+    private static void addAllEntityDescriptorsRecursively(List<EntityDescriptorType> resultList,
+                                                           EntitiesDescriptorType entitiesDescriptorType) {
+         List<Object> entities = entitiesDescriptorType.getEntityDescriptor();
+         for (Object o : entities) {
+             if (o instanceof EntitiesDescriptorType) {
+                 addAllEntityDescriptorsRecursively(resultList, (EntitiesDescriptorType)o);
+             }
+             else if (o instanceof EntityDescriptorType) {
+                 resultList.add((EntityDescriptorType)o);
+             }
+             else {
+                 throw new IllegalArgumentException("Wrong type: " + o.getClass());
+             }
+         }
     }
 }
