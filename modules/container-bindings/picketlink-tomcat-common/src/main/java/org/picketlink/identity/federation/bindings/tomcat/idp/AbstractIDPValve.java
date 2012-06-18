@@ -659,7 +659,7 @@ public abstract class AbstractIDPValve extends ValveBase {
         try {
             issuerHost = new URL(issuer).getHost();
         } catch (MalformedURLException e) {
-            logger.trace("Token issuer is not a valid URL: " + issuer + ". Using the requester address instead.", e);
+            logger.trace("Token issuer is not a valid URL: " + issuer, e);
             issuerHost = issuer;
         }
         
