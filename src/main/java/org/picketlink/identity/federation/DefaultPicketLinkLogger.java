@@ -84,12 +84,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
             logger.debug(message);            
         }
     }
-
-    private void debug(String message, Throwable t) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(message, t);            
-        }
-    }
     
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#trace(java.lang.String)

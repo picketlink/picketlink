@@ -46,6 +46,7 @@ public class SPPostMetadataConfigurationProviderUnitTestCase {
         assertEquals("https://sp.testshib.org/Shibboleth.sso/SAML2/POST", sp.getServiceURL());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testSPTypeWithConfig() throws Exception {
         SPPostMetadataConfigurationProvider provider = new SPPostMetadataConfigurationProvider();

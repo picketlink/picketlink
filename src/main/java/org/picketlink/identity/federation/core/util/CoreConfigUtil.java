@@ -21,6 +21,8 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
@@ -37,7 +39,6 @@ import javax.servlet.ServletContext;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.IDPType;
@@ -61,8 +62,6 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
 
 /**
  * Utility for configuration
@@ -497,6 +496,7 @@ public class CoreConfigUtil {
      * @param servletContext
      * @return
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public static List<EntityDescriptorType> getMetadataConfiguration(ProviderType providerType, ServletContext servletContext) {
         MetadataProviderType metadataProviderType = providerType.getMetaDataProvider();
 

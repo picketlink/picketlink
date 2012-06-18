@@ -25,7 +25,6 @@ import java.util.UUID;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
 
 /**
  * Utility class that generates unique IDs

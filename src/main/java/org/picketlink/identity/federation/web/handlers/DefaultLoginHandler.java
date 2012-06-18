@@ -29,7 +29,6 @@ import javax.security.auth.login.LoginException;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 
 /**

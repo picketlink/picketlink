@@ -47,6 +47,7 @@ public class IDPMetadataConfigurationProviderUnitTestCase {
         assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", idp.getIdentityURL());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testIDPTypeWithConfig() throws Exception {
         IDPMetadataConfigurationProvider provider = new IDPMetadataConfigurationProvider();

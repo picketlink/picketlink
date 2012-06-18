@@ -35,7 +35,6 @@ import javax.xml.namespace.QName;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorsType;

@@ -21,8 +21,6 @@
  */
 package org.picketlink.test.identity.federation.core.util;
 
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;

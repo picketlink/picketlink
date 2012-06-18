@@ -27,7 +27,6 @@ import javax.servlet.http.HttpSessionListener;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;

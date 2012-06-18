@@ -291,7 +291,7 @@ public class PicketLinkSTS implements Provider<SOAPMessage>// SecurityTokenServi
 
             // if no configuration file was found, log a warn message and use default configuration values.
             if (configurationFileURL == null) {
-                logger.stsUsingDefaultConfiguration(configurationFileURL.getPath());
+                logger.stsUsingDefaultConfiguration("");
                 return new PicketLinkSTSConfiguration();
             }
 

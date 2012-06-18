@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;

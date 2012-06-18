@@ -23,14 +23,13 @@
 
 package org.picketlink.identity.federation.core.saml.md.providers;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
-
 import java.io.InputStream;
 import java.security.PublicKey;
 import java.util.Map;
+
+import org.picketlink.identity.federation.PicketLinkLogger;
+import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 
 /**
  * <p>Base implementation of {@link IMetadataProvider}, which provides common functionality for other implementations.</p>

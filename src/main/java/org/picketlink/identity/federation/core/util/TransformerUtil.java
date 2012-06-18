@@ -29,7 +29,6 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.util.JAXBSource;
 import javax.xml.namespace.QName;
-import javax.xml.stream.Location;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.Characters;
@@ -341,7 +340,6 @@ public class TransformerUtil {
                         textNode = doc.importNode(textNode, true);
                         el.appendChild(textNode);
                     } catch (Exception e) {
-                        Location location = characterEvent.getLocation();
                         throw logger.parserException(e);
                     }
                 }

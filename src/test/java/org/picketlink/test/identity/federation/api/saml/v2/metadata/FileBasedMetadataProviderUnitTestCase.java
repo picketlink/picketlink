@@ -23,7 +23,14 @@
 
 package org.picketlink.test.identity.federation.api.saml.v2.metadata;
 
+import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import junit.framework.TestCase;
+
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.saml.md.providers.AbstractFileBasedMetadataProvider;
 import org.picketlink.identity.federation.core.saml.md.providers.FileBasedEntitiesMetadataProvider;
@@ -33,13 +40,6 @@ import org.picketlink.identity.federation.saml.v2.metadata.EndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
-import static junit.framework.Assert.assertEquals;
 
 /**
  * <p>Unit test for {@link FileBasedEntityMetadataProvider} and {@link FileBasedEntitiesMetadataProvider}</p>
