@@ -32,7 +32,6 @@ import org.apache.catalina.User;
 import org.apache.catalina.realm.GenericPrincipal;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 
 /**
