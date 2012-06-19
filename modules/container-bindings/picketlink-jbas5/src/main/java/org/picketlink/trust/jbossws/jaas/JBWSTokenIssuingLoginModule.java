@@ -22,6 +22,7 @@
 package org.picketlink.trust.jbossws.jaas;
 
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +45,7 @@ import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule;
 import org.picketlink.trust.jbossws.PicketLinkDispatch;
 import org.picketlink.trust.jbossws.handler.BinaryTokenHandler;
+import org.picketlink.trust.jbossws.handler.MapBasedTokenHandler;
 import org.picketlink.trust.jbossws.handler.SAML2Handler;
 
 /**
@@ -76,7 +78,20 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
 
     @Override
     protected STSClient createWSTrustClient(STSClientConfig config) {
-        return new JBWSTokenClient(config, options);
+        
+        String binaryTokenKey = (String) options.get(MapBasedTokenHandler.SYS_PROP_TOKEN_KEY);
+        if (binaryTokenKey == null) {
+            binaryTokenKey = SecurityActions.getSystemProperty(MapBasedTokenHandler.SYS_PROP_TOKEN_KEY, 
+                    MapBasedTokenHandler.DEFAULT_TOKEN_KEY);
+        }
+        Object binaryToken = sharedState.get(binaryTokenKey);
+
+        Map<String, ? super Object> STSClientOptions = new HashMap<String, Object> (options);
+        if (binaryToken != null) {
+            STSClientOptions.put(binaryTokenKey, binaryToken);
+        }
+        
+        return new JBWSTokenClient(config, STSClientOptions);
     }
 
     @SuppressWarnings("unchecked")
@@ -115,7 +130,7 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
         }
 
         @SuppressWarnings("rawtypes")
-        public JBWSTokenClient(STSClientConfig config, Map<String, ?> options) {
+        public JBWSTokenClient(STSClientConfig config, Map<String, ? super Object> options) {
             super(config);
 
             // Get pre-constructed Dispatch from super
@@ -138,7 +153,7 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
             List<Handler> handlers = binding.getHandlerChain();
 
             String handlerStr = (String) options.get("handlerChain");
-
+            
             if (StringUtil.isNotNull(handlerStr)) {
                 List<String> tokens = StringUtil.tokenize(handlerStr);
                 for (String token : tokens) {
@@ -148,6 +163,9 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
                     } else if (token.equalsIgnoreCase("saml2")) {
                         SAML2Handler samlHandler = new SAML2Handler();
                         handlers.add(samlHandler);
+                    } else if (token.equalsIgnoreCase("map")) {
+                        MapBasedTokenHandler mapBasedHandler = new MapBasedTokenHandler(options);
+                        handlers.add(mapBasedHandler);
                     } else {
                         ClassLoader cl = SecurityActions.getClassLoader(getClass());
                         try {

@@ -38,6 +38,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
+import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.trust.jbossws.Constants;
 import org.picketlink.trust.jbossws.Util;
@@ -89,7 +90,7 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
      * Attribute value for the EncodingType attribute
      */
     private String encodingType = SecurityActions.getSystemProperty("binary.http.encodingType",
-            "http://docs.oasis-open.org/wss/2004/01/ oasis-200401-wss-soap-message-security-1.0#Base64Binary");
+            "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary");
 
     /**
      * Attribute value for the ValueType attribute
@@ -251,12 +252,7 @@ public class BinaryTokenHandler extends AbstractPicketLinkTrustHandler {
             logger.jbossWSUnableToCreateBinaryToken(e);
         }
         if (logger.isTraceEnabled()) {
-            logger.trace("SOAP Message=");
-            try {
-                sm.writeTo(System.out);
-            } catch (Exception ignore) {
-                logger.jbossWSUnableToWriteSOAPMessage(ignore);
-            }
+            logger.trace("SOAP Message=" + SOAPUtil.soapMessageAsString(sm));            
         }
         return true;
     }
