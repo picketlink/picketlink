@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.core.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
@@ -35,6 +36,7 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.transform.Source;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.w3c.dom.Document;
 
@@ -174,4 +176,20 @@ public class SOAPUtil {
             throw new RuntimeException(e);
         }
     }
+    
+   /**
+    * Utility method to dump soapMessage to String.
+    * Used for logging purpose. Use only with TRACE level, please. 
+    * @param soapMessage
+    * @return String representation of soapMessage
+    */
+   public static String soapMessageAsString(SOAPMessage soapMessage) {
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      try {
+         soapMessage.writeTo(baos);
+      } catch (Exception almostIgnored) {
+         return ErrorCodes.SOAP_MESSAGE_DUMP_ERROR + almostIgnored;
+      }
+      return baos.toString();
+   }
 }
