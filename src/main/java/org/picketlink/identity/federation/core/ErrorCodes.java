@@ -197,4 +197,6 @@ public interface ErrorCodes {
     String WRITER_UNSUPPORTED_ATTRIB_VALUE = "PL00084: Writer: Unsupported Attribute Value:";
 
     String WRONG_TYPE = "PL00095: Wrong type:";
+    
+    String SOAP_MESSAGE_DUMP_ERROR = "PL00104: Error while dumping SOAP message:";
 }
