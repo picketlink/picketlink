@@ -61,8 +61,19 @@ public class Handlers {
         this.handlerChainClass = samlHandlerChainClass;
     }
     
+    /**
+     * Get the Handler chain class FQN
+     * @return
+     */
     public String getHandlerChainClass() {
         return this.handlerChainClass;
     }
-
+    
+    /**
+     * Set the list of {@link Handler}
+     * @param theHandlers
+     */
+    public void setHandlers(List<Handler> theHandlers){
+        handler.addAll(theHandlers);
+    }
 }
