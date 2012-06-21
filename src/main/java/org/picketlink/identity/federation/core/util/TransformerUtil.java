@@ -72,6 +72,8 @@ public class TransformerUtil {
     
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     
+    private static TransformerFactory transformerFactory;
+    
     /**
      * Get the Default Transformer
      *
@@ -81,15 +83,31 @@ public class TransformerUtil {
     public static Transformer getTransformer() throws ConfigurationException {
         Transformer transformer;
         try {
-            transformer = TransformerFactory.newInstance().newTransformer();
+            transformer = getTransformerFactory().newTransformer();
         } catch (TransformerConfigurationException e) {
             throw logger.configurationError(e);
         } catch (TransformerFactoryConfigurationError e) {
             throw logger.configurationError(e);
         }
+        
         transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
         transformer.setOutputProperty(OutputKeys.INDENT, "no");
+        
         return transformer;
+    }
+
+    /**
+     * <p>Creates a {@link TransformerFactory}. The returned instance is cached and shared between different threads.</p>
+     * 
+     * @return
+     * @throws TransformerFactoryConfigurationError
+     */
+    private static TransformerFactory getTransformerFactory() throws TransformerFactoryConfigurationError {
+        if (transformerFactory == null) {
+            transformerFactory = TransformerFactory.newInstance();
+        }
+
+        return transformerFactory;
     }
 
     /**

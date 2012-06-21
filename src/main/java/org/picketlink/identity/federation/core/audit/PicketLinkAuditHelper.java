@@ -65,7 +65,7 @@ public class PicketLinkAuditHelper {
             auditManager = (AuditManager) context
                     .lookup(SecurityConstants.JAAS_CONTEXT_ROOT + securityDomainName + "/auditMgr");
         } catch (NamingException e) {
-            throw logger.auditConfigurationError(e);
+            throw logger.auditAuditManagerNotFound(SecurityConstants.JAAS_CONTEXT_ROOT + securityDomainName + "/auditMgr", e);
         }
     }
 
@@ -101,7 +101,7 @@ public class PicketLinkAuditHelper {
                     Document dom = DocumentUtil.getDocument(is);
                     return getSecurityDomainNameViaDom(dom);
                 } catch (Exception e1) {
-                    throw logger.auditConfigurationError(e1);
+                    throw logger.auditSecurityDomainNotFound(e1);
                 }
             }
             /**
@@ -112,7 +112,7 @@ public class PicketLinkAuditHelper {
             if (StringUtil.isNotNull(secDomain))
                 return secDomain;
 
-            throw logger.auditConfigurationError(e);
+            throw logger.auditSecurityDomainNotFound(e);
         }
     }
 

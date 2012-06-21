@@ -47,6 +47,7 @@ import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrust
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Element;
 
 /**
@@ -189,14 +190,6 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public RuntimeException notImplementedYet(String feature) {
         return new RuntimeException(ErrorCodes.NOT_IMPLEMENTED_YET + feature);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#auditConfigurationError(javax.naming.NamingException)
-     */
-    @Override
-    public ConfigurationException auditConfigurationError(Throwable t) {
-        return new ConfigurationException(t);
     }
 
     /* (non-Javadoc)
@@ -1758,6 +1751,22 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public void samlResponseFromIDPParsingFailed() {
         logger.error("Error parsing the response from the IDP. Check the strict post binding configuration on both IDP and SP side.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#auditSecurityDomainNotFound(java.lang.Throwable)
+     */
+    @Override
+    public ConfigurationException auditSecurityDomainNotFound(Throwable t) {
+        return new ConfigurationException("Could not find a security domain configuration. Check if it is defined in WEB-INF/jboss-web.xml or set the " + GeneralConstants.AUDIT_SECURITY_DOMAIN + " system property.", t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#auditAuditManagerNotFound(java.lang.String, java.lang.Throwable)
+     */
+    @Override
+    public ConfigurationException auditAuditManagerNotFound(String location, Throwable t) {
+        return new ConfigurationException("Could not find a audit manager configuration. Location: " + location, t);
     }
 
 }

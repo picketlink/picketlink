@@ -26,6 +26,7 @@ package org.picketlink.identity.federation;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
+import javax.naming.NamingException;
 import javax.security.auth.login.LoginException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
@@ -116,14 +117,6 @@ public interface PicketLinkLogger {
      * @return
      */
     RuntimeException notImplementedYet(String string);
-
-    /**
-     * <p>Creates a {@link ConfigurationException} for exceptions raised during the PicketLink Audit configuration.
-     * 
-     * @param t
-     * @return
-     */
-    ConfigurationException auditConfigurationError(Throwable t);
 
     /**
      * <p>Creates a {@link IllegalStateException} for the case the Audit Manager is null.</p>
@@ -1217,6 +1210,18 @@ public interface PicketLinkLogger {
      */
     void usingLoggerImplementation(String className);
 
+    /**
+     * 
+     */
     void samlResponseFromIDPParsingFailed();
+
+    /**
+     * 
+     * @param t
+     * @return
+     */
+    ConfigurationException auditSecurityDomainNotFound(Throwable t);
+
+    ConfigurationException auditAuditManagerNotFound(String location, Throwable t);
 
 }

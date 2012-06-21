@@ -68,6 +68,8 @@ import org.xml.sax.SAXException;
 public class DocumentUtil {
     
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    
+    private static DocumentBuilderFactory documentBuilderFactory;
 
     /**
      * Check whether a node belongs to a document
@@ -483,14 +485,17 @@ public class DocumentUtil {
     }
 
     /**
-     * Create a namespace aware Document builder factory
+     * <p>Creates a namespace aware {@link DocumentBuilderFactory}. The returned instance is cached and shared between different threads.</p>
      *
      * @return
      */
     private static DocumentBuilderFactory getDocumentBuilderFactory() {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        factory.setNamespaceAware(true);
-        factory.setXIncludeAware(true);
-        return factory;
+        if (documentBuilderFactory == null) {
+            documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setNamespaceAware(true);
+            documentBuilderFactory.setXIncludeAware(true);
+        }
+        
+        return documentBuilderFactory;
     }
 }
