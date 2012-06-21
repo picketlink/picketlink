@@ -126,7 +126,16 @@ public class ServiceProviderSAMLResponseProcessor extends ServiceProviderBasePro
             dataStream = RedirectBindingUtil.base64DeflateDecode(samlResponse);
         }
 
-        saml2Response.getSAML2ObjectFromStream(dataStream);
+        try {
+            saml2Response.getSAML2ObjectFromStream(dataStream);
+        } catch (ProcessingException pe) {
+            logger.samlResponseFromIDPParsingFailed();
+            throw pe;
+        } catch (ParsingException pe) {
+            logger.samlResponseFromIDPParsingFailed();
+            throw pe;
+        }
+        
 
         return saml2Response.getSamlDocumentHolder();
     }

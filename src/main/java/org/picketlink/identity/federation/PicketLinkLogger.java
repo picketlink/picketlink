@@ -1217,4 +1217,6 @@ public interface PicketLinkLogger {
      */
     void usingLoggerImplementation(String className);
 
+    void samlResponseFromIDPParsingFailed();
+
 }

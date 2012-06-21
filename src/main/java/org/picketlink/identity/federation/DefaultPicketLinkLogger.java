@@ -1752,4 +1752,12 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         logger.info("Using logger implementation: " + className);
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlResponseFromIDPParsingFailed()
+     */
+    @Override
+    public void samlResponseFromIDPParsingFailed() {
+        logger.error("Error parsing the response from the IDP. Check the strict post binding configuration on both IDP and SP side.");
+    }
+
 }

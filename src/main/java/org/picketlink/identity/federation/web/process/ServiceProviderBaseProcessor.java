@@ -64,7 +64,7 @@ import org.picketlink.identity.federation.web.core.HTTPContext;
  */
 public class ServiceProviderBaseProcessor {
     
-    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
 
     protected boolean postBinding;
 
@@ -250,8 +250,9 @@ public class ServiceProviderBaseProcessor {
 
                 requestOptions.put(GeneralConstants.SENDER_PUBLIC_KEY, validatingKey);
                 requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
-                requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
             }
+            
+            requestOptions.put(GeneralConstants.SUPPORTS_SIGNATURES, this.spConfiguration.isSupportsSignature());
 
             saml2HandlerRequest.setOptions(requestOptions);
         }
