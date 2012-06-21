@@ -117,13 +117,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#auditConfigurationError(javax.naming.NamingException)
-     */
-    public ConfigurationException auditConfigurationError(Throwable t) {
-        return PicketLinkMessages.MESSAGES.auditConfigurationError(t);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#auditNullAuditManager()
      */
     public IllegalStateException auditNullAuditManager() {
@@ -1492,6 +1485,20 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     
     public void samlResponseFromIDPParsingFailed() {
         PicketLinkLoggerMessages.ROOT_LOGGER.samlResponseFromIDPParsingFailed();
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#auditSecurityDomainNotFound(java.lang.Throwable)
+     */
+    public ConfigurationException auditSecurityDomainNotFound(Throwable t) {
+        return PicketLinkMessages.MESSAGES.auditSecurityDomainNotFound(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#auditAuditManagerNotFound(java.lang.String, java.lang.Throwable)
+     */
+    public ConfigurationException auditAuditManagerNotFound(String location, Throwable t) {
+        return PicketLinkMessages.MESSAGES.auditAuditManagerNotFound(location, t);
     }
 
 }

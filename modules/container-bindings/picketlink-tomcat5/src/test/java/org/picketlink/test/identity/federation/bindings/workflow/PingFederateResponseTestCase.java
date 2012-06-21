@@ -74,6 +74,7 @@ public class PingFederateResponseTestCase {
         MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
         catalinaRequest.setSession(session);
         catalinaRequest.setContext(context);
+        catalinaRequest.setMethod("POST");
 
         String idpResponse = PostBindingUtil.base64Encode(new String(readIDPResponse()));
 

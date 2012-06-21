@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpir
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Element;
 
 /**
@@ -461,5 +462,11 @@ public interface PicketLinkMessages {
 
     @Message(id = 166, value = "Service Provider configuration error")
     RuntimeException samlSPConfigurationError(@Cause Throwable t);
+
+    @Message(id = 167, value = "Could not find a security domain configuration. Check if it is defined in WEB-INF/jboss-web.xml or set the " + GeneralConstants.AUDIT_SECURITY_DOMAIN + " system property.")
+    ConfigurationException auditSecurityDomainNotFound(@Cause Throwable t);
+
+    @Message(id = 168, value = "Could not find a audit manager configuration. Location: %s")
+    ConfigurationException auditAuditManagerNotFound(String location, @Cause Throwable t);
 
 }

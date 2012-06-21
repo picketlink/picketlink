@@ -468,9 +468,9 @@ public abstract class BaseFormAuthenticator extends FormAuthenticator {
                 }
 
                 if (enableAudit) {
-                    String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(servletContext);
-                    
                     if (auditHelper == null) {
+                        String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(servletContext);
+                        
                         auditHelper = new PicketLinkAuditHelper(securityDomainName);
                     }
                 }

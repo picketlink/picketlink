@@ -415,8 +415,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
         // deal with SAML response from IDP
         try {
-            ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(
-                    isPOSTBindingResponse(), serviceURL);
+            ServiceProviderSAMLResponseProcessor responseProcessor = new ServiceProviderSAMLResponseProcessor(request.getMethod().equals("POST"), serviceURL);
             responseProcessor.setConfiguration(spConfiguration);
             if(auditHelper !=  null){
                 responseProcessor.setAuditHelper(auditHelper);   

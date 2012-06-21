@@ -75,6 +75,7 @@ public class SPRedirectFormAuthenticatorResponseTestCase {
         MockCatalinaRequest catalinaRequest = new MockCatalinaRequest();
         catalinaRequest.setSession(session);
         catalinaRequest.setContext(context);
+        catalinaRequest.setMethod("GET");
 
         byte[] samlResponse = readIDPResponse();
 
