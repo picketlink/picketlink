@@ -285,5 +285,9 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.ERROR)
     @Message(id = 259, value = "The provider %s could not be added")
     void jceProviderCouldNotBeLoaded(String name, @Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 260, value = "Error parsing the response from the IDP. Check the strict post binding configuration on both IDP and SP side.")
+    void samlResponseFromIDPParsingFailed();
     
 }

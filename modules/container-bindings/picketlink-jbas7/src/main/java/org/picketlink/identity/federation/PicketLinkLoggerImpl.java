@@ -1489,5 +1489,9 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     public void usingLoggerImplementation(String className) {
         PicketLinkLoggerMessages.ROOT_LOGGER.usingLoggerImplementation(className);
     }
+    
+    public void samlResponseFromIDPParsingFailed() {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlResponseFromIDPParsingFailed();
+    }
 
 }
