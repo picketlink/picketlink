@@ -43,8 +43,8 @@ public class PicketLinkAuditProvider extends LogAuditProvider implements AuditPr
     @Override
     public void audit(AuditEvent auditEvent) {
         if (auditEvent instanceof PicketLinkAuditEvent) {
-            if (logger.isInfoEnabled())
-                return;
+            if (!logger.isInfoEnabled())
+                return; 
 
             PicketLinkAuditEvent picketLinkAuditEvent = (PicketLinkAuditEvent) auditEvent;
             logger.auditEvent(picketLinkAuditEvent.toString());
