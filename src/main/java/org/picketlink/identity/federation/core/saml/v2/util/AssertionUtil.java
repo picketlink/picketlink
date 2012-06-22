@@ -187,7 +187,7 @@ public class AssertionUtil {
             throws ConfigurationException, IssueInstantMissingException {
         XMLGregorianCalendar issueInstant = assertion.getIssueInstant();
         if (issueInstant == null)
-            throw new IssueInstantMissingException(ErrorCodes.NULL_ISSUE_INSTANT);
+            throw logger.samlIssueInstantMissingError();
         XMLGregorianCalendar assertionValidityLength = XMLTimeUtil.add(issueInstant, durationInMilis + clockSkew);
 
         ConditionsType conditionsType = new ConditionsType();

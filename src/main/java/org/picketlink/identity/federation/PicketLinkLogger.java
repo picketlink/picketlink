@@ -38,6 +38,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
@@ -1222,6 +1223,16 @@ public interface PicketLinkLogger {
      */
     ConfigurationException auditSecurityDomainNotFound(Throwable t);
 
+    /**
+     * @param location
+     * @param t
+     * @return
+     */
     ConfigurationException auditAuditManagerNotFound(String location, Throwable t);
+
+    /**
+     * @return
+     */
+    IssueInstantMissingException samlIssueInstantMissingError();
 
 }

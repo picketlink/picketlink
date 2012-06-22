@@ -43,6 +43,7 @@ import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
@@ -1767,6 +1768,14 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
     @Override
     public ConfigurationException auditAuditManagerNotFound(String location, Throwable t) {
         return new ConfigurationException("Could not find a audit manager configuration. Location: " + location, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlIssueInstantMissingError()
+     */
+    @Override
+    public IssueInstantMissingException samlIssueInstantMissingError() {
+        return new IssueInstantMissingException(ErrorCodes.NULL_ISSUE_INSTANT);
     }
 
 }
