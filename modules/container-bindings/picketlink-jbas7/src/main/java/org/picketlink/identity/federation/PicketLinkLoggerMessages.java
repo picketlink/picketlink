@@ -39,11 +39,14 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
 
     PicketLinkLoggerMessages ROOT_LOGGER = Logger.getMessageLogger(PicketLinkLoggerMessages.class,
             PicketLinkLoggerMessages.class.getPackage().getName());
-    
+
+    PicketLinkLoggerMessages AUDIT_LOGGER = Logger.getMessageLogger(PicketLinkLoggerMessages.class,
+            PicketLinkLoggerMessages.class.getPackage().getName() + ".audit");
+
     /* INFO */
     
     @LogMessage(level = Level.INFO)
-    @Message(id = 200, value = "PicketLink Audit Event raised: %s")
+    @Message(id = 200, value = "[PicketLink Audit] %s")
     void auditEvent(String auditEvent);
 
     @LogMessage(level = Level.INFO)

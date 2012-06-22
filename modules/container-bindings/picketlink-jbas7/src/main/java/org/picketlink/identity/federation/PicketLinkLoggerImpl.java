@@ -134,7 +134,7 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      * @see org.picketlink.identity.federation.PicketLinkLogger#auditEvent(java.lang.String)
      */
     public void auditEvent(String auditEvent) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.auditEvent(auditEvent);
+        PicketLinkLoggerMessages.AUDIT_LOGGER.auditEvent(auditEvent);
     }
 
     /* (non-Javadoc)
