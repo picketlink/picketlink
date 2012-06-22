@@ -34,12 +34,14 @@ import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.AssertionExpiredException;
+import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
@@ -231,6 +233,9 @@ public interface PicketLinkMessages {
 
     @Message (id = 87, value = "System Property missing: %s")
     RuntimeException systemPropertyMissingError(String property);
+
+    @Message(id = 88, value = "Null IssueInstant")
+    IssueInstantMissingException samlIssueInstantMissingError();
 
     @Message (id = 89, value = "Unknown Object Type: %s")
     RuntimeException unknownObjectType(Object attrValue);
