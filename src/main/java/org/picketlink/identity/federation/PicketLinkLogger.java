@@ -28,6 +28,7 @@ import java.security.GeneralSecurityException;
 
 import javax.naming.NamingException;
 import javax.security.auth.login.LoginException;
+import javax.servlet.ServletException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
@@ -1234,5 +1235,32 @@ public interface PicketLinkLogger {
      * @return
      */
     IssueInstantMissingException samlIssueInstantMissingError();
+
+    /**
+     * @param response
+     * @return
+     */
+    RuntimeException samlSPResponseNotCatalinaResponseError(Object response);
+
+    /**
+     * @param t
+     */
+    void samlLogoutError(Throwable t);
+
+    /**
+     * @param t
+     */
+    void samlErrorPageForwardError(String errorPage, Throwable t);
+
+    /**
+     * @param t
+     */
+    void samlSPHandleRequestError(Throwable t);
+
+    /**
+     * @param t 
+     * @return
+     */
+    IOException samlSPProcessingExceptionError(Throwable t);
 
 }
