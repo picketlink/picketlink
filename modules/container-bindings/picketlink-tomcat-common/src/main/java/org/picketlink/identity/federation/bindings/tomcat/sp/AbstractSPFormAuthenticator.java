@@ -42,7 +42,6 @@ import org.apache.catalina.authenticator.Constants;
 import org.apache.catalina.connector.Request;
 import org.apache.catalina.connector.Response;
 import org.apache.catalina.deploy.LoginConfig;
-import org.apache.log4j.Logger;
 import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.bindings.tomcat.sp.holder.ServiceProviderSAMLContext;
 import org.picketlink.identity.federation.core.ErrorCodes;
@@ -84,10 +83,6 @@ import org.w3c.dom.Document;
  *
  */
 public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator {
-
-    protected Logger log = Logger.getLogger(getClass());
-
-    protected final boolean trace = log.isTraceEnabled();
 
     protected boolean jbossEnv = false;
 
@@ -230,15 +225,16 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             keyManager.setValidatingAlias(keyProvider.getValidatingAlias());
 
             String identityURL = this.spConfiguration.getIdentityURL();
-
+            
+            
+            
             keyManager.addAdditionalOption(ServiceProviderBaseProcessor.IDP_KEY, new URL(identityURL).getHost());
         } catch (Exception e) {
-            log.error("Exception reading configuration:", e);
+            logger.trustKeyManagerCreationError(e);
             throw new LifecycleException(e.getLocalizedMessage());
         }
 
-        if (trace)
-            log.trace("Key Provider=" + keyProvider.getClassName());
+        logger.trace("Key Provider=" + keyProvider.getClassName());
     }
 
     /**
@@ -256,7 +252,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             Response catalinaResponse = (Response) response;
             return authenticate(request, catalinaResponse, config);
         }
-        throw new RuntimeException(ErrorCodes.SERVICE_PROVIDER_NOT_CATALINA_RESPONSE);
+        throw logger.samlSPResponseNotCatalinaResponseError(response);
     }
 
     /*
@@ -277,7 +273,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 try {
                     sendToLogoutPage(request, response, session);
                 } catch (ServletException e) {
-                    log.error("Exception in logout::", e);
+                    logger.samlLogoutError(e);
                     throw new IOException(e);
                 }
                 return false;
@@ -313,7 +309,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 try {
                     request.getRequestDispatcher(spConfiguration.getErrorPage()).forward(request.getRequest(), response);
                 } catch (ServletException e1) {
-                    log.error(ErrorCodes.FILE_NOT_LOCATED, e1);
+                    logger.samlErrorPageForwardError(spConfiguration.getErrorPage(), e1);
                 }
                 return false;
             } else {
@@ -383,8 +379,8 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             if (result)
                 return result;
         } catch (Exception e) {
-            log.error("Server Exception:", e);
-            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+            logger.samlSPHandleRequestError(e);
+            throw logger.samlSPProcessingExceptionError(e);
         }
 
         return localAuthentication(request, response, loginConfig);
@@ -455,8 +451,9 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 String username = principal.getName();
                 String password = ServiceProviderSAMLContext.EMPTY_PASSWORD;
 
-                if (trace)
-                    log.trace("Roles determined for username=" + username + "=" + Arrays.toString(roles.toArray()));
+                if (logger.isTraceEnabled()) {
+                    logger.trace("Roles determined for username=" + username + "=" + Arrays.toString(roles.toArray()));                    
+                }
 
                 // Map to JBoss specific principal
                 if ((new ServerDetector()).isJboss() || jbossEnv) {
@@ -491,7 +488,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         } catch (ProcessingException pe) {
             Throwable t = pe.getCause();
             if (t != null && t instanceof AssertionExpiredException) {
-                log.error("Assertion has expired. Asking IDP for reissue");
+                logger.error("Assertion has expired. Asking IDP for reissue");
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
                     auditEvent.setType(PicketLinkAuditEventType.EXPIRED_ASSERTION);
@@ -501,11 +498,11 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 // Just issue a fresh request back to IDP
                 return generalUserRequest(request, response, loginConfig);
             }
-            log.error("Server Exception:", pe);
-            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION + pe.getLocalizedMessage());
+            logger.samlSPHandleRequestError(pe);
+            throw logger.samlSPProcessingExceptionError(pe);
         } catch (Exception e) {
-            log.error("Server Exception:", e);
-            throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+            logger.samlSPHandleRequestError(e);
+            throw logger.samlSPProcessingExceptionError(e);
         }
 
         return localAuthentication(request, response, loginConfig);
@@ -557,13 +554,13 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
             
             saml2HandlerResponse = baseProcessor.process(httpContext, handlers, chainLock);
         } catch (ProcessingException pe) {
-            log.error("Processing Exception:", pe);
+            logger.samlSPHandleRequestError(pe);
             throw new RuntimeException(pe);
         } catch (ParsingException pe) {
-            log.error("Parsing Exception:", pe);
+            logger.samlSPHandleRequestError(pe);
             throw new RuntimeException(pe);
         } catch (ConfigurationException pe) {
-            log.error("Config Exception:", pe);
+            logger.samlSPHandleRequestError(pe);
             throw new RuntimeException(pe);
         }
 
@@ -589,8 +586,8 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 sendRequestToIDP(destination, samlResponseDocument, relayState, response, willSendRequest, destinationQueryStringWithSignature);
                 return false;
             } catch (Exception e) {
-                log.error("Server Exception:", e);
-                throw new IOException(ErrorCodes.SERVICE_PROVIDER_SERVER_EXCEPTION);
+                logger.samlSPHandleRequestError(e);
+                throw logger.samlSPProcessingExceptionError(e);
             }
         }
 

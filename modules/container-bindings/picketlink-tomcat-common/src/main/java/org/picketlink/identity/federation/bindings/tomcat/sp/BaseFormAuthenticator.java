@@ -93,7 +93,7 @@ import org.w3c.dom.Document;
  */
 public abstract class BaseFormAuthenticator extends FormAuthenticator {
     
-    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     
     protected boolean enableAudit = false;
     protected PicketLinkAuditHelper auditHelper = null;

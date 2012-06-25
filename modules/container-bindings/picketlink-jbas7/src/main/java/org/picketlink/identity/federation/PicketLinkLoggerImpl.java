@@ -30,6 +30,7 @@ import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -1507,6 +1508,38 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public IssueInstantMissingException samlIssueInstantMissingError() {
         return PicketLinkMessages.MESSAGES.samlIssueInstantMissingError();
+    }
+    
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPResponseNotCatalinaResponse()
+     */
+    public RuntimeException samlSPResponseNotCatalinaResponseError(Object response) {
+        return PicketLinkMessages.MESSAGES.samlSPResponseNotCatalinaResponseError(response);
+    }
+
+    public void samlLogoutError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlLogoutError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlErrorPageForwardError(java.lang.String, java.lang.Throwable)
+     */
+    public void samlErrorPageForwardError(String errorPage, Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlErrorPageForwardError(errorPage, t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPHandleRequestError(java.lang.Throwable)
+     */
+    public void samlSPHandleRequestError(Throwable t) {
+        PicketLinkLoggerMessages.ROOT_LOGGER.samlSPHandleRequestError(t);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSPProcessingExceptionError()
+     */
+    public IOException samlSPProcessingExceptionError(Throwable t) {
+        return PicketLinkMessages.MESSAGES.samlSPProcessingExceptionError(t);
     }
 
 }

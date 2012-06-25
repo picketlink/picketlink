@@ -292,5 +292,17 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.ERROR)
     @Message(id = 260, value = "Error parsing the response from the IDP. Check the strict post binding configuration on both IDP and SP side.")
     void samlResponseFromIDPParsingFailed();
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 261, value = "Error during the logout process.")
+    void samlLogoutError(@Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 262, value = "Could not forward to error page: %s")
+    void samlErrorPageForwardError(String errorPage, @Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 263, value = "Service Provider could not handle the request.")
+    void samlSPHandleRequestError(@Cause Throwable t);
     
 }

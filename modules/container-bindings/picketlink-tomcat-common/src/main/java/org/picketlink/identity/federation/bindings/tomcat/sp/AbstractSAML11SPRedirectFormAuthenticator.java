@@ -52,7 +52,7 @@ public abstract class AbstractSAML11SPRedirectFormAuthenticator extends Abstract
             try {
                 isValid = this.validate(request);
             } catch (Exception e) {
-                log.error("Exception:", e);
+                logger.samlSPHandleRequestError(e);
                 throw new IOException();
             }
             if (!isValid)
@@ -65,8 +65,7 @@ public abstract class AbstractSAML11SPRedirectFormAuthenticator extends Abstract
 
                 List<SAML11AssertionType> assertions = saml11Response.get();
                 if (assertions.size() > 1) {
-                    if (trace)
-                        log.trace("More than one assertion from IDP. Considering the first one.");
+                    logger.trace("More than one assertion from IDP. Considering the first one.");
                 }
                 String username = null;
                 List<String> roles = new ArrayList<String>();
@@ -109,11 +108,11 @@ public abstract class AbstractSAML11SPRedirectFormAuthenticator extends Abstract
 
                 return true;
             } catch (Exception e) {
-                log.error("Processing Exception:", e);
+                logger.samlSPHandleRequestError(e);
             }
         }
 
-        log.error("Falling back on local Form Authentication if available");
+        logger.trace("Falling back on local Form Authentication if available");
         // fallback
         return super.authenticate(request, response, loginConfig);
     }

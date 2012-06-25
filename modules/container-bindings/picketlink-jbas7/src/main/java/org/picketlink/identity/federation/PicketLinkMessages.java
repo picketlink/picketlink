@@ -34,7 +34,6 @@ import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
-import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
@@ -119,6 +118,9 @@ public interface PicketLinkMessages {
 
     @Message(id = 23, value = "Trust Key Manager Missing")
     TrustKeyConfigurationException trustKeyManagerMissing();
+
+    @Message(id = 26, value = "Response was not of type catalina response. Received: %s")
+    RuntimeException samlSPResponseNotCatalinaResponseError(Object response);
 
     @Message (id = 28, value = "Audit Manager Is Not Set")
     IllegalStateException auditNullAuditManagerError();
@@ -473,5 +475,8 @@ public interface PicketLinkMessages {
 
     @Message(id = 168, value = "Could not find a audit manager configuration. Location: %s")
     ConfigurationException auditAuditManagerNotFound(String location, @Cause Throwable t);
+
+    @Message(id = 169, value = "Service Provider processing error.")
+    IOException samlSPProcessingExceptionError(@Cause Throwable t);
 
 }
