@@ -225,6 +225,7 @@ public class SAML2LogoutTomcatWorkflowUnitTestCase {
 
         request = new MockCatalinaRequest();
         request.setSession(session);
+        request.setMethod("GET");
         request.setParameter("SAMLRequest", RedirectBindingUtil.urlDecode(logoutRequest));
         request.setParameter("RelayState", relayState);
 

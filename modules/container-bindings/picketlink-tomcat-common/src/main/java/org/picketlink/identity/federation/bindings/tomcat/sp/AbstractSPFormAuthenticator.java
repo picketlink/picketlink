@@ -360,7 +360,7 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
 
         try {
             ServiceProviderSAMLRequestProcessor requestProcessor = new ServiceProviderSAMLRequestProcessor(
-                    isPOSTBindingResponse(), this.serviceURL);
+                    request.getMethod().equals("POST"), this.serviceURL);
             requestProcessor.setTrustKeyManager(keyManager);
             requestProcessor.setConfiguration(spConfiguration);
             boolean result = requestProcessor.process(samlRequest, httpContext, handlers, chainLock);
