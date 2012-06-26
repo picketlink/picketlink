@@ -127,5 +127,4 @@ public interface GeneralConstants {
 
     String AUTH_REQUEST_ID = "AUTH_REQUEST_ID";
     String ERROR_PAGE_NAME = "/error.jsp";
-    String SUBSYSTEM_RUNTIME = "picketlink.subsystem.runtime";
 }
