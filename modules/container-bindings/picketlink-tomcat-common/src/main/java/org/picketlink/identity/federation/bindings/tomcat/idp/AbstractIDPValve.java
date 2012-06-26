@@ -1083,9 +1083,8 @@ public abstract class AbstractIDPValve extends ValveBase {
                 }
 
                 if (enableAudit) {
-                    String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(getContext().getServletContext());
-                    
                     if (auditHelper == null) {
+                        String securityDomainName = PicketLinkAuditHelper.getSecurityDomainName(getContext().getServletContext());
                         auditHelper = new PicketLinkAuditHelper(securityDomainName);
                     }
                 }
