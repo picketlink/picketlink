@@ -21,6 +21,7 @@
  */
 package org.picketlink.identity.federation.web.handlers.saml2;
 
+import java.net.URI;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import org.picketlink.identity.federation.core.SerializablePrincipal;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
@@ -359,7 +361,19 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             try {
                 AuthnRequestType authn = samlRequest.createAuthnRequestType(id, assertionConsumerURL,
                         response.getDestination(), issuerValue);
-
+                
+                String bindingType = getSPConfiguration().getBindingType();
+                
+                if (bindingType != null) {
+                    if (bindingType.equals("POST")) {
+                        authn.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_POST_BINDING.get()));
+                    } else if (bindingType.equals("REDIRECT")) {
+                        authn.setProtocolBinding(URI.create(JBossSAMLURIConstants.SAML_HTTP_REDIRECT_BINDING.get()));
+                    } else {
+                        throw logger.samlInvalidProtocolBinding();
+                    }
+                }
+                
                 response.setResultingDocument(samlRequest.convert(authn));
                 response.setSendRequest(true);
 
@@ -576,5 +590,16 @@ public class SAML2AuthenticationHandler extends BaseSAML2Handler {
             }
             return roles;
         }
+        
+        private SPType getSPConfiguration() {
+            SPType spConfiguration = (SPType) handlerChainConfig.getParameter(GeneralConstants.CONFIGURATION);
+            
+            if (spConfiguration == null) {
+                throw logger.samlHandlerServiceProviderConfigNotFound();
+            }
+            
+            return spConfiguration;
+        }
     }
+    
 }

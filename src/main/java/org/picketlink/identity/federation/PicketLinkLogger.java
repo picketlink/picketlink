@@ -1263,4 +1263,14 @@ public interface PicketLinkLogger {
      */
     IOException samlSPProcessingExceptionError(Throwable t);
 
+    /**
+     * @return
+     */
+    IllegalArgumentException samlInvalidProtocolBinding();
+
+    /**
+     * @return
+     */
+    IllegalStateException samlHandlerServiceProviderConfigNotFound();
+
 }
