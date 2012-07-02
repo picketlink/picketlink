@@ -29,7 +29,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
-import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
@@ -90,7 +90,7 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         SAML2HandlerConfig handlerConfig = new DefaultSAML2HandlerConfig();
 
         Map<String, Object> chainOptions = new HashMap<String, Object>();
-        IDPType idpType = new IDPType();
+        SPType idpType = new SPType();
         chainOptions.put(GeneralConstants.CONFIGURATION, idpType);
         chainOptions.put(GeneralConstants.KEYPAIR, keypair);
         chainConfig.set(chainOptions);
@@ -119,6 +119,7 @@ public class SAML2SignatureHandlerUnitTestCase extends TestCase {
         request.addOption(GeneralConstants.SENDER_PUBLIC_KEY, keypair.getPublic());
 
         SAML2AuthenticationHandler authHandler = new SAML2AuthenticationHandler();
+        authHandler.initChainConfig(chainConfig);
         authHandler.initHandlerConfig(handlerConfig);
         authHandler.generateSAMLRequest(request, response);
 
