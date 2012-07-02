@@ -479,4 +479,11 @@ public interface PicketLinkMessages {
     @Message(id = 169, value = "Service Provider processing error.")
     IOException samlSPProcessingExceptionError(@Cause Throwable t);
 
+    @Message(id = 170, value = "Invalid SAML Protocol Binding. Expected POST or REDIRECT.")
+    IllegalArgumentException samlInvalidProtocolBinding();
+
+    @Message(id = 171, value = "Service Provider configuration not found. Check if the "
+            + GeneralConstants.CONFIGURATION + " parameter is defined in the handler chain config.")
+    IllegalStateException samlHandlerServiceProviderConfigNotFound();
+
 }
