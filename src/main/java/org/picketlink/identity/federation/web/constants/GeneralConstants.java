@@ -127,4 +127,6 @@ public interface GeneralConstants {
 
     String AUTH_REQUEST_ID = "AUTH_REQUEST_ID";
     String ERROR_PAGE_NAME = "/error.jsp";
+    String SAML_ENC_KEY_SIZE = "SAML_ENC_KEY_SIZE";
+    String SAML_ENC_ALGORITHM = "SAML_ENC_ALGORITHM";
 }
