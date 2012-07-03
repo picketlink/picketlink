@@ -290,23 +290,23 @@ public class STSClientConfig {
         private void validate(Builder builder) {
             logger.trace("Checkin ServiceName:");
             
-            checkPropertyShowValue(serviceName, SERVICE_NAME);
+            checkPropertyShowValue(SERVICE_NAME, serviceName);
 
             logger.trace("Checkin portName:");
 
-            checkPropertyShowValue(portName, PORT_NAME);
+            checkPropertyShowValue(PORT_NAME, portName);
 
             logger.trace("Checkin endpointAddress:");
 
-            checkPropertyShowValue(endpointAddress, endpointAddress);
+            checkPropertyShowValue(ENDPOINT_ADDRESS, endpointAddress);
 
             logger.trace("Checkin username:");
 
-            checkProperty(username, USERNAME);
+            checkProperty(USERNAME, username);
 
             logger.trace("password portName:");
 
-            checkProperty(password, PASSWORD);
+            checkProperty(PASSWORD, password);
         }
 
         private void checkPropertyShowValue(final String propertyName, final String propertyValue) {
