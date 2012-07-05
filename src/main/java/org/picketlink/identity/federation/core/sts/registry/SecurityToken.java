@@ -23,7 +23,8 @@ package org.picketlink.identity.federation.core.sts.registry;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -32,28 +33,23 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 
-import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.w3c.dom.Document;
 
 /**
  * <p>
- * {@code SAMLAssertionToken} is a simple JPA entity used by the {@code JPABasedSAMLTokenRegistry} to persist {@link AssertionType} instances.
+ * {@code SecurityToken} is a simple JPA entity used by the {@code JPABasedTokenRegistry} to persist tokens.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @Entity
-public class SAMLAssertionToken {
+public class SecurityToken {
 
     @Id
     private String tokenId;
 
     @Column
-    private Date creationDate = Calendar.getInstance().getTime();
+    private Date tokenCreationDate = Calendar.getInstance().getTime();
 
     @Lob
     private byte[] token;
@@ -63,10 +59,10 @@ public class SAMLAssertionToken {
      * Default constructor.
      * </p>
      */
-    public SAMLAssertionToken() {
+    public SecurityToken() {
     }
 
-    public SAMLAssertionToken(String tokenId, AssertionType token) {
+    public SecurityToken(String tokenId, Object token) {
         this.tokenId = tokenId;
         marshallAndSetToken(token);
     }
@@ -94,23 +90,36 @@ public class SAMLAssertionToken {
     }
 
     /**
+     * <p>Gets the {@link Date} which this token was created.</p>
+     * 
      * @return
      */
-    public Date getCreationDate() {
-        return this.creationDate;
+    public Date getTokenCreationDate() {
+        return this.tokenCreationDate;
     }
 
     /**
-     * @param creationDate
+     * <p>Sets the {@link Date} which this token was created.</p>
+     * @param tokenCreationDate
      */
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
+    public void setTokenCreationDate(Date tokenCreationDate) {
+        this.tokenCreationDate = tokenCreationDate;
     }
 
+    /**
+     * <p>Sets the byte array representation of the token object.</p>
+     * 
+     * @param token
+     */
     public void setToken(byte[] token) {
         this.token = token;
     }
 
+    /**
+     * <p>Gets the byte array representation of the token object.</p>
+     * 
+     * @return
+     */
     public byte[] getToken() {
         return token;
     }
@@ -122,15 +131,11 @@ public class SAMLAssertionToken {
      * 
      * @return
      */
-    public AssertionType unmarshalToken() {
+    public Object unmarshalToken() {
         try {
-            Document samlResponseDocument = DocumentUtil.getDocument(new ByteArrayInputStream(getToken()));
+            ByteArrayInputStream byteArray = new ByteArrayInputStream(getToken());
 
-            SAMLParser samlParser = new SAMLParser();
-
-            InputStream responseStream = DocumentUtil.getNodeAsStream(samlResponseDocument);
-
-            return (AssertionType) samlParser.parse(responseStream);
+            return new ObjectInputStream(byteArray).readObject();
         } catch (Exception e) {
             throw new RuntimeException("Error unmarshalling token.", e);
         }
@@ -143,11 +148,11 @@ public class SAMLAssertionToken {
      * 
      * @param token
      */
-    private void marshallAndSetToken(AssertionType token) {
+    private void marshallAndSetToken(Object token) {
         try {
             ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
 
-            new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(byteArray)).write(token);
+            new ObjectOutputStream(byteArray).writeObject(token);
 
             this.token = byteArray.toByteArray();
         } catch (Exception e) {

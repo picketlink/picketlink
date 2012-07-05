@@ -27,32 +27,27 @@ import java.io.IOException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-
 /**
  * <p>
- * {@link SecurityTokenRegistry} implementation that uses JPA to store SAML assertions. By default, the JPA configuration has
- * the name {@code picketlink-sts} but a different configuration name can be specified through the constructor that takes a
+ * {@link SecurityTokenRegistry} implementation that uses JPA to store tokens. By default, the JPA configuration has the name
+ * {@code picketlink-sts} but a different configuration name can be specified through the constructor that takes a
  * {@code String} as a parameter.
- * </p>
- * <p>
- * This registry persists only {@link AssertionType} tokens using the {@link SAMLAssertionToken} JPA Entity.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
- * @see {@link SAMLAssertionToken}
+ * @see {@link SecurityToken}
  */
-public class JPABasedSAMLTokenRegistry extends AbstractJPARegistry implements SecurityTokenRegistry {
+public class JPABasedTokenRegistry extends AbstractJPARegistry implements SecurityTokenRegistry {
 
-    public JPABasedSAMLTokenRegistry() {
+    public JPABasedTokenRegistry() {
         super();
     }
-    
-    public JPABasedSAMLTokenRegistry(String configuration) {
+
+    public JPABasedTokenRegistry(String configuration) {
         super();
     }
-    
+
     /*
      * (non-Javadoc)
      * 
@@ -60,18 +55,14 @@ public class JPABasedSAMLTokenRegistry extends AbstractJPARegistry implements Se
      * java.lang.Object)
      */
     public void addToken(final String id, final Object token) throws IOException {
-        if (!(token instanceof AssertionType)) {
-            logger.invalidArgumentError("Token object");
-        }
-
         executeInTransaction(new TransactionCallback() {
 
             @Override
             public void executeInTransaction(EntityManager entityManager) {
-                if (entityManager.find(SAMLAssertionToken.class, id) != null) {
+                if (entityManager.find(SecurityToken.class, id) != null) {
                     logger.samlSecurityTokenAlreadyPersisted(id);
                 } else {
-                    SAMLAssertionToken securityToken = new SAMLAssertionToken(id, (AssertionType) token);
+                    SecurityToken securityToken = new SecurityToken(id, token);
 
                     entityManager.persist(securityToken);
                 }
@@ -89,7 +80,7 @@ public class JPABasedSAMLTokenRegistry extends AbstractJPARegistry implements Se
 
             @Override
             public void executeInTransaction(EntityManager entityManager) {
-                SAMLAssertionToken securityToken = entityManager.find(SAMLAssertionToken.class, id);
+                SecurityToken securityToken = entityManager.find(SecurityToken.class, id);
 
                 if (securityToken == null) {
                     logger.samlSecurityTokenNotFoundInRegistry(id);
@@ -106,7 +97,7 @@ public class JPABasedSAMLTokenRegistry extends AbstractJPARegistry implements Se
      * @see org.picketlink.identity.federation.core.sts.registry.SecurityTokenRegistry#getToken(java.lang.String)
      */
     public Object getToken(final String id) {
-        SAMLAssertionToken token = getEntityManagerFactory().createEntityManager().find(SAMLAssertionToken.class, id);
+        SecurityToken token = getEntityManagerFactory().createEntityManager().find(SecurityToken.class, id);
 
         if (token != null) {
             return token.unmarshalToken();
@@ -118,7 +109,10 @@ public class JPABasedSAMLTokenRegistry extends AbstractJPARegistry implements Se
     }
 
     /**
-     * <p>This method expects a {@link TransactionCallback} to execute some logic inside a managed transaction.</p>
+     * <p>
+     * This method expects a {@link TransactionCallback} to execute some logic inside a managed transaction.
+     * Invokers do not have to care about managing the {@link EntityManager} and transaction life cycle.
+     * </p>
      * 
      * @param callback
      */
@@ -148,15 +142,19 @@ public class JPABasedSAMLTokenRegistry extends AbstractJPARegistry implements Se
     }
 
     /**
-     * <p>This interface should be used to execute some logic inside a managed {@link EntityManager} transaction.</p>
+     * <p>
+     * This interface should be used to execute some logic inside a managed {@link EntityManager} transaction.
+     * </p>
      * 
      * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
-     *
+     * 
      */
     private static interface TransactionCallback {
 
         /**
-         * <p>Executes some logic given the {@link EntityManager} instance.</p>
+         * <p>
+         * Executes some logic given the {@link EntityManager} instance.
+         * </p>
          * 
          * @param entityManager
          */
