@@ -40,7 +40,10 @@ import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.w3c.dom.Document;
 
 /**
- *
+ * <p>
+ * {@code SAMLAssertionToken} is a simple JPA entity used by the {@code JPABasedSAMLTokenRegistry} to persist {@link AssertionType} instances.
+ * </p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @Entity
@@ -48,7 +51,7 @@ public class SAMLAssertionToken {
 
     @Id
     private String tokenId;
-    
+
     @Column
     private Date creationDate = Calendar.getInstance().getTime();
 
@@ -72,7 +75,7 @@ public class SAMLAssertionToken {
      * <p>
      * Obtains the id of the revoked security token.
      * </p>
-     *
+     * 
      * @return a {@code String} containing the revoked token id.
      */
     public String getTokenId() {
@@ -83,7 +86,7 @@ public class SAMLAssertionToken {
      * <p>
      * Sets the id of the revoked security token.
      * </p>
-     *
+     * 
      * @param tokenId a {@code String} containing the id to be set.
      */
     public void setTokenId(String tokenId) {
@@ -104,25 +107,18 @@ public class SAMLAssertionToken {
         this.creationDate = creationDate;
     }
 
-    /**
-     * <p>Marshals a {@link AssertionType} instance into a byte array.</p>
-     * 
-     * @param token
-     */
-    private void marshallAndSetToken(AssertionType token) {
-        try {
-            ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
-            
-            new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(byteArray)).write(token);
-            
-            this.token = byteArray.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error marshalling token.", e);
-        }
+    public void setToken(byte[] token) {
+        this.token = token;
+    }
+
+    public byte[] getToken() {
+        return token;
     }
 
     /**
-     * <p>Unmarshall the <code>token</code> byte array to a {@link AssertionType} instance.</p>
+     * <p>
+     * Unmarshall the <code>token</code> byte array to a {@link AssertionType} instance.
+     * </p>
      * 
      * @return
      */
@@ -133,19 +129,30 @@ public class SAMLAssertionToken {
             SAMLParser samlParser = new SAMLParser();
 
             InputStream responseStream = DocumentUtil.getNodeAsStream(samlResponseDocument);
-            
+
             return (AssertionType) samlParser.parse(responseStream);
         } catch (Exception e) {
             throw new RuntimeException("Error unmarshalling token.", e);
         }
     }
-
-    public void setToken(byte[] token) {
-        this.token = token;
-    }
     
-    public byte[] getToken() {
-        return token;
-    }   
+    /**
+     * <p>
+     * Marshals a {@link AssertionType} instance into a byte array.
+     * </p>
+     * 
+     * @param token
+     */
+    private void marshallAndSetToken(AssertionType token) {
+        try {
+            ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+
+            new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(byteArray)).write(token);
+
+            this.token = byteArray.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error marshalling token.", e);
+        }
+    }
     
 }
