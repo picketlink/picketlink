@@ -22,12 +22,7 @@
 package org.picketlink.identity.federation.core.sts.registry;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
-
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 
 /**
  * <p>
@@ -44,12 +39,8 @@ import org.picketlink.identity.federation.PicketLinkLoggerFactory;
  *
  * @author <a href="mailto:sguilhen@redhat.com">Stefan Guilhen</a>
  */
-public class JPABasedRevocationRegistry implements RevocationRegistry {
+public class JPABasedRevocationRegistry extends AbstractJPARegistry implements RevocationRegistry {
     
-    private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-
-    private final EntityManagerFactory factory;
-
     /**
      * <p>
      * Creates an instance of {@code JPABasedRevocationRegistry} that uses the default {@code picketlink-sts} JPA configuration
@@ -57,7 +48,7 @@ public class JPABasedRevocationRegistry implements RevocationRegistry {
      * </p>
      */
     public JPABasedRevocationRegistry() {
-        this("picketlink-sts");
+        super();
     }
 
     /**
@@ -69,9 +60,7 @@ public class JPABasedRevocationRegistry implements RevocationRegistry {
      * @param configuration a {@code String} representing the JPA configuration name to be used.
      */
     public JPABasedRevocationRegistry(String configuration) {
-        if (configuration == null)
-            throw logger.nullArgumentError("JPA configuration name");
-        this.factory = Persistence.createEntityManagerFactory(configuration);
+        super(configuration);
     }
 
     /*
@@ -82,7 +71,7 @@ public class JPABasedRevocationRegistry implements RevocationRegistry {
      */
     public boolean isRevoked(String tokenType, String id) {
         // try to locate a RevokedToken entity with the specified id.
-        EntityManager manager = this.factory.createEntityManager();
+        EntityManager manager = getEntityManagerFactory().createEntityManager();
         Object object = manager.find(RevokedToken.class, id);
         manager.close();
 
@@ -97,7 +86,7 @@ public class JPABasedRevocationRegistry implements RevocationRegistry {
      */
     public void revokeToken(String tokenType, String id) {
         // if a RevokedToken entity with the specified id doesn't exist in the database, create one and insert it.
-        EntityManager manager = this.factory.createEntityManager();
+        EntityManager manager = getEntityManagerFactory().createEntityManager();
         if (manager.find(RevokedToken.class, id) != null) {
             logger.debug("Token with id=" + id + " has already been cancelled");
         } else {

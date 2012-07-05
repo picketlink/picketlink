@@ -85,7 +85,7 @@ public abstract class AbstractSecurityTokenProvider implements SecurityTokenProv
                     Class<?> clazz = SecurityActions.loadClass(getClass(), tokenRegistryOption);
                     if (clazz != null) {
                         Object object = clazz.newInstance();
-                        if (object instanceof RevocationRegistry)
+                        if (object instanceof SecurityTokenRegistry)
                             this.tokenRegistry = (SecurityTokenRegistry) object;
                         else {
                             logger.stsTokenRegistryInvalidType(tokenRegistryOption);
