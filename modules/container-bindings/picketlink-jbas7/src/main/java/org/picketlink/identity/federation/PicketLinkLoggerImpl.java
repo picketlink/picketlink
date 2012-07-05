@@ -23,6 +23,7 @@
 package org.picketlink.identity.federation;
 
 
+import static org.picketlink.identity.federation.PicketLinkLoggerMessages.ROOT_LOGGER;
 import static org.picketlink.identity.federation.PicketLinkMessages.MESSAGES;
 
 import java.io.IOException;
@@ -46,14 +47,6 @@ import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Element;
 
-/**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
- */
-/**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
- */
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
@@ -1556,6 +1549,16 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
      */
     public IllegalStateException samlHandlerServiceProviderConfigNotFound() {
         return MESSAGES.samlHandlerServiceProviderConfigNotFound();
+    }
+
+    @Override
+    public void samlSecurityTokenAlreadyPersisted(String id) {
+        ROOT_LOGGER.samlSecurityTokenAlreadyPersisted(id);
+    }
+
+    @Override
+    public void samlSecurityTokenNotFoundInRegistry(String id) {
+        ROOT_LOGGER.samlSecurityTokenNotFoundInRegistry(id);
     }
 
 }

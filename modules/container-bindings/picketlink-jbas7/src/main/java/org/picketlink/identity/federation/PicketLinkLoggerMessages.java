@@ -174,6 +174,14 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.WARN)
     @Message(id = 231, value = "Lifetime has not been specified. Using the default timeout value.")
     void stsTokenTimeoutNotSpecified();
+    
+    @LogMessage(level = Level.WARN)
+    @Message(id = 264, value = "Security Token with id = %s has already been persisted.")
+    void samlSecurityTokenAlreadyPersisted(String id);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 265, value = "Security Token with id = %s was not found in the registry.")
+    void samlSecurityTokenNotFoundInRegistry(String id);
 
     /* ERROR */
     
