@@ -2261,4 +2261,20 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
                 + GeneralConstants.CONFIGURATION + " parameter is defined in the handler chain config.");
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSecurityTokenAlreadyPersisted(java.lang.String)
+     */
+    @Override
+    public void samlSecurityTokenAlreadyPersisted(String id) {
+        warn("Security Token with id=" + id + " has already been persisted.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlSecurityTokenNotFoundInRegistry(java.lang.String)
+     */
+    @Override
+    public void samlSecurityTokenNotFoundInRegistry(String id) {
+        warn("Security Token with id=" + id + " was not found in the registry.");
+    }
+
 }

@@ -1273,4 +1273,14 @@ public interface PicketLinkLogger {
      */
     IllegalStateException samlHandlerServiceProviderConfigNotFound();
 
+    /**
+     * 
+     */
+    void samlSecurityTokenAlreadyPersisted(String id);
+
+    /**
+     * @param id
+     */
+    void samlSecurityTokenNotFoundInRegistry(String id);
+
 }

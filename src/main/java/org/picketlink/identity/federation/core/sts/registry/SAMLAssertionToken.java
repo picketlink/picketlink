@@ -104,11 +104,16 @@ public class SAMLAssertionToken {
         this.creationDate = creationDate;
     }
 
-    private void marshallAndSetToken(Object token) {
+    /**
+     * <p>Marshals a {@link AssertionType} instance into a byte array.</p>
+     * 
+     * @param token
+     */
+    private void marshallAndSetToken(AssertionType token) {
         try {
             ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
             
-            new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(byteArray)).write((AssertionType) token);
+            new SAMLAssertionWriter(StaxUtil.getXMLStreamWriter(byteArray)).write(token);
             
             this.token = byteArray.toByteArray();
         } catch (Exception e) {
@@ -116,7 +121,12 @@ public class SAMLAssertionToken {
         }
     }
 
-    public Object unmarshalToken() {
+    /**
+     * <p>Unmarshall the <code>token</code> byte array to a {@link AssertionType} instance.</p>
+     * 
+     * @return
+     */
+    public AssertionType unmarshalToken() {
         try {
             Document samlResponseDocument = DocumentUtil.getDocument(new ByteArrayInputStream(getToken()));
 
@@ -136,7 +146,6 @@ public class SAMLAssertionToken {
     
     public byte[] getToken() {
         return token;
-    }
-    
+    }   
     
 }
