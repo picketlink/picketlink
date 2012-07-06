@@ -116,6 +116,7 @@ import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
+import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.web.config.AbstractSAMLConfigurationProvider;
@@ -555,8 +556,11 @@ public abstract class AbstractIDPValve extends ValveBase {
 
             saml2HandlerRequest.setOptions(requestOptions);
 
-            List<String> roles = roleGenerator.generateRoles(userPrincipal);
-            session.getSession().setAttribute(GeneralConstants.ROLES_ID, roles);
+            // if this is a SAML AuthnRequest load the roles using the generator.
+            if (requestAbstractType instanceof AuthnRequestType) {
+                List<String> roles = roleGenerator.generateRoles(userPrincipal);
+                session.getSession().setAttribute(GeneralConstants.ROLES_ID, roles);
+            }
 
             SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
@@ -731,7 +735,7 @@ public abstract class AbstractIDPValve extends ValveBase {
                     samlDocumentHolder, HANDLER_TYPE.IDP);
             Map<String, Object> options = new HashMap<String, Object>();
 
-            if (this.idpConfiguration.isSupportsSignature()) {
+            if (this.idpConfiguration.isSupportsSignature() || this.idpConfiguration.isEncrypt()) {
                 PublicKey publicKey = getIssuerPublicKey(request, issuer);
                 options.put(GeneralConstants.SENDER_PUBLIC_KEY, publicKey);
             }
@@ -985,7 +989,7 @@ public abstract class AbstractIDPValve extends ValveBase {
     }
 
     protected void initKeyManager() throws LifecycleException {
-        if (this.idpConfiguration.isSupportsSignature()) {
+        if (this.idpConfiguration.isSupportsSignature() || this.idpConfiguration.isEncrypt()) {
             KeyProviderType keyProvider = this.idpConfiguration.getKeyProvider();
             if (keyProvider == null)
                 throw new LifecycleException(logger.nullValueError("Key Provider is null for context=" + getContext().getName()));
