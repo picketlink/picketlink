@@ -547,21 +547,22 @@ public abstract class AbstractIDPValve extends ValveBase {
                 requestOptions.put(GeneralConstants.DECRYPTING_KEY, keyManager.getSigningKey());
             }
 
-            Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
-            requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+            // if this is a SAML AuthnRequest load the roles using the generator.
+            if (requestAbstractType instanceof AuthnRequestType) {
+                List<String> roles = roleGenerator.generateRoles(userPrincipal);
+                session.getSession().setAttribute(GeneralConstants.ROLES_ID, roles);
+                
+                Map<String, Object> attribs = this.attribManager.getAttributes(userPrincipal, attributeKeys);
+                requestOptions.put(GeneralConstants.ATTRIBUTES, attribs);
+            }
+
             if(auditHelper != null){
                 requestOptions.put(GeneralConstants.AUDIT_HELPER, auditHelper);
                 requestOptions.put(GeneralConstants.CONTEXT_PATH, contextPath);
             }
 
             saml2HandlerRequest.setOptions(requestOptions);
-
-            // if this is a SAML AuthnRequest load the roles using the generator.
-            if (requestAbstractType instanceof AuthnRequestType) {
-                List<String> roles = roleGenerator.generateRoles(userPrincipal);
-                session.getSession().setAttribute(GeneralConstants.ROLES_ID, roles);
-            }
-
+            
             SAML2HandlerResponse saml2HandlerResponse = new DefaultSAML2HandlerResponse();
 
             Set<SAML2Handler> handlers = chain.handlers();
