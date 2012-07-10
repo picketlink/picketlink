@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
@@ -49,9 +50,11 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
+import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AttributeHandler;
@@ -84,7 +87,7 @@ public class SAML2AttributeHandlerUnitTestCase {
         idpType.setAttributeManager(TestAttributeManager.class.getName());
         chainOptions.put(GeneralConstants.CONFIGURATION, idpType);
         chainConfig.set(chainOptions);
-
+        
         // Initialize the handler
         handler.initChainConfig(chainConfig);
         handler.initHandlerConfig(handlerConfig);
@@ -141,8 +144,7 @@ public class SAML2AttributeHandlerUnitTestCase {
         MockHttpServletResponse servletResponse = new MockHttpServletResponse();
         HTTPContext httpContext = new HTTPContext(servletRequest, servletResponse, servletContext);
 
-        SAML2Object saml2Object = new SAML2Object() {
-        };
+        ResponseType saml2Object = new SAML2Response().createResponseType("fake_id");
 
         SAMLDocumentHolder docHolder = new SAMLDocumentHolder(saml2Object, null);
         IssuerInfoHolder issuerInfo = new IssuerInfoHolder("http://localhost:8080/idp/");
