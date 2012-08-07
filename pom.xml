@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.jboss.picketlink</groupId>
+    <artifactId>picketlink-cdi-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>PicketLink CDI Integration</name>
+
+    <properties>    
+        <picketlink.idm.version>2.0-SNAPSHOT</picketlink.idm.version>
+        <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
+    </properties>
+
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+	    <dependency>
+	        <groupId>org.jboss.picketlink</groupId>
+		<artifactId>picketlink-cdi-api</artifactId>
+		<version>${project.version}</version>
+		<scope>compile</scope>
+	    </dependency>
+
+	    <dependency>
+	        <groupId>org.jboss.picketlink</groupId>
+		<artifactId>picketlink-cdi-impl</artifactId>
+		<version>${project.version}</version>
+	    </dependency>
+
+	    <dependency>
+	        <groupId>org.jboss.picketlink</groupId>
+		<artifactId>picketlink-idm-api</artifactId>
+		<version>${picketlink.idm.version}</version>
+		<scope>compile</scope>
+	    </dependency>
+
+	    <dependency>
+	        <groupId>org.jboss.picketlink</groupId>
+		<artifactId>picketlink-idm-impl</artifactId>
+		<version>${picketlink.idm.version}</version>
+	    </dependency>
+
+	    <dependency>
+	        <groupId>org.jboss.spec</groupId>
+		<artifactId>jboss-javaee-6.0</artifactId>
+		<version>${jboss.javaee.version}</version>
+		<scope>import</scope>
+		<type>pom</type>
+            </dependency>
+
+	    <dependency>
+	        <groupId>org.jboss.spec</groupId>
+		<artifactId>jboss-javaee-6.0</artifactId>
+		<version>${jboss.javaee.version}</version>
+		<scope>provided</scope>
+		<type>pom</type>
+	    </dependency>
+	</dependencies>
+    </dependencyManagement>
+
+</project>
