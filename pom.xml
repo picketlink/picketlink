@@ -12,6 +12,7 @@
     <properties>    
         <picketlink.idm.version>2.0-SNAPSHOT</picketlink.idm.version>
         <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
+	<deltaspike.version>0.2-incubating</deltaspike.version>
     </properties>
 
     <modules>
@@ -62,6 +63,19 @@
 		<scope>provided</scope>
 		<type>pom</type>
 	    </dependency>
+
+	    <dependency>
+	        <groupId>org.apache.deltaspike.core</groupId>
+		<artifactId>deltaspike-core-api</artifactId>
+		<version>${deltaspike.version}</version>
+            </dependency>
+
+	    <dependency>
+	        <groupId>org.apache.deltaspike.core</groupId>
+		<artifactId>deltaspike-core-impl</artifactId>
+		<version>${deltaspike.version}</version>
+	    </dependency>
+
 	</dependencies>
     </dependencyManagement>
 

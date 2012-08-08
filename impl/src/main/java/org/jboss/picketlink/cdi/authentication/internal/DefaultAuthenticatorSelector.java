@@ -1,5 +1,9 @@
 package org.jboss.picketlink.cdi.authentication.internal;
 
+import org.apache.deltaspike.core.api.literal.NamedLiteral;
+import org.apache.deltaspike.core.api.provider.BeanProvider;
+import org.apache.deltaspike.core.util.StringUtils;
+
 import org.jboss.picketlink.cdi.authentication.Authenticator;
 import org.jboss.picketlink.cdi.authentication.AuthenticatorSelector;
 

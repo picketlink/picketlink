@@ -7,8 +7,9 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.apache.deltaspike.core.util.ExceptionUtils;
+
 import org.jboss.picketlink.cdi.Identity;
-import org.jboss.picketlink.cdi.Identity.AuthenticationResult;
 import org.jboss.picketlink.cdi.authentication.AuthenticationException;
 import org.jboss.picketlink.cdi.authentication.Authenticator;
 import org.jboss.picketlink.cdi.authentication.Authenticator.AuthenticationStatus;
