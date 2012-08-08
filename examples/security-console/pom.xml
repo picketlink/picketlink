@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.jboss.picketlink</groupId>
+        <artifactId>picketlink-cdi-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>org.jboss.picketlink.examples</groupId>
+    <artifactId>security-console</artifactId>
+
+    <name>PicketLink CDI Security Console Example</name>
+
+    <packaging>war</packaging>
+
+    <dependencies>
+
+        <dependency>
+	    <groupId>javax.enterprise</groupId>
+	    <artifactId>cdi-api</artifactId>
+	    <scope>provided</scope>
+	</dependency>
+
+	<dependency>
+	    <groupId>org.hibernate.javax.persistence</groupId>
+	    <artifactId>hibernate-jpa-2.0-api</artifactId>
+	    <scope>provided</scope>
+	</dependency>
+
+	<dependency>
+	    <groupId>org.jboss.spec.javax.ejb</groupId>
+	    <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+	    <scope>provided</scope>
+	</dependency>
+
+        <dependency>
+            <groupId>org.jboss.picketlink</groupId>
+            <artifactId>picketlink-cdi-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.picketlink</groupId>
+            <artifactId>picketlink-cdi-impl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        
+    </dependencies>
+    
+    <build>
+        <finalName>security-console</finalName>
+    </build>
+</project>
+
