@@ -46,6 +46,7 @@
             <artifactId>picketlink-cdi-impl</artifactId>
             <scope>runtime</scope>
         </dependency>
+
         
     </dependencies>
     
