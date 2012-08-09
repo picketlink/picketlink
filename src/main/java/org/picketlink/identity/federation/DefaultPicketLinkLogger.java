@@ -2252,7 +2252,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         return new IllegalArgumentException("Invalid SAML Protocol Binding. Expected POST or REDIRECT.");
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerServiceProviderConfigNotFound()
      */
     @Override
@@ -2261,7 +2263,9 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
                 + GeneralConstants.CONFIGURATION + " parameter is defined in the handler chain config.");
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlSecurityTokenAlreadyPersisted(java.lang.String)
      */
     @Override
@@ -2269,12 +2273,23 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
         warn("Security Token with id=" + id + " has already been persisted.");
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlSecurityTokenNotFoundInRegistry(java.lang.String)
      */
     @Override
     public void samlSecurityTokenNotFoundInRegistry(String id) {
         warn("Security Token with id=" + id + " was not found in the registry.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlMetaDataFailedToCreateCacheDuration(java.lang.String)
+     */
+    @Override
+    public IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue) {
+        return new IllegalArgumentException("Cache duration could not be created using '" + timeValue
+                + "'. This value must be an ISO-8601 period or a numeric value representing the duration in milliseconds.");
     }
 
 }

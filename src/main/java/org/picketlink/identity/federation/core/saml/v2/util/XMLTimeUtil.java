@@ -38,17 +38,17 @@ import org.picketlink.identity.federation.web.constants.GeneralConstants;
 
 /**
  * Util class dealing with xml based time
- *
+ * 
  * @author Anil.Saldhana@redhat.com
  * @since Jan 6, 2009
  */
 public class XMLTimeUtil {
-    
+
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
-    
+
     /**
      * Add additional time in miliseconds
-     *
+     * 
      * @param value calendar whose value needs to be updated
      * @param milis
      * @return calendar value with the addition
@@ -69,7 +69,7 @@ public class XMLTimeUtil {
 
     /**
      * Subtract some miliseconds from the time value
-     *
+     * 
      * @param value
      * @param milis miliseconds entered in a positive value
      * @return
@@ -84,7 +84,7 @@ public class XMLTimeUtil {
     /**
      * Returns a XMLGregorianCalendar in the timezone specified. If the timezone is not valid, then the timezone falls back to
      * "GMT"
-     *
+     * 
      * @param timezone
      * @return
      * @throws ConfigurationException
@@ -106,7 +106,7 @@ public class XMLTimeUtil {
 
     /**
      * Get the current instant of time
-     *
+     * 
      * @return
      * @throws ConfigurationException
      */
@@ -115,20 +115,21 @@ public class XMLTimeUtil {
     }
 
     public static String getCurrentTimeZoneID() {
-       String timezonePropertyValue = SecurityActions.getSystemProperty(GeneralConstants.TIMEZONE, "GMT");
+        String timezonePropertyValue = SecurityActions.getSystemProperty(GeneralConstants.TIMEZONE, "GMT");
 
-       TimeZone timezone;
-       if (GeneralConstants.TIMEZONE_DEFAULT.equals(timezonePropertyValue)) {
-          timezone = TimeZone.getDefault();
-       } else {
-          timezone = TimeZone.getTimeZone(timezonePropertyValue);
-       }
+        TimeZone timezone;
+        if (GeneralConstants.TIMEZONE_DEFAULT.equals(timezonePropertyValue)) {
+            timezone = TimeZone.getDefault();
+        } else {
+            timezone = TimeZone.getTimeZone(timezonePropertyValue);
+        }
 
-       return timezone.getID();
+        return timezone.getID();
     }
+
     /**
      * Convert the minutes into miliseconds
-     *
+     * 
      * @param valueInMins
      * @return
      */
@@ -138,7 +139,7 @@ public class XMLTimeUtil {
 
     /**
      * Validate that the current time falls between the two boundaries
-     *
+     * 
      * @param now
      * @param notbefore
      * @param notOnOrAfter
@@ -162,25 +163,42 @@ public class XMLTimeUtil {
     }
 
     /**
-     * Given a string, get the Duration object
-     *
+     * Given a string, get the Duration object. The string can be an ISO 8601 period representation (Eg.: P10M) or a numeric
+     * value. If a ISO 8601 period, the duration will reflect the defined format. If a numeric (Eg.: 1000) the duration will
+     * be calculated in milliseconds.
+     * 
      * @param timeValue
      * @return
      * @throws ParsingException
      */
     public static Duration parseAsDuration(String timeValue) throws ParsingException {
+        if (timeValue == null) {
+            PicketLinkLoggerFactory.getLogger().nullArgumentError("duration time");
+        }
+
         DatatypeFactory factory = null;
+
         try {
             factory = DatatypeFactory.newInstance();
         } catch (DatatypeConfigurationException e) {
             throw logger.parserError(e);
         }
-        return factory.newDuration(Long.parseLong(timeValue));
+        
+        try {
+            // checks if it is a ISO 8601 period. If not it must be a numeric value.
+            if (timeValue.startsWith("P")) {
+                return factory.newDuration(timeValue);
+            } else {
+                return factory.newDuration(Long.valueOf(timeValue));
+            }
+        } catch (Exception e) {
+            throw logger.samlMetaDataFailedToCreateCacheDuration(timeValue);
+        }
     }
 
     /**
      * Given a string representing xml time, parse into {@code XMLGregorianCalendar}
-     *
+     * 
      * @param timeString
      * @return
      * @throws ParsingException
