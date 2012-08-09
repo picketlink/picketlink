@@ -1561,4 +1561,12 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         ROOT_LOGGER.samlSecurityTokenNotFoundInRegistry(id);
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#samlMetaDataFailedToCreateCacheDuration(java.lang.String)
+     */
+    @Override
+    public IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue) {
+        return MESSAGES.samlMetaDataFailedToCreateCacheDuration(timeValue);
+    }
+
 }

@@ -49,56 +49,56 @@ import org.w3c.dom.Element;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 @MessageBundle(projectCode = "PLFED")
 public interface PicketLinkMessages {
 
     PicketLinkMessages MESSAGES = Messages.getBundle(PicketLinkMessages.class);
 
-    @Message (id = 1, value = "Invalid security token request")
+    @Message(id = 1, value = "Invalid security token request")
     WebServiceException wsTrustInvalidTokenRequestError();
 
-    @Message (id = 2, value = "Encountered configuration exception")
+    @Message(id = 2, value = "Encountered configuration exception")
     WebServiceException wsTrustConfigurationError(@Cause Throwable t);
 
-    @Message (id = 3, value = "Exception in handling token request")
+    @Message(id = 3, value = "Exception in handling token request")
     WebServiceException wsTrustHandlingTokenRequestError(@Cause Throwable t);
 
-    @Message (id = 4, value = "Error writing response")
+    @Message(id = 4, value = "Error writing response")
     WebServiceException wsTrustResponseWritingError(@Cause Throwable t);
 
-    @Message (id = 5, value = "Error parsing the configuration file")
+    @Message(id = 5, value = "Error parsing the configuration file")
     ConfigurationException stsConfigurationFileParsingError(@Cause Throwable t);
 
-    @Message (id = 6, value = "Error generating combined secret key")
+    @Message(id = 6, value = "Error generating combined secret key")
     WSTrustException wsTrustCombinedSecretKeyError(@Cause Throwable t);
 
-    @Message (id = 7, value = "Unable to construct the key manager")
+    @Message(id = 7, value = "Unable to construct the key manager")
     RuntimeException stsUnableToConstructKeyManagerError(@Cause Throwable t);
 
-    @Message (id = 8, value = "Unable to locate client public key")
+    @Message(id = 8, value = "Unable to locate client public key")
     WSTrustException wsTrustClientPublicKeyError();
 
-    @Message (id = 9, value = "Invalid Digital Signature: %s")
+    @Message(id = 9, value = "Invalid Digital Signature: %s")
     XMLSignatureException signatureInvalidError(String message, @Cause Throwable t);
 
-    @Message (id = 10, value = "Error obtaining public key for service: %s")
+    @Message(id = 10, value = "Error obtaining public key for service: %s")
     RuntimeException stsPublicKeyError(String serviceName, @Cause Throwable t);
 
-    @Message (id = 11, value = "Error obtaining signing key pair")
+    @Message(id = 11, value = "Error obtaining signing key pair")
     RuntimeException stsSigningKeyPairError(@Cause Throwable t);
 
-    @Message (id = 12, value = "Error obtaining public key certificate")
+    @Message(id = 12, value = "Error obtaining public key certificate")
     RuntimeException stsPublicKeyCertError(@Cause Throwable t);
 
-    @Message (id = 13, value = "No Security Token Provider found in configuration:[%s][ProtoCtx=%s]")
+    @Message(id = 13, value = "No Security Token Provider found in configuration:[%s][ProtoCtx=%s]")
     ProcessingException stsNoTokenProviderError(String configuration, String protocolContext);
 
     @Message(id = 14, value = "Authn Request ID verification failed")
     ProcessingException samlHandlerFailedInResponseToVerificarionError();
 
-    @Message (id =15, value = "IDP Authentication Failed")
+    @Message(id = 15, value = "IDP Authentication Failed")
     SecurityException samlHandlerIDPAuthenticationFailedError();
 
     @Message(id = 16, value = "Should not be the same: %s")
@@ -122,7 +122,7 @@ public interface PicketLinkMessages {
     @Message(id = 26, value = "Response was not of type catalina response. Received: %s")
     RuntimeException samlSPResponseNotCatalinaResponseError(Object response);
 
-    @Message (id = 28, value = "Audit Manager Is Not Set")
+    @Message(id = 28, value = "Audit Manager Is Not Set")
     IllegalStateException auditNullAuditManagerError();
 
     @Message(id = 35, value = "Unable to fallback on local auth")
@@ -137,238 +137,238 @@ public interface PicketLinkMessages {
     @Message(id = 44, value = "Failed to parse assertion element")
     LoginException authFailedToParseSAMLAssertionError(@Cause Throwable t);
 
-    @Message (id = 55, value = "KeyStoreKeyManager : KeyStore is null")
+    @Message(id = 55, value = "KeyStoreKeyManager : KeyStore is null")
     IllegalStateException keyStoreNullStore();
 
-    @Message (id = 56, value = "KeyStoreKeyManager : Keystore not located: %s")
+    @Message(id = 56, value = "KeyStoreKeyManager : Keystore not located: %s")
     RuntimeException keyStoreNotLocated(String keyStore);
 
-    @Message (id = 57, value = "KeyStoreKeyManager : Signing Key Pass is null")
+    @Message(id = 57, value = "KeyStoreKeyManager : Signing Key Pass is null")
     RuntimeException keyStoreNullSigningKeyPass();
 
-    @Message (id = 58, value = "KeyStoreKeyManager : Domain Alias missing for : %s")
+    @Message(id = 58, value = "KeyStoreKeyManager : Domain Alias missing for : %s")
     IllegalStateException keyStoreMissingDomainAlias(String domain);
 
-    @Message (id = 59, value = "KeyStoreKeyManager : Alias is null")
+    @Message(id = 59, value = "KeyStoreKeyManager : Alias is null")
     IllegalStateException keyStoreNullAlias();
 
-    @Message (id = 60, value = "Parser : Expected start tag: %s ::Found <%s>")
+    @Message(id = 60, value = "Parser : Expected start tag: %s ::Found <%s>")
     RuntimeException parserExpectedTag(String tag, String foundElementTag);
 
-    @Message (id = 61, value = "Parser: Unknown End Element: %s")
+    @Message(id = 61, value = "Parser: Unknown End Element: %s")
     RuntimeException parserUnknownEndElement(String endElementName);
 
-    @Message (id = 62, value = "Parser : Unknown tag: %s ::location= %s")
+    @Message(id = 62, value = "Parser : Unknown tag: %s ::location= %s")
     RuntimeException parseUnknownTag(String tag, Location location);
 
-    @Message (id = 63, value = "Parser: Required attribute missing: %s")
+    @Message(id = 63, value = "Parser: Required attribute missing: %s")
     ParsingException parseRequiredAttribute(String attribute);
 
-    @Message (id = 64, value = "Parser: Unknown Start Element: %s ::location= %s")
+    @Message(id = 64, value = "Parser: Unknown Start Element: %s ::location= %s")
     RuntimeException parserUnknownStartElement(String elementName, Location location);
 
-    @Message (id = 65, value = "Parser : Unknown xsi:type= %s")
+    @Message(id = 65, value = "Parser : Unknown xsi:type= %s")
     ParsingException parserUnknownXSI(String xsiTypeValue);
 
-    @Message (id = 66, value = "Parser : Expected end tag: %s")
+    @Message(id = 66, value = "Parser : Expected end tag: %s")
     ParsingException parserExpectedEndTag(String tagName);
 
-    @Message (id = 67, value = "Parser : Parsing has failed: %s")
+    @Message(id = 67, value = "Parser : Parsing has failed: %s")
     RuntimeException parserFailed(String elementName);
 
-    @Message (id = 68, value = "Parser : Start Element is null")
+    @Message(id = 68, value = "Parser : Start Element is null")
     IllegalStateException parserNullStartElement();
 
     @Message(id = 69, value = "Parser: Type not supported: %s")
     RuntimeException unsupportedType(String name);
 
-    @Message (id = 70, value = "Parser : Parsing exception.")
+    @Message(id = 70, value = "Parser : Parsing exception.")
     ParsingException parserException(@Cause Throwable t);
 
-    @Message (id = 71, value = "Parser: Expected text value: %s")
+    @Message(id = 71, value = "Parser: Expected text value: %s")
     ParsingException parserExpectedTextValue(String string);
-    
-    @Message (id = 72, value = "Parser: Expected xsi:type: %s")
+
+    @Message(id = 72, value = "Parser: Expected xsi:type: %s")
     RuntimeException parserExpectedXSI(String expectedXsi);
-    
-    @Message (id = 73, value = "Parser: Unable to parse token request: security token is null")
+
+    @Message(id = 73, value = "Parser: Unable to parse token request: security token is null")
     ParsingException parserUnableParsingNullToken();
 
-    @Message (id = 74, value = "Parsing Error.")
+    @Message(id = 74, value = "Parsing Error.")
     ParsingException parserError(@Cause Throwable t);
 
-    @Message (id = 75, value = "File could not be located : %s")
+    @Message(id = 75, value = "File could not be located : %s")
     IllegalStateException fileNotLocated(String policyConfigFileName);
 
     @Message(id = 76, value = "Option not set: %s")
     IllegalStateException optionNotSet(String option);
 
-    @Message (id = 77, value = "Injected Value Missing: %s")
+    @Message(id = 77, value = "Injected Value Missing: %s")
     RuntimeException injectedValueMissing(String value);
 
     @Message(id = 78, value = "Null Parameter: %s")
     IllegalArgumentException nullArgument(String argument);
-    
+
     @Message(id = 79, value = "Assertion has expired")
     ProcessingException assertionExpiredError();
-    
+
     @Message(id = 80, value = "Invalid Assertion")
     ProcessingException assertionInvalidError();
 
     @Message(id = 81, value = "Writer: Unknown Type: %s")
-    RuntimeException writerUnknownTypeError(String name);    
+    RuntimeException writerUnknownTypeError(String name);
 
-    @Message (id = 82, value = "Not Implemented Yet: %s")
+    @Message(id = 82, value = "Not Implemented Yet: %s")
     RuntimeException notImplementedYet(String feature);
 
     @Message(id = 83, value = "Writer: Null Value: %s")
     ProcessingException writerNullValueError(String value);
 
-    @Message (id = 84, value = "Writer: Unsupported Attribute Value: %s")
+    @Message(id = 84, value = "Writer: Unsupported Attribute Value: %s")
     RuntimeException writerUnsupportedAttributeValueError(String value);
 
-    @Message (id = 85, value = "IssuerInfo missing status code")
+    @Message(id = 85, value = "IssuerInfo missing status code")
     IllegalArgumentException issuerInfoMissingStatusCodeError();
 
-    @Message (id = 86, value = "Cannot create instance of: %s")
+    @Message(id = 86, value = "Cannot create instance of: %s")
     ProcessingException couldNotCreateInstance(String fqn, @Cause Throwable t);
 
-    @Message (id = 87, value = "System Property missing: %s")
+    @Message(id = 87, value = "System Property missing: %s")
     RuntimeException systemPropertyMissingError(String property);
 
     @Message(id = 88, value = "Null IssueInstant")
     IssueInstantMissingException samlIssueInstantMissingError();
 
-    @Message (id = 89, value = "Unknown Object Type: %s")
+    @Message(id = 89, value = "Unknown Object Type: %s")
     RuntimeException unknownObjectType(Object attrValue);
 
-    @Message (id = 90, value = "Unknown Signature Algorithm: %s")
+    @Message(id = 90, value = "Unknown Signature Algorithm: %s")
     RuntimeException signatureUnknownAlgo(String algo);
 
-    @Message (id = 91, value = "Writer: Invalid KeyInfo object: content cannot be empty")
+    @Message(id = 91, value = "Writer: Invalid KeyInfo object: content cannot be empty")
     ProcessingException writerInvalidKeyInfoNullContentError();
 
-    @Message (id = 92, value = "Null Value: %s")
+    @Message(id = 92, value = "Null Value: %s")
     RuntimeException nullValue(String nullValue);
-    
-    @Message (id = 93, value = "Not Serializable: %s")
+
+    @Message(id = 93, value = "Not Serializable: %s")
     IOException notSerializableError(String message);
-    
-    @Message (id = 94, value = "Not equal: %s and %s")
+
+    @Message(id = 94, value = "Not equal: %s and %s")
     RuntimeException notEqualError(String first, String second);
-    
-    @Message (id = 95, value = "Wrong type: %s")
+
+    @Message(id = 95, value = "Wrong type: %s")
     IllegalArgumentException wrongTypeError(String message);
 
-    @Message (id = 97, value = "Unknown Encryption Algorithm: %s")
+    @Message(id = 97, value = "Unknown Encryption Algorithm: %s")
     RuntimeException encryptUnknownAlgoError(String certAlgo);
 
-    @Message (id = 98, value = "Missing Document Element: %s")
+    @Message(id = 98, value = "Missing Document Element: %s")
     IllegalStateException domMissingDocElementError(String element);
 
-    @Message (id = 99, value = "Missing Element: %s")
+    @Message(id = 99, value = "Missing Element: %s")
     IllegalStateException domMissingElementError(String element);
 
-    @Message (id = 100, value = "Signing Process Failure")
+    @Message(id = 100, value = "Signing Process Failure")
     XMLSignatureException signatureError(@Cause Throwable t);
 
-    @Message (id = 101, value = "Encryption Process Failure")
+    @Message(id = 101, value = "Encryption Process Failure")
     RuntimeException encryptProcessError(@Cause Throwable t);
 
     @Message(id = 102, value = "Processing Exception")
     ProcessingException processingError(@Cause Throwable t);
 
-    @Message (id = 103, value = "Error while configuring the audit capabilities")
+    @Message(id = 103, value = "Error while configuring the audit capabilities")
     ConfigurationException auditConfigurationError(@Cause Throwable t);
 
-    @Message (id = 104, value = "Class Not Loaded: %s")
+    @Message(id = 104, value = "Class Not Loaded: %s")
     ProcessingException classNotLoadedError(String fqn);
 
-    @Message (id = 105, value = "Configuration Exception")
+    @Message(id = 105, value = "Configuration Exception")
     ConfigurationException configurationError(@Cause Throwable t);
 
-    @Message (id = 106, value = "PDP : Error while processing the message.")
+    @Message(id = 106, value = "PDP : Error while processing the message.")
     RuntimeException xacmlPDPMessageProcessingError(@Cause Throwable t);
 
-    @Message (id = 107, value = "Invalid Argument Exception: %s")
+    @Message(id = 107, value = "Invalid Argument Exception: %s")
     IllegalArgumentException invalidArgumentError(String message);
 
-    @Message (id = 108, value = "KeyStoreKeyManager : Processing error")
+    @Message(id = 108, value = "KeyStoreKeyManager : Processing error")
     TrustKeyProcessingException keyStoreProcessingError(@Cause Throwable t);
 
-    @Message (id = 109, value = "KeyStoreKeyManager : Configuration error.")
+    @Message(id = 109, value = "KeyStoreKeyManager : Configuration error.")
     TrustKeyConfigurationException keyStoreConfigurationError(@Cause Throwable t);
 
-    @Message (id = 110, value = "Security Token Service Exception")
+    @Message(id = 110, value = "Security Token Service Exception")
     WebServiceException stsWSError(@Cause Throwable t);
 
-    @Message (id = 111, value = "Invalid request type: %s")
+    @Message(id = 111, value = "Invalid request type: %s")
     WSTrustException stsWSInvalidRequestTypeError(String requestType);
 
-    @Message (id = 112, value = "WS-Trust Processing Exception")
+    @Message(id = 112, value = "WS-Trust Processing Exception")
     WSTrustException stsError(@Cause Throwable t);
 
-    @Message (id =113, value = "Unable to decode password: %s")
+    @Message(id = 113, value = "Unable to decode password: %s")
     RuntimeException stsUnableToDecodePasswordError(String password);
 
-    @Message (id =114, value = "Could not load properties from %s")
+    @Message(id = 114, value = "Could not load properties from %s")
     IllegalStateException couldNotLoadProperties(String configFile);
 
-    @Message (id =115, value = "Error creating KeyInfoType")
+    @Message(id = 115, value = "Error creating KeyInfoType")
     WSTrustException stsKeyInfoTypeCreationError(@Cause Throwable t);
 
-    @Message (id =116, value = "Could not issue a SAML Security Token")
+    @Message(id = 116, value = "Could not issue a SAML Security Token")
     LoginException authCouldNotIssueSAMLToken();
 
-    @Message (id =117, value = "Error during login/authentication")
+    @Message(id = 117, value = "Error during login/authentication")
     LoginException authLoginError(@Cause Throwable t);
 
-    @Message (id =118, value = "Could not create WSTrustClient")
+    @Message(id = 118, value = "Could not create WSTrustClient")
     IllegalStateException authCouldNotCreateWSTrustClient(@Cause Throwable t);
 
-    @Message (id =119, value = "Could not validate the SAML Security Token : %s")
+    @Message(id = 119, value = "Could not validate the SAML Security Token : %s")
     LoginException authCouldNotValidateSAMLToken(Element token);
 
-    @Message (id =120, value = "Could not locate a Security Token from the callback")
+    @Message(id = 120, value = "Could not locate a Security Token from the callback")
     LoginException authCouldNotLocateSecurityTokenError();
 
-    @Message (id =121, value = "Invalid cancel request: missing required CancelTarget")
+    @Message(id = 121, value = "Invalid cancel request: missing required CancelTarget")
     ProcessingException wsTrustNullCancelTargetError();
 
-    @Message (id =122, value = "Failed to marshall SAMLV1.1 assertion")
+    @Message(id = 122, value = "Failed to marshall SAMLV1.1 assertion")
     ProcessingException saml11MarshallError(@Cause Throwable t);
 
-    @Message (id =123, value = "Invalid renew request: missing required RenewTarget")
+    @Message(id = 123, value = "Invalid renew request: missing required RenewTarget")
     ProcessingException wsTrustNullRenewTargetError();
 
-    @Message (id =124, value = "Error unmarshalling assertion")
+    @Message(id = 124, value = "Error unmarshalling assertion")
     ProcessingException saml11UnmarshallError(@Cause Throwable t);
 
-    @Message (id =125, value = "SAML Assertion with id %s has been canceled and cannot be renewed")
+    @Message(id = 125, value = "SAML Assertion with id %s has been canceled and cannot be renewed")
     ProcessingException samlAssertionRevokedCouldNotRenew(String id);
 
-    @Message (id =126, value = "Bad validate request: missing required ValidateTarget")
+    @Message(id = 126, value = "Bad validate request: missing required ValidateTarget")
     ProcessingException wsTrustNullValidationTargetError();
 
-    @Message (id =127, value = "Unable to get DatatypeFactory instance")
+    @Message(id = 127, value = "Unable to get DatatypeFactory instance")
     RuntimeException wsTrustUnableToGetDataTypeFactoryError(@Cause Throwable t);
 
-    @Message (id =128, value = "Validation status code is missing")
+    @Message(id = 128, value = "Validation status code is missing")
     ProcessingException wsTrustValidationStatusCodeMissing();
 
-    @Message (id =129, value = "Unknown credential type: %s")
+    @Message(id = 129, value = "Unknown credential type: %s")
     RuntimeException unknownCredentialTypeError(String name);
 
-    @Message (id =130, value = "Assertion not found in the handler request")
+    @Message(id = 130, value = "Assertion not found in the handler request")
     RuntimeException samlHandlerAssertionNotFound();
 
-    @Message (id =131, value = "AuthnRequest is null")
+    @Message(id = 131, value = "AuthnRequest is null")
     ProcessingException samlHandlerAuthnRequestIsNullError();
 
-    @Message (id =132, value = "No assertions in reply from IDP")
+    @Message(id = 132, value = "No assertions in reply from IDP")
     IllegalArgumentException samlHandlerNoAssertionFromIDPError();
 
-    @Message (id =133, value = "Null encrypted assertion element")
+    @Message(id = 133, value = "Null encrypted assertion element")
     ProcessingException samlHandlerNullEncryptedAssertion();
 
     @Message(id = 134, value = "Assertion has expired with errors")
@@ -445,7 +445,7 @@ public interface PicketLinkMessages {
 
     @Message(id = 158, value = "SamlCredential is not available in subject")
     LoginException authSAMLCredentialNotAvailable();
-    
+
     @Message(id = 159, value = "Unable to instantiate handler: %s")
     RuntimeException authUnableToInstantiateHandler(String token, @Cause Throwable t);
 
@@ -470,7 +470,8 @@ public interface PicketLinkMessages {
     @Message(id = 166, value = "Service Provider configuration error")
     RuntimeException samlSPConfigurationError(@Cause Throwable t);
 
-    @Message(id = 167, value = "Could not find a security domain configuration. Check if it is defined in WEB-INF/jboss-web.xml or set the " + GeneralConstants.AUDIT_SECURITY_DOMAIN + " system property.")
+    @Message(id = 167, value = "Could not find a security domain configuration. Check if it is defined in WEB-INF/jboss-web.xml or set the "
+            + GeneralConstants.AUDIT_SECURITY_DOMAIN + " system property.")
     ConfigurationException auditSecurityDomainNotFound(@Cause Throwable t);
 
     @Message(id = 168, value = "Could not find a audit manager configuration. Location: %s")
@@ -482,8 +483,11 @@ public interface PicketLinkMessages {
     @Message(id = 170, value = "Invalid SAML Protocol Binding. Expected POST or REDIRECT.")
     IllegalArgumentException samlInvalidProtocolBinding();
 
-    @Message(id = 171, value = "Service Provider configuration not found. Check if the "
-            + GeneralConstants.CONFIGURATION + " parameter is defined in the handler chain config.")
+    @Message(id = 171, value = "Service Provider configuration not found. Check if the " + GeneralConstants.CONFIGURATION
+            + " parameter is defined in the handler chain config.")
     IllegalStateException samlHandlerServiceProviderConfigNotFound();
+
+    @Message(id = 172, value = "Cache duration could not be created using '%s'. This value must be an ISO-8601 period or a numeric value representing the duration in milliseconds.")
+    IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue);
 
 }
