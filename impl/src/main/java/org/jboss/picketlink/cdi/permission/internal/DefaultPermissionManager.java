@@ -29,29 +29,25 @@ public class DefaultPermissionManager implements PermissionManager
     @Override
     public void grantPermission(Permission permission)
     {
-        // TODO Auto-generated method stub
-        
+        permissionStore.grantPermission(permission);        
     }
 
     @Override
     public void grantPermissions(Collection<Permission> permission)
     {
-        // TODO Auto-generated method stub
-        
+        permissionStore.grantPermissions(permission);
     }
 
     @Override
     public void revokePermission(Permission permission)
     {
-        // TODO Auto-generated method stub
-        
+        permissionStore.revokePermission(permission);        
     }
 
     @Override
     public void revokePermissions(Collection<Permission> permissions)
     {
-        // TODO Auto-generated method stub
-        
+        permissionStore.revokePermissions(permissions);        
     }
 
 }

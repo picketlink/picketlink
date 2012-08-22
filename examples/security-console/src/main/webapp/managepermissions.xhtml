@@ -33,24 +33,23 @@
                       cellspacing="0"
                       headerClass="header"
                       rowClasses="odd,even"
-                      columnClasses=",,enabled,action">
+                      columnClasses=",,,action">
                   <h:column width="auto">
                       <f:facet name="header">
                           Recipient
                       </f:facet>
-
+                      ${permission.recipient}
                   </h:column>
                   <h:column id="enabled" width="auto">
-                      <!--f:facet name="header">
-                          Enabled
-                      </f:facet-->
-
-
+                      <f:facet name="header">
+                          Permission
+                      </f:facet>
+                      ${permission.permission}
                   </h:column>
                   <h:column id="action" width="auto">
-                      <!--f:facet name="header">
+                      <f:facet name="header">
                           Action
-                      </f:facet-->
+                      </f:facet>
 
                       <!--ui:fragment rendered="#{identity.hasPermission('seam.identity', 'update')}">
                           <h:commandLink id="edit" value="Edit" action="#{userAction.editUser(user.username)}"/>

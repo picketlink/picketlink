@@ -88,7 +88,7 @@ public class JPAPermissionStoreConfig implements Extension
     {
         private Class<?> storeClass;
         private Property<String> aclIdentifier;
-        private Property<?> aclPermission;
+        private Property<Object> aclPermission;
         private Property<String> aclRecipient;
         private Property<String> aclResourceClass;
         
@@ -145,7 +145,7 @@ public class JPAPermissionStoreConfig implements Extension
             return aclIdentifier;
         }
         
-        public Property<?> getAclPermission()
+        public Property<Object> getAclPermission()
         {
             return aclPermission;
         }

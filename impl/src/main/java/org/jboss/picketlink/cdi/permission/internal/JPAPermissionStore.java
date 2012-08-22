@@ -31,6 +31,9 @@ public class JPAPermissionStore implements PermissionStore
     
     @Inject 
     private JPAPermissionStoreConfig config;
+    
+    @Inject
+    private IdentifierPolicy identifierPolicy;
 
     @Override
     public List<Permission> getPermissions(PermissionQuery query)
@@ -89,7 +92,7 @@ public class JPAPermissionStore implements PermissionStore
             }
         }
                 
-        // TODO Auto-generated method stub
+        // TODO Auto-generated method stubobj
         return null;
     }
     
@@ -105,9 +108,8 @@ public class JPAPermissionStore implements PermissionStore
         if (query.getResource() != null)
         {
             queryText.append(meta.getAclIdentifier().getName());
-            queryText.append(" = :IDENTIFIER");
-            // TODO determine the identifier value
-            paramValues.put("IDENTIFIER", null);
+            queryText.append(" = :IDENTIFIER");            
+            paramValues.put("IDENTIFIER", identifierPolicy.getIdentifier(query.getResource()));
         }
         else if (query.getResources() != null)
         {
@@ -136,7 +138,45 @@ public class JPAPermissionStore implements PermissionStore
     @Override
     public boolean grantPermission(Permission permission)
     {
-        // TODO Auto-generated method stub
+        EntityManager em = entityManagerInstance.get();
+        
+        StoreMetadata store = findStoreForResource(permission.getResource());
+        
+        // First query for existing permission records
+        PermissionQuery pq = new PermissionQuery(this);
+        pq.setResource(permission.getResource());
+        pq.setRecipient(permission.getRecipient());
+        
+        Query q = buildPermissionQuery(store, pq, em);
+        List<?> results = q.getResultList();
+        
+        if (results.isEmpty())
+        {
+            // If there is no existing record, create a new one
+            try
+            {
+                Object p = store.getStoreClass().newInstance();
+                
+                store.getAclIdentifier().setValue(p, identifierPolicy.getIdentifier(permission.getResource()));
+                store.getAclRecipient().setValue(p, permission.getRecipient().getKey());
+                store.getAclPermission().setValue(p, permission.getPermission());                
+                
+                em.persist(p);
+            }
+            catch (IllegalAccessException ex)
+            {
+                throw new SecurityException("Error creating new permission", ex);
+            }
+            catch (InstantiationException ex)
+            {
+                throw new SecurityException("Error creating new permission", ex);
+            }
+        }
+        else
+        {
+            // Otherwise update the existing record with the new permission
+        }
+        
         return false;
     }
 
@@ -181,5 +221,17 @@ public class JPAPermissionStore implements PermissionStore
         // TODO Auto-generated method stub
         return false;
     }
-     
+    
+    private StoreMetadata findStoreForResource(Object resource)
+    {
+        for (Class<?> cls : config.getStores().keySet())
+        {
+            if (cls.isInstance(resource))
+            {
+                return config.getStores().get(cls);
+            }
+        }
+
+        return config.getGeneralStore();
+    }    
 }
