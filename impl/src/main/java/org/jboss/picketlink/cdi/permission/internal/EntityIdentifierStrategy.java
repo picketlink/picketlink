@@ -7,9 +7,13 @@ import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
-import javax.persistence.spi.PersistenceProvider;
+import javax.persistence.Id;
 
 import org.jboss.picketlink.cdi.internal.util.Strings;
+import org.jboss.picketlink.cdi.internal.util.properties.Property;
+import org.jboss.picketlink.cdi.internal.util.properties.query.AnnotatedPropertyCriteria;
+import org.jboss.picketlink.cdi.internal.util.properties.query.PropertyQueries;
+import org.jboss.picketlink.cdi.internal.util.properties.query.PropertyQuery;
 import org.jboss.picketlink.cdi.permission.IdentifierStrategy;
 import org.jboss.picketlink.cdi.permission.annotations.Identifier;
 
@@ -21,8 +25,8 @@ import org.jboss.picketlink.cdi.permission.annotations.Identifier;
 public class EntityIdentifierStrategy implements IdentifierStrategy 
 {
     private Map<Class<?>, String> identifierNames = new ConcurrentHashMap<Class<?>, String>();
+    private Map<Class<?>, Property<?>> identifierProperties = new ConcurrentHashMap<Class<?>, Property<?>>();
 
-    @Inject PersistenceProvider persistenceProvider;
     @Inject Instance<EntityManager> entityManager;
 
     public boolean canIdentify(Class<?> resourceClass) 
@@ -30,12 +34,10 @@ public class EntityIdentifierStrategy implements IdentifierStrategy
         return resourceClass.isAnnotationPresent(Entity.class);
     }
 
-    public String getIdentifier(Object target) 
+    public String getIdentifier(Object resource) 
     {
-        return String.format("%s:%s", getIdentifierName(target.getClass()), 
-                // FIXME need to return the correct Id value for the entity
-                null);
-//          persistenceProvider.getId(target, entityManager.get()).toString());
+        return String.format("%s:%s", getIdentifierName(resource.getClass()),
+                getIdentifierValue(resource));
     }
 
     private String getIdentifierName(Class<?> cls) 
@@ -62,5 +64,21 @@ public class EntityIdentifierStrategy implements IdentifierStrategy
         }
 
         return identifierNames.get(cls);
+    }
+    
+    private Object getIdentifierValue(Object resource)
+    {
+        Class<?> resourceClass = resource.getClass();
+        
+        if (!identifierProperties.containsKey(resourceClass))
+        {
+            PropertyQuery<?> pq = PropertyQueries.createQuery(resource.getClass());
+            pq.addCriteria(new AnnotatedPropertyCriteria(Id.class));
+            identifierProperties.put(resourceClass,  pq.getSingleResult());
+        }
+        
+        Property<?> p = identifierProperties.get(resourceClass);
+        
+        return p.getValue(resource);
     }
 }
