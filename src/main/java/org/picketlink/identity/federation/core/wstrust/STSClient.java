@@ -17,6 +17,7 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.security.Principal;
@@ -35,10 +36,12 @@ import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.soap.SOAPBinding;
 
+import org.jboss.security.util.xml.DOMUtils;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
@@ -70,6 +73,8 @@ public class STSClient {
     private String wsaIssuerAddress;
 
     private String wspAppliesTo;
+
+    private String soapBinding = SOAPBinding.SOAP11HTTP_BINDING;
 
     /**
      * Indicates whether the request is a batch request - will be read from the {@link STSClientConfig}
@@ -104,8 +109,10 @@ public class STSClient {
         wsaIssuerAddress = config.getWsaIssuer();
         wspAppliesTo = config.getWspAppliesTo();
 
+        soapBinding = config.getSoapBinding();
+        
         Service jaxwsService = Service.create(service);
-        jaxwsService.addPort(portName, SOAPBinding.SOAP11HTTP_BINDING, config.getEndPointAddress());
+        jaxwsService.addPort(portName, soapBinding, config.getEndPointAddress());
         Dispatch<Source> dispatch = jaxwsService.createDispatch(portName, Source.class, Mode.PAYLOAD);
 
         Map<String, Object> reqContext = dispatch.getRequestContext();
@@ -433,6 +440,17 @@ public class STSClient {
     }
 
     private DOMSource createSourceFromRequest(RequestSecurityToken request) throws WSTrustException {
+
+        try {
+            FileOutputStream f = new FileOutputStream("token.xml");
+            WSTrustRequestWriter writer = new WSTrustRequestWriter(f);
+            writer.write(request);
+            f.close();        
+            
+        } catch (Exception e) {
+            throw new WSTrustException(logger.processingError(e));
+        }
+
         try {
             DOMResult result = new DOMResult(DocumentUtil.createDocument());
             WSTrustRequestWriter writer = new WSTrustRequestWriter(result);
@@ -449,5 +467,13 @@ public class STSClient {
     private void validateDispatch() {
         if (getDispatch() == null)
             throw logger.injectedValueMissing("Dispatch");
+    }
+
+    public String getSoapBinding() {
+        return soapBinding;
+    }
+
+    public void setSoapBinding(String soapBinding) {
+        this.soapBinding = soapBinding;
     }
 }

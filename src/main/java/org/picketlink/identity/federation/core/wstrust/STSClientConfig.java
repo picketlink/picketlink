@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
+import javax.xml.ws.soap.SOAPBinding;
+
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
@@ -87,6 +89,10 @@ public class STSClientConfig {
 
     public static final String IS_BATCH = "isBatch";
 
+    public static final String REQUEST_TYPE = "requestType";
+
+    public static final String SOAP_BINDING = "soapBinding";
+    
     private final String serviceName;
 
     private final String portName;
@@ -102,6 +108,10 @@ public class STSClientConfig {
     private final String wspAppliesTo;
 
     private boolean isBatch = false; // Is the RST a batch request?
+    
+    private final String requestType;
+
+    private final String soapBinding;
 
     private STSClientConfig(final Builder builder) {
         serviceName = builder.serviceName;
@@ -112,6 +122,8 @@ public class STSClientConfig {
         isBatch = builder.isBatch;
         wsaIssuer = builder.wsaIssuer;
         wspAppliesTo = builder.wspAppliesTo;
+        requestType = builder.requestType;
+        soapBinding = builder.soapBinding;
     }
 
     public String getServiceName() {
@@ -146,6 +158,14 @@ public class STSClientConfig {
         return isBatch;
     }
 
+    public String getRequestType() {
+        return requestType;
+    }
+
+    public String getSoapBinding() {
+        return soapBinding;
+    }
+
     public String toString() {
         return getClass().getSimpleName() + "[serviceName=" + serviceName + ", portName=" + portName + ", endpointAddress="
                 + endpointAddress + "]";
@@ -168,6 +188,11 @@ public class STSClientConfig {
 
         private boolean isBatch;
 
+        // default to Issue, but could be also Validate (including the base of the namespace URI)
+        private String requestType = WSTrustConstants.ISSUE_REQUEST;
+
+        private String soapBinding = SOAPBinding.SOAP11HTTP_BINDING;
+        
         public Builder() {
         }
 
@@ -207,6 +232,11 @@ public class STSClientConfig {
 
         public Builder wspAppliesTo(final String wsp) {
             this.wspAppliesTo = wsp;
+            return this;
+        }
+
+        public Builder requestType(final String requestType) {
+            this.requestType = requestType;
             return this;
         }
 
@@ -263,7 +293,9 @@ public class STSClientConfig {
                 this.wspAppliesTo = properties.getProperty(WSP_APPLIES_TO);
                 String batchStr = properties.getProperty(IS_BATCH);
                 this.isBatch = StringUtil.isNotNull(batchStr) ? Boolean.parseBoolean(batchStr) : false;
-
+                this.requestType = properties.getProperty(REQUEST_TYPE);
+                this.soapBinding = properties.getProperty(SOAP_BINDING);
+                
                 if (this.password.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX)) {
                     // password is masked
                     String salt = properties.getProperty(PicketLinkFederationConstants.SALT);
