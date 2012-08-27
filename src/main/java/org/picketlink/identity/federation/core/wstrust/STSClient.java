@@ -440,17 +440,6 @@ public class STSClient {
     }
 
     private DOMSource createSourceFromRequest(RequestSecurityToken request) throws WSTrustException {
-
-        try {
-            FileOutputStream f = new FileOutputStream("token.xml");
-            WSTrustRequestWriter writer = new WSTrustRequestWriter(f);
-            writer.write(request);
-            f.close();        
-            
-        } catch (Exception e) {
-            throw new WSTrustException(logger.processingError(e));
-        }
-
         try {
             DOMResult result = new DOMResult(DocumentUtil.createDocument());
             WSTrustRequestWriter writer = new WSTrustRequestWriter(result);
