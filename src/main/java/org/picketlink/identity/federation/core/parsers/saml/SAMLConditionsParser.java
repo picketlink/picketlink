@@ -39,6 +39,7 @@ import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURICon
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
+import org.picketlink.identity.federation.saml.v2.assertion.OneTimeUseType;
 
 /**
  * Parse the <conditions> in the saml assertion
@@ -110,6 +111,15 @@ public class SAMLConditionsParser implements ParserNamespaceSupport {
             if (JBossSAMLConstants.AUDIENCE_RESTRICTION.get().equals(tag)) {
                 AudienceRestrictionType audienceRestriction = getAudienceRestriction(xmlEventReader);
                 conditions.addCondition(audienceRestriction);
+            } else if (JBossSAMLConstants.ONE_TIME_USE.get().equals(tag)) {
+                // just parses the onetimeuse tag. until now PL has no support for onetimeuse conditions.
+                StaxParserUtil.getNextStartElement(xmlEventReader);
+                OneTimeUseType oneTimeUseCondition = new OneTimeUseType();
+                conditions.addCondition(oneTimeUseCondition);
+                
+                // Get the end tag
+                EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+                StaxParserUtil.matches(endElement, JBossSAMLConstants.ONE_TIME_USE.get());
             } else
                 throw new RuntimeException(ErrorCodes.UNKNOWN_TAG + tag + "::location=" + xmlEvent.getLocation());
         }

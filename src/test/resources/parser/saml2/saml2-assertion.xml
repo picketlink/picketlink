@@ -7,7 +7,9 @@
 		<saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer" />
 	</saml2:Subject>
 	<saml2:Conditions NotBefore="2010-09-30T19:13:37.869Z"
-		NotOnOrAfter="2010-09-30T21:13:37.869Z" />
+		NotOnOrAfter="2010-09-30T21:13:37.869Z">
+		<saml2:OneTimeUse/>
+	</saml2:Conditions>
 	<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 		<ds:SignedInfo>
 			<ds:CanonicalizationMethod
