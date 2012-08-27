@@ -142,6 +142,8 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
 
     protected String roleKey = AttributeConstants.ROLE_IDENTIFIER_ASSERTION;
 
+    protected String tokenCompression = SAMLCallback.NONE_TOKEN_COMPRESSION;
+    
     /**
      * Options that are computed by this login module. Few options are removed and the rest are set in the dispatch sts call
      */
@@ -182,6 +184,15 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
      */
     public static final String PASSWORD_KEY = "password";
 
+    /**
+     * Key to specify token compression. 
+     * Supported types: 
+     *   {@link SAMLCallback.GZIP_TOKEN_COMPRESSION} - gzip
+     *   {@link SAMLCallback.NONE_TOKEN_COMPRESSION} - none
+     */
+    public static final String TOKEN_COMPRESSION_TYPE_KEY = "tokenCompressionType";
+    
+    
     // A variable used by the unit test to pass local validation
     protected boolean localTestingOnly = false;
 
@@ -230,6 +241,11 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
                 localTestingOnly = Boolean.valueOf(localTestingOnlyStr);
             }
         }
+        
+        String compression = (String)this.options.get(TOKEN_COMPRESSION_TYPE_KEY);
+        if (compression != null) {
+            this.tokenCompression = compression;
+        }
     }
 
     /*
@@ -265,7 +281,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             throw logger.authSTSConfigFileNotFound();
 
         // obtain the assertion from the callback handler.
-        ObjectCallback callback = new ObjectCallback(null);
+        SAMLCallback callback = new SAMLCallback(this.tokenCompression);
         Element assertionElement = null;
         try {
             super.callbackHandler.handle(new Callback[] { callback });
