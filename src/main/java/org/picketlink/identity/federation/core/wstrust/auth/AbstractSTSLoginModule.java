@@ -593,7 +593,18 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         if (sharedState == null)
             return null;
 
-        return (String) sharedState.get("javax.security.auth.login.name");
+        Object sharedName = sharedState.get("javax.security.auth.login.name");
+        if (sharedName == null) {
+            return null;
+        } else if (sharedName instanceof String) {
+            return (String)sharedName;
+        }
+        else if (sharedName instanceof Principal) {
+            return ((Principal)sharedName).getName();
+        }
+        
+        // TODO: change to proper message
+        throw new RuntimeException("sharedState javax.security.auth.login.name is supposed to contain String or Principal, but contains " + sharedName.getClass().getName());
     }
 
     protected char[] getSharedPassword() {
