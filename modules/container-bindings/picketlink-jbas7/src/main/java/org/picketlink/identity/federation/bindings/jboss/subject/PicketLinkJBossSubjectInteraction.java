@@ -22,7 +22,6 @@
 package org.picketlink.identity.federation.bindings.jboss.subject;
 
 import java.security.Principal;
-import java.util.Calendar;
 
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -30,42 +29,39 @@ import javax.security.auth.Subject;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 
-import org.jboss.security.SimplePrincipal;
-import org.jboss.security.SubjectSecurityManager;
+import org.jboss.security.CacheableManager;
+import org.jboss.security.SecurityConstants;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.tomcat.SubjectSecurityInteraction;
-import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory;
-import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 
 /**
- * An implementation of {@link SubjectSecurityInteraction} for JBoss AS
+ * An implementation of {@link SubjectSecurityInteraction} for JBoss AS 7.
  *
  * @author Anil.Saldhana@redhat.com
+ * <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * @since Sep 13, 2011
  */
 public class PicketLinkJBossSubjectInteraction implements SubjectSecurityInteraction {
     
-    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+    private String securityDomain;
     
     /**
      * @see org.picketlink.identity.federation.bindings.tomcat.SubjectSecurityInteraction#cleanup(java.security.Principal)
      */
     public boolean cleanup(Principal principal) {
         try {
-            String securityDomain = getSecurityDomain();
+            String lookupDomain = this.securityDomain;
+            
+            if (lookupDomain.startsWith(SecurityConstants.JAAS_CONTEXT_ROOT) == false)
+                lookupDomain = SecurityConstants.JAAS_CONTEXT_ROOT + "/" + lookupDomain;
 
-            logger.trace("Determined Security Domain = " + securityDomain);
+            // lookup the JBossCachedAuthManager.
+            InitialContext context = new InitialContext();
+            CacheableManager manager = (CacheableManager) context.lookup(lookupDomain);
 
-            TimeCacheExpiry cacheExpiry = JBossAuthCacheInvalidationFactory.getCacheExpiry();
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.SECOND, 10);// Add 25 seconds
-
-            logger.trace("Will expire from cache in 10 seconds, principal = " + principal);
-
-            cacheExpiry.register(securityDomain, calendar.getTime(), principal);
-            // Additional expiry of simple principal
-            cacheExpiry.register(securityDomain, calendar.getTime(), new SimplePrincipal(principal.getName()));
+            // Flush the Authentication Cache
+            manager.flushCache(principal);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -84,16 +80,8 @@ public class PicketLinkJBossSubjectInteraction implements SubjectSecurityInterac
         }
     }
 
-    protected String getSecurityDomain() throws NamingException {
-        // Get the SecurityManagerService from JNDI
-        InitialContext ctx = new InitialContext();
-        SubjectSecurityManager ssm = (SubjectSecurityManager) ctx.lookup("java:comp/env/security/securityMgr");
-        if (ssm == null)
-            throw logger.nullValueError("Unable to get the subject security manager");
-        return ssm.getSecurityDomain();
-    }
-
+    @Override
     public void setSecurityDomain(String securityDomain) {
-        
+        this.securityDomain = securityDomain;
     }
 }

@@ -46,4 +46,11 @@ public interface SubjectSecurityInteraction {
      * @return
      */
     boolean cleanup(Principal principal);
+    
+    /**
+     * <p>Sets the security domain name</p>
+     * 
+     * @param securityDomain
+     */
+    void setSecurityDomain(String securityDomain);
 }
