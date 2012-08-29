@@ -1,5 +1,7 @@
 package org.jboss.picketlink.cdi.authorization;
 
+import org.jboss.picketlink.cdi.SecurityException;
+
 /**
  * This exception is thrown when a security-related configuration error is detected,
  * such as a missing or ambiguous security binding type

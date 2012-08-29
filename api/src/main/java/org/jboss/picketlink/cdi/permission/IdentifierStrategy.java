@@ -1,5 +1,8 @@
 package org.jboss.picketlink.cdi.permission;
 
+import java.io.Serializable;
+
+
 /**
  * Strategy for generating permission resource identifiers.
  *
@@ -9,5 +12,14 @@ public interface IdentifierStrategy
 {
     boolean canIdentify(Class<?> targetClass);
 
-    String getIdentifier(Object target);
+    /**
+     * Returns a String identifier, consisting of the concatenation that includes both the class name of the resource
+     * and the identifier value.
+     *  
+     * @param resource
+     * @return
+     */
+    String getIdentifier(Object resource);
+    
+    Serializable getIdentifierValue(Object resource);
 }

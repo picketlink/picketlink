@@ -1,5 +1,7 @@
 package org.jboss.picketlink.cdi.authentication;
 
+import org.jboss.picketlink.cdi.SecurityException;
+
 /**
  * Thrown if there is an error during the authentication process
  * 

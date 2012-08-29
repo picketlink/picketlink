@@ -1,5 +1,6 @@
 package org.jboss.picketlink.cdi.permission.internal;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,19 @@ public class IdentifierPolicy
             return (String) resource;
         }
 
+        IdentifierStrategy strategy = getStrategyForResource(resource);
+
+        return strategy != null ? strategy.getIdentifier(resource) : null;
+    }
+    
+    public Serializable getIdentifierValue(Object resource)
+    {
+        IdentifierStrategy strategy = getStrategyForResource(resource);
+        return strategy != null ? strategy.getIdentifierValue(resource) : null;
+    }
+    
+    private IdentifierStrategy getStrategyForResource(Object resource)
+    {
         IdentifierStrategy strategy = strategies.get(resource.getClass());
 
         if (strategy == null) {
@@ -67,8 +81,8 @@ public class IdentifierPolicy
                 }
             }
         }
-
-        return strategy != null ? strategy.getIdentifier(resource) : null;
+        
+        return strategy;
     }
 
     public Set<IdentifierStrategy> getRegisteredStrategies() {

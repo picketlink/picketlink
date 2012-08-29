@@ -1,5 +1,6 @@
 package org.jboss.picketlink.cdi.permission.internal;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,7 +26,7 @@ import org.jboss.picketlink.cdi.permission.annotations.Identifier;
 public class EntityIdentifierStrategy implements IdentifierStrategy 
 {
     private Map<Class<?>, String> identifierNames = new ConcurrentHashMap<Class<?>, String>();
-    private Map<Class<?>, Property<?>> identifierProperties = new ConcurrentHashMap<Class<?>, Property<?>>();
+    private Map<Class<?>, Property<Serializable>> identifierProperties = new ConcurrentHashMap<Class<?>, Property<Serializable>>();
 
     @Inject Instance<EntityManager> entityManager;
 
@@ -39,6 +40,22 @@ public class EntityIdentifierStrategy implements IdentifierStrategy
         return String.format("%s:%s", getIdentifierName(resource.getClass()),
                 getIdentifierValue(resource));
     }
+    
+    public Serializable getIdentifierValue(Object resource)
+    {
+        Class<?> resourceClass = resource.getClass();
+        
+        if (!identifierProperties.containsKey(resourceClass))
+        {
+            PropertyQuery<Serializable> pq = PropertyQueries.createQuery(resource.getClass());
+            pq.addCriteria(new AnnotatedPropertyCriteria(Id.class));
+            identifierProperties.put(resourceClass, pq.getSingleResult());
+        }
+        
+        Property<Serializable> p = identifierProperties.get(resourceClass);
+        
+        return p.getValue(resource);
+    }    
 
     private String getIdentifierName(Class<?> cls) 
     {
@@ -64,21 +81,5 @@ public class EntityIdentifierStrategy implements IdentifierStrategy
         }
 
         return identifierNames.get(cls);
-    }
-    
-    private Object getIdentifierValue(Object resource)
-    {
-        Class<?> resourceClass = resource.getClass();
-        
-        if (!identifierProperties.containsKey(resourceClass))
-        {
-            PropertyQuery<?> pq = PropertyQueries.createQuery(resource.getClass());
-            pq.addCriteria(new AnnotatedPropertyCriteria(Id.class));
-            identifierProperties.put(resourceClass,  pq.getSingleResult());
-        }
-        
-        Property<?> p = identifierProperties.get(resourceClass);
-        
-        return p.getValue(resource);
     }
 }

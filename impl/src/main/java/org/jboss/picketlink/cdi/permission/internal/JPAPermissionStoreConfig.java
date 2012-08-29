@@ -55,7 +55,7 @@ public class JPAPermissionStoreConfig implements Extension
                 {
                     if (generalStore == null)
                     {
-                        generalStore = new StoreMetadata(type.getJavaClass());
+                        generalStore = new StoreMetadata(type.getJavaClass(), null);
                     }
                     else
                     {
@@ -77,7 +77,7 @@ public class JPAPermissionStoreConfig implements Extension
                     }
                     else
                     {
-                        storeMap.put(store.value(), new StoreMetadata(type.getJavaClass()));
+                        storeMap.put(store.value(), new StoreMetadata(type.getJavaClass(), store.value()));
                     }
                 }
             }                
@@ -87,20 +87,23 @@ public class JPAPermissionStoreConfig implements Extension
     class StoreMetadata
     {
         private Class<?> storeClass;
-        private Property<String> aclIdentifier;
+        private Class<?> resourceClass;
+        
+        private Property<Object> aclIdentifier;
         private Property<Object> aclPermission;
         private Property<String> aclRecipient;
         private Property<String> aclResourceClass;
         
-        public StoreMetadata(Class<?> storeClass)
+        public StoreMetadata(Class<?> storeClass, Class<?> resourceClass)
         {
             this.storeClass = storeClass;
+            this.resourceClass = resourceClass;
             validateStore();             
         }
         
         private void validateStore()
         {
-            aclIdentifier = PropertyQueries.<String>createQuery(storeClass)
+            aclIdentifier = PropertyQueries.createQuery(storeClass)
                     .addCriteria(new AnnotatedPropertyCriteria(ACLIdentifier.class))
                     .getFirstResult();
             
@@ -140,7 +143,12 @@ public class JPAPermissionStoreConfig implements Extension
             return storeClass;
         }
         
-        public Property<String> getAclIdentifier()
+        public Class<?> getResourceClass()
+        {
+            return resourceClass;
+        }
+        
+        public Property<Object> getAclIdentifier()
         {
             return aclIdentifier;
         }

@@ -69,6 +69,11 @@ public class JPAPermissionStore implements PermissionStore
             }
             resourceMetadata.get(meta).add(query.getResource());
         }
+        else
+        {
+            // TODO - we could probably do a reverse lookup of the resource if we had a ResourceLocator API or something like that
+            throw new SecurityException("Invalid permission query - must specify resource or resources");
+        }
                 
         if (resourceMetadata.isEmpty())
         {
@@ -89,6 +94,15 @@ public class JPAPermissionStore implements PermissionStore
             for (StoreMetadata meta : resourceMetadata.keySet())
             {
                 Query permissionQuery = buildPermissionQuery(meta, query, em);
+                for (Object result : permissionQuery.getResultList())
+                {
+                    // TODO we need a consistent way to marshal/unmarshal permission values (i.e. "read", "write", etc)
+                    meta.getAclIdentifier().getValue(result);
+                    //if (resultMap.containsKey(key))
+                    
+                    //results.add(new Permission())
+                    //meta.
+                }
             }
         }
                 
@@ -101,15 +115,31 @@ public class JPAPermissionStore implements PermissionStore
         Map<String,Object> paramValues = new HashMap<String,Object>();
         
         StringBuilder queryText = new StringBuilder();
+        StringBuilder criteriaText = new StringBuilder();
+        
         queryText.append("SELECT P FROM ");
         queryText.append(meta.getStoreClass().getName());
         queryText.append(" P WHERE ");
         
         if (query.getResource() != null)
         {
-            queryText.append(meta.getAclIdentifier().getName());
-            queryText.append(" = :IDENTIFIER");            
-            paramValues.put("IDENTIFIER", identifierPolicy.getIdentifier(query.getResource()));
+            criteriaText.append("P.");
+            criteriaText.append(meta.getAclIdentifier().getName());
+            criteriaText.append(" = :IDENTIFIER");
+            
+            /*
+             * IF the resource has an exclusive ACLStore, then we will use the raw value of the identifier
+             * to set the parameter value.  If the resource permissions are stored in the general store, 
+             * then we'll use the general purpose identifier that includes the class name.
+             */
+            if (meta.getResourceClass() != null)
+            {
+                paramValues.put("IDENTIFIER", identifierPolicy.getIdentifierValue(query.getResource()));   
+            }
+            else
+            {
+                paramValues.put("IDENTIFIER", identifierPolicy.getIdentifier(query.getResource()));
+            }
         }
         else if (query.getResources() != null)
         {
@@ -118,10 +148,17 @@ public class JPAPermissionStore implements PermissionStore
         
         if (query.getRecipient() != null)
         {
-            queryText.append(meta.getAclRecipient().getName());
-            queryText.append(" = :RECIPIENT");      
+            if (criteriaText.length() > 0)
+            {
+                criteriaText.append(" AND ");
+            }
+            criteriaText.append("P.");
+            criteriaText.append(meta.getAclRecipient().getName());
+            criteriaText.append(" = :RECIPIENT");      
             paramValues.put("RECIPIENT", query.getRecipient().getKey());
         }
+        
+        queryText.append(criteriaText);
         
         Query q = em.createQuery(queryText.toString());
         
@@ -157,11 +194,20 @@ public class JPAPermissionStore implements PermissionStore
             {
                 Object p = store.getStoreClass().newInstance();
                 
-                store.getAclIdentifier().setValue(p, identifierPolicy.getIdentifier(permission.getResource()));
+                if (store.getResourceClass() != null)
+                {
+                    store.getAclIdentifier().setValue(p, identifierPolicy.getIdentifierValue(permission.getResource()));
+                }
+                else
+                {
+                    store.getAclIdentifier().setValue(p, identifierPolicy.getIdentifier(permission.getResource()));
+                }
                 store.getAclRecipient().setValue(p, permission.getRecipient().getKey());
                 store.getAclPermission().setValue(p, permission.getPermission());                
                 
                 em.persist(p);
+                
+                return true;
             }
             catch (IllegalAccessException ex)
             {

@@ -1,5 +1,6 @@
 package org.jboss.picketlink.cdi.permission.internal;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -18,21 +19,27 @@ public class ClassIdentifierStrategy implements IdentifierStrategy
 {
     private Map<Class<?>, String> identifierNames = new ConcurrentHashMap<Class<?>, String>();
 
-    public boolean canIdentify(Class<?> targetClass) 
+    public boolean canIdentify(Class<?> resourceClass) 
     {
-        return Class.class.equals(targetClass);
+        return Class.class.equals(resourceClass);
     }
 
-    public String getIdentifier(Object target) 
+    public String getIdentifier(Object resource) 
     {
-        if (!(target instanceof Class<?>)) 
+        if (!(resource instanceof Class<?>)) 
         {
-            throw new IllegalArgumentException("Target [" + target + "] must be instance of Class");
+            throw new IllegalArgumentException("Resource [" + resource + "] must be instance of Class");
         }
 
-        return getIdentifierName((Class<?>) target);
+        return getIdentifierName((Class<?>) resource);
     }
 
+    public Serializable getIdentifierValue(Object resource) 
+    {
+        // The identifier value is the same as getIdentifier()
+        return getIdentifier(resource);
+    }    
+    
     private String getIdentifierName(Class<?> cls) 
     {
         if (!identifierNames.containsKey(cls)) 
