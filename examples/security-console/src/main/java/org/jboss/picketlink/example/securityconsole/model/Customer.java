@@ -51,4 +51,17 @@ public class Customer implements Serializable
     {
         return String.format("%d: %s %s", id, firstName, lastName);
     }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (!(obj instanceof Customer))
+        {
+            return false;
+        }
+        
+        Customer other = (Customer) obj;
+        
+        return this.id != null && this.id.equals(other.id);
+    }
 }

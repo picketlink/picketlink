@@ -18,22 +18,28 @@
     <dependencies>
 
         <dependency>
-	    <groupId>javax.enterprise</groupId>
-	    <artifactId>cdi-api</artifactId>
-	    <scope>provided</scope>
-	</dependency>
+	          <groupId>javax.enterprise</groupId>
+	          <artifactId>cdi-api</artifactId>
+	          <scope>provided</scope>
+      	</dependency>
 
-	<dependency>
-	    <groupId>org.hibernate.javax.persistence</groupId>
-	    <artifactId>hibernate-jpa-2.0-api</artifactId>
-	    <scope>provided</scope>
-	</dependency>
+	      <dependency>
+	          <groupId>org.hibernate.javax.persistence</groupId>
+	          <artifactId>hibernate-jpa-2.0-api</artifactId>
+	          <scope>provided</scope>
+	      </dependency>
 
-	<dependency>
-	    <groupId>org.jboss.spec.javax.ejb</groupId>
-	    <artifactId>jboss-ejb-api_3.1_spec</artifactId>
-	    <scope>provided</scope>
-	</dependency>
+	      <dependency>
+	          <groupId>org.jboss.spec.javax.ejb</groupId>
+	          <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+	          <scope>provided</scope>
+	      </dependency>
+	      
+	      <dependency>
+	          <groupId>org.jboss.spec.javax.faces</groupId>
+	          <artifactId>jboss-jsf-api_2.0_spec</artifactId>
+	          <scope>provided</scope>
+	      </dependency>
 
         <dependency>
             <groupId>org.jboss.picketlink</groupId>
@@ -46,7 +52,13 @@
             <artifactId>picketlink-cdi-impl</artifactId>
             <scope>runtime</scope>
         </dependency>
-
+        
+        <!-- Used for JSF entity converter features -->
+        <dependency>
+            <groupId>org.omnifaces</groupId>
+            <artifactId>omnifaces</artifactId>
+            <version>1.1</version>
+        </dependency>
         
     </dependencies>
     

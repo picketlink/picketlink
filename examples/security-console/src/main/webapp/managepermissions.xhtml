@@ -3,6 +3,7 @@
                 xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:f="http://java.sun.com/jsf/core"
                 xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:o="http://omnifaces.org/ui"
                 template="/WEB-INF/templates/default.xhtml">
 
     <ui:define name="sidebar">
@@ -19,7 +20,8 @@
             </h:selectOneMenu>
             
             <ui:fragment rendered="#{permissionSearch.entityType == 'Customer'}">
-              <h:selectOneMenu id="selectedCustomer" value="#{permissionSearch.resource}" onchange="this.form.submit();">
+              <h:selectOneMenu id="selectedCustomer" value="#{permissionSearch.resource}" onchange="this.form.submit();" converter="resourceConverter">
+              
                 <f:selectItems value="#{permissionSearch.customers}"></f:selectItems>
               </h:selectOneMenu>            
             </ui:fragment>

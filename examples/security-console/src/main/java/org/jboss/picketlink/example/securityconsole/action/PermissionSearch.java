@@ -1,14 +1,13 @@
 package org.jboss.picketlink.example.securityconsole.action;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ejb.Stateful;
 import javax.enterprise.inject.Model;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.ejb.Stateful;
-import javax.inject.Inject;
 
 import org.jboss.picketlink.cdi.permission.Permission;
 import org.jboss.picketlink.cdi.permission.PermissionManager;
@@ -26,6 +25,7 @@ public class PermissionSearch
     private EntityManager em;
     
     private Object resource;
+        
     private List<Permission> permissions;
     
     @Inject
