@@ -143,7 +143,7 @@ public class WSTrustRequestWriter {
      */
     public void write(RequestSecurityToken requestToken) throws ProcessingException {
         StaxUtil.writeStartElement(writer, PREFIX, RST, BASE_NAMESPACE);
-        StaxUtil.writeNameSpace(writer, PREFIX, BASE_NAMESPACE);
+//        StaxUtil.writeNameSpace(writer, PREFIX, BASE_NAMESPACE);
         String context = requestToken.getContext();
         if (StringUtil.isNotNull(context)) {
             StaxUtil.writeAttribute(writer, RST_CONTEXT, context);
