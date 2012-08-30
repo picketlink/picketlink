@@ -1,6 +1,8 @@
 package org.jboss.picketlink.cdi.permission.internal;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -48,10 +50,77 @@ public class IdentifierPolicy
         return strategy != null ? strategy.getIdentifier(resource) : null;
     }
     
+    public Map<String,Object> lookupResources(Collection<String> identifiers, Collection<Object> loadedResources)
+    {
+        Map<String,Object> resources = new HashMap<String,Object>();
+        
+        Map<String,Object> loadedIdentifiers = new HashMap<String,Object>();
+        
+        if (loadedResources != null && !loadedResources.isEmpty())
+        {
+            for (Object resource: loadedResources)
+            {
+                IdentifierStrategy strategy = getStrategyForResource(resource);
+                
+                if (strategy != null)
+                {
+                    String identifier = strategy.getIdentifier(resource);
+                    if (!loadedIdentifiers.containsKey(identifier))
+                    {
+                        loadedIdentifiers.put(identifier, resource);
+                    }
+                }
+            }
+        }
+        
+        for (String identifier : identifiers)
+        {
+            if (loadedIdentifiers.containsKey(identifier))
+            {
+                resources.put(identifier, loadedIdentifiers.get(identifier));
+            }
+            else
+            {
+                IdentifierStrategy strategy = getStrategyForIdentifier(identifier);
+                if (strategy != null)
+                {
+                    Object resource = strategy.lookupResource(identifier);
+                    if (resource != null)
+                    {
+                        resources.put(identifier, resource);    
+                    }
+                }
+           }
+        }
+        
+        return resources;
+    }
+    
     public Serializable getIdentifierValue(Object resource)
     {
         IdentifierStrategy strategy = getStrategyForResource(resource);
         return strategy != null ? strategy.getIdentifierValue(resource) : null;
+    }
+    
+    private IdentifierStrategy getStrategyForIdentifier(String identifier)
+    {
+        for (IdentifierStrategy strategy : strategies.values())
+        {
+            if (strategy.canLoadResource(identifier))
+            {
+                return strategy;
+            }
+        }
+        
+        for (IdentifierStrategy strategy : registeredStrategies)
+        {
+            if (strategy.canLoadResource(identifier))
+            {
+                return strategy;
+            }
+        }
+        
+        return null;
     }
     
     private IdentifierStrategy getStrategyForResource(Object resource)

@@ -90,19 +90,37 @@ public class JPAPermissionStore implements PermissionStore
         {
             List<Permission> results = new ArrayList<Permission>();
             
+            Collection<Object> knownResources = new ArrayList<Object>(); 
+            if (query.getResource() != null)
+            {
+                knownResources.add(query.getResource());
+            }
+            else if (query.getResources() != null)
+            {
+                knownResources.addAll(query.getResources());
+            }            
+            
             // Iterate through each permission store and execute a separate query
             for (StoreMetadata meta : resourceMetadata.keySet())
             {
                 Query permissionQuery = buildPermissionQuery(meta, query, em);
+                               
+                //List<Object> identifiers = new ArrayList<String>();
+                
                 for (Object result : permissionQuery.getResultList())
                 {
                     // TODO we need a consistent way to marshal/unmarshal permission values (i.e. "read", "write", etc)
-                    meta.getAclIdentifier().getValue(result);
+                    Object identifier = meta.getAclIdentifier().getValue(result);
+                    
+                    
+                    
                     //if (resultMap.containsKey(key))
                     
                     //results.add(new Permission())
                     //meta.
                 }
+                
+                //Map<String,Object> resourceLookup = identifierPolicy.lookupResources(identifiers, loadedResources)                
             }
         }
                 
