@@ -21,6 +21,8 @@
  */
 package org.picketlink.trust.jbossws.handler;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,19 +31,19 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.security.auth.Subject;
+import javax.servlet.ServletContext;
 import javax.xml.namespace.QName;
+import javax.xml.ws.handler.LogicalMessageContext;
 import javax.xml.ws.handler.MessageContext;
+import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-import org.jboss.security.AuthenticationManager;
-import org.jboss.security.AuthorizationManager;
-import org.jboss.wsf.common.handler.GenericSOAPHandler;
-import org.jboss.wsf.spi.SPIProvider;
-import org.jboss.wsf.spi.SPIProviderResolver;
+import org.jboss.security.SecurityConstants;
 import org.jboss.wsf.spi.invocation.SecurityAdaptorFactory;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.trust.jbossws.Constants;
 import org.picketlink.trust.jbossws.Util;
@@ -57,16 +59,18 @@ import org.w3c.dom.NodeList;
  * @since Apr 11, 2011
  */
 @SuppressWarnings("rawtypes")
-public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler {
+public abstract class AbstractPicketLinkTrustHandler<C extends LogicalMessageContext> implements SOAPHandler {
     
     protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
     
     protected static Set<QName> headers;
 
-    protected static final String SEC_MGR_LOOKUP = "java:comp/env/security/securityMgr";
+    protected static final String SEC_MGR_LOOKUP = SecurityConstants.JAAS_CONTEXT_ROOT;
     protected static final String AUTHZ_MGR_LOOKUP = "java:comp/env/security/authorizationMgr";
 
     protected SecurityAdaptorFactory secAdapterfactory;
+
+    private String securityDomainName;
 
     static {
         HashSet<QName> set = new HashSet<QName>();
@@ -79,33 +83,45 @@ public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler 
         return headers;
     }
 
-    /**
-     * Get the JBoss Authentication Manager {@link AuthenticationManager} from JNDI
-     *
-     * @return
-     * @throws NamingException
-     */
-    protected AuthenticationManager getAuthenticationManager() {
-        if (secAdapterfactory == null) {
-            SPIProvider spiProvider = SPIProviderResolver.getInstance().getProvider();
-            secAdapterfactory = spiProvider.getSPI(SecurityAdaptorFactory.class);
-        }
-        return (AuthenticationManager) lookupJNDI(SEC_MGR_LOOKUP);
+    protected ServletContext getServletContext(MessageContext msgContext) {
+        return (ServletContext) msgContext.get(MessageContext.SERVLET_CONTEXT);
     }
 
-    /**
-     * Get the JBoss Authorization Manager {@link AuthorizationManager} from JNDI
-     *
-     * @return
-     * @throws NamingException
-     */
-    protected AuthorizationManager getAuthorizationManager() {
-        if (secAdapterfactory == null) {
-            SPIProvider spiProvider = SPIProviderResolver.getInstance().getProvider();
-            secAdapterfactory = spiProvider.getSPI(SecurityAdaptorFactory.class);
+    protected String getSecurityDomainName(MessageContext msgContext) {
+        if (this.securityDomainName == null) {
+            InputStream is = null;
+
+            try {
+                is = getJBossWeb(getServletContext(msgContext));
+
+                if (is != null) {
+                    Document document = DocumentUtil.getDocument(is);
+                    securityDomainName = DocumentUtil.getChildElement(document.getDocumentElement(),
+                            new javax.xml.namespace.QName("security-domain")).getTextContent();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-        return (AuthorizationManager) lookupJNDI(AUTHZ_MGR_LOOKUP);
+        
+        return this.securityDomainName;
     }
+
+    protected InputStream getJBossWeb(ServletContext context) {
+        if (context == null)
+            throw logger.nullValueError("Servlet Context");
+
+        return context.getResourceAsStream("/WEB-INF/jboss-web.xml");
+    }
+
 
     /**
      * Given a {@link Document}, create the WSSE element
@@ -185,12 +201,36 @@ public abstract class AbstractPicketLinkTrustHandler extends GenericSOAPHandler 
         return assertion;
     }
 
-    private Object lookupJNDI(String str) {
+    protected Object lookupJNDI(String str) {
         try {
             Context context = new InitialContext();
             return context.lookup(str);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean handleMessage(MessageContext msgContext) {
+        Boolean outbound = (Boolean)msgContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+        if (outbound == null)
+           throw new IllegalStateException("Cannot obtain required property: " + MessageContext.MESSAGE_OUTBOUND_PROPERTY);
+
+        return outbound ? handleOutbound(msgContext) : handleInbound(msgContext);
+    }
+
+    protected boolean handleOutbound(MessageContext msgContext) {
+        return true;
+    }
+
+    protected boolean handleInbound(MessageContext msgContext) {
+        return true;
+    }
+
+    public boolean handleFault(MessageContext context) {
+        return true;
+    }
+
+    public void close(MessageContext context) {
+        
     }
 }

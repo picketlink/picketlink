@@ -44,11 +44,6 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.jboss.ws</groupId>
-			<artifactId>jbossws-common</artifactId>
-			<version>1.4.1.GA</version>
-		</dependency>
-		<dependency>
 			<groupId>org.picketlink</groupId>
 			<artifactId>picketlink-core</artifactId>
 			<version>${project.version}</version>

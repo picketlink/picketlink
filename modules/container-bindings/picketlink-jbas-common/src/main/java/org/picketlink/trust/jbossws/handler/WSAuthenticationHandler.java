@@ -21,54 +21,57 @@
  */
 package org.picketlink.trust.jbossws.handler;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.Principal;
 import java.util.Iterator;
 
 import javax.security.auth.Subject;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletContext;
 import javax.xml.ws.handler.MessageContext;
 
 import org.jboss.security.AuthenticationManager;
+import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.identity.Identity;
 import org.jboss.security.identity.extensions.CredentialIdentity;
-import org.jboss.wsf.spi.invocation.SecurityAdaptor;
-import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.w3c.dom.Document;
 
 /**
  * Perform Authentication for POJO Web Services
- *
+ * 
  * Based on the Authorize Operation on the JBossWS Native stack
- *
+ * 
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  * @author Anil.Saldhana@redhat.com
  * @since Apr 11, 2011
  */
 public class WSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
+    private String securityDomainName;
+
     @Override
     protected boolean handleInbound(MessageContext msgContext) {
 
         logger.trace("Handling Inbound Message");
-        
+
         trace(msgContext);
-        
-        AuthenticationManager authenticationManager = getAuthenticationManager();
-        SecurityAdaptor securityAdaptor = secAdapterfactory.newSecurityAdapter();
-        Principal principal = securityAdaptor.getPrincipal();
-        Object credential = securityAdaptor.getCredential();
-        Iterator<Identity> iterator = SecurityContextAssociation.getSecurityContext().getSubjectInfo().getIdentities().iterator();
+
+        AuthenticationManager authenticationManager = getAuthenticationManager(msgContext);
+        Principal principal = null;
+        Object credential = null;
+        Iterator<Identity> iterator = SecurityContextAssociation.getSecurityContext().getSubjectInfo().getIdentities()
+                .iterator();
 
         while (iterator.hasNext()) {
             CredentialIdentity identity = (CredentialIdentity) iterator.next();
-            
+
             principal = identity.asPrincipal();
             credential = identity.getCredential();
-            
-            System.out.println(identity);
         }
-        
+
         Subject subject = new Subject();
 
         if (authenticationManager.isValid(principal, credential, subject) == false) {
@@ -80,10 +83,16 @@ public class WSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
 
         logger.trace("Successfully Authenticated:Principal = " + principal + "  ::subject = " + subject);
 
-        SecurityContext sc = SecurityActions.createSecurityContext(principal, credential,
-                subject);
+        SecurityContext sc = SecurityActions.createSecurityContext(principal, credential, subject);
         SecurityActions.setSecurityContext(sc);
 
         return true;
     }
+
+    protected AuthenticationManager getAuthenticationManager(MessageContext msgContext) {
+        String securityDomainName = getSecurityDomainName(msgContext);
+        
+        return (AuthenticationManager) lookupJNDI(SecurityConstants.JAAS_CONTEXT_ROOT + securityDomainName);
+    }
+
 }

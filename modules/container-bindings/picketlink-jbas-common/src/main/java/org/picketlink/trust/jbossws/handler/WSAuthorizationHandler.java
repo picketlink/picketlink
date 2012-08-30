@@ -39,7 +39,9 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.jboss.security.AuthorizationManager;
+import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.callbacks.SecurityContextCallbackHandler;
 import org.jboss.wsf.spi.invocation.SecurityAdaptor;
@@ -68,7 +70,7 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
         
         trace(msgContext);
         
-        ServletContext context = (ServletContext) msgContext.get(MessageContext.SERVLET_CONTEXT);
+        ServletContext context = getServletContext(msgContext);
         // Read the jboss-wsse.xml file
         InputStream is = getWSSE(context);
         if (is == null)
@@ -106,12 +108,11 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
         }
 
         if (!roles.contains(UNCHECKED)) {
-            AuthorizationManager authorizationManager = getAuthorizationManager();
+            AuthorizationManager authorizationManager = getAuthorizationManager(msgContext);
 
-            SecurityAdaptor securityAdaptor = secAdapterfactory.newSecurityAdapter();
-            Principal principal = securityAdaptor.getPrincipal();
             Subject subject = SecurityActions.getAuthenticatedSubject();
-
+            Principal principal = SecurityContextAssociation.getPrincipal();
+            
             Set<Principal> expectedRoles = rolesSet(roles);
             if (!authorizationManager.doesUserHaveRole(principal, expectedRoles)) {
                 SecurityContext sc = SecurityActions.getSecurityContext();
@@ -165,5 +166,9 @@ public class WSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
             logger.jbossWSErrorGettingOperationName(e);
         }
         return null;
+    }
+    
+    protected AuthorizationManager getAuthorizationManager(MessageContext msgContext) {
+        return (AuthorizationManager) lookupJNDI(SecurityConstants.JAAS_CONTEXT_ROOT + getSecurityDomainName(msgContext) + "/authorizationMgr");
     }
 }
