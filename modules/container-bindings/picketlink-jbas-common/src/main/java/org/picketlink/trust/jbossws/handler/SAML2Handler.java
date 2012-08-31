@@ -32,6 +32,7 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.jboss.security.SecurityContext;
+import org.jboss.wsf.spi.SPIProviderResolver;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
 import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
@@ -94,7 +95,7 @@ public class SAML2Handler extends AbstractPicketLinkTrustHandler {
             SecurityContext sc = SecurityActions.createSecurityContext(new PicketLinkPrincipal(username), credential,
                     theSubject);
             SecurityActions.setSecurityContext(sc);
-
+            
             if (assertionType != null) {
                 List<String> roleKeys = new ArrayList<String>();
                 String roleKey = SecurityActions.getSystemProperty(ROLE_KEY_SYS_PROP, "Role");

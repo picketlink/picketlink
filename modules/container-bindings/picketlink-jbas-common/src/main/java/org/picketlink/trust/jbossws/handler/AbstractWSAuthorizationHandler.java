@@ -41,10 +41,9 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 import org.jboss.security.AuthorizationManager;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SecurityContext;
-import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.callbacks.SecurityContextCallbackHandler;
-import org.jboss.wsf.spi.invocation.SecurityAdaptor;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.trust.jbossws.util.JBossWSNativeStackUtil;
 import org.picketlink.trust.jbossws.util.JBossWSSERoleExtractor;
@@ -108,7 +107,14 @@ public abstract class AbstractWSAuthorizationHandler extends AbstractPicketLinkT
         }
 
         if (!roles.contains(UNCHECKED)) {
-            AuthorizationManager authorizationManager = getAuthorizationManager(msgContext);
+            AuthorizationManager authorizationManager = null;
+            
+            try {
+                authorizationManager = getAuthorizationManager(msgContext);
+            } catch (ConfigurationException e) {
+                logger.authorizationManagerError(e);
+                throw new RuntimeException(e);
+            }
  
             Subject subject = SecurityActions.getAuthenticatedSubject();
             
@@ -167,7 +173,14 @@ public abstract class AbstractWSAuthorizationHandler extends AbstractPicketLinkT
         return null;
     }
     
-    protected AuthorizationManager getAuthorizationManager(MessageContext msgContext) {
+    /**
+     * <p>Returns the {@link AuthorizationManager} associated with the application's security domain. </p>
+     * 
+     * @param msgContext
+     * @return
+     * @throws ConfigurationException
+     */
+    protected AuthorizationManager getAuthorizationManager(MessageContext msgContext) throws ConfigurationException {
         return (AuthorizationManager) lookupJNDI(SecurityConstants.JAAS_CONTEXT_ROOT + getSecurityDomainName(msgContext) + "/authorizationMgr");
     }
 }

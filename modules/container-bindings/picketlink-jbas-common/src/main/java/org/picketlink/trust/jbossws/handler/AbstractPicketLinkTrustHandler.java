@@ -42,6 +42,7 @@ import org.jboss.security.SecurityConstants;
 import org.jboss.wsf.spi.invocation.SecurityAdaptorFactory;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
@@ -87,7 +88,7 @@ public abstract class AbstractPicketLinkTrustHandler<C extends LogicalMessageCon
         return (ServletContext) msgContext.get(MessageContext.SERVLET_CONTEXT);
     }
 
-    protected String getSecurityDomainName(MessageContext msgContext) {
+    protected String getSecurityDomainName(MessageContext msgContext) throws ConfigurationException {
         if (this.securityDomainName == null) {
             InputStream is = null;
 
@@ -100,16 +101,18 @@ public abstract class AbstractPicketLinkTrustHandler<C extends LogicalMessageCon
                             new javax.xml.namespace.QName("security-domain")).getTextContent();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
             } finally {
                 try {
                     if (is != null) {
                         is.close();
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
+        }
+        
+        if (this.securityDomainName == null) {
+            throw logger.securityDomainNotFound();
         }
         
         return this.securityDomainName;

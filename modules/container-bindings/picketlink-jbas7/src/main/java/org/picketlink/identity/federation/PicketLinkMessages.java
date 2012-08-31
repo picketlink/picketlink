@@ -490,4 +490,7 @@ public interface PicketLinkMessages {
     @Message(id = 172, value = "Cache duration could not be created using '%s'. This value must be an ISO-8601 period or a numeric value representing the duration in milliseconds.")
     IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue);
 
+    @Message(id = 173, value = "The security domain name could not be found. Check your jboss-web.xml.")
+    ConfigurationException securityDomainNotFound();
+
 }

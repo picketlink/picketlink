@@ -50,7 +50,6 @@ import org.picketlink.identity.federation.core.constants.PicketLinkFederationCon
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
@@ -291,9 +290,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
                 throw le;
             }
         } else {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Local Validation is disabled. Verifying with STS assertion: " + DocumentUtil.asString(assertionElement.getOwnerDocument()));    
-            }
+            logger.trace("Local Validation is disabled. Verifying with STS");
 
             // send the assertion to the STS for validation.
             STSClient client = this.getSTSClient();

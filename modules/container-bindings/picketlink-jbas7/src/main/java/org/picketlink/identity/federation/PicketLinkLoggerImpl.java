@@ -44,7 +44,6 @@ import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMi
 import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.exceptions.SignatureValidationException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
 import org.w3c.dom.Element;
 
 /**
@@ -1567,6 +1566,21 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     @Override
     public IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue) {
         return MESSAGES.samlMetaDataFailedToCreateCacheDuration(timeValue);
+    }
+
+    @Override
+    public ConfigurationException securityDomainNotFound() {
+        return MESSAGES.securityDomainNotFound();
+    }
+
+    @Override
+    public void authenticationManagerError(ConfigurationException e) {
+        ROOT_LOGGER.authenticationManagerError(e);
+    }
+
+    @Override
+    public void authorizationManagerError(ConfigurationException e) {
+        ROOT_LOGGER.authorizationManagerError(e);
     }
 
 }

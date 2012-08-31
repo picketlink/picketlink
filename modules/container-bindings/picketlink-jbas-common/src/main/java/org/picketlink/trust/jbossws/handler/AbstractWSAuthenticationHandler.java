@@ -34,6 +34,7 @@ import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.identity.Identity;
 import org.jboss.security.identity.extensions.CredentialIdentity;
 import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 
 /**
  * Perform Authentication for POJO Web Services
@@ -47,6 +48,9 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 public abstract class AbstractWSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
     private String securityDomainName;
 
+    /* (non-Javadoc)
+     * @see org.picketlink.trust.jbossws.handler.AbstractPicketLinkTrustHandler#handleInbound(javax.xml.ws.handler.MessageContext)
+     */
     @Override
     protected boolean handleInbound(MessageContext msgContext) {
 
@@ -54,7 +58,15 @@ public abstract class AbstractWSAuthenticationHandler extends AbstractPicketLink
 
         trace(msgContext);
 
-        AuthenticationManager authenticationManager = getAuthenticationManager(msgContext);
+        AuthenticationManager authenticationManager = null;
+        
+        try {
+            authenticationManager = getAuthenticationManager(msgContext);
+        } catch (ConfigurationException e) {
+            logger.authenticationManagerError(e);
+            throw new RuntimeException(e);
+        }
+        
         Principal principal = null;
         Object credential = null;
         Iterator<Identity> iterator = SecurityContextAssociation.getSecurityContext().getSubjectInfo().getIdentities()
@@ -65,9 +77,6 @@ public abstract class AbstractWSAuthenticationHandler extends AbstractPicketLink
 
             principal = identity.asPrincipal();
             credential = identity.getCredential();
-            
-            System.out.println("############### " + principal);
-            System.out.println("############### " + credential);
         }
 
         Subject subject = new Subject();
@@ -87,7 +96,14 @@ public abstract class AbstractWSAuthenticationHandler extends AbstractPicketLink
         return true;
     }
 
-    protected AuthenticationManager getAuthenticationManager(MessageContext msgContext) {
+    /**
+     * <p>Returns the {@link AuthenticationManager} associated with the application's security domain.</p>
+     * 
+     * @param msgContext
+     * @return
+     * @throws ConfigurationException
+     */
+    protected AuthenticationManager getAuthenticationManager(MessageContext msgContext) throws ConfigurationException {
         String securityDomainName = getSecurityDomainName(msgContext);
         
         return (AuthenticationManager) lookupJNDI(SecurityConstants.JAAS_CONTEXT_ROOT + securityDomainName);

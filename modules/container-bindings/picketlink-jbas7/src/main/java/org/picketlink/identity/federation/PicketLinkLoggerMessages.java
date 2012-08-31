@@ -29,6 +29,7 @@ import org.jboss.logging.Logger;
 import org.jboss.logging.Logger.Level;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
+import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -312,5 +313,13 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     @LogMessage(level = Level.ERROR)
     @Message(id = 263, value = "Service Provider could not handle the request.")
     void samlSPHandleRequestError(@Cause Throwable t);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 266, value = "Error loading the AuthenticationManager.")
+    void authenticationManagerError(@Cause ConfigurationException e);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 267, value = "Error loading the AuthorizationManager.")
+    void authorizationManagerError(@Cause ConfigurationException e);
     
 }
