@@ -2292,4 +2292,32 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
                 + "'. This value must be an ISO-8601 period or a numeric value representing the duration in milliseconds.");
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#securityDomainNotFound()
+     */
+    @Override
+    public ConfigurationException securityDomainNotFound() {
+        return new ConfigurationException("The security domain name could not be found. Check your jboss-web.xml.");
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authenticationManagerError(org.picketlink.identity.federation.core.exceptions.ConfigurationException)
+     */
+    @Override
+    public void authenticationManagerError(ConfigurationException e) {
+        error("Error loading the AuthenticationManager.", e);
+    }
+
+    private void error(String msg, ConfigurationException e) {
+        logger.error(msg, e);
+    }
+
+    /* (non-Javadoc)
+     * @see org.picketlink.identity.federation.PicketLinkLogger#authorizationManagerError(org.picketlink.identity.federation.core.exceptions.ConfigurationException)
+     */
+    @Override
+    public void authorizationManagerError(ConfigurationException e) {
+        error("Error loading AuthorizationManager.", e);
+    }
+
 }

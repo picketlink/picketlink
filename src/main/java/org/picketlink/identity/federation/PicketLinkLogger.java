@@ -1285,4 +1285,10 @@ public interface PicketLinkLogger {
 
     IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue);
 
+    ConfigurationException securityDomainNotFound();
+
+    void authenticationManagerError(ConfigurationException e);
+
+    void authorizationManagerError(ConfigurationException e);
+
 }
