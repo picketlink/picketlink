@@ -39,6 +39,7 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.jboss.security.SecurityConstants;
+import org.jboss.wsf.common.handler.GenericSOAPHandler;
 import org.jboss.wsf.spi.invocation.SecurityAdaptorFactory;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
@@ -54,9 +55,12 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Abstract base class for the PicketLink Trust Handlers
+ * <p>Abstract base class for the PicketLink Trust Handlers</p>
+ * <p>This class implements directly the {@link SOAPHandler} interface because the {@link GenericSOAPHandler} package name changes between JBossWS versions.</p>
  *
  * @author Anil.Saldhana@redhat.com
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * 
  * @since Apr 11, 2011
  */
 @SuppressWarnings("rawtypes")
@@ -84,10 +88,23 @@ public abstract class AbstractPicketLinkTrustHandler<C extends LogicalMessageCon
         return headers;
     }
 
+    /**
+     * <p>Utility method to get the {@link ServletContext} from the specified {@link MessageContext}.</p>
+     * 
+     * @param msgContext
+     * @return
+     */
     protected ServletContext getServletContext(MessageContext msgContext) {
         return (ServletContext) msgContext.get(MessageContext.SERVLET_CONTEXT);
     }
 
+    /**
+     * <p>Returns the security domain name configured for the deployment.</p>
+     * 
+     * @param msgContext
+     * @return
+     * @throws ConfigurationException if no security domain is configured.
+     */
     protected String getSecurityDomainName(MessageContext msgContext) throws ConfigurationException {
         if (this.securityDomainName == null) {
             InputStream is = null;
@@ -118,7 +135,13 @@ public abstract class AbstractPicketLinkTrustHandler<C extends LogicalMessageCon
         return this.securityDomainName;
     }
 
-    protected InputStream getJBossWeb(ServletContext context) {
+    /**
+     * <p>Returns a {@link InputStream} for the jboss-web.xml configuration file.</p>
+     * 
+     * @param context
+     * @return
+     */
+    private InputStream getJBossWeb(ServletContext context) {
         if (context == null)
             throw logger.nullValueError("Servlet Context");
 
@@ -213,6 +236,12 @@ public abstract class AbstractPicketLinkTrustHandler<C extends LogicalMessageCon
         }
     }
 
+    /**
+     * <p>Handles the incoming message and decides which method should be called: <code>handleOutbound</code> or <code>handleInbound</code></p>.
+     * 
+     * @param msgContext
+     * @return
+     */
     public boolean handleMessage(MessageContext msgContext) {
         Boolean outbound = (Boolean)msgContext.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
         if (outbound == null)

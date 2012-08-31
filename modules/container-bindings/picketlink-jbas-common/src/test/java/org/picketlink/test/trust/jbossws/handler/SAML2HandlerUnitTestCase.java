@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Principal;
 import java.security.acl.Group;
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,10 +47,11 @@ import org.jboss.security.SecurityContextAssociation;
 import org.jboss.security.SimplePrincipal;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.trust.jbossws.handler.SAML2Handler;
+import org.picketlink.identity.federation.core.wstrust.SamlCredential;
+import org.picketlink.trust.jbossws.handler.AbstractSAML2Handler;
 
 /**
- * Unit test the {@link SAML2Handler}
+ * Unit test the {@link AbstractSAML2Handler}
  *
  * @author Anil.Saldhana@redhat.com
  * @since Jul 12, 2011
@@ -81,11 +83,12 @@ public class SAML2HandlerUnitTestCase {
         return soapMessage;
     }
 
-    private static class DelegatingHandler extends SAML2Handler {
+    private static class DelegatingHandler extends AbstractSAML2Handler {
         @Override
         protected boolean handleInbound(MessageContext msgContext) {
             return super.handleInbound(msgContext);
         }
+
     }
 
     private static class SAML2HandlerUnitTestCaseMessageContext implements SOAPMessageContext {

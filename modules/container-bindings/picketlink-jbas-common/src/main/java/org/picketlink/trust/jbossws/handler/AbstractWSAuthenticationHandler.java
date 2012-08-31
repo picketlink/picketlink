@@ -37,17 +37,16 @@ import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 
 /**
- * Perform Authentication for POJO Web Services
- * 
- * Based on the Authorize Operation on the JBossWS Native stack
+ * <p>Base class to perform Authentication for POJO Web Services based on the Authorize Operation on the JBossWS Native stack.</p>
  * 
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  * @author Anil.Saldhana@redhat.com
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * 
  * @since Apr 11, 2011
  */
 public abstract class AbstractWSAuthenticationHandler extends AbstractPicketLinkTrustHandler {
-    private String securityDomainName;
-
+    
     /* (non-Javadoc)
      * @see org.picketlink.trust.jbossws.handler.AbstractPicketLinkTrustHandler#handleInbound(javax.xml.ws.handler.MessageContext)
      */

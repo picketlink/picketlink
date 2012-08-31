@@ -50,10 +50,12 @@ import org.picketlink.trust.jbossws.util.JBossWSSERoleExtractor;
 import org.w3c.dom.Node;
 
 /**
- * An authorization handler for the POJO Web services Based on the Authorize Operation on the JBossWS Native stack
+ * <p>Base class for authorization handlers for POJO Web services based on the Authorize Operation on the JBossWS Native stack</p>
  *
  * @author <a href="mailto:darran.lofthouse@jboss.com">Darran Lofthouse</a>
  * @author Anil.Saldhana@redhat.com
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * 
  * @since Apr 11, 2011
  */
 public abstract class AbstractWSAuthorizationHandler extends AbstractPicketLinkTrustHandler {
