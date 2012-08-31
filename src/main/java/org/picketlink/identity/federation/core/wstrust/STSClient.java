@@ -370,6 +370,7 @@ public class STSClient {
         DOMSource requestSource = this.createSourceFromRequest(request);
 
         Source response = dispatchLocal.get().invoke(requestSource);
+        
         try {
             InputStream stream = DocumentUtil.getNodeAsStream(DocumentUtil.getNodeFromSource(response));
             RequestSecurityTokenResponseCollection responseCollection = (RequestSecurityTokenResponseCollection) new WSTrustParser()
