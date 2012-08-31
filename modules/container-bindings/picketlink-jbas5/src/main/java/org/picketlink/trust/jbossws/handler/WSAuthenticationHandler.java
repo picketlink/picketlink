@@ -21,6 +21,24 @@
  */
 package org.picketlink.trust.jbossws.handler;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.Principal;
+import java.util.Iterator;
+
+import javax.security.auth.Subject;
+import javax.servlet.ServletContext;
+import javax.xml.ws.handler.MessageContext;
+
+import org.jboss.security.AuthenticationManager;
+import org.jboss.security.SecurityConstants;
+import org.jboss.security.SecurityContext;
+import org.jboss.security.SecurityContextAssociation;
+import org.jboss.security.identity.Identity;
+import org.jboss.security.identity.extensions.CredentialIdentity;
+import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.w3c.dom.Document;
 
 /**
  * Perform Authentication for POJO Web Services
@@ -33,4 +51,9 @@ package org.picketlink.trust.jbossws.handler;
  */
 public class WSAuthenticationHandler extends AbstractWSAuthenticationHandler {
 
+    @Override
+    protected AuthenticationManager getAuthenticationManager(MessageContext msgContext) {
+        return (AuthenticationManager) lookupJNDI("java:comp/env/security/securityMgr");
+    }
+    
 }
