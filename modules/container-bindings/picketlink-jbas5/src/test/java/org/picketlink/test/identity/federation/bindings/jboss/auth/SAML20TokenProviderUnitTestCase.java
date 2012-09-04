@@ -24,6 +24,7 @@ package org.picketlink.test.identity.federation.bindings.jboss.auth;
 import java.net.URI;
 import java.security.Principal;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -47,14 +48,15 @@ import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
+import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.AudienceRestrictionType;
+import org.picketlink.identity.federation.saml.v2.assertion.AuthnStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.ConditionsType;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectConfirmationType;
 import org.picketlink.identity.federation.saml.v2.assertion.SubjectType;
-import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
 import org.w3c.dom.Element;
 
 /**
@@ -153,7 +155,12 @@ public class SAML20TokenProviderUnitTestCase extends TestCase {
         SubjectConfirmationType confirmation = (SubjectConfirmationType) subject.getConfirmation().get(0);
         assertEquals("Unexpected confirmation method", SAMLUtil.SAML2_BEARER_URI, confirmation.getMethod());
 
-        StatementAbstractType statementAbstractType = assertion.getStatements().iterator().next();
+        Iterator<StatementAbstractType> statementIterator = assertion.getStatements().iterator();
+        StatementAbstractType authnStatementType = statementIterator.next();
+        StatementAbstractType statementAbstractType = statementIterator.next();
+
+        assertTrue("Unexpected type instead of AuthnStatement: " + authnStatementType.getClass().getSimpleName(),
+                authnStatementType instanceof AuthnStatementType);
         assertNotNull("Unexpected null StatementAbstractType", statementAbstractType);
         assertTrue("Unexpected type instead of AttributeStatement: " + statementAbstractType.getClass().getSimpleName(),
                 statementAbstractType instanceof AttributeStatementType);
