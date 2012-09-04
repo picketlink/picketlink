@@ -179,6 +179,9 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
             statements.add(StatementUtil.createAttributeStatement(claimedAttributes));
         }
 
+        // create an AuthnStatement
+        statements.add(StatementUtil.createAuthnStatement(lifetime.getCreated(), confirmationMethod));
+
         // create the SAML assertion.
         NameIDType issuerID = SAMLAssertionFactory.createNameID(null, null, context.getTokenIssuer());
         AssertionType assertion = SAMLAssertionFactory.createAssertion(assertionID, issuerID, lifetime.getCreated(),
