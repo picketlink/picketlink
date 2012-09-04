@@ -171,11 +171,12 @@ public class SAML20TokenProvider extends AbstractSecurityTokenProvider implement
         NameIDType nameID = SAMLAssertionFactory.createNameID(null, "urn:picketlink:identity-federation", subjectName);
         SubjectType subject = SAMLAssertionFactory.createSubject(nameID, subjectConfirmation);
 
+        
+        List<StatementAbstractType> statements = new ArrayList<StatementAbstractType>();
+        
         // create the attribute statements if necessary.
-        List<StatementAbstractType> statements = null;
         Map<String, Object> claimedAttributes = context.getClaimedAttributes();
         if (claimedAttributes != null) {
-            statements = new ArrayList<StatementAbstractType>();
             statements.add(StatementUtil.createAttributeStatement(claimedAttributes));
         }
 
