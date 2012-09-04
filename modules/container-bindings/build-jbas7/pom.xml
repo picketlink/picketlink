@@ -2,7 +2,7 @@
   <parent>
     <groupId>org.picketlink</groupId>
     <artifactId>picketlink-fed-parent</artifactId>
-    <version>2.1.5-SNAPSHOT</version>
+    <version>2.1.5-2012Sep04</version>
     <relativePath>../../parent</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
