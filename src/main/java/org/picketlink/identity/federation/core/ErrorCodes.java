@@ -199,4 +199,9 @@ public interface ErrorCodes {
     String WRONG_TYPE = "PL00095: Wrong type:";
     
     String SOAP_MESSAGE_DUMP_ERROR = "PL00104: Error while dumping SOAP message:";
+    
+    String LOCAL_VALIDATION_SEC_DOMAIN_MUST_BE_SPECIFIED = "PL00105: When using local validation 'localValidationSecurityDomain' must be specified.";
+    
+    String COMPRESSION_ENABLED_SAML_CRED = "When compression is enabled, received credential should be SamlCredential, but got ";
+    
 }

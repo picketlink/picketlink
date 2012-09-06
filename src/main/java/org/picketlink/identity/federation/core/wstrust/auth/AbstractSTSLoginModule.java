@@ -626,7 +626,7 @@ public abstract class AbstractSTSLoginModule implements LoginModule {
         samlToken = null;
     }
 
-    private void removeAllSamlCredentials(final Subject subject) {
+    public static void removeAllSamlCredentials(final Subject subject) {
         final Set<SamlCredential> samlCredentials = subject.getPublicCredentials(SamlCredential.class);
         if (!samlCredentials.isEmpty()) {
             subject.getPublicCredentials().removeAll(samlCredentials);
