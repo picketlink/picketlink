@@ -32,31 +32,73 @@ import java.security.PrivilegedAction;
  */
 class SecurityActions {
 
-    static Class<?> loadClass(final Class<?> theClass, final String fqn) {
-        return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
-            public Class<?> run() {
-                ClassLoader classLoader = theClass.getClassLoader();
+    /**
+     * <p>
+     * Loads a {@link Class} using the <code>fullQualifiedName</code> supplied. This method tries first to load from the
+     * specified {@link Class}, if not found it will try to load from using TCL.
+     * </p>
+     *
+     * @param theClass
+     * @param fullQualifiedName
+     * @return
+     */
+    static Class<?> loadClass(final Class<?> theClass, final String fullQualifiedName) {
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
+                public Class<?> run() {
+                    ClassLoader classLoader = theClass.getClassLoader();
 
-                Class<?> clazz = loadClass(classLoader, fqn);
-                if (clazz == null) {
-                    classLoader = Thread.currentThread().getContextClassLoader();
-                    clazz = loadClass(classLoader, fqn);
+                    Class<?> clazz = loadClass(classLoader, fullQualifiedName);
+                    if (clazz == null) {
+                        classLoader = Thread.currentThread().getContextClassLoader();
+                        clazz = loadClass(classLoader, fullQualifiedName);
+                    }
+                    return clazz;
                 }
-                return clazz;
+            });
+        } else {
+            ClassLoader classLoader = theClass.getClassLoader();
+
+            Class<?> clazz = loadClass(classLoader, fullQualifiedName);
+            if (clazz == null) {
+                classLoader = Thread.currentThread().getContextClassLoader();
+                clazz = loadClass(classLoader, fullQualifiedName);
             }
-        });
+            return clazz;
+        }
     }
 
-    static Class<?> loadClass(final ClassLoader cl, final String fqn) {
-        return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
-            public Class<?> run() {
-                try {
-                    return cl.loadClass(fqn);
-                } catch (ClassNotFoundException e) {
+    /**
+     * <p>
+     * Loads a class from the specified {@link ClassLoader} using the <code>fullQualifiedName</code> supplied.
+     * </p>
+     *
+     * @param classLoader
+     * @param fullQualifiedName
+     * @return
+     */
+    static Class<?> loadClass(final ClassLoader classLoader, final String fullQualifiedName) {
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
+                public Class<?> run() {
+                    try {
+                        return classLoader.loadClass(fullQualifiedName);
+                    } catch (ClassNotFoundException e) {
+                    }
+                    return null;
                 }
-                return null;
+            });
+        } else {
+            try {
+                return classLoader.loadClass(fullQualifiedName);
+            } catch (ClassNotFoundException e) {
             }
-        });
+            return null;
+        }
     }
 
     /**
@@ -67,10 +109,14 @@ class SecurityActions {
      * @return
      */
     static String getProperty(final String key, final String defaultValue) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty(key, defaultValue);
-            }
-        });
+        if (System.getSecurityManager() != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<String>() {
+                public String run() {
+                    return System.getProperty(key, defaultValue);
+                }
+            });
+        } else {
+            return System.getProperty(key, defaultValue);
+        }
     }
 }

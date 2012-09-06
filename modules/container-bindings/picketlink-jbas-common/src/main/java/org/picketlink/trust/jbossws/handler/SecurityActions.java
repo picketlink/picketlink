@@ -45,34 +45,58 @@ import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup
  */
 class SecurityActions {
     static SecurityContext createSecurityContext(final Principal p, final Object cred, final Subject subject) {
-        return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
-            public SecurityContext run() {
-                SecurityContext sc = null;
-                try {
-                    sc = SecurityContextFactory.createSecurityContext(p, cred, subject, "SAML2_HANDLER");
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
+                public SecurityContext run() {
+                    SecurityContext sc = null;
+                    try {
+                        sc = SecurityContextFactory.createSecurityContext(p, cred, subject, "SAML2_HANDLER");
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                    return sc;
                 }
-                return sc;
+            });
+        } else {
+            SecurityContext sc = null;
+            try {
+                sc = SecurityContextFactory.createSecurityContext(p, cred, subject, "SAML2_HANDLER");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        });
+            return sc;
+        }
     }
 
     static void setSecurityContext(final SecurityContext sc) {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            public Object run() {
-                SecurityContextAssociation.setSecurityContext(sc);
-                return null;
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                public Object run() {
+                    SecurityContextAssociation.setSecurityContext(sc);
+                    return null;
+                }
+            });
+        } else {
+            SecurityContextAssociation.setSecurityContext(sc);
+        }
     }
 
     static SecurityContext getSecurityContext() {
-        return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
-            public SecurityContext run() {
-                return SecurityContextAssociation.getSecurityContext();
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
+                public SecurityContext run() {
+                    return SecurityContextAssociation.getSecurityContext();
+                }
+            });
+        } else {
+            return SecurityContextAssociation.getSecurityContext();
+        }
     }
 
     /**
@@ -81,45 +105,72 @@ class SecurityActions {
      * @return authenticated subject or null
      */
     static Subject getAuthenticatedSubject() {
-        return AccessController.doPrivileged(new PrivilegedAction<Subject>() {
-            public Subject run() {
-                SecurityContext sc = SecurityContextAssociation.getSecurityContext();
-                if (sc != null)
-                    return sc.getUtil().getSubject();
-                return null;
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<Subject>() {
+                public Subject run() {
+                    SecurityContext sc = SecurityContextAssociation.getSecurityContext();
+                    if (sc != null)
+                        return sc.getUtil().getSubject();
+                    return null;
+                }
+            });
+        } else {
+            SecurityContext sc = SecurityContextAssociation.getSecurityContext();
+            if (sc != null)
+                return sc.getUtil().getSubject();
+            return null;
+        }
     }
 
     /**
-     * Get a system property
+     * <p>Returns a system property value using the specified <code>key</code>. If not found the <code>defaultValue</code> will be returned.</p>
      *
-     * @param key the property name
-     * @param defaultValue default value in absence of property
+     * @param key
+     * @param defaultValue
      * @return
      */
     static String getSystemProperty(final String key, final String defaultValue) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty(key, defaultValue);
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<String>() {
+                public String run() {
+                    return System.getProperty(key, defaultValue);
+                }
+            });
+        } else {
+            return System.getProperty(key, defaultValue);
+        }
     }
 
     static ClassLoader getClassLoader(final Class<?> clazz) {
-        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            public ClassLoader run() {
-                return clazz.getClassLoader();
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return clazz.getClassLoader();
+                }
+            });
+        } else {
+            return clazz.getClassLoader();
+        }
     }
 
     static ClassLoader getContextClassLoader() {
-        return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
-            public ClassLoader run() {
-                return Thread.currentThread().getContextClassLoader();
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {        
+            return AccessController.doPrivileged(new PrivilegedAction<ClassLoader>() {
+                public ClassLoader run() {
+                    return Thread.currentThread().getContextClassLoader();
+                }
+            });
+        } else {
+            return Thread.currentThread().getContextClassLoader();
+        }
     }
 
     /**
@@ -129,14 +180,24 @@ class SecurityActions {
      * @return
      */
     static Group group(final List<String> roles) {
-        return AccessController.doPrivileged(new PrivilegedAction<Group>() {
-            public Group run() {
-                Group theGroup = new PicketLinkGroup(SecurityConstants.ROLES_IDENTIFIER);
-                for (String role : roles) {
-                    theGroup.addMember(new SimplePrincipal(role));
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<Group>() {
+                public Group run() {
+                    Group theGroup = new PicketLinkGroup(SecurityConstants.ROLES_IDENTIFIER);
+                    for (String role : roles) {
+                        theGroup.addMember(new SimplePrincipal(role));
+                    }
+                    return theGroup;
                 }
-                return theGroup;
+            });
+        } else {
+            Group theGroup = new PicketLinkGroup(SecurityConstants.ROLES_IDENTIFIER);
+            for (String role : roles) {
+                theGroup.addMember(new SimplePrincipal(role));
             }
-        });
+            return theGroup;
+        }
     }
 }

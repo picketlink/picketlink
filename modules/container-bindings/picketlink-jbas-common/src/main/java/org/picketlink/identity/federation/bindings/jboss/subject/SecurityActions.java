@@ -33,20 +33,23 @@ import java.security.PrivilegedAction;
  */
 class SecurityActions {
     /**
-     * <p>
-     * Obtains the system property identified by the provided key. If no property can be found, the specified default value will
-     * be returned.
-     * </p>
+     * <p>Returns a system property value using the specified <code>key</code>. If not found the <code>defaultValue</code> will be returned.</p>
      *
-     * @param key the system property key.
-     * @param defaultValue the value to be returned if no property was found under the provided key.
-     * @return a {@code String} representing the property value.
+     * @param key
+     * @param defaultValue
+     * @return
      */
     static String getSystemProperty(final String key, final String defaultValue) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty(key, defaultValue);
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<String>() {
+                public String run() {
+                    return System.getProperty(key, defaultValue);
+                }
+            });
+        } else {
+            return System.getProperty(key, defaultValue);
+        }
     }
 }

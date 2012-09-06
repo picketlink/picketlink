@@ -38,26 +38,55 @@ import org.jboss.security.SecurityContextFactory;
  */
 class SecurityActions {
     static SecurityContext getSecurityContext() {
-        return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
-            public SecurityContext run() {
-                return SecurityContextAssociation.getSecurityContext();
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
+                public SecurityContext run() {
+                    return SecurityContextAssociation.getSecurityContext();
+                }
+            });
+        } else {
+            return SecurityContextAssociation.getSecurityContext();
+        }
     }
 
     static SecurityContext createSecurityContext() throws PrivilegedActionException {
-        return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>() {
-            public SecurityContext run() throws Exception {
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedExceptionAction<SecurityContext>() {
+                public SecurityContext run() throws Exception {
+                    return SecurityContextFactory.createSecurityContext("CLIENT");
+                }
+            });
+        } else {
+            try {
                 return SecurityContextFactory.createSecurityContext("CLIENT");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
-        });
+        }
     }
 
+    /**
+     * <p>Returns a system property value using the specified <code>key</code>. If not found the <code>defaultValue</code> will be returned.</p>
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
     static String getSystemProperty(final String key) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty(key);
-            }
-        });
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<String>() {
+                public String run() {
+                    return System.getProperty(key);
+                }
+            });
+        } else {
+            return System.getProperty(key);
+        }
     }
 }
