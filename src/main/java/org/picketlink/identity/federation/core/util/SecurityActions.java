@@ -32,62 +32,74 @@ import java.security.PrivilegedAction;
  * @since Dec 9, 2008
  */
 class SecurityActions {
-    static Class<?> loadClass(final Class<?> theClass, final String fqn) {
-        return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
-            public Class<?> run() {
-                ClassLoader classLoader = theClass.getClassLoader();
+    
+    /**
+     * <p>
+     * Loads a {@link Class} using the <code>fullQualifiedName</code> supplied. This method tries first to load from the
+     * specified {@link Class}, if not found it will try to load from using TCL.
+     * </p>
+     *
+     * @param theClass
+     * @param fullQualifiedName
+     * @return
+     */
+    static Class<?> loadClass(final Class<?> theClass, final String fullQualifiedName) {
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
+                public Class<?> run() {
+                    ClassLoader classLoader = theClass.getClassLoader();
 
-                Class<?> clazz = loadClass(classLoader, fqn);
-                if (clazz == null) {
-                    classLoader = Thread.currentThread().getContextClassLoader();
-                    clazz = loadClass(classLoader, fqn);
+                    Class<?> clazz = loadClass(classLoader, fullQualifiedName);
+                    if (clazz == null) {
+                        classLoader = Thread.currentThread().getContextClassLoader();
+                        clazz = loadClass(classLoader, fullQualifiedName);
+                    }
+                    return clazz;
                 }
-                return clazz;
-            }
-        });
-    }
+            });
+        } else {
+            ClassLoader classLoader = theClass.getClassLoader();
 
-    static Class<?> loadClass(final ClassLoader cl, final String fqn) {
-        return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
-            public Class<?> run() {
-                try {
-                    return cl.loadClass(fqn);
-                } catch (ClassNotFoundException e) {
-                }
-                return null;
+            Class<?> clazz = loadClass(classLoader, fullQualifiedName);
+            if (clazz == null) {
+                classLoader = Thread.currentThread().getContextClassLoader();
+                clazz = loadClass(classLoader, fullQualifiedName);
             }
-        });
+            return clazz;
+        }
     }
 
     /**
-     * Set the system property
+     * <p>
+     * Loads a class from the specified {@link ClassLoader} using the <code>fullQualifiedName</code> supplied.
+     * </p>
      *
-     * @param key
-     * @param defaultValue
+     * @param classLoader
+     * @param fullQualifiedName
      * @return
      */
-    static void setSystemProperty(final String key, final String value) {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            public Object run() {
-                System.setProperty(key, value);
-                return null;
+    static Class<?> loadClass(final ClassLoader classLoader, final String fullQualifiedName) {
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<Class<?>>() {
+                public Class<?> run() {
+                    try {
+                        return classLoader.loadClass(fullQualifiedName);
+                    } catch (ClassNotFoundException e) {
+                    }
+                    return null;
+                }
+            });
+        } else {
+            try {
+                return classLoader.loadClass(fullQualifiedName);
+            } catch (ClassNotFoundException e) {
             }
-        });
-    }
-
-    /**
-     * Get the system property
-     *
-     * @param key
-     * @param defaultValue
-     * @return
-     */
-    static String getSystemProperty(final String key, final String defaultValue) {
-        return AccessController.doPrivileged(new PrivilegedAction<String>() {
-            public String run() {
-                return System.getProperty(key, defaultValue);
-            }
-        });
+            return null;
+        }
     }
 
     /**
@@ -98,19 +110,78 @@ class SecurityActions {
      * @return
      */
     static URL loadResource(final Class<?> clazz, final String resourceName) {
-        return AccessController.doPrivileged(new PrivilegedAction<URL>() {
-            public URL run() {
-                URL url = null;
-                ClassLoader clazzLoader = clazz.getClassLoader();
-                url = clazzLoader.getResource(resourceName);
-
-                if (url == null) {
-                    clazzLoader = Thread.currentThread().getContextClassLoader();
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<URL>() {
+                public URL run() {
+                    URL url = null;
+                    ClassLoader clazzLoader = clazz.getClassLoader();
                     url = clazzLoader.getResource(resourceName);
-                }
 
-                return url;
+                    if (url == null) {
+                        clazzLoader = Thread.currentThread().getContextClassLoader();
+                        url = clazzLoader.getResource(resourceName);
+                    }
+
+                    return url;
+                }
+            });
+        } else {
+            URL url = null;
+            ClassLoader clazzLoader = clazz.getClassLoader();
+            url = clazzLoader.getResource(resourceName);
+
+            if (url == null) {
+                clazzLoader = Thread.currentThread().getContextClassLoader();
+                url = clazzLoader.getResource(resourceName);
             }
-        });
+
+            return url;
+        }
     }
+    
+    /**
+     * Set the system property
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    static void setSystemProperty(final String key, final String value) {
+        SecurityManager sm = System.getSecurityManager();
+        
+        if (sm != null) {
+            AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                public Object run() {
+                    System.setProperty(key, value);
+                    return null;
+                }
+            });
+        } else {
+            System.setProperty(key, value);
+        }
+    }
+
+    /**
+     * <p>Returns a system property value using the specified <code>key</code>. If not found the <code>defaultValue</code> will be returned.</p>
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    static String getSystemProperty(final String key, final String defaultValue) {
+        SecurityManager sm = System.getSecurityManager();
+
+        if (sm != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<String>() {
+                public String run() {
+                    return System.getProperty(key, defaultValue);
+                }
+            });
+        } else {
+            return System.getProperty(key, defaultValue);
+        }
+    }
+
 }

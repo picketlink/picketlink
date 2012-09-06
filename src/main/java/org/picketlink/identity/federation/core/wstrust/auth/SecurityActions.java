@@ -40,12 +40,15 @@ class SecurityActions {
      * @return
      */
     static SecurityContext getSecurityContext() {
-        return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
-            public SecurityContext run() {
-                return SecurityContextAssociation.getSecurityContext();
-            }
-        });
-
+        if (System.getSecurityManager() != null) {
+            return AccessController.doPrivileged(new PrivilegedAction<SecurityContext>() {
+                public SecurityContext run() {
+                    return SecurityContextAssociation.getSecurityContext();
+                }
+            });
+        } else {
+            return SecurityContextAssociation.getSecurityContext();
+        }
     }
 
 }

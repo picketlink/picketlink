@@ -26,9 +26,7 @@ package org.picketlink.identity.federation;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-import javax.naming.NamingException;
 import javax.security.auth.login.LoginException;
-import javax.servlet.ServletException;
 import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
