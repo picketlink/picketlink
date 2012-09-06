@@ -28,11 +28,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
+import javax.security.jacc.PolicyContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.Source;
 import javax.xml.ws.Dispatch;
@@ -45,16 +49,19 @@ import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
+import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.constants.AttributeConstants;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
@@ -142,7 +149,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
 
     protected String roleKey = AttributeConstants.ROLE_IDENTIFIER_ASSERTION;
 
-    protected String tokenCompression = SAMLCallback.NONE_TOKEN_COMPRESSION;
+    protected String tokenEncoding = SAML2STSCommonLoginModule.NONE_TOKEN_ENCODING;
     
     /**
      * Options that are computed by this login module. Few options are removed and the rest are set in the dispatch sts call
@@ -185,13 +192,56 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
     public static final String PASSWORD_KEY = "password";
 
     /**
+     * Specify which http header contains saml token.
+     * If null, default behavior will be used, credentials got from callback.
+     */
+    private String samlTokenHttpHeader = null;
+
+    /**
+     * Regular expression to parse samlTokenHttpHeader to obtain saml token only.
+     * Token itself has to be Base64 encoded.
+     * Use .* to match whole content.
+     */
+    private String samlTokenHttpHeaderRegEx = null;
+
+    private Pattern pattern = null; 
+
+    
+    /**
+     * Group which will be used to retrieve matched part of the token header content.
+     * Defaults to 0.
+     * pattern.matcher.group(samlTokenHttpHeaderRegExGroup)
+     */
+    private int samlTokenHttpHeaderRegExGroup = 0;
+    
+    /**
      * Key to specify token compression. 
      * Supported types: 
-     *   {@link SAMLCallback.GZIP_TOKEN_COMPRESSION} - gzip
-     *   {@link SAMLCallback.NONE_TOKEN_COMPRESSION} - none
+     *   {@link GZIP_TOKEN_ENCODING} - gzip
+     *   {@link BASE64_TOKEN_ENCODING} - base64
+     *   {@link NONE_TOKEN_ENCODING} - none
      */
-    public static final String TOKEN_COMPRESSION_TYPE_KEY = "tokenCompressionType";
-    
+    public static final String TOKEN_ENCODING_TYPE_KEY = "tokenEncodingType";
+
+    /**
+     * Token encoding type: gzip
+     */
+    public static final String GZIP_TOKEN_ENCODING = "gzip"; 
+
+    /**
+     * Token encoding type: none 
+     */
+    public static final String NONE_TOKEN_ENCODING = "none"; 
+
+    /**
+     * Token encoding type: base64 
+     */
+    public static final String BASE64_TOKEN_ENCODING = "base64"; 
+
+    public static final String WEB_REQUEST_KEY = "javax.servlet.http.HttpServletRequest";
+    public static final String REG_EX_PATTERN_KEY = "samlTokenHttpHeaderRegEx";
+    public static final String REG_EX_GROUP_KEY = "samlTokenHttpHeaderRegExGroup";
+    public static final String SAML_TOKEN_HTTP_HEADER_KEY = "samlTokenHttpHeader";
     
     // A variable used by the unit test to pass local validation
     protected boolean localTestingOnly = false;
@@ -213,7 +263,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
         }
         // save the config file and cache validation options, removing them from the map - all remaining properties will
         // be set in the request context of the Dispatch instance used to send requests to the STS.
-        this.stsConfigurationFile = (String) this.options.remove("configFile");
+        this.stsConfigurationFile = (String) this.options.remove(STS_CONFIG_FILE);
         String cacheInvalidation = (String) this.options.remove("cache.invalidation");
         if (cacheInvalidation != null && !cacheInvalidation.isEmpty()) {
             this.enableCacheInvalidation = Boolean.parseBoolean(cacheInvalidation);
@@ -233,7 +283,12 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             localValidation = Boolean.parseBoolean(localValidationStr);
             localValidationSecurityDomain = (String) options.get("localValidationSecurityDomain");
 
-            if (localValidationSecurityDomain.startsWith(SecurityConstants.JAAS_CONTEXT_ROOT) == false)
+            if (localValidationSecurityDomain == null) {
+               logger.error(ErrorCodes.LOCAL_VALIDATION_SEC_DOMAIN_MUST_BE_SPECIFIED);
+               throw logger.optionNotSet("localValidationSecurityDomain");
+            }
+            
+            if (localValidationSecurityDomain.startsWith("java:") == false)
                 localValidationSecurityDomain = SecurityConstants.JAAS_CONTEXT_ROOT + "/" + localValidationSecurityDomain;
 
             String localTestingOnlyStr = (String) options.get("localTestingOnly");
@@ -242,9 +297,21 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             }
         }
         
-        String compression = (String)this.options.get(TOKEN_COMPRESSION_TYPE_KEY);
-        if (compression != null) {
-            this.tokenCompression = compression;
+        samlTokenHttpHeader = (String)this.options.get(SAML_TOKEN_HTTP_HEADER_KEY);
+
+        String encoding = (String)this.options.get(TOKEN_ENCODING_TYPE_KEY);
+        if (encoding != null) {
+            this.tokenEncoding = encoding;
+        }
+
+        samlTokenHttpHeaderRegEx = (String)this.options.get(REG_EX_PATTERN_KEY);
+        if (samlTokenHttpHeaderRegEx != null) {
+            this.pattern = Pattern.compile(samlTokenHttpHeaderRegEx, Pattern.DOTALL);
+        }    
+        
+        String group = (String)this.options.get(REG_EX_GROUP_KEY);
+        if (group != null) {
+            samlTokenHttpHeaderRegExGroup = Integer.parseInt(group);
         }
     }
 
@@ -276,23 +343,26 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             return true;
         }
 
-        // if there is no shared data, validate the assertion using the STS.
-        if (this.stsConfigurationFile == null)
-            throw logger.authSTSConfigFileNotFound();
-
         // obtain the assertion from the callback handler.
-        SAMLCallback callback = new SAMLCallback(this.tokenCompression);
+        ObjectCallback callback = new ObjectCallback(null);
         Element assertionElement = null;
         try {
-            super.callbackHandler.handle(new Callback[] { callback });
-            if (callback.getCredential() instanceof SamlCredential == false)
-                throw logger.authSharedCredentialIsNotSAMLCredential(callback.getCredential().getClass().getName());
-            this.credential = (SamlCredential) callback.getCredential();
+            if (samlTokenHttpHeader != null) {
+                this.credential = getCredentialFromHttpRequest();
+            }
+            else {
+                super.callbackHandler.handle(new Callback[] { callback });
+                if (callback.getCredential() instanceof SamlCredential == false)
+                    throw logger.authSharedCredentialIsNotSAMLCredential(callback.getCredential().getClass().getName());
+                this.credential = (SamlCredential) callback.getCredential();
+            }
             assertionElement = this.credential.getAssertionAsElement();
         } catch (Exception e) {
             throw logger.authErrorHandlingCallback(e);
         }
-
+    
+        
+        // if there is no shared data, validate the assertion using the STS.
         if (localValidation) {
             logger.trace("Local Validation is being Performed");
             try {
@@ -307,6 +377,10 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             }
         } else {
             logger.trace("Local Validation is disabled. Verifying with STS");
+
+            // sts config file has to be present to call STS (using sts client)
+            if (this.stsConfigurationFile == null)
+                throw logger.authSTSConfigFileNotFound();
 
             // send the assertion to the STS for validation.
             STSClient client = this.getSTSClient();
@@ -356,6 +430,45 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             super.sharedState.put("javax.security.auth.login.password", this.credential);
         }
         return (super.loginOk = true);
+    }
+    
+    
+
+    /* (non-Javadoc)
+     * @see org.jboss.security.auth.spi.AbstractServerLoginModule#commit()
+     */
+    @Override
+    public boolean commit() throws LoginException {
+        if (super.commit()) {
+            final boolean added = subject.getPublicCredentials().add(this.credential);
+            if (added && logger.isTraceEnabled())
+                logger.trace("Added Credential " + this.credential);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Called if the overall authentication failed (phase 2).
+     */
+    @Override
+    public boolean abort() throws LoginException {
+        clearState();
+        super.abort();
+        return true;
+    }
+
+    @Override
+    public boolean logout() throws LoginException {
+        clearState();
+        super.logout();
+        return true;
+    }
+
+    private void clearState() {
+        AbstractSTSLoginModule.removeAllSamlCredentials(subject);
+        credential = null;
     }
 
     /*
@@ -455,6 +568,45 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
         }
         return client;
     }
+    
+    protected SamlCredential getCredentialFromHttpRequest() throws Exception {
+        
+        HttpServletRequest request = (HttpServletRequest) PolicyContext.getContext(WEB_REQUEST_KEY);
+        String encodedSamlToken = null;
+        if (samlTokenHttpHeaderRegEx != null && !samlTokenHttpHeaderRegEx.equals("")) {
+            String content = request.getHeader(samlTokenHttpHeader);
+            if (logger.isTraceEnabled()) {
+                log.trace("http header with SAML token [" + samlTokenHttpHeader + "]=" + content);
+            }
+            log.trace("samlTokenHttpHeaderRegEx="+samlTokenHttpHeaderRegEx);
+            Matcher m = pattern.matcher(content);
+            m.matches();
+            log.trace("samlTokenHttpHeaderRegExGroup="+samlTokenHttpHeaderRegExGroup);
+            encodedSamlToken = m.group(samlTokenHttpHeaderRegExGroup);
+        }
+        else {
+            encodedSamlToken = request.getHeader(samlTokenHttpHeader);
+        }
+        if (logger.isTraceEnabled()) {
+            logger.trace("encodedSamlToken="+encodedSamlToken);
+        }
+
+        String samlToken = null;
+        if (tokenEncoding.equals(NONE_TOKEN_ENCODING)
+                || tokenEncoding == null) {
+            samlToken = encodedSamlToken;
+        }
+        else { 
+            // gzip and base64 encodings are handled in this Base64.decode call
+            byte[] decompressed = Base64.decode(encodedSamlToken);
+            samlToken = new String(decompressed);
+        }
+        if (logger.isTraceEnabled()) {
+            logger.trace("decoded samlToken="+samlToken);
+        }
+        
+        return new SamlCredential(samlToken);
+    }
 
     /**
      * Locally validate the SAML Assertion element
@@ -466,4 +618,32 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
     protected abstract boolean localValidation(Element assertionElement) throws Exception;
 
     protected abstract TimeCacheExpiry getCacheExpiry() throws Exception;
+
+    /**
+     * @return the tokenEncoding
+     */
+    public String getTokenEncoding() {
+        return tokenEncoding;
+    }
+
+    /**
+     * @return the samlTokenHttpHeader
+     */
+    public String getSamlTokenHttpHeader() {
+        return samlTokenHttpHeader;
+    }
+
+    /**
+     * @return the samlTokenHttpHeaderRegEx
+     */
+    public String getSamlTokenHttpHeaderRegEx() {
+        return samlTokenHttpHeaderRegEx;
+    }
+
+    /**
+     * @return the samlTokenHttpHeaderRegExGroup
+     */
+    public int getSamlTokenHttpHeaderRegExGroup() {
+        return samlTokenHttpHeaderRegExGroup;
+    }
 }
