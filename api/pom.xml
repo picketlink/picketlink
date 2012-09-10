@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.jboss.picketlink</groupId>
         <artifactId>picketlink-cdi-parent</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0-20120910</version>
 	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>org.jboss.picketlink</groupId>
     <artifactId>picketlink-cdi-api</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-20120910</version>
     <packaging>jar</packaging>
 
     <name>PicketLink CDI Integration API</name>
