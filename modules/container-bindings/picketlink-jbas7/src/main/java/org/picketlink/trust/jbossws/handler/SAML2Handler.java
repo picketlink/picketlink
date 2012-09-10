@@ -48,7 +48,10 @@ public class SAML2Handler extends AbstractSAML2Handler {
     protected void createSecurityContext(SamlCredential credential,final  Subject theSubject, final Principal principal) {
         super.createSecurityContext(credential, theSubject, principal);
         org.apache.cxf.security.SecurityContext secContext = createCXFSecurityContext(theSubject, principal);
-        PhaseInterceptorChain.getCurrentMessage().put(org.apache.cxf.security.SecurityContext.class, secContext);
+        
+        if (PhaseInterceptorChain.getCurrentMessage() != null) {
+            PhaseInterceptorChain.getCurrentMessage().put(org.apache.cxf.security.SecurityContext.class, secContext);            
+        }
     }
 
     /**
