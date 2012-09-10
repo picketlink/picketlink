@@ -294,7 +294,10 @@ public class STSClientConfig {
                 String batchStr = properties.getProperty(IS_BATCH);
                 this.isBatch = StringUtil.isNotNull(batchStr) ? Boolean.parseBoolean(batchStr) : false;
                 this.requestType = properties.getProperty(REQUEST_TYPE);
-                this.soapBinding = properties.getProperty(SOAP_BINDING);
+                
+                if (!StringUtil.isNullOrEmpty(properties.getProperty(SOAP_BINDING))) {
+                    this.soapBinding = properties.getProperty(SOAP_BINDING);                    
+                }
                 
                 if (this.password.startsWith(PicketLinkFederationConstants.PASS_MASK_PREFIX)) {
                     // password is masked
