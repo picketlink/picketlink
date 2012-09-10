@@ -30,9 +30,9 @@
     </developers>    
 
     <properties>    
-        <picketlink.idm.version>2.0-SNAPSHOT</picketlink.idm.version>
+        <picketlink.idm.version>2.0-20120910</picketlink.idm.version>
         <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
-	      <deltaspike.version>0.3-incubating</deltaspike.version>
+        <deltaspike.version>0.3-incubating</deltaspike.version>
         <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
         <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
         <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>	      
