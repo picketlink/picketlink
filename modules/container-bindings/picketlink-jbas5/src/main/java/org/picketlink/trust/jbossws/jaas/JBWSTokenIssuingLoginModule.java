@@ -38,7 +38,6 @@ import javax.xml.namespace.QName;
 import javax.xml.soap.SOAPElement;
 import javax.xml.soap.SOAPException;
 import javax.xml.soap.SOAPFactory;
-import javax.xml.stream.events.Namespace;
 import javax.xml.transform.Source;
 import javax.xml.ws.Binding;
 import javax.xml.ws.Dispatch;
@@ -50,9 +49,9 @@ import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrinc
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.SamlCredential;
+import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.auth.STSIssuingLoginModule;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
@@ -62,7 +61,6 @@ import org.picketlink.trust.jbossws.PicketLinkDispatch;
 import org.picketlink.trust.jbossws.handler.BinaryTokenHandler;
 import org.picketlink.trust.jbossws.handler.MapBasedTokenHandler;
 import org.picketlink.trust.jbossws.handler.SAML2Handler;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
