@@ -17,12 +17,6 @@ public class SecurityDefinitionException extends SecurityException
         super(message);
     }
 
-    @SuppressWarnings("UnusedDeclaration")
-    public SecurityDefinitionException(Throwable cause)
-    {
-        super(cause);
-    }
-
     public SecurityDefinitionException(String message, Throwable cause) 
     {
         super(message, cause);

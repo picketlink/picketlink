@@ -40,7 +40,7 @@ public interface IdentifierStrategy
      * @param resource
      * @return
      */
-    Serializable getIdentifierValue(Object resource);
+    Serializable getNaturalIdentifier(Object resource);
     
     /**
      * Returns the resource instance for the specified identifier

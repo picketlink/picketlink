@@ -105,14 +105,12 @@ public class JPAPermissionStore implements PermissionStore
             {
                 Query permissionQuery = buildPermissionQuery(meta, query, em);
                                
-                //List<Object> identifiers = new ArrayList<String>();
+                // List<Object> identifiers = new ArrayList<String>();
                 
                 for (Object result : permissionQuery.getResultList())
                 {
                     // TODO we need a consistent way to marshal/unmarshal permission values (i.e. "read", "write", etc)
                     Object identifier = meta.getAclIdentifier().getValue(result);
-                    
-                    
                     
                     //if (resultMap.containsKey(key))
                     
@@ -120,7 +118,7 @@ public class JPAPermissionStore implements PermissionStore
                     //meta.
                 }
                 
-                //Map<String,Object> resourceLookup = identifierPolicy.lookupResources(identifiers, loadedResources)                
+                // Map<String,Object> resourceLookup = identifierPolicy.lookupResources(identifiers, loadedResources)                
             }
         }
                 

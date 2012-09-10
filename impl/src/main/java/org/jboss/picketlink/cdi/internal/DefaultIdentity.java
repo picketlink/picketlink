@@ -67,7 +67,7 @@ public class DefaultIdentity implements Identity
     }
 
     @Override
-    public AuthenticationResult login() 
+    public AuthenticationResult login()
     {
         try 
         {
@@ -94,7 +94,7 @@ public class DefaultIdentity implements Identity
             beanManager.fireEvent(new LoginFailedEvent(null));
             return AuthenticationResult.FAILED;
         } 
-        catch (Exception e) 
+        catch (Throwable e) 
         {
             //X TODO discuss special handling of UnexpectedCredentialException
             beanManager.fireEvent(new LoginFailedEvent(e));
@@ -151,7 +151,7 @@ public class DefaultIdentity implements Identity
                 return true;
             }
         } 
-        catch (Exception ex) 
+        catch (Throwable ex) 
         {
             if (ex instanceof AuthenticationException)
             {

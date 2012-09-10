@@ -34,7 +34,7 @@ public class ClassIdentifierStrategy implements IdentifierStrategy
         return getIdentifierName((Class<?>) resource);
     }
 
-    public Serializable getIdentifierValue(Object resource) 
+    public Serializable getNaturalIdentifier(Object resource) 
     {
         // The identifier value is the same as getIdentifier()
         return getIdentifier(resource);
@@ -65,5 +65,17 @@ public class ClassIdentifierStrategy implements IdentifierStrategy
         }
 
         return identifierNames.get(cls);
+    }
+
+    @Override
+    public boolean canLoadResource(String identifier) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public Object lookupResource(String identifier) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

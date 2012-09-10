@@ -2,6 +2,7 @@ package org.jboss.picketlink.cdi;
 
 import java.io.Serializable;
 
+import org.jboss.picketlink.cdi.authentication.AuthenticationException;
 import org.jboss.picketlink.idm.model.User;
 
 /**

@@ -99,7 +99,7 @@ public class IdentifierPolicy
     public Serializable getIdentifierValue(Object resource)
     {
         IdentifierStrategy strategy = getStrategyForResource(resource);
-        return strategy != null ? strategy.getIdentifierValue(resource) : null;
+        return strategy != null ? strategy.getNaturalIdentifier(resource) : null;
     }
     
     private IdentifierStrategy getStrategyForIdentifier(String identifier)

@@ -7,14 +7,14 @@ package org.jboss.picketlink.cdi.authentication.event;
  */
 public class LoginFailedEvent 
 {
-    private Exception loginException;
+    private Throwable loginException;
 
-    public LoginFailedEvent(Exception loginException) 
+    public LoginFailedEvent(Throwable loginException) 
     {
         this.loginException = loginException;
     }
 
-    public Exception getLoginException() 
+    public Throwable getLoginException() 
     {
         return loginException;
     }
