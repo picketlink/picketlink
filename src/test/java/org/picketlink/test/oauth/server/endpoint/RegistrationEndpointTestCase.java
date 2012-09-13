@@ -25,7 +25,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.URL;
 import java.util.Date;
 
 import org.apache.amber.oauth2.client.URLConnectionClient;
@@ -35,14 +34,7 @@ import org.apache.amber.oauth2.ext.dynamicreg.client.OAuthRegistrationClient;
 import org.apache.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
 import org.apache.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
 import org.apache.amber.oauth2.ext.dynamicreg.common.OAuthRegistration;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
-import org.junit.After;
 import org.junit.Test;
-import org.picketbox.test.http.jetty.EmbeddedWebServerBase;
-import org.picketbox.test.ldap.LDAPTestUtil;
-import org.picketlink.oauth.PicketLinkOAuthApplication;
 import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
 
 /**
@@ -51,75 +43,28 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  * @author anil saldhana
  * @since Aug 28, 2012
  */
-public class RegistrationEndpointTestCase extends EmbeddedWebServerBase {
-    protected LDAPTestUtil testUtil = null;
-
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
-        if (testUtil != null) {
-            testUtil.tearDown();
-        }
-    }
+public class RegistrationEndpointTestCase extends EndpointTestBase { 
 
     @Override
-    protected void establishUserApps() {
-        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-        if (tcl == null) {
-            tcl = getClass().getClassLoader();
-        }
-
-        final String WEBAPPDIR = "oauth";
-
-        final String CONTEXTPATH = "/*";
-
-        // for localhost:port/admin/index.html and whatever else is in the webapp directory
-        final URL warUrl = tcl.getResource(WEBAPPDIR);
-        final String warUrlString = warUrl.toExternalForm();
-
-        // WebAppContext context = new WebAppContext(warUrlString, CONTEXTPATH);
-        WebAppContext context = createWebApp(CONTEXTPATH, warUrlString);
-
-        context.setContextPath("/");
-        ServletHolder servletHolder = new ServletHolder(new HttpServletDispatcher());
-        servletHolder.setInitParameter("javax.ws.rs.Application", PicketLinkOAuthApplication.class.getName());
-        context.addServlet(servletHolder, "/*");
-
-        // context.setParentLoaderPriority(true);
-        server.setHandler(context);
-
-        // Deal with LDAP Server
-        try {
-            testUtil = new LDAPTestUtil();
-            testUtil.setup();
-            testUtil.createBaseDN("jboss", "dc=jboss,dc=org");
-            testUtil.importLDIF("ldap/users.ldif");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    protected boolean needLDAP() {
+        return true;
     }
 
-    String registrationEndpoint = "http://localhost:11080/oauth/register";
-    String redirectURL = "http://localhost:11080/oauth/register";
-    String clientID = "test_id";
+    private String registrationEndpoint = "http://localhost:11080/oauth/register"; 
 
-    String APP_NAME = "Sample Application";
-    String APP_URL = "http://www.example.com";
-    String APP_ICON = "http://www.example.com/app.ico";
-    String APP_DESCRIPTION = "Description of a Sample App";
-    String APP_REDIRECT_URI = "http://www.example.com/redirect";
-
-    String CLIENT_ID = "someclientid";
-    String CLIENT_SECRET = "someclientsecret";
-    String ISSUED_AT = "0123456789";
-    Long EXPIRES_IN = 987654321l;
+    private String appName = "Sample Application";
+    private String appURL = "http://www.example.com";
+    private String appIcon = "http://www.example.com/app.ico";
+    private String appDescription = "Description of a Sample App";
+    private String appRedirectURL = "http://www.example.com/redirect";
+   
 
     @Test
     public void testRegistration() throws Exception {
 
         OAuthClientRequest request = OAuthClientRegistrationRequest.location(registrationEndpoint, OAuthRegistration.Type.PUSH)
-                .setName(APP_NAME).setUrl(APP_URL).setDescription(APP_DESCRIPTION).setIcon(APP_ICON)
-                .setRedirectURL(APP_REDIRECT_URI).buildJSONMessage();
+                .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon)
+                .setRedirectURL(appRedirectURL).buildJSONMessage();
 
         OAuthRegistrationClient oauthclient = new OAuthRegistrationClient(new URLConnectionClient());
         OAuthClientRegistrationResponse response = oauthclient.clientInfo(request);
@@ -139,8 +84,8 @@ public class RegistrationEndpointTestCase extends EmbeddedWebServerBase {
     public void testInvalidType() throws Exception {
 
         OAuthClientRequest request = OAuthClientRegistrationRequest.location(registrationEndpoint, "unknown_type")
-                .setName(APP_NAME).setUrl(APP_URL).setDescription(APP_DESCRIPTION).setIcon(APP_ICON)
-                .setRedirectURL(APP_REDIRECT_URI).buildBodyMessage();
+                .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon)
+                .setRedirectURL(appRedirectURL).buildBodyMessage();
 
         OAuthRegistrationClient oauthclient = new OAuthRegistrationClient(new URLConnectionClient());
         try {

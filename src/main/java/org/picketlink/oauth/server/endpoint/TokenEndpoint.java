@@ -21,8 +21,13 @@
  */
 package org.picketlink.oauth.server.endpoint;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
+import java.util.List;
+import java.util.Properties;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -44,6 +49,12 @@ import org.apache.amber.oauth2.common.exception.OAuthProblemException;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.OAuthResponse;
 import org.apache.amber.oauth2.common.message.types.GrantType;
+import org.jboss.picketlink.idm.IdentityManager;
+import org.jboss.picketlink.idm.internal.DefaultIdentityManager;
+import org.jboss.picketlink.idm.internal.LDAPIdentityStore;
+import org.jboss.picketlink.idm.internal.config.LDAPConfiguration;
+import org.jboss.picketlink.idm.model.User;
+import org.jboss.picketlink.idm.query.UserQuery;
 
 /**
  * Token End Point
@@ -58,10 +69,20 @@ public class TokenEndpoint implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    protected IdentityManager identityManager = null;
+
+    @Context
+    protected ServletContext context;
+
     @POST
     @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
     public Response authorize(@Context HttpServletRequest request) throws OAuthSystemException {
+        try {
+            handleIdentityManager();
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
+        }
 
         OAuthTokenRequest oauthRequest = null;
 
@@ -69,14 +90,34 @@ public class TokenEndpoint implements Serializable {
 
         try {
             oauthRequest = new OAuthTokenRequest(request);
+
+            String passedClientID = oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID);
+
+            UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID",
+                    new String[] { passedClientID });
+            List<User> users = userQuery.executeQuery();
+
+            if (users.size() == 0) {
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
+
+            if (users.size() > 1) {
+                throw new RuntimeException("More than one user with the same client id");
+            }
+
+            User clientApp = users.get(0);
+
             // Get the values from DB
-            String clientID = "xyz";
-            String authorizationCode = "123";
+            String clientID = clientApp.getAttribute("clientID");
+            String authorizationCode = clientApp.getAttribute("authorizationCode");
             String password = "something";
             String username = "yz";
 
             // check if clientid is valid
-            if (!clientID.equals(oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID))) {
+            if (!clientID.equals(passedClientID)) {
                 OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
                         .buildJSONMessage();
@@ -105,8 +146,11 @@ public class TokenEndpoint implements Serializable {
                 return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
             }
 
-            OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK)
-                    .setAccessToken(oauthIssuerImpl.accessToken()).setExpiresIn("3600").buildJSONMessage();
+            String accessToken = oauthIssuerImpl.accessToken();
+            clientApp.setAttribute("accessToken", accessToken);
+
+            OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken)
+                    .setExpiresIn("3600").buildJSONMessage();
 
             return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
         } catch (OAuthProblemException e) {
@@ -127,68 +171,36 @@ public class TokenEndpoint implements Serializable {
         return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
     }
 
-    /*
-     * @Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-     * IOException { try { OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
-     *
-     * OAuthResponse oauthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK)
-     * .setAccessToken(oauthIssuerImpl.accessToken()).setExpiresIn("3600").buildJSONMessage();
-     *
-     * response.setStatus(oauthResponse.getResponseStatus()); PrintWriter pw = response.getWriter();
-     * pw.print(oauthResponse.getBody()); pw.flush(); pw.close(); } catch (OAuthSystemException e) { OAuthResponse r; try { r =
-     * OAuthResponse.errorResponse(401).error(OAuthProblemException.error(e.getMessage())).buildJSONMessage();
-     *
-     * response.setStatus(r.getResponseStatus());
-     *
-     * PrintWriter pw = response.getWriter(); pw.print(r.getBody()); pw.flush(); pw.close();
-     *
-     * response.sendError(401); } catch (OAuthSystemException e1) { e1.printStackTrace(); } } }
-     *
-     * @Override protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-     * IOException { OAuthTokenRequest oauthRequest = null;
-     *
-     * OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
-     *
-     * try { oauthRequest = new OAuthTokenRequest(request);
-     *
-     * // Get the values from DB String clientID = "xyz"; String authorizationCode = "123"; String password = "something";
-     * String username = "yz";
-     *
-     * // check if clientid is valid if (!clientID.equals(oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID))) { OAuthResponse
-     * oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-     * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found") .buildJSONMessage();
-     * sendOauthMessage(response, oauthResponse); return; }
-     *
-     * // do checking for different grant types if
-     * (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.AUTHORIZATION_CODE.toString())) { if
-     * (!authorizationCode.equals(oauthRequest.getParam(OAuth.OAUTH_CODE))) { OAuthResponse oauthResponse =
-     * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-     * .setError(OAuthError.TokenResponse.INVALID_GRANT).setErrorDescription("invalid authorization code") .buildJSONMessage();
-     * sendOauthMessage(response, oauthResponse); return; } } else if
-     * (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) { if
-     * (!password.equals(oauthRequest.getPassword()) || !username.equals(oauthRequest.getUsername())) { OAuthResponse
-     * oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-     * .setError(OAuthError.TokenResponse.INVALID_GRANT)
-     * .setErrorDescription("invalid username or password").buildJSONMessage(); sendOauthMessage(response, oauthResponse);
-     * return; } } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.REFRESH_TOKEN.toString())) {
-     * OAuthResponse oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-     * .setError(OAuthError.TokenResponse.INVALID_GRANT).setErrorDescription("Wrong Grant Type:Refresh Token")
-     * .buildJSONMessage(); sendOauthMessage(response, oauthResponse); return; }
-     *
-     * OAuthResponse oauthResponse = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK)
-     * .setAccessToken(oauthIssuerImpl.accessToken()).setExpiresIn("3600").buildJSONMessage(); sendOauthMessage(response,
-     * oauthResponse);
-     *
-     * return; } catch (OAuthProblemException e) { try { OAuthResponse oauthResponse =
-     * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e) .buildJSONMessage();
-     * sendOauthMessage(response, oauthResponse); } catch (OAuthSystemException e1) { // TODO Auto-generated catch block
-     * e1.printStackTrace(); } return; } catch (OAuthSystemException e) { try { OAuthResponse oauthResponse =
-     * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-     * .error(OAuthProblemException.error(e.getMessage())).buildJSONMessage(); sendOauthMessage(response, oauthResponse); }
-     * catch (OAuthSystemException e1) { // TODO Auto-generated catch block e1.printStackTrace(); } return; } }
-     *
-     * private void sendOauthMessage(HttpServletResponse response, OAuthResponse oauthResponse) throws IOException {
-     * response.setStatus(oauthResponse.getResponseStatus()); PrintWriter pw = response.getWriter();
-     * pw.print(oauthResponse.getBody()); pw.flush(); pw.close(); }
-     */
+    private void handleIdentityManager() throws IOException {
+        if (identityManager == null) {
+            if (context == null) {
+                throw new RuntimeException("Servlet Context has not been injected");
+            }
+            identityManager = new DefaultIdentityManager();
+            String storeType = context.getInitParameter("storeType");
+            if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
+                LDAPIdentityStore store = new LDAPIdentityStore();
+                LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
+
+                Properties properties = getProperties();
+                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
+                        properties.getProperty("bindCredential"));
+                ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
+                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
+                        properties.getProperty("roleDNSuffix"));
+                ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
+
+                store.setConfiguration(ldapConfiguration);
+
+                ((DefaultIdentityManager) identityManager).setIdentityStore(store);
+            }
+        }
+    }
+
+    private Properties getProperties() throws IOException {
+        Properties properties = new Properties();
+        InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
+        properties.load(is);
+        return properties;
+    }
 }

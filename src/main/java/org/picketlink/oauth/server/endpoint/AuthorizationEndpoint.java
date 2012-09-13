@@ -21,10 +21,15 @@
  */
 package org.picketlink.oauth.server.endpoint;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Properties;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
@@ -38,11 +43,18 @@ import org.apache.amber.oauth2.as.issuer.OAuthIssuerImpl;
 import org.apache.amber.oauth2.as.request.OAuthAuthzRequest;
 import org.apache.amber.oauth2.as.response.OAuthASResponse;
 import org.apache.amber.oauth2.common.OAuth;
+import org.apache.amber.oauth2.common.error.OAuthError;
 import org.apache.amber.oauth2.common.exception.OAuthProblemException;
 import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.OAuthResponse;
 import org.apache.amber.oauth2.common.message.types.ResponseType;
 import org.apache.amber.oauth2.common.utils.OAuthUtils;
+import org.jboss.picketlink.idm.IdentityManager;
+import org.jboss.picketlink.idm.internal.DefaultIdentityManager;
+import org.jboss.picketlink.idm.internal.LDAPIdentityStore;
+import org.jboss.picketlink.idm.internal.config.LDAPConfiguration;
+import org.jboss.picketlink.idm.model.User;
+import org.jboss.picketlink.idm.query.UserQuery;
 
 /**
  * OAuth2 Authorization Endpoint
@@ -55,8 +67,18 @@ import org.apache.amber.oauth2.common.utils.OAuthUtils;
 public class AuthorizationEndpoint implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    protected IdentityManager identityManager = null;
+
+    @Context
+    protected ServletContext context;
+
     @GET
     public Response authorize(@Context HttpServletRequest request) throws URISyntaxException, OAuthSystemException {
+        try {
+            handleIdentityManager();
+        } catch (IOException e1) {
+            throw new RuntimeException(e1);
+        }
 
         OAuthAuthzRequest oauthRequest = null;
 
@@ -65,6 +87,34 @@ public class AuthorizationEndpoint implements Serializable {
         try {
             oauthRequest = new OAuthAuthzRequest(request);
 
+            String passedClientID = oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID);
+            UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID",
+                    new String[] { passedClientID });
+            List<User> users = userQuery.executeQuery();
+            if (users.size() == 0) {
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
+            if (users.size() > 1) {
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Multiple client_id found")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
+
+            User clientApp = users.get(0);
+            String clientID = clientApp.getAttribute("clientID");
+
+            // check if clientid is valid
+            if (!clientID.equals(passedClientID)) {
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
+
             // build response according to response_type
             String responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE);
 
@@ -72,12 +122,14 @@ public class AuthorizationEndpoint implements Serializable {
                     HttpServletResponse.SC_FOUND);
 
             if (responseType.equals(ResponseType.CODE.toString())) {
-                builder.setCode(oauthIssuerImpl.authorizationCode());
+                String authorizationCode = oauthIssuerImpl.authorizationCode();
+                clientApp.setAttribute("authorizationCode", authorizationCode);
+                builder.setCode(authorizationCode);
             }
-            if (responseType.equals(ResponseType.TOKEN.toString())) {
-                builder.setAccessToken(oauthIssuerImpl.accessToken());
-                builder.setExpiresIn(3600L);
-            }
+            /*
+             * if (responseType.equals(ResponseType.TOKEN.toString())) { builder.setAccessToken(oauthIssuerImpl.accessToken());
+             * builder.setExpiresIn(3600L); }
+             */
 
             String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
 
@@ -102,43 +154,37 @@ public class AuthorizationEndpoint implements Serializable {
             return responseBuilder.location(location).build();
         }
     }
-    /*
-     * @Override protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-     * IOException { OAuthAuthzRequest oauthRequest = null;
-     *
-     * OAuthIssuerImpl oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
-     *
-     * try { oauthRequest = new OAuthAuthzRequest(request);
-     *
-     * // build response according to response_type String responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE);
-     *
-     * OAuthASResponse.OAuthAuthorizationResponseBuilder builder = OAuthASResponse.authorizationResponse(request,
-     * HttpServletResponse.SC_FOUND);
-     *
-     * if (responseType.equals(ResponseType.CODE.toString())) { builder.setCode(oauthIssuerImpl.authorizationCode()); } if
-     * (responseType.equals(ResponseType.TOKEN.toString())) { builder.setAccessToken(oauthIssuerImpl.accessToken());
-     * builder.setExpiresIn(3600L); }
-     *
-     * String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI); if (redirectURI == null) { throw
-     * OAuthProblemException.error(OAuth.OAUTH_REDIRECT_URI + " needed"); }
-     *
-     * final OAuthResponse oauthResponse = builder.location(redirectURI).buildQueryMessage();
-     *
-     * response.sendRedirect(oauthResponse.getLocationUri());
-     *
-     * } catch (OAuthProblemException e) {
-     *
-     * String redirectUri = e.getRedirectUri();
-     *
-     * if (OAuthUtils.isEmpty(redirectUri)) { throw new ServletException("OAuth callback url needs to be provided by client!!!:"
-     * + e); } try { final OAuthResponse oauthResponse = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND).error(e)
-     * .location(redirectUri).buildQueryMessage(); sendOauthMessage(response, oauthResponse); } catch (OAuthSystemException e1)
-     * { throw new RuntimeException(e1); } } catch (OAuthSystemException e) { throw new
-     * ServletException("OAuth callback url needs to be provided by client!!!"); } }
-     *
-     * private void sendOauthMessage(HttpServletResponse response, OAuthResponse oauthResponse) throws IOException {
-     * response.setStatus(oauthResponse.getResponseStatus()); PrintWriter pw = response.getWriter(); String oauthResponseBody =
-     * oauthResponse.getBody(); pw.print(oauthResponseBody); pw.flush(); pw.close(); }
-     */
 
+    private void handleIdentityManager() throws IOException {
+        if (identityManager == null) {
+            if (context == null) {
+                throw new RuntimeException("Servlet Context has not been injected");
+            }
+            identityManager = new DefaultIdentityManager();
+            String storeType = context.getInitParameter("storeType");
+            if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
+                LDAPIdentityStore store = new LDAPIdentityStore();
+                LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
+
+                Properties properties = getProperties();
+                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
+                        properties.getProperty("bindCredential"));
+                ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
+                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
+                        properties.getProperty("roleDNSuffix"));
+                ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
+
+                store.setConfiguration(ldapConfiguration);
+
+                ((DefaultIdentityManager) identityManager).setIdentityStore(store);
+            }
+        }
+    }
+
+    private Properties getProperties() throws IOException {
+        Properties properties = new Properties();
+        InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
+        properties.load(is);
+        return properties;
+    }
 }

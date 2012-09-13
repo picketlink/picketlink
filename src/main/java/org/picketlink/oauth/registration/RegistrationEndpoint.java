@@ -60,12 +60,12 @@ import org.jboss.picketlink.idm.model.User;
 @Path("/register")
 public class RegistrationEndpoint implements Serializable {
     private static final long serialVersionUID = 1L;
-    
+
     protected IdentityManager identityManager = null;
-    
+
     @Context
-    ServletContext context;
-    
+    protected ServletContext context;
+
     @POST
     @Consumes("application/json")
     @Produces("application/json")
@@ -75,7 +75,7 @@ public class RegistrationEndpoint implements Serializable {
         } catch (IOException e1) {
             throw new RuntimeException(e1);
         }
-        
+
         OAuthServerRegistrationRequest oauthRequest = null;
         try {
             oauthRequest = new OAuthServerRegistrationRequest(new JSONHttpServletRequestWrapper(request));
@@ -87,7 +87,7 @@ public class RegistrationEndpoint implements Serializable {
 
             String generatedClientID = generateClientID(); // TODO: store in DB
             String generatedSecret = generateClientSecret();
-            
+
             User user = identityManager.createUser(clientName);
             user.setAttribute("url", clientURL);
 
@@ -95,7 +95,7 @@ public class RegistrationEndpoint implements Serializable {
             user.setAttribute("redirectURI", clientRedirectURI);
             user.setAttribute("clientID", generatedClientID);
             user.setAttribute("clientSecret", generatedSecret);
-            
+
             OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
                     .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
                     .setExpiresIn("3600").buildJSONMessage();
@@ -107,60 +107,39 @@ public class RegistrationEndpoint implements Serializable {
             return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
         }
     }
-    
-    private void handleIdentityManager() throws IOException{
-        if(identityManager == null){
-            if(context == null){
+
+    private void handleIdentityManager() throws IOException {
+        if (identityManager == null) {
+            if (context == null) {
                 throw new RuntimeException("Servlet Context has not been injected");
             }
             identityManager = new DefaultIdentityManager();
             String storeType = context.getInitParameter("storeType");
-            if(storeType == null || "ldap".equalsIgnoreCase(storeType)){
+            if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
                 LDAPIdentityStore store = new LDAPIdentityStore();
                 LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
-                
+
                 Properties properties = getProperties();
-                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(properties.getProperty("bindCredential"));
+                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
+                        properties.getProperty("bindCredential"));
                 ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
-                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(properties.getProperty("roleDNSuffix"));
+                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
+                        properties.getProperty("roleDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
-                
+
                 store.setConfiguration(ldapConfiguration);
-                
-                ((DefaultIdentityManager)identityManager).setIdentityStore(store);
+
+                ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
         }
     }
-    
-    private Properties getProperties() throws IOException{
+
+    private Properties getProperties() throws IOException {
         Properties properties = new Properties();
         InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
         properties.load(is);
         return properties;
     }
-
-    /*
-     * @Override protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-     * IOException { OAuthServerRegistrationRequest oauthRequest = null; try { oauthRequest = new
-     * OAuthServerRegistrationRequest(new JSONHttpServletRequestWrapper(request)); oauthRequest.discover();
-     * oauthRequest.getClientName(); oauthRequest.getClientUrl(); oauthRequest.getClientDescription();
-     * oauthRequest.getRedirectURI();
-     *
-     * String generatedClientID = generateClientID(); //TODO: store in DB String generatedSecret = generateClientSecret();
-     *
-     * OAuthResponse oauthResponse = OAuthServerRegistrationResponse .status(HttpServletResponse.SC_OK)
-     * .setClientId(generatedClientID) .setClientSecret(generatedSecret) .setIssuedAt(getCurrentTime()+"") .setExpiresIn("3600")
-     * .buildJSONMessage(); sendOauthMessage(response, oauthResponse); } catch (OAuthProblemException e) { try { OAuthResponse
-     * oauthResponse = OAuthServerRegistrationResponse .errorResponse(HttpServletResponse.SC_BAD_REQUEST) .error(e)
-     * .buildJSONMessage(); sendOauthMessage(response, oauthResponse); } catch (OAuthSystemException e1) { // TODO
-     * Auto-generated catch block e1.printStackTrace(); } } catch (OAuthSystemException e) { e.printStackTrace(); } }
-     */
-
-    /*
-     * private void sendOauthMessage(HttpServletResponse response, OAuthResponse oauthResponse) throws IOException {
-     * response.setStatus(oauthResponse.getResponseStatus()); PrintWriter pw = response.getWriter();
-     * pw.print(oauthResponse.getBody()); pw.flush(); pw.close(); }
-     */
 
     private String generateClientID() {
         return UUID.randomUUID().toString();

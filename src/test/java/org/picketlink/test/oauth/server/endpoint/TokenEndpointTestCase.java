@@ -25,8 +25,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import java.net.URL;
-
 import org.apache.amber.oauth2.client.OAuthClient;
 import org.apache.amber.oauth2.client.URLConnectionClient;
 import org.apache.amber.oauth2.client.request.OAuthClientRequest;
@@ -36,12 +34,8 @@ import org.apache.amber.oauth2.common.OAuth;
 import org.apache.amber.oauth2.common.error.OAuthError;
 import org.apache.amber.oauth2.common.exception.OAuthProblemException;
 import org.apache.amber.oauth2.common.message.types.GrantType;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.picketbox.test.http.jetty.EmbeddedWebServerBase;
-import org.picketlink.oauth.PicketLinkOAuthApplication;
 import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
 
 /**
@@ -50,36 +44,8 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  * @author anil saldhana
  * @since Aug 28, 2012
  */
-public class TokenEndpointTestCase extends EmbeddedWebServerBase {
-
-    @Override
-    protected void establishUserApps() {
-        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
-        if (tcl == null) {
-            tcl = getClass().getClassLoader();
-        }
-
-        final String WEBAPPDIR = "oauth";
-
-        final String CONTEXTPATH = "/*";
-
-        // for localhost:port/admin/index.html and whatever else is in the webapp directory
-        final URL warUrl = tcl.getResource(WEBAPPDIR);
-        final String warUrlString = warUrl.toExternalForm();
-
-        // WebAppContext context = new WebAppContext(warUrlString, CONTEXTPATH);
-
-        WebAppContext context = createWebApp(CONTEXTPATH, warUrlString);
-
-        context.setContextPath("/");
-        ServletHolder servletHolder = new ServletHolder(new HttpServletDispatcher());
-        servletHolder.setInitParameter("javax.ws.rs.Application", PicketLinkOAuthApplication.class.getName());
-        context.addServlet(servletHolder, "/*");
-
-        // context.setParentLoaderPriority(true);
-        server.setHandler(context);
-
-    }
+@Ignore
+public class TokenEndpointTestCase extends EndpointTestBase {
 
     String tokenEndpoint = "http://localhost:11080/oauth/token";
     String redirectURL = "http://localhost:11080/oauth/register";
