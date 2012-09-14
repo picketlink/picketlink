@@ -33,7 +33,7 @@ public class JPAPermissionStore implements PermissionStore
     private JPAPermissionStoreConfig config;
     
     @Inject
-    private IdentifierPolicy identifierPolicy;
+    private PermissionHandlerPolicy permissionHandlerPolicy;
 
     @Override
     public List<Permission> getPermissions(PermissionQuery query)
@@ -150,11 +150,11 @@ public class JPAPermissionStore implements PermissionStore
              */
             if (meta.getResourceClass() != null)
             {
-                paramValues.put("IDENTIFIER", identifierPolicy.getIdentifierValue(query.getResource()));   
+                paramValues.put("IDENTIFIER", permissionHandlerPolicy.getNaturalIdentifier(query.getResource()));   
             }
             else
             {
-                paramValues.put("IDENTIFIER", identifierPolicy.getIdentifier(query.getResource()));
+                paramValues.put("IDENTIFIER", permissionHandlerPolicy.getGeneratedIdentifier(query.getResource()));
             }
         }
         else if (query.getResources() != null)
@@ -212,11 +212,11 @@ public class JPAPermissionStore implements PermissionStore
                 
                 if (store.getResourceClass() != null)
                 {
-                    store.getAclIdentifier().setValue(p, identifierPolicy.getIdentifierValue(permission.getResource()));
+                    store.getAclIdentifier().setValue(p, permissionHandlerPolicy.getNaturalIdentifier(permission.getResource()));
                 }
                 else
                 {
-                    store.getAclIdentifier().setValue(p, identifierPolicy.getIdentifier(permission.getResource()));
+                    store.getAclIdentifier().setValue(p, permissionHandlerPolicy.getGeneratedIdentifier(permission.getResource()));
                 }
                 store.getAclRecipient().setValue(p, permission.getRecipient().getKey());
                 store.getAclPermission().setValue(p, permission.getPermission());                

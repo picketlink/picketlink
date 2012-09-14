@@ -8,7 +8,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.jboss.picketlink.cdi.permission.IdentifierStrategy;
+import org.jboss.picketlink.cdi.permission.PermissionHandler;
 
 /**
  * Configures the Identifier strategy to use for instance-based permissions.  The specified class
@@ -21,7 +21,7 @@ import org.jboss.picketlink.cdi.permission.IdentifierStrategy;
 @Retention(RUNTIME)
 @Inherited
 public @interface Identifier {
-    Class<? extends IdentifierStrategy> value() default IdentifierStrategy.class;
+    Class<? extends PermissionHandler> value() default PermissionHandler.class;
 
     String name() default "";
 }
