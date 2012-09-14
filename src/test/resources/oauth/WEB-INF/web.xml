@@ -25,6 +25,16 @@
 	<listener>
 		<listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
 	</listener>
+	
+	<filter>
+      <filter-name>oauth</filter-name>
+      <filter-class>org.picketlink.oauth.filters.OAuthResourceFilter</filter-class> 
+    </filter>
+
+    <filter-mapping>
+      <filter-name>oauth</filter-name>
+      <url-pattern>/resource/*</url-pattern>
+    </filter-mapping>
 
 	<servlet>
 		<servlet-name>Resteasy</servlet-name>

@@ -63,8 +63,7 @@ public class AuthorizationEndpointTestCase extends EndpointTestBase {
     private String appRedirectURL = "http://www.example.com/redirect";
     
     @Test
-    public void testEndUserAuthorization() throws Exception {
-       
+    public void testEndUserAuthorization() throws Exception { 
         //Step 1: Perform the registration
         OAuthClientRequest request = OAuthClientRegistrationRequest.location(registrationEndpoint, OAuthRegistration.Type.PUSH)
                 .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon)
@@ -98,6 +97,7 @@ public class AuthorizationEndpointTestCase extends EndpointTestBase {
         c.getResponseCode();
         String msg = c.getResponseMessage();
         // Msg will contain http://localhost:11080/oauth/redirect?code=3c80bf2325fc6e9ef5b84ea4edc6a2ac
+        System.out.println(msg);
         int index = msg.indexOf("http");
         String subString = msg.substring(index + redirectURL.length() + 1);
         Map<String, Object> map = OAuthUtils.decodeForm(subString);

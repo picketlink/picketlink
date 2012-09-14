@@ -126,6 +126,7 @@ public class RegistrationEndpoint implements Serializable {
                 ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
                         properties.getProperty("roleDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
+                ldapConfiguration.setAdditionalProperties(properties);
 
                 store.setConfiguration(ldapConfiguration);
 

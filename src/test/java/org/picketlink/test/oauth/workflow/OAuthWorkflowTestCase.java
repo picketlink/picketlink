@@ -21,12 +21,17 @@
  */
 package org.picketlink.test.oauth.workflow;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Date;
 import java.util.Map;
 
@@ -122,5 +127,39 @@ public class OAuthWorkflowTestCase extends EndpointTestBase{
         
         assertNotNull("Validate access token is null?" ,accessToken);
         assertNotNull("Validate expires is null?", expiresIn);
+        
+        //Now attempt the resource
+        String resourceURL = "http://localhost:11080/oauth/resource";
+        URL resUrl = new URL(resourceURL);
+        URLConnection urlConnection = resUrl.openConnection();
+
+        if (urlConnection instanceof HttpURLConnection) {
+            String body = "access_token=" + accessToken;
+            
+            HttpURLConnection httpURLConnection = (HttpURLConnection)urlConnection;
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setAllowUserInteraction(false);
+            httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            httpURLConnection
+                .setRequestProperty("Content-Length", Integer.toString(body.length()));
+            OutputStream ost = httpURLConnection.getOutputStream();
+            PrintWriter pw = new PrintWriter(ost);
+            pw.print(body);
+            pw.flush();
+            pw.close();
+
+            InputStream inputStream = null;
+            if (httpURLConnection.getResponseCode() == 400) {
+                inputStream = httpURLConnection.getErrorStream();
+            } else {
+                inputStream = httpURLConnection.getInputStream();
+            }
+            String responseBody = OAuthUtils.saveStreamAsString(inputStream);
+            assertEquals("I am a Resource", responseBody);
+        } else {
+            throw new RuntimeException("Wrong url conn");
+        }
     }
+    
 }

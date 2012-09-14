@@ -19,37 +19,35 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.oauth;
+package org.picketlink.oauth.server.endpoint;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.io.Serializable;
+import java.net.URISyntaxException;
 
-import javax.ws.rs.core.Application;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 
-import org.picketlink.oauth.registration.RegistrationEndpoint;
-import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
-import org.picketlink.oauth.server.endpoint.ResourceEndpoint;
-import org.picketlink.oauth.server.endpoint.TokenEndpoint;
+import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 
-@SuppressWarnings(value = { "unchecked", "rawtypes" })
-public class PicketLinkOAuthApplication extends Application {
-    private static Set services = new HashSet();
+/**
+ * OAuth2 Resource Endpoint
+ *
+ * @author anil saldhana
+ * @since Aug 27, 2012
+ */
+@Path("/resource")
+public class ResourceEndpoint implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    public PicketLinkOAuthApplication() {
-        // initialize restful services
-        services.add(new RegistrationEndpoint());
-        services.add(new AuthorizationEndpoint());
-        services.add(new TokenEndpoint());
-        services.add(new ResourceEndpoint());
+    @POST
+    @Consumes("application/x-www-form-urlencoded")
+    @Produces("application/html")
+    public Response authorize(@Context HttpServletRequest request) throws URISyntaxException, OAuthSystemException {
+        return Response.ok().entity("I am a Resource").build();
     }
-
-    @Override
-    public Set getSingletons() {
-        return services;
-    }
-
-    public static Set getServices() {
-        return services;
-    }
-
 }

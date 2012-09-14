@@ -61,7 +61,6 @@ public class RegistrationEndpointTestCase extends EndpointTestBase {
 
     @Test
     public void testRegistration() throws Exception {
-
         OAuthClientRequest request = OAuthClientRegistrationRequest.location(registrationEndpoint, OAuthRegistration.Type.PUSH)
                 .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon)
                 .setRedirectURL(appRedirectURL).buildJSONMessage();
@@ -82,7 +81,6 @@ public class RegistrationEndpointTestCase extends EndpointTestBase {
 
     @Test
     public void testInvalidType() throws Exception {
-
         OAuthClientRequest request = OAuthClientRegistrationRequest.location(registrationEndpoint, "unknown_type")
                 .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon)
                 .setRedirectURL(appRedirectURL).buildBodyMessage();
