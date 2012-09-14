@@ -872,7 +872,8 @@ public class DefaultPicketLinkLogger implements PicketLinkLogger {
      */
     @Override
     public void jceProviderCouldNotBeLoaded(String name, Throwable t) {
-        logger.error("The provider " + name + " could not be added: " + t.getMessage(), t);
+        logger.warn("The provider " + name + " could not be added: " + t.getMessage());
+        logger.warn("Check addJceProvider method of org.picketlink.identity.federation.core.util.ProvidersUtil for more info.");
     }
 
     /*
