@@ -11,8 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import org.jboss.picketlink.cdi.permission.PermissionHandler;
-import org.jboss.picketlink.cdi.permission.annotations.Identifier;
+import org.jboss.picketlink.cdi.permission.annotations.PermissionsHandledBy;
+import org.jboss.picketlink.cdi.permission.spi.PermissionHandler;
 
 /**
  * Manages a set of PermissionHandler instances that overall define a "policy" for 
@@ -150,16 +150,16 @@ public class PermissionHandlerPolicy
 
         if (handler == null)
         {
-            if (resource.getClass().isAnnotationPresent(Identifier.class)) 
+            if (resource.getClass().isAnnotationPresent(PermissionsHandledBy.class)) 
             {
-                Class<? extends PermissionHandler> strategyClass =
-                        resource.getClass().getAnnotation(Identifier.class).value();
+                Class<? extends PermissionHandler> handlerClass =
+                        resource.getClass().getAnnotation(PermissionsHandledBy.class).value();
 
-                if (strategyClass != PermissionHandler.class) 
+                if (handlerClass != PermissionHandler.class) 
                 {
                     try 
                     {
-                        handler = strategyClass.newInstance();
+                        handler = handlerClass.newInstance();
                         handlers.put(resource.getClass(), handler);
                     } 
                     catch (Exception ex) 

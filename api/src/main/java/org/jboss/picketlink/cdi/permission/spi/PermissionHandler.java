@@ -1,4 +1,4 @@
-package org.jboss.picketlink.cdi.permission;
+package org.jboss.picketlink.cdi.permission.spi;
 
 import java.io.Serializable;
 import java.util.Set;

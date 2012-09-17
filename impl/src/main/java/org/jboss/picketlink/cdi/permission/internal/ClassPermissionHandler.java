@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.enterprise.context.Dependent;
 
-import org.jboss.picketlink.cdi.permission.PermissionHandler;
-import org.jboss.picketlink.cdi.permission.annotations.Identifier;
+import org.jboss.picketlink.cdi.permission.annotations.PermissionsHandledBy;
+import org.jboss.picketlink.cdi.permission.spi.PermissionHandler;
 
 /**
  * An Identifier strategy for class-based permission checks
@@ -46,12 +46,12 @@ public class ClassPermissionHandler extends BaseAbstractPermissionHandler implem
         {
             String name = null;
 
-            if (cls.isAnnotationPresent(Identifier.class)) 
+            if (cls.isAnnotationPresent(PermissionsHandledBy.class)) 
             {
-                Identifier identifier = (Identifier) cls.getAnnotation(Identifier.class);
-                if (identifier.name() != null && !"".equals(identifier.name().trim())) 
+                PermissionsHandledBy handledBy = (PermissionsHandledBy) cls.getAnnotation(PermissionsHandledBy.class);
+                if (handledBy.name() != null && !"".equals(handledBy.name().trim())) 
                 {
-                    name = identifier.name();
+                    name = handledBy.name();
                 }
             }
 

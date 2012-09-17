@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jboss.picketlink.cdi.permission.PermissionHandler;
 import org.jboss.picketlink.cdi.permission.annotations.AllowedPermission;
 import org.jboss.picketlink.cdi.permission.annotations.AllowedPermissions;
+import org.jboss.picketlink.cdi.permission.spi.PermissionHandler;
 
 /**
  * Stored resource permissions can either be persisted as a comma-separated list of values, or as a

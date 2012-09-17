@@ -15,8 +15,8 @@ import org.jboss.picketlink.cdi.internal.util.properties.Property;
 import org.jboss.picketlink.cdi.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.jboss.picketlink.cdi.internal.util.properties.query.PropertyQueries;
 import org.jboss.picketlink.cdi.internal.util.properties.query.PropertyQuery;
-import org.jboss.picketlink.cdi.permission.PermissionHandler;
-import org.jboss.picketlink.cdi.permission.annotations.Identifier;
+import org.jboss.picketlink.cdi.permission.annotations.PermissionsHandledBy;
+import org.jboss.picketlink.cdi.permission.spi.PermissionHandler;
 
 /**
  * An Identifier strategy for entity-based permission checks
@@ -62,9 +62,9 @@ public class EntityPermissionHandler extends BaseAbstractPermissionHandler imple
         if (!identifierNames.containsKey(cls)) {
             String name = null;
 
-            if (cls.isAnnotationPresent(Identifier.class)) 
+            if (cls.isAnnotationPresent(PermissionsHandledBy.class)) 
             {
-                Identifier identifier = (Identifier) cls.getAnnotation(Identifier.class);
+                PermissionsHandledBy identifier = (PermissionsHandledBy) cls.getAnnotation(PermissionsHandledBy.class);
                 if (!Strings.isEmpty(identifier.name())) 
                 {
                     name = identifier.name();

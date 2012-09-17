@@ -8,7 +8,7 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.jboss.picketlink.cdi.permission.PermissionHandler;
+import org.jboss.picketlink.cdi.permission.spi.PermissionHandler;
 
 /**
  * Configures the Permission Handler to use for instance-based permissions.  The specified class
