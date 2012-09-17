@@ -11,8 +11,8 @@ import java.lang.annotation.Target;
 import org.jboss.picketlink.cdi.permission.PermissionHandler;
 
 /**
- * Configures the Identifier strategy to use for instance-based permissions.  The specified class
- * should implement the IdentifierStrategy interface.
+ * Configures the Permission Handler to use for instance-based permissions.  The specified class
+ * should implement the PermissionHandler interface.
  *
  * @author Shane Bryzak
  */
@@ -20,7 +20,7 @@ import org.jboss.picketlink.cdi.permission.PermissionHandler;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface Identifier {
+public @interface PermissionsHandledBy {
     Class<? extends PermissionHandler> value() default PermissionHandler.class;
 
     String name() default "";

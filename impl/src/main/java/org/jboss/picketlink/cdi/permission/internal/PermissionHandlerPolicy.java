@@ -44,46 +44,68 @@ public class PermissionHandlerPolicy
             return (String) resource;
         }
 
-        PermissionHandler strategy = getStrategyForResource(resource);
+        PermissionHandler handler = getHandlerForResource(resource);
 
-        return strategy != null ? strategy.getGeneratedIdentifier(resource) : null;
+        return handler != null ? handler.getGeneratedIdentifier(resource) : null;
+    }
+    
+    public Object lookupResource(String identifier, Collection<Object> loadedResources)
+    {
+        Map<String,Object> loadedResourceIdentifiers = loadResourceIdentifiers(loadedResources);
+        if (loadedResourceIdentifiers.containsKey(identifier))
+        {
+            return loadedResourceIdentifiers.get(identifier);
+        }
+        else
+        {
+            PermissionHandler handler = getHandlerForIdentifier(identifier);
+            return handler != null ? handler.lookupResource(identifier) : null;
+        }               
+    }
+    
+    private Map<String,Object> loadResourceIdentifiers(Collection<Object> resources)
+    {
+        if (resources == null || resources.isEmpty())
+        {
+            return null;
+        }
+        
+        Map<String,Object> identifiers = new HashMap<String,Object>();
+        
+        for (Object resource: resources)
+        {
+            PermissionHandler handler = getHandlerForResource(resource);
+            
+            if (handler != null)
+            {
+                String identifier = handler.getGeneratedIdentifier(resource);
+                if (!identifiers.containsKey(identifier))
+                {
+                    identifiers.put(identifier, resource);
+                }
+            }
+        }                
+        
+        return identifiers;
     }
     
     public Map<String,Object> lookupResources(Collection<String> identifiers, Collection<Object> loadedResources)
     {
         Map<String,Object> resources = new HashMap<String,Object>();
-        
-        Map<String,Object> loadedIdentifiers = new HashMap<String,Object>();
-        
-        if (loadedResources != null && !loadedResources.isEmpty())
-        {
-            for (Object resource: loadedResources)
-            {
-                PermissionHandler strategy = getStrategyForResource(resource);
-                
-                if (strategy != null)
-                {
-                    String identifier = strategy.getGeneratedIdentifier(resource);
-                    if (!loadedIdentifiers.containsKey(identifier))
-                    {
-                        loadedIdentifiers.put(identifier, resource);
-                    }
-                }
-            }
-        }
+        Map<String,Object> loadedResourceIdentifiers = loadResourceIdentifiers(loadedResources);
         
         for (String identifier : identifiers)
         {
-            if (loadedIdentifiers.containsKey(identifier))
+            if (loadedResourceIdentifiers.containsKey(identifier))
             {
-                resources.put(identifier, loadedIdentifiers.get(identifier));
+                resources.put(identifier, loadedResourceIdentifiers.get(identifier));
             }
             else
             {
-                PermissionHandler strategy = getStrategyForIdentifier(identifier);
-                if (strategy != null)
+                PermissionHandler handler = getHandlerForIdentifier(identifier);
+                if (handler != null)
                 {
-                    Object resource = strategy.lookupResource(identifier);
+                    Object resource = handler.lookupResource(identifier);
                     if (resource != null)
                     {
                         resources.put(identifier, resource);    
@@ -97,45 +119,51 @@ public class PermissionHandlerPolicy
     
     public Serializable getNaturalIdentifier(Object resource)
     {
-        PermissionHandler strategy = getStrategyForResource(resource);
+        PermissionHandler strategy = getHandlerForResource(resource);
         return strategy != null ? strategy.getNaturalIdentifier(resource) : null;
     }
     
-    private PermissionHandler getStrategyForIdentifier(String identifier)
+    private PermissionHandler getHandlerForIdentifier(String identifier)
     {
-        for (PermissionHandler strategy : handlers.values())
+        for (PermissionHandler handler : handlers.values())
         {
-            if (strategy.canLoadResource(identifier))
+            if (handler.canLoadResource(identifier))
             {
-                return strategy;
+                return handler;
             }
         }
         
-        for (PermissionHandler strategy : registeredHandlers)
+        for (PermissionHandler handler : registeredHandlers)
         {
-            if (strategy.canLoadResource(identifier))
+            if (handler.canLoadResource(identifier))
             {
-                return strategy;
+                return handler;
             }
         }
         
         return null;
     }
     
-    private PermissionHandler getStrategyForResource(Object resource)
+    private PermissionHandler getHandlerForResource(Object resource)
     {
-        PermissionHandler strategy = handlers.get(resource.getClass());
+        PermissionHandler handler = handlers.get(resource.getClass());
 
-        if (strategy == null) {
-            if (resource.getClass().isAnnotationPresent(Identifier.class)) {
+        if (handler == null)
+        {
+            if (resource.getClass().isAnnotationPresent(Identifier.class)) 
+            {
                 Class<? extends PermissionHandler> strategyClass =
                         resource.getClass().getAnnotation(Identifier.class).value();
 
-                if (strategyClass != PermissionHandler.class) {
-                    try {
-                        strategy = strategyClass.newInstance();
-                        handlers.put(resource.getClass(), strategy);
-                    } catch (Exception ex) {
+                if (strategyClass != PermissionHandler.class) 
+                {
+                    try 
+                    {
+                        handler = strategyClass.newInstance();
+                        handlers.put(resource.getClass(), handler);
+                    } 
+                    catch (Exception ex) 
+                    {
                         throw new RuntimeException("Error instantiating IdentifierStrategy for object " + resource, ex);
                     }
                 }
@@ -143,14 +171,14 @@ public class PermissionHandlerPolicy
 
             for (PermissionHandler s : registeredHandlers) {
                 if (s.canHandle(resource.getClass())) {
-                    strategy = s;
-                    handlers.put(resource.getClass(), strategy);
+                    handler = s;
+                    handlers.put(resource.getClass(), handler);
                     break;
                 }
             }
         }
         
-        return strategy;
+        return handler;
     }
 
     public Set<PermissionHandler> getRegisteredHandlers() {

@@ -112,9 +112,12 @@ public class JPAPermissionStore implements PermissionStore
                     // TODO we need a consistent way to marshal/unmarshal permission values (i.e. "read", "write", etc)
                     Object identifier = meta.getAclIdentifier().getValue(result);
                     
+                    Object resource = permissionHandlerPolicy.lookupResource(identifier.toString(), knownResources);
+                    
                     //if (resultMap.containsKey(key))
                     
-                    //results.add(new Permission())
+                    // TODO still need to add the recipient and the permission
+                    results.add(new Permission(resource, null, null));
                     //meta.
                 }
                 
@@ -144,9 +147,9 @@ public class JPAPermissionStore implements PermissionStore
             criteriaText.append(" = :IDENTIFIER");
             
             /*
-             * IF the resource has an exclusive ACLStore, then we will use the raw value of the identifier
+             * IF the resource has an exclusive ACLStore, then we will use the natural value of the identifier
              * to set the parameter value.  If the resource permissions are stored in the general store, 
-             * then we'll use the general purpose identifier that includes the class name.
+             * then we'll use the general purpose "generated" identifier.
              */
             if (meta.getResourceClass() != null)
             {
