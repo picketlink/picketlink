@@ -60,4 +60,12 @@ public interface PermissionHandler
      * @return
      */
     Set<String> listAvailablePermissions(Class<?> resourceClass);
+    
+    /**
+     * 
+     * @param resourceClass
+     * @param permissions
+     * @return
+     */
+    Set<String> convertResourcePermissions(Class<?> resourceClass, Object permissions);
 }

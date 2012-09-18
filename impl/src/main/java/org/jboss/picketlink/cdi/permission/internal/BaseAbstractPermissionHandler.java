@@ -1,9 +1,7 @@
 package org.jboss.picketlink.cdi.permission.internal;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -89,7 +87,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
 
     protected class PermissionSet 
     {
-        private Set<String> members = new HashSet<String>();
+        private Set<String> permissions = new HashSet<String>();
         
         private Class<?> resourceClass;
 
@@ -114,7 +112,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                     long mask = permissions.get(permission).longValue();
                     if ((vals & mask) != 0) 
                     {
-                        this.members.add(permission);
+                        this.permissions.add(permission);
                     }
                 }
             } 
@@ -124,36 +122,36 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                 String[] permissions = members.split(",");
                 for (String permission : permissions) 
                 {
-                    this.members.add(permission);
+                    this.permissions.add(permission);
                 }
             }
         }
 
         public boolean contains(String action) 
         {
-            return members.contains(action);
+            return permissions.contains(action);
         }
 
         public PermissionSet add(String action) 
         {
-            members.add(action);
+            permissions.add(action);
             return this;
         }
 
         public PermissionSet remove(String action) 
         {
-            members.remove(action);
+            permissions.remove(action);
             return this;
         }
 
-        public Set<String> members() 
+        public Set<String> getPermissions() 
         {
-            return members;
+            return permissions;
         }
 
         public boolean isEmpty() 
         {
-            return members.isEmpty();
+            return permissions.isEmpty();
         }
 
         @Override
@@ -164,7 +162,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
                 Map<String, Long> actions = classPermissions.get(resourceClass);
                 long mask = 0;
 
-                for (String member : members) 
+                for (String member : permissions) 
                 {
                     mask |= actions.get(member).longValue();
                 }
@@ -174,7 +172,7 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
             else 
             {
                 StringBuilder sb = new StringBuilder();
-                for (String member : members) 
+                for (String member : permissions) 
                 {
                     if (sb.length() > 0) sb.append(',');
                     sb.append(member);
@@ -208,4 +206,10 @@ public abstract class BaseAbstractPermissionHandler implements PermissionHandler
 
         return permissions;
     }
+    
+    @Override
+    public Set<String> convertResourcePermissions(Class<?> resourceClass, Object permissions) 
+    {
+        return createPermissionSet(resourceClass, permissions.toString()).getPermissions();
+    }    
 }

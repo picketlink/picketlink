@@ -88,6 +88,8 @@ public class JPAPermissionStore implements PermissionStore
         }
         else
         {
+            // Resources have been specified by the query, use them to locate
+            // the permissions
             List<Permission> results = new ArrayList<Permission>();
             
             Collection<Object> knownResources = new ArrayList<Object>(); 
@@ -105,24 +107,24 @@ public class JPAPermissionStore implements PermissionStore
             {
                 Query permissionQuery = buildPermissionQuery(meta, query, em);
                                
-                // List<Object> identifiers = new ArrayList<String>();
-                
                 for (Object result : permissionQuery.getResultList())
                 {
-                    // TODO we need a consistent way to marshal/unmarshal permission values (i.e. "read", "write", etc)
                     Object identifier = meta.getAclIdentifier().getValue(result);
                     
                     Object resource = permissionHandlerPolicy.lookupResource(identifier.toString(), knownResources);
+                                        
+                    Set<String> resourcePermissions = permissionHandlerPolicy.convertResourcePermissions(
+                            resource, meta.getAclPermission().getValue(result));
                     
-                    //if (resultMap.containsKey(key))
-                    
-                    // TODO still need to add the recipient and the permission
-                    results.add(new Permission(resource, null, null));
-                    //meta.
-                }
-                
-                // Map<String,Object> resourceLookup = identifierPolicy.lookupResources(identifiers, loadedResources)                
+                    for (String permission : resourcePermissions)
+                    {
+                     // TODO still need to add the recipient
+                        results.add(new Permission(resource, null, permission));    
+                    }
+                }               
             }
+            
+            return results;
         }
                 
         // TODO Auto-generated method stubobj

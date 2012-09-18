@@ -180,6 +180,13 @@ public class PermissionHandlerPolicy
         
         return handler;
     }
+    
+    public Set<String> convertResourcePermissions(Object resource, Object permissions)
+    {
+        PermissionHandler handler = getHandlerForResource(resource);
+        
+        return handler != null ? handler.convertResourcePermissions(resource.getClass(), permissions) : null;
+    }
 
     public Set<PermissionHandler> getRegisteredHandlers() {
         return registeredHandlers;

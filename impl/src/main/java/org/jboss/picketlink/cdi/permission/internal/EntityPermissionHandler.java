@@ -26,7 +26,8 @@ import org.jboss.picketlink.cdi.permission.spi.PermissionHandler;
 public class EntityPermissionHandler extends BaseAbstractPermissionHandler implements PermissionHandler 
 {
     private Map<Class<?>, String> identifierNames = new ConcurrentHashMap<Class<?>, String>();
-    private Map<Class<?>, Property<Serializable>> identifierProperties = new ConcurrentHashMap<Class<?>, Property<Serializable>>();
+    private Map<Class<?>, Property<Serializable>> identifierProperties = 
+            new ConcurrentHashMap<Class<?>, Property<Serializable>>();
 
     @Inject Instance<EntityManager> entityManager;
 
@@ -84,13 +85,15 @@ public class EntityPermissionHandler extends BaseAbstractPermissionHandler imple
     }
 
     @Override
-    public boolean canLoadResource(String identifier) {
+    public boolean canLoadResource(String identifier) 
+    {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public Object lookupResource(String identifier) {
+    public Object lookupResource(String identifier) 
+    {
         // TODO Auto-generated method stub
         return null;
     }
