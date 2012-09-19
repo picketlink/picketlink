@@ -28,15 +28,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.login.LoginException;
-import javax.security.jacc.PolicyContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.transform.Source;
 import javax.xml.ws.Dispatch;
@@ -44,9 +40,6 @@ import javax.xml.ws.Dispatch;
 import org.jboss.security.SecurityConstants;
 import org.jboss.security.SimplePrincipal;
 import org.jboss.security.auth.callback.ObjectCallback;
-import org.jboss.security.auth.spi.AbstractServerLoginModule;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkGroup;
 import org.picketlink.identity.federation.bindings.jboss.subject.PicketLinkPrincipal;
 import org.picketlink.identity.federation.core.ErrorCodes;
@@ -55,7 +48,6 @@ import org.picketlink.identity.federation.core.constants.PicketLinkFederationCon
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
-import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
@@ -77,25 +69,44 @@ import org.w3c.dom.Element;
  * </p>
  * <p>
  * This module defines the following module options:
- * <li>
  * <ul>
+ * <li>
  * configFile - this property identifies the properties file that will be used to establish communication with the external
  * security token service.
- * </ul>
- * <ul>
+ * </li>
+ * <li>
  * cache.invalidation: set it to true if you require invalidation of JBoss Auth Cache at SAML Principal expiration.
- * </ul>
- * <ul>
+ * </li>
+ * <li>
  * jboss.security.security_domain: name of the security domain where this login module is configured. This is only required if
  * the cache.invalidation option is configured.
- * </ul>
- * <ul>
- * roleKey: a comma separated list of strings that define the attributes in SAML assertion for user roles
- * </ul>
- * <ul>
- * localValidation: if you want to validate the assertion locally for signature and expiry
- * </ul>
  * </li>
+ * <li>
+ * roleKey: a comma separated list of strings that define the attributes in SAML assertion for user roles
+ * </li>
+ * <li>
+ * localValidation: if you want to validate the assertion locally for signature and expiry
+ * </li>
+ * <li>
+ * localValidationSecurityDomain:  the security domain for the trust store information (via the JaasSecurityDomain)
+ * </li>
+ * <li>
+ * tokenEncodingType: encoding type of SAML token delivered via http request's header.
+ * Possible values are:
+ *    base64 - content encoded as base64. In case of encoding will vary between base64 and gzip use base64 and LoginModule will detect gzipped data.
+ *    gzip - gzipped content encoded as base64
+ *    none - content not encoded in any way
+ * </li>
+ * <li>
+ * samlTokenHttpHeader - name of http request header to fetch SAML token from. For example: "Authorize"
+ * </li>
+ * <li>
+ * samlTokenHttpHeaderRegEx - Java regular expression to be used to get SAML token from "samlTokenHttpHeader". Example: use: ."(.)".* to parse SAML token from header content like this: SAML_assertion="HHDHS=", at the same time set samlTokenHttpHeaderRegExGroup to 1.
+ * </li>
+ * <li>
+ * samlTokenHttpHeaderRegExGroup - Group value to be used when parsing out value of http request header specified by "samlTokenHttpHeader" using "samlTokenHttpHeaderRegEx".
+ * </li>
+ * </ul>
  * </p>
  * <p>
  * Any properties specified besides the above properties are assumed to be used to configure how the {@code STSClient} will
@@ -127,9 +138,7 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  */
 @SuppressWarnings("unchecked")
-public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModule {
-    
-    protected static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
+public abstract class SAML2STSCommonLoginModule extends SAMLTokenFromHttpRequestAbstractLoginModule {
     
     protected String stsConfigurationFile;
 
@@ -149,7 +158,6 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
 
     protected String roleKey = AttributeConstants.ROLE_IDENTIFIER_ASSERTION;
 
-    protected String tokenEncoding = SAML2STSCommonLoginModule.NONE_TOKEN_ENCODING;
     
     /**
      * Options that are computed by this login module. Few options are removed and the rest are set in the dispatch sts call
@@ -191,58 +199,6 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
      */
     public static final String PASSWORD_KEY = "password";
 
-    /**
-     * Specify which http header contains saml token.
-     * If null, default behavior will be used, credentials got from callback.
-     */
-    private String samlTokenHttpHeader = null;
-
-    /**
-     * Regular expression to parse samlTokenHttpHeader to obtain saml token only.
-     * Token itself has to be Base64 encoded.
-     * Use .* to match whole content.
-     */
-    private String samlTokenHttpHeaderRegEx = null;
-
-    private Pattern pattern = null; 
-
-    
-    /**
-     * Group which will be used to retrieve matched part of the token header content.
-     * Defaults to 0.
-     * pattern.matcher.group(samlTokenHttpHeaderRegExGroup)
-     */
-    private int samlTokenHttpHeaderRegExGroup = 0;
-    
-    /**
-     * Key to specify token compression. 
-     * Supported types: 
-     *   {@link GZIP_TOKEN_ENCODING} - gzip
-     *   {@link BASE64_TOKEN_ENCODING} - base64
-     *   {@link NONE_TOKEN_ENCODING} - none
-     */
-    public static final String TOKEN_ENCODING_TYPE_KEY = "tokenEncodingType";
-
-    /**
-     * Token encoding type: gzip
-     */
-    public static final String GZIP_TOKEN_ENCODING = "gzip"; 
-
-    /**
-     * Token encoding type: none 
-     */
-    public static final String NONE_TOKEN_ENCODING = "none"; 
-
-    /**
-     * Token encoding type: base64 
-     */
-    public static final String BASE64_TOKEN_ENCODING = "base64"; 
-
-    public static final String WEB_REQUEST_KEY = "javax.servlet.http.HttpServletRequest";
-    public static final String REG_EX_PATTERN_KEY = "samlTokenHttpHeaderRegEx";
-    public static final String REG_EX_GROUP_KEY = "samlTokenHttpHeaderRegExGroup";
-    public static final String SAML_TOKEN_HTTP_HEADER_KEY = "samlTokenHttpHeader";
-    
     // A variable used by the unit test to pass local validation
     protected boolean localTestingOnly = false;
 
@@ -297,22 +253,6 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
             }
         }
         
-        samlTokenHttpHeader = (String)this.options.get(SAML_TOKEN_HTTP_HEADER_KEY);
-
-        String encoding = (String)this.options.get(TOKEN_ENCODING_TYPE_KEY);
-        if (encoding != null) {
-            this.tokenEncoding = encoding;
-        }
-
-        samlTokenHttpHeaderRegEx = (String)this.options.get(REG_EX_PATTERN_KEY);
-        if (samlTokenHttpHeaderRegEx != null) {
-            this.pattern = Pattern.compile(samlTokenHttpHeaderRegEx, Pattern.DOTALL);
-        }    
-        
-        String group = (String)this.options.get(REG_EX_GROUP_KEY);
-        if (group != null) {
-            samlTokenHttpHeaderRegExGroup = Integer.parseInt(group);
-        }
     }
 
     /*
@@ -347,7 +287,7 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
         ObjectCallback callback = new ObjectCallback(null);
         Element assertionElement = null;
         try {
-            if (samlTokenHttpHeader != null) {
+            if (getSamlTokenHttpHeader() != null) {
                 this.credential = getCredentialFromHttpRequest();
             }
             else {
@@ -569,45 +509,6 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
         return client;
     }
     
-    protected SamlCredential getCredentialFromHttpRequest() throws Exception {
-        
-        HttpServletRequest request = (HttpServletRequest) PolicyContext.getContext(WEB_REQUEST_KEY);
-        String encodedSamlToken = null;
-        if (samlTokenHttpHeaderRegEx != null && !samlTokenHttpHeaderRegEx.equals("")) {
-            String content = request.getHeader(samlTokenHttpHeader);
-            if (logger.isTraceEnabled()) {
-                log.trace("http header with SAML token [" + samlTokenHttpHeader + "]=" + content);
-            }
-            log.trace("samlTokenHttpHeaderRegEx="+samlTokenHttpHeaderRegEx);
-            Matcher m = pattern.matcher(content);
-            m.matches();
-            log.trace("samlTokenHttpHeaderRegExGroup="+samlTokenHttpHeaderRegExGroup);
-            encodedSamlToken = m.group(samlTokenHttpHeaderRegExGroup);
-        }
-        else {
-            encodedSamlToken = request.getHeader(samlTokenHttpHeader);
-        }
-        if (logger.isTraceEnabled()) {
-            logger.trace("encodedSamlToken="+encodedSamlToken);
-        }
-
-        String samlToken = null;
-        if (tokenEncoding.equals(NONE_TOKEN_ENCODING)
-                || tokenEncoding == null) {
-            samlToken = encodedSamlToken;
-        }
-        else { 
-            // gzip and base64 encodings are handled in this Base64.decode call
-            byte[] decompressed = Base64.decode(encodedSamlToken);
-            samlToken = new String(decompressed);
-        }
-        if (logger.isTraceEnabled()) {
-            logger.trace("decoded samlToken="+samlToken);
-        }
-        
-        return new SamlCredential(samlToken);
-    }
-
     /**
      * Locally validate the SAML Assertion element
      *
@@ -619,31 +520,4 @@ public abstract class SAML2STSCommonLoginModule extends AbstractServerLoginModul
 
     protected abstract TimeCacheExpiry getCacheExpiry() throws Exception;
 
-    /**
-     * @return the tokenEncoding
-     */
-    public String getTokenEncoding() {
-        return tokenEncoding;
-    }
-
-    /**
-     * @return the samlTokenHttpHeader
-     */
-    public String getSamlTokenHttpHeader() {
-        return samlTokenHttpHeader;
-    }
-
-    /**
-     * @return the samlTokenHttpHeaderRegEx
-     */
-    public String getSamlTokenHttpHeaderRegEx() {
-        return samlTokenHttpHeaderRegEx;
-    }
-
-    /**
-     * @return the samlTokenHttpHeaderRegExGroup
-     */
-    public int getSamlTokenHttpHeaderRegExGroup() {
-        return samlTokenHttpHeaderRegExGroup;
-    }
 }
