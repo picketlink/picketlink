@@ -7,7 +7,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.jboss.picketlink.cdi.authorization.annotation.SecurityBindingType;
+import org.apache.deltaspike.security.api.authorization.annotation.SecurityBindingType;
 
 /**
  * 
