@@ -16,7 +16,7 @@ import org.jboss.picketlink.cdi.permission.spi.PermissionHandler;
 
 /**
  * Manages a set of PermissionHandler instances that overall define a "policy" for 
- * how persistent resource permissions are managed.
+ * how persistent resource permissions are mapped and managed.
  *
  * @author Shane Bryzak
  */
