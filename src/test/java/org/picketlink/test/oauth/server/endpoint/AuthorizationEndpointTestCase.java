@@ -25,21 +25,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.amber.oauth2.client.URLConnectionClient;
-import org.apache.amber.oauth2.client.request.OAuthClientRequest;
 import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
 import org.apache.amber.oauth2.common.utils.OAuthUtils;
-import org.apache.amber.oauth2.ext.dynamicreg.client.OAuthRegistrationClient;
-import org.apache.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
-import org.apache.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
-import org.apache.amber.oauth2.ext.dynamicreg.common.OAuthRegistration;
 import org.junit.Test;
+import org.picketlink.oauth.client.ClientOAuth;
+import org.picketlink.oauth.client.ClientOAuth.AuthorizationClient;
+import org.picketlink.oauth.client.ClientOAuth.AuthorizationResponse;
+import org.picketlink.oauth.client.ClientOAuth.RegistrationClient;
+import org.picketlink.oauth.client.ClientOAuth.RegistrationResponse;
 import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
 
 /**
@@ -49,53 +45,49 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  * @since Aug 28, 2012
  */
 public class AuthorizationEndpointTestCase extends EndpointTestBase {
-  
+
     @Override
     protected boolean needLDAP() {
         return true;
     }
-    private String registrationEndpoint = "http://localhost:11080/oauth/register"; 
+
+    private String registrationEndpoint = "http://localhost:11080/oauth/register";
 
     private String appName = "Sample Application";
     private String appURL = "http://www.example.com";
     private String appIcon = "http://www.example.com/app.ico";
     private String appDescription = "Description of a Sample App";
     private String appRedirectURL = "http://www.example.com/redirect";
-    
+
+    private ClientOAuth client = new ClientOAuth();
+
     @Test
-    public void testEndUserAuthorization() throws Exception { 
-        //Step 1: Perform the registration
-        OAuthClientRequest request = OAuthClientRegistrationRequest.location(registrationEndpoint, OAuthRegistration.Type.PUSH)
-                .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon)
-                .setRedirectURL(appRedirectURL).buildJSONMessage();
+    public void testEndUserAuthorization() throws Exception {
+        // Step 1: Perform the registration
+        RegistrationClient registrationClient = client.registrationClient();
+        RegistrationResponse registrationResponse = registrationClient.setLocation(registrationEndpoint).setAppName(appName)
+                .setAppURL(appURL).setAppDescription(appDescription).setAppIcon(appIcon).setAppRedirectURL(appRedirectURL)
+                .build().execute();
 
-        OAuthRegistrationClient oauthclient = new OAuthRegistrationClient(new URLConnectionClient());
-        OAuthClientRegistrationResponse response = oauthclient.clientInfo(request);
-
-        String clientID = response.getClientId(); 
+        String clientID = registrationResponse.getClientId();
         assertNotNull(clientID);
-        String clientSecret = response.getClientSecret();
+        String clientSecret = registrationResponse.getClientSecret();
         assertNotNull(clientSecret);
-        if (response.getExpiresIn() != 3600L) {
+        if (registrationResponse.getExpiresIn() != 3600L) {
             fail("expires");
         }
-        long parsedIssuedAt = Long.parseLong(response.getIssuedAt());
+        long parsedIssuedAt = Long.parseLong(registrationResponse.getIssuedAt());
         assertTrue(parsedIssuedAt - (new Date()).getTime() < 50L);
-        
 
         String authorizationEndpoint = "http://localhost:11080/oauth/authz";
-        String authzRedirectURL = "http://localhost:11080/oauth/redirect"; 
-        String redirectURL = "http://localhost:11080/oauth/redirect"; 
+        String authzRedirectURL = "http://localhost:11080/oauth/redirect";
+        String redirectURL = "http://localhost:11080/oauth/redirect";
 
-        OAuthClientRequest authRequest = OAuthClientRequest.authorizationLocation(authorizationEndpoint).setClientId(clientID)
-                .setRedirectURI(authzRedirectURL).setResponseType(ResponseType.CODE.toString()).buildQueryMessage();
+        AuthorizationClient authorizationClient = client.authorizationClient();
+        AuthorizationResponse authorizationResponse = authorizationClient.setAuthorizationEndpoint(authorizationEndpoint)
+                .setClientID(clientID).setAuthCodeRedirectURL(authzRedirectURL).build().execute();
 
-        URL url = new URL(authRequest.getLocationUri());
-        HttpURLConnection c = (HttpURLConnection) url.openConnection();
-        c.setInstanceFollowRedirects(true);
-        c.connect();
-        c.getResponseCode();
-        String msg = c.getResponseMessage();
+        String msg = authorizationResponse.getResponseMessage();
         // Msg will contain http://localhost:11080/oauth/redirect?code=3c80bf2325fc6e9ef5b84ea4edc6a2ac
         System.out.println(msg);
         int index = msg.indexOf("http");

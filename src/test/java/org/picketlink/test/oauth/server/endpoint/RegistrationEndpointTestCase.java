@@ -43,32 +43,31 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  * @author anil saldhana
  * @since Aug 28, 2012
  */
-public class RegistrationEndpointTestCase extends EndpointTestBase { 
+public class RegistrationEndpointTestCase extends EndpointTestBase {
 
     @Override
     protected boolean needLDAP() {
         return true;
     }
 
-    private String registrationEndpoint = "http://localhost:11080/oauth/register"; 
+    private String registrationEndpoint = "http://localhost:11080/oauth/register";
 
     private String appName = "Sample Application";
     private String appURL = "http://www.example.com";
     private String appIcon = "http://www.example.com/app.ico";
     private String appDescription = "Description of a Sample App";
     private String appRedirectURL = "http://www.example.com/redirect";
-   
 
     @Test
     public void testRegistration() throws Exception {
         OAuthClientRequest request = OAuthClientRegistrationRequest.location(registrationEndpoint, OAuthRegistration.Type.PUSH)
-                .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon)
-                .setRedirectURL(appRedirectURL).buildJSONMessage();
+                .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon).setRedirectURL(appRedirectURL)
+                .buildJSONMessage();
 
         OAuthRegistrationClient oauthclient = new OAuthRegistrationClient(new URLConnectionClient());
         OAuthClientRegistrationResponse response = oauthclient.clientInfo(request);
 
-        String clientID = response.getClientId(); 
+        String clientID = response.getClientId();
         assertNotNull(clientID);
         String clientSecret = response.getClientSecret();
         assertNotNull(clientSecret);
@@ -82,8 +81,8 @@ public class RegistrationEndpointTestCase extends EndpointTestBase {
     @Test
     public void testInvalidType() throws Exception {
         OAuthClientRequest request = OAuthClientRegistrationRequest.location(registrationEndpoint, "unknown_type")
-                .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon)
-                .setRedirectURL(appRedirectURL).buildBodyMessage();
+                .setName(appName).setUrl(appURL).setDescription(appDescription).setIcon(appIcon).setRedirectURL(appRedirectURL)
+                .buildBodyMessage();
 
         OAuthRegistrationClient oauthclient = new OAuthRegistrationClient(new URLConnectionClient());
         try {

@@ -33,6 +33,7 @@ import org.picketlink.oauth.PicketLinkOAuthApplication;
 
 /**
  * Base class for the endpoint test cases
+ *
  * @author anil saldhana
  * @since Sep 13, 2012
  */
@@ -75,7 +76,7 @@ public class EndpointTestBase extends EmbeddedWebServerBase {
         // context.setParentLoaderPriority(true);
 
         server.setHandler(context);
-        if(needLDAP()){
+        if (needLDAP()) {
             // Deal with LDAP Server
             try {
                 testUtil = new LDAPTestUtil();
@@ -90,9 +91,10 @@ public class EndpointTestBase extends EmbeddedWebServerBase {
 
     /**
      * Override if the test case needs LDAP Support
+     *
      * @return
      */
-    protected boolean needLDAP(){
+    protected boolean needLDAP() {
         return false;
     }
 }
