@@ -47,16 +47,31 @@ public class ClientOAuth {
 
     protected OAuthClientRequest request;
 
+    /**
+     * Create a client for making Authorization Code Requests
+     *
+     * @return
+     */
     public AuthorizationClient authorizationClient() {
         clear();
         return new AuthorizationClient();
     }
 
+    /**
+     * Create a client for making Registration Requests
+     *
+     * @return
+     */
     public RegistrationClient registrationClient() {
         clear();
         return new RegistrationClient();
     }
 
+    /**
+     * Create a client for making Access Token Requests
+     *
+     * @return
+     */
     public AccessTokenClient tokenClient() {
         clear();
         return new AccessTokenClient();
