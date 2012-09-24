@@ -87,7 +87,15 @@ public class AuthorizationEndpoint implements Serializable {
         try {
             oauthRequest = new OAuthAuthzRequest(request);
 
-            String passedClientID = oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID);
+            String passedClientID = oauthRequest.getClientId();
+
+            if (passedClientID == null) {
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
+
             UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID",
                     new String[] { passedClientID });
             List<User> users = userQuery.executeQuery();

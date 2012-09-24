@@ -62,8 +62,6 @@ import org.jboss.picketlink.idm.query.UserQuery;
  * @author anil saldhana
  * @since Aug 27, 2012
  */
-// public class TokenEndpoint extends HttpServlet {
-
 @Path("/token")
 public class TokenEndpoint implements Serializable {
 
@@ -91,7 +89,22 @@ public class TokenEndpoint implements Serializable {
         try {
             oauthRequest = new OAuthTokenRequest(request);
 
-            String passedClientID = oauthRequest.getParam(OAuth.OAUTH_CLIENT_ID);
+            String passedClientID = oauthRequest.getClientId();
+            String passedClientSecret = oauthRequest.getClientSecret();
+
+            if (passedClientID == null) {
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
+
+            if (passedClientSecret == null) {
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_secret is null")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
 
             UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID",
                     new String[] { passedClientID });
@@ -120,6 +133,14 @@ public class TokenEndpoint implements Serializable {
             if (!clientID.equals(passedClientID)) {
                 OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
+
+            // Validate client secret
+            if (identityManager.validatePassword(clientApp, passedClientSecret) == false) {
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Client secret mismatch")
                         .buildJSONMessage();
                 return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
             }

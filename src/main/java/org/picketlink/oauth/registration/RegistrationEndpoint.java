@@ -56,7 +56,6 @@ import org.jboss.picketlink.idm.model.User;
  * @author anil saldhana
  * @since Aug 28, 2012
  */
-// public class RegistrationEndpoint extends HttpServlet {
 @Path("/register")
 public class RegistrationEndpoint implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -85,7 +84,7 @@ public class RegistrationEndpoint implements Serializable {
             String clientDescription = oauthRequest.getClientDescription();
             String clientRedirectURI = oauthRequest.getRedirectURI();
 
-            String generatedClientID = generateClientID(); // TODO: store in DB
+            String generatedClientID = generateClientID();
             String generatedSecret = generateClientSecret();
 
             User user = identityManager.createUser(clientName);
@@ -94,7 +93,8 @@ public class RegistrationEndpoint implements Serializable {
             user.setAttribute("description", clientDescription);
             user.setAttribute("redirectURI", clientRedirectURI);
             user.setAttribute("clientID", generatedClientID);
-            user.setAttribute("clientSecret", generatedSecret);
+            identityManager.updatePassword(user, generatedSecret);
+            // user.setAttribute("clientSecret", generatedSecret);
 
             OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
                     .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
