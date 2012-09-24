@@ -3,13 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.picketlink</groupId>
+        <groupId>org.picketlink</groupId>
         <artifactId>picketlink-cdi-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.jboss.picketlink</groupId>
+    <groupId>org.picketlink</groupId>
     <artifactId>picketlink-cdi-impl</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -18,7 +18,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.jboss.picketlink</groupId>
+            <groupId>org.picketlink</groupId>
 	    <artifactId>picketlink-cdi-api</artifactId>
 	</dependency>
 

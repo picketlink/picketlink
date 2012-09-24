@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.jboss.picketlink</groupId>
+        <groupId>org.picketlink</groupId>
         <artifactId>picketlink-cdi-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.jboss.picketlink.examples</groupId>
+    <groupId>org.picketlink.examples</groupId>
     <artifactId>security-console</artifactId>
 
     <name>PicketLink CDI Security Console Example</name>
@@ -42,13 +42,13 @@
 	      </dependency>
 
         <dependency>
-            <groupId>org.jboss.picketlink</groupId>
+            <groupId>org.picketlink</groupId>
             <artifactId>picketlink-cdi-api</artifactId>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>org.jboss.picketlink</groupId>
+            <groupId>org.picketlink</groupId>
             <artifactId>picketlink-cdi-impl</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -66,4 +66,3 @@
         <finalName>security-console</finalName>
     </build>
 </project>
-
