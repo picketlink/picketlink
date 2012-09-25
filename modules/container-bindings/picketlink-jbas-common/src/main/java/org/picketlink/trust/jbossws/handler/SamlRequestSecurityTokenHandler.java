@@ -46,6 +46,7 @@ import org.picketlink.trust.jbossws.Constants;
  * @author pskopek@redhat.com
  *
  */
+@SuppressWarnings({"rawtypes","restriction"})
 public class SamlRequestSecurityTokenHandler extends AbstractPicketLinkTrustHandler {
     
     private SOAPFactory factory = null;
