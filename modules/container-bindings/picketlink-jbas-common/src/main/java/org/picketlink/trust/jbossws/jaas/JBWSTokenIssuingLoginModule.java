@@ -69,6 +69,7 @@ import org.w3c.dom.Element;
  * @author Anil.Saldhana@redhat.com
  * @since Apr 22, 2011
  */
+@SuppressWarnings("restriction")
 public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
 
     private static final PicketLinkLogger logger = PicketLinkLoggerFactory.getLogger();
