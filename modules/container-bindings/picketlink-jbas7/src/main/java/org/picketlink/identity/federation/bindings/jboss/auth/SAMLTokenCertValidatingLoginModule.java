@@ -23,21 +23,10 @@
 package org.picketlink.identity.federation.bindings.jboss.auth;
 
 import java.security.KeyStore;
-import java.security.cert.CertPath;
-import java.security.cert.CertPathValidator;
-import java.security.cert.CertPathValidatorResult;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.PKIXParameters;
-import java.security.cert.X509Certificate;
-import java.util.Arrays;
-import java.util.Enumeration;
 import javax.naming.Context;
 import javax.naming.InitialContext;
-import javax.security.auth.login.LoginException;
-import org.jboss.security.plugins.JaasSecurityDomain;
+import org.jboss.security.JBossJSSESecurityDomain;
+
 
 /**
  * This LoginModule authenticates clients by validating their SAML assertions
@@ -45,7 +34,7 @@ import org.jboss.security.plugins.JaasSecurityDomain;
  * and included in the Group returned by the getRoleSets method. The LoginModule
  * is designed to validate SAML token using X509 certificate stored in XML
  * signature within SAML assertion token.
- * 
+ *
  * It validates:
  * <ol>
  * <li>CertPath against specified truststore. It has to have common valid public
@@ -54,9 +43,9 @@ import org.jboss.security.plugins.JaasSecurityDomain;
  * <li>if signature itself is valid</li>
  * <li>SAML token expiration</li>
  * </ol>
- * 
+ *
  * This module defines the following module options:
- * 
+ *
  * roleKey: key of the attribute name that we need to use for Roles from the
  * SAML assertion. This can be a comma-separated string values such as
  * (Role,Membership) localValidationSecurityDomain: the security domain for the
@@ -76,27 +65,36 @@ import org.jboss.security.plugins.JaasSecurityDomain;
  * to 1. samlTokenHttpHeaderRegExGroup - Group value to be used when parsing out
  * value of http request header specified by "samlTokenHttpHeader" using
  * "samlTokenHttpHeaderRegEx".
- * 
+ *
  * @author Peter Skopek: pskopek at redhat dot com
- * 
+ *
  */
 public class SAMLTokenCertValidatingLoginModule extends
         SAMLTokenCertValidatingCommonLoginModule {
 
-    
+
     /**
-     * AS5/AS6/EAP5 way of getting configured keyStore.
+     * AS7/EAP6 way of getting configured keyStore.
      * uses module-option: localValidationSecurityDomain.
-     *  
+     *
      * @return
      * @throws Exception
      */
     protected KeyStore getKeyStore() throws Exception {
+
         // get keystore
         Context ctx = new InitialContext();
-        JaasSecurityDomain sd = (JaasSecurityDomain) ctx
-                .lookup(localValidationSecurityDomain);
-        return sd.getTrustStore();
+        String jsseLookupString = localValidationSecurityDomain + "/jsse";
+
+        JBossJSSESecurityDomain sd = (JBossJSSESecurityDomain) ctx.lookup(jsseLookupString);
+        String securityDomain = sd.getSecurityDomain();
+
+        KeyStore ts = sd.getTrustStore();
+        if (ts == null) {
+            throw logger.authNullKeyStoreFromSecurityDomainError(securityDomain);
+        }
+
+        return ts;
     }
-    
+
 }
