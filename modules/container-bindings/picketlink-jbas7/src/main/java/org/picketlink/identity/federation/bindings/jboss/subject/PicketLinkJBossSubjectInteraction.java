@@ -80,7 +80,6 @@ public class PicketLinkJBossSubjectInteraction implements SubjectSecurityInterac
         }
     }
 
-    @Override
     public void setSecurityDomain(String securityDomain) {
         this.securityDomain = securityDomain;
     }

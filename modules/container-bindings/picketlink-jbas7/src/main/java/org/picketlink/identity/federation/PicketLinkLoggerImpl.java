@@ -50,6 +50,7 @@ import org.w3c.dom.Element;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
+@SuppressWarnings("restriction")
 public final class PicketLinkLoggerImpl implements PicketLinkLogger {
 
     PicketLinkLoggerImpl() {
@@ -1550,12 +1551,10 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
         return MESSAGES.samlHandlerServiceProviderConfigNotFound();
     }
 
-    @Override
     public void samlSecurityTokenAlreadyPersisted(String id) {
         ROOT_LOGGER.samlSecurityTokenAlreadyPersisted(id);
     }
 
-    @Override
     public void samlSecurityTokenNotFoundInRegistry(String id) {
         ROOT_LOGGER.samlSecurityTokenNotFoundInRegistry(id);
     }
@@ -1563,22 +1562,18 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlMetaDataFailedToCreateCacheDuration(java.lang.String)
      */
-    @Override
     public IllegalArgumentException samlMetaDataFailedToCreateCacheDuration(String timeValue) {
         return MESSAGES.samlMetaDataFailedToCreateCacheDuration(timeValue);
     }
 
-    @Override
     public ConfigurationException securityDomainNotFound() {
         return MESSAGES.securityDomainNotFound();
     }
 
-    @Override
     public void authenticationManagerError(ConfigurationException e) {
         ROOT_LOGGER.authenticationManagerError(e);
     }
 
-    @Override
     public void authorizationManagerError(ConfigurationException e) {
         ROOT_LOGGER.authorizationManagerError(e);
     }
