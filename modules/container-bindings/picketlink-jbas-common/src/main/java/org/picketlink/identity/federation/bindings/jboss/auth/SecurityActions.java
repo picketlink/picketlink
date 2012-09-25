@@ -69,6 +69,13 @@ class SecurityActions {
         }
     }
 
+    /**
+     * <p>Returns a system property value using the specified <code>key</code>. If not found the <code>defaultValue</code> will be returned.</p>
+     *
+     * @param key
+     * @param defaultValue
+     * @return
+     */
     static String getSystemProperty(final String key) {
         SecurityManager sm = System.getSecurityManager();
         
