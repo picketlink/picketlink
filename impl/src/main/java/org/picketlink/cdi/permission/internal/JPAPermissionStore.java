@@ -18,6 +18,8 @@ import org.picketlink.cdi.permission.Permission;
 import org.picketlink.cdi.permission.PermissionQuery;
 import org.picketlink.cdi.permission.internal.JPAPermissionStoreConfig.StoreMetadata;
 import org.picketlink.cdi.permission.spi.PermissionStore;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.IdentityType;
 
 /**
  * A PermissionStore implementation backed by a JPA datasource
@@ -27,7 +29,10 @@ import org.picketlink.cdi.permission.spi.PermissionStore;
 public class JPAPermissionStore implements PermissionStore
 {   
     @Inject 
-    private Instance<EntityManager> entityManagerInstance;    
+    private Instance<EntityManager> entityManagerInstance;
+    
+    @Inject
+    private IdentityManager identityManager;
     
     @Inject 
     private JPAPermissionStoreConfig config;
@@ -116,10 +121,12 @@ public class JPAPermissionStore implements PermissionStore
                     Set<String> resourcePermissions = permissionHandlerPolicy.convertResourcePermissions(
                             resource, meta.getAclPermission().getValue(result));
                     
+                    IdentityType recipient = identityManager.lookupIdentityByKey(meta.getAclRecipient().getValue(result));
+                    
                     for (String permission : resourcePermissions)
                     {
                      // TODO still need to add the recipient
-                        results.add(new Permission(resource, null, permission));    
+                        results.add(new Permission(resource, recipient, permission));    
                     }
                 }               
             }
