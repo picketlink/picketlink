@@ -49,12 +49,12 @@ import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.OAuthResponse;
 import org.apache.amber.oauth2.common.message.types.ResponseType;
 import org.apache.amber.oauth2.common.utils.OAuthUtils;
-import org.jboss.picketlink.idm.IdentityManager;
-import org.jboss.picketlink.idm.internal.DefaultIdentityManager;
-import org.jboss.picketlink.idm.internal.LDAPIdentityStore;
-import org.jboss.picketlink.idm.internal.config.LDAPConfiguration;
-import org.jboss.picketlink.idm.model.User;
-import org.jboss.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.LDAPIdentityStore;
+import org.picketlink.idm.internal.config.LDAPConfiguration;
+import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.UserQuery;
 
 /**
  * OAuth2 Authorization Endpoint

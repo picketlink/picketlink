@@ -44,11 +44,11 @@ import org.apache.amber.oauth2.common.message.OAuthResponse;
 import org.apache.amber.oauth2.ext.dynamicreg.server.request.JSONHttpServletRequestWrapper;
 import org.apache.amber.oauth2.ext.dynamicreg.server.request.OAuthServerRegistrationRequest;
 import org.apache.amber.oauth2.ext.dynamicreg.server.response.OAuthServerRegistrationResponse;
-import org.jboss.picketlink.idm.IdentityManager;
-import org.jboss.picketlink.idm.internal.DefaultIdentityManager;
-import org.jboss.picketlink.idm.internal.LDAPIdentityStore;
-import org.jboss.picketlink.idm.internal.config.LDAPConfiguration;
-import org.jboss.picketlink.idm.model.User;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.LDAPIdentityStore;
+import org.picketlink.idm.internal.config.LDAPConfiguration;
+import org.picketlink.idm.model.User;
 
 /**
  * Endpoint used in registration of OAuth Client Applications

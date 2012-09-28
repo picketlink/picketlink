@@ -42,12 +42,12 @@ import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.types.ParameterStyle;
 import org.apache.amber.oauth2.common.utils.OAuthUtils;
 import org.apache.amber.oauth2.rs.request.OAuthAccessResourceRequest;
-import org.jboss.picketlink.idm.IdentityManager;
-import org.jboss.picketlink.idm.internal.DefaultIdentityManager;
-import org.jboss.picketlink.idm.internal.LDAPIdentityStore;
-import org.jboss.picketlink.idm.internal.config.LDAPConfiguration;
-import org.jboss.picketlink.idm.model.User;
-import org.jboss.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.LDAPIdentityStore;
+import org.picketlink.idm.internal.config.LDAPConfiguration;
+import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.UserQuery;
 
 /**
  * An instance of {@link Filter} that performs OAuth checks before allowing access to a resource
