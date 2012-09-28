@@ -69,6 +69,20 @@
                </execution>
             </executions>
          </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+             <warName>picketlink-oauth</warName>
+            </configuration>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>war</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
          <!-- Enable checkstyle execution -->
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -97,53 +111,45 @@
          <groupId>org.apache.amber</groupId>
          <artifactId>amber-oauth2-authzserver</artifactId>
          <version>0.22-incubating</version>
-         <scope>provided</scope>
       </dependency>
       
       <dependency>
          <groupId>org.apache.amber</groupId>
          <artifactId>amber-oauth2-resourceserver</artifactId>
          <version>0.22-incubating</version>
-         <scope>provided</scope>
       </dependency>
       
       <dependency>
          <groupId>org.apache.amber</groupId>
          <artifactId>amber-oauth2-dynamicreg-client</artifactId>
          <version>0.22-incubating</version>
-         <scope>provided</scope>
       </dependency>
       
       <dependency>
          <groupId>org.apache.amber</groupId>
          <artifactId>amber-oauth2-dynamicreg-server</artifactId>
          <version>0.22-incubating</version>
-         <scope>provided</scope>
       </dependency>
       
       <dependency>
          <groupId>org.apache.amber</groupId>
          <artifactId>amber-oauth2-client</artifactId>
          <version>0.22-incubating</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.spec.javax.servlet</groupId>
          <artifactId>jboss-servlet-api_3.0_spec</artifactId>
          <version>1.0.0.Final</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.picketlink</groupId>
          <artifactId>picketlink-idm-api</artifactId>
          <version>2.0.sep28.2012</version>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.picketlink</groupId>
          <artifactId>picketlink-idm-impl</artifactId>
          <version>2.0.sep28.2012</version>
-         <scope>provided</scope>
       </dependency>
 
       <!-- Test dependencies -->
@@ -209,20 +215,6 @@
          <scope>test</scope>
          <type>test-jar</type>
       </dependency>
-    <!--
-      <dependency>
-         <groupId>org.slf4j</groupId>
-         <artifactId>slf4j-simple</artifactId>
-         <version>1.5.7</version>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>org.slf4j</groupId>
-               <artifactId>slf4j-api</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
--->
 
    </dependencies>
    <reporting>

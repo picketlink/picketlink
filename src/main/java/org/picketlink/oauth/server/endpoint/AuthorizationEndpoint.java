@@ -62,7 +62,6 @@ import org.picketlink.idm.query.UserQuery;
  * @author anil saldhana
  * @since Aug 27, 2012
  */
-// public class AuthorizationEndpoint extends HttpServlet {
 @Path("/authz")
 public class AuthorizationEndpoint implements Serializable {
     private static final long serialVersionUID = 1L;
