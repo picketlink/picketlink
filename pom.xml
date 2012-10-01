@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.picketlink</groupId>
-    <artifactId>picketlink-cdi-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>picketlink-parent</artifactId>
+    <version>2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>PicketLink CDI Integration</name>
+    <name>PicketLink Parent</name>
     
     <description>
-        PicketLink CDI provides features for securing Java EE6 applications.
+        PicketLink provides features for securing Java EE6 applications.
     </description>
 
     <url>http://www.jboss.org/picketlink</url>
@@ -30,7 +30,6 @@
     </developers>    
 
     <properties>    
-        <picketlink.idm.version>2.0.0-SNAPSHOT</picketlink.idm.version>
         <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
         <deltaspike.version>0.3-incubating</deltaspike.version>
         <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
@@ -39,36 +38,38 @@
     </properties>
 
     <modules>
-        <module>api</module>
-        <module>impl</module>
+        <module>idm-api</module>
+	<module>idm-impl</module>
+        <module>core-api</module>
+        <module>core-impl</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
 	          <dependency>
 	              <groupId>org.picketlink</groupId>
-		            <artifactId>picketlink-cdi-api</artifactId>
-		            <version>${project.version}</version>
+	              <artifactId>picketlink-core-api</artifactId>
+                      <version>${project.version}</version>
 		            <scope>compile</scope>
 	          </dependency>
 
 	          <dependency>
 	              <groupId>org.picketlink</groupId>
-		            <artifactId>picketlink-cdi-impl</artifactId>
+		            <artifactId>picketlink-core-impl</artifactId>
 		            <version>${project.version}</version>
 	          </dependency>
 
 	          <dependency>
 	              <groupId>org.picketlink</groupId>
 		            <artifactId>picketlink-idm-api</artifactId>
-		            <version>${picketlink.idm.version}</version>
+		            <version>${project.version}</version>
 		            <scope>compile</scope>
 	          </dependency>
 
 	          <dependency>
 	              <groupId>org.picketlink</groupId>
 		            <artifactId>picketlink-idm-impl</artifactId>
-		            <version>${picketlink.idm.version}</version>
+		            <version>${project.version}</version>
 	          </dependency>
 
 	          <dependency>
