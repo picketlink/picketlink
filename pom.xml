@@ -38,10 +38,8 @@
     </properties>
 
     <modules>
-        <module>idm-api</module>
-	<module>idm-impl</module>
-        <module>core-api</module>
-        <module>core-impl</module>
+        <module>idm</module>
+        <module>core</module>
     </modules>
 
     <dependencyManagement>
