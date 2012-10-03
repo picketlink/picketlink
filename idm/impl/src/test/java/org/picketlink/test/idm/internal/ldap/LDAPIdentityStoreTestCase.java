@@ -25,9 +25,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.picketlink.idm.internal.LDAPIdentityStore;
-import org.picketlink.idm.internal.config.LDAPConfiguration;
-import org.picketlink.idm.internal.config.LDAPConfigurationBuilder;
+import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;

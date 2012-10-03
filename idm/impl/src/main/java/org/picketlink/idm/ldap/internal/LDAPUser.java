@@ -19,14 +19,14 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.internal.ldap;
+package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.internal.ldap.LDAPConstants.CN;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.EMAIL;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.GIVENNAME;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.OBJECT_CLASS;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.SN;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.UID;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.EMAIL;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.GIVENNAME;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
 import java.util.Map;
 import java.util.Set;
@@ -38,7 +38,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
-import org.picketlink.idm.internal.ldap.LDAPObjectChangedNotification.NType;
+import org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification.NType;
 import org.picketlink.idm.model.User;
 
 /**

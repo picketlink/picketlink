@@ -19,20 +19,19 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.internal.config;
-
-import org.picketlink.idm.spi.IdentityStoreConfiguration;
-import org.picketlink.idm.spi.IdentityStoreConfigurationBuilder;
+package org.picketlink.idm.ldap.internal;
 
 /**
- * A {@link IdentityStoreConfigurationBuilder} for LDAP
+ * Handler for {@link LDAPObjectChangedNotification}
  *
  * @author anil saldhana
- * @since Sep 6, 2012
+ * @since Sep 4, 2012
  */
-public class LDAPConfigurationBuilder extends IdentityStoreConfigurationBuilder {
-    @Override
-    public IdentityStoreConfiguration build() {
-        return new LDAPConfiguration();
-    }
+public interface LDAPChangeNotificationHandler {
+    /**
+     * Handle an {@link LDAPObjectChangedNotification}
+     *
+     * @param notification
+     */
+    void handle(LDAPObjectChangedNotification notification);
 }

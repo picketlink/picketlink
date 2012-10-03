@@ -19,21 +19,37 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.internal.ldap;
+package org.picketlink.idm.ldap.internal;
+
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Define commonly used ldap constants
+ * Attributes of an {@link LDAPUser} that does not map to LDAP managed attributes
  *
  * @author anil saldhana
- * @since Aug 31, 2012
+ * @since Sep 7, 2012
  */
-public interface LDAPConstants {
-    String GIVENNAME = "givenname";
-    String CN = "cn";
-    String SN = "sn";
-    String EMAIL = "mail";
-    String MEMBER = "member";
-    String OBJECT_CLASS = "objectclass";
-    String UID = "uid";
-    Object GROUP_OF_NAMES = "groupOfNames";
+public class LDAPUserCustomAttributes implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private Map<String, Object> attributes = new HashMap<String, Object>();
+
+    public void addAttribute(String key, Object value) {
+        attributes.put(key, value);
+    }
+
+    public Map<String, Object> getAttributes() {
+        return Collections.unmodifiableMap(attributes);
+    }
+
+    public String getDN() {
+        return "cn=custom-attributes";
+    }
+
+    public Object getAttribute(String name) {
+        return attributes.get(name);
+    }
 }

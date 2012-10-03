@@ -49,7 +49,7 @@ public class JPAGroupTestCase extends AbstractJPAIdentityTypeTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testGroupStore() throws Exception {
         IdentityManager identitymanager = getIdentityManager();
 

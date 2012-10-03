@@ -71,7 +71,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByUserName() throws Exception {
         UserQuery query = createUserQuery();
 
@@ -91,7 +91,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByFirstName() throws Exception {
         UserQuery query = createUserQuery();
 
@@ -111,7 +111,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByLastName() throws Exception {
         UserQuery query = createUserQuery();
 
@@ -131,7 +131,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByEmail() throws Exception {
         UserQuery query = createUserQuery();
 
@@ -151,7 +151,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByRole() throws Exception {
         UserQuery query = createUserQuery();
 
@@ -171,7 +171,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByGroup() throws Exception {
         UserQuery query = createUserQuery();
 
@@ -191,7 +191,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByAttributes() throws Exception {
         UserQuery query = createUserQuery();
 

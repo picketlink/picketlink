@@ -32,8 +32,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.JPAIdentityStore;
-import org.picketlink.idm.internal.jpa.JPATemplate;
+//import org.picketlink.idm.internal.JPAIdentityStore;
+//import org.picketlink.idm.internal.jpa.JPATemplate;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -63,7 +63,7 @@ public abstract class AbstractJPAIdentityManagerTestCase {
      * 
      * @throws Exception
      */
-    @BeforeClass
+    //@BeforeClass
     public static void onBeforeTests() throws Exception {
         emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
     }
@@ -75,7 +75,7 @@ public abstract class AbstractJPAIdentityManagerTestCase {
      * 
      * @throws Exception
      */
-    @AfterClass
+    //@AfterClass
     public static void onAfterTests() throws Exception {
         emf.close();
     }
@@ -87,7 +87,7 @@ public abstract class AbstractJPAIdentityManagerTestCase {
      * 
      * @throws Exception
      */
-    @Before
+    //@Before
     public void onSetupTest() throws Exception {
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
@@ -100,7 +100,7 @@ public abstract class AbstractJPAIdentityManagerTestCase {
      * 
      * @throws Exception
      */
-    @After
+    //@After
     public void onFinishTest() throws Exception {
         this.entityManager.flush();
         this.entityManager.getTransaction().commit();
@@ -124,15 +124,16 @@ public abstract class AbstractJPAIdentityManagerTestCase {
      * @return
      */
     protected IdentityStore createIdentityStore() {
-        JPAIdentityStore identityStore = new JPAIdentityStore();
+        //JPAIdentityStore identityStore = new JPAIdentityStore();
 
-        JPATemplate jpaTemplate = new JPATemplate();
+        //JPATemplate jpaTemplate = new JPATemplate();
 
-        jpaTemplate.setEntityManager(this.entityManager);
+        //jpaTemplate.setEntityManager(this.entityManager);
 
-        identityStore.setJpaTemplate(jpaTemplate);
+        //identityStore.setJpaTemplate(jpaTemplate);
 
-        return identityStore;
+        //return identityStore;
+        return null;
     }
 
 }

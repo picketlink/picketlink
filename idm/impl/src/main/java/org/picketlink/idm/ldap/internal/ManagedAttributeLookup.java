@@ -19,44 +19,23 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.picketlink.idm.internal.jpa;
-
-import javax.persistence.EntityManager;
+package org.picketlink.idm.ldap.internal;
 
 /**
- * <p>
- * This class provides a template method to execute operations on the {@link EntityManager} instance. It already provides some
- * exception handling, logging and gives more control about how the {@link EntityManager} is used.
- * </p>
+ * Interface to indicate whether an attribute is managed. Typically all LDAP standard attributes are managed. But if the LDAP
+ * server is fitted with custom schemas, then those attributes become managed.
  *
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * It is left to the integrating application to indicate which attributes are managed, via this interface.
  *
+ * @author anil saldhana
+ * @since Sep 7, 2012
  */
-public class JPATemplate {
-
-    private EntityManager entityManager;
-
+public interface ManagedAttributeLookup {
     /**
-     * <p>
-     * Executes the specified {@link JPACallback}.
-     * </p>
+     * Indicate whether an attribute is standard
      *
-     * @param callback
+     * @param attributeName
      * @return
      */
-    public Object execute(JPACallback callback) {
-        try {
-            return callback.execute(this.entityManager);
-        } catch (Exception e) {
-            // TODO: how to handle exceptions
-            // TODO: logging
-            throw new RuntimeException("Error while executing operation on JPA Identity Store.", e);
-        }
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
-
+    boolean isManaged(String attributeName);
 }

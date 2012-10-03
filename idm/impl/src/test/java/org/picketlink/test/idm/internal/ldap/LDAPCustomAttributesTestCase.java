@@ -28,10 +28,10 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.LDAPIdentityStore;
-import org.picketlink.idm.internal.config.LDAPConfiguration;
-import org.picketlink.idm.internal.config.LDAPConfigurationBuilder;
-import org.picketlink.idm.internal.ldap.LDAPUser;
+import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.ldap.internal.LDAPUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStoreConfigurationBuilder;
 

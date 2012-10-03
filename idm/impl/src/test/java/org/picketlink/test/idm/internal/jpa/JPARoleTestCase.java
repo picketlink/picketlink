@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.internal.JPAIdentityStore;
+//import org.picketlink.idm.internal.JPAIdentityStore;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 
@@ -49,7 +49,7 @@ public class JPARoleTestCase extends AbstractJPAIdentityTypeTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testRoleStore() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 

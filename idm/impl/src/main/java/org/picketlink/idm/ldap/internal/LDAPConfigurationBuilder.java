@@ -19,30 +19,20 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+package org.picketlink.idm.ldap.internal;
 
-package org.picketlink.idm.internal.jpa;
-
-import javax.persistence.EntityManager;
+import org.picketlink.idm.spi.IdentityStoreConfiguration;
+import org.picketlink.idm.spi.IdentityStoreConfigurationBuilder;
 
 /**
- * <p>
- * Callback class to execute some specific operation using the provided {@link EntityManager} instance.
- * </p>
+ * A {@link IdentityStoreConfigurationBuilder} for LDAP
  *
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * @author anil saldhana
+ * @since Sep 6, 2012
  */
-public interface JPACallback {
-
-    /**
-     * <p>
-     * Executes some operation using the provided {@link EntityManager}. Basic exception handling and logging are already
-     * provided by the {@link JPATemplate}.
-     * </p>
-     *
-     * @param entityManager
-     * @return
-     */
-    Object execute(EntityManager entityManager);
-
+public class LDAPConfigurationBuilder extends IdentityStoreConfigurationBuilder {
+    @Override
+    public IdentityStoreConfiguration build() {
+        return new LDAPConfiguration();
+    }
 }

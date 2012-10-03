@@ -71,7 +71,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByName() throws Exception {
         GroupQuery query = createGroupQuery();
 
@@ -91,7 +91,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindById() throws Exception {
         GroupQuery query = createGroupQuery();
 
@@ -111,7 +111,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByRole() throws Exception {
         GroupQuery query = createGroupQuery();
 
@@ -131,7 +131,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByUser() throws Exception {
         GroupQuery query = createGroupQuery();
 
@@ -152,7 +152,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByParentGroup() throws Exception {
         GroupQuery query = createGroupQuery();
 
@@ -173,7 +173,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByAttributes() throws Exception {
         GroupQuery query = createGroupQuery();
 

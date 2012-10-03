@@ -19,17 +19,21 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-
-package org.picketlink.idm.internal.jpa;
+package org.picketlink.idm.ldap.internal;
 
 /**
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * Define commonly used ldap constants
  *
+ * @author anil saldhana
+ * @since Aug 31, 2012
  */
-public interface NamedQueries {
-
-    String USER_LOAD_BY_KEY = "USER.LOAD_BY_KEY";
-    String ROLE_LOAD_BY_KEY = "ROLE.LOAD_BY_KEY";
-    String GROUP_LOAD_BY_KEY = "GROUP.LOAD_BY_KEY";
-    String MEMBERSHIP_LOAD_BY_KEY = "MEMBERSHIP.LOAD_BY_KEY";
+public interface LDAPConstants {
+    String GIVENNAME = "givenname";
+    String CN = "cn";
+    String SN = "sn";
+    String EMAIL = "mail";
+    String MEMBER = "member";
+    String OBJECT_CLASS = "objectclass";
+    String UID = "uid";
+    Object GROUP_OF_NAMES = "groupOfNames";
 }

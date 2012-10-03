@@ -19,11 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.internal;
+package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.internal.ldap.LDAPConstants.CN;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.MEMBER;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -46,18 +46,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
-import org.picketlink.idm.internal.config.LDAPConfiguration;
-import org.picketlink.idm.internal.ldap.LDAPChangeNotificationHandler;
-import org.picketlink.idm.internal.ldap.LDAPConstants;
-import org.picketlink.idm.internal.ldap.LDAPGroup;
-import org.picketlink.idm.internal.ldap.LDAPObjectChangedNotification;
-import org.picketlink.idm.internal.ldap.LDAPObjectChangedNotification.NType;
-import org.picketlink.idm.internal.ldap.LDAPRole;
-import org.picketlink.idm.internal.ldap.LDAPUser;
-import org.picketlink.idm.internal.ldap.LDAPUserCustomAttributes;
-import org.picketlink.idm.internal.ldap.ManagedAttributeLookup;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.internal.util.IDMUtil;
+import org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification.NType;
 import org.picketlink.idm.model.DefaultMembership;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;

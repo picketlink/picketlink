@@ -27,8 +27,8 @@ import java.util.Collections;
 import java.util.Date;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.internal.jpa.DefaultGroupQuery;
-import org.picketlink.idm.internal.jpa.DefaultRoleQuery;
+import org.picketlink.idm.query.internal.DefaultGroupQuery;
+import org.picketlink.idm.query.internal.DefaultRoleQuery;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
@@ -38,6 +38,7 @@ import org.picketlink.idm.query.GroupQuery;
 import org.picketlink.idm.query.MembershipQuery;
 import org.picketlink.idm.query.RoleQuery;
 import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.internal.DefaultUserQuery;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**

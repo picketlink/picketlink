@@ -19,19 +19,44 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.internal.ldap;
+package org.picketlink.idm.ldap.internal;
+
+import javax.naming.directory.Attribute;
+import javax.naming.directory.DirContext;
 
 /**
- * Handler for {@link LDAPObjectChangedNotification}
+ * Indicates that an LDAP Object has changed
  *
  * @author anil saldhana
  * @since Sep 4, 2012
  */
-public interface LDAPChangeNotificationHandler {
+public class LDAPObjectChangedNotification {
+    private DirContext object;
+    private NType ntype;
+    private Attribute attribute;
+
     /**
-     * Handle an {@link LDAPObjectChangedNotification}
-     *
-     * @param notification
+     * Notification Type
      */
-    void handle(LDAPObjectChangedNotification notification);
+    public enum NType {
+        ADD_ATTRIBUTE, REMOVE_ATTRIBUTE, CUSTOM_ATTRIBUTE, REPLACE_ATTRIBUTE
+    };
+
+    public LDAPObjectChangedNotification(DirContext ldapObject, NType nt, Attribute attribute) {
+        this.object = ldapObject;
+        this.ntype = nt;
+        this.attribute = attribute;
+    }
+
+    public DirContext getLDAPObject() {
+        return object;
+    }
+
+    public NType getNtype() {
+        return ntype;
+    }
+
+    public Attribute getAttribute() {
+        return attribute;
+    }
 }

@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.internal.password;
+package org.picketlink.idm.password.internal;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;

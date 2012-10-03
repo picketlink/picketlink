@@ -19,11 +19,11 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.internal.ldap;
+package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.internal.ldap.LDAPConstants.CN;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.MEMBER;
-import static org.picketlink.idm.internal.ldap.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;

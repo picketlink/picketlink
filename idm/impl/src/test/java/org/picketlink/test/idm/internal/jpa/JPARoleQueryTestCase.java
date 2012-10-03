@@ -71,7 +71,7 @@ public class JPARoleQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByName() throws Exception {
         RoleQuery query = createRoleQuery();
 
@@ -91,7 +91,7 @@ public class JPARoleQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByGroup() throws Exception {
         RoleQuery query = createRoleQuery();
 
@@ -112,7 +112,7 @@ public class JPARoleQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @throws Exception
      */
-    @Test
+    //@Test
     public void testfindByAttributes() throws Exception {
         RoleQuery query = createRoleQuery();
 
