@@ -1,5 +1,7 @@
 package org.picketlink.idm.jpa.internal;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
@@ -10,8 +12,11 @@ import javax.persistence.Id;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
+import org.picketlink.idm.internal.util.properties.query.PropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
-import org.picketlink.idm.internal.util.reflection.Reflections;
+import org.picketlink.idm.jpa.annotations.IDMProperty;
+import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
@@ -40,11 +45,21 @@ public class JPAIdentityStore implements IdentityStore {
     private static final String DEFAULT_RELATIONSHIP_TYPE_ROLE = "ROLE";    
     
     // Property keys
-
-    private static final String PROPERTY_IDENTITY_ID = "IDENTITY_ID";
-    private static final String PROPERTY_IDENTITY_NAME = "IDENTITY_NAME";
+    
+    // Properties common to all IdentityTypes
+    private static final String PROPERTY_IDENTITY_KEY = "IDENTITY_KEY";
+    private static final String PROPERTY_IDENTITY_ENABLED = "IDENTITY_ENABLED";
+    private static final String PROPERTY_IDENTITY_CREATED = "IDENTITY_CREATED";
+    private static final String PROPERTY_IDENTITY_EXPIRES = "IDENTITY_EXPIRES";
     private static final String PROPERTY_IDENTITY_TYPE = "IDENTITY_TYPE";
-    private static final String PROPERTY_IDENTITY_TYPE_NAME = "IDENTITY_TYPE_NAME";
+    private static final String PROPERTY_IDENTITY_TYPE_NAME = "IDENTITY_TYPE_NAME";    
+    
+    // Properties common to Users and Groups
+    private static final String PROPERTY_IDENTITY_ID = "IDENTITY_ID";
+    
+    // Properties common to Groups and Roles
+    private static final String PROPERTY_IDENTITY_NAME = "IDENTITY_NAME";
+       
     private static final String PROPERTY_CREDENTIAL_VALUE = "CREDENTIAL_VALUE";
     private static final String PROPERTY_CREDENTIAL_TYPE = "CREDENTIAL_TYPE";
     private static final String PROPERTY_CREDENTIAL_TYPE_NAME = "CREDENTIAL_TYPE_NAME";
@@ -81,7 +96,6 @@ public class JPAIdentityStore implements IdentityStore {
      * Model properties
      */
     private Map<String, Property<Object>> modelProperties = new HashMap<String, Property<Object>>();
-    
 
     private String userIdentityType = DEFAULT_USER_IDENTITY_TYPE;
     private String roleIdentityType = DEFAULT_ROLE_IDENTITY_TYPE;
@@ -89,6 +103,24 @@ public class JPAIdentityStore implements IdentityStore {
 
     private String relationshipTypeMembership = DEFAULT_RELATIONSHIP_TYPE_MEMBERSHIP;
     private String relationshipTypeRole = DEFAULT_RELATIONSHIP_TYPE_ROLE;    
+    
+    private class PropertyTypeCriteria implements PropertyCriteria {
+        private PropertyType pt;
+
+        public PropertyTypeCriteria(PropertyType pt) {
+            this.pt = pt;
+        }
+
+        public boolean fieldMatches(Field f) {
+            return f.isAnnotationPresent(IDMProperty.class) &&
+                    f.getAnnotation(IDMProperty.class).value().equals(pt);
+        }
+
+        public boolean methodMatches(Method m) {
+            return m.isAnnotationPresent(IDMProperty.class) &&
+                    m.getAnnotation(IDMProperty.class).value().equals(pt);
+        }
+    }    
     
     public void bootstrap(JPAIdentityStoreConfiguration config)
             throws SecurityConfigurationException {
@@ -104,7 +136,7 @@ public class JPAIdentityStore implements IdentityStore {
         roleTypeClass = config.getRoleTypeClass();
         attributeClass = config.getAttributeClass();
 
-        configureIdentityId();
+        configureIdentityKey();
         //configureIdentityName();
         //configureIdentityType();
 
@@ -125,15 +157,27 @@ public class JPAIdentityStore implements IdentityStore {
         //);
     }
     
-    protected void configureIdentityId() throws SecurityConfigurationException {
+    protected void configureIdentityKey() throws SecurityConfigurationException {
         List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new AnnotatedPropertyCriteria(Id.class))
+                .addCriteria(new PropertyTypeCriteria(PropertyType.KEY))
                 .getResultList();
 
         if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_ID, props.get(0));
+            modelProperties.put(PROPERTY_IDENTITY_KEY, props.get(0));
+        } else if (props.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous identity key property in identity class " + identityClass.getName());            
         } else {
-            throw new SecurityConfigurationException("Error initializing JPAIdentityStore - no Identity ID found.");
+            props = PropertyQueries.createQuery(identityClass)
+                    .addCriteria(new NamedPropertyCriteria("key"))
+                    .getResultList();
+            
+            if (!props.isEmpty())
+            {
+                modelProperties.put(PROPERTY_IDENTITY_KEY, props.get(0));
+            } else {
+                throw new SecurityConfigurationException("Error initializing JPAIdentityStore - no key property found in identity class " + 
+                    identityClass.getName());
+            }
         }
     }    
     
