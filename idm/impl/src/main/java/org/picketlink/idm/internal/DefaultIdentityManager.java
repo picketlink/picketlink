@@ -28,6 +28,7 @@ import java.util.Date;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.query.internal.DefaultGroupQuery;
+import org.picketlink.idm.query.internal.DefaultMembershipQuery;
 import org.picketlink.idm.query.internal.DefaultRoleQuery;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -237,7 +238,7 @@ public class DefaultIdentityManager implements IdentityManager {
      */
     @Override
     public MembershipQuery createMembershipQuery() {
-        return this.store.createMembershipQuery();
+        return new DefaultMembershipQuery(this.store);
     }
 
     @Override

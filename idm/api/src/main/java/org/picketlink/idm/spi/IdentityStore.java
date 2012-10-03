@@ -199,13 +199,4 @@ public interface IdentityStore {
      */
     Map<String, String[]> getAttributes(Role role);
 
-    /**
-     * <p>
-     * Creates a {@link MembershipQuery} instance.
-     * </p>
-     *
-     * @return
-     */
-    MembershipQuery createMembershipQuery();
-
 }
