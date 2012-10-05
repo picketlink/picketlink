@@ -120,7 +120,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         if (user.getId() == null) {
             throw new RuntimeException("No identifier was provided. You should provide one before storing the user.");
         }
-        
+
         LDAPUser ldapUser = (LDAPUser) user;
 
         ldapUser.setLookup(this);
@@ -481,7 +481,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
 
                 if (query.getParentGroup() != null) {
                     Group parentGroup = getParentGroup(childGroup);
-                    
+
                     if (parentGroup == null || !query.getParentGroup().getId().equals(parentGroup.getId())) {
                         isGroupSelected = false;
                     }
@@ -923,11 +923,6 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             throw new RuntimeException(e);
         }
         return users;
-    }
-
-    @Override
-    public MembershipQuery createMembershipQuery() {
-        throw new RuntimeException();
     }
 
     public boolean validatePassword(User user, String password) {

@@ -7,11 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Id;
-
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.internal.util.properties.Property;
-import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
@@ -31,7 +28,7 @@ import org.picketlink.idm.spi.JPAIdentityStoreConfiguration;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database.
- * 
+ *
  * @author Shane Bryzak
  *
  */
@@ -40,26 +37,26 @@ public class JPAIdentityStore implements IdentityStore {
     private static final String DEFAULT_USER_IDENTITY_TYPE = "USER";
     private static final String DEFAULT_ROLE_IDENTITY_TYPE = "ROLE";
     private static final String DEFAULT_GROUP_IDENTITY_TYPE = "GROUP";
-    
+
     private static final String DEFAULT_RELATIONSHIP_TYPE_MEMBERSHIP = "MEMBERSHIP";
-    private static final String DEFAULT_RELATIONSHIP_TYPE_ROLE = "ROLE";    
-    
+    private static final String DEFAULT_RELATIONSHIP_TYPE_ROLE = "ROLE";
+
     // Property keys
-    
+
     // Properties common to all IdentityTypes
     private static final String PROPERTY_IDENTITY_KEY = "IDENTITY_KEY";
     private static final String PROPERTY_IDENTITY_ENABLED = "IDENTITY_ENABLED";
     private static final String PROPERTY_IDENTITY_CREATED = "IDENTITY_CREATED";
     private static final String PROPERTY_IDENTITY_EXPIRES = "IDENTITY_EXPIRES";
     private static final String PROPERTY_IDENTITY_TYPE = "IDENTITY_TYPE";
-    private static final String PROPERTY_IDENTITY_TYPE_NAME = "IDENTITY_TYPE_NAME";    
-    
+    private static final String PROPERTY_IDENTITY_TYPE_NAME = "IDENTITY_TYPE_NAME";
+
     // Properties common to Users and Groups
     private static final String PROPERTY_IDENTITY_ID = "IDENTITY_ID";
-    
+
     // Properties common to Groups and Roles
     private static final String PROPERTY_IDENTITY_NAME = "IDENTITY_NAME";
-       
+
     private static final String PROPERTY_CREDENTIAL_VALUE = "CREDENTIAL_VALUE";
     private static final String PROPERTY_CREDENTIAL_TYPE = "CREDENTIAL_TYPE";
     private static final String PROPERTY_CREDENTIAL_TYPE_NAME = "CREDENTIAL_TYPE_NAME";
@@ -84,14 +81,14 @@ public class JPAIdentityStore implements IdentityStore {
     private static final String ATTRIBUTE_TYPE_LONG = "long";
     private static final String ATTRIBUTE_TYPE_FLOAT = "float";
     private static final String ATTRIBUTE_TYPE_DOUBLE = "double";
-    
+
     // Entity classes
     private Class<?> identityClass;
     private Class<?> credentialClass;
     private Class<?> relationshipClass;
     private Class<?> attributeClass;
     private Class<?> roleTypeClass;
-    
+
     /**
      * Model properties
      */
@@ -102,8 +99,8 @@ public class JPAIdentityStore implements IdentityStore {
     private String groupIdentityType = DEFAULT_GROUP_IDENTITY_TYPE;
 
     private String relationshipTypeMembership = DEFAULT_RELATIONSHIP_TYPE_MEMBERSHIP;
-    private String relationshipTypeRole = DEFAULT_RELATIONSHIP_TYPE_ROLE;    
-    
+    private String relationshipTypeRole = DEFAULT_RELATIONSHIP_TYPE_ROLE;
+
     private class PropertyTypeCriteria implements PropertyCriteria {
         private PropertyType pt;
 
@@ -120,11 +117,11 @@ public class JPAIdentityStore implements IdentityStore {
             return m.isAnnotationPresent(IDMProperty.class) &&
                     m.getAnnotation(IDMProperty.class).value().equals(pt);
         }
-    }    
-    
+    }
+
     public void bootstrap(JPAIdentityStoreConfiguration config)
             throws SecurityConfigurationException {
-        
+
         identityClass = config.getIdentityClass();
 
         if (identityClass == null) {
@@ -156,7 +153,7 @@ public class JPAIdentityStore implements IdentityStore {
           //      new HashSet<String>()
         //);
     }
-    
+
     protected void configureIdentityKey() throws SecurityConfigurationException {
         List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
                 .addCriteria(new PropertyTypeCriteria(PropertyType.KEY))
@@ -165,23 +162,22 @@ public class JPAIdentityStore implements IdentityStore {
         if (props.size() == 1) {
             modelProperties.put(PROPERTY_IDENTITY_KEY, props.get(0));
         } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity key property in identity class " + identityClass.getName());            
+            throw new SecurityConfigurationException("Ambiguous identity key property in identity class " + identityClass.getName());
         } else {
             props = PropertyQueries.createQuery(identityClass)
                     .addCriteria(new NamedPropertyCriteria("key"))
                     .getResultList();
-            
-            if (!props.isEmpty())
-            {
+
+            if (!props.isEmpty()) {
                 modelProperties.put(PROPERTY_IDENTITY_KEY, props.get(0));
             } else {
-                throw new SecurityConfigurationException("Error initializing JPAIdentityStore - no key property found in identity class " + 
+                throw new SecurityConfigurationException("Error initializing JPAIdentityStore - no key property found in identity class " +
                     identityClass.getName());
             }
         }
-    }    
-    
-    
+    }
+
+
     @Override
     public boolean validatePassword(User user, String password) {
         // TODO Auto-generated method stub
@@ -191,7 +187,7 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public void updatePassword(User user, String password) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -221,7 +217,7 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public void removeUser(User user) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -239,7 +235,7 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public void removeGroup(Group group) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -257,7 +253,7 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public void removeRole(Role role) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -275,7 +271,7 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public void removeMembership(Role role, User user, Group group) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -311,13 +307,13 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public void setAttribute(User user, String name, String[] values) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void removeAttribute(User user, String name) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -335,13 +331,13 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public void setAttribute(Group group, String name, String[] values) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void removeAttribute(Group group, String name) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -359,13 +355,13 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public void setAttribute(Role role, String name, String[] values) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void removeAttribute(Role role, String name) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
