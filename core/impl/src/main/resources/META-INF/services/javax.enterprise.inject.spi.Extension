@@ -1,1 +1,1 @@
-org.jboss.picketlink.cdi.permission.internal.JPAPermissionStoreConfig
+org.picketlink.cdi.permission.internal.JPAPermissionStoreConfig
