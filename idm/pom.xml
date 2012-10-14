@@ -19,6 +19,7 @@
     <modules>
         <module>api</module>
         <module>impl</module>
+        <module>schema</module>
     </modules>
 
 </project>
