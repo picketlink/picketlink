@@ -57,6 +57,9 @@ public class JPAIdentityStore implements IdentityStore {
 
     // Properties common to Groups and Roles
     private static final String PROPERTY_IDENTITY_NAME = "IDENTITY_NAME";
+    
+    // Properties for Groups only
+    private static final String PROPERTY_PARENT_GROUP = "PARENT_GROUP";
 
     // Identity membership properties
     private static final String PROPERTY_MEMBERSHIP_MEMBER = "MEMBERSHIP_MEMBER";
@@ -184,6 +187,7 @@ public class JPAIdentityStore implements IdentityStore {
         configureIdentityKey();
         configureIdentityId();        
         configureIdentityName();
+        configureIdentityParentGroup();
         configureIdentityEnabled();
         configureIdentityCreationDate();
         configureIdentityExpiryDate();
@@ -193,10 +197,6 @@ public class JPAIdentityStore implements IdentityStore {
         configureAttributes();
         
         //configureCredentials();
-        
-        
-        //configureRelationships();
-        //configureAttributes();
 
         //if (namedRelationshipsSupported) {
             //configureRoleTypeName();
@@ -285,18 +285,39 @@ public class JPAIdentityStore implements IdentityStore {
             throw new SecurityConfigurationException("Ambiguous identity name property in identity class " + 
                     identityClass.getName());
         } else {
-            props = PropertyQueries.createQuery(identityClass)
-                    .addCriteria(new NamedPropertyCriteria("name"))
-                    .getResultList();
+            Property<Object> prop = findNamedProperty(identityClass, "name");
 
-            if (!props.isEmpty()) {
-                modelProperties.put(PROPERTY_IDENTITY_NAME, props.get(0));
+            if (prop != null) {
+                modelProperties.put(PROPERTY_IDENTITY_NAME, prop);
             } else {
                 throw new SecurityConfigurationException(
                         "Error initializing JPAIdentityStore - no name property found in identity class " +
                     identityClass.getName());
             }            
         }        
+    }
+    
+    protected void configureIdentityParentGroup() throws SecurityConfigurationException {
+        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
+                .addCriteria(new PropertyTypeCriteria(PropertyType.PARENT_GROUP))
+                .getResultList();
+        
+        if (props.size() == 1) {
+            modelProperties.put(PROPERTY_PARENT_GROUP,  props.get(0));
+        } else if (props.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous identity parent group property in identity class " + 
+                identityClass.getName());
+        } else {
+            Property<Object> prop = findNamedProperty(identityClass, "parentGroup", "parent");
+
+            if (prop != null) {
+                modelProperties.put(PROPERTY_PARENT_GROUP, prop);
+            } else {
+                throw new SecurityConfigurationException(
+                    "Error initializing JPAIdentityStore - no parent group property found in identity class " +
+                    identityClass.getName());
+            }            
+        }   
     }
 
     /**
