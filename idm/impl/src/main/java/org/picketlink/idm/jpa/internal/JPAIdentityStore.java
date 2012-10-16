@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Entity;
+
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
+import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
@@ -127,6 +131,41 @@ public class JPAIdentityStore implements IdentityStore {
 
         return null;
     }    
+    
+    /**
+     * Maps attributes to properties that are spread across the object model 
+     *
+     */
+    private class MappedAttribute {
+        /**
+         * The property of the IdentityObject class that references the object that
+         * contains the attribute property
+         */
+        private Property<Object> identityProperty;
+
+        /**
+         * The property of the mapped object that contains the attribute value
+         */
+        private Property<Object> attributeProperty;
+
+        public MappedAttribute(Property<Object> identityProperty, Property<Object> attributeProperty) {
+            this.identityProperty = identityProperty;
+            this.attributeProperty = attributeProperty;
+        }
+
+        public Property<Object> getIdentityProperty() {
+            return identityProperty;
+        }
+
+        public Property<Object> getAttributeProperty() {
+            return attributeProperty;
+        }
+    }
+    
+    /*
+     * Attribute properties
+     */
+    private Map<String, MappedAttribute> attributeProperties = new HashMap<String, MappedAttribute>();
 
     public void bootstrap(JPAIdentityStoreConfiguration config)
             throws SecurityConfigurationException {
@@ -150,6 +189,8 @@ public class JPAIdentityStore implements IdentityStore {
         configureIdentityExpiryDate();
         
         configureMemberships();
+        
+        configureAttributes();
         
         //configureCredentials();
         
@@ -407,6 +448,138 @@ public class JPAIdentityStore implements IdentityStore {
                     "Error initializing JPAIdentityStore - no role property found in membership class " + 
                     membershipClass.getName());
             }            
+        }        
+    }
+    
+    /**
+     * Configures the identity store for reading and writing attribute values
+     * 
+     * @throws SecurityConfigurationException
+     */
+    protected void configureAttributes() throws SecurityConfigurationException {
+        // If an attribute class has been configured, scan it for attribute properties
+        if (attributeClass != null) {
+            List<Property<Object>> props = PropertyQueries.createQuery(attributeClass)
+                    .addCriteria(new PropertyTypeCriteria(PropertyType.NAME))
+                    .addCriteria(new TypedPropertyCriteria(String.class))
+                    .getResultList();
+            
+            if (props.size() == 1) {
+                modelProperties.put(PROPERTY_ATTRIBUTE_NAME, props.get(0));
+            } else if (props.size() > 1) {
+                throw new SecurityConfigurationException("Ambiguous attribute name property in attribute class " +
+                    attributeClass.getName());
+            } else {
+                Property<Object> prop = findNamedProperty(attributeClass, "attributeName", "name");
+                if (prop != null) {
+                    modelProperties.put(PROPERTY_ATTRIBUTE_NAME, prop);
+                } else {
+                    throw new SecurityConfigurationException(
+                        "Error initializing JPAIdentityStore - no name property found in attribute class " +
+                        attributeClass.getName());
+                }
+            }
+            
+            props = PropertyQueries.createQuery(attributeClass)
+                    .addCriteria(new PropertyTypeCriteria(PropertyType.VALUE))
+                    .getResultList();
+            
+            if (props.size() == 1) {
+                modelProperties.put(PROPERTY_ATTRIBUTE_VALUE, props.get(0));
+            } else if (props.size() > 1) {
+                throw new SecurityConfigurationException("Ambiguous attribute value property in class " +
+                    attributeClass.getName());
+            } else {
+                Property<Object> prop = findNamedProperty(attributeClass, "attributeValue", "value");
+                if (prop != null) {
+                    modelProperties.put(PROPERTY_ATTRIBUTE_VALUE, prop);
+                } else {
+                    throw new SecurityConfigurationException(
+                            "Error initializing JPAIdentityStore - no value property found in attribute class " +
+                            attributeClass.getName());
+                }
+            }
+            
+            props = PropertyQueries.createQuery(attributeClass)
+                    .addCriteria(new TypedPropertyCriteria(identityClass))
+                    .getResultList();
+
+            if (props.size() == 1) {
+                modelProperties.put(PROPERTY_ATTRIBUTE_IDENTITY, props.get(0));
+            } else if (props.size() > 1) {
+                throw new SecurityConfigurationException(
+                        "Ambiguous identity property in attribute class " +
+                                attributeClass.getName());
+            } else {
+                throw new SecurityConfigurationException("Error initializing JPAIdentityStore - " +
+                        "no attribute identity property found.");
+            }
+
+            props = PropertyQueries.createQuery(attributeClass)
+                    .addCriteria(new PropertyTypeCriteria(PropertyType.ATTRIBUTE_TYPE))
+                    .getResultList();
+
+            if (props.size() == 1) {
+                modelProperties.put(PROPERTY_ATTRIBUTE_TYPE, props.get(0));
+            } else if (props.size() > 1) {
+                throw new SecurityConfigurationException(
+                        "Ambiguous attribute type property in class " +
+                                attributeClass.getName());
+            } else {
+                Property<Object> prop = findNamedProperty(attributeClass, "attributeType", "type");
+                if (prop != null) {
+                    modelProperties.put(PROPERTY_ATTRIBUTE_TYPE, prop);
+                } else {
+                    throw new SecurityConfigurationException(
+                        "Error initializing JPAIdentityStore - no attribute type property found in attribute class " +
+                        attributeClass.getName());
+                }
+            }
+        }
+        
+        // Scan for attribute properties in the identity class
+        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(IDMAttribute.class))
+                .getResultList();
+        
+        for (Property<Object> p : props) {
+            String attribName = p.getAnnotatedElement().getAnnotation(IDMAttribute.class).name();
+
+            if (attributeProperties.containsKey(attribName)) {
+                Property<Object> other = attributeProperties.get(attribName).getAttributeProperty();
+
+                throw new SecurityConfigurationException("Multiple properties defined for attribute [" + attribName + "] - " +
+                   "Property: " + other.getDeclaringClass().getName() + "." + other.getAnnotatedElement().toString() +
+                   ", Property: " + p.getDeclaringClass().getName() + "." + p.getAnnotatedElement().toString());
+            }
+
+            attributeProperties.put(attribName, new MappedAttribute(null, p));
+        }
+        
+        // scan any entity classes referenced by the identity class also
+        props = PropertyQueries.createQuery(identityClass).getResultList();
+
+        for (Property<Object> p : props) {
+            if (!p.isReadOnly() && p.getJavaClass().isAnnotationPresent(Entity.class)) {
+                
+                List<Property<Object>> pp = PropertyQueries.createQuery(p.getJavaClass())
+                        .addCriteria(new AnnotatedPropertyCriteria(IDMAttribute.class))
+                        .getResultList();
+
+                for (Property<Object> attributeProperty : pp) {
+                    String attribName = attributeProperty.getAnnotatedElement().getAnnotation(IDMAttribute.class).name();
+
+                    if (attributeProperties.containsKey(attribName)) {
+                        Property<Object> other = attributeProperties.get(attribName).getAttributeProperty();
+
+                        throw new SecurityConfigurationException("Multiple properties defined for attribute [" + attribName + "] - " +
+                           "Property: " + other.getDeclaringClass().getName() + "." + other.getAnnotatedElement().toString() +
+                           ", Property: " + attributeProperty.getDeclaringClass().getName() + "." + attributeProperty.getAnnotatedElement().toString());
+                    }
+
+                    attributeProperties.put(attribName, new MappedAttribute(p, attributeProperty));
+                }
+            }
         }        
     }
 
