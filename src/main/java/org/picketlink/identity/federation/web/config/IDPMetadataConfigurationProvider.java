@@ -34,7 +34,6 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
-import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
 import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
@@ -119,9 +118,7 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
         
         for (Object entityDescriptorObj : entities.getEntityDescriptor()) {
             EntityDescriptorType entityDescriptorType = (EntityDescriptorType) entityDescriptorObj;
-            EDTDescriptorChoiceType edtDescriptorChoiceType = entityDescriptorType.getChoiceType().get(0).getDescriptors().get(0);
-            
-            SPSSODescriptorType spDescriptor = edtDescriptorChoiceType.getSpDescriptor();
+            SPSSODescriptorType spDescriptor = CoreConfigUtil.getSPDescriptor(entityDescriptorType);
             
             if (spDescriptor != null) {
                 for (IndexedEndpointType assertionConsumerService : spDescriptor.getAssertionConsumerService()) {
