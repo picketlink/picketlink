@@ -74,7 +74,10 @@ public class SPPostMetadataConfigurationProvider extends AbstractSAMLConfigurati
             } catch (ParsingException e) {
                 throw logger.processingError(e);
             }
+        } else {
+            throw logger.nullValueError(SP_MD_FILE);
         }
+        
         if (configParsedSPType != null) {
             spType.importFrom(configParsedSPType);
         }

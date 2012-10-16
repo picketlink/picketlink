@@ -68,4 +68,21 @@ public class TrustType {
         this.domains = value;
     }
 
+    /**
+     * <p>Adds a new domain to the list of trusted domains.</p>
+     * 
+     * @param domain
+     */
+    public void addDomain(String domain) {
+        if (this.domains == null) {
+            this.domains = "";
+        }
+        
+        if (!this.domains.isEmpty()) {
+            domain = "," + domain;            
+        }
+        
+        this.domains = this.domains + domain;
+    }
+
 }

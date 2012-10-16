@@ -22,16 +22,22 @@
 package org.picketlink.identity.federation.web.config;
 
 import java.io.InputStream;
+import java.net.URI;
 
 import org.picketlink.identity.federation.core.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.identity.federation.core.config.TrustType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.IDPSSODescriptorType;
+import org.picketlink.identity.federation.saml.v2.metadata.IndexedEndpointType;
+import org.picketlink.identity.federation.saml.v2.metadata.SPSSODescriptorType;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
 /**
@@ -61,12 +67,17 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
             try {
                 EntitiesDescriptorType entities = parseMDFile();
                 IDPSSODescriptorType idpSSO = CoreConfigUtil.getIDPDescriptor(entities);
+                
                 if (idpSSO != null) {
                     idpType = CoreConfigUtil.getIDPType(idpSSO);
                 }
+                
+                configureTrustedDomainsFromMetadata(idpType, entities);
             } catch (ParsingException e) {
                 throw logger.processingError(e);
             }
+        } else {
+            throw logger.nullValueError(IDP_MD_FILE);
         }
 
         if (configParsedIDPType != null) {
@@ -93,5 +104,32 @@ public class IDPMetadataConfigurationProvider extends AbstractSAMLConfigurationP
 
         SAMLParser parser = new SAMLParser();
         return (EntitiesDescriptorType) parser.parse(is);
+    }
+    
+    /**
+     * <p>Configures the IDP trusted domains by looking at {@link SPSSODescriptorType} definitions along the metadata.</p>
+     * 
+     * @param idpType
+     * @param entities
+     */
+    private void configureTrustedDomainsFromMetadata(IDPType idpType, EntitiesDescriptorType entities) {
+        if (idpType.getTrust() == null) {
+            idpType.setTrust(new TrustType());
+        }
+        
+        for (Object entityDescriptorObj : entities.getEntityDescriptor()) {
+            EntityDescriptorType entityDescriptorType = (EntityDescriptorType) entityDescriptorObj;
+            EDTDescriptorChoiceType edtDescriptorChoiceType = entityDescriptorType.getChoiceType().get(0).getDescriptors().get(0);
+            
+            SPSSODescriptorType spDescriptor = edtDescriptorChoiceType.getSpDescriptor();
+            
+            if (spDescriptor != null) {
+                for (IndexedEndpointType assertionConsumerService : spDescriptor.getAssertionConsumerService()) {
+                    URI location = assertionConsumerService.getLocation();
+                    
+                    idpType.getTrust().addDomain(location.getHost());
+                }
+            }
+        }
     }
 }

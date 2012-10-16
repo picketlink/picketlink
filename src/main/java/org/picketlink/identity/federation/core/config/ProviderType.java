@@ -242,16 +242,23 @@ public class ProviderType {
      */
     public void importFrom(ProviderType other) {
         KeyProviderType keyProvider = other.getKeyProvider();
+        
         if (keyProvider != null) {
             setKeyProvider(keyProvider);
         }
-
+        
+        setSupportsSignature(other.isSupportsSignature());
+        
         String can = other.getCanonicalizationMethod();
         if (StringUtil.isNotNull(can)) {
             setCanonicalizationMethod(can);
         }
-
-        trust = other.getTrust();
+        
+        if (trust == null) {
+            trust = other.getTrust();            
+        } else if (other.getTrust() != null) {
+            trust.addDomain(other.getTrust().getDomains());
+        }
 
         additionalOptions.putAll(other.additionalOptions);
     }
