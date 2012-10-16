@@ -10,9 +10,8 @@ import org.picketlink.idm.spi.JPAIdentityStoreConfiguration;
 public class DefaultJPAIdentityStoreConfiguration implements JPAIdentityStoreConfiguration {
     
     private Class<?> identityClass;
-    private Class<?> credentialClass;
-    private Class<?> relationshipClass;
-    private Class<?> roleTypeClass;
+    private Class<?> membershipClass;
+    private Class<?> credentialClass;    
     private Class<?> attributeClass;    
 
     public Class<?> getIdentityClass() {
@@ -31,20 +30,12 @@ public class DefaultJPAIdentityStoreConfiguration implements JPAIdentityStoreCon
         this.credentialClass = credentialClass;
     }
 
-    public Class<?> getRelationshipClass() {
-        return relationshipClass;
+    public Class<?> getMembershipClass() {
+        return membershipClass;
     }
 
-    public void setRelationshipClass(Class<?> relationshipClass) {
-        this.relationshipClass = relationshipClass;
-    }
-
-    public Class<?> getRoleTypeClass() {
-        return roleTypeClass;
-    }
-
-    public void setRoleTypeClass(Class<?> roleTypeClass) {
-        this.roleTypeClass = roleTypeClass;
+    public void setMembershipClass(Class<?> membershipClass) {
+        this.membershipClass = membershipClass;
     }
 
     public Class<?> getAttributeClass() {

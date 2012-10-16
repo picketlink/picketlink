@@ -10,15 +10,12 @@ public interface JPAIdentityStoreConfiguration {
     Class<?> getIdentityClass();
     void setIdentityClass(Class<?> identityClass);
 
+    Class<?> getMembershipClass();
+    void setMembershipClass(Class<?> membershipClass);
+    
     Class<?> getCredentialClass();
     void setCredentialClass(Class<?> credentialClass);
-
-    Class<?> getRelationshipClass();
-    void setRelationshipClass(Class<?> relationshipClass);
-
-    Class<?> getRoleTypeClass();
-    void setRoleTypeClass(Class<?> roleTypeClass);
-    
+   
     Class<?> getAttributeClass();
     void setAttributeClass(Class<?> attributeClass);
 
