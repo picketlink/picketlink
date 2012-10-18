@@ -21,10 +21,12 @@
  */
 package org.picketlink.idm.model;
 
+import java.io.Serializable;
+
 /**
  * Group representation
  */
-public interface Group extends IdentityType {
+public interface Group extends IdentityType, Serializable {
     String KEY_PREFIX = "GROUP://";
 
     // TODO: Javadocs

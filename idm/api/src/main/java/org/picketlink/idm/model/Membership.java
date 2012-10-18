@@ -21,10 +21,12 @@
  */
 package org.picketlink.idm.model;
 
+import java.io.Serializable;
+
 /**
  * Membership links User, Group and Role.
  */
-public interface Membership {
+public interface Membership extends Serializable {
     // TODO: Javadocs
     // TODO: Exceptions
 

@@ -2,7 +2,6 @@ package org.picketlink.idm.jpa.internal;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,6 @@ import org.picketlink.idm.spi.JPAIdentityStoreConfiguration;
  * Implementation of IdentityStore that stores its state in a relational database.
  *
  * @author Shane Bryzak
- *
  */
 public class JPAIdentityStore implements IdentityStore {
 
@@ -635,7 +633,7 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public User getUser(String name) {
+    public User getUser(String id) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -671,7 +669,7 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Role getRole(String role) {
+    public Role getRole(String name) {
         // TODO Auto-generated method stub
         return null;
     }

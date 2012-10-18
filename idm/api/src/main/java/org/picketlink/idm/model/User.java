@@ -21,10 +21,12 @@
  */
 package org.picketlink.idm.model;
 
+import java.io.Serializable;
+
 /**
  * User representation
  */
-public interface User extends IdentityType {
+public interface User extends IdentityType, Serializable {
     String KEY_PREFIX = "USER://";
 
     // TODO: Javadocs

@@ -21,10 +21,12 @@
  */
 package org.picketlink.idm.model;
 
+import java.io.Serializable;
+
 /**
  * Role representation
  */
-public interface Role extends IdentityType {
+public interface Role extends IdentityType, Serializable {
     String KEY_PREFIX = "ROLE://";
 
     // Self

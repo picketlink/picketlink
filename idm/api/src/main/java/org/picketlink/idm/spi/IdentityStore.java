@@ -54,7 +54,7 @@ public interface IdentityStore {
 
     void removeUser(User user);
 
-    User getUser(String name);
+    User getUser(String id);
 
     // Group
 
@@ -70,7 +70,7 @@ public interface IdentityStore {
 
     void removeRole(Role role);
 
-    Role getRole(String role);
+    Role getRole(String name);
 
     // Memberships
 
