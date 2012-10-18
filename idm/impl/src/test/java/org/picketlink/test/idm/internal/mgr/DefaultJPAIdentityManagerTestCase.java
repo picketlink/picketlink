@@ -37,6 +37,7 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 //import org.picketlink.idm.internal.JPAIdentityStore;
 import org.picketlink.idm.internal.util.Base64;
@@ -118,12 +119,13 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
 
         // Change password
         String userpass = "testpass";
-        im.updatePassword(user, userpass);
+        PasswordCredential pc = new PasswordCredential(userpass);
+        im.updateCredential(user, pc);
 
         // Let us validate
-        assertTrue(im.validatePassword(user, userpass));
+        assertTrue(im.validateCredential(user, pc));
 
-        assertFalse(im.validatePassword(user, "BAD"));
+        assertFalse(im.validateCredential(user, new PasswordCredential("BAD")));
 
         // Let us do UserQuery search
         UserQuery query = im.createUserQuery().setAttributeFilter("QuestionTotal", new String[] { "2" });
@@ -163,15 +165,16 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
     public void testPasswordEncoding() throws Exception {
         DefaultIdentityManager identityManager = createIdentityManager();
 
-        identityManager.setPasswordEncoder(new SHASaltedPasswordEncoder(256));
+        //identityManager.setPasswordEncoder(new SHASaltedPasswordEncoder(256));
 
         // Let us create an user
         User user = identityManager.createUser("pedroigor");
         String password = "easypassword";
+        PasswordCredential pc = new PasswordCredential(password);
 
-        identityManager.updatePassword(user, password);
+        identityManager.updateCredential(user, pc);
 
-        assertTrue(identityManager.validatePassword(user, password));
+        assertTrue(identityManager.validateCredential(user, pc));
         
         identityManager.removeUser(user);
     }

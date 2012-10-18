@@ -21,11 +21,10 @@
  */
 package org.picketlink.idm;
 
-import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Date;
 
-import org.picketlink.idm.password.PasswordEncoder;
+import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
@@ -114,18 +113,12 @@ public interface IdentityManager {
     RoleQuery createRoleQuery();
 
     MembershipQuery createMembershipQuery();
-
-    // Password Management
-    boolean validatePassword(User user, String password);
-
-    void updatePassword(User user, String password);
-
-    void setPasswordEncoder(PasswordEncoder encoder);
-
-    // Certificate Management
-    boolean validateCertificate(User user, X509Certificate certificate);
-
-    boolean updateCertificate(User user, X509Certificate certificate);
+    
+    // Credential management
+    
+    boolean validateCredential(User user, Credential credential);
+    
+    void updateCredential(User user, Credential credential);
 
     // User / Role / Group enablement / expiry
 

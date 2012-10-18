@@ -21,15 +21,12 @@
  */
 package org.picketlink.idm.internal;
 
-import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.query.internal.DefaultGroupQuery;
-import org.picketlink.idm.query.internal.DefaultMembershipQuery;
-import org.picketlink.idm.query.internal.DefaultRoleQuery;
+import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
@@ -39,6 +36,9 @@ import org.picketlink.idm.query.GroupQuery;
 import org.picketlink.idm.query.MembershipQuery;
 import org.picketlink.idm.query.RoleQuery;
 import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.internal.DefaultGroupQuery;
+import org.picketlink.idm.query.internal.DefaultMembershipQuery;
+import org.picketlink.idm.query.internal.DefaultRoleQuery;
 import org.picketlink.idm.query.internal.DefaultUserQuery;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -242,38 +242,15 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public boolean validatePassword(User user, String password) {
-        if (this.passwordEncoder != null) {
-            password = this.passwordEncoder.encodePassword(user, password);
-        }
-
-        return store.validatePassword(user, password);
+    public boolean validateCredential(User user, Credential credential) {
+        return store.validateCredential(user, credential);
     }
-
+    
     @Override
-    public void updatePassword(User user, String password) {
-        if (this.passwordEncoder != null) {
-            password = this.passwordEncoder.encodePassword(user, password);
-        }
-
-        this.store.updatePassword(user, password);
+    public void updateCredential(User user, Credential credential) {
+        store.updateCredential(user, credential);
     }
-
-    @Override
-    public void setPasswordEncoder(PasswordEncoder encoder) {
-        this.passwordEncoder = encoder;
-    }
-
-    @Override
-    public boolean validateCertificate(User user, X509Certificate certificate) {
-        return store.validateCertificate(user, certificate);
-    }
-
-    @Override
-    public boolean updateCertificate(User user, X509Certificate certificate) {
-        return store.updateCertificate(user, certificate);
-    }
-
+    
     public void setEnabled(IdentityType identityType, boolean enabled) {
         throw new RuntimeException();
     }

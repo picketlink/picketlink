@@ -38,6 +38,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
+import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
@@ -106,7 +108,7 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         anil.setAttribute("x509", encodedCert);
 
         // Try saving the cert as standard ldap cert
-        im.updateCertificate(anil, cert);
+        im.updateCredential(anil, new X509CertificateCredential(cert));
 
         // let us retrieve the attributes from ldap store and see if they are the same
         anil = im.getUser("asaldhan");
@@ -134,12 +136,13 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
 
         // Change password
         String anilpass = "testpass";
-        im.updatePassword(anil, anilpass);
+        PasswordCredential pc = new PasswordCredential(anilpass);
+        im.updateCredential(anil, pc);
 
         // Let us validate
-        assertTrue(im.validatePassword(anil, anilpass));
+        assertTrue(im.validateCredential(anil, pc));
 
-        assertFalse(im.validatePassword(anil, "BAD"));
+        assertFalse(im.validateCredential(anil, new PasswordCredential("BAD")));
 
         // Let us do UserQuery search
         UserQuery query = im.createUserQuery().setAttributeFilter("QuestionTotal", new String[] { "2" });

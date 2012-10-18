@@ -21,10 +21,10 @@
  */
 package org.picketlink.idm.spi;
 
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Map;
 
+import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
@@ -45,15 +45,6 @@ public interface IdentityStore {
 
     // TODO: control hooks, events
     // TODO: authentication, password strenght, salted password hashes
-
-    boolean validatePassword(User user, String password);
-
-    void updatePassword(User user, String password);
-
-    // Certificate Management
-    boolean validateCertificate(User user, X509Certificate certificate);
-
-    boolean updateCertificate(User user, X509Certificate certificate);
 
     // User
 
@@ -98,6 +89,13 @@ public interface IdentityStore {
     List<Role> executeQuery(RoleQuery query, Range range);
 
     List<Membership> executeQuery(MembershipQuery query, Range range);
+    
+
+    // Credential management
+    
+    boolean validateCredential(User user, Credential credential);
+    
+    void updateCredential(User user, Credential credential);    
 
     // Attributes
 

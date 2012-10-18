@@ -1,5 +1,7 @@
 package org.picketlink.credential;
 
+import org.picketlink.idm.credential.Credential;
+
 /**
  * Represents the credentials the current user will use to authenticate
  * Only valid during the authentication process

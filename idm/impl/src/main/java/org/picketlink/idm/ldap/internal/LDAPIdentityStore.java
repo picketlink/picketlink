@@ -46,6 +46,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
+import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification.NType;
@@ -925,87 +928,87 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         return users;
     }
 
-    public boolean validatePassword(User user, String password) {
-        boolean valid = false;
-        // We have to bind
-        try {
-            LDAPUser ldapUser = (LDAPUser) user;
-            String filter = "(&(objectClass=inetOrgPerson)(uid={0}))";
-            SearchControls ctls = new SearchControls();
-            ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            ctls.setReturningAttributes(new String[0]);
-            ctls.setReturningObjFlag(true);
-            NamingEnumeration<SearchResult> enm = ctx.search(userDNSuffix, filter, new String[] { ldapUser.getId() }, ctls);
-
-            String dn = null;
-            if (enm.hasMore()) {
-                SearchResult result = enm.next();
-                dn = result.getNameInNamespace();
-
-                System.out.println("dn: " + dn);
+    public boolean validateCredential(User user, Credential credential) {
+        if (credential instanceof PasswordCredential) {
+            PasswordCredential pc = (PasswordCredential) credential;
+            boolean valid = false;
+            // We have to bind
+            try {
+                LDAPUser ldapUser = (LDAPUser) user;
+                String filter = "(&(objectClass=inetOrgPerson)(uid={0}))";
+                SearchControls ctls = new SearchControls();
+                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                ctls.setReturningAttributes(new String[0]);
+                ctls.setReturningObjFlag(true);
+                NamingEnumeration<SearchResult> enm = ctx.search(userDNSuffix, filter, new String[] { ldapUser.getId() }, ctls);
+    
+                String dn = null;
+                if (enm.hasMore()) {
+                    SearchResult result = enm.next();
+                    dn = result.getNameInNamespace();
+    
+                    System.out.println("dn: " + dn);
+                }
+    
+                if (dn == null || enm.hasMore()) {
+                    // uid not found or not unique
+                    throw new NamingException("Authentication failed");
+                }
+    
+                // Step 3: Bind with found DN and given password
+                ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
+                ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, pc.getPassword());
+                // Perform a lookup in order to force a bind operation with JNDI
+                ctx.lookup(dn);
+                valid = true;
+            } catch (NamingException e) {
+                // Ignore
             }
-
-            if (dn == null || enm.hasMore()) {
-                // uid not found or not unique
-                throw new NamingException("Authentication failed");
-            }
-
-            // Step 3: Bind with found DN and given password
-            ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
-            ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
-            // Perform a lookup in order to force a bind operation with JNDI
-            ctx.lookup(dn);
-            valid = true;
-        } catch (NamingException e) {
-            // Ignore
-        }
-
-        constructContext();
-        return valid;
+    
+            constructContext();
+            return valid;
+        } else {
+            return false;
+        }        
     }
 
     @Override
-    public void updatePassword(User user, String password) {
-        if (isActiveDirectory) {
-            updateADPassword((LDAPUser) user, password);
-        } else {
-            LDAPUser ldapuser = (LDAPUser) user;
-
-            ModificationItem[] mods = new ModificationItem[1];
-
-            Attribute mod0 = new BasicAttribute("userpassword", password);
-
-            mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
-
+    public void updateCredential(User user, Credential credential) {
+        if (credential instanceof PasswordCredential) {
+            PasswordCredential pc = (PasswordCredential) credential;
+            if (isActiveDirectory) {
+                updateADPassword((LDAPUser) user, pc.getPassword());
+            } else {
+                LDAPUser ldapuser = (LDAPUser) user;
+    
+                ModificationItem[] mods = new ModificationItem[1];
+    
+                Attribute mod0 = new BasicAttribute("userpassword", pc.getPassword());
+    
+                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
+    
+                try {
+                    ctx.modifyAttributes(ldapuser.getDN(), mods);
+                } catch (NamingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (credential instanceof X509CertificateCredential) {
+            X509CertificateCredential cc = (X509CertificateCredential) credential;
             try {
-                ctx.modifyAttributes(ldapuser.getDN(), mods);
-            } catch (NamingException e) {
+                LDAPUser ldapUser = (LDAPUser) user;
+                ldapUser.setAttribute("usercertificate", new String(Base64.encodeBytes(cc.getCertificate().getEncoded())));
+                ModificationItem[] mods = new ModificationItem[1];
+
+                byte[] certbytes = cc.getCertificate().getEncoded();
+
+                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("usercertificate", certbytes));
+
+                // Perform the update
+                ctx.modifyAttributes(ldapUser.getDN(), mods);
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-        }
-    }
-
-    @Override
-    public boolean validateCertificate(User user, X509Certificate certificate) {
-        return false;
-    }
-
-    @Override
-    public boolean updateCertificate(User user, X509Certificate certificate) {
-        try {
-            LDAPUser ldapUser = (LDAPUser) user;
-            ldapUser.setAttribute("usercertificate", new String(Base64.encodeBytes(certificate.getEncoded())));
-            ModificationItem[] mods = new ModificationItem[1];
-
-            byte[] certbytes = certificate.getEncoded();
-
-            mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("usercertificate", certbytes));
-
-            // Perform the update
-            ctx.modifyAttributes(ldapUser.getDN(), mods);
-            return true;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 

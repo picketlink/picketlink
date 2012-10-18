@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.persistence.Entity;
 
 import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
@@ -89,7 +90,6 @@ public class JPAIdentityStore implements IdentityStore {
     // Entity classes
     private Class<?> identityClass;
     private Class<?> membershipClass;
-    
     private Class<?> credentialClass;    
     private Class<?> attributeClass;
 
@@ -605,27 +605,15 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public boolean validatePassword(User user, String password) {
+    public boolean validateCredential(User user, Credential credential) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public void updatePassword(User user, String password) {
+    public void updateCredential(User user, Credential credential) {
         // TODO Auto-generated method stub
 
-    }
-
-    @Override
-    public boolean validateCertificate(User user, X509Certificate certificate) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public boolean updateCertificate(User user, X509Certificate certificate) {
-        // TODO Auto-generated method stub
-        return false;
     }
 
     @Override
