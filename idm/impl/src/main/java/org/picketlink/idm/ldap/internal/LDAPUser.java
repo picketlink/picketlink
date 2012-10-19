@@ -49,11 +49,13 @@ import org.picketlink.idm.model.User;
  */
 public class LDAPUser extends DirContextAdaptor implements User {
 
+    private static final long serialVersionUID = -6304335191378756309L;
+
     protected String userid, firstName, lastName, fullName, email, userDNSuffix;
 
     protected LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
 
-    protected ManagedAttributeLookup lookup;
+    protected transient ManagedAttributeLookup lookup;
 
     public LDAPUser() {
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
