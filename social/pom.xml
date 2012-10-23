@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <parent>
-      <groupId>org.picketlink</groupId>
-      <artifactId>picketlink-social-parent</artifactId>
-      <version>2.0.0-SNAPSHOT</version>
-      <relativePath>../parent</relativePath>
-   </parent>
+    <parent>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-parent</artifactId>
+        <version>3.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
    <modelVersion>4.0.0</modelVersion>
-   <artifactId>picketlink-social-standalone</artifactId>
+   <artifactId>picketlink-social</artifactId>
    <packaging>jar</packaging>
    <name>PicketLink Social</name>
    <url>http://labs.jboss.org/portal/picketlink/</url>
@@ -83,21 +83,10 @@
          <artifactId>json</artifactId>
          <version>20090211</version>
       </dependency>
-     <!--
-      <dependency>
-         <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-facebook</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-openid</artifactId>
-         <version>${project.version}</version>
-      </dependency>
-      -->
       <dependency>
          <groupId>org.openid4java</groupId>
          <artifactId>openid4java-nodeps</artifactId>
+         <version>0.9.6</version>
       </dependency>
       <dependency>
          <groupId>apache-log4j</groupId>
@@ -113,6 +102,7 @@
       <dependency>
          <groupId>org.mortbay.jetty</groupId>
          <artifactId>jetty</artifactId>
+         <version>6.1.18</version>
          <scope>test</scope>
       </dependency>
       <dependency>
@@ -148,6 +138,7 @@
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
+         <version>4.4</version>
          <scope>test</scope>
       </dependency>
    </dependencies>
