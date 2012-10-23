@@ -40,7 +40,6 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.jboss.security.SecurityConstants;
 import org.jboss.wsf.common.handler.GenericSOAPHandler;
-import org.jboss.wsf.spi.invocation.SecurityAdaptorFactory;
 import org.picketlink.identity.federation.PicketLinkLogger;
 import org.picketlink.identity.federation.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
@@ -72,8 +71,6 @@ public abstract class AbstractPicketLinkTrustHandler<C extends LogicalMessageCon
 
     protected static final String SEC_MGR_LOOKUP = SecurityConstants.JAAS_CONTEXT_ROOT;
     protected static final String AUTHZ_MGR_LOOKUP = "java:comp/env/security/authorizationMgr";
-
-    protected SecurityAdaptorFactory secAdapterfactory;
 
     private String securityDomainName;
 

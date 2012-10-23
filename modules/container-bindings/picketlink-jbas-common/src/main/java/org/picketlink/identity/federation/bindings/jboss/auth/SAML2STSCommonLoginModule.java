@@ -48,6 +48,7 @@ import org.picketlink.identity.federation.core.constants.PicketLinkFederationCon
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.factories.JBossAuthCacheInvalidationFactory.TimeCacheExpiry;
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
@@ -292,6 +293,11 @@ public abstract class SAML2STSCommonLoginModule extends SAMLTokenFromHttpRequest
             }
             else {
                 super.callbackHandler.handle(new Callback[] { callback });
+                
+                if (callback.getCredential() instanceof String) {
+                    callback.setCredential(new SamlCredential(DocumentUtil.getDocument(callback.getCredential().toString()).getDocumentElement()));
+                }
+                
                 if (callback.getCredential() instanceof SamlCredential == false)
                     throw logger.authSharedCredentialIsNotSAMLCredential(callback.getCredential().getClass().getName());
                 this.credential = (SamlCredential) callback.getCredential();
