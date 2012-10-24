@@ -40,6 +40,8 @@ import org.picketlink.idm.model.Role;
  */
 public class LDAPRole extends DirContextAdaptor implements Role {
 
+    private static final long serialVersionUID = 1L;
+    
     private String roleName, roleDNSuffix;
 
     public LDAPRole() {

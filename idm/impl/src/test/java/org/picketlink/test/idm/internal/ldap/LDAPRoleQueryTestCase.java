@@ -31,7 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.GroupQuery;
 import org.picketlink.idm.query.RoleQuery;

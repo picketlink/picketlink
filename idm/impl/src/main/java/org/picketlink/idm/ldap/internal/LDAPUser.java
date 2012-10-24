@@ -49,7 +49,7 @@ import org.picketlink.idm.model.User;
  */
 public class LDAPUser extends DirContextAdaptor implements User {
 
-    private static final long serialVersionUID = -6304335191378756309L;
+    private static final long serialVersionUID = 1L;
 
     protected String userid, firstName, lastName, fullName, email, userDNSuffix;
 
@@ -219,6 +219,11 @@ public class LDAPUser extends DirContextAdaptor implements User {
             }
         }
         return null;
+    }
+    
+    @Override
+    public String getKey() {
+        return getId();
     }
 
     @Override

@@ -71,6 +71,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author Anil Saldhana
  */
 public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationHandler, ManagedAttributeLookup {
+    private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
     public final String COMMA = ",";
     public final String EQUAL = "=";
 
@@ -123,7 +124,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         if (user.getId() == null) {
             throw new RuntimeException("No identifier was provided. You should provide one before storing the user.");
         }
-
+        
         LDAPUser ldapUser = (LDAPUser) user;
 
         ldapUser.setLookup(this);
@@ -484,7 +485,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
 
                 if (query.getParentGroup() != null) {
                     Group parentGroup = getParentGroup(childGroup);
-
+                    
                     if (parentGroup == null || !query.getParentGroup().getId().equals(parentGroup.getId())) {
                         isGroupSelected = false;
                     }
@@ -794,7 +795,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.idm.internal.ldap.LDAPChangeNotificationHandler#handle(org.picketlink.idm.internal.ldap.LDAPObjectChangedNotification)
+     * @see org.picketlink.idm.ldap.internal.LDAPChangeNotificationHandler#handle(org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification)
      */
     @Override
     public void handle(LDAPObjectChangedNotification notification) {
@@ -834,7 +835,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.idm.internal.ldap.ManagedAttributeLookup#isManaged(java.lang.String)
+     * @see org.picketlink.idm.ldap.internal.ManagedAttributeLookup#isManaged(java.lang.String)
      */
     @Override
     public boolean isManaged(String attributeName) {
@@ -928,90 +929,6 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         return users;
     }
 
-    public boolean validateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential pc = (PasswordCredential) credential;
-            boolean valid = false;
-            // We have to bind
-            try {
-                LDAPUser ldapUser = (LDAPUser) user;
-                String filter = "(&(objectClass=inetOrgPerson)(uid={0}))";
-                SearchControls ctls = new SearchControls();
-                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                ctls.setReturningAttributes(new String[0]);
-                ctls.setReturningObjFlag(true);
-                NamingEnumeration<SearchResult> enm = ctx.search(userDNSuffix, filter, new String[] { ldapUser.getId() }, ctls);
-    
-                String dn = null;
-                if (enm.hasMore()) {
-                    SearchResult result = enm.next();
-                    dn = result.getNameInNamespace();
-    
-                    System.out.println("dn: " + dn);
-                }
-    
-                if (dn == null || enm.hasMore()) {
-                    // uid not found or not unique
-                    throw new NamingException("Authentication failed");
-                }
-    
-                // Step 3: Bind with found DN and given password
-                ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
-                ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, pc.getPassword());
-                // Perform a lookup in order to force a bind operation with JNDI
-                ctx.lookup(dn);
-                valid = true;
-            } catch (NamingException e) {
-                // Ignore
-            }
-    
-            constructContext();
-            return valid;
-        } else {
-            return false;
-        }        
-    }
-
-    @Override
-    public void updateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential pc = (PasswordCredential) credential;
-            if (isActiveDirectory) {
-                updateADPassword((LDAPUser) user, pc.getPassword());
-            } else {
-                LDAPUser ldapuser = (LDAPUser) user;
-    
-                ModificationItem[] mods = new ModificationItem[1];
-    
-                Attribute mod0 = new BasicAttribute("userpassword", pc.getPassword());
-    
-                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
-    
-                try {
-                    ctx.modifyAttributes(ldapuser.getDN(), mods);
-                } catch (NamingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential cc = (X509CertificateCredential) credential;
-            try {
-                LDAPUser ldapUser = (LDAPUser) user;
-                ldapUser.setAttribute("usercertificate", new String(Base64.encodeBytes(cc.getCertificate().getEncoded())));
-                ModificationItem[] mods = new ModificationItem[1];
-
-                byte[] certbytes = cc.getCertificate().getEncoded();
-
-                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("usercertificate", certbytes));
-
-                // Perform the update
-                ctx.modifyAttributes(ldapUser.getDN(), mods);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
     private void constructContext() {
         if (ctx != null) {
             try {
@@ -1082,5 +999,114 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.idm.spi.IdentityStore#validateCredential(org.picketlink.idm.model.User, org.picketlink.idm.credential.Credential)
+     */
+    @Override
+    public boolean validateCredential(User user, Credential credential) {
+        boolean valid = false;
+        
+        if (credential instanceof PasswordCredential) {
+            PasswordCredential passwordCredential = (PasswordCredential) credential;
+            
+            // We have to bind
+            try {
+                LDAPUser ldapUser = (LDAPUser) user;
+                String filter = "(&(objectClass=inetOrgPerson)(uid={0}))";
+                SearchControls ctls = new SearchControls();
+                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                ctls.setReturningAttributes(new String[0]);
+                ctls.setReturningObjFlag(true);
+                NamingEnumeration<SearchResult> enm = ctx.search(userDNSuffix, filter, new String[] { ldapUser.getId() }, ctls);
+
+                String dn = null;
+                if (enm.hasMore()) {
+                    SearchResult result = enm.next();
+                    dn = result.getNameInNamespace();
+
+                    System.out.println("dn: " + dn);
+                }
+
+                if (dn == null || enm.hasMore()) {
+                    // uid not found or not unique
+                    throw new NamingException("Authentication failed");
+                }
+
+                // Step 3: Bind with found DN and given password
+                ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
+                ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, passwordCredential.getPassword());
+                // Perform a lookup in order to force a bind operation with JNDI
+                ctx.lookup(dn);
+                valid = true;
+            } catch (NamingException e) {
+                // Ignore
+            }
+
+            constructContext();
+        } else {
+            throwsNotSupportedCredentialType(credential);
+        }
+        
+        return valid;
+    }
+
+    @Override
+    public void updateCredential(User user, Credential credential) {
+        if (credential instanceof PasswordCredential) {
+            PasswordCredential passwordCredential = (PasswordCredential) credential;
+            String password = passwordCredential.getPassword();
+            
+            if (isActiveDirectory) {
+                
+                updateADPassword((LDAPUser) user, password);
+            } else {
+                LDAPUser ldapuser = (LDAPUser) user;
+
+                ModificationItem[] mods = new ModificationItem[1];
+
+                Attribute mod0 = new BasicAttribute(USER_PASSWORD_ATTRIBUTE, password);
+
+                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
+
+                try {
+                    ctx.modifyAttributes(ldapuser.getDN(), mods);
+                } catch (NamingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (credential instanceof X509CertificateCredential) {
+            X509CertificateCredential certificateCredential = (X509CertificateCredential) credential;
+            X509Certificate certificate = certificateCredential.getCertificate();
+            
+            try {
+                LDAPUser ldapUser = (LDAPUser) user;
+                ldapUser.setAttribute("usercertificate", new String(Base64.encodeBytes(certificate.getEncoded())));
+                ModificationItem[] mods = new ModificationItem[1];
+
+                
+                byte[] certbytes = certificate.getEncoded();
+
+                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("usercertificate", certbytes));
+
+                // Perform the update
+                ctx.modifyAttributes(ldapUser.getDN(), mods);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            throwsNotSupportedCredentialType(credential);
+        }
+    }
+    
+    /**
+     * <p>Helper method to throws a {@link IllegalArgumentException} when the specified {@link Credential} is not supported.</p>
+     * TODO: when using JBoss Logging this method should be removed.
+     * 
+     * @param credential
+     * @return
+     */
+    private IllegalArgumentException throwsNotSupportedCredentialType(Credential credential) {
+        return new IllegalArgumentException("Credential type not supported: " + credential.getClass());
+    }
 
 }
