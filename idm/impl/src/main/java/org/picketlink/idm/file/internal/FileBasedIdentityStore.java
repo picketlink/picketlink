@@ -1026,8 +1026,10 @@ public class FileBasedIdentityStore implements IdentityStore {
 
             return storedPassword != null && storedPassword.equals(passwordCredential.getPassword());    
         } else {
-            throw throwsNotSupportedCredentialType(credential);            
+            throwsNotSupportedCredentialType(credential);            
         }
+        
+        return false;
     }
 
     /* (non-Javadoc)
@@ -1042,7 +1044,7 @@ public class FileBasedIdentityStore implements IdentityStore {
 
             storedUser.setAttribute(USER_PASSWORD_ATTRIBUTE, passwordCredential.getPassword());
         } else {
-            throw throwsNotSupportedCredentialType(credential);            
+            throwsNotSupportedCredentialType(credential);            
         }
     }
 
@@ -1053,7 +1055,7 @@ public class FileBasedIdentityStore implements IdentityStore {
      * @param credential
      * @return
      */
-    private IllegalArgumentException throwsNotSupportedCredentialType(Credential credential) {
-        return new IllegalArgumentException("Credential type not supported: " + credential.getClass());
+    private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
+        throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
     }
 }
