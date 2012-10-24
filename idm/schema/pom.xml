@@ -84,6 +84,10 @@
          <version>1.5.6</version>
          <scope>test</scope>
       </dependency>
+      <dependency>
+      	<groupId>org.picketlink</groupId>
+      	<artifactId>picketlink-idm-impl</artifactId>
+      </dependency>
       <!-- JPA Identity Store Dependencies -->
       <dependency>
          <groupId>org.hibernate.javax.persistence</groupId>
