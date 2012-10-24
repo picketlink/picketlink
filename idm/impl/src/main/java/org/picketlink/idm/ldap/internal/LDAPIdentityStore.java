@@ -1105,8 +1105,8 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
      * @param credential
      * @return
      */
-    private IllegalArgumentException throwsNotSupportedCredentialType(Credential credential) {
-        return new IllegalArgumentException("Credential type not supported: " + credential.getClass());
+    private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
+        throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
     }
 
 }
