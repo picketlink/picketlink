@@ -1025,9 +1025,9 @@ public class FileBasedIdentityStore implements IdentityStore {
             String storedPassword = storedUser.getAttribute(USER_PASSWORD_ATTRIBUTE);
 
             return storedPassword != null && storedPassword.equals(passwordCredential.getPassword());    
+        } else {
+            throw throwsNotSupportedCredentialType(credential);            
         }
-        
-        throw throwsNotSupportedCredentialType(credential);
     }
 
     /* (non-Javadoc)
@@ -1041,10 +1041,9 @@ public class FileBasedIdentityStore implements IdentityStore {
             User storedUser = getUser(user.getId());
 
             storedUser.setAttribute(USER_PASSWORD_ATTRIBUTE, passwordCredential.getPassword());
-
+        } else {
+            throw throwsNotSupportedCredentialType(credential);            
         }
-        
-        throw throwsNotSupportedCredentialType(credential);
     }
 
     /**
