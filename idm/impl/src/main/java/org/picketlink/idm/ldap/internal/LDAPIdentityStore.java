@@ -21,6 +21,7 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import static javax.naming.directory.DirContext.REPLACE_ATTRIBUTE;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
@@ -72,6 +73,8 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author Anil Saldhana
  */
 public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationHandler, ManagedAttributeLookup {
+    private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
+    private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
     public final String COMMA = ",";
     public final String EQUAL = "=";
 
@@ -339,13 +342,13 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         ldapGroup.addUser(ldapUser);
 
         try {
-            ctx.modifyAttributes(ldapRole.getDN(), ctx.REPLACE_ATTRIBUTE, ldapRole.getAttributes(MEMBER));
+            ctx.modifyAttributes(ldapRole.getDN(), REPLACE_ATTRIBUTE, ldapRole.getAttributes(MEMBER));
         } catch (NamingException e) {
             throw new RuntimeException("Error while modifying members of role [" + ldapRole.getName() + "].", e);
         }
 
         try {
-            ctx.modifyAttributes(ldapGroup.getDN(), ctx.REPLACE_ATTRIBUTE, ldapGroup.getAttributes(MEMBER));
+            ctx.modifyAttributes(ldapGroup.getDN(), REPLACE_ATTRIBUTE, ldapGroup.getAttributes(MEMBER));
         } catch (NamingException e) {
             throw new RuntimeException("Error while modifying members of group [" + ldapGroup.getName() + "].", e);
         }
@@ -750,7 +753,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.idm.internal.ldap.LDAPChangeNotificationHandler#handle(org.picketlink.idm.internal.ldap.LDAPObjectChangedNotification)
+     * @see org.picketlink.idm.ldap.internal.LDAPChangeNotificationHandler#handle(org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification)
      */
     @Override
     public void handle(LDAPObjectChangedNotification notification) {
@@ -790,7 +793,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.idm.internal.ldap.ManagedAttributeLookup#isManaged(java.lang.String)
+     * @see org.picketlink.idm.ldap.internal.ManagedAttributeLookup#isManaged(java.lang.String)
      */
     @Override
     public boolean isManaged(String attributeName) {
@@ -925,8 +928,10 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             constructContext();
             return valid;
         } else {
-            return false;
+            throwsNotSupportedCredentialType(credential);
         }        
+        
+        return false;
     }
 
     @Override
@@ -940,7 +945,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     
                 ModificationItem[] mods = new ModificationItem[1];
     
-                Attribute mod0 = new BasicAttribute("userpassword", pc.getPassword());
+                Attribute mod0 = new BasicAttribute(USER_PASSWORD_ATTRIBUTE, pc.getPassword());
     
                 mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
     
@@ -954,18 +959,20 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             X509CertificateCredential cc = (X509CertificateCredential) credential;
             try {
                 LDAPUser ldapUser = (LDAPUser) user;
-                ldapUser.setAttribute("usercertificate", new String(Base64.encodeBytes(cc.getCertificate().getEncoded())));
+                ldapUser.setAttribute(USER_CERTIFICATE_ATTRIBUTE, new String(Base64.encodeBytes(cc.getCertificate().getEncoded())));
                 ModificationItem[] mods = new ModificationItem[1];
 
                 byte[] certbytes = cc.getCertificate().getEncoded();
 
-                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("usercertificate", certbytes));
+                mods[0] = new ModificationItem(REPLACE_ATTRIBUTE, new BasicAttribute(USER_CERTIFICATE_ATTRIBUTE, certbytes));
 
                 // Perform the update
                 ctx.modifyAttributes(ldapUser.getDN(), mods);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+        } else {
+            throwsNotSupportedCredentialType(credential);
         }
     }
 
@@ -1039,5 +1046,15 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         }
     }
 
+    /**
+     * <p>Helper method to throws a {@link IllegalArgumentException} when the specified {@link Credential} is not supported.</p>
+     * TODO: when using JBoss Logging this method should be removed.
+     * 
+     * @param credential
+     * @return
+     */
+    private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
+        throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
+    }
 
 }

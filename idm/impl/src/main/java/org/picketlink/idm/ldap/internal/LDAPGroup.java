@@ -21,6 +21,7 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
@@ -40,6 +41,8 @@ import org.picketlink.idm.model.Group;
  */
 public class LDAPGroup extends DirContextAdaptor implements Group {
 
+    private static final long serialVersionUID = 1L;
+    
     public final String COMMA = ",";
     private LDAPGroup parent;
     private String groupName;
