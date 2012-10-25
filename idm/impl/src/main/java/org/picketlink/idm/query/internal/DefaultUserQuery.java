@@ -41,7 +41,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author anil saldhana
  * @since Sep 13, 2012
  */
-public class DefaultUserQuery implements UserQuery {
+public class DefaultUserQuery extends AbstractQuery<UserQuery> implements UserQuery {
 
     protected IdentityStore store = null;
     private String name;
@@ -209,6 +209,6 @@ public class DefaultUserQuery implements UserQuery {
 
     @Override
     public List<User> executeQuery() {
-        return store.executeQuery(this, null);
+        return store.executeQuery(getInvocationContext(store), this, null);
     }
 }

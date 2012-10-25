@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.picketlink.idm.query.Range;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -62,6 +64,11 @@ public class AbstractQuery<T> {
     public T sort(boolean ascending) {
         this.sortAscending = ascending;
         return (T) this;
+    }
+
+    public IdentityStoreInvocationContext getInvocationContext(IdentityStore store) {
+        // FIXME implement this
+        return null;
     }
 
 }

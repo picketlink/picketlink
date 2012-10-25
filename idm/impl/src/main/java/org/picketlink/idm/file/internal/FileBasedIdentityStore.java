@@ -51,6 +51,7 @@ import org.picketlink.idm.query.Range;
 import org.picketlink.idm.query.RoleQuery;
 import org.picketlink.idm.query.UserQuery;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * <p>
@@ -89,7 +90,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Initializes the store.</p>
+     * <p>
+     * Initializes the store.
+     * </p>
      */
     private void initialize() {
         initDataFiles();
@@ -138,7 +141,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Check if the specified {@link File} exists. If not create it.</p>
+     * <p>
+     * Check if the specified {@link File} exists. If not create it.
+     * </p>
      * 
      * @param file
      * @return
@@ -159,7 +164,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Load all persisted groups from the filesystem.</p>
+     * <p>
+     * Load all persisted groups from the filesystem.
+     * </p>
      */
     private void loadGroups() {
         ObjectInputStream ois = null;
@@ -181,7 +188,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Load all persisted memberships from the filesystem.</p>
+     * <p>
+     * Load all persisted memberships from the filesystem.
+     * </p>
      */
     private void loadMemberships() {
         ObjectInputStream ois = null;
@@ -203,7 +212,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Load all persisted roles from the filesystem.</p>
+     * <p>
+     * Load all persisted roles from the filesystem.
+     * </p>
      */
     private void loadRoles() {
         ObjectInputStream ois = null;
@@ -225,7 +236,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Load all persisted users from the filesystem.</p>
+     * <p>
+     * Load all persisted users from the filesystem.
+     * </p>
      */
     private void loadUsers() {
         ObjectInputStream ois = null;
@@ -247,7 +260,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Flush all changes made to users to the filesystem.</p>
+     * <p>
+     * Flush all changes made to users to the filesystem.
+     * </p>
      */
     synchronized void flushUsers() {
         try {
@@ -260,7 +275,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Flush all changes made to roles to the filesystem.</p>
+     * <p>
+     * Flush all changes made to roles to the filesystem.
+     * </p>
      */
     synchronized void flushRoles() {
         try {
@@ -273,7 +290,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Flush all changes made to groups to the filesystem.</p>
+     * <p>
+     * Flush all changes made to groups to the filesystem.
+     * </p>
      */
     synchronized void flushGroups() {
         try {
@@ -287,7 +306,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Flush all changes made to memberships to the filesystem.</p>
+     * <p>
+     * Flush all changes made to memberships to the filesystem.
+     * </p>
      */
     synchronized void flushMemberships() {
         try {
@@ -300,57 +321,26 @@ public class FileBasedIdentityStore implements IdentityStore {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createUser(java.lang.String)
-     */
     @Override
-    public User createUser(String name) {
-        FileUser user = new FileUser(name);
+    public void createUser(IdentityStoreInvocationContext ctx, User user) {
+        FileUser fileUser = (FileUser) user;
 
-        user.setChangeListener(this.changeListener);
+        fileUser.setChangeListener(this.changeListener);
 
-        this.users.put(user.getId(), user);
+        this.users.put(user.getId(), fileUser);
 
         flushUsers();
-
-        return user;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createUser(org.picketlink.idm.model.User)
-     */
     @Override
-    public User createUser(User user) {
-        this.users.put(user.getId(), (FileUser) user);
-
-        flushUsers();
-
-        return user;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeUser(org.picketlink.idm.model.User)
-     */
-    @Override
-    public void removeUser(User user) {
+    public void removeUser(IdentityStoreInvocationContext ctx, User user) {
         this.users.remove(user.getId());
 
         flushUsers();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getUser(java.lang.String)
-     */
     @Override
-    public User getUser(String name) {
+    public User getUser(IdentityStoreInvocationContext ctx, String name) {
         FileUser user = this.users.get(name);
 
         if (user != null) {
@@ -360,13 +350,8 @@ public class FileBasedIdentityStore implements IdentityStore {
         return user;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createGroup(java.lang.String, org.picketlink.idm.model.Group)
-     */
     @Override
-    public Group createGroup(String name, Group parent) {
+    public Group createGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
         FileGroup group = new FileGroup(name, parent);
 
         this.groups.put(group.getName(), group);
@@ -378,24 +363,14 @@ public class FileBasedIdentityStore implements IdentityStore {
         return group;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeGroup(org.picketlink.idm.model.Group)
-     */
     @Override
-    public void removeGroup(Group group) {
+    public void removeGroup(IdentityStoreInvocationContext ctx, Group group) {
         this.groups.remove(group.getName());
         flushGroups();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getGroup(java.lang.String)
-     */
     @Override
-    public Group getGroup(String name) {
+    public Group getGroup(IdentityStoreInvocationContext ctx, String name) {
         FileGroup group = this.groups.get(name);
 
         if (group != null) {
@@ -405,13 +380,8 @@ public class FileBasedIdentityStore implements IdentityStore {
         return group;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createRole(java.lang.String)
-     */
     @Override
-    public Role createRole(String name) {
+    public Role createRole(IdentityStoreInvocationContext ctx, String name) {
         FileRole role = new FileRole(name);
 
         this.roles.put(role.getName(), role);
@@ -423,24 +393,14 @@ public class FileBasedIdentityStore implements IdentityStore {
         return role;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeRole(org.picketlink.idm.model.Role)
-     */
     @Override
-    public void removeRole(Role role) {
+    public void removeRole(IdentityStoreInvocationContext ctx, Role role) {
         this.roles.remove(role.getName());
         flushRoles();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getRole(java.lang.String)
-     */
     @Override
-    public Role getRole(String role) {
+    public Role getRole(IdentityStoreInvocationContext ctx, String role) {
         FileRole fileRole = (FileRole) this.roles.get(role);
 
         if (fileRole != null) {
@@ -450,14 +410,8 @@ public class FileBasedIdentityStore implements IdentityStore {
         return fileRole;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createMembership(org.picketlink.idm.model.Role, org.picketlink.idm.model.User,
-     * org.picketlink.idm.model.Group)
-     */
     @Override
-    public Membership createMembership(Role role, User user, Group group) {
+    public Membership createMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
         FileMembership membership = new FileMembership(role, user, group);
 
         this.memberships.add(membership);
@@ -468,36 +422,32 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void removeMembership(Role role, User user, Group group) {
+    public void removeMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
         for (Membership membership : new ArrayList<FileMembership>(this.memberships)) {
             boolean match = false;
 
             if (role != null) {
                 match = membership.getRole() != null && role.equals(membership.getRole());
-            } else {
-                match = true;
             }
 
             if (user != null) {
                 match = membership.getUser() != null && user.equals(membership.getUser());
-            } else {
-                match = true;
             }
 
             if (group != null) {
                 match = membership.getGroup() != null && group.equals(membership.getGroup());
-            } else {
-                match = true;
             }
 
-            this.memberships.remove(membership);
+            if (match) {
+                this.memberships.remove(membership);
+            }
         }
 
         flushMemberships();
     }
 
     @Override
-    public Membership getMembership(Role role, User user, Group group) {
+    public Membership getMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
         for (Membership membership : new ArrayList<FileMembership>(this.memberships)) {
             boolean match = false;
 
@@ -527,14 +477,8 @@ public class FileBasedIdentityStore implements IdentityStore {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#executeQuery(org.picketlink.idm.query.UserQuery,
-     * org.picketlink.idm.query.Range)
-     */
     @Override
-    public List<User> executeQuery(UserQuery query, Range range) {
+    public List<User> executeQuery(IdentityStoreInvocationContext ctx, UserQuery query, Range range) {
         List<User> users = new ArrayList<User>();
 
         for (Entry<String, FileUser> entry : this.users.entrySet()) {
@@ -612,44 +556,14 @@ public class FileBasedIdentityStore implements IdentityStore {
         }
 
         Map<String, String[]> queryAttributes = query.getAttributeFilters();
-        
+
         searchForIdentityTypeAttributes(users, queryAttributes);
 
         return users;
     }
 
-    private void searchForIdentityTypeAttributes(List<? extends IdentityType> users, Map<String, String[]> queryAttributes) {
-        if (queryAttributes != null) {
-            Set<Entry<String, String[]>> entrySet = queryAttributes.entrySet();
-
-            for (IdentityType fileUser : new ArrayList<IdentityType>(users)) {
-                for (Entry<String, String[]> entry : entrySet) {
-                    String searchAttributeKey = entry.getKey();
-                    String[] searchAttributeValue = entry.getValue();
-
-                    String[] userAttributes = fileUser.getAttributeValues(searchAttributeKey);
-
-                    if (userAttributes == null) {
-                        users.remove(fileUser);
-                        continue;
-                    }
-
-                    if (Collections.indexOfSubList(Arrays.asList(userAttributes), Arrays.asList(searchAttributeValue)) > 0) {
-                        users.remove(fileUser);
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#executeQuery(org.picketlink.idm.query.GroupQuery,
-     * org.picketlink.idm.query.Range)
-     */
     @Override
-    public List<Group> executeQuery(GroupQuery query, Range range) {
+    public List<Group> executeQuery(IdentityStoreInvocationContext ctx, GroupQuery query, Range range) {
         List<Group> groups = new ArrayList<Group>();
 
         for (Entry<String, FileGroup> entry : this.groups.entrySet()) {
@@ -723,18 +637,12 @@ public class FileBasedIdentityStore implements IdentityStore {
         return groups;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#executeQuery(org.picketlink.idm.query.RoleQuery,
-     * org.picketlink.idm.query.Range)
-     */
     @Override
-    public List<Role> executeQuery(RoleQuery query, Range range) {
+    public List<Role> executeQuery(IdentityStoreInvocationContext ctx, RoleQuery query, Range range) {
         List<Role> roles = new ArrayList<Role>();
 
         if (query.getName() != null) {
-            Role role = getRole(query.getName());
+            Role role = getRole(ctx, query.getName());
 
             if (role != null) {
                 roles.add(role);
@@ -762,7 +670,7 @@ public class FileBasedIdentityStore implements IdentityStore {
                 roles.add(membership.getRole());
             }
         }
-        
+
         if (query.getAttributeFilters() != null && !query.getAttributeFilters().isEmpty()) {
             searchForIdentityTypeAttributes(roles, query.getAttributeFilters());
         }
@@ -770,14 +678,8 @@ public class FileBasedIdentityStore implements IdentityStore {
         return roles;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#executeQuery(org.picketlink.idm.query.MembershipQuery,
-     * org.picketlink.idm.query.Range)
-     */
     @Override
-    public List<Membership> executeQuery(MembershipQuery query, Range range) {
+    public List<Membership> executeQuery(IdentityStoreInvocationContext ctx, MembershipQuery query, Range range) {
         List<Membership> memberships = new ArrayList<Membership>();
 
         for (Membership membership : this.memberships) {
@@ -811,184 +713,159 @@ public class FileBasedIdentityStore implements IdentityStore {
         return memberships;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.User, java.lang.String,
-     * java.lang.String[])
-     */
     @Override
-    public void setAttribute(User user, String name, String[] values) {
-        FileUser fileUser = (FileUser) getUser(user.getId());
+    public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String name, String[] values) {
+        if (identityType instanceof FileUser) {
+            FileUser user = (FileUser) identityType;
+            FileUser fileUser = (FileUser) getUser(ctx, user.getId());
 
-        fileUser.setAttribute(name, values);
+            fileUser.setAttribute(name, values);
 
-        flushUsers();
-    }
+            flushUsers();
+        } else if (identityType instanceof FileRole) {
+            FileRole role = (FileRole) identityType;
+            FileRole fileRole = (FileRole) getRole(ctx, role.getName());
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.User, java.lang.String)
-     */
-    @Override
-    public void removeAttribute(User user, String name) {
-        FileUser fileUser = (FileUser) getUser(user.getId());
-
-        if (fileUser != null) {
-            this.users.remove(fileUser.getId());
-        }
-
-        flushUsers();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributeValues(org.picketlink.idm.model.User, java.lang.String)
-     */
-    @Override
-    public String[] getAttributeValues(User user, String name) {
-        FileUser fileUser = (FileUser) getUser(user.getId());
-
-        if (fileUser != null) {
-            return fileUser.getAttributeValues(name);
-        }
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributes(org.picketlink.idm.model.User)
-     */
-    @Override
-    public Map<String, String[]> getAttributes(User user) {
-        FileUser fileUser = (FileUser) getUser(user.getId());
-
-        if (fileUser != null) {
-            return fileUser.getAttributes();
-        }
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.Group, java.lang.String,
-     * java.lang.String[])
-     */
-    @Override
-    public void setAttribute(Group group, String name, String[] values) {
-        FileGroup fileGroup = (FileGroup) getGroup(group.getId());
-
-        if (fileGroup != null) {
-            fileGroup.setAttribute(name, values);
-        }
-
-        flushGroups();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.Group, java.lang.String)
-     */
-    @Override
-    public void removeAttribute(Group group, String name) {
-        FileGroup fileGroup = (FileGroup) getGroup(group.getId());
-
-        if (fileGroup != null) {
-            fileGroup.removeAttribute(name);
-        }
-
-        flushGroups();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributeValues(org.picketlink.idm.model.Group, java.lang.String)
-     */
-    @Override
-    public String[] getAttributeValues(Group group, String name) {
-        FileGroup fileGroup = (FileGroup) getGroup(group.getId());
-
-        if (fileGroup != null) {
-            return fileGroup.getAttributeValues(name);
-        }
-
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributes(org.picketlink.idm.model.Group)
-     */
-    @Override
-    public Map<String, String[]> getAttributes(Group group) {
-        FileGroup fileGroup = (FileGroup) getGroup(group.getId());
-
-        if (fileGroup != null) {
-            return fileGroup.getAttributes();
-        }
-
-        return null;
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.Role, java.lang.String, java.lang.String[])
-     */
-    @Override
-    public void setAttribute(Role role, String name, String[] values) {
-        FileRole fileRole = (FileRole) getRole(role.getName());
-
-        if (fileRole != null) {
             fileRole.setAttribute(name, values);
-        }
 
-        flushRoles();
+            flushRoles();
+        } else if (identityType instanceof FileGroup) {
+            FileGroup group = (FileGroup) identityType;
+            FileGroup fileGroup = (FileGroup) getGroup(ctx, group.getName());
+
+            fileGroup.setAttribute(name, values);
+
+            flushRoles();
+        } else {
+            throwsNotSupportedIdentityType(identityType);
+        }
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.Role, java.lang.String)
-     */
     @Override
-    public void removeAttribute(Role role, String name) {
-        FileRole fileRole = (FileRole) getRole(role.getName());
+    public void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String name) {
+        if (identityType instanceof FileUser) {
+            FileUser user = (FileUser) identityType;
+            FileUser fileUser = (FileUser) getUser(ctx, user.getId());
 
-        if (fileRole != null) {
-            fileRole.removeAttribute(name);
+            if (fileUser != null) {
+                this.users.remove(fileUser.getId());
+            }
+
+            flushUsers();
+        } else if (identityType instanceof FileRole) {
+            FileRole role = (FileRole) identityType;
+            FileRole fileRole = (FileRole) getRole(ctx, role.getName());
+
+            if (fileRole != null) {
+                this.roles.remove(fileRole.getName());
+            }
+
+            flushRoles();
+        } else if (identityType instanceof FileGroup) {
+            FileGroup group = (FileGroup) identityType;
+            FileGroup fileGroup = (FileGroup) getGroup(ctx, group.getName());
+
+            if (fileGroup != null) {
+                this.groups.remove(fileGroup.getName());
+            }
+
+            flushRoles();
+        } else {
+            throwsNotSupportedIdentityType(identityType);
         }
-
-        flushRoles();
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributeValues(org.picketlink.idm.model.Role, java.lang.String)
-     */
     @Override
-    public String[] getAttributeValues(Role role, String name) {
-        FileRole fileRole = (FileRole) getRole(role.getName());
+    public String[] getAttributeValues(IdentityStoreInvocationContext ctx, IdentityType identityType, String name) {
+        if (identityType instanceof FileUser) {
+            FileUser user = (FileUser) identityType;
+            FileUser fileUser = (FileUser) getUser(ctx, user.getId());
 
-        if (fileRole != null) {
-            return fileRole.getAttributeValues(name);
+            if (fileUser != null) {
+                return fileUser.getAttributeValues(name);
+            }
+        } else if (identityType instanceof FileRole) {
+            FileRole role = (FileRole) identityType;
+            FileRole fileRole = (FileRole) getRole(ctx, role.getName());
+
+            if (fileRole != null) {
+                return fileRole.getAttributeValues(name);
+            }
+        } else if (identityType instanceof FileGroup) {
+            FileGroup group = (FileGroup) identityType;
+            FileGroup fileGroup = (FileGroup) getGroup(ctx, group.getName());
+
+            if (fileGroup != null) {
+                return fileGroup.getAttributeValues(name);
+            }
+
+            flushRoles();
+        } else {
+            throwsNotSupportedIdentityType(identityType);
         }
 
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributes(org.picketlink.idm.model.Role)
-     */
     @Override
-    public Map<String, String[]> getAttributes(Role role) {
-        FileRole fileRole = (FileRole) getRole(role.getName());
+    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, IdentityType identityType) {
+        if (identityType instanceof FileUser) {
+            FileUser user = (FileUser) identityType;
+            FileUser fileUser = (FileUser) getUser(ctx, user.getId());
 
-        if (fileRole != null) {
-            return fileRole.getAttributes();
+            if (fileUser != null) {
+                return fileUser.getAttributes();
+            }
+        } else if (identityType instanceof FileRole) {
+            FileRole role = (FileRole) identityType;
+            FileRole fileRole = (FileRole) getRole(ctx, role.getName());
+
+            if (fileRole != null) {
+                return fileRole.getAttributes();
+            }
+        } else if (identityType instanceof FileGroup) {
+            FileGroup group = (FileGroup) identityType;
+            FileGroup fileGroup = (FileGroup) getGroup(ctx, group.getName());
+
+            if (fileGroup != null) {
+                return fileGroup.getAttributes();
+            }
+
+            flushRoles();
+        } else {
+            throwsNotSupportedIdentityType(identityType);
         }
 
         return null;
+    }
+    
+    @Override
+    public boolean validateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
+        if (credential instanceof PasswordCredential) {
+            PasswordCredential passwordCredential = (PasswordCredential) credential;
+
+            User storedUser = getUser(ctx, user.getId());
+            String storedPassword = storedUser.getAttribute(USER_PASSWORD_ATTRIBUTE);
+
+            return storedPassword != null && storedPassword.equals(passwordCredential.getPassword());
+        } else {
+            throwsNotSupportedCredentialType(credential);
+        }
+
+        return false;
+    }
+
+    @Override
+    public void updateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
+        if (credential instanceof PasswordCredential) {
+            PasswordCredential passwordCredential = (PasswordCredential) credential;
+
+            User storedUser = getUser(ctx, user.getId());
+
+            storedUser.setAttribute(USER_PASSWORD_ATTRIBUTE, passwordCredential.getPassword());
+        } else {
+            throwsNotSupportedCredentialType(credential);
+        }
     }
 
     public String getWorkingDir() {
@@ -996,7 +873,9 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Sets the base directory which will be used to store informations.</p>
+     * <p>
+     * Sets the base directory which will be used to store informations.
+     * </p>
      * 
      * @param workingDir
      */
@@ -1005,51 +884,44 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     /**
-     * <p>Indicates that the files must be always recreated during the initialization.</p>
+     * <p>
+     * Indicates that the files must be always recreated during the initialization.
+     * </p>
      * 
      * @param alwaysCreateFiles
      */
     public void setAlwaysCreateFiles(boolean alwaysCreateFiles) {
         this.alwaysCreateFiles = alwaysCreateFiles;
     }
+    
+    private void searchForIdentityTypeAttributes(List<? extends IdentityType> users, Map<String, String[]> queryAttributes) {
+        if (queryAttributes != null) {
+            Set<Entry<String, String[]>> entrySet = queryAttributes.entrySet();
 
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#validateCredential(org.picketlink.idm.model.User, org.picketlink.idm.credential.Credential)
-     */
-    @Override
-    public boolean validateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential passwordCredential = (PasswordCredential) credential;
-            
-            User storedUser = getUser(user.getId());
-            String storedPassword = storedUser.getAttribute(USER_PASSWORD_ATTRIBUTE);
+            for (IdentityType fileUser : new ArrayList<IdentityType>(users)) {
+                for (Entry<String, String[]> entry : entrySet) {
+                    String searchAttributeKey = entry.getKey();
+                    String[] searchAttributeValue = entry.getValue();
 
-            return storedPassword != null && storedPassword.equals(passwordCredential.getPassword());    
-        } else {
-            throwsNotSupportedCredentialType(credential);            
-        }
-        
-        return false;
-    }
+                    String[] userAttributes = fileUser.getAttributeValues(searchAttributeKey);
 
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#updateCredential(org.picketlink.idm.model.User, org.picketlink.idm.credential.Credential)
-     */
-    @Override
-    public void updateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential passwordCredential = (PasswordCredential) credential;
-            
-            User storedUser = getUser(user.getId());
+                    if (userAttributes == null) {
+                        users.remove(fileUser);
+                        continue;
+                    }
 
-            storedUser.setAttribute(USER_PASSWORD_ATTRIBUTE, passwordCredential.getPassword());
-        } else {
-            throwsNotSupportedCredentialType(credential);            
+                    if (Collections.indexOfSubList(Arrays.asList(userAttributes), Arrays.asList(searchAttributeValue)) > 0) {
+                        users.remove(fileUser);
+                    }
+                }
+            }
         }
     }
 
     /**
-     * <p>Helper method to throws a {@link IllegalArgumentException} when the specified {@link Credential} is not supported.</p>
+     * <p>
+     * Helper method to throws a {@link IllegalArgumentException} when the specified {@link Credential} is not supported.
+     * </p>
      * TODO: when using JBoss Logging this method should be removed.
      * 
      * @param credential
@@ -1057,5 +929,18 @@ public class FileBasedIdentityStore implements IdentityStore {
      */
     private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
         throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
+    }
+
+    /**
+     * <p>
+     * Helper method to throws a {@link IllegalArgumentException} when the specified {@link IdentityType} is not supported.
+     * </p>
+     * TODO: when using JBoss Logging this method should be removed.
+     * 
+     * @param credential
+     * @return
+     */
+    private void throwsNotSupportedIdentityType(IdentityType identityType) throws IllegalArgumentException {
+        throw new IllegalArgumentException("IdentityType not supported: " + identityType.getClass());
     }
 }

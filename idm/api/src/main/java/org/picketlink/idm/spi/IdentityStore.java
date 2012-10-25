@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -48,153 +49,83 @@ public interface IdentityStore {
 
     // User
 
-    User createUser(String name);
+    void createUser(IdentityStoreInvocationContext ctx, User user);
 
-    User createUser(User user);
+    void removeUser(IdentityStoreInvocationContext ctx, User user);
 
-    void removeUser(User user);
-
-    User getUser(String id);
+    User getUser(IdentityStoreInvocationContext ctx, String id);
 
     // Group
 
-    Group createGroup(String name, Group parent);
+    Group createGroup(IdentityStoreInvocationContext ctx, String name, Group parent);
 
-    void removeGroup(Group group);
+    void removeGroup(IdentityStoreInvocationContext ctx, Group group);
 
-    Group getGroup(String name);
+    Group getGroup(IdentityStoreInvocationContext ctx, String name);
 
     // Role
 
-    Role createRole(String name);
+    Role createRole(IdentityStoreInvocationContext ctx, String name);
 
-    void removeRole(Role role);
+    void removeRole(IdentityStoreInvocationContext ctx, Role role);
 
-    Role getRole(String name);
+    Role getRole(IdentityStoreInvocationContext ctx, String name);
 
     // Memberships
 
-    Membership createMembership(Role role, User user, Group group);
+    Membership createMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group);
 
-    void removeMembership(Role role, User user, Group group);
+    void removeMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group);
 
-    Membership getMembership(Role role, User user, Group group);
+    Membership getMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group);
 
     // Queries
 
-    List<User> executeQuery(UserQuery query, Range range);
+    List<User> executeQuery(IdentityStoreInvocationContext ctx, UserQuery query, Range range);
 
-    List<Group> executeQuery(GroupQuery query, Range range);
+    List<Group> executeQuery(IdentityStoreInvocationContext ctx, GroupQuery query, Range range);
 
-    List<Role> executeQuery(RoleQuery query, Range range);
+    List<Role> executeQuery(IdentityStoreInvocationContext ctx, RoleQuery query, Range range);
 
-    List<Membership> executeQuery(MembershipQuery query, Range range);
+    List<Membership> executeQuery(IdentityStoreInvocationContext ctx, MembershipQuery query, Range range);
     
 
     // Credential management
     
-    boolean validateCredential(User user, Credential credential);
+    boolean validateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential);
     
-    void updateCredential(User user, Credential credential);    
+    void updateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential);    
 
     // Attributes
 
-    // User
-
     /**
      * Set attribute with given name and values. Operation will overwrite any previous values. Null value or empty array will
      * remove attribute.
      *
-     * @param user
+     * @param identity
      * @param name of attribute
      * @param values to be set
      */
-    void setAttribute(User user, String name, String[] values);
+    void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name, String[] values);
 
     /**
-     * @param user Remove attribute with given name
+     * @param identity Remove attribute for the specified IdentityType
      *
      * @param name of attribute
      */
-    void removeAttribute(User user, String name);
+    void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name);
 
     /**
-     * @param user
+     * @param identity
      * @param name of attribute
      * @return attribute values or null if attribute with given name doesn't exist
      */
-    String[] getAttributeValues(User user, String name);
+    String[] getAttributeValues(IdentityStoreInvocationContext ctx, IdentityType identity, String name);
 
     /**
-     * @param user
+     * @param identity
      * @return map of attribute names and their values
      */
-    Map<String, String[]> getAttributes(User user);
-
-    // Group
-
-    /**
-     * Set attribute with given name and values. Operation will overwrite any previous values. Null value or empty array will
-     * remove attribute.
-     *
-     * @param group
-     * @param name of attribute
-     * @param values to be set
-     */
-    void setAttribute(Group group, String name, String[] values);
-
-    /**
-     * Remove attribute with given name
-     *
-     * @param group
-     * @param name of attribute
-     */
-    void removeAttribute(Group group, String name);
-
-    /**
-     * @param group
-     * @param name of attribute
-     * @return attribute values or null if attribute with given name doesn't exist
-     */
-    String[] getAttributeValues(Group group, String name);
-
-    /**
-     * @param group
-     * @return map of attribute names and their values
-     */
-    Map<String, String[]> getAttributes(Group group);
-
-    // Role
-
-    /**
-     * Set attribute with given name and values. Operation will overwrite any previous values. Null value or empty array will
-     * remove attribute.
-     *
-     * @param role
-     * @param name of attribute
-     * @param values to be set
-     */
-    void setAttribute(Role role, String name, String[] values);
-
-    /**
-     * Remove attribute with given name
-     *
-     * @param role
-     * @param name of attribute
-     */
-    void removeAttribute(Role role, String name);
-
-    /**
-     * @param role
-     * @param name of attribute
-     * @return attribute values or null if attribute with given name doesn't exist
-     */
-    String[] getAttributeValues(Role role, String name);
-
-    /**
-     * @param role
-     * @return map of attribute names and their values
-     */
-    Map<String, String[]> getAttributes(Role role);
+    Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, IdentityType identity);
 
 }

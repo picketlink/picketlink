@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.credential.PasswordCredential;
@@ -65,7 +66,7 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         importLDIF("ldap/users.ldif");
     }
 
-    @Test
+    @Test @Ignore
     public void testDefaultIdentityManager() throws Exception {
         LDAPIdentityStore store = new LDAPIdentityStore();
         store.setConfiguration(getConfiguration());

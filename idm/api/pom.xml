@@ -16,6 +16,15 @@
 
     <name>PicketLink Identity Management API</name>
 
+    <dependencies>
+        <dependency>
+             <groupId>org.hibernate.javax.persistence</groupId>
+             <artifactId>hibernate-jpa-2.0-api</artifactId>
+             <version>1.0.1.Final</version>
+             <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
     <build>
       <plugins>
 
