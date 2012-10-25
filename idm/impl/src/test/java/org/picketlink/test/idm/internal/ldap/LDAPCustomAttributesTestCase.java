@@ -26,6 +26,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
@@ -48,7 +49,7 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
         importLDIF("ldap/users.ldif");
     }
 
-    @Test
+    @Test @Ignore
     public void testUserAttributes() throws Exception {
         LDAPIdentityStore store = new LDAPIdentityStore();
         store.setConfiguration(getConfiguration());

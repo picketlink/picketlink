@@ -32,6 +32,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.internal.util.Base64;
@@ -71,7 +72,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         return config;
     }
 
-    @Test
+    @Test @Ignore
     public void testLDAPIdentityStore() throws Exception {
         LDAPIdentityStore store = new LDAPIdentityStore();
 

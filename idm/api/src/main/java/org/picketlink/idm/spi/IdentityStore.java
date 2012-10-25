@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -97,102 +98,34 @@ public interface IdentityStore {
 
     // Attributes
 
-    // User
-
     /**
      * Set attribute with given name and values. Operation will overwrite any previous values. Null value or empty array will
      * remove attribute.
      *
-     * @param user
+     * @param identity
      * @param name of attribute
      * @param values to be set
      */
-    void setAttribute(IdentityStoreInvocationContext ctx, User user, String name, String[] values);
+    void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name, String[] values);
 
     /**
-     * @param user Remove attribute with given name
+     * @param identity Remove attribute for the specified IdentityType
      *
      * @param name of attribute
      */
-    void removeAttribute(IdentityStoreInvocationContext ctx, User user, String name);
+    void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name);
 
     /**
-     * @param user
+     * @param identity
      * @param name of attribute
      * @return attribute values or null if attribute with given name doesn't exist
      */
-    String[] getAttributeValues(IdentityStoreInvocationContext ctx, User user, String name);
+    String[] getAttributeValues(IdentityStoreInvocationContext ctx, IdentityType identity, String name);
 
     /**
-     * @param user
+     * @param identity
      * @return map of attribute names and their values
      */
-    Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, User user);
-
-    // Group
-
-    /**
-     * Set attribute with given name and values. Operation will overwrite any previous values. Null value or empty array will
-     * remove attribute.
-     *
-     * @param group
-     * @param name of attribute
-     * @param values to be set
-     */
-    void setAttribute(IdentityStoreInvocationContext ctx, Group group, String name, String[] values);
-
-    /**
-     * Remove attribute with given name
-     *
-     * @param group
-     * @param name of attribute
-     */
-    void removeAttribute(IdentityStoreInvocationContext ctx, Group group, String name);
-
-    /**
-     * @param group
-     * @param name of attribute
-     * @return attribute values or null if attribute with given name doesn't exist
-     */
-    String[] getAttributeValues(IdentityStoreInvocationContext ctx, Group group, String name);
-
-    /**
-     * @param group
-     * @return map of attribute names and their values
-     */
-    Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, Group group);
-
-    // Role
-
-    /**
-     * Set attribute with given name and values. Operation will overwrite any previous values. Null value or empty array will
-     * remove attribute.
-     *
-     * @param role
-     * @param name of attribute
-     * @param values to be set
-     */
-    void setAttribute(IdentityStoreInvocationContext ctx, Role role, String name, String[] values);
-
-    /**
-     * Remove attribute with given name
-     *
-     * @param role
-     * @param name of attribute
-     */
-    void removeAttribute(IdentityStoreInvocationContext ctx, Role role, String name);
-
-    /**
-     * @param role
-     * @param name of attribute
-     * @return attribute values or null if attribute with given name doesn't exist
-     */
-    String[] getAttributeValues(IdentityStoreInvocationContext ctx, Role role, String name);
-
-    /**
-     * @param role
-     * @return map of attribute names and their values
-     */
-    Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, Role role);
+    Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, IdentityType identity);
 
 }

@@ -53,6 +53,7 @@ import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification.NType;
 import org.picketlink.idm.model.DefaultMembership;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -563,18 +564,36 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
      * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.User, java.lang.String, java.lang.String[])
      */
     @Override
-    public void setAttribute(IdentityStoreInvocationContext invocationContext, User user, String name, String[] values) {
-        LDAPUser ldapUser = null;
-
-        if (user instanceof LDAPUser) {
-            ldapUser = (LDAPUser) user;
-        } else {
-            ldapUser = (LDAPUser) getUser(invocationContext, user.getFullName());
-        }
-        if (isManaged(name)) {
-            ldapUser.setAttribute(name, values);
-        } else {
-            ldapUser.setCustomAttribute(name, values);
+    public void setAttribute(IdentityStoreInvocationContext invocationContext, IdentityType identity, String name, String[] values) {
+        if (identity instanceof User) {
+            LDAPUser ldapUser = null;
+    
+            if (identity instanceof LDAPUser) {
+                ldapUser = (LDAPUser) identity;
+            } else {
+                ldapUser = (LDAPUser) getUser(invocationContext, ((User) identity).getFullName());
+            }
+            if (isManaged(name)) {
+                ldapUser.setAttribute(name, values);
+            } else {
+                ldapUser.setCustomAttribute(name, values);
+            }
+        } else if (identity instanceof Group) {
+            LDAPGroup ldapGroup = null;
+            if (identity instanceof LDAPGroup) {
+                ldapGroup = (LDAPGroup) identity;
+            } else {
+                ldapGroup = (LDAPGroup) getGroup(invocationContext, ((Group) identity).getName());
+            }
+            ldapGroup.setAttribute(name, values);            
+        } else if (identity instanceof Role) {
+            LDAPRole ldapRole = null;
+            if (identity instanceof LDAPGroup) {
+                ldapRole = (LDAPRole) identity;
+            } else {
+                ldapRole = (LDAPRole) getRole(invocationContext, ((Role) identity).getName());
+            }
+            ldapRole.setAttribute(name, values);
         }
     }
 
@@ -582,148 +601,94 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
      * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.User, java.lang.String)
      */
     @Override
-    public void removeAttribute(IdentityStoreInvocationContext invocationContext, User user, String name) {
-        if (user instanceof LDAPUser == false) {
-            throw new RuntimeException("Wrong type:" + user);
+    public void removeAttribute(IdentityStoreInvocationContext invocationContext, IdentityType identity, String name) {
+        if (identity instanceof User) {
+            if (identity instanceof LDAPUser == false) {
+                throw new RuntimeException("Wrong type:" + identity);
+            }
+            LDAPUser ldapUser = (LDAPUser) identity;
+            ldapUser.removeAttribute(name);
+        } else if (identity instanceof Group) {
+            LDAPGroup ldapGroup = null;
+            if (identity instanceof LDAPGroup) {
+                ldapGroup = (LDAPGroup) identity;
+            } else {
+                ldapGroup = (LDAPGroup) getGroup(invocationContext, ((Group) identity).getName());
+            }
+            ldapGroup.removeAttribute(name);
+        } else if (identity instanceof Role) {
+            LDAPRole ldapRole = null;
+            if (identity instanceof LDAPGroup) {
+                ldapRole = (LDAPRole) identity;
+            } else {
+                ldapRole = (LDAPRole) getRole(invocationContext, ((Role) identity).getName());
+            }
+            ldapRole.removeAttribute(name);
         }
-        LDAPUser ldapUser = (LDAPUser) user;
-        ldapUser.removeAttribute(name);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#getAttributeValues(org.picketlink.idm.model.User, java.lang.String)
      */
     @Override
-    public String[] getAttributeValues(IdentityStoreInvocationContext invocationContext, User user, String name) {
-        if (user instanceof LDAPUser == false) {
-            throw new RuntimeException("Wrong type:" + user);
+    public String[] getAttributeValues(IdentityStoreInvocationContext invocationContext, IdentityType identity, String name) {
+        if (identity instanceof User) {
+            if (identity instanceof LDAPUser == false) {
+                throw new RuntimeException("Wrong type:" + identity);
+            }
+            LDAPUser ldapUser = (LDAPUser) identity;
+            return ldapUser.getAttributeValues(name);
+        } else if (identity instanceof Group) {
+            LDAPGroup ldapGroup = null;
+            if (identity instanceof LDAPGroup) {
+                ldapGroup = (LDAPGroup) identity;
+            } else {
+                ldapGroup = (LDAPGroup) getGroup(invocationContext, ((Group) identity).getName());
+            }
+            return ldapGroup.getAttributeValues(name);
+        } else if (identity instanceof Role) {
+            LDAPRole ldapRole = null;
+            if (identity instanceof LDAPGroup) {
+                ldapRole = (LDAPRole) identity;
+            } else {
+                ldapRole = (LDAPRole) getRole(invocationContext, ((Role) identity).getName());
+            }
+            return ldapRole.getAttributeValues(name);
+        } else {
+            throw new IllegalArgumentException("identity parameter must be an instance of User, Group or Role");
         }
-        LDAPUser ldapUser = (LDAPUser) user;
-        return ldapUser.getAttributeValues(name);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#getAttributes(org.picketlink.idm.model.User)
      */
     @Override
-    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext invocationContext, User user) {
-        if (user instanceof LDAPUser == false) {
-            throw new RuntimeException("Wrong type:" + user);
-        }
-        LDAPUser ldapUser = (LDAPUser) user;
-        return ldapUser.getAttributes();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.Group, java.lang.String, java.lang.String[])
-     */
-    @Override
-    public void setAttribute(IdentityStoreInvocationContext invocationContext, Group group, String name, String[] values) {
-        LDAPGroup ldapGroup = null;
-        if (group instanceof LDAPGroup) {
-            ldapGroup = (LDAPGroup) group;
+    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext invocationContext, IdentityType identity) {
+        if (identity instanceof User) {
+            if (identity instanceof LDAPUser == false) {
+                throw new RuntimeException("Wrong type:" + identity);
+            }
+            LDAPUser ldapUser = (LDAPUser) identity;
+            return ldapUser.getAttributes();
+        } else if (identity instanceof Group) {
+            LDAPGroup ldapGroup = null;
+            if (identity instanceof LDAPGroup) {
+                ldapGroup = (LDAPGroup) identity;
+            } else {
+                ldapGroup = (LDAPGroup) getGroup(invocationContext, ((Group) identity).getName());
+            }
+            return ldapGroup.getAttributes();
+        } else if (identity instanceof Role) {
+            LDAPRole ldapRole = null;
+            if (ldapRole instanceof LDAPRole) {
+                ldapRole = (LDAPRole) identity;
+            } else {
+                ldapRole = (LDAPRole) getRole(invocationContext, ((Role) identity).getName());
+            }
+            return ldapRole.getAttributes();
         } else {
-            ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
+            throw new IllegalArgumentException("identity parameter must be an instance of User, Group or Role");
         }
-        ldapGroup.setAttribute(name, values);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.Group, java.lang.String)
-     */
-    @Override
-    public void removeAttribute(IdentityStoreInvocationContext invocationContext, Group group, String name) {
-        LDAPGroup ldapGroup = null;
-        if (group instanceof LDAPGroup) {
-            ldapGroup = (LDAPGroup) group;
-        } else {
-            ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
-        }
-        ldapGroup.removeAttribute(name);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributeValues(org.picketlink.idm.model.Group, java.lang.String)
-     */
-    @Override
-    public String[] getAttributeValues(IdentityStoreInvocationContext invocationContext, Group group, String name) {
-        LDAPGroup ldapGroup = null;
-        if (group instanceof LDAPGroup) {
-            ldapGroup = (LDAPGroup) group;
-        } else {
-            ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
-        }
-        return ldapGroup.getAttributeValues(name);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributes(org.picketlink.idm.model.Group)
-     */
-    @Override
-    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext invocationContext, Group group) {
-        LDAPGroup ldapGroup = null;
-        if (group instanceof LDAPGroup) {
-            ldapGroup = (LDAPGroup) group;
-        } else {
-            ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
-        }
-        return ldapGroup.getAttributes();
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.Role, java.lang.String, java.lang.String[])
-     */
-    @Override
-    public void setAttribute(IdentityStoreInvocationContext invocationContext, Role role, String name, String[] values) {
-        LDAPRole ldapRole = null;
-        if (role instanceof LDAPGroup) {
-            ldapRole = (LDAPRole) role;
-        } else {
-            ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
-        }
-        ldapRole.setAttribute(name, values);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.Role, java.lang.String)
-     */
-    @Override
-    public void removeAttribute(IdentityStoreInvocationContext invocationContext, Role role, String name) {
-        LDAPRole ldapRole = null;
-        if (role instanceof LDAPGroup) {
-            ldapRole = (LDAPRole) role;
-        } else {
-            ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
-        }
-        ldapRole.removeAttribute(name);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributeValues(org.picketlink.idm.model.Role, java.lang.String)
-     */
-    @Override
-    public String[] getAttributeValues(IdentityStoreInvocationContext invocationContext, Role role, String name) {
-        LDAPRole ldapRole = null;
-        if (role instanceof LDAPGroup) {
-            ldapRole = (LDAPRole) role;
-        } else {
-            ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
-        }
-        return ldapRole.getAttributeValues(name);
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributes(org.picketlink.idm.model.Role)
-     */
-    @Override
-    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext invocationContext, Role role) {
-        LDAPRole ldapRole = null;
-        if (ldapRole instanceof LDAPRole) {
-            ldapRole = (LDAPRole) role;
-        } else {
-            ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
-        }
-        return ldapRole.getAttributes();
     }
 
     protected void ensureGroupDNExists() {

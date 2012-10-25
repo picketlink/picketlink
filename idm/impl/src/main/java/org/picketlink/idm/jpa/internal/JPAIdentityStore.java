@@ -22,9 +22,9 @@ import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.GroupQuery;
 import org.picketlink.idm.query.MembershipQuery;
@@ -107,6 +107,11 @@ public class JPAIdentityStore implements IdentityStore {
      */
     private Map<String, Property<Object>> modelProperties = new HashMap<String, Property<Object>>();
 
+    /*
+     * Attribute properties
+     */
+    private Map<String, MappedAttribute> attributeProperties = new HashMap<String, MappedAttribute>();
+
     private String identityTypeUser = DEFAULT_USER_IDENTITY_DISCRIMINATOR;
     private String identityTypeRole = DEFAULT_ROLE_IDENTITY_DISCRIMINATOR;
     private String identityTypeGroup = DEFAULT_GROUP_IDENTITY_DISCRIMINATOR;
@@ -171,11 +176,6 @@ public class JPAIdentityStore implements IdentityStore {
             return attributeProperty;
         }
     }
-
-    /*
-     * Attribute properties
-     */
-    private Map<String, MappedAttribute> attributeProperties = new HashMap<String, MappedAttribute>();
 
     public void bootstrap(JPAIdentityStoreConfiguration config) throws SecurityConfigurationException {
 
@@ -684,6 +684,29 @@ public class JPAIdentityStore implements IdentityStore {
 
             EntityManager em = getEntityManager(ctx);
 
+            // Create any related entities that may be containers for attribute values
+            for (String attribName : attributeProperties.keySet()) {
+                MappedAttribute attrib = attributeProperties.get(attribName);
+                if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
+                    Object instance = attrib.getIdentityProperty().getJavaClass().newInstance();
+                    attrib.getIdentityProperty().setValue(identity, instance);
+
+                    em.persist(instance);
+                }
+            }
+
+            em.persist(identity);
+
+            // TODO fire an event here via the InvocationContext SPI, passing the identity entity
+
+            if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
+                for (String key : user.getAttributes().keySet()) {
+                    setAttribute(ctx, user, key, user.getAttributeValues(key));
+                }
+            }
+            
+            em.flush();
+
         } catch (Exception ex) {
             throw new IdentityManagementException("Exception while creating user", ex);
         }
@@ -792,75 +815,28 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void setAttribute(IdentityStoreInvocationContext ctx, User user, String name, String[] values) {
+    public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name, String[] values) {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public void removeAttribute(IdentityStoreInvocationContext ctx, User user, String name) {
+    public void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name) {
         // TODO Auto-generated method stub
-
+        
     }
 
     @Override
-    public String[] getAttributeValues(IdentityStoreInvocationContext ctx, User user, String name) {
+    public String[] getAttributeValues(IdentityStoreInvocationContext ctx, IdentityType identity, String name) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, User user) {
+    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, IdentityType identity) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
-    public void setAttribute(IdentityStoreInvocationContext ctx, Group group, String name, String[] values) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void removeAttribute(IdentityStoreInvocationContext ctx, Group group, String name) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public String[] getAttributeValues(IdentityStoreInvocationContext ctx, Group group, String name) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, Group group) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setAttribute(IdentityStoreInvocationContext ctx, Role role, String name, String[] values) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void removeAttribute(IdentityStoreInvocationContext ctx, Role role, String name) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public String[] getAttributeValues(IdentityStoreInvocationContext ctx, Role role, String name) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, Role role) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
 }
