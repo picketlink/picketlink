@@ -39,6 +39,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.credential.DigestCredential;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.jpa.schema.DatabaseGroup;
 import org.picketlink.idm.jpa.schema.DatabaseMembership;
@@ -668,6 +669,13 @@ public class SimpleJPAIdentityStore implements IdentityStore {
             String expectedPassword = user.getAttribute(PASSWORD_ATTRIBUTE_NAME);
             
             return expectedPassword != null && providedPassword != null && providedPassword.equals(expectedPassword);
+        } else if (credential instanceof DigestCredential) {
+            DigestCredential digestCredential = (DigestCredential) credential;
+            
+            User storedUser = getUser(ctx, user.getId());
+            String storedPassword = storedUser.getAttribute(PASSWORD_ATTRIBUTE_NAME);
+            
+            return digestCredential.validate(storedPassword.toCharArray());
         } else {
             throwsNotSupportedCredentialType(credential);
         }

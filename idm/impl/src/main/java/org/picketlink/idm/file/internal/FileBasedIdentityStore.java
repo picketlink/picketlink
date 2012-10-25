@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,7 +40,10 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.credential.DigestCredential;
 import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
@@ -63,8 +67,10 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * 
  */
 public class FileBasedIdentityStore implements IdentityStore {
-
+    
+    private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userPassword";
+    
     private File usersFile;
     private File rolesFile = new File("/tmp/pl-idm-work/pl-idm-roles.db");
     private File groupsFile = new File("/tmp/pl-idm-work/pl-idm-groups.db");
@@ -862,6 +868,27 @@ public class FileBasedIdentityStore implements IdentityStore {
             String storedPassword = storedUser.getAttribute(USER_PASSWORD_ATTRIBUTE);
 
             return storedPassword != null && storedPassword.equals(passwordCredential.getPassword());
+        } else if (credential instanceof DigestCredential) {
+            DigestCredential digestCredential = (DigestCredential) credential;
+            
+            User storedUser = getUser(ctx, user.getId());
+            String storedPassword = storedUser.getAttribute(USER_PASSWORD_ATTRIBUTE);
+            
+            return digestCredential.validate(storedPassword.toCharArray());
+        } else if (credential instanceof X509CertificateCredential) {
+            X509CertificateCredential certCredential =  (X509CertificateCredential) credential;
+            
+            User storedUser = getUser(ctx, user.getId());
+            
+            String storedCert = storedUser.getAttribute(USER_CERTIFICATE_ATTRIBUTE);
+            
+            if (storedCert != null) {
+                try {
+                    return storedCert.equals(new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded())));
+                } catch (CertificateEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         } else {
             throwsNotSupportedCredentialType(credential);
         }
@@ -877,6 +904,18 @@ public class FileBasedIdentityStore implements IdentityStore {
             User storedUser = getUser(ctx, user.getId());
 
             storedUser.setAttribute(USER_PASSWORD_ATTRIBUTE, passwordCredential.getPassword());
+            
+            flushUsers();
+        } else if (credential instanceof X509CertificateCredential) {
+            X509CertificateCredential certCredential =  (X509CertificateCredential) credential;
+            
+            User storedUser = getUser(ctx, user.getId());
+
+            try {
+                storedUser.setAttribute(USER_CERTIFICATE_ATTRIBUTE, new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded())));
+            } catch (CertificateEncodingException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             throwsNotSupportedCredentialType(credential);
         }
