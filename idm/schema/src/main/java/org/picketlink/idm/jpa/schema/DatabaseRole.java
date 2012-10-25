@@ -27,6 +27,9 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 
@@ -41,9 +44,13 @@ import org.picketlink.idm.model.Role;
  *
  */
 @Entity
-@NamedQuery(name = NamedQueries.ROLE_LOAD_BY_KEY, query = "from DatabaseRole where key = :key")
+@NamedQuery(name = NamedQueries.ROLE_LOAD_BY_KEY, query = "from DatabaseRole where name = :name")
 public class DatabaseRole extends AbstractDatabaseIdentityType<DatabaseRoleAttribute> implements Role {
 
+    @Id
+    @GeneratedValue (strategy=GenerationType.AUTO)
+    private long internalId;
+    
     private String name;
 
     @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
@@ -58,6 +65,14 @@ public class DatabaseRole extends AbstractDatabaseIdentityType<DatabaseRoleAttri
     public DatabaseRole(String name) {
         super(name);
         setName(name);
+    }
+
+    public long getInternalId() {
+        return this.internalId;
+    }
+
+    public void setInternalId(long internalId) {
+        this.internalId = internalId;
     }
 
     @Override
@@ -96,6 +111,9 @@ public class DatabaseRole extends AbstractDatabaseIdentityType<DatabaseRoleAttri
     protected DatabaseRoleAttribute createAttribute(String name, String value) {
         return new DatabaseRoleAttribute(name, value);
     }
+    
+    public String getKey() {
+        return String.format("%s%s", KEY_PREFIX, name);
+    }
 
-    // TODO: implement hashcode and equals methods
 }

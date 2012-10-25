@@ -210,9 +210,23 @@ public class DefaultIdentityManager implements IdentityManager {
         return query.executeQuery();
     }
 
+    /* (non-Javadoc)
+     * @see org.picketlink.idm.IdentityManager#hasRole(org.picketlink.idm.model.Role, org.picketlink.idm.model.IdentityType, org.picketlink.idm.model.Group)
+     */
     @Override
     public boolean hasRole(Role role, IdentityType identityType, Group group) {
-        throw new RuntimeException();
+        //TODO: the MembershipQuery defines only a setUser. Need more discussion about others IdentityTypes.
+        if (!(identityType instanceof User)) {
+            throw new IllegalArgumentException("For now only the User type is supported as the IdentityType argument.");
+        }
+        
+        MembershipQuery query = createMembershipQuery();
+        
+        query.setRole(role);
+        query.setGroup(group);
+        query.setUser((User) identityType);
+        
+        return !query.executeQuery().isEmpty();
     }
 
     @Override

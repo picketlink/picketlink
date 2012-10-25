@@ -29,9 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
@@ -52,9 +49,7 @@ import org.picketlink.idm.model.IdentityType;
 @MappedSuperclass
 public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAttribute> implements IdentityType {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private String id;
 
     private String key;
     private boolean enabled = true;
@@ -68,21 +63,21 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     }
 
     public AbstractDatabaseIdentityType(String name) {
-        setKey(name);
+        setId(name);
     }
 
     /**
      * @return the id
      */
     public String getId() {
-        return String.valueOf(id);
+        return this.id;
     }
 
     /**
      * @param id the id to set
      */
     public void setId(String id) {
-        this.id = Long.valueOf(id);
+        this.id = id;
     }
 
     /*
