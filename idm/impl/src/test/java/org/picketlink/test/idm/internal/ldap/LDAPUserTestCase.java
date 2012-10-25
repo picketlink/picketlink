@@ -39,6 +39,7 @@ import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPUser;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -77,10 +78,13 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         store.setConfiguration(getConfiguration());
 
         // Let us create an user
-        User user = store.createUser("Anil Saldhana");
+        LDAPUser user = new LDAPUser();
+        user.setId("Anil Saldhana");
+        
+        store.createUser(null, user);
         assertNotNull(user);
 
-        User anil = store.getUser("Anil Saldhana");
+        User anil = store.getUser(null, "Anil Saldhana");
         assertNotNull(anil);
         assertEquals(USER_FULL_NAME, anil.getFullName());
         assertEquals(USER_FIRSTNAME, anil.getFirstName());
@@ -107,7 +111,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         anil.setAttribute("x509", encodedCert);
 
         // let us retrieve the attributes from ldap store and see if they are the same
-        Map<String, String[]> attributes = store.getAttributes(anil);
+        Map<String, String[]> attributes = store.getAttributes(null, anil);
         assertNotNull(attributes);
 
         assertEquals("12345678", attributes.get("telephoneNumber")[0]);
@@ -123,8 +127,8 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));
         assertNotNull(cert);
 
-        store.removeUser(anil);
-        anil = store.getUser("Anil Saldhana");
+        store.removeUser(null, anil);
+        anil = store.getUser(null, "Anil Saldhana");
         assertNull(anil);
     }
 
@@ -148,16 +152,16 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         user.setFirstName("Bruno");
         user.setLastName("Oliveira");
 
-        user = (LDAPUser) ldapIdentityStore.createUser(user);
+        ldapIdentityStore.createUser(null, user);
 
-        User anil = ldapIdentityStore.getUser("abstractj");
+        User anil = ldapIdentityStore.getUser(null, "abstractj");
         assertNotNull(anil);
         assertEquals("Bruno Oliveira", anil.getFullName());
         assertEquals("Bruno", anil.getFirstName());
         assertEquals("Oliveira", anil.getLastName());
 
-        ldapIdentityStore.removeUser(anil);
-        anil = ldapIdentityStore.getUser("abstractj");
+        ldapIdentityStore.removeUser(null, anil);
+        anil = ldapIdentityStore.getUser(null, "abstractj");
         assertNull(anil);
 
     }
@@ -178,6 +182,6 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         user.setFirstName("Bruno");
         user.setLastName("Oliveira");
 
-        user = (LDAPUser) ldapIdentityStore.createUser(user);
+        ldapIdentityStore.createUser(null, user);
     }
 }

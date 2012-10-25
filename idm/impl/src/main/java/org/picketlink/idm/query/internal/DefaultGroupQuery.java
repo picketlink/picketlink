@@ -97,7 +97,7 @@ public class DefaultGroupQuery extends AbstractQuery<DefaultGroupQuery> implemen
 
     @Override
     public List<Group> executeQuery() {
-        return this.store.executeQuery(this, null);
+        return this.store.executeQuery(getInvocationContext(store), this, null);
     }
 
     @Override

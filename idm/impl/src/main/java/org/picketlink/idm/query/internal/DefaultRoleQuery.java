@@ -25,12 +25,12 @@ public class DefaultRoleQuery extends AbstractQuery<DefaultRoleQuery> implements
 
     @Override
     public List<Role> executeQuery(RoleQuery query) {
-        return this.store.executeQuery(query, null);
+        return this.store.executeQuery(getInvocationContext(store), query, null);
     }
 
     @Override
     public List<Role> executeQuery() {
-        return this.store.executeQuery(this, null);
+        return this.store.executeQuery(getInvocationContext(store), this, null);
     }
 
     @Override

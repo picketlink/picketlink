@@ -67,7 +67,7 @@ public class DefaultMembershipQuery extends AbstractQuery<DefaultMembershipQuery
 
     @Override
     public List<Membership> executeQuery(MembershipQuery query) {
-        return this.store.executeQuery(query, null);
+        return this.store.executeQuery(getInvocationContext(store), query, null);
     }
 
     @Override
@@ -95,7 +95,7 @@ public class DefaultMembershipQuery extends AbstractQuery<DefaultMembershipQuery
      */
     @Override
     public List<Membership> executeQuery() {
-        return this.store.executeQuery(this, null);
+        return this.store.executeQuery(getInvocationContext(store), this, null);
     }
 
 }

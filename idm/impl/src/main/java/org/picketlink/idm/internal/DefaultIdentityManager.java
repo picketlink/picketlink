@@ -30,6 +30,7 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.GroupQuery;
@@ -41,6 +42,7 @@ import org.picketlink.idm.query.internal.DefaultMembershipQuery;
 import org.picketlink.idm.query.internal.DefaultRoleQuery;
 import org.picketlink.idm.query.internal.DefaultUserQuery;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * Default implementation of the IdentityManager interface
@@ -66,31 +68,33 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public User createUser(String name) {
         ensureStoreExists();
-        return store.createUser(name);
+        User user = new SimpleUser(name);
+        store.createUser(getInvocationContext(store), user);
+        return user;
     }
 
     @Override
-    public User createUser(User user) {
+    public void createUser(User user) {
         ensureStoreExists();
-        return store.createUser(user);
+        store.createUser(getInvocationContext(store), user);
     }
 
     @Override
     public void removeUser(User user) {
         ensureStoreExists();
-        store.removeUser(user);
+        store.removeUser(getInvocationContext(store), user);
     }
 
     @Override
     public void removeUser(String name) {
         ensureStoreExists();
-        store.removeUser(getUser(name));
+        store.removeUser(getInvocationContext(store), getUser(name));
     }
 
     @Override
     public User getUser(String name) {
         ensureStoreExists();
-        return store.getUser(name);
+        return store.getUser(getInvocationContext(store), name);
     }
 
     @Override
@@ -100,38 +104,38 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Group createGroup(String id) {
-        return store.createGroup(id, null);
+        return store.createGroup(getInvocationContext(store), id, null);
     }
 
     @Override
     public Group createGroup(String id, Group parent) {
         ensureStoreExists();
-        return store.createGroup(id, parent);
+        return store.createGroup(getInvocationContext(store), id, parent);
     }
 
     @Override
     public Group createGroup(String id, String parent) {
         ensureStoreExists();
-        Group parentGroup = store.getGroup(parent);
-        return store.createGroup(id, parentGroup);
+        Group parentGroup = store.getGroup(getInvocationContext(store), parent);
+        return store.createGroup(getInvocationContext(store), id, parentGroup);
     }
 
     @Override
     public void removeGroup(Group group) {
         ensureStoreExists();
-        store.removeGroup(group);
+        store.removeGroup(getInvocationContext(store), group);
     }
 
     @Override
     public void removeGroup(String groupId) {
         ensureStoreExists();
-        store.removeGroup(getGroup(groupId));
+        store.removeGroup(getInvocationContext(store), getGroup(groupId));
     }
 
     @Override
     public Group getGroup(String groupId) {
         ensureStoreExists();
-        return store.getGroup(groupId);
+        return store.getGroup(getInvocationContext(store), groupId);
     }
 
     @Override
@@ -163,25 +167,25 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public Role createRole(String name) {
         ensureStoreExists();
-        return store.createRole(name);
+        return store.createRole(getInvocationContext(store), name);
     }
 
     @Override
     public void removeRole(Role role) {
         ensureStoreExists();
-        store.removeRole(role);
+        store.removeRole(getInvocationContext(store), role);
     }
 
     @Override
     public void removeRole(String name) {
         ensureStoreExists();
-        store.removeRole(getRole(name));
+        store.removeRole(getInvocationContext(store), getRole(name));
     }
 
     @Override
     public Role getRole(String name) {
         ensureStoreExists();
-        return store.getRole(name);
+        return store.getRole(getInvocationContext(store), name);
     }
 
     @Override
@@ -213,7 +217,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantRole(Role role, IdentityType identityType, Group group) {
-        this.store.createMembership(role, (User) identityType, group);
+        this.store.createMembership(getInvocationContext(store), role, (User) identityType, group);
     }
 
     @Override
@@ -243,14 +247,14 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean validateCredential(User user, Credential credential) {
-        return store.validateCredential(user, credential);
+        return store.validateCredential(getInvocationContext(store), user, credential);
     }
-    
+
     @Override
     public void updateCredential(User user, Credential credential) {
-        store.updateCredential(user, credential);
+        store.updateCredential(getInvocationContext(store), user, credential);
     }
-    
+
     public void setEnabled(IdentityType identityType, boolean enabled) {
         throw new RuntimeException();
     }
@@ -263,6 +267,11 @@ public class DefaultIdentityManager implements IdentityManager {
         if (store == null) {
             throw new RuntimeException("Identity Store has not been set");
         }
+    }
+
+    protected IdentityStoreInvocationContext getInvocationContext(IdentityStore store) {
+        // FIXME implement this
+        return null;
     }
 
     @Override
