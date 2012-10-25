@@ -56,6 +56,7 @@ import org.picketlink.idm.query.Range;
 import org.picketlink.idm.query.RoleQuery;
 import org.picketlink.idm.query.UserQuery;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * An implementation of IdentityStore backed by a JPA datasource
@@ -68,40 +69,29 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     private static final String PASSWORD_ATTRIBUTE_NAME = "password";
     private JPATemplate jpaTemplate;
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.spi.IdentityStore#createUser(java.lang.String)
-     */
     @Override
-    public User createUser(String name) {
-        final DatabaseUser newUser = new DatabaseUser(name);
-
+    public void createUser(IdentityStoreInvocationContext ctx, User user) {
+        User newUser = null;
+        
+        if (!(user instanceof DatabaseUser)) {
+            newUser = new DatabaseUser(user.getId());
+        
+            newUser.setFirstName(user.getFirstName());
+            newUser.setLastName(user.getLastName());
+            newUser.setEmail(user.getEmail());
+            
+            for (String attribName : user.getAttributes().keySet()) {
+                newUser.setAttribute(attribName, user.getAttribute(attribName));
+            }
+        } else {
+            newUser = user;
+        }
+                
         persist(newUser);
-
-        return newUser;
     }
 
-    /*
-    * (non-Javadoc)
-    *
-    * @see org.picketlink.idm.spi.IdentityStore#createUser(org.picketlink.idm.model.User)
-    */
     @Override
-    public User createUser(User newUser) {
-
-        persist(newUser);
-
-        return newUser;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.spi.IdentityStore#removeUser(org.picketlink.idm.model.User)
-     */
-    @Override
-    public void removeUser(final User user) {
+    public void removeUser(IdentityStoreInvocationContext ctx, final User user) {
         if (user.getId() == null) {
             throw new IllegalArgumentException("User identifier nor provided.");
         }
@@ -109,17 +99,12 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public User getUser(final String name) {
-        return (User) findIdentityTypeByKey(name, NamedQueries.USER_LOAD_BY_KEY);
+    public User getUser(IdentityStoreInvocationContext ctx, final String name) {
+        return (User) findIdentityTypeByKey("id", name, NamedQueries.USER_LOAD_BY_KEY);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.spi.IdentityStore#createGroup(java.lang.String, org.picketlink.idm.model.Group)
-     */
     @Override
-    public Group createGroup(String name, Group parent) {
+    public Group createGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
         DatabaseGroup newGroup = new DatabaseGroup(name);
 
         newGroup.setParentGroup((DatabaseGroup) parent);
@@ -129,13 +114,8 @@ public class SimpleJPAIdentityStore implements IdentityStore {
         return newGroup;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.spi.IdentityStore#removeGroup(org.picketlink.idm.model.Group)
-     */
     @Override
-    public void removeGroup(Group group) {
+    public void removeGroup(IdentityStoreInvocationContext ctx, Group group) {
         if (group.getId() == null) {
             throw new IllegalArgumentException("Group identifier not provided.");
         }
@@ -144,12 +124,12 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Group getGroup(String group) {
-        return (Group) findIdentityTypeByKey(group, NamedQueries.GROUP_LOAD_BY_KEY);
+    public Group getGroup(IdentityStoreInvocationContext ctx, String group) {
+        return (Group) findIdentityTypeByKey("name", group, NamedQueries.GROUP_LOAD_BY_KEY);
     }
 
     @Override
-    public Role createRole(String name) {
+    public Role createRole(IdentityStoreInvocationContext ctx, String name) {
         DatabaseRole newRole = new DatabaseRole(name);
 
         persist(newRole);
@@ -158,7 +138,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void removeRole(Role role) {
+    public void removeRole(IdentityStoreInvocationContext ctx, Role role) {
         if (role.getName() == null) {
             throw new IllegalArgumentException("Role name not provided.");
         }
@@ -167,14 +147,17 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Role getRole(String role) {
-        return (Role) findIdentityTypeByKey(role, NamedQueries.ROLE_LOAD_BY_KEY);
+    public Role getRole(IdentityStoreInvocationContext ctx, String role) {
+        return (Role) findIdentityTypeByKey("name", role, NamedQueries.ROLE_LOAD_BY_KEY);
     }
 
     @Override
-    public Membership createMembership(Role role, User user, Group group) {
-        DatabaseMembership newMembership = new DatabaseMembership(role, user, group);
-        DatabaseUser dbUser = (DatabaseUser) user;
+    public Membership createMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
+        DatabaseUser dbUser = (DatabaseUser) getUser(ctx, user.getId());
+        DatabaseRole dbRole = (DatabaseRole) getRole(ctx, role.getName());
+        DatabaseGroup dbGroup = (DatabaseGroup) getGroup(ctx, group.getName());
+        
+        DatabaseMembership newMembership = new DatabaseMembership(dbRole, dbUser, dbGroup);
 
         dbUser.getMemberships().add(newMembership);
 
@@ -184,8 +167,8 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void removeMembership(Role role, User user, Group group) {
-        Membership membership = getMembership(role, user, group);
+    public void removeMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
+        Membership membership = getMembership(ctx, role, user, group);
 
         if (membership != null) {
             remove(membership);
@@ -193,7 +176,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership getMembership(final Role role, final User user, final Group group) {
+    public Membership getMembership(IdentityStoreInvocationContext ctx, final Role role, final User user, final Group group) {
         return (Membership) executeOperation(new JPACallback() {
 
             @Override
@@ -225,7 +208,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
      */
     @SuppressWarnings("unchecked")
     @Override
-    public List<User> executeQuery(final UserQuery query, Range range) {
+    public List<User> executeQuery(IdentityStoreInvocationContext ctx, final UserQuery query, Range range) {
         return (List<User>) this.jpaTemplate.execute(new JPACallback() {
 
             @Override
@@ -242,7 +225,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
                 // predicates for some basic informations
                 if (query.getName() != null) {
-                    predicates.add(criteriaBuilder.equal(user.get("key"), query.getName()));
+                    predicates.add(criteriaBuilder.equal(user.get("id"), query.getName()));
                 }
 
                 if (query.getEmail() != null) {
@@ -302,7 +285,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Group> executeQuery(final GroupQuery query, Range range) {
+    public List<Group> executeQuery(IdentityStoreInvocationContext ctx, final GroupQuery query, Range range) {
         return (List<Group>) this.jpaTemplate.execute(new JPACallback() {
 
             @Override
@@ -375,7 +358,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Role> executeQuery(final RoleQuery query, Range range) {
+    public List<Role> executeQuery(IdentityStoreInvocationContext ctx, final RoleQuery query, Range range) {
         return (List<Role>) this.jpaTemplate.execute(new JPACallback() {
 
             @Override
@@ -437,7 +420,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
     @SuppressWarnings("unchecked")
     @Override
-    public List<Membership> executeQuery(final MembershipQuery query, Range range) {
+    public List<Membership> executeQuery(IdentityStoreInvocationContext ctx, final MembershipQuery query, Range range) {
         return (List<Membership>) this.jpaTemplate.execute(new JPACallback() {
 
             @Override
@@ -478,63 +461,113 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void setAttribute(User user, String name, String[] values) {
-        user.setAttribute(name, values);
+    public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String name, String[] values) {
+        if (identityType instanceof User) {
+            User user = (User) identityType;
+            DatabaseUser databaseUser = (DatabaseUser) getUser(ctx, user.getId());
+
+            databaseUser.setAttribute(name, values);
+        } else if (identityType instanceof Role) {
+            Role role = (Role) identityType;
+            DatabaseRole databaseRole = (DatabaseRole) getRole(ctx, role.getName());
+
+            databaseRole.setAttribute(name, values);
+        } else if (identityType instanceof Group) {
+            Group group = (Group) identityType;
+            DatabaseGroup databaseGroup = (DatabaseGroup) getGroup(ctx, group.getName());
+
+            databaseGroup.setAttribute(name, values);
+        } else {
+            throwsNotSupportedIdentityType(identityType);
+        }
     }
 
     @Override
-    public void removeAttribute(User user, String name) {
-        user.removeAttribute(name);
+    public void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String name) {
+        if (identityType instanceof User) {
+            User user = (User) identityType;
+            DatabaseUser databaseUser = (DatabaseUser) getUser(ctx, user.getId());
+
+            if (databaseUser != null) {
+                databaseUser.removeAttribute(name);
+            }
+        } else if (identityType instanceof Role) {
+            Role role = (Role) identityType;
+            DatabaseRole databaseRole = (DatabaseRole) getRole(ctx, role.getName());
+
+            if (databaseRole != null) {
+                databaseRole.removeAttribute(name);
+            }
+        } else if (identityType instanceof Group) {
+            Group group = (Group) identityType;
+            DatabaseGroup databaseGroup = (DatabaseGroup) getGroup(ctx, group.getName());
+
+            if (databaseGroup != null) {
+                databaseGroup.removeAttribute(name);
+            }
+        } else {
+            throwsNotSupportedIdentityType(identityType);
+        }
     }
 
     @Override
-    public String[] getAttributeValues(User user, String name) {
-        return user.getAttributeValues(name);
+    public String[] getAttributeValues(IdentityStoreInvocationContext ctx, IdentityType identityType, String name) {
+        if (identityType instanceof DatabaseUser) {
+            User user = (User) identityType;
+            DatabaseUser databaseUser = (DatabaseUser) getUser(ctx, user.getId());
+
+            if (databaseUser != null) {
+                return databaseUser.getAttributeValues(name);
+            }
+        } else if (identityType instanceof Role) {
+            Role role = (Role) identityType;
+            DatabaseRole databaseRole = (DatabaseRole) getRole(ctx, role.getName());
+
+            if (databaseRole != null) {
+                return databaseRole.getAttributeValues(name);
+            }
+        } else if (identityType instanceof Group) {
+            Group group = (Group) identityType;
+            DatabaseGroup databaseGroup = (DatabaseGroup) getGroup(ctx, group.getName());
+
+            if (databaseGroup != null) {
+                return databaseGroup.getAttributeValues(name);
+            }
+        } else {
+            throwsNotSupportedIdentityType(identityType);
+        }
+
+        return null;
     }
 
     @Override
-    public Map<String, String[]> getAttributes(User user) {
-        return user.getAttributes();
-    }
+    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, IdentityType identityType) {
+        if (identityType instanceof DatabaseUser) {
+            DatabaseUser user = (DatabaseUser) identityType;
+            DatabaseUser DatabaseUser = (DatabaseUser) getUser(ctx, user.getId());
 
-    @Override
-    public void setAttribute(Group group, String name, String[] values) {
-        group.setAttribute(name, values);
-    }
+            if (DatabaseUser != null) {
+                return DatabaseUser.getAttributes();
+            }
+        } else if (identityType instanceof DatabaseRole) {
+            DatabaseRole role = (DatabaseRole) identityType;
+            DatabaseRole databaseRole = (DatabaseRole) getRole(ctx, role.getName());
 
-    @Override
-    public void removeAttribute(Group group, String name) {
-        group.removeAttribute(name);
-    }
+            if (databaseRole != null) {
+                return databaseRole.getAttributes();
+            }
+        } else if (identityType instanceof DatabaseGroup) {
+            DatabaseGroup group = (DatabaseGroup) identityType;
+            DatabaseGroup databaseGroup = (DatabaseGroup) getGroup(ctx, group.getName());
 
-    @Override
-    public String[] getAttributeValues(Group group, String name) {
-        return group.getAttributeValues(name);
-    }
+            if (databaseGroup != null) {
+                return databaseGroup.getAttributes();
+            }
+        } else {
+            throwsNotSupportedIdentityType(identityType);
+        }
 
-    @Override
-    public Map<String, String[]> getAttributes(Group group) {
-        return group.getAttributes();
-    }
-
-    @Override
-    public void setAttribute(Role role, String name, String[] values) {
-        role.setAttribute(name, values);
-    }
-
-    @Override
-    public void removeAttribute(Role role, String name) {
-        role.removeAttribute(name);
-    }
-
-    @Override
-    public String[] getAttributeValues(Role role, String name) {
-        return role.getAttributeValues(name);
-    }
-
-    @Override
-    public Map<String, String[]> getAttributes(Role role) {
-        return role.getAttributes();
+        return null;
     }
 
     public void setJpaTemplate(JPATemplate jpaTemplate) {
@@ -596,18 +629,18 @@ public class SimpleJPAIdentityStore implements IdentityStore {
      * Find a instance with the given name and using the specified named query.
      * </p>
      *
-     * @param name
+     * @param idValue
      * @param namedQueryName
      * @return
      */
-    private IdentityType findIdentityTypeByKey(final String name, final String namedQueryName) {
+    private IdentityType findIdentityTypeByKey(final String idFieldName, final String idValue, final String namedQueryName) {
         return (IdentityType) executeOperation(new JPACallback() {
 
             @Override
             public Object execute(EntityManager entityManager) {
                 Query query = entityManager.createNamedQuery(namedQueryName);
 
-                query.setParameter("key", name);
+                query.setParameter(idFieldName, idValue);
 
                 Object loadedUser = null;
 
@@ -628,7 +661,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
      * @see org.picketlink.idm.spi.IdentityStore#validateCredential(org.picketlink.idm.model.User, org.picketlink.idm.credential.Credential)
      */
     @Override
-    public boolean validateCredential(User user, Credential credential) {
+    public boolean validateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
         if (credential instanceof PasswordCredential) {
             PasswordCredential passwordCredential = (PasswordCredential) credential;
             String providedPassword = passwordCredential.getPassword();
@@ -646,7 +679,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
      * @see org.picketlink.idm.spi.IdentityStore#updateCredential(org.picketlink.idm.model.User, org.picketlink.idm.credential.Credential)
      */
     @Override
-    public void updateCredential(User user, Credential credential) {
+    public void updateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
         if (credential instanceof PasswordCredential) {
             PasswordCredential passwordCredential = (PasswordCredential) credential;
             
@@ -667,4 +700,16 @@ public class SimpleJPAIdentityStore implements IdentityStore {
         throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
     }
 
+    /**
+     * <p>
+     * Helper method to throws a {@link IllegalArgumentException} when the specified {@link IdentityType} is not supported.
+     * </p>
+     * TODO: when using JBoss Logging this method should be removed.
+     * 
+     * @param credential
+     * @return
+     */
+    private void throwsNotSupportedIdentityType(IdentityType identityType) throws IllegalArgumentException {
+        throw new IllegalArgumentException("IdentityType not supported: " + identityType.getClass());
+    }
 }

@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
+import org.picketlink.idm.file.internal.FileUser;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.User;
 
@@ -54,7 +55,9 @@ public class FileUserTestCase extends AbstractFileIdentityTypeTestCase {
      */
     @Test
     public void testUserStore() throws Exception {
-        User user = getIdentityManager().createUser(USER_USERNAME);
+        FileUser user = new FileUser(USER_USERNAME);
+        
+        getIdentityManager().createUser(user);
 
         user.setEmail(USER_EMAIL);
         user.setFirstName(USER_FIRST_NAME);

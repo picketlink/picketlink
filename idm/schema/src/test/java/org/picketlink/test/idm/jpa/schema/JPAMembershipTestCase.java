@@ -75,17 +75,17 @@ public class JPAMembershipTestCase extends AbstractJPAIdentityManagerTestCase {
     public void testRemoveGroup() throws Exception {
         IdentityStore identityStore = createIdentityStore();
 
-        Role role = identityStore.getRole("admin");
-        User user = identityStore.getUser("asaldhan");
-        Group group = identityStore.getGroup("Administrators");
+        Role role = identityStore.getRole(null, "admin");
+        User user = identityStore.getUser(null, "asaldhan");
+        Group group = identityStore.getGroup(null, "Administrators");
 
-        Membership membership = identityStore.getMembership(role, user, group);
+        Membership membership = identityStore.getMembership(null, role, user, group);
 
         assertNotNull(membership);
 
-        identityStore.removeMembership(role, user, group);
+        identityStore.removeMembership(null, role, user, group);
 
-        membership = identityStore.getMembership(role, user, group);
+        membership = identityStore.getMembership(null, role, user, group);
 
         assertNull(membership);
     }

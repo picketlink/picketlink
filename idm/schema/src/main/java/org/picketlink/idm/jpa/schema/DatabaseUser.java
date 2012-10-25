@@ -27,6 +27,9 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
@@ -42,9 +45,13 @@ import org.picketlink.idm.model.User;
  *
  */
 @Entity
-@NamedQuery(name = NamedQueries.USER_LOAD_BY_KEY, query = "from DatabaseUser where key = :key")
+@NamedQuery(name = NamedQueries.USER_LOAD_BY_KEY, query = "from DatabaseUser where id = :id")
 public class DatabaseUser extends AbstractDatabaseIdentityType<DatabaseUserAttribute> implements User {
 
+    @Id
+    @GeneratedValue (strategy=GenerationType.AUTO)
+    private long internalId;
+    
     private String firstName;
     private String lastName;
 
@@ -61,10 +68,18 @@ public class DatabaseUser extends AbstractDatabaseIdentityType<DatabaseUserAttri
     public DatabaseUser() {
     }
 
-    public DatabaseUser(String key) {
-        super(key);
+    public DatabaseUser(String id) {
+        super(id);
     }
-
+    
+    public long getInternalId() {
+        return internalId;
+    }
+    
+    public void setInternalId(long internalId) {
+        this.internalId = internalId;
+    }
+    
     /**
      * @return the firstName
      */
@@ -153,5 +168,8 @@ public class DatabaseUser extends AbstractDatabaseIdentityType<DatabaseUserAttri
         return new DatabaseUserAttribute(name, value);
     }
     
-    // TODO: implement hashcode and equals methods
+    public String getKey() {
+        return String.format("%s%s", KEY_PREFIX, this.getId());
+    }
+
 }

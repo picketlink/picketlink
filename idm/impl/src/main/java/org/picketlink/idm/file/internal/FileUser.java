@@ -66,6 +66,7 @@ public class FileUser extends AbstractFileIdentityType implements User {
      */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+        update();
     }
 
     /**
@@ -118,7 +119,9 @@ public class FileUser extends AbstractFileIdentityType implements User {
      */
     @Override
     protected void update() {
-        super.changeListener.updateUsers();
+        if (super.changeListener != null) {
+            super.changeListener.updateUsers();
+        }
     }
     
     @Override

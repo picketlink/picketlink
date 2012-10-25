@@ -29,6 +29,7 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.picketlink.idm.jpa.schema.DatabaseUser;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
@@ -132,23 +133,26 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
      * </p>
      */
     private void loadMemberships() {
-        IdentityStore identityStore = createIdentityStore();
+        IdentityStore identityManager = createIdentityStore();
 
-        this.group = identityStore.getGroup(GROUP_NAME);
-        this.role = identityStore.getRole(ROLE_NAME);
-        this.user = identityStore.getUser(USER_NAME);
-        this.membership = identityStore.getMembership(this.role, this.user, this.group);
+        this.group = identityManager.getGroup(null, GROUP_NAME);
+        this.role = identityManager.getRole(null, ROLE_NAME);
+        this.user = identityManager.getUser(null, USER_NAME);
+        this.membership = identityManager.getMembership(null, this.role, this.user, this.group);
 
         // if memberships are already loaded then do nothing
         if (this.membership != null) {
             return;
         }
 
-        this.group = identityStore.createGroup(GROUP_NAME, null);
-        this.user = identityStore.createUser(USER_NAME);
-        this.role = identityStore.createRole(ROLE_NAME);
+        this.group = identityManager.createGroup(null, GROUP_NAME, null);
+        this.user = new DatabaseUser(USER_NAME);
+        
+        identityManager.createUser(null, user);
+        
+        this.role = identityManager.createRole(null, ROLE_NAME);
 
-        this.membership = identityStore.createMembership(this.role, this.user, this.group);
+        this.membership = identityManager.createMembership(null,this.role, this.user, this.group);
     }
 
     /**
@@ -161,7 +165,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
     private void assertQueryResult(MembershipQuery query) {
         IdentityStore identityStore = createIdentityStore();
 
-        List<Membership> result = identityStore.executeQuery(query, null);
+        List<Membership> result = identityStore.executeQuery(null, query, null);
 
         assertFalse(result.isEmpty());
         assertEquals(this.role.getName(), result.get(0).getRole().getName());

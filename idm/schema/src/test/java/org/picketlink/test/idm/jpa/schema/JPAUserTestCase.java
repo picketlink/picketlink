@@ -57,7 +57,9 @@ public class JPAUserTestCase extends AbstractJPAIdentityTypeTestCase {
     public void testUserStore() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        User user = identityManager.createUser(USER_USERNAME);
+        DatabaseUser user = new DatabaseUser(USER_USERNAME);
+        
+        identityManager.createUser(user);
 
         user.setEmail(USER_EMAIL);
         user.setFirstName(USER_FIRST_NAME);
@@ -89,7 +91,7 @@ public class JPAUserTestCase extends AbstractJPAIdentityTypeTestCase {
         user.setFirstName(USER_FIRST_NAME);
         user.setLastName(USER_LAST_NAME);
 
-        user = identityManager.createUser(user);
+        identityManager.createUser(user);
 
         assertUserBasicInformation(user);
 
@@ -148,7 +150,7 @@ public class JPAUserTestCase extends AbstractJPAIdentityTypeTestCase {
     private void assertUserBasicInformation(User user) {
         assertNotNull(user);
         assertNotNull(user.getId());
-        assertEquals(USER_USERNAME, user.getKey());
+        assertEquals(USER_USERNAME, user.getId());
         assertEquals(USER_FULL_NAME, user.getFullName());
         assertEquals(USER_FIRST_NAME, user.getFirstName());
         assertEquals(USER_LAST_NAME, user.getLastName());

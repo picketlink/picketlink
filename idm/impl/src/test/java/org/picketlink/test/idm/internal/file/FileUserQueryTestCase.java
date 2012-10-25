@@ -30,6 +30,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.file.internal.FileUser;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -68,7 +69,7 @@ public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
     public void testfindByUserName() throws Exception {
         UserQuery query = createUserQuery();
 
-        query.setName(this.user.getKey());
+        query.setName(this.user.getId());
 
         assertQueryResult(query);
         
@@ -231,7 +232,7 @@ public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
 
         for (int i = 0; i < 10; i++) {
             int index = i + 1;
-            User currentUser = identityManager.createUser(USER_USERNAME + index);
+            User currentUser = new FileUser(USER_USERNAME + index);
 
             // store the instance used for testing
             if (this.user == null) {
@@ -241,6 +242,8 @@ public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
             currentUser.setEmail(USER_EMAIL + index);
             currentUser.setFirstName(USER_FIRST_NAME + index);
             currentUser.setLastName(USER_LAST_NAME + index);
+            
+            identityManager.createUser(currentUser);
 
             Role role = identityManager.createRole(ROLE_NAME_PREFIX + index);
             Group group = identityManager.createGroup(GROUP_NAME_PREFIX + index, (Group) null);

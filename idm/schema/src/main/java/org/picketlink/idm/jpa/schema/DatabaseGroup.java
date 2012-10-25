@@ -27,6 +27,9 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -42,9 +45,13 @@ import org.picketlink.idm.model.Group;
  *
  */
 @Entity
-@NamedQuery(name = NamedQueries.GROUP_LOAD_BY_KEY, query = "from DatabaseGroup where key = :key")
+@NamedQuery(name = NamedQueries.GROUP_LOAD_BY_KEY, query = "from DatabaseGroup where name = :name")
 public class DatabaseGroup extends AbstractDatabaseIdentityType<DatabaseGroupAttribute> implements Group {
-
+    
+    @Id
+    @GeneratedValue (strategy=GenerationType.AUTO)
+    private long internalId;
+    
     private String name;
 
     @ManyToOne
@@ -62,6 +69,14 @@ public class DatabaseGroup extends AbstractDatabaseIdentityType<DatabaseGroupAtt
     public DatabaseGroup(String name) {
         super(name);
         setName(name);
+    }
+
+    public long getInternalId() {
+        return this.internalId;
+    }
+
+    public void setInternalId(long internalId) {
+        this.internalId = internalId;
     }
 
     @Override
@@ -109,4 +124,9 @@ public class DatabaseGroup extends AbstractDatabaseIdentityType<DatabaseGroupAtt
     protected DatabaseGroupAttribute createAttribute(String name, String value) {
         return new DatabaseGroupAttribute(name, value);
     }
+    
+    public String getKey() {
+        return String.format("%s%s", KEY_PREFIX, name);
+    }
+
 }

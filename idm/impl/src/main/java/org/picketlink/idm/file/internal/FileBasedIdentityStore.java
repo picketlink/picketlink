@@ -323,7 +323,21 @@ public class FileBasedIdentityStore implements IdentityStore {
 
     @Override
     public void createUser(IdentityStoreInvocationContext ctx, User user) {
-        FileUser fileUser = (FileUser) user;
+        FileUser fileUser;
+
+        if (!(user instanceof FileUser)) {
+            fileUser = new FileUser(user.getId());
+            
+            fileUser.setFirstName(user.getFirstName());
+            fileUser.setLastName(user.getLastName());
+            fileUser.setEmail(user.getEmail());
+            
+            for (String attribName : user.getAttributes().keySet()) {
+                fileUser.setAttribute(attribName, user.getAttribute(attribName));
+            }
+        } else {
+            fileUser = (FileUser) user;
+        }
 
         fileUser.setChangeListener(this.changeListener);
 
@@ -485,7 +499,7 @@ public class FileBasedIdentityStore implements IdentityStore {
             FileUser fileUser = entry.getValue();
 
             if (query.getName() != null) {
-                if (!fileUser.getKey().equals(query.getName())) {
+                if (!fileUser.getId().equals(query.getName())) {
                     continue;
                 }
             }

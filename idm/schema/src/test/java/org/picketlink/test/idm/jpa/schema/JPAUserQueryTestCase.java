@@ -30,6 +30,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.jpa.schema.DatabaseUser;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -75,7 +76,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
     public void testfindByUserName() throws Exception {
         UserQuery query = createUserQuery();
 
-        query.setName(this.user.getKey());
+        query.setName(this.user.getId());
 
         assertQueryResult(query);
         
@@ -195,7 +196,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
     public void testfindByAttributes() throws Exception {
         UserQuery query = createUserQuery();
 
-        query.setName(this.user.getKey());
+        query.setName(this.user.getId());
         query.setAttributeFilter("attribute1", new String[] { "attributeValue1", "attributeValue12", "attributeValue123" });
         query.setAttributeFilter("attribute2", new String[] { "attributeValue2", "attributeValue21", "attributeValue23" });
 
@@ -238,7 +239,9 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
 
         for (int i = 0; i < 10; i++) {
             int index = i + 1;
-            User currentUser = identityManager.createUser(USER_USERNAME + index);
+            DatabaseUser currentUser = new DatabaseUser(USER_USERNAME + index);
+            
+            identityManager.createUser(currentUser);
 
             // store the instance used for testing
             if (this.user == null) {
