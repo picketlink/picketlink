@@ -41,6 +41,7 @@ import java.util.Set;
 
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.DigestCredential;
+import org.picketlink.idm.credential.DigestCredentialUtil;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
@@ -874,7 +875,7 @@ public class FileBasedIdentityStore implements IdentityStore {
             User storedUser = getUser(ctx, user.getId());
             String storedPassword = storedUser.getAttribute(USER_PASSWORD_ATTRIBUTE);
             
-            return digestCredential.validate(storedPassword.toCharArray());
+            return DigestCredentialUtil.matchCredential(digestCredential, storedPassword.toCharArray());
         } else if (credential instanceof X509CertificateCredential) {
             X509CertificateCredential certCredential =  (X509CertificateCredential) credential;
             
