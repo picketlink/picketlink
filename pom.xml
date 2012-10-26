@@ -40,6 +40,7 @@
     <modules>
         <module>idm</module>
         <module>core</module>
+        <module>social</module>
     </modules>
 
     <dependencyManagement>
