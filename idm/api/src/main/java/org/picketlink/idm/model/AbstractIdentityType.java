@@ -21,6 +21,7 @@
  */
 package org.picketlink.idm.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,10 @@ import java.util.Map;
 /**
  * Abstract base class for IdentityType implementations
  */
-public abstract class AbstractIdentityType implements IdentityType {
+public abstract class AbstractIdentityType implements IdentityType, Serializable {
+    
+    private static final long serialVersionUID = 1L;
+    
     private boolean enabled = true;
     private Date creationDate = null;
     private Date expirationDate = null;
