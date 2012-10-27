@@ -26,6 +26,9 @@ package org.picketlink.idm.model;
  *
  */
 public class SimpleGroup extends AbstractIdentityType implements Group {
+    
+    private static final long serialVersionUID = 1L;
+    
     private String id;
     private String name;
     private Group parentGroup;
@@ -50,6 +53,11 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
 
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, id);
+    }
+    
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
     
     @Override
