@@ -169,7 +169,8 @@ public class DatabaseUser extends AbstractDatabaseIdentityType<DatabaseUserAttri
     }
     
     public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, this.getId());
+        setKey(String.format("%s%s", KEY_PREFIX, this.getId()));
+        return super.getKey();
     }
 
 }

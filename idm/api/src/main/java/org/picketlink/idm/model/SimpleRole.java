@@ -21,10 +21,14 @@
  */
 package org.picketlink.idm.model;
 
+
 /**
  * Simple implementation of the Role interface
  */
 public class SimpleRole extends AbstractIdentityType implements Role {
+    
+    private static final long serialVersionUID = 1L;
+    
     private String name;
 
     public SimpleRole(String name) {
@@ -37,5 +41,25 @@ public class SimpleRole extends AbstractIdentityType implements Role {
 
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, name);
+    }
+    
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof Role)) {
+            return false;
+        }
+
+        Role other = (Role) obj;
+
+        return other.getName() != null && this.getName() != null && other.getName().equals(this.getName());
     }
 }

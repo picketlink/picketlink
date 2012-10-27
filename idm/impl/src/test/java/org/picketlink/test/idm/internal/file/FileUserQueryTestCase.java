@@ -189,7 +189,7 @@ public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
     public void testfindByAttributes() throws Exception {
         UserQuery query = createUserQuery();
 
-        query.setName(this.user.getKey());
+        query.setName(this.user.getId());
         query.setAttributeFilter("attribute1", new String[] { "attributeValue1", "attributeValue12", "attributeValue123" });
         query.setAttributeFilter("attribute2", new String[] { "attributeValue2", "attributeValue21", "attributeValue23" });
 
