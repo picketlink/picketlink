@@ -116,7 +116,7 @@ public class FileUserTestCase extends AbstractFileIdentityTypeTestCase {
     private void assertUserBasicInformation(User user) {
         assertNotNull(user);
         assertNotNull(user.getId());
-        assertEquals(USER_USERNAME, user.getKey());
+        assertEquals(USER_USERNAME, user.getId());
         assertEquals(USER_FIRST_NAME, user.getFirstName());
         assertEquals(USER_LAST_NAME, user.getLastName());
         assertEquals(USER_EMAIL, user.getEmail());
