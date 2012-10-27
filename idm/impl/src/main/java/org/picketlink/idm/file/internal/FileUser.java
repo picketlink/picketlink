@@ -51,7 +51,7 @@ public class FileUser extends AbstractFileIdentityType implements User {
     
     @Override
     public String getKey() {
-        return getId();
+        return String.format("%s%s", KEY_PREFIX, this.getId());
     }
 
     /**
