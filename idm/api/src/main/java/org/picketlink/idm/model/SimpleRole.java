@@ -38,4 +38,19 @@ public class SimpleRole extends AbstractIdentityType implements Role {
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, name);
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof Role)) {
+            return false;
+        }
+
+        Role other = (Role) obj;
+
+        return other.getName() != null && this.getName() != null && other.getName().equals(this.getName());
+    }
 }

@@ -51,4 +51,19 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, id);
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!(obj instanceof Group)) {
+            return false;
+        }
+
+        Group other = (Group) obj;
+
+        return other.getName() != null && this.getName() != null && other.getName().equals(this.getName());
+    }
 }
