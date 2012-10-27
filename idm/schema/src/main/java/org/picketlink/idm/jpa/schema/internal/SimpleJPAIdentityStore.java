@@ -21,6 +21,7 @@
  */
 package org.picketlink.idm.jpa.schema.internal;
 
+import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,8 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.DigestCredential;
 import org.picketlink.idm.credential.DigestCredentialUtil;
 import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.jpa.schema.DatabaseGroup;
 import org.picketlink.idm.jpa.schema.DatabaseMembership;
 import org.picketlink.idm.jpa.schema.DatabaseRole;
@@ -69,6 +72,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 public class SimpleJPAIdentityStore implements IdentityStore {
 
     private static final String PASSWORD_ATTRIBUTE_NAME = "password";
+    private static final String CERTIFICATE_ATTRIBUTE_NAME = "credential";
     private JPATemplate jpaTemplate;
 
     @Override
@@ -677,6 +681,19 @@ public class SimpleJPAIdentityStore implements IdentityStore {
             String storedPassword = storedUser.getAttribute(PASSWORD_ATTRIBUTE_NAME);
             
             return DigestCredentialUtil.matchCredential(digestCredential, storedPassword.toCharArray());
+        } else if (credential instanceof X509CertificateCredential) {
+            X509CertificateCredential certCredential = (X509CertificateCredential) credential;
+            User storedUser = getUser(ctx, user.getId());
+            
+            String storedCert = storedUser.getAttribute(CERTIFICATE_ATTRIBUTE_NAME);
+            
+            if (storedCert != null) {
+                try {
+                    return storedCert.equals(new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded())));
+                } catch (CertificateEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         } else {
             throwsNotSupportedCredentialType(credential);
         }
@@ -689,10 +706,23 @@ public class SimpleJPAIdentityStore implements IdentityStore {
      */
     @Override
     public void updateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
+        User storedUser = getUser(ctx, user.getId());
+        
+        if (storedUser == null) {
+            throw new RuntimeException("User not found: " + user.getId());
+        }
+        
         if (credential instanceof PasswordCredential) {
             PasswordCredential passwordCredential = (PasswordCredential) credential;
+            storedUser.setAttribute(PASSWORD_ATTRIBUTE_NAME, passwordCredential.getPassword());
+        } else if (credential instanceof X509CertificateCredential) {
+            X509CertificateCredential certCredential = (X509CertificateCredential) credential;
             
-            user.setAttribute(PASSWORD_ATTRIBUTE_NAME, passwordCredential.getPassword());
+            try {
+                storedUser.setAttribute(CERTIFICATE_ATTRIBUTE_NAME, new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded())));
+            } catch (CertificateEncodingException e) {
+                throw new RuntimeException(e);
+            }
         } else {
             throwsNotSupportedCredentialType(credential);
         }
