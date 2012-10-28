@@ -29,19 +29,19 @@ package org.picketlink.idm.model;
  */
 public class DefaultMembership implements Membership {
 
-    private User user;
+    private IdentityType member;
     private Role role;
     private Group group;
 
-    public DefaultMembership(User user, Role role, Group group) {
-        this.user = user;
+    public DefaultMembership(IdentityType member, Role role, Group group) {
+        this.member = member;
         this.role = role;
         this.group = group;
     }
 
     @Override
-    public User getUser() {
-        return user;
+    public IdentityType getMember() {
+        return member;
     }
 
     @Override

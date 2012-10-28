@@ -138,7 +138,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
         this.group = identityManager.getGroup(null, GROUP_NAME);
         this.role = identityManager.getRole(null, ROLE_NAME);
         this.user = identityManager.getUser(null, USER_NAME);
-        this.membership = identityManager.getMembership(null, this.role, this.user, this.group);
+        this.membership = identityManager.getMembership(null, this.user, this.group, this.role);
 
         // if memberships are already loaded then do nothing
         if (this.membership != null) {
@@ -152,7 +152,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
         
         this.role = identityManager.createRole(null, ROLE_NAME);
 
-        this.membership = identityManager.createMembership(null,this.role, this.user, this.group);
+        this.membership = identityManager.createMembership(null, this.user, this.group, this.role);
     }
 
     /**
@@ -170,7 +170,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
         assertFalse(result.isEmpty());
         assertEquals(this.role.getName(), result.get(0).getRole().getName());
         assertEquals(this.group.getId(), result.get(0).getGroup().getId());
-        assertEquals(this.user.getId(), result.get(0).getUser().getId());
+        assertEquals(this.user.getId(), ((User) result.get(0).getMember()).getId());
     }
 
     private MembershipQuery createMembershipQuery() {

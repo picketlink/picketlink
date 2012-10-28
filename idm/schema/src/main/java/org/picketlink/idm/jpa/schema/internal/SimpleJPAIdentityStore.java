@@ -158,23 +158,27 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership createMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
-        DatabaseUser dbUser = (DatabaseUser) getUser(ctx, user.getId());
-        DatabaseRole dbRole = (DatabaseRole) getRole(ctx, role.getName());
-        DatabaseGroup dbGroup = (DatabaseGroup) getGroup(ctx, group.getName());
-        
-        DatabaseMembership newMembership = new DatabaseMembership(dbRole, dbUser, dbGroup);
-
-        dbUser.getMemberships().add(newMembership);
-
-        persist(newMembership);
-
-        return newMembership;
+    public Membership createMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+        if (member instanceof User) {
+            DatabaseUser dbUser = (DatabaseUser) getUser(ctx, ((User) member).getId());
+            DatabaseRole dbRole = (DatabaseRole) getRole(ctx, role.getName());
+            DatabaseGroup dbGroup = (DatabaseGroup) getGroup(ctx, group.getName());
+            
+            DatabaseMembership newMembership = new DatabaseMembership(dbUser, dbGroup, dbRole);
+    
+            dbUser.getMemberships().add(newMembership);
+    
+            persist(newMembership);
+    
+            return newMembership;
+        } else {
+            throw new UnsupportedOperationException("Only members of type User are supported by this implementation.");
+        }
     }
 
     @Override
-    public void removeMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
-        Membership membership = getMembership(ctx, role, user, group);
+    public void removeMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+        Membership membership = getMembership(ctx, member, group, role);
 
         if (membership != null) {
             remove(membership);
@@ -182,15 +186,14 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership getMembership(IdentityStoreInvocationContext ctx, final Role role, final User user, final Group group) {
+    public Membership getMembership(IdentityStoreInvocationContext ctx, final IdentityType member, final Group group, final Role role) {
         return (Membership) executeOperation(new JPACallback() {
 
             @Override
             public Object execute(EntityManager entityManager) {
                 Query query = entityManager.createNamedQuery(NamedQueries.MEMBERSHIP_LOAD_BY_KEY);
-
                 query.setParameter("role", role);
-                query.setParameter("user", user);
+                query.setParameter("member", member);
                 query.setParameter("group", group);
 
                 Membership loadedMembership = null;
@@ -335,7 +338,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
                 // predicates for the user
                 if (query.getRelatedUser() != null) {
-                    Join<DatabaseMembership, DatabaseUser> joinGroup = join.join("user");
+                    Join<DatabaseMembership, DatabaseUser> joinGroup = join.join("member");
                     predicates.add(criteriaBuilder.equal(joinGroup.get("id"), query.getRelatedUser().getId()));
                 }
 
@@ -453,7 +456,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
                 }
 
                 if (query.getUser() != null) {
-                    Join<DatabaseMembership, DatabaseUser> joinUser = membership.join("user");
+                    Join<DatabaseMembership, DatabaseUser> joinUser = membership.join("member");
                     predicates.add(criteriaBuilder.equal(joinUser.get("id"), query.getUser().getId()));
                 }
 
@@ -750,5 +753,11 @@ public class SimpleJPAIdentityStore implements IdentityStore {
      */
     private void throwsNotSupportedIdentityType(IdentityType identityType) throws IllegalArgumentException {
         throw new IllegalArgumentException("IdentityType not supported: " + identityType.getClass());
+    }
+
+    @Override
+    public Set<Feature> getFeatureSet() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

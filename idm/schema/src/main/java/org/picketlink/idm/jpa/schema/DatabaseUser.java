@@ -62,7 +62,7 @@ public class DatabaseUser extends AbstractDatabaseIdentityType<DatabaseUserAttri
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<DatabaseUserAttribute> ownerAttributes = new ArrayList<DatabaseUserAttribute>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<DatabaseMembership> memberships = new ArrayList<DatabaseMembership>();
 
     public DatabaseUser() {

@@ -24,13 +24,15 @@ package org.picketlink.idm.model;
 import java.io.Serializable;
 
 /**
- * Membership links User, Group and Role.
+ * Membership links a member (either a User or Group) to a parent Group or Role, 
+ * or combination of both.
+ * 
+ * @author Boleslaw Dawidowicz
+ * @author Shane Bryzak
  */
 public interface Membership extends Serializable {
-    // TODO: Javadocs
-    // TODO: Exceptions
 
-    User getUser();
+    IdentityType getMember();
 
     Group getGroup();
 

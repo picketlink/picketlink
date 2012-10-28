@@ -3,8 +3,10 @@ package org.picketlink.idm.jpa.internal;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -95,6 +97,11 @@ public class JPAIdentityStore implements IdentityStore {
     private static final String ATTRIBUTE_TYPE_LONG = "long";
     private static final String ATTRIBUTE_TYPE_FLOAT = "float";
     private static final String ATTRIBUTE_TYPE_DOUBLE = "double";
+
+    /**
+     * Defines the feature set for this IdentityStore
+     */
+    private Set<Feature> featureSet = new HashSet<Feature>();
 
     // Entity classes
     private Class<?> identityClass;
@@ -660,6 +667,12 @@ public class JPAIdentityStore implements IdentityStore {
         return ((JPAIdentityStoreSession) invocationContext.getIdentityStoreSession()).getEntityManager();
     }
 
+
+    @Override
+    public Set<Feature> getFeatureSet() {
+        return featureSet;
+    }    
+
     @Override
     public void createUser(IdentityStoreInvocationContext ctx, User user) {
         try {
@@ -773,24 +786,6 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership createMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void removeMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public Membership getMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public List<User> executeQuery(IdentityStoreInvocationContext ctx, UserQuery query, Range range) {
         // TODO Auto-generated method stub
         return null;
@@ -838,5 +833,22 @@ public class JPAIdentityStore implements IdentityStore {
         return null;
     }
 
+    @Override
+    public Membership createMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void removeMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Membership getMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }

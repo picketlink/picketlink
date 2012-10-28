@@ -11,6 +11,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -24,7 +25,7 @@ import org.picketlink.idm.model.User;
  *
  */
 @Entity
-@NamedQuery(name = NamedQueries.MEMBERSHIP_LOAD_BY_KEY, query = "from DatabaseMembership where role = :role and user = :user and group = :group")
+@NamedQuery(name = NamedQueries.MEMBERSHIP_LOAD_BY_KEY, query = "select m from DatabaseMembership m where m.role = :role and m.member = :member and m.group = :group")
 public class DatabaseMembership implements Membership {
 
     @Id
@@ -32,7 +33,7 @@ public class DatabaseMembership implements Membership {
     private long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    private DatabaseUser user;
+    private DatabaseUser member;
 
     @ManyToOne(cascade = CascadeType.ALL)
     private DatabaseGroup group;
@@ -44,9 +45,14 @@ public class DatabaseMembership implements Membership {
 
     }
 
-    public DatabaseMembership(Role role, User user, Group group) {
+    public DatabaseMembership(IdentityType member, Group group, Role role) {
+        if (member instanceof User) {
+            setMember((DatabaseUser) member);
+        } else {
+            throw new UnsupportedOperationException("Only User memberships are supported.");
+        }
+
         setRole((DatabaseRole) role);
-        setUser((DatabaseUser) user);
         setGroup((DatabaseGroup) group);
     }
 
@@ -67,15 +73,15 @@ public class DatabaseMembership implements Membership {
     /**
      * @return the user
      */
-    public DatabaseUser getUser() {
-        return user;
+    public DatabaseUser getMember() {
+        return member;
     }
 
     /**
      * @param user the user to set
      */
-    public void setUser(DatabaseUser user) {
-        this.user = user;
+    public void setMember(DatabaseUser user) {
+        this.member = user;
     }
 
     /**
@@ -124,7 +130,7 @@ public class DatabaseMembership implements Membership {
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("id", getId()).append("role", getRole()).append("group", getGroup())
-                .append("user", getUser()).toString();
+                .append("user", getMember()).toString();
     }
 
     @Override

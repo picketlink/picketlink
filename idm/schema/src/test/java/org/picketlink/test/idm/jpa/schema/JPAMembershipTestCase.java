@@ -79,13 +79,13 @@ public class JPAMembershipTestCase extends AbstractJPAIdentityManagerTestCase {
         User user = identityStore.getUser(null, "asaldhan");
         Group group = identityStore.getGroup(null, "Administrators");
 
-        Membership membership = identityStore.getMembership(null, role, user, group);
+        Membership membership = identityStore.getMembership(null, user, group, role);
 
         assertNotNull(membership);
 
-        identityStore.removeMembership(null, role, user, group);
+        identityStore.removeMembership(null, user, group, role);
 
-        membership = identityStore.getMembership(null, role, user, group);
+        membership = identityStore.getMembership(null, user, group, role);
 
         assertNull(membership);
     }

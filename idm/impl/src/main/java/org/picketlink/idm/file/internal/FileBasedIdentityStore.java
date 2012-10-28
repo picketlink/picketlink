@@ -328,6 +328,13 @@ public class FileBasedIdentityStore implements IdentityStore {
         }
     }
 
+
+    @Override
+    public Set<Feature> getFeatureSet() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     @Override
     public void createUser(IdentityStoreInvocationContext ctx, User user) {
         FileUser fileUser;
@@ -432,8 +439,8 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership createMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
-        FileMembership membership = new FileMembership(role, user, group);
+    public Membership createMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+        FileMembership membership = new FileMembership(member, group, role);
 
         this.memberships.add(membership);
 
@@ -443,7 +450,7 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void removeMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
+    public void removeMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
         for (Membership membership : new ArrayList<FileMembership>(this.memberships)) {
             boolean match = false;
 
@@ -451,8 +458,8 @@ public class FileBasedIdentityStore implements IdentityStore {
                 match = membership.getRole() != null && role.equals(membership.getRole());
             }
 
-            if (user != null) {
-                match = membership.getUser() != null && user.equals(membership.getUser());
+            if (member != null) {
+                match = membership.getMember() != null && member.equals(membership.getMember());
             }
 
             if (group != null) {
@@ -468,7 +475,7 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership getMembership(IdentityStoreInvocationContext ctx, Role role, User user, Group group) {
+    public Membership getMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
         for (Membership membership : new ArrayList<FileMembership>(this.memberships)) {
             boolean match = false;
 
@@ -478,8 +485,8 @@ public class FileBasedIdentityStore implements IdentityStore {
                 match = true;
             }
 
-            if (user != null) {
-                match = membership.getUser() != null && user.equals(membership.getUser());
+            if (member != null) {
+                match = membership.getMember() != null && member.equals(membership.getMember());
             } else {
                 match = true;
             }
@@ -549,11 +556,11 @@ public class FileBasedIdentityStore implements IdentityStore {
                 for (Membership membership : this.memberships) {
                     if ((query.getRole() != null && membership.getRole() == null)
                             || (query.getRelatedGroup() != null && membership.getGroup() == null)
-                            || membership.getUser() == null) {
+                            || membership.getMember() == null) {
                         continue;
                     }
 
-                    if (!membership.getUser().equals(fileUser)) {
+                    if (!membership.getMember().equals(fileUser)) {
                         continue;
                     }
 
@@ -623,7 +630,7 @@ public class FileBasedIdentityStore implements IdentityStore {
             for (Group fileGroup : new ArrayList<Group>(selectedGroups)) {
                 for (Membership membership : this.memberships) {
                     if ((query.getRole() != null && membership.getRole() == null)
-                            || (query.getRelatedUser() != null && membership.getUser() == null)
+                            || (query.getRelatedUser() != null && membership.getMember() == null)
                             || membership.getGroup() == null) {
                         continue;
                     }
@@ -639,7 +646,7 @@ public class FileBasedIdentityStore implements IdentityStore {
                     }
 
                     if (query.getRelatedUser() != null) {
-                        if (!membership.getUser().equals(query.getRelatedUser())) {
+                        if (!membership.getMember().equals(query.getRelatedUser())) {
                             continue;
                         }
                     }
@@ -677,7 +684,7 @@ public class FileBasedIdentityStore implements IdentityStore {
                 }
 
                 if (query.getOwner() != null) {
-                    if (!(membership.getUser() != null && membership.getUser().getKey().equals(query.getOwner().getKey()))) {
+                    if (!(membership.getMember() != null && membership.getMember().getKey().equals(query.getOwner().getKey()))) {
                         continue;
                     }
                 }
@@ -706,7 +713,7 @@ public class FileBasedIdentityStore implements IdentityStore {
         for (Membership membership : this.memberships) {
             if ((query.getRole() != null && membership.getRole() == null)
                     || (query.getGroup() != null && membership.getGroup() == null)
-                    || (query.getUser() != null && membership.getUser() == null)) {
+                    || (query.getUser() != null && membership.getMember() == null)) {
                 continue;
             }
 
@@ -723,7 +730,7 @@ public class FileBasedIdentityStore implements IdentityStore {
             }
 
             if (query.getUser() != null) {
-                if (!membership.getUser().equals(query.getUser())) {
+                if (!membership.getMember().equals(query.getUser())) {
                     continue;
                 }
             }
@@ -997,4 +1004,5 @@ public class FileBasedIdentityStore implements IdentityStore {
     private void throwsNotSupportedIdentityType(IdentityType identityType) throws IllegalArgumentException {
         throw new IllegalArgumentException("IdentityType not supported: " + identityType.getClass());
     }
+
 }

@@ -109,11 +109,11 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
         assertEquals("PicketBox Team", parentOfDevGroup.getName());
 
         // Add a relationship between an user, role and group
-        Membership membership = store.createMembership(null, ldapRole, anil, ldapGroup);
+        Membership membership = store.createMembership(null, anil, ldapGroup, ldapRole);
         assertNotNull(membership);
 
         // Deal with removal of users, roles and groups
-        store.removeMembership(null, ldapRole, anil, ldapGroup);
+        store.removeMembership(null, anil, ldapGroup, ldapRole);
 
         store.removeUser(null, anil);
         store.removeRole(null, ldapRole);

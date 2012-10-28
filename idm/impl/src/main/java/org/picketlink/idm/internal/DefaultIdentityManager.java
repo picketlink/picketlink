@@ -231,7 +231,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantRole(Role role, IdentityType identityType, Group group) {
-        this.store.createMembership(getInvocationContext(store), role, (User) identityType, group);
+        this.store.createMembership(getInvocationContext(store), identityType, group, role);
     }
 
     @Override

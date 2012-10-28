@@ -332,48 +332,59 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
      * @see org.picketlink.idm.spi.IdentityStore#createMembership(org.picketlink.idm.model.Role, org.picketlink.idm.model.User, org.picketlink.idm.model.Group)
      */
     @Override
-    public Membership createMembership(IdentityStoreInvocationContext invocationContext, Role role, User user, Group group) {
-        final LDAPRole ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
-        final LDAPUser ldapUser = (LDAPUser) getUser(invocationContext, user.getId());
-        final LDAPGroup ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
-
-        ldapRole.addUser(ldapUser);
-        ldapGroup.addRole(ldapRole);
-        ldapGroup.addUser(ldapUser);
-
-        try {
-            ctx.modifyAttributes(ldapRole.getDN(), REPLACE_ATTRIBUTE, ldapRole.getAttributes(MEMBER));
-        } catch (NamingException e) {
-            throw new RuntimeException("Error while modifying members of role [" + ldapRole.getName() + "].", e);
+    public Membership createMembership(IdentityStoreInvocationContext invocationContext, IdentityType member, Group group, Role role) {
+        if (member instanceof User) {
+            final LDAPRole ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
+            final LDAPUser ldapUser = (LDAPUser) getUser(invocationContext, ((User) member).getId());
+            final LDAPGroup ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
+    
+            ldapRole.addUser(ldapUser);
+            ldapGroup.addRole(ldapRole);
+            ldapGroup.addUser(ldapUser);
+    
+            try {
+                ctx.modifyAttributes(ldapRole.getDN(), REPLACE_ATTRIBUTE, ldapRole.getAttributes(MEMBER));
+            } catch (NamingException e) {
+                throw new RuntimeException("Error while modifying members of role [" + ldapRole.getName() + "].", e);
+            }
+    
+            try {
+                ctx.modifyAttributes(ldapGroup.getDN(), REPLACE_ATTRIBUTE, ldapGroup.getAttributes(MEMBER));
+            } catch (NamingException e) {
+                throw new RuntimeException("Error while modifying members of group [" + ldapGroup.getName() + "].", e);
+            }
+    
+            return new DefaultMembership(ldapUser, ldapRole, ldapGroup);
+        } else if (member instanceof Group) {
+            // FIXME implement Group membership, or return null
+            return null;
+        } else {
+            throw new IllegalArgumentException("The member parameter must be an instance of User or Group");
         }
-
-        try {
-            ctx.modifyAttributes(ldapGroup.getDN(), REPLACE_ATTRIBUTE, ldapGroup.getAttributes(MEMBER));
-        } catch (NamingException e) {
-            throw new RuntimeException("Error while modifying members of group [" + ldapGroup.getName() + "].", e);
-        }
-
-        return new DefaultMembership(ldapUser, ldapRole, ldapGroup);
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#removeMembership(org.picketlink.idm.model.Role, org.picketlink.idm.model.User, org.picketlink.idm.model.Group)
      */
     @Override
-    public void removeMembership(IdentityStoreInvocationContext invocationContext, Role role, User user, Group group) {
-        final LDAPRole ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
-        final LDAPUser ldapUser = (LDAPUser) getUser(invocationContext, user.getFullName());
-        final LDAPGroup ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
+    public void removeMembership(IdentityStoreInvocationContext invocationContext, IdentityType member, Group group, Role role) {
+        if (member instanceof User) {
+            final LDAPRole ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
+            final LDAPUser ldapUser = (LDAPUser) getUser(invocationContext, ((User) member).getFullName());
+            final LDAPGroup ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
 
-        ldapRole.removeUser(ldapUser);
-        ldapGroup.removeRole(ldapRole);
+            ldapRole.removeUser(ldapUser);
+            ldapGroup.removeRole(ldapRole);
+        } else if (member instanceof Group) {
+            // FIXME implement Group membership if supported
+        }
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#getMembership(org.picketlink.idm.model.Role, org.picketlink.idm.model.User, org.picketlink.idm.model.Group)
      */
     @Override
-    public Membership getMembership(IdentityStoreInvocationContext invocationContext, Role role, User user, Group group) {
+    public Membership getMembership(IdentityStoreInvocationContext invocationContext, IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -1055,6 +1066,12 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
      */
     private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
         throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
+    }
+
+    @Override
+    public Set<Feature> getFeatureSet() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

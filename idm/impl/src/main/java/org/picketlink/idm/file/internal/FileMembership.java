@@ -25,9 +25,9 @@ package org.picketlink.idm.file.internal;
 import java.io.Serializable;
 
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.User;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -37,7 +37,7 @@ public class FileMembership implements Membership, Serializable {
 
     private static final long serialVersionUID = -7424412115619080350L;
     
-    private User user;
+    private IdentityType member;
     private Group group;
     private Role role;
 
@@ -45,18 +45,18 @@ public class FileMembership implements Membership, Serializable {
         
     }
     
-    public FileMembership(Role role, User user, Group group) {
-        this.role = role;
-        this.user = user;
+    public FileMembership(IdentityType member, Group group, Role role) {
+        this.member = member;
         this.group = group;
+        this.role = role;
     }
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.model.Membership#getUser()
      */
     @Override
-    public User getUser() {
-        return this.user;
+    public IdentityType getMember() {
+        return this.member;
     }
 
     /* (non-Javadoc)
