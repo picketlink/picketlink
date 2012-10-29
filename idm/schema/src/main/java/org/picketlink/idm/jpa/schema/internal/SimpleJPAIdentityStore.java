@@ -401,7 +401,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
                 // predicates for the owner
                 if (query.getOwner() != null) {
-                    Join<DatabaseMembership, DatabaseUser> joinUser = join.join("user");
+                    Join<DatabaseMembership, DatabaseUser> joinUser = join.join("member");
                     predicates.add(criteriaBuilder.equal(joinUser.get("key"), query.getOwner().getKey()));
                 }
 
