@@ -32,22 +32,17 @@ public interface Group extends IdentityType, Serializable {
     /**
      * A query parameter used to set the id value.
      */
-    QueryParameter PARAM_ID = new QueryParameter() {};
+    QueryParameter ID = new QueryParameter() {};
 
     /**
      * A query parameter used to set the name value.
      */
-    QueryParameter PARAM_NAME = new QueryParameter() {};
+    QueryParameter NAME = new QueryParameter() {};
 
     /**
      * A query parameter used to set the parent value.
      */
-    QueryParameter PARAM_PARENT = new QueryParameter() {};
-
-    /**
-     * A query parameter used to set membership conditions
-     */
-    QueryParameter PARAM_MEMBER_OF = new QueryParameter() {};
+    QueryParameter PARENT = new QueryParameter() {};
 
     String KEY_PREFIX = "GROUP://";
 

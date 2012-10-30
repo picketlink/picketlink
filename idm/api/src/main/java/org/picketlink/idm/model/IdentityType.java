@@ -37,22 +37,22 @@ public interface IdentityType {
     /**
      *  A query parameter used to set the key value.
      */
-    QueryParameter PARAM_KEY = new QueryParameter() {};
+    QueryParameter KEY = new QueryParameter() {};
 
     /**
      * A query parameter used to set the enabled value.
      */
-    QueryParameter PARAM_ENABLED = new QueryParameter() {};
+    QueryParameter ENABLED = new QueryParameter() {};
 
     /**
      * A query parameter used to set the createdDate value
      */
-    QueryParameter PARAM_CREATED_DATE = new QueryParameter() {};
+    QueryParameter CREATED_DATE = new QueryParameter() {};
 
     /**
      * A query parameter used to set the expiryDate value
      */
-    QueryParameter PARAM_EXPIRY_DATE = new QueryParameter() {};
+    QueryParameter EXPIRY_DATE = new QueryParameter() {};
 
     public class AttributeParameter implements QueryParameter {
         private String name;
@@ -65,11 +65,48 @@ public interface IdentityType {
         }
     }
 
-    public final class PARAM_ATTRIBUTE {
+    public final class ATTRIBUTE {
         public static AttributeParameter byName(String name) {
             return new AttributeParameter(name);
         }
     }
+
+    public class MembershipParameter implements QueryParameter {
+        private String group;
+        private String role;
+        public MembershipParameter(String group, String role) {
+            this.group = group;
+            this.role = role;
+        }
+
+        public MembershipParameter group(String group) {
+            this.group = group;
+            return this;
+        }
+
+        public MembershipParameter role(String role) {
+            this.role = role;
+            return this;
+        }
+
+        public String getGroup() {
+            return group;
+        }
+
+        public String getRole() {
+            return role;
+        }
+    }
+
+    public final class MEMBER_OF {
+        public static MembershipParameter group(String name) {
+            return new MembershipParameter(name, null);
+        }
+        public static MembershipParameter role(String name) {
+            return new MembershipParameter(null, name);
+        }
+    }
+
 
     /**
      * Returns a key value for this IdentityType.  The key may be used to perform a 

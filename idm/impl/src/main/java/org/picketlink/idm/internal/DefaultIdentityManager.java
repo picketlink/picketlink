@@ -24,6 +24,7 @@ package org.picketlink.idm.internal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credential;
@@ -279,5 +280,14 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends IdentityType> IdentityQuery<T> createQuery() {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    public void test() {
+        List<User> users = this.<User>createQuery()
+                .setParameter(User.MEMBER_OF.group("Head Office").role("Admin"), true)
+                .setParameter(User.MEMBER_OF.group("Springfield"), false)
+                .setParameter(User.MEMBER_OF.role("Contractor"), false)
+                .getResultList();
+        
     }
 }
