@@ -32,7 +32,7 @@ public interface Role extends IdentityType, Serializable {
     /**
      * A query parameter used to set the name value.
      */
-    public static final QueryParameter PARAM_NAME = new QueryParameter() {};
+    QueryParameter PARAM_NAME = new QueryParameter() {};
 
     String KEY_PREFIX = "ROLE://";
 

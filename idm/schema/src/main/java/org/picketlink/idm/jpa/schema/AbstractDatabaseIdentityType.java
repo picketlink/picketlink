@@ -53,8 +53,8 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
 
     private String key;
     private boolean enabled = true;
-    private Date expirationDate;
-    private Date creationDate;
+    private Date expiryDate;
+    private Date createdDate;
 
     @Transient
     private Map<String, String[]> userAttributesMap;
@@ -111,38 +111,22 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
         this.enabled = enabled;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.model.IdentityType#getExpirationDate()
-     */
     @Override
-    public Date getExpirationDate() {
-        return expirationDate;
+    public Date getCreatedDate() {
+        return this.createdDate;
     }
-
-    /**
-     * @param expirationDate the expirationDate to set
-     */
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
+    
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.model.IdentityType#getCreationDate()
-     */
+    
     @Override
-    public Date getCreationDate() {
-        return creationDate;
+    public Date getExpiryDate() {
+        return this.expiryDate;
     }
-
-    /**
-     * @param creationDate the creationDate to set
-     */
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
+    
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
     /*
@@ -308,7 +292,7 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("id", getId()).append("key", getKey()).append("enabled", isEnabled())
-                .append("expirationDate", getExpirationDate()).append("creationDate", getCreationDate()).toString();
+                .append("expirationDate", getExpiryDate()).append("creationDate", getCreatedDate()).toString();
     }
 
     @Override
