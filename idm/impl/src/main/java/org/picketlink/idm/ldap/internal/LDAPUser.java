@@ -284,7 +284,9 @@ public class LDAPUser extends DirContextAdaptor implements User {
         if (theAttribute == null) {
             attributes.put(SN, lastName);
         } else {
-            theAttribute.set(0, lastName);
+            theAttribute.clear();
+            theAttribute.add(lastName);
+            //theAttribute.set(0, lastName);
         }
 
         Attribute cnAttribute = attributes.get(CN);
