@@ -35,18 +35,18 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-//import org.picketlink.idm.internal.JPAIdentityStore;
 import org.picketlink.idm.internal.util.Base64;
+import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
 import org.picketlink.idm.query.UserQuery;
 import org.picketlink.test.idm.internal.jpa.AbstractJPAIdentityManagerTestCase;
+//import org.picketlink.idm.internal.JPAIdentityStore;
 
 /**
  * Unit test the {@link DefaultIdentityManager} using the {@link JPAIdentityStore}

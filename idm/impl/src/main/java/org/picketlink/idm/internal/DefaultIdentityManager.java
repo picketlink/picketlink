@@ -34,6 +34,7 @@ import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.GroupQuery;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.MembershipQuery;
 import org.picketlink.idm.query.RoleQuery;
 import org.picketlink.idm.query.UserQuery;
@@ -295,6 +296,12 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public IdentityType lookupIdentityByKey(String key) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T extends IdentityType> IdentityQuery<T> createQuery() {
         // TODO Auto-generated method stub
         return null;
     }

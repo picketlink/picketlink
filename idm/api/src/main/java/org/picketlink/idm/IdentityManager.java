@@ -30,6 +30,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.GroupQuery;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.MembershipQuery;
 import org.picketlink.idm.query.RoleQuery;
 import org.picketlink.idm.query.UserQuery;
@@ -106,6 +107,8 @@ public interface IdentityManager {
 
     // Queries
 
+    <T extends IdentityType> IdentityQuery<T> createQuery();
+
     UserQuery createUserQuery();
 
     GroupQuery createGroupQuery();
@@ -113,11 +116,11 @@ public interface IdentityManager {
     RoleQuery createRoleQuery();
 
     MembershipQuery createMembershipQuery();
-    
+
     // Credential management
-    
+
     boolean validateCredential(User user, Credential credential);
-    
+
     void updateCredential(User user, Credential credential);
 
     // User / Role / Group enablement / expiry

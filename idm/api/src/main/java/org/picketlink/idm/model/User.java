@@ -23,10 +23,32 @@ package org.picketlink.idm.model;
 
 import java.io.Serializable;
 
+import org.picketlink.idm.query.QueryParameter;
+
 /**
  * User representation
  */
 public interface User extends IdentityType, Serializable {
+    /**
+     * A query parameter used to set the id value.
+     */
+    public static final QueryParameter PARAM_ID = new QueryParameter() {};
+
+    /**
+     * A query parameter used to set the firstName value.
+     */
+    public static final QueryParameter PARAM_FIRST_NAME = new QueryParameter() {};
+
+    /**
+     * A query parameter used to set the lastName value.
+     */
+    public static final QueryParameter PARAM_LAST_NAME = new QueryParameter() {};
+
+    /**
+     * A query parameter used to set the email value.
+     */
+    public static final QueryParameter PARAM_EMAIL = new QueryParameter() {};
+
     String KEY_PREFIX = "USER://";
 
     // TODO: Javadocs
