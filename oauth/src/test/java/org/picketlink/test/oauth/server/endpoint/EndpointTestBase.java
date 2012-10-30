@@ -27,7 +27,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import org.junit.After;
-import org.picketbox.test.http.jetty.EmbeddedWebServerBase;
 import org.picketbox.test.ldap.LDAPTestUtil;
 import org.picketlink.oauth.PicketLinkOAuthApplication;
 

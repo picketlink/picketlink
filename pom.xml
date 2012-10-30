@@ -41,6 +41,7 @@
         <module>idm</module>
         <module>core</module>
         <module>social</module>
+        <module>oauth</module>
     </modules>
 
     <dependencyManagement>
