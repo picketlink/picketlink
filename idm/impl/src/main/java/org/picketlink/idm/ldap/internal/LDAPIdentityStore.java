@@ -363,7 +363,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     public void removeMembership(IdentityStoreInvocationContext invocationContext, IdentityType member, Group group, Role role) {
         if (member instanceof User) {
             final LDAPRole ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
-            final LDAPUser ldapUser = (LDAPUser) getUser(invocationContext, ((User) member).getFullName());
+            final LDAPUser ldapUser = (LDAPUser) getUser(invocationContext, ((User) member).getId());
             final LDAPGroup ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
 
             ldapRole.removeUser(ldapUser);
