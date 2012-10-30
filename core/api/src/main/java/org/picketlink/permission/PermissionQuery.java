@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.query.Range;
 import org.picketlink.permission.spi.PermissionStore;
 
 /**
@@ -17,7 +16,8 @@ public class PermissionQuery
 {
     private Object resource;    
     private Set<Object> resources;
-    private Range range;
+    private int offset;
+    private int limit;
     private IdentityType recipient;
     
     private PermissionStore permissionStore;
@@ -51,14 +51,21 @@ public class PermissionQuery
         return this;
     }
     
-    public Range getRange()
-    {
-        return range;
+    public int getOffset() {
+        return offset;
     }
     
-    public PermissionQuery setRange(Range range)
-    {
-        this.range = range;
+    public PermissionQuery setOffset(int offset) {
+        this.offset = offset;
+        return this;
+    }
+    
+    public int getLimit() {
+        return limit;
+    }
+    
+    public PermissionQuery setLimit(int limit) {
+        this.limit = limit;
         return this;
     }
     

@@ -30,9 +30,9 @@ import java.util.Map;
  * Abstract base class for IdentityType implementations
  */
 public abstract class AbstractIdentityType implements IdentityType, Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private boolean enabled = true;
     private Date createdDate = null;
     private Date expiryDate = null;
@@ -42,10 +42,12 @@ public abstract class AbstractIdentityType implements IdentityType, Serializable
         return this.enabled;
     }
 
+    @Override
     public Date getExpiryDate() {
         return this.expiryDate;
     }
 
+    @Override
     public Date getCreatedDate() {
         return this.createdDate;
     }

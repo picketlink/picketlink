@@ -55,11 +55,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.GroupQuery;
-import org.picketlink.idm.query.MembershipQuery;
-import org.picketlink.idm.query.Range;
-import org.picketlink.idm.query.RoleQuery;
-import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
@@ -215,7 +211,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
      * @see org.picketlink.idm.spi.IdentityStore#executeQuery(org.picketlink.idm.query.UserQuery,
      * org.picketlink.idm.query.Range)
      */
-    @SuppressWarnings("unchecked")
+    /*@SuppressWarnings("unchecked")
     @Override
     public List<User> executeQuery(IdentityStoreInvocationContext ctx, final UserQuery query, Range range) {
         return (List<User>) this.jpaTemplate.execute(new JPACallback() {
@@ -468,7 +464,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
             }
         });
     }
-
+*/
     @Override
     public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String name, String[] values) {
         if (identityType instanceof User) {
@@ -757,6 +753,12 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
     @Override
     public Set<Feature> getFeatureSet() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO Auto-generated method stub
         return null;
     }

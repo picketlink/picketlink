@@ -32,27 +32,27 @@ public interface User extends IdentityType, Serializable {
     /**
      * A query parameter used to set the id value.
      */
-    public static final QueryParameter PARAM_ID = new QueryParameter() {};
+    QueryParameter PARAM_ID = new QueryParameter() {};
 
     /**
      * A query parameter used to set the firstName value.
      */
-    public static final QueryParameter PARAM_FIRST_NAME = new QueryParameter() {};
+    QueryParameter PARAM_FIRST_NAME = new QueryParameter() {};
 
     /**
      * A query parameter used to set the lastName value.
      */
-    public static final QueryParameter PARAM_LAST_NAME = new QueryParameter() {};
+    QueryParameter PARAM_LAST_NAME = new QueryParameter() {};
 
     /**
      * A query parameter used to set the email value.
      */
-    public static final QueryParameter PARAM_EMAIL = new QueryParameter() {};
+    QueryParameter PARAM_EMAIL = new QueryParameter() {};
 
     /**
      * A query parameter used to set membership conditions
      */
-    public static final QueryParameter PARAM_MEMBER_OF = new QueryParameter() {};
+    QueryParameter PARAM_MEMBER_OF = new QueryParameter() {};
 
     String KEY_PREFIX = "USER://";
 

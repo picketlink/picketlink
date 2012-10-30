@@ -16,7 +16,6 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
-
     @Override
     public IdentityQuery<T> setParameter(QueryParameter param, Object value) {
         // TODO Auto-generated method stub
@@ -44,13 +43,11 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public IdentityQuery<T> setOffset(int offset) {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public IdentityQuery<T> setLimit(int limit) {
-        // TODO Auto-generated method stub
         return null;
     }
 }

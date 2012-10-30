@@ -37,22 +37,22 @@ public interface IdentityType {
     /**
      *  A query parameter used to set the key value.
      */
-    public static final QueryParameter PARAM_KEY = new QueryParameter() {};
+    QueryParameter PARAM_KEY = new QueryParameter() {};
 
     /**
      * A query parameter used to set the enabled value.
      */
-    public static final QueryParameter PARAM_ENABLED = new QueryParameter() {};
+    QueryParameter PARAM_ENABLED = new QueryParameter() {};
 
     /**
      * A query parameter used to set the createdDate value
      */
-    public static final QueryParameter PARAM_CREATED_DATE = new QueryParameter() {};
+    QueryParameter PARAM_CREATED_DATE = new QueryParameter() {};
 
     /**
      * A query parameter used to set the expiryDate value
      */
-    public static final QueryParameter PARAM_EXPIRY_DATE = new QueryParameter() {};
+    QueryParameter PARAM_EXPIRY_DATE = new QueryParameter() {};
 
     public class AttributeParameter implements QueryParameter {
         private String name;
