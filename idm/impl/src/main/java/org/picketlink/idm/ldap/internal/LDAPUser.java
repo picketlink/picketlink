@@ -105,6 +105,9 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
     @Override
     public String getAttribute(String name) {
+        if(lookup == null){
+            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
+        }
         if (lookup.isManaged(name) == false) {
             return (String) customAttributes.getAttribute(name);
         }
@@ -113,6 +116,9 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
     @Override
     public String[] getAttributeValues(String name) {
+        if(lookup == null){
+            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
+        }
         if (lookup.isManaged(name) == false) {
             Object value = customAttributes.getAttribute(name);
             if (value instanceof String[]) {
@@ -143,6 +149,9 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
     @Override
     public void setAttribute(String name, String value) {
+        if(lookup == null){
+            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
+        }
         if (lookup.isManaged(name)) {
             super.setAttribute(name, value);
         } else {
@@ -152,6 +161,9 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
     @Override
     public void setAttribute(String name, String[] values) {
+        if(lookup == null){
+            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
+        }
         if (lookup.isManaged(name)) {
             super.setAttribute(name, values);
         } else {
