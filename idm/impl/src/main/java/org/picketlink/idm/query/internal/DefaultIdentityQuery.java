@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.Range;
 
 /**
  * Default IdentityQuery implementation.
@@ -15,12 +14,6 @@ import org.picketlink.idm.query.Range;
  * @param <T>
  */
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
-
-    @Override
-    public IdentityQuery<T> reset() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
     @Override
     public IdentityQuery<T> setParameter(org.picketlink.idm.query.IdentityQuery.Param param, Object value) {
@@ -51,12 +44,6 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     }
 
     @Override
-    public IdentityQuery<T> setRange(Range range) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public List<T> getResultList() {
         ParameterizedType parameterizedType = (ParameterizedType)getClass()
                 .getGenericSuperclass();
@@ -65,6 +52,16 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         // TODO Auto-generated method stub
         return null;
 
+    }
+
+    @Override
+    public IdentityQuery<T> setOffset(int offset) {
+        return null;
+    }
+
+    @Override
+    public IdentityQuery<T> setLimit(int limit) {
+        return null;
     }
 
 }

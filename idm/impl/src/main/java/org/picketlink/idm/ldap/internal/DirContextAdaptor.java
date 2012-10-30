@@ -369,17 +369,17 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     public boolean isEnabled() {
         return false;
     }
-
+    
     @Override
-    public Date getExpirationDate() {
+    public Date getExpiryDate() {
         return null;
     }
-
+    
     @Override
-    public Date getCreationDate() {
+    public Date getCreatedDate() {
         return null;
     }
-
+    
     @Override
     public void setAttribute(String name, String value) {
         attributes.put(name, value);
