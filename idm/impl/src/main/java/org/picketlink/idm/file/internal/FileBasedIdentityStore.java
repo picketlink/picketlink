@@ -31,7 +31,6 @@ import java.io.ObjectOutputStream;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -50,11 +49,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.GroupQuery;
-import org.picketlink.idm.query.MembershipQuery;
-import org.picketlink.idm.query.Range;
-import org.picketlink.idm.query.RoleQuery;
-import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
@@ -504,7 +499,7 @@ public class FileBasedIdentityStore implements IdentityStore {
 
         return null;
     }
-
+/*
     @Override
     public List<User> executeQuery(IdentityStoreInvocationContext ctx, UserQuery query, Range range) {
         List<User> users = new ArrayList<User>();
@@ -739,7 +734,7 @@ public class FileBasedIdentityStore implements IdentityStore {
         }
 
         return memberships;
-    }
+    }*/
 
     @Override
     public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String name, String[] values) {
@@ -1003,6 +998,12 @@ public class FileBasedIdentityStore implements IdentityStore {
      */
     private void throwsNotSupportedIdentityType(IdentityType identityType) throws IllegalArgumentException {
         throw new IllegalArgumentException("IdentityType not supported: " + identityType.getClass());
+    }
+
+    @Override
+    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

@@ -43,17 +43,33 @@ public interface IdentityType {
      * A query parameter used to set the enabled value.
      */
     public static final QueryParameter PARAM_ENABLED = new QueryParameter() {};
-    
+
     /**
      * A query parameter used to set the createdDate value
      */
     public static final QueryParameter PARAM_CREATED_DATE = new QueryParameter() {};
-    
+
     /**
      * A query parameter used to set the expiryDate value
      */
     public static final QueryParameter PARAM_EXPIRY_DATE = new QueryParameter() {};
 
+    public class AttributeParameter implements QueryParameter {
+        private String name;
+        public AttributeParameter(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    public final class PARAM_ATTRIBUTE {
+        public static AttributeParameter byName(String name) {
+            return new AttributeParameter(name);
+        }
+    }
 
     /**
      * Returns a key value for this IdentityType.  The key may be used to perform a 

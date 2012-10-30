@@ -371,12 +371,12 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     }
 
     @Override
-    public Date getExpirationDate() {
+    public Date getExpiryDate() {
         return null;
     }
 
     @Override
-    public Date getCreationDate() {
+    public Date getCreatedDate() {
         return null;
     }
 

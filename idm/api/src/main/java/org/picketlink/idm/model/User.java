@@ -49,6 +49,11 @@ public interface User extends IdentityType, Serializable {
      */
     public static final QueryParameter PARAM_EMAIL = new QueryParameter() {};
 
+    /**
+     * A query parameter used to set membership conditions
+     */
+    public static final QueryParameter PARAM_MEMBER_OF = new QueryParameter() {};
+
     String KEY_PREFIX = "USER://";
 
     // TODO: Javadocs

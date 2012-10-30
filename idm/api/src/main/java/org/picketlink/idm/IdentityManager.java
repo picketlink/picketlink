@@ -29,11 +29,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.GroupQuery;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.MembershipQuery;
-import org.picketlink.idm.query.RoleQuery;
-import org.picketlink.idm.query.UserQuery;
 
 /**
  * IdentityManager
@@ -108,14 +104,6 @@ public interface IdentityManager {
     // Queries
 
     <T extends IdentityType> IdentityQuery<T> createQuery();
-
-    UserQuery createUserQuery();
-
-    GroupQuery createGroupQuery();
-
-    RoleQuery createRoleQuery();
-
-    MembershipQuery createMembershipQuery();
 
     // Credential management
 

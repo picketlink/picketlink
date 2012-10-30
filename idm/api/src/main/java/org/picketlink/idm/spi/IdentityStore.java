@@ -31,11 +31,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.GroupQuery;
-import org.picketlink.idm.query.MembershipQuery;
-import org.picketlink.idm.query.Range;
-import org.picketlink.idm.query.RoleQuery;
-import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * IdentityStore representation providing minimal SPI
@@ -180,16 +176,9 @@ public interface IdentityStore {
      */
     Membership getMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role);
 
-    // Queries
+    // Identity query
 
-    List<User> executeQuery(IdentityStoreInvocationContext ctx, UserQuery query, Range range);
-
-    List<Group> executeQuery(IdentityStoreInvocationContext ctx, GroupQuery query, Range range);
-
-    List<Role> executeQuery(IdentityStoreInvocationContext ctx, RoleQuery query, Range range);
-
-    List<Membership> executeQuery(IdentityStoreInvocationContext ctx, MembershipQuery query, Range range);
-
+    List<IdentityType> fetchQueryResults(Map<QueryParameter,Object> parameters);
 
     // Credential management
 

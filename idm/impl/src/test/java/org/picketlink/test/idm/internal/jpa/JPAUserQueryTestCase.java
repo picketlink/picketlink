@@ -33,7 +33,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.UserQuery;
 
 /**
  * <p>
@@ -73,6 +72,8 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByUserName() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         UserQuery query = createUserQuery();
 
         query.setName(this.user.getKey());
@@ -81,7 +82,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setName("Invalid");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -93,6 +94,8 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByFirstName() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         UserQuery query = createUserQuery();
 
         query.setFirstName(this.user.getFirstName());
@@ -101,7 +104,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setFirstName("Invalid");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -113,6 +116,8 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByLastName() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         UserQuery query = createUserQuery();
 
         query.setLastName(this.user.getLastName());
@@ -121,7 +126,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setLastName("Invalid");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -133,6 +138,8 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByEmail() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         UserQuery query = createUserQuery();
 
         query.setEmail(this.user.getEmail());
@@ -141,7 +148,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setEmail("Invalid");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -153,6 +160,8 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByRole() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         UserQuery query = createUserQuery();
 
         query.setRole(ROLE_NAME_PREFIX + 1);
@@ -161,7 +170,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setRole("Invalid");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -173,6 +182,8 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByGroup() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         UserQuery query = createUserQuery();
 
         query.setRelatedGroup(GROUP_NAME_PREFIX + 1);
@@ -181,7 +192,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setRelatedGroup("Invalid");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -193,6 +204,8 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByAttributes() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         UserQuery query = createUserQuery();
 
         query.setName(this.user.getKey());
@@ -203,7 +216,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setAttributeFilter("Invalid", new String[] {"Invalid"});
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -213,13 +226,15 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @param query
      */
+    // FIXME rewrite with new Query API
+    /*
     private void assertQueryResult(UserQuery query) {
         List<User> result = query.executeQuery();
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertEquals(this.user.getId(), result.get(0).getId());
-    }
+    }*/
 
     /**
      * <p>
@@ -262,8 +277,9 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         }
     }
 
+    /*
     private UserQuery createUserQuery() {
         return getIdentityManager().createUserQuery();
-    }
+    }*/
 
 }

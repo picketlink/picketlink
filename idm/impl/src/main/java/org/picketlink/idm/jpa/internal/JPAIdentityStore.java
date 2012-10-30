@@ -28,11 +28,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.GroupQuery;
-import org.picketlink.idm.query.MembershipQuery;
-import org.picketlink.idm.query.Range;
-import org.picketlink.idm.query.RoleQuery;
-import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.JPAIdentityStoreConfiguration;
@@ -786,30 +782,6 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public List<User> executeQuery(IdentityStoreInvocationContext ctx, UserQuery query, Range range) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<Group> executeQuery(IdentityStoreInvocationContext ctx, GroupQuery query, Range range) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<Role> executeQuery(IdentityStoreInvocationContext ctx, RoleQuery query, Range range) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<Membership> executeQuery(IdentityStoreInvocationContext ctx, MembershipQuery query, Range range) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name, String[] values) {
         // TODO Auto-generated method stub
         
@@ -847,6 +819,12 @@ public class JPAIdentityStore implements IdentityStore {
 
     @Override
     public Membership getMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO Auto-generated method stub
         return null;
     }

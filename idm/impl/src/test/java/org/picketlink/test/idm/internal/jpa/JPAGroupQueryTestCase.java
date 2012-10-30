@@ -33,7 +33,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.GroupQuery;
 
 /**
  * <p>
@@ -73,6 +72,8 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByName() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         GroupQuery query = createGroupQuery();
 
         query.setName(this.group.getName());
@@ -81,7 +82,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setName("Invalid");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -93,6 +94,8 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindById() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         GroupQuery query = createGroupQuery();
 
         query.setId(this.group.getId());
@@ -102,6 +105,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         query.setId("9999");
         
         assertTrue(query.executeQuery().isEmpty());
+        */
     }
 
     /**
@@ -113,6 +117,8 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByRole() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         GroupQuery query = createGroupQuery();
 
         query.setRole(ROLE_NAME_PREFIX + 1);
@@ -121,7 +127,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setRole("Invalid");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -133,6 +139,8 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByUser() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         GroupQuery query = createGroupQuery();
 
         query.setId(this.group.getId());
@@ -142,7 +150,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setRelatedUser("9999");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -154,6 +162,8 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByParentGroup() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         GroupQuery query = createGroupQuery();
 
         query.setId(this.group.getId());
@@ -163,7 +173,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         
         query.setParentGroup("9999");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -175,13 +185,15 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      */
     //@Test
     public void testfindByAttributes() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         GroupQuery query = createGroupQuery();
 
         query.setId(this.group.getId());
         query.addAttributeFilter("attribute1", new String[] { "attributeValue1", "attributeValue12", "attributeValue123" });
         query.addAttributeFilter("attribute2", new String[] { "attributeValue2" });
 
-        assertQueryResult(query);
+        assertQueryResult(query);*/
     }
 
     /**
@@ -232,6 +244,8 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
      *
      * @param query
      */
+    // FIXME rewrite with new Query API
+    /*
     private void assertQueryResult(GroupQuery query) {
         List<Group> result = query.executeQuery();
 
@@ -241,7 +255,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
     
     private GroupQuery createGroupQuery() {
         return getIdentityManager().createGroupQuery();
-    }
+    }*/
 
 
 }

@@ -58,11 +58,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.GroupQuery;
-import org.picketlink.idm.query.MembershipQuery;
-import org.picketlink.idm.query.Range;
-import org.picketlink.idm.query.RoleQuery;
-import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
@@ -392,7 +388,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#executeQuery(org.picketlink.idm.query.UserQuery, org.picketlink.idm.query.Range)
      */
-    @Override
+    /*@Override
     public List<User> executeQuery(IdentityStoreInvocationContext invocationContext, UserQuery query, Range range) {
         // TODO: Deal with range
         List<User> users = new ArrayList<User>();
@@ -445,12 +441,12 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         }
 
         return users;
-    }
+    }*/
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#executeQuery(org.picketlink.idm.query.GroupQuery, org.picketlink.idm.query.Range)
      */
-    @Override
+    /*@Override
     public List<Group> executeQuery(IdentityStoreInvocationContext invocationContext, GroupQuery query, Range range) {
         List<Group> groups = new ArrayList<Group>();
 
@@ -506,12 +502,12 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         }
 
         return groups;
-    }
+    }*/
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#executeQuery(org.picketlink.idm.query.RoleQuery, org.picketlink.idm.query.Range)
      */
-    @Override
+    /*@Override
     public List<Role> executeQuery(IdentityStoreInvocationContext invocationContext, RoleQuery query, Range range) {
         List<Role> roles = new ArrayList<Role>();
 
@@ -566,13 +562,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         }
 
         return roles;
-    }
-
-    @Override
-    public List<Membership> executeQuery(IdentityStoreInvocationContext invocationContext, MembershipQuery query, Range range) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    }*/
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.User, java.lang.String, java.lang.String[])
@@ -1070,6 +1060,12 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
 
     @Override
     public Set<Feature> getFeatureSet() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO Auto-generated method stub
         return null;
     }

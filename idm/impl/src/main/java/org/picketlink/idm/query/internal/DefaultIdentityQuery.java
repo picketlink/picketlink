@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.Range;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * Default IdentityQuery implementation.
@@ -16,48 +16,23 @@ import org.picketlink.idm.query.Range;
  */
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
+
     @Override
-    public IdentityQuery<T> reset() {
+    public IdentityQuery<T> setParameter(QueryParameter param, Object value) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public IdentityQuery<T> setParameter(org.picketlink.idm.query.IdentityQuery.Param param, Object value) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IdentityQuery<T> setParameter(org.picketlink.idm.query.IdentityQuery.Param param,
-            org.picketlink.idm.query.IdentityQuery.Operator operator, Object value) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IdentityQuery<T> setAttributeParameter(String attributeName, Object value) {
-        // TODO Auto-generated method stub
-
-
-        return null;
-    }
-
-    @Override
-    public IdentityQuery<T> setAttributeParameter(String attributeName,
-            org.picketlink.idm.query.IdentityQuery.Operator operator, Object value) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IdentityQuery<T> setRange(Range range) {
+    public IdentityQuery<T> setParameter(QueryParameter param, Operator operator, Object value) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public List<T> getResultList() {
+
+        // This is a bit hacky, we might need to actually pass in the type to the constructor
         ParameterizedType parameterizedType = (ParameterizedType)getClass()
                 .getGenericSuperclass();
         Class type = (Class) parameterizedType.getActualTypeArguments()[0];
@@ -67,4 +42,15 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     }
 
+    @Override
+    public IdentityQuery<T> setOffset(int offset) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IdentityQuery<T> setLimit(int limit) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

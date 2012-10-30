@@ -34,20 +34,20 @@ public abstract class AbstractIdentityType implements IdentityType, Serializable
     private static final long serialVersionUID = 1L;
     
     private boolean enabled = true;
-    private Date creationDate = null;
-    private Date expirationDate = null;
+    private Date createdDate = null;
+    private Date expiryDate = null;
     private Map<String, String[]> attributes = new HashMap<String, String[]>();
 
     public boolean isEnabled() {
         return this.enabled;
     }
 
-    public Date getExpirationDate() {
-        return this.expirationDate;
+    public Date getExpiryDate() {
+        return this.expiryDate;
     }
 
-    public Date getCreationDate() {
-        return this.creationDate;
+    public Date getCreatedDate() {
+        return this.createdDate;
     }
 
     public void setAttribute(String name, String value) {

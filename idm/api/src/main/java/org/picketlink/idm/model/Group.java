@@ -37,12 +37,17 @@ public interface Group extends IdentityType, Serializable {
     /**
      * A query parameter used to set the name value.
      */
-    public static final QueryParameter PARAM__NAME = new QueryParameter() {};
+    public static final QueryParameter PARAM_NAME = new QueryParameter() {};
 
     /**
      * A query parameter used to set the parent value.
      */
     public static final QueryParameter PARAM_PARENT = new QueryParameter() {};
+
+    /**
+     * A query parameter used to set membership conditions
+     */
+    public static final QueryParameter PARAM_MEMBER_OF = new QueryParameter() {};
 
     String KEY_PREFIX = "GROUP://";
 

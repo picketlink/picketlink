@@ -33,15 +33,7 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
-import org.picketlink.idm.query.GroupQuery;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.MembershipQuery;
-import org.picketlink.idm.query.RoleQuery;
-import org.picketlink.idm.query.UserQuery;
-import org.picketlink.idm.query.internal.DefaultGroupQuery;
-import org.picketlink.idm.query.internal.DefaultMembershipQuery;
-import org.picketlink.idm.query.internal.DefaultRoleQuery;
-import org.picketlink.idm.query.internal.DefaultUserQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
@@ -197,7 +189,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @SuppressWarnings("unchecked")
     @Override
     public Collection<Role> getRoles(IdentityType identityType, Group group) {
-        RoleQuery query = createRoleQuery();
+        /*RoleQuery query = createRoleQuery();
 
         // TODO: this should not happen because store impls must provide a valid instance. For now this is ignored and a empty
         // list is returned.
@@ -208,7 +200,11 @@ public class DefaultIdentityManager implements IdentityManager {
         query.setGroup(group);
         query.setOwner(identityType);
 
-        return query.executeQuery();
+        return query.executeQuery();*/
+
+        // FIXME need to fix this
+
+        return null;
     }
 
     /* (non-Javadoc)
@@ -220,14 +216,18 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!(identityType instanceof User)) {
             throw new IllegalArgumentException("For now only the User type is supported as the IdentityType argument.");
         }
-        
+        /*
         MembershipQuery query = createMembershipQuery();
         
         query.setRole(role);
         query.setGroup(group);
         query.setUser((User) identityType);
         
-        return !query.executeQuery().isEmpty();
+        return !query.executeQuery().isEmpty();*/
+
+        // TODO rewrite this implementation to use the IdentityCache instead of a query
+
+        return false;
     }
 
     @Override
@@ -238,26 +238,6 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void revokeRole(Role role, IdentityType identityType, Group group) {
         throw new RuntimeException();
-    }
-
-    @Override
-    public UserQuery createUserQuery() {
-        return new DefaultUserQuery(this.store);
-    }
-
-    @Override
-    public GroupQuery createGroupQuery() {
-        return new DefaultGroupQuery(this.store);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.IdentityManager#createMembershipQuery()
-     */
-    @Override
-    public MembershipQuery createMembershipQuery() {
-        return new DefaultMembershipQuery(this.store);
     }
 
     @Override
@@ -287,11 +267,6 @@ public class DefaultIdentityManager implements IdentityManager {
     protected IdentityStoreInvocationContext getInvocationContext(IdentityStore store) {
         // FIXME implement this
         return null;
-    }
-
-    @Override
-    public RoleQuery createRoleQuery() {
-        return new DefaultRoleQuery(this.store);
     }
 
     @Override

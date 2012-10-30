@@ -33,8 +33,6 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.GroupQuery;
-import org.picketlink.idm.query.MembershipQuery;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -75,6 +73,8 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
      */
     //@Test
     public void testfindByGroup() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         MembershipQuery query = createMembershipQuery();
 
         query.setGroup(this.group);
@@ -83,7 +83,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
         
         query.setGroup("67676");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -95,6 +95,8 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
      */
     //@Test
     public void testfindByRole() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         MembershipQuery query = createMembershipQuery();
 
         query.setRole(this.role);
@@ -103,7 +105,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
         
         query.setRole("12121");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -115,6 +117,8 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
      */
     //@Test
     public void testfindByUser() throws Exception {
+        // FIXME rewrite with new Query API
+        /*
         MembershipQuery query = createMembershipQuery();
 
         query.setUser(this.user);
@@ -123,7 +127,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
         
         query.setUser("12121");
         
-        assertTrue(query.executeQuery().isEmpty());
+        assertTrue(query.executeQuery().isEmpty());*/
     }
 
     /**
@@ -161,22 +165,21 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
      *
      * @param query
      */
+    // FIXME rewrite with new Query API
+    /*
     private void assertQueryResult(MembershipQuery query) {
         IdentityStore identityStore = createIdentityStore();
 
-        // FIXME fix this method
-        
-        /*
         List<Membership> result = identityStore.executeQuery(query, null);
 
         assertFalse(result.isEmpty());
         assertEquals(this.role.getName(), result.get(0).getRole().getName());
         assertEquals(this.group.getId(), result.get(0).getGroup().getId());
-        assertEquals(this.user.getId(), result.get(0).getUser().getId()); */
+        assertEquals(this.user.getId(), result.get(0).getUser().getId()); 
     }
 
     private MembershipQuery createMembershipQuery() {
         return getIdentityManager().createMembershipQuery();
-    }
+    }*/
 
 }
