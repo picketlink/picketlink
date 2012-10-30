@@ -23,7 +23,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.picketlink</groupId>
    <artifactId>picketlink-oauth</artifactId>
-   <version>1.0.0-SNAPSHOT</version>
+   <version>3.0-SNAPSHOT</version>
    <packaging>jar</packaging>
    <name>PicketLink OAuth</name>
    <url>http://jboss.org/picketlink/</url>
@@ -143,15 +143,13 @@
       </dependency>
       <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-idm-api</artifactId>
-         <version>2.0.sep28.2012</version>
+      	 <artifactId>picketlink-idm-api</artifactId>
       </dependency>
       <dependency>
          <groupId>org.picketlink</groupId>
-         <artifactId>picketlink-idm-impl</artifactId>
-         <version>2.0.sep28.2012</version>
+      	 <artifactId>picketlink-idm-impl</artifactId>
       </dependency>
-
+ 
       <!-- Test dependencies -->
       
       <dependency>

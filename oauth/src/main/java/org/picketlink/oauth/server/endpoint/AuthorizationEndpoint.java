@@ -51,8 +51,8 @@ import org.apache.amber.oauth2.common.message.types.ResponseType;
 import org.apache.amber.oauth2.common.utils.OAuthUtils;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.LDAPIdentityStore;
-import org.picketlink.idm.internal.config.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.UserQuery;
 

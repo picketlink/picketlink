@@ -45,9 +45,11 @@ import org.apache.amber.oauth2.ext.dynamicreg.server.request.JSONHttpServletRequ
 import org.apache.amber.oauth2.ext.dynamicreg.server.request.OAuthServerRegistrationRequest;
 import org.apache.amber.oauth2.ext.dynamicreg.server.response.OAuthServerRegistrationResponse;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.LDAPIdentityStore;
-import org.picketlink.idm.internal.config.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -88,12 +90,15 @@ public class RegistrationEndpoint implements Serializable {
             String generatedSecret = generateClientSecret();
 
             User user = identityManager.createUser(clientName);
+            user.setFirstName(clientName);
+            user.setLastName(" ");
             user.setAttribute("url", clientURL);
 
             user.setAttribute("description", clientDescription);
             user.setAttribute("redirectURI", clientRedirectURI);
             user.setAttribute("clientID", generatedClientID);
-            identityManager.updatePassword(user, generatedSecret);
+
+            identityManager.updateCredential(user, new PasswordCredential(generatedSecret));
             // user.setAttribute("clientSecret", generatedSecret);
 
             OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
@@ -133,6 +138,13 @@ public class RegistrationEndpoint implements Serializable {
                 ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
         }
+    }
+
+    private User createUser(String name) {
+        User anUser = new SimpleUser(name);
+        anUser.setFirstName(name);
+        anUser.setLastName(" ");
+        return anUser;
     }
 
     private Properties getProperties() throws IOException {

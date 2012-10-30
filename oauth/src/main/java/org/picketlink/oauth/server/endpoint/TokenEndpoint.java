@@ -50,9 +50,10 @@ import org.apache.amber.oauth2.common.exception.OAuthSystemException;
 import org.apache.amber.oauth2.common.message.OAuthResponse;
 import org.apache.amber.oauth2.common.message.types.GrantType;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.LDAPIdentityStore;
-import org.picketlink.idm.internal.config.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.UserQuery;
 
@@ -138,7 +139,7 @@ public class TokenEndpoint implements Serializable {
             }
 
             // Validate client secret
-            if (identityManager.validatePassword(clientApp, passedClientSecret) == false) {
+            if (identityManager.validateCredential(clientApp, new PasswordCredential(passedClientSecret)) == false) {
                 OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Client secret mismatch")
                         .buildJSONMessage();
