@@ -16,6 +16,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credential;
@@ -108,6 +109,11 @@ public class JPAIdentityStore implements IdentityStore {
     private static final String ATTRIBUTE_TYPE_DOUBLE = "double";
 
     /**
+     * Cache used to lookup User, Role and Group instances
+     */
+    private IdentityCache identityCache;
+
+    /**
      * Defines the feature set for this IdentityStore
      */
     private Set<Feature> featureSet = new HashSet<Feature>();
@@ -193,6 +199,10 @@ public class JPAIdentityStore implements IdentityStore {
         }
     }
 
+    public JPAIdentityStore(IdentityCache identityCache) {
+        this.identityCache = identityCache;
+    }
+
     public void bootstrap(JPAIdentityStoreConfiguration config) throws SecurityConfigurationException {
 
         identityClass = config.getIdentityClass();
@@ -221,18 +231,6 @@ public class JPAIdentityStore implements IdentityStore {
         configureAttributes();
 
         // configureCredentials();
-
-        // if (namedRelationshipsSupported) {
-        // configureRoleTypeName();
-        // }
-
-        // featuresMetaData = new FeaturesMetaDataImpl(
-        // configurationContext.getStoreConfigurationMetaData(),
-        // new HashSet<IdentityObjectSearchCriteriaType>(),
-        // false,
-        // namedRelationshipsSupported,
-        // new HashSet<String>()
-        // );
     }
 
     protected void configureIdentityDiscriminator() throws SecurityConfigurationException {
@@ -680,7 +678,7 @@ public class JPAIdentityStore implements IdentityStore {
     @Override
     public Set<Feature> getFeatureSet() {
         return featureSet;
-    }    
+    }
 
     @Override
     public void createUser(IdentityStoreInvocationContext ctx, User user) {
@@ -840,6 +838,8 @@ public class JPAIdentityStore implements IdentityStore {
         EntityManager em = getEntityManager(ctx);
         Object entity = lookupIdentityObjectByKey(em, user.getKey());
         removeIdentityObject(em, entity);
+
+        identityCache.invalidate(user);
 
         UserDeletedEvent event = new UserDeletedEvent(user);
         event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
