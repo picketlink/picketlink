@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
@@ -62,7 +61,7 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
         return config;
     }
 
-    @Test @Ignore
+    @Test
     public void testLDAPIdentityStore() throws Exception {
         LDAPIdentityStore store = new LDAPIdentityStore();
 
@@ -70,12 +69,13 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
 
         // Users
         LDAPUser user = new LDAPUser();
-        user.setId("Anil Saldhana");
+        user.setId("asaldhan");
+        user.setFullName("Anil Saldhana");
         
         store.createUser(null, user);
         assertNotNull(user);
 
-        User anil = store.getUser(null, "Anil Saldhana");
+        User anil = store.getUser(null, "asaldhan");
         assertNotNull(anil);
         assertEquals("Anil Saldhana", anil.getFullName());
         assertEquals("Anil", anil.getFirstName());

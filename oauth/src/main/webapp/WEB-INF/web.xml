@@ -1,0 +1,49 @@
+<web-app xmlns:javaee="http://java.sun.com/xml/ns/javaee"
+	xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+	<context-param>
+		<param-name>resteasy.scan</param-name>
+		<param-value>true</param-value>
+	</context-param> 
+	
+	<context-param>
+		<param-name>javax.ws.rs.Application</param-name>
+		<param-value>org.picketlink.oauth.PicketLinkOAuthApplication</param-value>
+	</context-param>
+
+	<!-- set this if you map the Resteasy servlet to something other than /* -->
+	<context-param>
+		<param-name>resteasy.servlet.mapping.prefix</param-name>
+		<param-value>/oauth</param-value>
+	</context-param>
+
+
+	<!-- if you are using Spring, Seam or EJB as your component model, remove 
+		the ResourceMethodSecurityInterceptor <context-param> <param-name>resteasy.resource.method-interceptors</param-name> 
+		<param-value> org.jboss.resteasy.core.ResourceMethodSecurityInterceptor </param-value> 
+		</context-param> -->
+
+	<listener>
+		<listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
+	</listener>
+	
+	<filter>
+      <filter-name>oauth</filter-name>
+      <filter-class>org.picketlink.oauth.filters.OAuthResourceFilter</filter-class> 
+    </filter>
+
+    <filter-mapping>
+      <filter-name>oauth</filter-name>
+      <url-pattern>/resource/*</url-pattern>
+    </filter-mapping>
+
+	<servlet>
+		<servlet-name>Resteasy</servlet-name>
+		<servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Resteasy</servlet-name>
+		<url-pattern>/oauth/*</url-pattern>
+	</servlet-mapping>
+</web-app>

@@ -107,14 +107,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         LDAPUser ldapUser;
 
         if (!(user instanceof LDAPUser)) {
-            ldapUser = new LDAPUser();
-            ldapUser.setId(user.getId());
-            ldapUser.setFirstName(user.getFirstName());
-            ldapUser.setLastName(user.getLastName());
-            ldapUser.setEmail(user.getEmail());
-            for (String attribName : user.getAttributes().keySet()) {
-                ldapUser.setAttribute(attribName, user.getAttribute(attribName));
-            }
+            ldapUser = convert(user);
         } else {
             ldapUser = (LDAPUser) user;
         }
@@ -366,7 +359,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     public void removeMembership(IdentityStoreInvocationContext invocationContext, IdentityType member, Group group, Role role) {
         if (member instanceof User) {
             final LDAPRole ldapRole = (LDAPRole) getRole(invocationContext, role.getName());
-            final LDAPUser ldapUser = (LDAPUser) getUser(invocationContext, ((User) member).getFullName());
+            final LDAPUser ldapUser = (LDAPUser) getUser(invocationContext, ((User) member).getId());
             final LDAPGroup ldapGroup = (LDAPGroup) getGroup(invocationContext, group.getName());
 
             ldapRole.removeUser(ldapUser);
@@ -895,7 +888,13 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             boolean valid = false;
             // We have to bind
             try {
-                LDAPUser ldapUser = (LDAPUser) user;
+                LDAPUser ldapUser = null;
+                if(user instanceof LDAPUser == false){
+                    ldapUser = convert(user);
+                } else {
+                    ldapUser = (LDAPUser) user;
+                }
+               
                 String filter = "(&(objectClass=inetOrgPerson)(uid={0}))";
                 SearchControls ctls = new SearchControls();
                 ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -942,7 +941,12 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             if (isActiveDirectory) {
                 updateADPassword((LDAPUser) user, pc.getPassword());
             } else {
-                LDAPUser ldapuser = (LDAPUser) user;
+                LDAPUser ldapuser = null;
+                if(user instanceof LDAPUser == false){
+                    ldapuser = convert(user); 
+                }else {
+                  ldapuser = (LDAPUser) user;   
+                }
     
                 ModificationItem[] mods = new ModificationItem[1];
     
@@ -1062,6 +1066,31 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     public Set<Feature> getFeatureSet() {
         // TODO Auto-generated method stub
         return null;
+    }
+    
+    private LDAPUser convert(User user){
+        LDAPUser ldapuser = new LDAPUser();
+        ldapuser.setId(user.getId());
+        ldapuser.setFirstName(" ");
+        ldapuser.setLastName(" ");
+
+        ldapuser.setLookup(this);
+        ldapuser.setLDAPChangeNotificationHandler(this);
+        ldapuser.setUserDNSuffix(userDNSuffix);
+        
+        if(user.getFirstName() != null){
+            ldapuser.setFirstName(user.getFirstName());   
+        }
+        if(user.getLastName() != null){
+            ldapuser.setLastName(user.getLastName());   
+        }
+        if(user.getEmail() != null){
+            ldapuser.setEmail(user.getEmail());   
+        }
+        for (String attribName : user.getAttributes().keySet()) {
+            ldapuser.setAttribute(attribName, user.getAttribute(attribName));
+        } 
+        return ldapuser;
     }
 
     @Override
