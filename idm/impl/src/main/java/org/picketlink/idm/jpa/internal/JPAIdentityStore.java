@@ -744,7 +744,7 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     private void removeIdentityObject(EntityManager em, Object object) {
-        // First remove any credentials
+        // Remove credentials
         if (credentialClass != null) {
             CriteriaBuilder builder = em.getCriteriaBuilder();
             CriteriaQuery<?> criteria = builder.createQuery(credentialClass);
@@ -761,10 +761,69 @@ public class JPAIdentityStore implements IdentityStore {
             }
         }
 
-        // TODO remove mapped attributes
+        // Remove attributes
+        if (attributeClass != null) {
+            CriteriaBuilder builder = em.getCriteriaBuilder();
+            CriteriaQuery<?> criteria = builder.createQuery(attributeClass);
+            Root<?> root = criteria.from(attributeClass);
+            List<Predicate> predicates = new ArrayList<Predicate>();
+            predicates.add(builder.equal(
+                    root.get(modelProperties.get(PROPERTY_ATTRIBUTE_IDENTITY).getName()), 
+                    object));
+            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
-        // TODO remove relationships
+            List<?> results = em.createQuery(criteria).getResultList();
+            for (Object result : results) {
+                em.remove(result);
+            }
+        }
 
+        // Remove memberships - this takes a little more work because the identity may be 
+        // a member, a role or a group
+        if (membershipClass != null) {
+            CriteriaBuilder builder = em.getCriteriaBuilder();
+            CriteriaQuery<?> criteria = builder.createQuery(membershipClass);
+            Root<?> root = criteria.from(membershipClass);
+            List<Predicate> predicates = new ArrayList<Predicate>();
+            predicates.add(builder.equal(
+                    root.get(modelProperties.get(PROPERTY_MEMBERSHIP_MEMBER).getName()), 
+                    object));
+            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+            List<?> results = em.createQuery(criteria).getResultList();
+            for (Object result : results) {
+                em.remove(result);
+            }
+
+            criteria = builder.createQuery(membershipClass);
+            root = criteria.from(membershipClass);
+            predicates.clear();
+            predicates.add(builder.equal(
+                    root.get(modelProperties.get(PROPERTY_MEMBERSHIP_GROUP).getName()), 
+                    object));
+            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+            results = em.createQuery(criteria).getResultList();
+            for (Object result : results) {
+                em.remove(result);
+            }
+
+            criteria = builder.createQuery(membershipClass);
+            root = criteria.from(membershipClass);
+            predicates.clear();
+            predicates.add(builder.equal(
+                    root.get(modelProperties.get(PROPERTY_MEMBERSHIP_ROLE).getName()), 
+                    object));
+            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+            results = em.createQuery(criteria).getResultList();
+            for (Object result : results) {
+                em.remove(result);
+            }
+
+        }
+
+        // Remove the identity object itself
         em.remove(object);
     }
 
