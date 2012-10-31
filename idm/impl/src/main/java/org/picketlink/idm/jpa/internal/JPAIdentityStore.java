@@ -19,6 +19,7 @@ import javax.persistence.criteria.Root;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
@@ -49,6 +50,11 @@ import org.picketlink.idm.spi.JPAIdentityStoreSession;
  */
 public class JPAIdentityStore implements IdentityStore {
 
+    // Event context parameters
+    public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
+    public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
+
+    // Discriminator constants
     private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";
     private static final String DEFAULT_ROLE_IDENTITY_DISCRIMINATOR = "ROLE";
     private static final String DEFAULT_GROUP_IDENTITY_DISCRIMINATOR = "GROUP";
@@ -715,7 +721,9 @@ public class JPAIdentityStore implements IdentityStore {
 
             em.persist(identity);
 
-            ctx.getEventBridge().raiseEvent(new UserCreatedEvent());
+            UserCreatedEvent event = new UserCreatedEvent(user);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+            ctx.getEventBridge().raiseEvent(event);
 
             if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
                 for (String key : user.getAttributes().keySet()) {
@@ -832,7 +840,10 @@ public class JPAIdentityStore implements IdentityStore {
         EntityManager em = getEntityManager(ctx);
         Object entity = lookupIdentityObjectByKey(em, user.getKey());
         removeIdentityObject(em, entity);
-        ctx.getEventBridge().raiseEvent(new UserDeletedEvent());
+
+        UserDeletedEvent event = new UserDeletedEvent(user);
+        event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
+        ctx.getEventBridge().raiseEvent(event);
     }
 
     @Override
@@ -861,8 +872,13 @@ public class JPAIdentityStore implements IdentityStore {
 
     @Override
     public void removeGroup(IdentityStoreInvocationContext ctx, Group group) {
-        // TODO Auto-generated method stub
+        EntityManager em = getEntityManager(ctx);
+        Object entity = lookupIdentityObjectByKey(em, group.getKey());
+        removeIdentityObject(em, entity);
 
+        GroupDeletedEvent event = new GroupDeletedEvent(group);
+        event.getContext().setValue(EVENT_CONTEXT_GROUP_ENTITY, entity);
+        ctx.getEventBridge().raiseEvent(event);
     }
 
     @Override
