@@ -49,6 +49,7 @@ public interface IdentityStore {
                           createGroup, readGroup, updateGroup, deleteGroup,
                           createRole, readRole, updateRole, deleteRole,
                           createMembership, readMembership, updateMembership, deleteMembership,
+                          validateCredential, updateCredential,
                           all }
 
     /**

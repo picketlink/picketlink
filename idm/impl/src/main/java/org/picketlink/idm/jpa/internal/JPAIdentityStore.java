@@ -2,6 +2,7 @@ package org.picketlink.idm.jpa.internal;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -10,10 +11,16 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.event.UserCreatedEvent;
+import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
@@ -679,6 +686,8 @@ public class JPAIdentityStore implements IdentityStore {
 
             modelProperties.get(PROPERTY_IDENTITY_DISCRIMINATOR).setValue(identity, identityTypeUser);
 
+            modelProperties.get(PROPERTY_IDENTITY_KEY).setValue(identity, user.getKey());
+
             if (modelProperties.containsKey(PROPERTY_USER_FIRST_NAME)) {
                 modelProperties.get(PROPERTY_USER_FIRST_NAME).setValue(identity, user.getFirstName());
             }
@@ -706,7 +715,7 @@ public class JPAIdentityStore implements IdentityStore {
 
             em.persist(identity);
 
-            // TODO fire an event here via the InvocationContext SPI, passing the identity entity
+            ctx.getEventBridge().raiseEvent(new UserCreatedEvent());
 
             if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
                 for (String key : user.getAttributes().keySet()) {
@@ -721,10 +730,50 @@ public class JPAIdentityStore implements IdentityStore {
         }
     }
 
+    private Object lookupIdentityObjectByKey(EntityManager em, String key) {
+        final String annotatedEntityName = identityClass.getAnnotation(Entity.class).name();
+        final String entityName = ("".equals(annotatedEntityName) ? 
+                identityClass.getSimpleName() : annotatedEntityName);
+
+        return em.createQuery("select i from " +
+                entityName + " i where i." +
+                modelProperties.get(PROPERTY_IDENTITY_KEY).getName() +
+                " = :key")
+                .setParameter("key", key)
+                .getSingleResult();
+    }
+
+    private void removeIdentityObject(EntityManager em, Object object) {
+        // First remove any credentials
+        if (credentialClass != null) {
+            CriteriaBuilder builder = em.getCriteriaBuilder();
+            CriteriaQuery<?> criteria = builder.createQuery(credentialClass);
+            Root<?> root = criteria.from(credentialClass);
+            List<Predicate> predicates = new ArrayList<Predicate>();
+            predicates.add(builder.equal(
+                    root.get(modelProperties.get(PROPERTY_CREDENTIAL_IDENTITY).getName()), 
+                    object));
+            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+            List<?> results = em.createQuery(criteria).getResultList();
+            for (Object result : results) {
+                em.remove(result);
+            }
+        }
+
+        // TODO remove mapped attributes
+
+        // TODO remove relationships
+
+        em.remove(object);
+    }
+
     @Override
     public void removeUser(IdentityStoreInvocationContext ctx, User user) {
-        // TODO Auto-generated method stub
-
+        EntityManager em = getEntityManager(ctx);
+        Object entity = lookupIdentityObjectByKey(em, user.getKey());
+        removeIdentityObject(em, entity);
+        ctx.getEventBridge().raiseEvent(new UserDeletedEvent());
     }
 
     @Override
