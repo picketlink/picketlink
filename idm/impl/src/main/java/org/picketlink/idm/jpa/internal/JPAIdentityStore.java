@@ -713,7 +713,7 @@ public class JPAIdentityStore implements IdentityStore {
                     setAttribute(ctx, user, key, user.getAttributeValues(key));
                 }
             }
-            
+
             em.flush();
 
         } catch (Exception ex) {

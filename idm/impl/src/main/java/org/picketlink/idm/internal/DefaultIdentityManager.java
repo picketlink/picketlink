@@ -22,7 +22,6 @@
 package org.picketlink.idm.internal;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +35,7 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 
 /**
  * Default implementation of the IdentityManager interface
@@ -47,11 +46,15 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 public class DefaultIdentityManager implements IdentityManager {
     private IdentityStore store = null;
     private PasswordEncoder passwordEncoder;
+    
+    private IdentityStoreInvocationContextFactory contextFactory;
 
-    public DefaultIdentityManager() {
+    public DefaultIdentityManager(IdentityStoreInvocationContextFactory contextFactory) {
+        this.contextFactory = contextFactory;
     }
 
-    public DefaultIdentityManager(IdentityStore theStore){
+    public DefaultIdentityManager(IdentityStoreInvocationContextFactory contextFactory, IdentityStore theStore){
+        this.contextFactory = contextFactory;
         this.store = theStore;
     }
 
@@ -63,32 +66,32 @@ public class DefaultIdentityManager implements IdentityManager {
     public User createUser(String name) {
         ensureStoreExists();
         User user = new SimpleUser(name);
-        store.createUser(getInvocationContext(store), user);
+        store.createUser(getContextFactory().getContext(store), user);
         return user;
     }
 
     @Override
     public void createUser(User user) {
         ensureStoreExists();
-        store.createUser(getInvocationContext(store), user);
+        store.createUser(getContextFactory().getContext(store), user);
     }
 
     @Override
     public void removeUser(User user) {
         ensureStoreExists();
-        store.removeUser(getInvocationContext(store), user);
+        store.removeUser(getContextFactory().getContext(store), user);
     }
 
     @Override
     public void removeUser(String name) {
         ensureStoreExists();
-        store.removeUser(getInvocationContext(store), getUser(name));
+        store.removeUser(getContextFactory().getContext(store), getUser(name));
     }
 
     @Override
     public User getUser(String name) {
         ensureStoreExists();
-        return store.getUser(getInvocationContext(store), name);
+        return store.getUser(getContextFactory().getContext(store), name);
     }
 
     @Override
@@ -98,38 +101,38 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Group createGroup(String id) {
-        return store.createGroup(getInvocationContext(store), id, null);
+        return store.createGroup(getContextFactory().getContext(store), id, null);
     }
 
     @Override
     public Group createGroup(String id, Group parent) {
         ensureStoreExists();
-        return store.createGroup(getInvocationContext(store), id, parent);
+        return store.createGroup(getContextFactory().getContext(store), id, parent);
     }
 
     @Override
     public Group createGroup(String id, String parent) {
         ensureStoreExists();
-        Group parentGroup = store.getGroup(getInvocationContext(store), parent);
-        return store.createGroup(getInvocationContext(store), id, parentGroup);
+        Group parentGroup = store.getGroup(getContextFactory().getContext(store), parent);
+        return store.createGroup(getContextFactory().getContext(store), id, parentGroup);
     }
 
     @Override
     public void removeGroup(Group group) {
         ensureStoreExists();
-        store.removeGroup(getInvocationContext(store), group);
+        store.removeGroup(getContextFactory().getContext(store), group);
     }
 
     @Override
     public void removeGroup(String groupId) {
         ensureStoreExists();
-        store.removeGroup(getInvocationContext(store), getGroup(groupId));
+        store.removeGroup(getContextFactory().getContext(store), getGroup(groupId));
     }
 
     @Override
     public Group getGroup(String groupId) {
         ensureStoreExists();
-        return store.getGroup(getInvocationContext(store), groupId);
+        return store.getGroup(getContextFactory().getContext(store), groupId);
     }
 
     @Override
@@ -161,25 +164,25 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public Role createRole(String name) {
         ensureStoreExists();
-        return store.createRole(getInvocationContext(store), name);
+        return store.createRole(getContextFactory().getContext(store), name);
     }
 
     @Override
     public void removeRole(Role role) {
         ensureStoreExists();
-        store.removeRole(getInvocationContext(store), role);
+        store.removeRole(getContextFactory().getContext(store), role);
     }
 
     @Override
     public void removeRole(String name) {
         ensureStoreExists();
-        store.removeRole(getInvocationContext(store), getRole(name));
+        store.removeRole(getContextFactory().getContext(store), getRole(name));
     }
 
     @Override
     public Role getRole(String name) {
         ensureStoreExists();
-        return store.getRole(getInvocationContext(store), name);
+        return store.getRole(getContextFactory().getContext(store), name);
     }
 
     @Override
@@ -233,7 +236,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantRole(Role role, IdentityType identityType, Group group) {
-        this.store.createMembership(getInvocationContext(store), identityType, group, role);
+        this.store.createMembership(getContextFactory().getContext(store), identityType, group, role);
     }
 
     @Override
@@ -243,12 +246,12 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean validateCredential(User user, Credential credential) {
-        return store.validateCredential(getInvocationContext(store), user, credential);
+        return store.validateCredential(getContextFactory().getContext(store), user, credential);
     }
 
     @Override
     public void updateCredential(User user, Credential credential) {
-        store.updateCredential(getInvocationContext(store), user, credential);
+        store.updateCredential(getContextFactory().getContext(store), user, credential);
     }
 
     public void setEnabled(IdentityType identityType, boolean enabled) {
@@ -265,9 +268,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
     }
 
-    protected IdentityStoreInvocationContext getInvocationContext(IdentityStore store) {
-        // FIXME implement this
-        return null;
+    public IdentityStoreInvocationContextFactory getContextFactory() {
+        return contextFactory;
     }
 
     @Override

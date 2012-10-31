@@ -29,6 +29,7 @@ import java.util.Map;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -54,7 +55,8 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
         LDAPIdentityStore store = new LDAPIdentityStore();
         store.setConfiguration(getConfiguration());
 
-        DefaultIdentityManager im = new DefaultIdentityManager();
+        DefaultIdentityManager im = new DefaultIdentityManager(
+                new DefaultIdentityStoreInvocationContextFactory(null));
         im.setIdentityStore(store); // TODO: wiring needs a second look
 
         // Let us create an user

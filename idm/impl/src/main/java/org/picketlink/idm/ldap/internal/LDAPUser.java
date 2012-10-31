@@ -230,7 +230,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
     public String getFirstName() {
         try {
             if (firstName == null) {
-                Attribute theAttribute = attributes.get(GIVENNAME);
+                Attribute theAttribute = attributes.get(LDAPConstants.GIVENNAME);
                 if (theAttribute != null) {
                     firstName = (String) theAttribute.get();
                 }
@@ -244,12 +244,12 @@ public class LDAPUser extends DirContextAdaptor implements User {
     @Override
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-        Attribute theAttribute = attributes.get(GIVENNAME);
+        Attribute theAttribute = attributes.get(LDAPConstants.GIVENNAME);
 
         if (theAttribute == null) {
-            attributes.put(GIVENNAME, firstName);
+            attributes.put(LDAPConstants.GIVENNAME, firstName);
         } else {
-            replaceAttribute(GIVENNAME, firstName);
+            replaceAttribute(LDAPConstants.GIVENNAME, firstName);
         }
 
         Attribute cnAttribute = attributes.get(CN);
@@ -337,7 +337,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
     public String getEmail() {
         try {
             if (email == null) {
-                Attribute theAttribute = attributes.get(EMAIL);
+                Attribute theAttribute = attributes.get(LDAPConstants.EMAIL);
                 if (theAttribute != null) {
                     email = (String) theAttribute.get();
                 }
@@ -351,11 +351,11 @@ public class LDAPUser extends DirContextAdaptor implements User {
     @Override
     public void setEmail(String email) {
         this.email = email;
-        Attribute theAttribute = attributes.get(EMAIL);
+        Attribute theAttribute = attributes.get(LDAPConstants.EMAIL);
         if (theAttribute == null) {
-            setAttribute(EMAIL, email);
+            setAttribute(LDAPConstants.EMAIL, email);
         } else {
-            replaceAttribute(EMAIL, email);
+            replaceAttribute(LDAPConstants.EMAIL, email);
         }
     }
 

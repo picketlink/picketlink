@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -50,7 +51,8 @@ public abstract class AbstractLDAPIdentityManagerTestCase extends AbstractLDAPTe
     
     protected IdentityManager getIdentityManager() {
         if (this.identityManager == null) {
-            DefaultIdentityManager defaultIdentityManager = new DefaultIdentityManager();
+            DefaultIdentityManager defaultIdentityManager = new DefaultIdentityManager(
+                    new DefaultIdentityStoreInvocationContextFactory(null));
 
             defaultIdentityManager.setIdentityStore(createIdentityStore());
 

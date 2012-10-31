@@ -38,6 +38,7 @@ import java.util.Map;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Group;
@@ -179,7 +180,8 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
     }
 
     private DefaultIdentityManager createIdentityManager() {
-        DefaultIdentityManager im = new DefaultIdentityManager();
+        DefaultIdentityManager im = new DefaultIdentityManager(
+                new DefaultIdentityStoreInvocationContextFactory(emf));
         im.setIdentityStore(createIdentityStore()); // TODO: wiring needs a second look
         return im;
     }

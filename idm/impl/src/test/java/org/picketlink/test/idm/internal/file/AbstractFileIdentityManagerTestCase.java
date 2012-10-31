@@ -25,6 +25,7 @@ package org.picketlink.test.idm.internal.file;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 
 /**
  * <p>
@@ -42,7 +43,9 @@ public abstract class AbstractFileIdentityManagerTestCase {
         if (this.identityManager == null) {
             FileBasedIdentityStore store = new FileBasedIdentityStore();
             
-            this.identityManager = new DefaultIdentityManager(store);
+            this.identityManager = new DefaultIdentityManager(
+                    new DefaultIdentityStoreInvocationContextFactory(null),
+                    store);
         }
 
         return this.identityManager;
