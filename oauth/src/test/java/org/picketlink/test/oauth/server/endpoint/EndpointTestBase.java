@@ -46,6 +46,7 @@ public class EndpointTestBase extends EmbeddedWebServerBase {
         if (testUtil != null) {
             testUtil.tearDown();
         }
+        Thread.sleep(1000); //1sec
     }
 
     @Override
