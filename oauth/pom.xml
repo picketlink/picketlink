@@ -144,10 +144,12 @@
       <dependency>
          <groupId>org.picketlink</groupId>
       	 <artifactId>picketlink-idm-api</artifactId>
+         <version>3.0-2012Oct30</version>
       </dependency>
       <dependency>
          <groupId>org.picketlink</groupId>
       	 <artifactId>picketlink-idm-impl</artifactId>
+         <version>3.0-2012Oct30</version>
       </dependency>
  
       <!-- Test dependencies -->
