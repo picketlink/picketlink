@@ -19,7 +19,12 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.spi;
+package org.picketlink.idm.config;
+
+import java.util.Set;
+
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * Represents a configuration for {@link IdentityStore}
@@ -28,4 +33,11 @@ package org.picketlink.idm.spi;
  * @since Sep 6, 2012
  */
 public abstract class IdentityStoreConfiguration {
+    private Class<? extends IdentityStore> identityStoreClass;
+
+    public IdentityStoreConfiguration(Class<? extends IdentityStore> identityStoreClass) {
+        this.identityStoreClass = identityStoreClass;
+    }
+    
+    public abstract Set<Feature> getSupportedFeatures();
 }

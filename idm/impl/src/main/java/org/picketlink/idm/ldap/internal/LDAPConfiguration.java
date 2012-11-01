@@ -22,8 +22,11 @@
 package org.picketlink.idm.ldap.internal;
 
 import java.util.Properties;
+import java.util.Set;
 
-import org.picketlink.idm.spi.IdentityStoreConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * A {@link IdentityStoreConfiguration} for LDAP
@@ -32,6 +35,10 @@ import org.picketlink.idm.spi.IdentityStoreConfiguration;
  * @since Sep 6, 2012
  */
 public class LDAPConfiguration extends IdentityStoreConfiguration {
+    public LDAPConfiguration(Class<? extends IdentityStore> identityStoreClass) {
+        super(identityStoreClass);
+    }
+
     private String ldapURL;
     private String userDNSuffix;
     private String roleDNSuffix;
@@ -149,5 +156,11 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
 
     public void setAdditionalProperties(Properties additionalProperties) {
         this.additionalProperties.putAll(additionalProperties);
+    }
+
+    @Override
+    public Set<Feature> getSupportedFeatures() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
@@ -35,7 +36,6 @@ import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPUser;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.spi.IdentityStoreConfigurationBuilder;
 
 /**
  * Unit test the ability to add custom attributes to {@link LDAPUser}

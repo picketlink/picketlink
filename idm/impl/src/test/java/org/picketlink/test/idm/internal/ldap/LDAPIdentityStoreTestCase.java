@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
+import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -36,7 +37,6 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.spi.IdentityStoreConfigurationBuilder;
 
 /**
  * Unit test the {@link LDAPIdentityStore}

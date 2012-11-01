@@ -21,8 +21,8 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import org.picketlink.idm.spi.IdentityStoreConfiguration;
-import org.picketlink.idm.spi.IdentityStoreConfigurationBuilder;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 
 /**
  * A {@link IdentityStoreConfigurationBuilder} for LDAP
@@ -33,6 +33,6 @@ import org.picketlink.idm.spi.IdentityStoreConfigurationBuilder;
 public class LDAPConfigurationBuilder extends IdentityStoreConfigurationBuilder {
     @Override
     public IdentityStoreConfiguration build() {
-        return new LDAPConfiguration();
+        return new LDAPConfiguration(LDAPIdentityStore.class);
     }
 }

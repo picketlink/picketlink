@@ -1,18 +1,26 @@
-package org.picketlink.idm.jpa.internal;
+package org.picketlink.idm.config;
 
-import org.picketlink.idm.spi.JPAIdentityStoreConfiguration;
+import java.util.Set;
+
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
+ * This interface defines the configuration parameters for a JPA based IdentityStore implementation.
  * 
  * @author Shane Bryzak
  *
  */
-public class DefaultJPAIdentityStoreConfiguration implements JPAIdentityStoreConfiguration {
-    
+public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
+
     private Class<?> identityClass;
     private Class<?> membershipClass;
-    private Class<?> credentialClass;    
-    private Class<?> attributeClass;    
+    private Class<?> credentialClass;
+    private Class<?> attributeClass;
+
+    public JPAIdentityStoreConfiguration(Class<? extends IdentityStore> identityStoreClass) {
+        super(identityStoreClass);
+    }
 
     public Class<?> getIdentityClass() {
         return identityClass;
@@ -48,5 +56,11 @@ public class DefaultJPAIdentityStoreConfiguration implements JPAIdentityStoreCon
 
     public boolean isConfigured() {
         return identityClass != null;
+    }
+
+    @Override
+    public Set<Feature> getSupportedFeatures() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -19,6 +19,7 @@ import javax.persistence.criteria.Root;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
@@ -40,7 +41,6 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.spi.JPAIdentityStoreSession;
 
 /**

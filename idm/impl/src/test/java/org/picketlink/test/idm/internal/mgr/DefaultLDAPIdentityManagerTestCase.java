@@ -39,6 +39,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
+import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
@@ -50,7 +51,6 @@ import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.spi.IdentityStoreConfigurationBuilder;
 
 /**
  * Unit test the {@link DefaultIdentityManager} using the {@link LDAPIdentityStore}.
