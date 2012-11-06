@@ -108,19 +108,22 @@ public class IDPWebRequestUtil {
             ProcessingException {
         InputStream is = null;
         SAML2Request saml2Request = new SAML2Request();
-        if (redirectProfile) {
-            is = RedirectBindingUtil.base64DeflateDecode(samlMessage);
-        } else {
-            try {
+
+        try {
+            if (redirectProfile) {
+                is = RedirectBindingUtil.base64DeflateDecode(samlMessage);
+            } else {
                 byte[] samlBytes = PostBindingUtil.base64Decode(samlMessage);
                 logger.trace("SAML Request Document: " + new String(samlBytes));
                 is = new ByteArrayInputStream(samlBytes);
-            } catch (Exception rte) {
-                logger.samlBase64DecodingError(rte);
-                throw logger.parserError(rte);
             }
+        } catch (Exception rte) {
+            logger.samlBase64DecodingError(rte);
+            throw logger.parserError(rte);
         }
+
         saml2Request.getSAML2ObjectFromStream(is);
+        
         return saml2Request.getSamlDocumentHolder();
     }
 
