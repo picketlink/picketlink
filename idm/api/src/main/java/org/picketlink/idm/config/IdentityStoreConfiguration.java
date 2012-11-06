@@ -21,6 +21,9 @@
  */
 package org.picketlink.idm.config;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.picketlink.idm.spi.IdentityStore;
@@ -33,11 +36,28 @@ import org.picketlink.idm.spi.IdentityStore.Feature;
  * @since Sep 6, 2012
  */
 public abstract class IdentityStoreConfiguration {
-    private Class<? extends IdentityStore> identityStoreClass;
 
-    public IdentityStoreConfiguration(Class<? extends IdentityStore> identityStoreClass) {
-        this.identityStoreClass = identityStoreClass;
+    private final Map<String,String> properties = new HashMap<String,String>();
+
+    private final Set<Feature> supportedFeatures = new HashSet<Feature>();
+
+    public Set<Feature> getSupportedFeatures() {
+        return supportedFeatures;
     }
-    
-    public abstract Set<Feature> getSupportedFeatures();
+
+    public void addSupportedFeature(Feature feature) {
+        supportedFeatures.add(feature);
+    }
+
+    public void removeSupportedFeature(Feature feature) {
+        supportedFeatures.remove(feature);
+    }
+
+    public void setProperty(String name, String value) {
+        properties.put(name, value);
+    }
+
+    public String getPropertyValue(String name) {
+        return properties.get(name);
+    }
 }

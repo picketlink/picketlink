@@ -25,6 +25,7 @@ package org.picketlink.test.idm.internal.ldap;
 import org.junit.Before;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
@@ -40,34 +41,27 @@ import org.picketlink.idm.spi.IdentityStore;
  *
  */
 public abstract class AbstractLDAPIdentityManagerTestCase extends AbstractLDAPTest {
-    
+
     private IdentityManager identityManager;
-    
+
     @Before
     public void setup() throws Exception {
         super.setup();
         importLDIF("ldap/users.ldif");
     }
-    
+
     protected IdentityManager getIdentityManager() {
         if (this.identityManager == null) {
-            DefaultIdentityManager defaultIdentityManager = new DefaultIdentityManager(
-                    new DefaultIdentityStoreInvocationContextFactory(null));
+            IdentityConfiguration config = new IdentityConfiguration();
+            config.addStoreConfiguration(getConfiguration());
 
-            defaultIdentityManager.setIdentityStore(createIdentityStore());
+            DefaultIdentityManager defaultIdentityManager = new DefaultIdentityManager();
+            defaultIdentityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
             this.identityManager = defaultIdentityManager;
         }
 
         return this.identityManager;
-    }
-
-    private IdentityStore createIdentityStore() {
-        LDAPIdentityStore store = new LDAPIdentityStore();
-
-        store.setConfiguration(getConfiguration());
-
-        return store;
     }
 
     private LDAPConfiguration getConfiguration() {
@@ -79,5 +73,5 @@ public abstract class AbstractLDAPIdentityManagerTestCase extends AbstractLDAPTe
         config.setGroupDNSuffix("ou=Groups,dc=jboss,dc=org");
         return config;
     }
-    
+
 }

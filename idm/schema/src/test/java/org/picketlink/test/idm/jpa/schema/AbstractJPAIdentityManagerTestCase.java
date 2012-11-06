@@ -31,11 +31,14 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.schema.internal.JPATemplate;
 import org.picketlink.idm.jpa.schema.internal.SimpleJPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStoreFactory;
 
 /**
  * <p>
@@ -110,9 +113,35 @@ public abstract class AbstractJPAIdentityManagerTestCase {
 
     protected IdentityManager getIdentityManager() {
         if (this.identityManager == null) {
-            this.identityManager = new DefaultIdentityManager(
-                    new DefaultIdentityStoreInvocationContextFactory(null));
-            this.identityManager.setIdentityStore(createIdentityStore());
+
+            IdentityConfiguration config = new IdentityConfiguration();
+
+            // TODO implement this class, and set the equivalent configuration 
+            // that is currently performed by createIdentityStore()
+            //SimpleJPAIdentityStoreConfiguration storeConfig = new SimpleJPAIdentityStoreConfiguration();
+            //config.addStoreConfiguration(storeConfig);
+
+            // hack to workaround lack of proper configuration
+            IdentityStoreConfiguration storeConfig = new IdentityStoreConfiguration() {};
+            config.addStoreConfiguration(storeConfig);
+
+            final IdentityStore store = createIdentityStore();
+            this.identityManager = new DefaultIdentityManager();
+            this.identityManager.setIdentityStoreFactory(new IdentityStoreFactory() {
+                @Override
+                public IdentityStore createIdentityStore(IdentityStoreConfiguration config) {
+                    return store;
+                }
+                @Override
+                public void mapConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
+                        Class<? extends IdentityStore> storeClass) { 
+                    // no-op
+                }
+            });
+            // hack end
+
+            identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+            //this.identityManager.setIdentityStore(createIdentityStore());
         }
 
         return this.identityManager;

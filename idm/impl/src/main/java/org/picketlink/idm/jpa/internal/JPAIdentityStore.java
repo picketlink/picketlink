@@ -19,6 +19,7 @@ import javax.persistence.criteria.Root;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.event.GroupDeletedEvent;
@@ -42,6 +43,7 @@ import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.JPAIdentityStoreSession;
+import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational
@@ -203,7 +205,13 @@ public class JPAIdentityStore implements IdentityStore {
         this.identityCache = identityCache;
     }
 
-    public void bootstrap(JPAIdentityStoreConfiguration config) throws SecurityConfigurationException {
+    @Override
+    public void configure(IdentityStoreConfiguration configuration) throws SecurityConfigurationException {
+        if (!(configuration instanceof JPAIdentityStoreConfiguration)) {
+            throw new SecurityConfigurationException("Configuration must be an instance of JPAIdentityStoreConfiguration");
+        }
+
+        JPAIdentityStoreConfiguration config = (JPAIdentityStoreConfiguration) configuration;
 
         identityClass = config.getIdentityClass();
 
@@ -677,7 +685,12 @@ public class JPAIdentityStore implements IdentityStore {
 
     @Override
     public Set<Feature> getFeatureSet() {
-        return featureSet;
+        //return featureSet;
+
+        // TODO implement this!!
+        Set<Feature> features = new HashSet<Feature>();
+        features.add(Feature.all);
+        return features;
     }
 
     @Override

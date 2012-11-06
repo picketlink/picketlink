@@ -76,7 +76,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
     public void testLDAPIdentityStore() throws Exception {
         LDAPIdentityStore store = new LDAPIdentityStore();
 
-        store.setConfiguration(getConfiguration());
+        store.configure(getConfiguration());
 
         // Let us create an user
         LDAPUser user = new LDAPUser();
@@ -145,7 +145,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
     public void testSimpleUserLdapStore() throws Exception {
         LDAPIdentityStore ldapIdentityStore = new LDAPIdentityStore();
 
-        ldapIdentityStore.setConfiguration(getConfiguration());
+        ldapIdentityStore.configure(getConfiguration());
 
         LDAPUser user = new LDAPUser();
         
@@ -176,7 +176,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
     public void testInvalidNewLDAPUserInstance() throws Exception {
         LDAPIdentityStore ldapIdentityStore = new LDAPIdentityStore();
 
-        ldapIdentityStore.setConfiguration(getConfiguration());
+        ldapIdentityStore.configure(getConfiguration());
 
         LDAPUser user = new LDAPUser();
         

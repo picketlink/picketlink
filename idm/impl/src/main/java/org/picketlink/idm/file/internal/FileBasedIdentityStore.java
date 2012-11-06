@@ -33,11 +33,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.DigestCredential;
 import org.picketlink.idm.credential.DigestCredentialUtil;
@@ -89,6 +91,11 @@ public class FileBasedIdentityStore implements IdentityStore {
         this.workingDir = workingDir;
         this.alwaysCreateFiles = alwaysCreateFiles;
         initialize();
+    }
+    
+    @Override
+    public void configure(IdentityStoreConfiguration config) {
+        // TODO implement configuration
     }
 
     /**
@@ -326,8 +333,10 @@ public class FileBasedIdentityStore implements IdentityStore {
 
     @Override
     public Set<Feature> getFeatureSet() {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO implement this!!
+        Set<Feature> features = new HashSet<Feature>();
+        features.add(Feature.all);
+        return features;
     }
 
     @Override

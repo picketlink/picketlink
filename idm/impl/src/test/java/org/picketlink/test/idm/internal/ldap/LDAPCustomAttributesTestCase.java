@@ -28,6 +28,8 @@ import java.util.Map;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
@@ -36,6 +38,8 @@ import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPUser;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStoreFactory;
 
 /**
  * Unit test the ability to add custom attributes to {@link LDAPUser}
@@ -52,12 +56,28 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
 
     @Test @Ignore
     public void testUserAttributes() throws Exception {
-        LDAPIdentityStore store = new LDAPIdentityStore();
-        store.setConfiguration(getConfiguration());
+        LDAPConfiguration storeConfig = getConfiguration();
+        final LDAPIdentityStore store = new LDAPIdentityStore();
+        store.configure(storeConfig);
 
-        DefaultIdentityManager im = new DefaultIdentityManager(
-                new DefaultIdentityStoreInvocationContextFactory(null));
-        im.setIdentityStore(store); // TODO: wiring needs a second look
+        IdentityConfiguration config = new IdentityConfiguration();
+        config.addStoreConfiguration(storeConfig);
+
+        DefaultIdentityManager im = new DefaultIdentityManager();
+        im.setIdentityStoreFactory(new IdentityStoreFactory() {
+            @Override
+            public IdentityStore createIdentityStore(IdentityStoreConfiguration config) {
+                // Just return the store we've already created
+                return store;
+            }
+            @Override
+            public void mapConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
+                    Class<? extends IdentityStore> storeClass) {
+                // noop
+            }
+        });
+
+        im.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
         // Let us create an user
         User user = im.createUser("Anil Saldhana");

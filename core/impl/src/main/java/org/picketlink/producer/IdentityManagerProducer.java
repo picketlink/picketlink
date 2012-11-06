@@ -6,8 +6,9 @@ import javax.inject.Inject;
 
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.jpa.internal.JPAIdentityStore;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 
 
 /**
@@ -22,8 +23,11 @@ public class IdentityManagerProducer {
 
     @Produces @ApplicationScoped
     public IdentityManager createIdentityManager() {
+        IdentityConfiguration identityConfig = new IdentityConfiguration();
 
-        return new DefaultIdentityManager(null, new JPAIdentityStore(identityCache));
+        IdentityManager identityManager = new DefaultIdentityManager();
+        identityManager.bootstrap(identityConfig, new DefaultIdentityStoreInvocationContextFactory(null));
+        return identityManager;
     }
 
 }

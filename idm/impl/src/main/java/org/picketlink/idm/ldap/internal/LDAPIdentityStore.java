@@ -27,6 +27,7 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +47,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
@@ -61,6 +64,7 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
@@ -82,17 +86,29 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
 
     protected LDAPConfiguration ldapConfiguration = null;
 
-    public LDAPIdentityStore() {
-    }
+    @Override
+    public void configure(IdentityStoreConfiguration configuration) throws SecurityConfigurationException {
+        if (!(configuration instanceof LDAPConfiguration)) {
+            throw new IllegalArgumentException("Can only pass instance of LDAPConfiguration to LDAPIdentityStore");
+        }
 
-    public void setConfiguration(LDAPConfiguration configuration) {
-        this.ldapConfiguration = configuration;
-        userDNSuffix = configuration.getUserDNSuffix();
-        roleDNSuffix = configuration.getRoleDNSuffix();
-        groupDNSuffix = configuration.getGroupDNSuffix();
-        isActiveDirectory = configuration.isActiveDirectory();
+        LDAPConfiguration config = (LDAPConfiguration) configuration;
+
+        this.ldapConfiguration = config;
+        userDNSuffix = config.getUserDNSuffix();
+        roleDNSuffix = config.getRoleDNSuffix();
+        groupDNSuffix = config.getGroupDNSuffix();
+        isActiveDirectory = config.isActiveDirectory();
 
         constructContext();
+    }
+
+    @Override
+    public Set<Feature> getFeatureSet() {
+        // TODO implement this!!
+        Set<Feature> features = new HashSet<Feature>();
+        features.add(Feature.all);
+        return features;
     }
 
     /* (non-Javadoc)
@@ -1062,12 +1078,6 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
     }
 
-    @Override
-    public Set<Feature> getFeatureSet() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
     private LDAPUser convert(User user){
         LDAPUser ldapuser = new LDAPUser();
         ldapuser.setId(user.getId());
@@ -1077,7 +1087,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         ldapuser.setLookup(this);
         ldapuser.setLDAPChangeNotificationHandler(this);
         ldapuser.setUserDNSuffix(userDNSuffix);
-        
+
         if(user.getFirstName() != null){
             ldapuser.setFirstName(user.getFirstName());   
         }

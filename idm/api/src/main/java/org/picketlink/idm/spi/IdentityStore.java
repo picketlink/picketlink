@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -58,6 +60,8 @@ public interface IdentityStore {
      * @return A Set containing the features supported by this IdentityStore.
      */
     Set<Feature> getFeatureSet();
+    
+    void configure(IdentityStoreConfiguration config) throws SecurityConfigurationException;
 
     // User
 

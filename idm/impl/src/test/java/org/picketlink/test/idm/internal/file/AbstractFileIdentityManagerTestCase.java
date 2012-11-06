@@ -23,9 +23,13 @@
 package org.picketlink.test.idm.internal.file;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStoreFactory;
 
 /**
  * <p>
@@ -41,11 +45,36 @@ public abstract class AbstractFileIdentityManagerTestCase {
 
     protected IdentityManager getIdentityManager() {
         if (this.identityManager == null) {
-            FileBasedIdentityStore store = new FileBasedIdentityStore();
-            
-            this.identityManager = new DefaultIdentityManager(
-                    new DefaultIdentityStoreInvocationContextFactory(null),
-                    store);
+            final FileBasedIdentityStore store = new FileBasedIdentityStore();
+
+            IdentityConfiguration identityConfig = new IdentityConfiguration();
+
+            // TODO implement FileBasedIdentityStoreConfiguration in org.picketlink.idm.config package in API
+            //identityConfig.addStoreConfiguration(new FileBasedIdentityStoreConfiguration());
+
+            this.identityManager = new DefaultIdentityManager();
+
+            // TODO this hack is a workaround until the configuration stuff is implemented
+            // hack start
+            IdentityStoreConfiguration storeConfig = new IdentityStoreConfiguration() {};
+            identityConfig.addStoreConfiguration(storeConfig);
+            this.identityManager.setIdentityStoreFactory(new IdentityStoreFactory() {
+
+                @Override
+                public IdentityStore createIdentityStore(IdentityStoreConfiguration config) {
+                    return store;
+                }
+
+                @Override
+                public void mapConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
+                        Class<? extends IdentityStore> storeClass) {
+                    // no-op
+                }
+            });
+            // hack end
+
+            this.identityManager.bootstrap(identityConfig,
+                    new DefaultIdentityStoreInvocationContextFactory(null));
         }
 
         return this.identityManager;

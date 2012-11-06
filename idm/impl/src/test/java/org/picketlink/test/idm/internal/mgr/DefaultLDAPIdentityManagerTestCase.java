@@ -39,6 +39,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
@@ -68,12 +69,11 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
 
     @Test @Ignore
     public void testDefaultIdentityManager() throws Exception {
-        LDAPIdentityStore store = new LDAPIdentityStore();
-        store.setConfiguration(getConfiguration());
+        IdentityConfiguration config = new IdentityConfiguration();
+        config.addStoreConfiguration(getConfiguration());
 
-        DefaultIdentityManager im = new DefaultIdentityManager(
-                new DefaultIdentityStoreInvocationContextFactory(null));
-        im.setIdentityStore(store); // TODO: wiring needs a second look
+        DefaultIdentityManager im = new DefaultIdentityManager();
+        im.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
         // Let us create an user
         User user = im.createUser("asaldhan");

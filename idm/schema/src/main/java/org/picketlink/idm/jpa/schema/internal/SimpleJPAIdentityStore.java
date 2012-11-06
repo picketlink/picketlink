@@ -23,6 +23,7 @@ package org.picketlink.idm.jpa.schema.internal;
 
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -39,6 +40,8 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.DigestCredential;
 import org.picketlink.idm.credential.DigestCredentialUtil;
@@ -58,6 +61,7 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * An implementation of IdentityStore backed by a JPA datasource
@@ -753,13 +757,21 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
     @Override
     public Set<Feature> getFeatureSet() {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO implement this!!
+        Set<Feature> features = new HashSet<Feature>();
+        features.add(Feature.all);
+        return features;
     }
 
     @Override
     public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void configure(IdentityStoreConfiguration config) throws SecurityConfigurationException {
+        // TODO Auto-generated method stub
+        
     }
 }

@@ -24,15 +24,20 @@ package org.picketlink.idm;
 import java.util.Collection;
 import java.util.Date;
 
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 
 /**
- * IdentityManager
+ * Manages all Identity Management related operations.
+ * 
+ * @author Shane Bryzak
  */
 public interface IdentityManager {
     // TODO: Javadocs
@@ -42,6 +47,22 @@ public interface IdentityManager {
     // TODO: control hooks & events
 
     // TODO: linking identities
+
+    /**
+     * This method must be invoked to set up the IdentityManager instance before any
+     * identity management operations may be performed.
+     * 
+     * @param configuration
+     */
+    void bootstrap(IdentityConfiguration configuration, IdentityStoreInvocationContextFactory contextFactory);
+
+    /**
+     * Sets the IdentityStoreFactory implementation to be used to create IdentityStore instances
+     * 
+     * @param factory
+     */
+    void setIdentityStoreFactory(IdentityStoreFactory factory);
+
 
     // User
 

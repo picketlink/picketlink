@@ -65,7 +65,7 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
     public void testLDAPIdentityStore() throws Exception {
         LDAPIdentityStore store = new LDAPIdentityStore();
 
-        store.setConfiguration(getConfiguration());
+        store.configure(getConfiguration());
 
         // Users
         LDAPUser user = new LDAPUser();

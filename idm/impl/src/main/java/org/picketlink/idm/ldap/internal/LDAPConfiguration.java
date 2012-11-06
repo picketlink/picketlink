@@ -34,10 +34,10 @@ import org.picketlink.idm.spi.IdentityStore.Feature;
  * @author anil saldhana
  * @since Sep 6, 2012
  */
+
+// TODO suggest renaming this to LDAPIdentityStoreConfiguration and moving to org.picketlink.idm.config 
+// package within API module
 public class LDAPConfiguration extends IdentityStoreConfiguration {
-    public LDAPConfiguration(Class<? extends IdentityStore> identityStoreClass) {
-        super(identityStoreClass);
-    }
 
     private String ldapURL;
     private String userDNSuffix;

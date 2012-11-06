@@ -23,9 +23,13 @@ package org.picketlink.idm.internal;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -35,6 +39,8 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStore.Feature;
+import org.picketlink.idm.spi.IdentityStoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 
 /**
@@ -44,53 +50,72 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
  * @author anil saldhana
  */
 public class DefaultIdentityManager implements IdentityManager {
-    private IdentityStore store = null;
+
+    private Map<Feature,IdentityStore> featureToStoreMap = new HashMap<Feature,IdentityStore>();
+
     private PasswordEncoder passwordEncoder;
-    
+
+    private IdentityStoreFactory storeFactory = new DefaultIdentityStoreFactory();
+
     private IdentityStoreInvocationContextFactory contextFactory;
 
-    public DefaultIdentityManager(IdentityStoreInvocationContextFactory contextFactory) {
+    @Override
+    public void bootstrap(IdentityConfiguration identityConfig, IdentityStoreInvocationContextFactory contextFactory) {
+        for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
+            IdentityStore store = storeFactory.createIdentityStore(config);
+
+            for (Feature f : store.getFeatureSet()) {
+                featureToStoreMap.put(f, store);
+            }
+        }
+
         this.contextFactory = contextFactory;
     }
 
-    public DefaultIdentityManager(IdentityStoreInvocationContextFactory contextFactory, IdentityStore theStore){
-        this.contextFactory = contextFactory;
-        this.store = theStore;
+    @Override
+    public void setIdentityStoreFactory(IdentityStoreFactory factory) {
+        this.storeFactory = factory;
     }
 
-    public void setIdentityStore(IdentityStore theStore) {
-        this.store = theStore;
+    private IdentityStore getStoreForFeature(Feature feature) {
+        if (featureToStoreMap.containsKey(feature)) {
+            return featureToStoreMap.get(feature);
+        } else if (featureToStoreMap.containsKey(Feature.all)) {
+            return featureToStoreMap.get(Feature.all);
+        } else {
+            throw new UnsupportedOperationException("This identity management feature is not available");
+        }
     }
 
     @Override
     public User createUser(String name) {
-        ensureStoreExists();
         User user = new SimpleUser(name);
+        IdentityStore store = getStoreForFeature(Feature.createUser); 
         store.createUser(getContextFactory().getContext(store), user);
         return user;
     }
 
     @Override
     public void createUser(User user) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.createUser);
         store.createUser(getContextFactory().getContext(store), user);
     }
 
     @Override
     public void removeUser(User user) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.deleteUser);
         store.removeUser(getContextFactory().getContext(store), user);
     }
 
     @Override
     public void removeUser(String name) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.deleteUser);
         store.removeUser(getContextFactory().getContext(store), getUser(name));
     }
 
     @Override
     public User getUser(String name) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.readUser);
         return store.getUser(getContextFactory().getContext(store), name);
     }
 
@@ -101,43 +126,44 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Group createGroup(String id) {
+        IdentityStore store = getStoreForFeature(Feature.createGroup);
         return store.createGroup(getContextFactory().getContext(store), id, null);
     }
 
     @Override
     public Group createGroup(String id, Group parent) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.createGroup);
         return store.createGroup(getContextFactory().getContext(store), id, parent);
     }
 
     @Override
     public Group createGroup(String id, String parent) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.createGroup);
         Group parentGroup = store.getGroup(getContextFactory().getContext(store), parent);
         return store.createGroup(getContextFactory().getContext(store), id, parentGroup);
     }
 
     @Override
     public void removeGroup(Group group) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.deleteGroup);
         store.removeGroup(getContextFactory().getContext(store), group);
     }
 
     @Override
     public void removeGroup(String groupId) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.deleteGroup);
         store.removeGroup(getContextFactory().getContext(store), getGroup(groupId));
     }
 
     @Override
     public Group getGroup(String groupId) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.readGroup);
         return store.getGroup(getContextFactory().getContext(store), groupId);
     }
 
     @Override
     public Group getGroup(String groupId, Group parent) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.readGroup);
         return getGroup(groupId); // What about parent?
     }
 
@@ -163,25 +189,25 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Role createRole(String name) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.createRole);
         return store.createRole(getContextFactory().getContext(store), name);
     }
 
     @Override
     public void removeRole(Role role) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.deleteRole);
         store.removeRole(getContextFactory().getContext(store), role);
     }
 
     @Override
     public void removeRole(String name) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.deleteRole);
         store.removeRole(getContextFactory().getContext(store), getRole(name));
     }
 
     @Override
     public Role getRole(String name) {
-        ensureStoreExists();
+        IdentityStore store = getStoreForFeature(Feature.readRole);
         return store.getRole(getContextFactory().getContext(store), name);
     }
 
@@ -236,7 +262,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantRole(Role role, IdentityType identityType, Group group) {
-        this.store.createMembership(getContextFactory().getContext(store), identityType, group, role);
+        IdentityStore store = getStoreForFeature(Feature.createMembership);
+        store.createMembership(getContextFactory().getContext(store), identityType, group, role);
     }
 
     @Override
@@ -246,11 +273,13 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean validateCredential(User user, Credential credential) {
+        IdentityStore store = getStoreForFeature(Feature.validateCredential);
         return store.validateCredential(getContextFactory().getContext(store), user, credential);
     }
 
     @Override
     public void updateCredential(User user, Credential credential) {
+        IdentityStore store = getStoreForFeature(Feature.validateCredential);
         store.updateCredential(getContextFactory().getContext(store), user, credential);
     }
 
@@ -260,12 +289,6 @@ public class DefaultIdentityManager implements IdentityManager {
 
     public void setExpirationDate(IdentityType identityType, Date expirationDate) {
         throw new RuntimeException();
-    }
-
-    private void ensureStoreExists() {
-        if (store == null) {
-            throw new RuntimeException("Identity Store has not been set");
-        }
     }
 
     public IdentityStoreInvocationContextFactory getContextFactory() {

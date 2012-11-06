@@ -18,7 +18,7 @@ import org.picketlink.idm.spi.JPAIdentityStoreSession;
 public class DefaultIdentityStoreInvocationContextFactory implements IdentityStoreInvocationContextFactory {
     private EntityManagerFactory emf;
     private EventBridge eventBridge;
-    
+
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf) {
         this.emf = emf;
         this.eventBridge = new EventBridge() {

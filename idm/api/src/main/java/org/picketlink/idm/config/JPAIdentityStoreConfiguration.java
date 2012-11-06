@@ -18,10 +18,6 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private Class<?> credentialClass;
     private Class<?> attributeClass;
 
-    public JPAIdentityStoreConfiguration(Class<? extends IdentityStore> identityStoreClass) {
-        super(identityStoreClass);
-    }
-
     public Class<?> getIdentityClass() {
         return identityClass;
     }

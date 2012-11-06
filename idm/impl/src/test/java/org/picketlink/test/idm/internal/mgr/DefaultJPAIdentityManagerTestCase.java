@@ -36,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
@@ -180,9 +182,15 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
     }
 
     private DefaultIdentityManager createIdentityManager() {
-        DefaultIdentityManager im = new DefaultIdentityManager(
-                new DefaultIdentityStoreInvocationContextFactory(emf));
-        im.setIdentityStore(createIdentityStore()); // TODO: wiring needs a second look
+        IdentityConfiguration config = new IdentityConfiguration();
+        JPAIdentityStoreConfiguration storeConfig = new JPAIdentityStoreConfiguration();
+
+        // TODO configure the store here
+
+        config.addStoreConfiguration(storeConfig);
+
+        DefaultIdentityManager im = new DefaultIdentityManager();
+        im.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf));
         return im;
     }
 
