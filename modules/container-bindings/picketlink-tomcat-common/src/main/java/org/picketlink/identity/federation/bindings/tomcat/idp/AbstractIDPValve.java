@@ -607,37 +607,43 @@ public abstract class AbstractIDPValve extends ValveBase {
 
                     destination = authRequest.getAssertionConsumerServiceURL().toASCIIString();
                 }
+                
+                // if destination is still empty redirect the user to the identity url. If the user is already authenticated he
+                // will be probably redirected to the idp hosted page.
+                if (destination == null) {
+                    response.sendRedirect(getIdentityURL());
+                } else {
+                    boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
 
-                boolean postProfile = webRequestUtil.hasSAMLRequestInPostProfile();
+                    if (postProfile)
+                        recycle(response);
 
-                if (postProfile)
-                    recycle(response);
+                    WebRequestUtilHolder holder = webRequestUtil.getHolder();
+                    holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
+                            .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
+                            .setErrorResponse(isErrorResponse).setServletResponse(response)
+                            .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
 
-                WebRequestUtilHolder holder = webRequestUtil.getHolder();
-                holder.setResponseDoc(samlResponse).setDestination(destination).setRelayState(relayState)
-                .setAreWeSendingRequest(willSendRequest).setPrivateKey(null).setSupportSignature(false)
-                .setErrorResponse(isErrorResponse).setServletResponse(response)
-                .setDestinationQueryStringWithSignature(destinationQueryStringWithSignature);
+                    holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
 
-                holder.setStrictPostBinding(this.idpConfiguration.isStrictPostBinding());
+                    if (requestedPostProfile != null)
+                        holder.setPostBindingRequested(requestedPostProfile);
+                    else
+                        holder.setPostBindingRequested(postProfile);
 
-                if (requestedPostProfile != null)
-                    holder.setPostBindingRequested(requestedPostProfile);
-                else
-                    holder.setPostBindingRequested(postProfile);
+                    if (this.idpConfiguration.isSupportsSignature()) {
+                        holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+                    }
 
-                if (this.idpConfiguration.isSupportsSignature()) {
-                    holder.setPrivateKey(keyManager.getSigningKey()).setSupportSignature(true);
+                    if (enableAudit) {
+                        PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
+                        auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
+                        auditEvent.setDestination(destination);
+                        auditEvent.setWhoIsAuditing(contextPath);
+                        auditHelper.audit(auditEvent);
+                    }
+                    webRequestUtil.send(holder);
                 }
-
-                if (enableAudit) {
-                    PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
-                    auditEvent.setType(PicketLinkAuditEventType.RESPONSE_TO_SP);
-                    auditEvent.setDestination(destination);
-                    auditEvent.setWhoIsAuditing(contextPath);
-                    auditHelper.audit(auditEvent);
-                }
-                webRequestUtil.send(holder);
             } catch (ParsingException e) {
                 logger.samlAssertionPasingFailed(e);
             } catch (GeneralSecurityException e) {
