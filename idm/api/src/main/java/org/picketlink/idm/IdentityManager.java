@@ -21,7 +21,6 @@
  */
 package org.picketlink.idm;
 
-import java.util.Collection;
 import java.util.Date;
 
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -76,8 +75,6 @@ public interface IdentityManager {
 
     User getUser(String name);
 
-    Collection<User> getAllUsers();
-
     // Group
 
     Group createGroup(String id);
@@ -94,13 +91,9 @@ public interface IdentityManager {
 
     Group getGroup(String groupId, Group parent);
 
-    Collection<Group> getAllGroups();
-
     void addToGroup(IdentityType identityType, Group group);
 
     void removeFromGroup(IdentityType identityType, Group group);
-
-    Collection<IdentityType> getGroupMembers(Group group);
 
     // Roles
 
@@ -112,17 +105,13 @@ public interface IdentityManager {
 
     Role getRole(String name);
 
-    Collection<Role> getAllRoles();
-
-    Collection<Role> getRoles(IdentityType identityType, Group group);
-
     boolean hasRole(Role role, IdentityType identityType, Group group);
 
     void grantRole(Role role, IdentityType identityType, Group group);
 
     void revokeRole(Role role, IdentityType identityType, Group group);
 
-    // Queries
+    // Query API
 
     <T extends IdentityType> IdentityQuery<T> createQuery();
 
@@ -139,4 +128,10 @@ public interface IdentityManager {
     void setExpirationDate(IdentityType identityType, Date expirationDate);
 
     IdentityType lookupIdentityByKey(String key);
+
+    // Attributes
+
+    void setAttribute(IdentityType identityType, String attributeName, String attributeValue);
+
+    String getAttribute(IdentityType identityType, String attributeName);
 }

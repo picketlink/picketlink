@@ -162,20 +162,23 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         im.grantRole(adminRole, anil, testGroup);
 
         // get the roles for anil. We should have only adminRole
-        Collection<Role> rolesByUser = im.getRoles(anil, null);
+        // FIXME rewrite using Query API
+        Collection<Role> rolesByUser = null; //im.getRoles(anil, null);
 
         assertNotNull(rolesByUser);
         assertEquals(1, rolesByUser.size());
 
         // get the roles for anil if the role is member of the testGroup. We should have only adminRole
-        Collection<Role> rolesByUserAndGroup = im.getRoles(anil, testGroup);
+        // FIXME rewrite using Query API
+        Collection<Role> rolesByUserAndGroup = null; //im.getRoles(anil, testGroup);
 
         assertNotNull(rolesByUserAndGroup);
         assertEquals(1, rolesByUserAndGroup.size());
 
         // get the roles for anil if the role is member of unusedGroup. No role should be returned because only the testGroup is
         // associated with the adminRole
-        Collection<Role> emptyRolesForUnusedGroup = im.getRoles(anil, unusedGroup);
+        // FIXME rewrite using Query API
+        Collection<Role> emptyRolesForUnusedGroup = null; //im.getRoles(anil, unusedGroup);
 
         assertNotNull(emptyRolesForUnusedGroup);
         assertTrue(emptyRolesForUnusedGroup.isEmpty());

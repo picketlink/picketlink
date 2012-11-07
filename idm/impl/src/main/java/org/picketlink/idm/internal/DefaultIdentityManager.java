@@ -120,11 +120,6 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public Collection<User> getAllUsers() {
-        throw new RuntimeException();
-    }
-
-    @Override
     public Group createGroup(String id) {
         IdentityStore store = getStoreForFeature(Feature.createGroup);
         return store.createGroup(getContextFactory().getContext(store), id, null);
@@ -168,22 +163,12 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public Collection<Group> getAllGroups() {
-        throw new RuntimeException();
-    }
-
-    @Override
     public void addToGroup(IdentityType identityType, Group group) {
         throw new RuntimeException();
     }
 
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public Collection<IdentityType> getGroupMembers(Group group) {
         throw new RuntimeException();
     }
 
@@ -209,32 +194,6 @@ public class DefaultIdentityManager implements IdentityManager {
     public Role getRole(String name) {
         IdentityStore store = getStoreForFeature(Feature.readRole);
         return store.getRole(getContextFactory().getContext(store), name);
-    }
-
-    @Override
-    public Collection<Role> getAllRoles() {
-        throw new RuntimeException();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Collection<Role> getRoles(IdentityType identityType, Group group) {
-        /*RoleQuery query = createRoleQuery();
-
-        // TODO: this should not happen because store impls must provide a valid instance. For now this is ignored and a empty
-        // list is returned.
-        if (query == null) {
-            return Collections.EMPTY_LIST;
-        }
-
-        query.setGroup(group);
-        query.setOwner(identityType);
-
-        return query.executeQuery();*/
-
-        // FIXME need to fix this
-
-        return null;
     }
 
     /* (non-Javadoc)
@@ -306,13 +265,24 @@ public class DefaultIdentityManager implements IdentityManager {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
     public void test() {
         List<User> users = this.<User>createQuery()
                 .setParameter(User.MEMBER_OF.group("Head Office").role("Admin"), true)
                 .setParameter(User.MEMBER_OF.group("Springfield"), false)
                 .setParameter(User.MEMBER_OF.role("Contractor"), false)
                 .getResultList();
-        
+    }
+
+    @Override
+    public void setAttribute(IdentityType identityType, String attributeName, String attributeValue) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public String getAttribute(IdentityType identityType, String attributeName) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

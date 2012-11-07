@@ -141,12 +141,14 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
 
         im.grantRole(adminRole, user, testGroup);
 
-        Collection<Role> rolesByUser = im.getRoles(user, null);
+        // FIXME rewrite using Query API
+        Collection<Role> rolesByUser = null; //im.getRoles(user, null);
 
         assertNotNull(rolesByUser);
         assertEquals(1, rolesByUser.size());
 
-        Collection<Role> rolesByUserAndGroup = im.getRoles(user, testGroup);
+        // FIXME rewrite using Query API
+        Collection<Role> rolesByUserAndGroup = null; //im.getRoles(user, testGroup);
 
         assertNotNull(rolesByUserAndGroup);
         assertEquals(1, rolesByUserAndGroup.size());

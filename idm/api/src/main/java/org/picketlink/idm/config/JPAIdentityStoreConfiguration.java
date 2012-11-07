@@ -53,10 +53,4 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public boolean isConfigured() {
         return identityClass != null;
     }
-
-    @Override
-    public Set<Feature> getSupportedFeatures() {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

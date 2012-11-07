@@ -52,6 +52,7 @@ public interface IdentityStore {
                           createRole, readRole, updateRole, deleteRole,
                           createMembership, readMembership, updateMembership, deleteMembership,
                           validateCredential, updateCredential,
+                          readAttribute, updateAttribute, deleteAttribute,
                           all }
 
     /**
@@ -60,7 +61,7 @@ public interface IdentityStore {
      * @return A Set containing the features supported by this IdentityStore.
      */
     Set<Feature> getFeatureSet();
-    
+
     void configure(IdentityStoreConfiguration config) throws SecurityConfigurationException;
 
     // User
