@@ -72,6 +72,7 @@ import org.apache.tomcat.util.http.mapper.Mapper;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MockCatalinaContext implements Context, Container, ServletContext {
     private Realm realm;
+    private String forwardPage;
 
     public void addChild(Container arg0) {
     }
@@ -711,6 +712,7 @@ public class MockCatalinaContext implements Context, Container, ServletContext {
             }
 
             public void forward(ServletRequest arg0, ServletResponse arg1) throws ServletException, IOException {
+                forwardPage = path;
                 if (arg0 instanceof MockCatalinaRequest) {
                     MockCatalinaRequest mockRequest = (MockCatalinaRequest) arg0;
 
@@ -768,5 +770,9 @@ public class MockCatalinaContext implements Context, Container, ServletContext {
 
     public void setAttribute(String arg0, Object arg1) {
         this.attribs.put(arg0, arg1);
+    }
+    
+    public String getForwardPage() {
+        return forwardPage;
     }
 }
