@@ -110,14 +110,12 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Group createGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
-        DatabaseGroup newGroup = new DatabaseGroup(name);
+    public void createGroup(IdentityStoreInvocationContext ctx, Group group) {
+        DatabaseGroup newGroup = new DatabaseGroup(group.getName());
 
-        newGroup.setParentGroup((DatabaseGroup) parent);
+        newGroup.setParentGroup((DatabaseGroup) group.getParentGroup());
 
         persist(newGroup);
-
-        return newGroup;
     }
 
     @Override
@@ -135,12 +133,10 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Role createRole(IdentityStoreInvocationContext ctx, String name) {
-        DatabaseRole newRole = new DatabaseRole(name);
+    public void createRole(IdentityStoreInvocationContext ctx, Role role) {
+        DatabaseRole newRole = new DatabaseRole(role.getName());
 
         persist(newRole);
-
-        return newRole;
     }
 
     @Override
@@ -773,5 +769,17 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     public void configure(IdentityStoreConfiguration config) throws SecurityConfigurationException {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public void updateUser(IdentityStoreInvocationContext ctx, User user) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

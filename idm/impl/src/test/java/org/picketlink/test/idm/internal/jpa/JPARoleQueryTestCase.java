@@ -32,6 +32,9 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -148,19 +151,23 @@ public class JPARoleQueryTestCase extends AbstractJPAIdentityManagerTestCase {
             return;
         }
 
-        this.group = identityManager.createGroup(GROUP_NAME, (Group) null);
-        this.user = identityManager.createUser(USER_NAME);
+        this.group = new SimpleGroup(GROUP_NAME, (Group) null);
+        identityManager.createGroup(this.group);
+
+        this.user = new SimpleUser(USER_NAME);
+        identityManager.createUser(this.user);
 
         for (int i = 0; i < 10; i++) {
             int index = i + 1;
-            Role currentRole = identityManager.createRole(ROLE_NAME + index);
+            Role currentRole = new SimpleRole(ROLE_NAME + index);
+            identityManager.createRole(currentRole);
 
             // store the instance used for testing
             if (this.role == null) {
                 this.role = currentRole;
             }
 
-            identityManager.grantRole(currentRole, this.user, this.group);
+            identityManager.grantRole(this.user, currentRole, this.group);
 
             currentRole.setAttribute("attribute1", "attributeValue1");
             currentRole.setAttribute("attribute1", "attributeValue12");

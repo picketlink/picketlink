@@ -878,12 +878,6 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Group createGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void removeGroup(IdentityStoreInvocationContext ctx, Group group) {
         EntityManager em = getEntityManager(ctx);
         Object entity = lookupIdentityObjectByKey(em, group.getKey());
@@ -896,12 +890,6 @@ public class JPAIdentityStore implements IdentityStore {
 
     @Override
     public Group getGroup(IdentityStoreInvocationContext ctx, String name) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Role createRole(IdentityStoreInvocationContext ctx, String name) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -964,6 +952,30 @@ public class JPAIdentityStore implements IdentityStore {
     public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void updateUser(IdentityStoreInvocationContext ctx, User user) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void createGroup(IdentityStoreInvocationContext ctx, Group group) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void createRole(IdentityStoreInvocationContext ctx, Role role) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

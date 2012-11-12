@@ -33,6 +33,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.file.internal.FileUser;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.User;
 
 /**
@@ -259,13 +261,16 @@ public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
             currentUser.setEmail(USER_EMAIL + index);
             currentUser.setFirstName(USER_FIRST_NAME + index);
             currentUser.setLastName(USER_LAST_NAME + index);
-            
+
             identityManager.createUser(currentUser);
 
-            Role role = identityManager.createRole(ROLE_NAME_PREFIX + index);
-            Group group = identityManager.createGroup(GROUP_NAME_PREFIX + index, (Group) null);
+            Role role = new SimpleRole(ROLE_NAME_PREFIX + index);
+            identityManager.createRole(role);
 
-            identityManager.grantRole(role, user, group);
+            Group group = new SimpleGroup(GROUP_NAME_PREFIX + index, (Group) null);
+            identityManager.createGroup(group);
+
+            identityManager.grantRole(user, role, group);
 
             currentUser.setAttribute("attribute1", "attributeValue1");
             currentUser.setAttribute("attribute1", "attributeValue12");

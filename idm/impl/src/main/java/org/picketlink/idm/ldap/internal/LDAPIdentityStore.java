@@ -202,12 +202,12 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
      * @see org.picketlink.idm.spi.IdentityStore#createGroup(java.lang.String, org.picketlink.idm.model.Group)
      */
     @Override
-    public Group createGroup(IdentityStoreInvocationContext invocationContext, String name, Group parent) {
+    public void createGroup(IdentityStoreInvocationContext invocationContext, Group group) {
         ensureGroupDNExists();
         LDAPGroup ldapGroup = new LDAPGroup();
         ldapGroup.setLDAPChangeNotificationHandler(this);
 
-        ldapGroup.setName(name);
+        ldapGroup.setName(group.getName());
         ldapGroup.setGroupDNSuffix(groupDNSuffix);
 
         try {
@@ -216,10 +216,10 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             throw new RuntimeException(e);
         }
 
-        if (parent != null) {
-            ldapGroup.setParentGroup(parent);
+        if (group.getParentGroup() != null) {
+            ldapGroup.setParentGroup(group.getParentGroup());
 
-            LDAPGroup parentGroup = (LDAPGroup) getGroup(invocationContext, parent.getName());
+            LDAPGroup parentGroup = (LDAPGroup) getGroup(invocationContext, group.getParentGroup().getName());
             ldapGroup.setParentGroup(parentGroup);
             parentGroup.addChildGroup(ldapGroup);
             try {
@@ -228,7 +228,6 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
                 throw new RuntimeException(e);
             }
         }
-        return ldapGroup;
     }
 
     /* (non-Javadoc)
@@ -278,19 +277,18 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
      * @see org.picketlink.idm.spi.IdentityStore#createRole(java.lang.String)
      */
     @Override
-    public Role createRole(IdentityStoreInvocationContext invocationContext, String name) {
-        LDAPRole role = new LDAPRole();
-        role.setLDAPChangeNotificationHandler(this);
+    public void createRole(IdentityStoreInvocationContext invocationContext, Role role) {
+        LDAPRole ldapRole = new LDAPRole();
+        ldapRole.setLDAPChangeNotificationHandler(this);
 
-        role.setName(name);
-        role.setRoleDNSuffix(roleDNSuffix);
+        ldapRole.setName(role.getName());
+        ldapRole.setRoleDNSuffix(roleDNSuffix);
 
         try {
-            ctx.bind(role.getDN(), role);
+            ctx.bind(ldapRole.getDN(), role);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
-        return role;
     }
 
     /* (non-Javadoc)
@@ -1105,7 +1103,19 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
 
     @Override
     public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
-        // TODO Auto-generated method stub
+        // TODO implement this
+        return null;
+    }
+
+    @Override
+    public void updateUser(IdentityStoreInvocationContext ctx, User user) {
+        // TODO implement this 
+        
+    }
+
+    @Override
+    public Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
+        // TODO implement this
         return null;
     }
 

@@ -45,6 +45,9 @@ import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
 import org.picketlink.test.idm.internal.jpa.AbstractJPAIdentityManagerTestCase;
@@ -70,7 +73,8 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         DefaultIdentityManager im = createIdentityManager();
 
         // Let us create an user
-        User user = im.createUser("pedroigor");
+        User user = new SimpleUser("pedroigor");
+        im.createUser(user);
 
         user.setFirstName("Pedro");
         user.setLastName("Igor");
@@ -136,10 +140,13 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         //assertNotNull(returnedUsers);
         //assertEquals(1, returnedUsers.size());
 
-        Role adminRole = im.createRole("admin");
-        Group testGroup = im.createGroup("Test Group");
+        Role adminRole = new SimpleRole("admin");
+        im.createRole(adminRole);
 
-        im.grantRole(adminRole, user, testGroup);
+        Group testGroup = new SimpleGroup("Test Group", null);
+        im.createGroup(testGroup);
+
+        im.grantRole(user, adminRole, testGroup);
 
         // FIXME rewrite using Query API
         Collection<Role> rolesByUser = null; //im.getRoles(user, null);
@@ -172,7 +179,8 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         //identityManager.setPasswordEncoder(new SHASaltedPasswordEncoder(256));
 
         // Let us create an user
-        User user = identityManager.createUser("pedroigor");
+        User user = new SimpleUser("pedroigor");
+        identityManager.createUser(user);
         String password = "easypassword";
         PasswordCredential pc = new PasswordCredential(password);
 

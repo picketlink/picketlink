@@ -33,6 +33,8 @@ import org.picketlink.idm.jpa.schema.DatabaseUser;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -149,12 +151,15 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
             return;
         }
 
-        this.group = identityManager.createGroup(null, GROUP_NAME, null);
+        this.group = new SimpleGroup(GROUP_NAME, null);
+        identityManager.createGroup(null, this.group);
+        
         this.user = new DatabaseUser(USER_NAME);
         
         identityManager.createUser(null, user);
         
-        this.role = identityManager.createRole(null, ROLE_NAME);
+        this.role = new SimpleRole(ROLE_NAME);
+        identityManager.createRole(null, this.role);
 
         this.membership = identityManager.createMembership(null, this.user, this.group, this.role);
     }

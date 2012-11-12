@@ -88,14 +88,6 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public User createUser(String name) {
-        User user = new SimpleUser(name);
-        IdentityStore store = getStoreForFeature(Feature.createUser); 
-        store.createUser(getContextFactory().getContext(store), user);
-        return user;
-    }
-
-    @Override
     public void createUser(User user) {
         IdentityStore store = getStoreForFeature(Feature.createUser);
         store.createUser(getContextFactory().getContext(store), user);
@@ -108,9 +100,9 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void removeUser(String name) {
-        IdentityStore store = getStoreForFeature(Feature.deleteUser);
-        store.removeUser(getContextFactory().getContext(store), getUser(name));
+    public void updateUser(User user) {
+        IdentityStore store = getStoreForFeature(Feature.updateUser);
+        store.updateUser(getContextFactory().getContext(store), user);
     }
 
     @Override
@@ -120,22 +112,9 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public Group createGroup(String id) {
+    public void createGroup(Group group) {
         IdentityStore store = getStoreForFeature(Feature.createGroup);
-        return store.createGroup(getContextFactory().getContext(store), id, null);
-    }
-
-    @Override
-    public Group createGroup(String id, Group parent) {
-        IdentityStore store = getStoreForFeature(Feature.createGroup);
-        return store.createGroup(getContextFactory().getContext(store), id, parent);
-    }
-
-    @Override
-    public Group createGroup(String id, String parent) {
-        IdentityStore store = getStoreForFeature(Feature.createGroup);
-        Group parentGroup = store.getGroup(getContextFactory().getContext(store), parent);
-        return store.createGroup(getContextFactory().getContext(store), id, parentGroup);
+        store.createGroup(getContextFactory().getContext(store), group);
     }
 
     @Override
@@ -145,21 +124,20 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void removeGroup(String groupId) {
-        IdentityStore store = getStoreForFeature(Feature.deleteGroup);
-        store.removeGroup(getContextFactory().getContext(store), getGroup(groupId));
-    }
-
-    @Override
     public Group getGroup(String groupId) {
         IdentityStore store = getStoreForFeature(Feature.readGroup);
         return store.getGroup(getContextFactory().getContext(store), groupId);
     }
 
     @Override
-    public Group getGroup(String groupId, Group parent) {
+    public Group getGroup(String groupName, Group parent) {
         IdentityStore store = getStoreForFeature(Feature.readGroup);
-        return getGroup(groupId); // What about parent?
+        return store.getGroup(getContextFactory().getContext(store), groupName, parent);
+    }
+
+    public boolean isMember(IdentityType identityType, Group group) {
+        // FIXME implement this
+        return false;
     }
 
     @Override
@@ -173,21 +151,15 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public Role createRole(String name) {
+    public void createRole(Role role) {
         IdentityStore store = getStoreForFeature(Feature.createRole);
-        return store.createRole(getContextFactory().getContext(store), name);
+        store.createRole(getContextFactory().getContext(store), role);
     }
 
     @Override
     public void removeRole(Role role) {
         IdentityStore store = getStoreForFeature(Feature.deleteRole);
         store.removeRole(getContextFactory().getContext(store), role);
-    }
-
-    @Override
-    public void removeRole(String name) {
-        IdentityStore store = getStoreForFeature(Feature.deleteRole);
-        store.removeRole(getContextFactory().getContext(store), getRole(name));
     }
 
     @Override
@@ -200,7 +172,7 @@ public class DefaultIdentityManager implements IdentityManager {
      * @see org.picketlink.idm.IdentityManager#hasRole(org.picketlink.idm.model.Role, org.picketlink.idm.model.IdentityType, org.picketlink.idm.model.Group)
      */
     @Override
-    public boolean hasRole(Role role, IdentityType identityType, Group group) {
+    public boolean hasRole(IdentityType identityType, Role role, Group group) {
         //TODO: the MembershipQuery defines only a setUser. Need more discussion about others IdentityTypes.
         if (!(identityType instanceof User)) {
             throw new IllegalArgumentException("For now only the User type is supported as the IdentityType argument.");
@@ -220,14 +192,32 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void grantRole(Role role, IdentityType identityType, Group group) {
+    public void grantRole(IdentityType identityType, Role role, Group group) {
         IdentityStore store = getStoreForFeature(Feature.createMembership);
         store.createMembership(getContextFactory().getContext(store), identityType, group, role);
     }
 
     @Override
-    public void revokeRole(Role role, IdentityType identityType, Group group) {
+    public void revokeRole(IdentityType identityType, Role role, Group group) {
         throw new RuntimeException();
+    }
+
+    @Override
+    public boolean hasApplicationRole(IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void grantApplicationRole(IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void revokeApplicationRole(IdentityType identityType, Role role) {
+        // TODO Auto-generated method stub
+
     }
 
     @Override
@@ -285,4 +275,5 @@ public class DefaultIdentityManager implements IdentityManager {
         // TODO Auto-generated method stub
         return null;
     }
+
 }

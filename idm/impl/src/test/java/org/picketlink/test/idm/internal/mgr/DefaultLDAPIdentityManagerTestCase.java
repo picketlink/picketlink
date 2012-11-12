@@ -51,6 +51,9 @@ import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -76,7 +79,8 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         im.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
         // Let us create an user
-        User user = im.createUser("asaldhan");
+        User user = new SimpleUser("asaldhan");
+        im.createUser(user);
 
         assertNotNull(user);
 
@@ -154,12 +158,17 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         //assertNotNull(returnedUsers);
         //assertEquals(1, returnedUsers.size());
 
-        Role adminRole = im.createRole("admin");
-        Group testGroup = im.createGroup("Fake Group");
-        Group unusedGroup = im.createGroup("Unused Group");
+        Role adminRole = new SimpleRole("admin");
+        im.createRole(adminRole);
+
+        Group testGroup = new SimpleGroup("Fake Group", null);
+        im.createGroup(testGroup);
+
+        Group unusedGroup = new SimpleGroup("Unused Group", null);
+        im.createGroup(unusedGroup);
 
         // grant adminRole to anil and put the user in the testGroup
-        im.grantRole(adminRole, anil, testGroup);
+        im.grantRole(anil, adminRole, testGroup);
 
         // get the roles for anil. We should have only adminRole
         // FIXME rewrite using Query API

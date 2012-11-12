@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 //import org.picketlink.idm.internal.jpa.DatabaseUser;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -57,7 +58,8 @@ public class JPAUserTestCase extends AbstractJPAIdentityTypeTestCase {
     public void testUserStore() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        User user = identityManager.createUser(USER_USERNAME);
+        User user = new SimpleUser(USER_USERNAME);
+        identityManager.createUser(user);
 
         user.setEmail(USER_EMAIL);
         user.setFirstName(USER_FIRST_NAME);

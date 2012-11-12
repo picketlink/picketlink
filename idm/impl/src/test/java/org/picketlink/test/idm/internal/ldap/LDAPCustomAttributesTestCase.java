@@ -37,6 +37,7 @@ import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPUser;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreFactory;
@@ -80,7 +81,8 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
         im.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
         // Let us create an user
-        User user = im.createUser("Anil Saldhana");
+        User user = new SimpleUser("Anil Saldhana");
+        im.createUser(user);
         assertNotNull(user);
 
         User anil = im.getUser("Anil Saldhana");

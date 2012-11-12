@@ -383,16 +383,14 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Group createGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
-        FileGroup group = new FileGroup(name, parent);
+    public void createGroup(IdentityStoreInvocationContext ctx, Group group) {
+        // FIXME
+        //this.groups.put(group.getName(), group);
 
-        this.groups.put(group.getName(), group);
-
-        group.setChangeListener(this.changeListener);
+        // FIXME
+        //group.setChangeListener(this.changeListener);
 
         flushGroups();
-
-        return group;
     }
 
     @Override
@@ -402,8 +400,8 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Group getGroup(IdentityStoreInvocationContext ctx, String name) {
-        FileGroup group = this.groups.get(name);
+    public Group getGroup(IdentityStoreInvocationContext ctx, String groupId) {
+        FileGroup group = this.groups.get(groupId);
 
         if (group != null) {
             group.setChangeListener(this.changeListener);
@@ -413,16 +411,19 @@ public class FileBasedIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Role createRole(IdentityStoreInvocationContext ctx, String name) {
-        FileRole role = new FileRole(name);
+    public Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
+        // TODO implement this
+        return null;
+    }
 
+    @Override
+    public void createRole(IdentityStoreInvocationContext ctx, Role role) {
         this.roles.put(role.getName(), role);
 
-        role.setChangeListener(this.changeListener);
+        // FIXME need to fix this?
+        //role.setChangeListener(this.changeListener);
 
         flushRoles();
-
-        return role;
     }
 
     @Override
@@ -1013,6 +1014,12 @@ public class FileBasedIdentityStore implements IdentityStore {
     public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void updateUser(IdentityStoreInvocationContext ctx, User user) {
+        // TODO implement this
+        
     }
 
 }

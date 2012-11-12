@@ -31,6 +31,9 @@ import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -53,11 +56,16 @@ public class FileMembershipTestCase extends AbstractFileIdentityManagerTestCase 
     public void testGrantRole() throws Exception {
         IdentityManager identityStore = getIdentityManager();
 
-        Role role = identityStore.createRole("admin");
-        User user = identityStore.createUser("asaldhan");
-        Group group = identityStore.createGroup("Administrators", (Group) null);
+        Role role = new SimpleRole("admin");
+        identityStore.createRole(role);
 
-        identityStore.grantRole(role, user, group);
+        User user = new SimpleUser("asaldhan");
+        identityStore.createUser(user);
+
+        Group group = new SimpleGroup("Administrators", (Group) null);
+        identityStore.createGroup(group);
+
+        identityStore.grantRole(user, role, group);
 
         // FIXME rewrite this to use the query API
         Collection<Role> roles = null; //getIdentityManager().getRoles(null, group);
@@ -65,7 +73,8 @@ public class FileMembershipTestCase extends AbstractFileIdentityManagerTestCase 
         Assert.assertNotNull(roles);
         Assert.assertFalse(roles.isEmpty());
 
-        User anotherUser = identityStore.createUser("anotherUser");
+        User anotherUser = new SimpleUser("anotherUser");
+        identityStore.createUser(anotherUser);
 
         // FIXME rewrite to use query API
         roles = null; //getIdentityManager().getRoles(anotherUser, null);

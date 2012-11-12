@@ -81,6 +81,14 @@ public interface IdentityStore {
      * @param user
      */
     void removeUser(IdentityStoreInvocationContext ctx, User user);
+    
+    /**
+     * Updates the persisted User details with those provided by the specified User
+     * 
+     * @param ctx
+     * @param user
+     */
+    void updateUser(IdentityStoreInvocationContext ctx, User user);
 
     /**
      * Returns the User with the specified id value. 
@@ -96,12 +104,11 @@ public interface IdentityStore {
     /**
      * Creates a new persistent Group
      * 
-     * @param ctx
-     * @param name The name of the group.
+     * @param group The group to create.
      * @param parent The parent group.  If the group to be created has no parent, then pass null.
      * @return
      */
-    Group createGroup(IdentityStoreInvocationContext ctx, String name, Group parent);
+    void createGroup(IdentityStoreInvocationContext ctx, Group group);
 
     /**
      * Removes the specified Group from persistent storage.
@@ -112,13 +119,22 @@ public interface IdentityStore {
     void removeGroup(IdentityStoreInvocationContext ctx, Group group);
 
     /**
-     * Returns the specified Group
+     * Returns the Group with the specified Group ID.
+     * 
+     * @param ctx
+     * @param groupId
+     * @return
+     */
+    Group getGroup(IdentityStoreInvocationContext ctx, String groupId);
+
+    /**
+     * Returns the Group with the specified name and parent group
      * 
      * @param ctx
      * @param name The name of the Group to return
      * @return
      */
-    Group getGroup(IdentityStoreInvocationContext ctx, String name);
+    Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent);
 
     // Role
 
@@ -129,7 +145,7 @@ public interface IdentityStore {
      * @param name The name of the Role to create
      * @return
      */
-    Role createRole(IdentityStoreInvocationContext ctx, String name);
+    void createRole(IdentityStoreInvocationContext ctx, Role role);
 
     /**
      * Removes the specified Role from persistent storage

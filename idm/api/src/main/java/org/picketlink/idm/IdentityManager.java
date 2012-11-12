@@ -65,31 +65,25 @@ public interface IdentityManager {
 
     // User
 
-    User createUser(String name);
-
     void createUser(User user);
 
     void removeUser(User user);
 
-    void removeUser(String name);
+    void updateUser(User user);
 
     User getUser(String name);
 
     // Group
 
-    Group createGroup(String id);
-
-    Group createGroup(String id, Group parent);
-
-    Group createGroup(String id, String parent);
+    void createGroup(Group group);
 
     void removeGroup(Group group);
 
-    void removeGroup(String groupId);
-
     Group getGroup(String groupId);
 
-    Group getGroup(String groupId, Group parent);
+    Group getGroup(String groupName, Group parent);
+
+    boolean isMember(IdentityType identityType, Group group);
 
     void addToGroup(IdentityType identityType, Group group);
 
@@ -97,19 +91,23 @@ public interface IdentityManager {
 
     // Roles
 
-    Role createRole(String name);
+    void createRole(Role role);
 
     void removeRole(Role role);
 
-    void removeRole(String name);
-
     Role getRole(String name);
 
-    boolean hasRole(Role role, IdentityType identityType, Group group);
+    boolean hasRole(IdentityType identityType, Role role, Group group);
 
-    void grantRole(Role role, IdentityType identityType, Group group);
+    void grantRole(IdentityType identityType, Role role, Group group);
 
-    void revokeRole(Role role, IdentityType identityType, Group group);
+    void revokeRole(IdentityType identityType, Role role, Group group);
+
+    boolean hasApplicationRole(IdentityType identityType, Role role);
+
+    void grantApplicationRole(IdentityType identityType, Role role);
+
+    void revokeApplicationRole(IdentityType identityType, Role role);
 
     // Query API
 

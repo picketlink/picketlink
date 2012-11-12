@@ -30,6 +30,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.jpa.schema.internal.SimpleJPAIdentityStore;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleRole;
 
 /**
  * <p>
@@ -53,7 +54,8 @@ public class JPARoleTestCase extends AbstractJPAIdentityTypeTestCase {
     public void testRoleStore() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        Role role = identityManager.createRole(ROLE_NAME);
+        Role role = new SimpleRole(ROLE_NAME);
+        identityManager.createRole(role);
 
         assertNotNull(role);
         assertNotNull(role.getKey());
