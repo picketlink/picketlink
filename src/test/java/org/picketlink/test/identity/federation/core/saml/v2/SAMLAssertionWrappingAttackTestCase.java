@@ -68,10 +68,13 @@ import org.w3c.dom.Node;
  * document. It also forces a successful attack.
  * </p>
  * <p>
- * What is protecting PicketLink to the attack is how the idness of attributes is configured for XML elements. PicketLink
+ * What is protecting PicketLink to the XML Signature Wrapping Attack is how the idness of attributes is configured for XML elements. PicketLink
  * expects to manually set the idness of attributes after Apache Santuario version update.
  * </p>
- * 
+ * <p>
+ * It is strongly recommended to use signatures when configuring IDPs and SPs.
+ * </p>
+ *  
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class SAMLAssertionWrappingAttackTestCase {
