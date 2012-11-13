@@ -35,6 +35,7 @@ import junit.framework.Assert;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.deploy.LoginConfig;
 import org.apache.catalina.realm.GenericPrincipal;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
@@ -48,7 +49,6 @@ import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
-import org.picketlink.test.identity.federation.bindings.authenticators.AuthenticatorTestUtils;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRealm;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaRequest;
@@ -61,28 +61,48 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * Tests if the XML Signature Wrapping Attack happens when performing a complete SAML POST Binding authentication workflow.
+ * Tests some scenarios trying to perform a SAML Assertion Wrapping Attack.
+ * </p>
+ * <p>
+ * What is protecting PicketLink to the XML Signature Wrapping Attack is how the idness of attributes is configured for XML
+ * elements. PicketLink expects to manually set the idness of attributes after Apache Santuario version update.
+ * </p>
+ * <p>
+ * It is strongly recommended to use signatures when configuring IDPs and SPs.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Igor</a>
  */
 public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2RedirectWithSignatureTestCase {
 
+    private MockCatalinaContext spContext = new MockCatalinaContext();
+    private MockCatalinaContext idpContext = new MockCatalinaContext();
+
+    private MockCatalinaSession spSession = new MockCatalinaSession();
+    private MockCatalinaSession idpSession = new MockCatalinaSession();
+
     /**
      * <p>
-     * Performs a complete SAML authentication worklow trying to send to the service provider a SAML Response that was changed
+     * Performs a complete SAML authentication workflow trying to send to the service provider a SAML Response that was changed
      * to simulate a XML Signature Wrapping Attack.
+     * </p>
+     * <p>
+     * When performing such attack, PicketLink is protected because the signature validation will fail and the user redirected
+     * to the error page.
      * </p>
      */
     @Test
-    public void testAssertionWrappingAttackProtection() throws Exception {
-        ServiceProviderAuthenticator spAuthenticator = createSPAuthenticator();
+    public void testWrapIntoSignedSAMLResponse() throws Exception {
+        ServiceProviderAuthenticator spAuthenticator = createSPAuthenticator(true);
 
         // first interaction with the SP. We should receive from the SP a AuthnRequest type
         String authnRequest = invokeSPAndGetAuthnRequest(spAuthenticator);
 
-        // let's invoke the IDP with the previous AuthnRequest. Now we should get a valid SAML Response and Assertion.
-        String idpResponse = invokeIDPAndGetSAMLResponse(authnRequest);
+        IDPWebBrowserSSOValve idpAuthenticator = createIDPAuthenticator(true);
+
+        // let's invoke the IDP with the previous AuthnRequest and perform the authentication. Now we should get a valid SAML
+        // Response and Assertion.
+        String idpResponse = invokeIDPAndGetSAMLResponse(idpAuthenticator, authnRequest);
 
         // let's wrap a bad assertion into the response doc. We are trying a XML Signature Wrapping Attack
         byte[] samlIDPResponse = PostBindingUtil.base64Decode(idpResponse);
@@ -92,48 +112,119 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
         // let's now send the bad SAML response and the assertion back to the SP.
         idpResponse = Base64.encodeBytes(DocumentUtil.asString(samlResponseDoc).getBytes());
 
-        String forwardPage = invokeSPWithSAMLResponse(spAuthenticator, idpResponse);
-        
+        Principal principal = invokeSPWithSAMLResponse(spAuthenticator, idpResponse);
+
         // the SP should not accept the bad response/assertion. The SP should redirect to the error page.
-        Assert.assertEquals("/error.jsp", forwardPage);
+        Assert.assertEquals("/error.jsp", this.spContext.getForwardPage());
+
+        Assert.assertNull(principal);
     }
 
-    private String invokeSPWithSAMLResponse(ServiceProviderAuthenticator spAuthenticator, String idpResponse)
-            throws IOException {
-        
-        MockCatalinaRequest request = new MockCatalinaRequest();
-        
-        request.setRemoteAddr("http://localhost/idp");
-        request.setSession(new MockCatalinaSession());
-        request.setParameter("SAMLResponse", idpResponse);
-        
-        MockCatalinaRealm realm2 = new MockCatalinaRealm("anil", "test", new Principal() {
-            public String getName() {
-                return "anil";
-            }
-        });
+    /**
+     * <p>
+     * Performs a complete SAML authentication workflow trying to send to the service provider a SAML Response with a bad
+     * assertion that replaces the original one.
+     * </p>
+     * <p>
+     * When performing such attack, PicketLink is not protected because the SAML Response is not signed and the document can be
+     * tampered.
+     * </p>
+     */
+    @Test
+    @Ignore
+    public void testReplaceOriginalAssertion() throws Exception {
+        ServiceProviderAuthenticator spAuthenticator = createSPAuthenticator(false);
 
-        request.setUserPrincipal(new GenericPrincipal(realm2, "anil", "test"));
-        
+        // first interaction with the SP. We should receive from the SP a AuthnRequest type
+        String authnRequest = invokeSPAndGetAuthnRequest(spAuthenticator);
+
+        IDPWebBrowserSSOValve idpAuthenticator = createIDPAuthenticator(false);
+
+        // let's invoke the IDP with the previous AuthnRequest. Now we should get a valid SAML Response and Assertion.
+        String idpResponse = invokeIDPAndGetSAMLResponse(idpAuthenticator, authnRequest);
+
+        // let's replace the original assertion with a bad one
+        byte[] samlIDPResponse = PostBindingUtil.base64Decode(idpResponse);
+        Document samlResponseDoc = DocumentUtil.getDocument(new ByteArrayInputStream(samlIDPResponse));
+        samlResponseDoc = replaceWithBadAssertion(samlResponseDoc);
+
+        // let's now send the bad SAML response and the assertion back to the SP.
+        idpResponse = Base64.encodeBytes(DocumentUtil.asString(samlResponseDoc).getBytes());
+
+        Principal principal = invokeSPWithSAMLResponse(spAuthenticator, idpResponse);
+
+        Assert.assertNotNull(principal);
+        Assert.assertEquals("jduke_was_attacked", principal.getName());
+    }
+
+    /**
+     * <p>
+     * Performs a complete SAML authentication workflow trying to send to the service provider a SAML Response with a bad
+     * assertion wrapped before the original one.
+     * </p>
+     * <p>
+     * When performing such attack, PicketLink is not protected because the SAML Response is not signed and the document can be
+     * tampered. It allows multiple Assertion elements within a SAML Response and always consider the first Assertion during the
+     * processing.
+     * </p>
+     */
+    @Test
+    public void testWrapBadAssertionBeforeOriginal() throws Exception {
+        ServiceProviderAuthenticator spAuthenticator = createSPAuthenticator(false);
+
+        // first interaction with the SP. We should receive from the SP a AuthnRequest type
+        String authnRequest = invokeSPAndGetAuthnRequest(spAuthenticator);
+
+        IDPWebBrowserSSOValve idpAuthenticator = createIDPAuthenticator(false);
+
+        // let's invoke the IDP with the previous AuthnRequest. Now we should get a valid SAML Response and Assertion.
+        String idpResponse = invokeIDPAndGetSAMLResponse(idpAuthenticator, authnRequest);
+
+        // let's replace the original assertion with a bad one
+        byte[] samlIDPResponse = PostBindingUtil.base64Decode(idpResponse);
+        Document samlResponseDoc = DocumentUtil.getDocument(new ByteArrayInputStream(samlIDPResponse));
+        samlResponseDoc = wrapBadAssertionBeforeOriginal(samlResponseDoc);
+
+        // let's now send the bad SAML response and the assertion back to the SP.
+        idpResponse = Base64.encodeBytes(DocumentUtil.asString(samlResponseDoc).getBytes());
+
+        Principal principal = invokeSPWithSAMLResponse(spAuthenticator, idpResponse);
+
+        Assert.assertNotNull(principal);
+        Assert.assertEquals("jduke_was_attacked", principal.getName());
+    }
+
+    private Principal invokeSPWithSAMLResponse(ServiceProviderAuthenticator spAuthenticator, String idpResponse)
+            throws IOException {
+
+        MockCatalinaRequest request = new MockCatalinaRequest();
+
+        request.setRemoteAddr("http://localhost/idp");
+        request.setSession(this.spSession);
+        request.setParameter("SAMLResponse", idpResponse);
+
         request.setMethod("POST");
-        
-        MockCatalinaContext servletContext = new MockCatalinaContext();
-        
-        request.setContext(servletContext);
+
+        request.setContext(this.spContext);
 
         MockCatalinaResponse response = new MockCatalinaResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         response.setWriter(new PrintWriter(baos));
-        
-        LoginConfig loginConfig2 = new LoginConfig();
-        
-        spAuthenticator.authenticate(request, response, loginConfig2);
 
-        return servletContext.getForwardPage();
+        spAuthenticator.authenticate(request, response, new LoginConfig());
+
+        return request.getUserPrincipal();
     }
-    
+
     private String invokeSPAndGetAuthnRequest(ServiceProviderAuthenticator spAuthenticator) throws IOException, Exception {
-        MockCatalinaRequest catalinaRequest = AuthenticatorTestUtils.createRequest("localhost", false);
+        MockCatalinaRequest request = new MockCatalinaRequest();
+
+        request.setRemoteAddr("http://localhost/idp");
+        request.setSession(this.spSession);
+
+        request.setMethod("POST");
+
+        request.setContext(this.spContext);
 
         MockCatalinaResponse catalinaResponse = new MockCatalinaResponse();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -141,19 +232,19 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
 
         LoginConfig loginConfig = new LoginConfig();
 
-        spAuthenticator.authenticate(catalinaRequest, catalinaResponse, loginConfig);
+        spAuthenticator.authenticate(request, catalinaResponse, loginConfig);
 
         String authnRequest = getSAMLRequestOrResponse(baos);
+
         return authnRequest;
     }
 
-    private String invokeIDPAndGetSAMLResponse(String authnRequest) throws ConfigurationException, ProcessingException,
-            ParsingException, LifecycleException, IOException, ServletException, Exception {
+    private String invokeIDPAndGetSAMLResponse(IDPWebBrowserSSOValve idpAuthenticator, String authnRequest)
+            throws ConfigurationException, ProcessingException, ParsingException, LifecycleException, IOException,
+            ServletException, Exception {
         byte[] base64Decode = PostBindingUtil.base64Decode(authnRequest);
 
         AuthnRequestType art = new SAML2Request().getAuthnRequestType(new ByteArrayInputStream(base64Decode));
-
-        IDPWebBrowserSSOValve idpAuthenticator = createIDPAuthenticator();
 
         // now let's send the previous AuthnRequest to the IDP and authenticate an user. The IDP should return a valid and
         // signed SAML Response.
@@ -174,7 +265,8 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
         MockCatalinaRequest request = new MockCatalinaRequest();
 
         request.setRemoteAddr("http://localhost/sp");
-        request.setSession(new MockCatalinaSession());
+        request.setSession(this.idpSession);
+        request.setContext(this.idpContext);
         request.setParameter("SAMLRequest", samlMessage);
         request.setUserPrincipal(new GenericPrincipal(realm, "anil", "test"));
         request.setMethod("POST");
@@ -255,39 +347,131 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
         return samlResponse;
     }
 
-    private IDPWebBrowserSSOValve createIDPAuthenticator() throws LifecycleException {
+    /**
+     * <p>
+     * Changes the provided SAML Response document to wrap a bad SAML assertion.
+     * </p>
+     * 
+     * @param samlIDPResponse
+     * @return
+     * @throws ConfigurationException
+     * @throws ProcessingException
+     * @throws ParsingException
+     */
+    private Document replaceWithBadAssertion(Document samlResponse) throws Exception {
+        // now let's change the response document and wrap a another SAML assertion
+
+        Element originalAssertion = (Element) samlResponse.getElementsByTagNameNS("urn:oasis:names:tc:SAML:2.0:assertion",
+                "Assertion").item(0);
+
+        originalAssertion.getParentNode().removeChild(originalAssertion);
+
+        // let's load a forged assertion
+        String fileName = "saml2-wrapping-attack.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(fileName);
+        Document evilAssertion = DocumentUtil.getDocument(is);
+
+        System.out.println(DocumentUtil.asString(evilAssertion));
+
+        // let's wrap the forged assertion into the original document.
+        Element element = evilAssertion.getDocumentElement();
+
+        Node adoptNode = samlResponse.adoptNode(element);
+
+        samlResponse.getDocumentElement().appendChild(adoptNode);
+
+        System.out.println(DocumentUtil.asString(samlResponse));
+
+        return samlResponse;
+    }
+
+    /**
+     * <p>
+     * Changes the provided SAML Response document to wrap a bad SAML assertion.
+     * </p>
+     * 
+     * @param samlIDPResponse
+     * @return
+     * @throws ConfigurationException
+     * @throws ProcessingException
+     * @throws ParsingException
+     */
+    private Document wrapBadAssertionBeforeOriginal(Document samlResponse) throws Exception {
+        // now let's change the response document and wrap a another SAML assertion
+
+        Element originalAssertion = (Element) samlResponse.getElementsByTagNameNS("urn:oasis:names:tc:SAML:2.0:assertion",
+                "Assertion").item(0);
+
+        // let's load a forged assertion
+        String fileName = "saml2-wrapping-attack.xml";
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream is = tcl.getResourceAsStream(fileName);
+        Document evilAssertion = DocumentUtil.getDocument(is);
+
+        System.out.println(DocumentUtil.asString(evilAssertion));
+
+        // let's wrap the forged assertion into the original document.
+        Element element = evilAssertion.getDocumentElement();
+
+        Node adoptNode = samlResponse.adoptNode(element);
+
+        originalAssertion.getParentNode().insertBefore(adoptNode, originalAssertion);
+
+        System.out.println(DocumentUtil.asString(samlResponse));
+
+        return samlResponse;
+    }
+
+    /**
+     * <p>
+     * Creates and start a {@link IDPWebBrowserSSOValve} instance.
+     * </p>
+     * 
+     * @param supportsSignatures indicates if the authenticator supports signatures or not.
+     * @return
+     */
+    private IDPWebBrowserSSOValve createIDPAuthenticator(boolean supportsSignatures) throws Exception {
         IDPWebBrowserSSOValve idpAuthenticator = new IDPWebBrowserSSOValve();
 
         IDPType idpType = new IDPType();
 
         idpType.setIdentityURL("http://localhost/idp");
-        idpType.setSupportsSignature(true);
+        idpType.setSupportsSignature(supportsSignatures);
 
-        idpAuthenticator.setConfigProvider(new MockSAMLConfiguratoinProvider(idpType));
-        idpAuthenticator.setContainer(new MockCatalinaContext());
+        idpAuthenticator.setConfigProvider(new MockSAMLConfigurationProvider(idpType));
+        idpAuthenticator.setContainer(this.idpContext);
 
         idpAuthenticator.start();
+
         return idpAuthenticator;
     }
 
-    private ServiceProviderAuthenticator createSPAuthenticator() throws LifecycleException {
+    /**
+     * <p>
+     * Creates and start a {@link ServiceProviderAuthenticator} instance.
+     * </p>
+     * 
+     * @param supportsSignatures indicates if the authenticator supports signatures or not.
+     * @return
+     */
+    private ServiceProviderAuthenticator createSPAuthenticator(boolean supportsSignatures) throws Exception {
         ServiceProviderAuthenticator spAuthenticator = new ServiceProviderAuthenticator();
 
         SPType spType = new SPType();
 
         spType.setBindingType("POST");
         spType.setIdentityURL("http://localhost/idp");
-        spType.setSupportsSignature(true);
+        spType.setSupportsSignature(supportsSignatures);
 
         spType.setServiceURL("http://localhost/sp");
 
-        spAuthenticator.setConfigProvider(new MockSAMLConfiguratoinProvider(spType));
-        
-        MockCatalinaContext servletContext = new MockCatalinaContext();
-        
-        spAuthenticator.setContainer(servletContext);
+        spAuthenticator.setConfigProvider(new MockSAMLConfigurationProvider(spType));
+
+        spAuthenticator.setContainer(this.spContext);
 
         spAuthenticator.testStart();
+
         return spAuthenticator;
     }
 }

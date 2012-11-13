@@ -38,11 +38,11 @@ import org.picketlink.identity.federation.web.config.AbstractSAMLConfigurationPr
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class MockSAMLConfiguratoinProvider extends AbstractSAMLConfigurationProvider {
+public class MockSAMLConfigurationProvider extends AbstractSAMLConfigurationProvider {
     
     private ProviderType providerType;
 
-    public MockSAMLConfiguratoinProvider(ProviderType providerType) {
+    public MockSAMLConfigurationProvider(ProviderType providerType) {
         this.providerType = providerType;
     }
 
@@ -97,10 +97,10 @@ public class MockSAMLConfiguratoinProvider extends AbstractSAMLConfigurationProv
         picketLinkType.setHandlers(new Handlers());
 
         picketLinkType.getHandlers().add(createHandler("org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler"));
+        picketLinkType.getHandlers().add(createHandler("org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler"));
         picketLinkType.getHandlers().add(createHandler("org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler"));
         picketLinkType.getHandlers().add(createHandler("org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler"));
         picketLinkType.getHandlers().add(createHandler("org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler"));
-        picketLinkType.getHandlers().add(createHandler("org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler"));
 
         return picketLinkType;
     }
