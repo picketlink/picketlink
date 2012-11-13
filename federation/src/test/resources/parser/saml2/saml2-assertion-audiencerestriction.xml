@@ -1,0 +1,48 @@
+<saml2:Assertion xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion"
+	ID="ID_cf9efbf0-9d7f-4b4a-b77f-d83ecaafd374" IssueInstant="2010-09-30T19:13:37.911Z"
+	Version="2.0">
+	<saml2:Issuer>Test STS</saml2:Issuer>
+	<saml2:Subject>
+		<saml2:NameID NameQualifier="urn:picketlink:identity-federation">jduke</saml2:NameID>
+		<saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer" />
+	</saml2:Subject>
+	<saml2:Conditions NotBefore="2010-09-30T19:13:37.911Z"
+		NotOnOrAfter="2010-09-30T21:13:37.911Z">
+		<saml2:AudienceRestriction>
+			<saml2:Audience>http://services.testcorp.org/provider2
+			</saml2:Audience>
+		</saml2:AudienceRestriction>
+	</saml2:Conditions>
+	<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+		<ds:SignedInfo>
+			<ds:CanonicalizationMethod
+				Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" />
+			<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmlds#rsa-sha1" />
+			<ds:Reference URI="#ID_cf9efbf0-9d7f-4b4a-b77f-d83ecaafd374">
+				<ds:Transforms>
+					<ds:Transform Algorithm="http://www.w3.org/2000/09/xmlds#enveloped-signature" />
+					<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</ds:Transforms>
+				<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmlds#sha1" />
+				<ds:DigestValue>TMZdBOA0MvR7aNpCAg2CXggkdZc=</ds:DigestValue>
+			</ds:Reference>
+		</ds:SignedInfo>
+		<ds:SignatureValue>
+			Q8mEzGWlnWmSmb+KUkP0wju4LOINaUYXBBXNF5vRhYVBixSUe8HSHKzNIdQ+ZGtijaV1vh0LUFbT
+			//faZKyHRgPXtskDn8cJTVT6obp7rUIOCKMoCs5p9/bUAbtaQHYjfWpifdT3PaTdlehpS8INK2P0
+			JUQYU3q8F3u7je9VHbA=
+          </ds:SignatureValue>
+		<ds:KeyInfo>
+			<ds:KeyValue>
+				<ds:RSAKeyValue>
+					<ds:Modulus>
+						suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
+						dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
+						lYGGtrP5VQv00dfNPbs=
+                </ds:Modulus>
+					<ds:Exponent>AQAB</ds:Exponent>
+				</ds:RSAKeyValue>
+			</ds:KeyValue>
+		</ds:KeyInfo>
+	</ds:Signature>
+</saml2:Assertion>

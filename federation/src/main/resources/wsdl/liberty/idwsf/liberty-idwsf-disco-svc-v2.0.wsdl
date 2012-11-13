@@ -1,0 +1,219 @@
+<?xml version="1.0"?>
+<definitions name="disco-svc" 
+  targetNamespace="urn:liberty:disco:2006-08" 
+  xmlns:tns="urn:liberty:disco:2006-08" 
+  xmlns="http://schemas.xmlsoap.org/wsdl/" 
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+  xmlns:sb="urn:liberty:sb:2006-08"
+  xmlns:wsaw="http://www.w3.org/2006/02/addressing/wsdl"
+  xmlns:disco="urn:liberty:disco:2006-08"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/ 
+                      http://schemas.xmlsoap.org/wsdl/ 
+      http://www.w3.org/2006/02/addressing/wsdl 
+      http://www.w3.org/2006/02/addressing/wsdl/ws-addr-wsdl.xsd">
+
+    <xsd:documentation>
+The source code in this WSDL file was excerpted verbatim from:
+
+Liberty ID-WSF Discovery Service Specification
+Version 2.0-errata-v1.0
+29 November, 2006
+
+Copyright (c) 2007 Liberty Alliance participants, see
+http://projectliberty.org/resource_center/specifications/liberty_alliance_id_wsf_2_0_specifications/idwsf_feb_copyrights
+
+    </xsd:documentation>
+
+  <types>
+    <xsd:schema>
+      <xsd:import namespace="urn:liberty:disco:2006-08"
+                  schemaLocation="liberty-idwsf-disco-svc-v2.0.xsd"/>
+    </xsd:schema>
+  </types>
+
+  <message name="Query">
+    <part name="body" element="disco:Query"/>
+  </message>
+  <message name="QueryResponse">
+    <part name="body" element="disco:QueryResponse"/>
+  </message>
+
+  <message name="SvcMDAssociationAdd">
+    <part name="body" element="disco:SvcMDAssociationAdd"/>
+  </message>
+  <message name="SvcMDAssociationAddResponse">
+    <part name="body" element="disco:SvcMDAssociationAddResponse"/>
+  </message>
+
+  <message name="SvcMDAssociationQuery">
+    <part name="body" element="disco:SvcMDAssociationQuery"/>
+  </message>
+  <message name="SvcMDAssociationQueryResponse">
+    <part name="body" element="disco:SvcMDAssociationQueryResponse"/>
+  </message>
+
+  <message name="SvcMDAssociationDelete">
+    <part name="body" element="disco:SvcMDAssociationDelete"/>
+  </message>
+  <message name="SvcMDAssociationDeleteResponse">
+    <part name="body" element="disco:SvcMDAssociationDeleteResponse"/>
+  </message>
+
+  <message name="SvcMDRegister">
+    <part name="body" element="disco:SvcMDRegister"/>
+  </message>
+  <message name="SvcMDRegisterResponse">
+    <part name="body" element="disco:SvcMDRegisterResponse"/>
+  </message>
+
+  <message name="SvcMDQuery">
+    <part name="body" element="disco:SvcMDQuery"/>
+  </message>
+  <message name="SvcMDQueryResponse">
+    <part name="body" element="disco:SvcMDQueryResponse"/>
+  </message>
+
+  <message name="SvcMDReplace">
+    <part name="body" element="disco:SvcMDReplace"/>
+  </message>
+  <message name="SvcMDReplaceResponse">
+    <part name="body" element="disco:SvcMDReplaceResponse"/>
+  </message>
+
+  <message name="SvcMDDelete">
+    <part name="body" element="disco:SvcMDDelete"/>
+  </message>
+  <message name="SvcMDDeleteResponse">
+    <part name="body" element="disco:SvcMDDeleteResponse"/>
+  </message>
+
+
+  <portType name="DiscoveryPort">
+
+    <operation name="DiscoveryQuery">
+      <input message="tns:Query"
+         wsaw:Action="urn:liberty:disco:2006-08:Query" />
+      <output message="tns:QueryResponse"
+        wsaw:Action="urn:liberty:disco:2006-08:QueryResponse" />
+    </operation>
+
+    <operation name="MDAssociationAdd">
+      <input message="tns:SvcMDAssociationAdd"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDAssociationAdd" />
+      <output message="tns:SvcMDAssociationAddResponse"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDAssociationAddResponse" />
+    </operation>
+
+    <operation name="MDAssociationQuery">
+      <input message="tns:SvcMDAssociationQuery"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDAssociationQuery" />
+      <output message="tns:SvcMDAssociationQueryResponse"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDAssociationQueryResponse"/>
+    </operation>
+
+    <operation name="MDAssociationDelete">
+      <input message="tns:SvcMDAssociationDelete"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDAssociationDelete" />
+      <output message="tns:SvcMDAssociationDeleteResponse"
+       wsaw:Action="urn:liberty:disco:2006-08:SvcMDAssociationDeleteResponse"/>
+    </operation>
+
+    <operation name="MetadataRegister">
+      <input message="tns:SvcMDRegister"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDRegister" />
+      <output message="tns:SvcMDRegisterResponse"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDRegisterResponse" />
+    </operation>
+
+    <operation name="MetadataQuery">
+      <input message="tns:SvcMDQuery"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDQuery" />
+      <output message="tns:SvcMDQueryResponse"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDQueryResponse" />
+    </operation>
+
+    <operation name="MetadataReplace">
+      <input message="tns:SvcMDReplace"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDReplace" />
+      <output message="tns:SvcMDReplaceResponse"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDReplaceResponse" />
+    </operation>
+
+    <operation name="MetadataDelete">
+      <input message="tns:SvcMDDelete"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDDelete" />
+      <output message="tns:SvcMDDeleteResponse"
+        wsaw:Action="urn:liberty:disco:2006-08:SvcMDDeleteResponse" />
+    </operation>
+
+
+  </portType>
+
+  <!--
+  An example of a binding and service that can be used with this
+  abstract service description is provided below.
+  -->
+
+  <binding name="DiscoveryBinding" type="tns:DiscoveryPort">
+
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    
+    <operation name="DiscoveryQuery">
+      <input> <soap:body use="literal"/> </input>
+      <output> <soap:body use="literal"/> </output>
+    </operation>
+    
+    <operation name="MDAssociationAdd">
+      <input> <soap:body use="literal"/> </input>
+      <output> <soap:body use="literal"/> </output>
+    </operation>
+
+
+    <operation name="MDAssociationQuery">
+      <input> <soap:body use="literal"/> </input>
+      <output> <soap:body use="literal"/> </output>
+    </operation>
+
+    <operation name="MDAssociationDelete">
+      <input> <soap:body use="literal"/> </input>
+      <output> <soap:body use="literal"/> </output>
+    </operation>
+
+    <operation name="MetadataRegister">
+      <input> <soap:body use="literal"/> </input>
+      <output> <soap:body use="literal"/> </output>
+    </operation>
+
+    <operation name="MetadataQuery">
+      <input> <soap:body use="literal"/> </input>
+      <output> <soap:body use="literal"/> </output>
+    </operation>
+
+    <operation name="MetadataReplace">
+      <input> <soap:body use="literal"/> </input>
+      <output> <soap:body use="literal"/> </output>
+    </operation>
+
+    <operation name="MetadataDelete">
+      <input> <soap:body use="literal"/> </input>
+      <output> <soap:body use="literal"/> </output>
+    </operation>
+
+
+  </binding>
+
+  <service name="DiscoveryService">
+
+    <port name="DiscoveryPort" binding="tns:DiscoveryBinding">
+      
+      <!-- Modify with the REAL SOAP endpoint -->
+      
+      <soap:address location="http://example.com/discovery"/>
+      
+    </port>
+
+  </service>
+
+</definitions>

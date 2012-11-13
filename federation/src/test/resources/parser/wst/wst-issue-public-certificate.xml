@@ -1,0 +1,15 @@
+<wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Context="testcontext">
+  <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
+  <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+      <wsa:Address>http://services.testcorp.org/provider2</wsa:Address>
+    </wsa:EndpointReference>
+  </wsp:AppliesTo>
+  <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey</wst:KeyType>
+  <wst:UseKey>
+    <ds:X509Certificate xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+MIICVDCCAb0CBEn2ANAwDQYJKoZIhvcNAQEEBQAwcTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkZMMQ4wDAYDVQQHEwVNaWFtaTESMBAGA1UEChMJVGVjaG5vYnVnMRQwEgYDVQQLEwtTYW1wbGUgVW5pdDEbMBkGA1UEAxMSU2VydmljZSBQcm92aWRlciAxMB4XDTA5MDQyNzE5MDAzMloXDTA5MDcyNjE5MDAzMlowcTELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkZMMQ4wDAYDVQQHEwVNaWFtaTESMBAGA1UEChMJVGVjaG5vYnVnMRQwEgYDVQQLEwtTYW1wbGUgVW5pdDEbMBkGA1UEAxMSU2VydmljZSBQcm92aWRlciAxMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC1yAvTR3PaBfYU77dznEb6PRPJWwAn3XDvp1kIObmaV2rkDwb+8dDkS2Y0pfl52ubKKK82kg/PA6GeL1c0/MCGCRnrZdCaQgKW/Tj+jh1SzZdLlMdBxYuV39jRUXoHJYgfhm7FZjew2SXo40T/qbeKYGhBS6D1tDPngxU1umB/hwIDAQABMA0GCSqGSIb3DQEBBAUAA4GBAK33IhDY8BGFf5A4gk4iQ8pOpfxq7khBerj5+5VaW5fdxbfs9vIpD2lLNkk0OnIEs5cd7ERqi2W7pb/M4yHVJ2/09JqAqVEbZYW/Gi88ZrxdfPexP5F9SnHkRwdMNPAV/XUXc0m6Jw44t02xzrgOVRyOaLE+X1Wvb1YWpLkgIua2
+    </ds:X509Certificate>
+  </wst:UseKey>
+</wst:RequestSecurityToken>
+

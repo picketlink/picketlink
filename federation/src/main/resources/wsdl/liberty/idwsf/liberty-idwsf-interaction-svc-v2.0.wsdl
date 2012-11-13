@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<definitions
+    name="id-wsf-is_2006-08_wsdl_interface"
+    targetNamespace="urn:liberty:is:2006-08"
+    xmlns:tns="urn:liberty:is:2006-08"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsaw="http://www.w3.org/2006/02/addressing/wsdl"
+    xmlns:is="urn:liberty:is:2006-08"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/
+                        http://schemas.xmlsoap.org/wsdl/
+        http://www.w3.org/2006/02/addressing/wsdl
+        http://www.w3.org/2006/02/addressing/wsdl/ws-addr-wsdl.xsd">
+
+    <xsd:documentation>
+The source code in this WSDL file was excerpted verbatim from: 
+
+Liberty ID-WSF Interaction Service Specification
+Version 2.0-errata-v1.0
+21 April, 2007
+
+Copyright (c) 2007 Liberty Alliance participants, see
+http://projectliberty.org/resource_center/specifications/liberty_alliance_id_wsf_2_0_specifications/idwsf_feb_copyrights
+
+    </xsd:documentation>
+
+    <types>
+        <xsd:import namespace="urn:liberty:is:2006-08" 
+                    schemaLocation="liberty-idwsf-interaction-svc-v2.0.xsd"/>
+    </types>
+
+    <!-- Messages -->
+
+    <message name="InteractionRequest">
+        <part name="body" type="is:InteractionRequest"/>
+    </message>
+
+    <message name="InteractionResponse">
+        <part name="body" type="is:InteractionResponse"/>
+    </message>
+
+    <!-- Port Type -->
+
+    <portType name="ISPort">
+        <operation name="ISInteraction">
+            <input message="tns:InteractionRequest"
+                wsaw:Action="urn:liberty:is:2006-08:InteractionRequest"/>
+            <output message="tns:InteractionResponse"
+                wsaw:Action="urn:liberty:is:2006-08:InteractionResponse"/>
+        </operation>
+    </portType>
+
+  <!--
+  An example of a binding and service that can be used with this
+  abstract service description is provided below.
+  -->
+
+    <binding name="ISBinding" type="tns:ISPort">
+
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <operation name="Interaction">
+            <soap:operation soapAction="urn:liberty:is:2006-08:Interaction"/>
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+    </binding>
+
+    <service name="InteractionService">
+        <port name="ISPort" binding="tns:ISBinding">
+
+         <!-- Modify with the REAL SOAP endpoint -->
+
+            <soap:address location="http://example.com/id-wsf/is"/>
+        </port>
+    </service>
+
+</definitions>

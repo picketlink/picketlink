@@ -1,0 +1,16 @@
+<jboss-web>
+  <security-domain>idp</security-domain>
+  <context-root>idp</context-root>
+  <valve>
+     <class-name>org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve</class-name>
+     <param>
+        <param-name>signOutgoingMessages</param-name>
+        <param-value>false</param-value>
+     </param>
+     <param>
+        <param-name>ignoreIncomingSignatures</param-name>
+        <param-value>true</param-value>
+     </param>
+   </valve>
+
+</jboss-web>

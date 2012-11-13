@@ -1,0 +1,9 @@
+<wst:RequestSecurityTokenResponseCollection xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+   <wst:RequestSecurityTokenResponse Context="validatecontext">
+      <wst:TokenType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status</wst:TokenType>
+      <wst:Status>
+         <wst:Code>http://docs.oasis-open.org/ws-sx/ws-trust/200512/status/valid</wst:Code>
+         <wst:Reason>SAMLV2.0 Assertion successfuly validated</wst:Reason>
+      </wst:Status>
+   </wst:RequestSecurityTokenResponse>
+</wst:RequestSecurityTokenResponseCollection>

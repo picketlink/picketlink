@@ -1,0 +1,45 @@
+<wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Context="cancelcontext">
+  <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Cancel</wst:RequestType>
+  <wst:CancelTarget>
+    <saml2:Assertion ID="ID_cb1eadf5-50a6-4fdf-96bc-412514f52882" IssueInstant="2010-09-30T19:13:37.603Z" Version="2.0"
+        xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+      <saml2:Issuer>Test STS</saml2:Issuer>
+      <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:SignedInfo>
+          <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/>
+          <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmlds#rsa-sha1"/>
+          <ds:Reference URI="#ID_cb1eadf5-50a6-4fdf-96bc-412514f52882">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2000/09/xmlds#enveloped-signature"/>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmlds#sha1"/>
+            <ds:DigestValue >KaqeDCxTv3d8Xp646yGGAF7Kxw0=</ds:DigestValue>
+          </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>
+rkl4IPZ1slJVbCUI39D0bKp/OvIGrU7FqigVORbl18gbVXcO7RLiubPefhc9xm2gG+YQ5itF4Az0
+xcqVuphJumo9tOG1czwS61JlKGabvFumL1DDV5V3oa0iIAw5GhXs7ZLs70eDj3CM3WVlD8vBgjy9
+xP7h9NFumidraXsFK9Q=
+        </ds:SignatureValue>
+        <ds:KeyInfo>
+          <ds:KeyValue>
+            <ds:RSAKeyValue>
+              <ds:Modulus>
+suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
+dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
+lYGGtrP5VQv00dfNPbs=
+              </ds:Modulus>
+              <ds:Exponent>AQAB</ds:Exponent>
+            </ds:RSAKeyValue>
+          </ds:KeyValue>
+        </ds:KeyInfo>
+      </ds:Signature>
+      <saml2:Subject>
+        <saml2:NameID NameQualifier="urn:picketlink:identity-federation">jduke</saml2:NameID>
+        <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+      </saml2:Subject>
+      <saml2:Conditions NotBefore="2010-09-30T19:13:37.603Z" NotOnOrAfter="2010-09-30T21:13:37.603Z"/>
+    </saml2:Assertion>
+  </wst:CancelTarget>
+</wst:RequestSecurityToken>

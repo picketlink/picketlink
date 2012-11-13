@@ -1,0 +1,46 @@
+<wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Context="validatecontext">
+  <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Validate</wst:RequestType>
+  <wst:TokenType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status</wst:TokenType>
+  <wst:ValidateTarget>
+    <saml2:Assertion ID="ID_654b6092-c725-40ea-8044-de453b59cb28" IssueInstant="2010-09-30T19:13:37.186Z" Version="2.0"
+        xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+      <saml2:Issuer>Test STS</saml2:Issuer>
+      <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:SignedInfo>
+          <ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/>
+          <ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmlds#rsa-sha1"/>
+          <ds:Reference URI="#ID_c63aec28-2234-41f4-97da-a8b2a4d97a22">
+            <ds:Transforms>
+              <ds:Transform Algorithm="http://www.w3.org/2000/09/xmlds#enveloped-signature"/>
+              <ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+            </ds:Transforms>
+            <ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmlds#sha1"/>
+            <ds:DigestValue>vLs6l7ECkKmthkW9/WR11mwhQDY=</ds:DigestValue>
+          </ds:Reference>
+        </ds:SignedInfo>
+        <ds:SignatureValue>
+lm6qC8xGp+BYFYmxV96xWT5nQ/97cvbKFpsOt8tWpJblVL6f/PpEkTxk8zYIF2Wz0zCseqyOQeFC
+0agSExcJulle6HAL5/4CHSR+MxQtXxUqNdAH4bQIFbPKzchRlkxZEy5u+OTt+iON/fLbtHCiEAk8
+m7elK6x1NYQ56RhTR0Q=
+        </ds:SignatureValue>
+        <ds:KeyInfo>
+          <ds:KeyValue>
+            <ds:RSAKeyValue>
+              <ds:Modulus>
+suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
+dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
+lYGGtrP5VQv00dfNPbs=
+              </ds:Modulus>
+              <ds:Exponent>AQAB</ds:Exponent>
+            </ds:RSAKeyValue>
+          </ds:KeyValue>
+        </ds:KeyInfo>
+      </ds:Signature>
+      <saml2:Subject>
+        <saml2:NameID NameQualifier="urn:picketlink:identity-federation">jduke</saml2:NameID>
+        <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+      </saml2:Subject>
+      <saml2:Conditions NotBefore="2010-09-30T19:13:37.186Z" NotOnOrAfter="2010-09-30T21:13:37.186Z"/>
+    </saml2:Assertion>
+  </wst:ValidateTarget>
+</wst:RequestSecurityToken>

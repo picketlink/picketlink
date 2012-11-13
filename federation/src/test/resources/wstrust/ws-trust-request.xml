@@ -1,0 +1,4 @@
+<wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Context="testcontext">
+   <wst:TokenType>http://www.tokens.org/SpecialToken</wst:TokenType>
+   <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
+</wst:RequestSecurityToken>

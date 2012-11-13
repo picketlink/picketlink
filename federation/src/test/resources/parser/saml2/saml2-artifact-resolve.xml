@@ -1,0 +1,42 @@
+<samlp:ArtifactResolve
+   xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+   xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+   ID="ID_cce4ee769ed970b501d680f697989d14"
+   Version="2.0"
+   IssueInstant="2004-12-05T09:21:58Z"
+   Destination="https://sp.example.com/SAML2/ArtifactResolution">
+   <saml:Issuer>https://idp.example.org/SAML2</saml:Issuer>
+   <ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+		<ds:SignedInfo>
+			<ds:CanonicalizationMethod
+				Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" />
+			<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmlds#rsa-sha1" />
+			<ds:Reference URI="#ID_ab0392ef-b557-4453-95a8-a7e168da8ac5">
+				<ds:Transforms>
+					<ds:Transform Algorithm="http://www.w3.org/2000/09/xmlds#enveloped-signature" />
+					<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</ds:Transforms>
+				<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmlds#sha1" />
+				<ds:DigestValue>0Y9QM5c5qCShz5UWmbFzBmbuTus=</ds:DigestValue>
+			</ds:Reference>
+		</ds:SignedInfo>
+		<ds:SignatureValue>
+			se/flQ2htUQ0IUYieVkXNn9cfjnfgv6H99nFarsTNTpRI9xuSlw5OTai/2PYdZI2Va9+QzzBf99m
+			VFyigfFdfrqug6aKFhF0lsujzlFfPfmXBbDRiTFX+4SkBeV71uuy7rOUI/jRiitEA0QrKqs0e/pV
+			+C8PoaariisK96Mtt7A=
+          </ds:SignatureValue>
+		<ds:KeyInfo>
+			<ds:KeyValue>
+				<ds:RSAKeyValue>
+					<ds:Modulus>
+						suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
+						dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
+						lYGGtrP5VQv00dfNPbs=
+                </ds:Modulus>
+					<ds:Exponent>AQAB</ds:Exponent>
+				</ds:RSAKeyValue>
+			</ds:KeyValue>
+		</ds:KeyInfo>
+	</ds:Signature>
+   <samlp:Artifact>AAQAAMh48/1oXIM+sDo7Dh2qMp1HM4IF5DaRNmDj6RdUmllwn9jJHyEgIi8=</samlp:Artifact>
+ </samlp:ArtifactResolve>

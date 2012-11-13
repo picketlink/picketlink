@@ -1,0 +1,20 @@
+<wst:RequestSecurityToken
+	xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+	<wst:SecondaryParameters>
+		<trust:TokenType xmlns:trust="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+			urn:oasis:names:tc:SAML:2.0:assertion
+		</trust:TokenType>
+	</wst:SecondaryParameters>
+	<wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue
+	</wst:RequestType>
+	<wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/SymmetricKey
+	</wst:KeyType>
+	<wst:KeySize>256</wst:KeySize>
+	<wst:Entropy>
+		<wst:BinarySecret
+			Type="http://docs.oasis-open.org/ws-sx/ws-trust/200512/Nonce">IwQnJtnT6rioPQRuoOq2vj+lME/xvDy+ZXkRR7dxRTk=
+		</wst:BinarySecret>
+	</wst:Entropy>
+	<wst:ComputedKeyAlgorithm>http://docs.oasis-open.org/ws-sx/ws-trust/200512/CK/PSHA1
+	</wst:ComputedKeyAlgorithm>
+</wst:RequestSecurityToken>

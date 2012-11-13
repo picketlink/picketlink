@@ -1,0 +1,44 @@
+<saml:Assertion xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion"
+	AssertionID="s69f7e2599d4eb0c548782432bf" IssueInstant="2006-05-24T05:52:32Z"
+	Issuer="http://jboss.org/test" MajorVersion="1" MinorVersion="1">
+	<saml:AuthenticationStatement
+		AuthenticationInstant="2006-05-24T05:52:30Z" AuthenticationMethod="urn:picketlink:auth">
+		<saml:Subject>
+			<saml:NameIdentifier>anil</saml:NameIdentifier>
+			<saml:SubjectConfirmation>
+				<saml:ConfirmationMethod>urn:oasis:names:tc:SAML:1.0:cm:holder-of-key
+				</saml:ConfirmationMethod>
+				<KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">
+					<KeyName>CN=anil, OU=PicketLink, O=JBoss, L=Chicago, ST=IL, C=US</KeyName>
+					<KeyValue>
+						<RSAKeyValue>
+							<Modulus>YWJjZA==</Modulus>
+							<Exponent>AQAB</Exponent>
+						</RSAKeyValue>
+					</KeyValue>
+				</KeyInfo>
+			</saml:SubjectConfirmation>
+		</saml:Subject>
+	</saml:AuthenticationStatement>
+	<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+		<SignedInfo>
+			<CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+			<SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+			<Reference URI="#s69f7e258e30da2b9b9f5799d4eb0c548782432bf">
+				<Transforms>
+					<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+					<Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</Transforms>
+				<DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+				<DigestValue>zdCY/1iqOMUJq/RvxsaDPWM4+7c=</DigestValue>
+			</Reference>
+		</SignedInfo>
+		<SignatureValue>ApcX/Ddfsfdslkfd</SignatureValue>
+		<KeyInfo>
+			<X509Data>
+				<X509Certificate>YWJjZA==
+				</X509Certificate>
+			</X509Data>
+		</KeyInfo>
+	</Signature>
+</saml:Assertion>

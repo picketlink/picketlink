@@ -1,0 +1,9 @@
+<wst:RequestSecurityTokenResponseCollection xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+   <wst:RequestSecurityTokenResponse Context="validatecontext">
+      <wst:TokenType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/RSTR/Status</wst:TokenType>
+      <wst:Status>
+         <wst:Code>http://docs.oasis-open.org/ws-sx/ws-trust/200512/status/invalid</wst:Code>
+         <wst:Reason>Validation failure: digital signature is invalid</wst:Reason>
+      </wst:Status>
+   </wst:RequestSecurityTokenResponse>
+</wst:RequestSecurityTokenResponseCollection>

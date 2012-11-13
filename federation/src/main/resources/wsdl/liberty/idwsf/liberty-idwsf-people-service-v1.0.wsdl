@@ -1,0 +1,341 @@
+<definitions
+    name="id-wsf-ps_2006-08_wsdl_interface"
+    targetNamespace="urn:liberty:ps:2006-08"
+    xmlns:tns="urn:liberty:ps:2006-08"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsaw="http://www.w3.org/2006/02/addressing/wsdl"
+    xmlns:ps="urn:liberty:ps:2006-08"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://schemas.xmlsoap.org/wsdl/
+        http://schemas.xmlsoap.org/wsdl/
+        http://www.w3.org/2006/02/addressing/wsdl
+        http://www.w3.org/2006/02/addressing/wsdl/ws-addr-wsdl.xsd">
+
+    <xsd:documentation>
+The source code in this WSDL file was excerpted verbatim from:
+
+Liberty ID-WSF People Service Specification
+Version 1.0-errata-v1.0
+06 March, 2007
+
+Copyright (c) 2007 Liberty Alliance participants, see
+http://projectliberty.org/resource_center/specifications/liberty_alliance_id_wsf_2_0_specifications/idwsf_feb_copyrights
+
+    </xsd:documentation>
+
+    <types>
+        <xsd:schema>
+            <xsd:import namespace="urn:liberty:ps:2006-08"
+            schemaLocation="liberty-idwsf-people-service-v1.0.xsd"/>
+        </xsd:schema>
+    </types>
+
+    <!-- Messages --> 
+
+    <!-- Adding a User -->
+
+    <message name="AddEntityRequest">
+        <part name="body" element="ps:AddEntityRequest"/>
+    </message>
+
+    <message name="AddEntityResponse">
+        <part name="body" element="ps:AddEntityResponse"/>
+    </message>
+
+    <!-- Adding a Known User -->
+
+    <message name="AddKnownEntityRequest">
+        <part name="body" element="ps:AddKnownEntityRequest"/>
+    </message>
+
+    <message name="AddKnownEntityResponse">
+        <part name="body" element="ps:AddKnownEntityResponse"/>
+    </message>
+
+
+    <!-- Removing a User -->
+
+    <message name="RemoveEntityRequest">
+        <part name="body" element="ps:RemoveEntityRequest"/>
+    </message>
+
+    <message name="RemoveEntityResponse">
+        <part name="body" element="ps:RemoveEntityResponse"/>
+    </message>
+
+    <!-- Adding a Group -->
+
+    <message name="AddCollectionRequest">
+        <part name="body" element="ps:AddCollectionRequest"/>
+    </message>
+
+    <message name="AddCollectionResponse">
+        <part name="body" element="ps:AddCollectionResponse"/>
+    </message>
+
+    <!-- Removing a Group -->
+
+    <message name="RemoveCollectionRequest">
+        <part name="body" element="ps:RemoveCollectionRequest"/>
+    </message>
+
+    <message name="RemoveCollectionResponse">
+        <part name="body" element="ps:RemoveCollectionResponse"/>
+    </message>
+
+    <!-- Adding to a Group -->
+
+    <message name="AddToCollectionRequest">
+        <part name="body" element="ps:AddToCollectionRequest"/>
+    </message>
+
+    <message name="AddToCollectionResponse">
+        <part name="body" element="ps:AddToCollectionResponse"/>
+    </message>
+
+    <!-- Removing From a Group -->
+
+    <message name="RemoveFromCollectionRequest">
+        <part name="body" element="ps:RemoveFromCollectionRequest"/>
+    </message>
+
+    <message name="RemoveFromCollectionResponse">
+        <part name="body" element="ps:RemoveFromCollectionResponse"/>
+    </message>
+
+    <!-- Listing Members -->
+
+    <message name="ListMembersRequest">
+        <part name="body" element="ps:ListMembersRequest"/>
+    </message>
+
+    <message name="ListMembersResponse">
+        <part name="body" element="ps:ListMembersResponse"/>
+    </message>
+
+    <!-- Retrieving Object Info -->
+
+    <message name="GetObjectInfoRequest">
+        <part name="body" element="ps:GetObjectInfoRequest"/>
+    </message>
+
+    <message name="GetObjectInfoResponse">
+        <part name="body" element="ps:GetObjectInfoResponse"/>
+    </message>
+
+    <!-- Updating Object Info -->
+
+    <message name="SetObjectInfoRequest">
+        <part name="body" element="ps:SetObjectInfoRequest"/>
+    </message>
+
+    <message name="SetObjectInfoResponse">
+        <part name="body" element="ps:SetObjectInfoResponse"/>
+    </message>
+
+    <!-- Querying Objects -->
+
+    <message name="QueryObjectsRequest">
+        <part name="body" element="ps:QueryObjectsRequest"/>
+    </message>
+
+    <message name="QueryObjectsResponse">
+        <part name="body" element="ps:QueryObjectsResponse"/>
+    </message>
+
+    <!-- Testing Membership -->
+
+    <message name="TestMembershipRequest">
+        <part name="body" element="ps:TestMembershipRequest"/>
+    </message>
+
+    <message name="TestMembershipResponse">
+        <part name="body" element="ps:TestMembershipResponse"/>
+    </message>
+
+    <!-- Resolving Identifiers -->
+
+    <message name="ResolveIdentifierRequest">
+        <part name="body" element="ps:ResolveIdentifierRequest"/>
+    </message>
+
+    <message name="ResolveIdentifierResponse">
+        <part name="body" element="ps:ResolveIdentifierResponse"/>
+    </message>
+
+    <!-- Port Type -->
+
+    <portType name="LibertyPS1">
+
+        <operation name="AddEntity">
+            <input message="tns:AddEntityRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:AddEntityRequest"/>
+            <output message="tns:AddEntityResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:AddEntityResponse"/>
+        </operation>
+
+        <operation name="AddKnownEntity">
+            <input message="tns:AddKnownEntityRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:AddKnownEntityRequest"/>
+            <output message="tns:AddKnownEntityResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:AddKnownEntityResponse"/>
+        </operation>
+
+        <operation name="RemoveEntity">
+            <input message="tns:RemoveEntityRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:RemoveEntityRequest"/>
+            <output message="tns:RemoveEntityResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:RemoveEntityResponse"/>
+        </operation>
+
+        <operation name="AddCollection">
+            <input message="tns:AddCollectionRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:AddCollectionRequest"/>
+            <output message="tns:AddCollectionResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:AddCollectionResponse"/>
+        </operation>
+
+        <operation name="RemoveCollection">
+            <input message="tns:RemoveCollectionRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:RemoveCollectionRequest"/>
+            <output message="tns:RemoveCollectionResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:RemoveCollectionResponse"/>
+        </operation>
+
+        <operation name="AddToCollection">
+            <input message="tns:AddToCollectionRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:AddToCollectionRequest"/>
+            <output message="tns:AddToCollectionResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:AddToCollectionResponse"/>
+        </operation>
+
+        <operation name="RemoveFromCollection">
+            <input message="tns:RemoveFromCollectionRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:RemoveFromCollectionRequest"/>
+            <output message="tns:RemoveFromCollectionResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:RemoveFromCollectionResponse"/>
+        </operation>
+
+        <operation name="ListMembersOfCollection">
+            <input message="tns:ListMembersRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:ListMembersRequest"/>
+            <output message="tns:ListMembersResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:ListMembersResponse"/>
+        </operation>
+
+        <operation name="GetObjectInfo">
+            <input message="tns:GetObjectInfoRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:GetObjectInfoRequest"/>
+            <output message="tns:GetObjectInfoResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:GetObjectInfoResponse"/>
+        </operation>
+
+        <operation name="SetObjectInfo">
+            <input message="tns:SetObjectInfoRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:SetObjectInfoRequest"/>
+            <output message="tns:SetObjectInfoResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:SetObjectInfoResponse"/>
+        </operation>
+
+        <operation name="QueryObjects">
+            <input message="tns:QueryObjectsRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:QueryObjectsRequest"/>
+            <output message="tns:QueryObjectsResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:QueryObjectsResponse"/>
+        </operation>
+
+        <operation name="TestMembership">
+            <input message="tns:TestMembershipRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:TestMembershipRequest"/>
+            <output message="tns:TestMembershipResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:TestMembershipResponse"/>
+        </operation>
+
+        <operation name="ResolveIdentifier">
+            <input message="tns:ResolveIdentifierRequest"
+                wsaw:Action="urn:liberty:ps:2006-08:ResolveIdentifierRequest"/>
+            <output message="tns:ResolveIdentifierResponse"
+                wsaw:Action="urn:liberty:ps:2006-08:ResolveIdentifierResponse"/>
+        </operation>
+
+    </portType>
+
+  <!--
+  An example of a binding and service that can be used with this
+  abstract service description is provided below.
+  -->
+
+    <binding name="PeopleServiceSoapBinding" type="tns:LibertyPS1">
+
+        <soap:binding style="document"
+            transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <operation name="AddEntity">
+            <soap:operation/>
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+
+        <operation name="AddKnownEntity">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="RemoveEntity">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="AddCollection">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="RemoveCollection">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="AddToCollection">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="RemoveFromCollection">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="ListMembersOfCollection">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="GetObjectInfo">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="SetObjectInfo">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="QueryObjects">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="TestMembership">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+        <operation name="ResolveIdentifier">
+            <input>  <soap:body use="literal"/> </input>
+            <output> <soap:body use="literal"/> </output>
+        </operation>
+            
+    </binding>
+        
+    <service name="PeopleService">
+        <port name="PeoplePort" binding="ps:PeopleServiceSoapBinding">
+            
+            <!-- Modify with the REAL SOAP endpoint -->
+            
+            <soap:address location="http://example.com/peopleservice"/>
+        </port>
+    </service>
+
+</definitions>
