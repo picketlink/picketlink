@@ -1,0 +1,7 @@
+<wst:RequestSecurityTokenResponseCollection 
+	xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+   <wst:RequestSecurityTokenResponse Context="testcontext">
+      <wst:TokenType>http://www.tokens.org/SpecialToken</wst:TokenType>
+      <wst:Forwardable>false</wst:Forwardable>
+   </wst:RequestSecurityTokenResponse>
+</wst:RequestSecurityTokenResponseCollection>

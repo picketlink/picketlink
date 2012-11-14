@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema 
+    targetNamespace="urn:liberty:sa:2006-08" 
+    xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" 
+    xmlns:sa="urn:liberty:sa:2006-08" 
+    xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:samlp2="urn:oasis:names:tc:SAML:2.0:protocol"
+    xmlns:wsa="http://www.w3.org/2005/08/addressing" 
+    xmlns:lu="urn:liberty:util:2006-08"
+    xmlns="urn:liberty:sa:2006-08" 
+    elementFormDefault="qualified" 
+    attributeFormDefault="unqualified" 
+    version="09"
+    >
+
+  <xs:import 
+      namespace="http://www.w3.org/2005/08/addressing" 
+      schemaLocation="ws-addr-1.0.xsd"/>
+
+  <xs:import
+      namespace="urn:oasis:names:tc:SAML:2.0:protocol"
+      schemaLocation="saml-schema-protocol-2.0.xsd"/>
+
+  <xs:import namespace="urn:liberty:util:2006-08"
+        schemaLocation="liberty-idwsf-utility-v2.0.xsd"/>
+
+    <xs:annotation>
+        <xs:documentation>
+The source code in this schema file was excerpted verbatim from:
+
+Liberty ID-WSF Liberty ID-WSF Authentication, Single Sign-On, and Identity Mapping Services Specification
+Version 2.0-errata-v1.0
+28 November, 2006
+
+Copyright (c) 2007 Liberty Alliance participants, see
+http://projectliberty.org/resource_center/specifications/liberty_alliance_id_wsf_2_0_specifications/idwsf_feb_copyrights
+
+        </xs:documentation>
+    </xs:annotation>
+
+  <!-- SASLRequest and SASLResponse ID-* messages  --> 
+
+  <xs:element name="SASLRequest">
+      <xs:complexType>
+          <xs:sequence>
+
+              <xs:element name="Data" minOccurs="0">
+                  <xs:complexType>
+                      <xs:simpleContent>
+                          <xs:extension base="xs:base64Binary"/>
+                      </xs:simpleContent>
+                  </xs:complexType>
+              </xs:element>
+
+              <xs:element ref="samlp2:RequestedAuthnContext" minOccurs="0"/> 
+              
+               <xs:element name="Extensions" minOccurs="0">
+                   <xs:complexType>
+                       <xs:sequence>
+                           <xs:any namespace="##other" processContents="lax" maxOccurs="unbounded"/>
+                       </xs:sequence>
+                   </xs:complexType>
+               </xs:element>
+              
+          </xs:sequence>
+
+          <xs:attribute name="mechanism" 
+                        type="xs:string" 
+                        use="required"/>
+
+          <xs:attribute name="authzID" 
+                        type="xs:string" 
+                        use="optional"/>
+
+          <xs:attribute name="advisoryAuthnID" 
+                        type="xs:string" 
+                        use="optional"/>
+
+          <xs:anyAttribute namespace="##other" processContents="lax"/>
+
+      </xs:complexType>
+  </xs:element>
+
+  <xs:element name="SASLResponse">
+      <xs:complexType>
+          <xs:sequence>
+
+              <xs:element ref="lu:Status"/>
+
+              <xs:element ref="PasswordTransforms" minOccurs="0"/>
+
+              <xs:element name="Data" minOccurs="0">
+                  <xs:complexType>
+                      <xs:simpleContent>
+                          <xs:extension base="xs:base64Binary"/>
+                      </xs:simpleContent>
+                  </xs:complexType>
+              </xs:element>
+
+              <!-- ID-WSF EPRs  --> 
+              <xs:element ref="wsa:EndpointReference" 
+                          minOccurs="0" 
+                          maxOccurs="unbounded"/>
+
+           </xs:sequence> 
+
+           <xs:attribute name="serverMechanism" 
+                         type="xs:string" 
+                         use="optional"/>
+
+          <xs:anyAttribute namespace="##other" processContents="lax"/>
+          
+      </xs:complexType>
+  </xs:element>
+
+
+  <!-- Password Transformations  -->
+
+  <xs:element name="PasswordTransforms">
+
+      <xs:annotation>
+          <xs:documentation>
+              Contains ordered list of sequential password transformations
+          </xs:documentation>
+      </xs:annotation>
+
+      <xs:complexType>
+          <xs:sequence>
+
+              <xs:element name="Transform" maxOccurs="unbounded">
+                  <xs:complexType>
+                      <xs:sequence>
+
+                          <xs:element name="Parameter" 
+                                      minOccurs="0" 
+                                      maxOccurs="unbounded">
+                              <xs:complexType>
+                                  <xs:simpleContent>
+                                      <xs:extension base="xs:string">
+                                          <xs:attribute name="name" 
+                                                        type="xs:string" 
+                                                        use="required"/>
+                                      </xs:extension>
+                                  </xs:simpleContent>
+                              </xs:complexType>
+                          </xs:element>
+
+                      </xs:sequence>
+
+                      <xs:attribute name="name" 
+                                    type="xs:anyURI" 
+                                    use="required"/>
+
+                      <xs:anyAttribute namespace="##other" processContents="lax"/>
+                      
+                  </xs:complexType>
+              </xs:element>
+          </xs:sequence>
+      </xs:complexType>
+  </xs:element>
+
+</xs:schema>

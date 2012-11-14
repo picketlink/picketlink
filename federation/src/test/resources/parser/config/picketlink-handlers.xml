@@ -1,0 +1,12 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+	<Handlers xmlns="urn:picketlink:identity-federation:handler:config:2.1" ChainClass="org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChain">
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler" />
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler" />
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler" />
+		<Handler
+			class="org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler" />
+	</Handlers>
+</PicketLink>

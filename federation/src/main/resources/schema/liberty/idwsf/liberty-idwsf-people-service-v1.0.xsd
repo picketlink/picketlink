@@ -1,0 +1,547 @@
+<xs:schema
+    targetNamespace="urn:liberty:ps:2006-08"
+    xmlns="urn:liberty:ps:2006-08"
+    xmlns:lu="urn:liberty:util:2006-08"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:ims="urn:liberty:ims:2006-08"
+    xmlns:subs="urn:liberty:ssos:2006-08"
+    xmlns:sec="urn:liberty:security:2006-08"
+    xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+    <xs:import namespace="urn:liberty:util:2006-08" 
+        schemaLocation="liberty-idwsf-utility-v2.0.xsd"/>
+    <xs:import namespace="urn:liberty:ims:2006-08" 
+        schemaLocation="liberty-idwsf-idmapping-svc-v2.0.xsd"/>
+    <xs:import namespace="urn:liberty:ssos:2006-08" 
+        schemaLocation="liberty-idwsf-subs-v1.0.xsd"/>
+    <xs:import namespace="urn:liberty:security:2006-08" 
+        schemaLocation="liberty-idwsf-security-mechanisms-v2.0.xsd"/>
+    <xs:import namespace="urn:oasis:names:tc:SAML:2.0:protocol" 
+        schemaLocation="saml-schema-protocol-2.0.xsd"/>
+
+	<xs:annotation>
+		<xs:documentation>
+The source code in this XSD file was excerpted verbatim from:
+
+Liberty ID-WSF People Service Specification
+Version 1.0-errata-v1.0
+06 March, 2007
+
+Copyright (c) 2007 Liberty Alliance participants, see
+http://projectliberty.org/resource_center/specifications/liberty_alliance_id_wsf_2_0_specifications/idwsf_feb_copyrights
+
+		</xs:documentation>
+	</xs:annotation>
+
+    <!-- Definition of LocalizedDisplayNameType -->
+    <xs:complexType name="LocalizedDisplayNameType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="Locale" type="xs:language" use="optional"/>
+                <xs:attribute name="IsDefault" type="xs:boolean" use="optional"/>
+            </xs:extension>
+        </xs:simpleContent>        
+    </xs:complexType>
+    
+    <!-- Definition of TagType -->
+    <xs:complexType name="TagType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="Ref" type="xs:anyURI" use="required"/>
+            </xs:extension>
+        </xs:simpleContent>        
+    </xs:complexType>
+
+    <!-- Declaration of ObjectID element -->
+    <xs:element name="ObjectID" type="ObjectIDType"/>
+
+    <!-- Declaration of TargetObjectID element -->
+    <xs:element name="TargetObjectID" type="ObjectIDType"/>
+
+    <!-- Definition of ObjectIDType -->
+    <xs:complexType name="ObjectIDType">
+        <xs:simpleContent>
+          <xs:extension base="xs:anyURI"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Declaration of Object element -->
+    <xs:element name="Object" type="ObjectType"/>
+
+    <!-- Definition of ObjectType -->
+    <xs:complexType name="ObjectType">
+        <xs:sequence>
+            <xs:element ref="ObjectID" minOccurs="0"/>
+            <xs:element name="DisplayName" type="LocalizedDisplayNameType" 
+                minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="Tag" type="TagType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element ref="Object" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="ObjectRef" type="ObjectIDType" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="NodeType" type="xs:anyURI" use="required"/>
+        <xs:attribute name="CreatedDateTime" type="xs:dateTime" use="optional"/>
+        <xs:attribute name="ModifiedDateTime" type="xs:dateTime" use="optional"/>
+    </xs:complexType>
+
+    <!-- Declaration of PStoSPRedirectURL-->
+
+    <xs:element name="PStoSPRedirectURL" type="PStoSPRedirectURLType"/>
+
+    <!-- Definition of PStoSPRedirectURLType-->
+
+    <xs:complexType name="PStoSPRedirectURLType">
+        <xs:annotation>
+            <xs:documentation>
+                When sending a AddEntityRequest to a PS provider, 
+                the SP may insert a PStoSPRedirectURL. It will be 
+                to this URL that the invited principals will be 
+                sent after federating their IDP account to the PS 
+                provider.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:anyURI"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Declaration of SPtoPSRedirectURL-->
+
+    <xs:element name="SPtoPSRedirectURL" type="SPtoPSRedirectURLType"/>
+
+    <!-- Definition of SPtoPSRedirectURLType-->
+
+    <xs:complexType name="SPtoPSRedirectURLType">
+        <xs:annotation>
+            <xs:documentation>
+                A PS provider may insert a SPtoPSRedirectURL in its 
+                AddEntityResponse. It will be to this URL that the 
+                invited principal will be sent after responding to the 
+                invitation.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:anyURI"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Declaration of QueryString -->
+
+    <xs:element name="QueryString" type="QueryStringType"/>
+
+    <!-- Definition of QueryStringType-->
+
+    <xs:complexType name="QueryStringType">
+        <xs:annotation>
+            <xs:documentation>
+                A PS provider may insert a QueryString in its 
+                AddEntityResponse or AddKnownEntityResponse. The 
+                invited Principal can present this artifact string 
+                to a certain provider.
+            </xs:documentation>
+        </xs:annotation>
+        <xs:simpleContent>
+            <xs:extension base="xs:string"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Declaration of CreatePSObject element -->
+    <xs:element name="CreatePSObject"/>
+
+    <!-- Definition of RequestAbstractType -->
+    <xs:complexType name="RequestAbstractType" abstract="true">
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+
+    <!-- Definition of ResponseAbstractType -->
+    <xs:complexType name="ResponseAbstractType" abstract="true">
+    	<xs:sequence>
+            <xs:element ref="lu:Status"/>
+    	</xs:sequence>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:complexType>
+
+    <!-- Declaration of AddEntityRequest element -->
+    <xs:element name="AddEntityRequest" type="AddEntityRequestType"/>
+    <!-- Definition of AddEntityRequestType -->
+    <xs:complexType name="AddEntityRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object"/>
+                    <xs:element ref="PStoSPRedirectURL" minOccurs="0"/>
+                    <xs:element ref="CreatePSObject" minOccurs="0"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                    <xs:element ref="sec:TokenPolicy" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of AddEntityResponse element -->
+    <xs:element name="AddEntityResponse" type="AddEntityResponseType"/>
+    <!-- Definition of AddEntityResponseType -->
+    <xs:complexType name="AddEntityResponseType">
+        <xs:complexContent>
+            <xs:extension base="ResponseAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object" minOccurs="0"/>
+                    <xs:element ref="SPtoPSRedirectURL" minOccurs="0" maxOccurs="1"/>
+                    <xs:element ref="QueryString" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of AddKnownEntityRequest element -->
+    <xs:element name="AddKnownEntityRequest" type="AddKnownEntityRequestType"/>
+    <!-- Definition of AddKnownEntityRequestType -->
+    <xs:complexType name="AddKnownEntityRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object"/>
+                    <xs:element ref="sec:Token"/>
+                    <xs:element ref="CreatePSObject" minOccurs="0"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                    <xs:element ref="sec:TokenPolicy" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of AddKnownEntityResponse element -->
+    <xs:element name="AddKnownEntityResponse" type="AddKnownEntityResponseType"/>
+    <!-- Definition of AddKnownEntityResponseType -->
+    <xs:complexType name="AddKnownEntityResponseType">
+        <xs:complexContent>
+            <xs:extension base="ResponseAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object" minOccurs="0"/>
+                    <xs:element ref="SPtoPSRedirectURL" minOccurs="0" maxOccurs="1"/>
+                    <xs:element ref="QueryString" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of AddCollectionRequest element -->
+    <xs:element name="AddCollectionRequest" type="AddCollectionRequestType"/>
+    <!-- Definition of AddCollectionRequestType -->
+    <xs:complexType name="AddCollectionRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of AddCollectionResponse element -->
+    <xs:element name="AddCollectionResponse" type="AddCollectionResponseType"/>
+    <!-- Definition of AddCollectionResponseType -->
+    <xs:complexType name="AddCollectionResponseType">
+        <xs:complexContent>
+            <xs:extension base="ResponseAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of AddToCollectionRequest element -->
+    <xs:element name="AddToCollectionRequest" type="AddToCollectionRequestType"/>
+    <!-- Definition of AddToCollectionRequestType -->
+    <xs:complexType name="AddToCollectionRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="TargetObjectID"/>
+                    <xs:element ref="ObjectID" minOccurs="1" maxOccurs="unbounded"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of AddToCollectionResponse element -->
+    <xs:element name="AddToCollectionResponse" type="ResponseAbstractType"/>
+
+    <!-- Declaration of RemoveEntityRequest element -->
+    <xs:element name="RemoveEntityRequest" type="RemoveEntityRequestType"/>
+    <!-- Definition of RemoveEntityRequestType -->
+    <xs:complexType name="RemoveEntityRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="TargetObjectID" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of RemoveEntityResponse element -->
+    <xs:element name="RemoveEntityResponse" type="ResponseAbstractType"/>
+
+    <!-- Declaration of RemoveCollectionRequest element -->
+    <xs:element name="RemoveCollectionRequest" type="RemoveCollectionRequestType"/>
+    <!-- Definition of RemoveCollectionRequestType -->
+    <xs:complexType name="RemoveCollectionRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="TargetObjectID" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of RemoveCollectionResponse element -->
+    <xs:element name="RemoveCollectionResponse" type="ResponseAbstractType"/>
+
+    <!-- Declaration of RemoveFromCollectionRequest element -->
+    <xs:element name="RemoveFromCollectionRequest" type="RemoveFromCollectionRequestType"/>
+    <!-- Definition of RemoveFromCollectionRequestType -->
+    <xs:complexType name="RemoveFromCollectionRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="TargetObjectID"/>
+                    <xs:element ref="ObjectID" maxOccurs="unbounded"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of RemoveFromCollectionResponse element -->
+    <xs:element name="RemoveFromCollectionResponse" type="ResponseAbstractType"/>
+
+    <!-- Declaration of ListMembersRequest element -->
+    <xs:element name="ListMembersRequest" type="ListMembersRequestType"/>
+    <!-- Definition of ListMembersRequestType -->
+    <xs:complexType name="ListMembersRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="TargetObjectID" minOccurs="0"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attribute name="Structured" type="xs:anyURI" use="optional"/>
+                <xs:attribute name="Count" type="xs:nonNegativeInteger" use="optional"/>
+                <xs:attribute name="Offset" type="xs:nonNegativeInteger" default="0" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of ListMembersResponse element -->
+    <xs:element name="ListMembersResponse" type="ListMembersResponseType"/>
+    <!-- Definition of ListMembersResponseType -->
+    <xs:complexType name="ListMembersResponseType">
+        <xs:complexContent>
+            <xs:extension base="ResponseAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of QueryObjectsRequest element -->
+    <xs:element name="QueryObjectsRequest" type="QueryObjectsRequestType"/>
+    <!-- Definition of QueryObjectsRequestType -->
+    <xs:complexType name="QueryObjectsRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element name="Filter" type="xs:string"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attribute name="Count" type="xs:nonNegativeInteger" use="optional"/>
+                <xs:attribute name="Offset" type="xs:nonNegativeInteger" default="0" use="optional"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of QueryObjectsResponse element -->
+    <xs:element name="QueryObjectsResponse" type="QueryObjectsResponseType"/>
+    <!-- Definition of QueryObjectsResponseType -->
+    <xs:complexType name="QueryObjectsResponseType">
+        <xs:complexContent>
+            <xs:extension base="ResponseAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object" minOccurs="0" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of GetObjectInfoRequest element -->
+    <xs:element name="GetObjectInfoRequest" type="GetObjectInfoRequestType"/>
+    <!-- Definition of GetObjectInfoRequestType -->
+    <xs:complexType name="GetObjectInfoRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="TargetObjectID" minOccurs="0"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of GetObjectInfoResponse element -->
+    <xs:element name="GetObjectInfoResponse" type="GetObjectInfoResponseType"/>
+    <!-- Definition of GetObjectInfoResponseType -->
+    <xs:complexType name="GetObjectInfoResponseType">
+        <xs:complexContent>
+            <xs:extension base="ResponseAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of SetObjectInfoRequest element -->
+    <xs:element name="SetObjectInfoRequest" type="SetObjectInfoRequestType"/>
+    <!-- Definition of SetObjectInfoRequestType -->
+    <xs:complexType name="SetObjectInfoRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="Object" maxOccurs="unbounded"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of SetObjectInfoResponse element -->
+    <xs:element name="SetObjectInfoResponse" type="ResponseAbstractType"/>
+
+    <!-- Declaration of TestMembershipRequest element -->
+    <xs:element name="TestMembershipRequest" type="TestMembershipRequestType"/>
+    <!-- Definition of TestMembershipRequestType -->
+    <xs:complexType name="TestMembershipRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="TargetObjectID" minOccurs="0"/>
+                    <xs:element ref="sec:Token"/>
+                    <xs:element ref="Subscription" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Definition of ResultType --> 
+    <xs:complexType name="ResultType">
+        <xs:simpleContent>
+            <xs:extension base="xs:boolean"/>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <!-- Declaration of TestMembershipResponse element -->
+    <xs:element name="TestMembershipResponse" type="TestMembershipResponseType"/>
+    <!-- Definition of TestMembershipResponseType -->
+    <xs:complexType name="TestMembershipResponseType">
+        <xs:complexContent>
+            <xs:extension base="ResponseAbstractType">
+                <xs:sequence>
+                    <xs:element name="Result" type="ResultType" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of ResolveIdentifierRequest element -->
+    <xs:element name="ResolveIdentifierRequest" type="ResolveIdentifierRequestType"/>
+    <!-- Definition of ResolveIdentifierRequestType -->
+    <xs:complexType name="ResolveIdentifierRequestType">
+        <xs:complexContent>
+            <xs:extension base="RequestAbstractType">
+                <xs:sequence>
+                    <xs:element ref="ResolveInput" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of ResolveInput element -->
+    <xs:element name="ResolveInput" type="ResolveInputType"/>
+    <!-- Definition of ResolveInputType -->
+    <xs:complexType name="ResolveInputType">
+        <xs:complexContent>
+            <xs:extension base="ims:MappingInputType">
+                <xs:sequence>
+                    <xs:element ref="TargetObjectID" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of ResolveIdentifierResponse element -->
+    <xs:element name="ResolveIdentifierResponse" type="ResolveIdentifierResponseType"/>
+    <!-- Definition of ResolveIdentifierResponseType -->
+    <xs:complexType name="ResolveIdentifierResponseType">
+        <xs:complexContent>
+            <xs:extension base="ResponseAbstractType">
+                <xs:sequence>
+                    <xs:element ref="ResolveOutput" maxOccurs="unbounded"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of ResolveOutput element -->
+    <xs:element name="ResolveOutput" type="ims:MappingOutputType"/>
+
+    <!-- Declaration of Subscription element -->
+    <xs:element name="Subscription" type="subs:SubscriptionType"/>
+   
+    <!-- Declaration of Notification element -->
+    <xs:element name="Notification" type="NotificationType"/>
+    <!-- Definition of NotificationType -->
+    <xs:complexType name="NotificationType">
+       <xs:complexContent>
+          <xs:extension base="subs:NotificationType">
+             <xs:sequence>
+                <xs:element ref="ItemData" minOccurs="0" maxOccurs="unbounded"/>
+             </xs:sequence>
+          </xs:extension>
+       </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of ItemData element -->
+    <xs:element name="ItemData" type="ItemDataType"/>
+    <!-- Definition of ItemDataType -->
+    <xs:complexType name="ItemDataType">
+       <xs:choice>
+          <xs:element ref="Object" minOccurs="0" maxOccurs="unbounded"/>
+          <xs:element ref="sec:Token" minOccurs="0"/>
+       </xs:choice>
+    </xs:complexType>
+
+    <!-- Declaration of Notify element -->
+    <xs:element name="Notify" type="NotifyType"/>
+    <!-- Definition of NotifyType -->
+    <xs:complexType name="NotifyType">
+       <xs:complexContent>
+          <xs:extension base="RequestAbstractType">
+             <xs:sequence>
+                <xs:element ref="Notification" minOccurs="0" maxOccurs="unbounded"/>
+             </xs:sequence>
+             <xs:attributeGroup ref="subs:NotifyAttributeGroup"/>
+          </xs:extension>
+       </xs:complexContent>
+    </xs:complexType>
+
+    <!-- Declaration of NotifyResponse element -->
+    <xs:element name="NotifyResponse" type="subs:NotifyResponseType"/>
+
+</xs:schema>

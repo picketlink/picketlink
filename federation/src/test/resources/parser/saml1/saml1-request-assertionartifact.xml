@@ -1,0 +1,6 @@
+<samlp:Request xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol"
+	MajorVersion="1" MinorVersion="1" 
+	RequestID="rid"
+	IssueInstant="2002-06-19T17:03:44.022Z">
+	<samlp:AssertionArtifact>abcd</samlp:AssertionArtifact>
+</samlp:Request>

@@ -1,0 +1,6 @@
+<Handlers xmlns="urn:picketlink:identity-federation:handler:config:1.0"> 
+  <Handler class="a">
+    <Option Key="1" Value="1.1"/>
+    <Option Key="2" Value="2.2"/>
+  </Handler>
+</Handlers>

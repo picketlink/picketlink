@@ -1,0 +1,11 @@
+<samlp:Request xmlns:samlp="urn:oasis:names:tc:SAML:1.0:protocol" 
+       xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion"
+       MajorVersion="1" MinorVersion="1"
+   RequestID="aaf23196-1773-2113-474a-fe114412ab72"
+   IssueInstant="2006-07-17T22:26:40Z" >
+  <samlp:AttributeQuery>
+    <saml:Subject>
+      <saml:NameIdentifier>testID</saml:NameIdentifier>
+    </saml:Subject>
+  </samlp:AttributeQuery>
+</samlp:Request>

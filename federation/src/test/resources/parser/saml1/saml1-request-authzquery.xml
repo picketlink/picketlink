@@ -1,0 +1,15 @@
+<Request RequestID="R1234" MajorVersion="1" MinorVersion="1"
+    IssueInstant="2002-08-05T10:04:15"
+    xmlns="urn:oasis:names:tc:SAML:1.0:protocol"
+   xmlns:saml="urn:oasis:names:tc:SAML:1.0:assertion">
+  <AuthorizationDecisionQuery>
+    <saml:Resource>urn:jboss.resource</saml:Resource>
+    <saml:Subject>
+      <saml:NameIdentifier NameQualifier="http://jboss.org"
+                              Format="urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress">
+        anil@anil.org
+      </saml:NameIdentifier>
+    </saml:Subject>
+    <saml:Action Namespace="http://www.jboss.org">create</saml:Action>
+  </AuthorizationDecisionQuery>
+</Request>

@@ -1,0 +1,24 @@
+<wst:RequestSecurityTokenCollection xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" 
+   xmlns:wsa="http://www.w3.org/2005/08/addressing">
+
+   <!-- identity token request -->
+   <wst:RequestSecurityToken Context="http://www.example.com/1">
+      <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+      <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/BatchIssue</wst:RequestType>
+      <wsp:AppliesTo>
+         <wsa:EndpointReference>
+            <wsa:Address>http://manufacturer.example.com/</wsa:Address>
+         </wsa:EndpointReference>
+      </wsp:AppliesTo>
+      <wsp:PolicyReference URI="http://manufacturer.example.com/IdentityPolicy"/>
+   </wst:RequestSecurityToken>
+
+   <!-- certification claim token request -->
+   <wst:RequestSecurityToken Context="http://www.example.com/2">
+      <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+      <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/BatchIssue</wst:RequestType>
+      <wst:Claims>http://manufacturer.example.com/certification</wst:Claims>
+      <wsp:PolicyReference URI="http://certificationbody.example.org/certificationPolicy"/>
+   </wst:RequestSecurityToken>
+
+</wst:RequestSecurityTokenCollection>

@@ -1,0 +1,31 @@
+<md:EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+                    xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+                    xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata">
+   <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://saml.salesforce.com" validUntil="2022-06-13T21:46:02.496Z">
+      <md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+         <md:KeyDescriptor use="signing">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+               <ds:X509Data>
+                  <ds:X509Certificate>abcdefghighklmnop</ds:X509Certificate>
+               </ds:X509Data>
+            </ds:KeyInfo>
+         </md:KeyDescriptor>
+         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+         <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://login.salesforce.com/?saml=MgoTx78aEPkEM4eGV5ZzptlliwIVkRkOWYKlqXQq2StV_sLo0EiRqKYtIc" index="0" isDefault="true"/>
+         <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+                                 Location="https://login.salesforce.com/saml/logout-request.jsp?saml=MgoTx78aEPkEM4eGV5ZzptlliwIVkRkOWYKlqXQq2StV_sLo0EiRqKYtIc" index="0" isDefault="true"/>
+      </md:SPSSODescriptor>
+   </md:EntityDescriptor>
+   <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" entityID="google.com/a/somedomain.com" validUntil="2022-06-13T21:46:02.496Z">
+      <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+         <md:KeyDescriptor use="signing">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+               <ds:X509Data>
+                  <ds:X509Certificate>abcdefghighklmnop</ds:X509Certificate>
+               </ds:X509Data>
+            </ds:KeyInfo>
+         </md:KeyDescriptor>
+         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
+      </md:SPSSODescriptor>
+   </md:EntityDescriptor>
+</md:EntitiesDescriptor>

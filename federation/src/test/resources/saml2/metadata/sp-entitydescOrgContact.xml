@@ -1,0 +1,21 @@
+<md:EntityDescriptor
+   xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+   xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion"
+   xmlns:ds="http://www.w3.org/2000/09/xmldsig#"
+   entityID="https://sp.example.com/SAML2">
+   <md:Organization>
+     <md:OrganizationName xml:lang="en">
+       SAML Service Provider 
+     </md:OrganizationName>
+     <md:OrganizationDisplayName xml:lang="en">
+       SAML Service Provider @ Some Location
+     </md:OrganizationDisplayName>
+     <md:OrganizationURL xml:lang="en">
+       http://www.sp.example.com/
+     </md:OrganizationURL>
+   </md:Organization>
+   <md:ContactPerson contactType="technical">
+     <md:SurName>SAML SP Support</md:SurName>
+     <md:EmailAddress>mailto:saml-support@sp.example.com</md:EmailAddress>
+   </md:ContactPerson>
+ </md:EntityDescriptor>

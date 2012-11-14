@@ -1,0 +1,6 @@
+<wst:RequestSecurityTokenResponseCollection xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+   <wst:RequestSecurityTokenResponse Context="cancelcontext">
+      <wst:RequestedTokenCancelled/>
+   </wst:RequestSecurityTokenResponse>
+</wst:RequestSecurityTokenResponseCollection>
+

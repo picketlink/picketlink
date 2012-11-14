@@ -1,0 +1,38 @@
+<samlp:AuthnRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+	xmlns="urn:oasis:names:tc:SAML:2.0:assertion"
+	AssertionConsumerServiceURL="http://localhost:8080/sales-post-sig/"
+	Destination="http://localhost:8080/idp-sig/" ID="ID_bb64828f-88cb-44be-83d6-f07ba381b701"
+	IssueInstant="2012-04-30T13:15:19.985-03:00" ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+	Version="2.0">
+	<saml:Issuer xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">http://localhost:8080/sales-post-sig/
+	</saml:Issuer>
+	<dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+		<dsig:SignedInfo>
+			<dsig:CanonicalizationMethod
+				Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" />
+			<dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+			<dsig:Reference URI="#ID_bb64828f-88cb-44be-83d6-f07ba381b701">
+				<dsig:Transforms>
+					<dsig:Transform
+						Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+					<dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</dsig:Transforms>
+				<dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+				<dsig:DigestValue>ygGdJufYyfJcNRihdsxrok/jjdc=</dsig:DigestValue>
+			</dsig:Reference>
+		</dsig:SignedInfo>
+		<dsig:SignatureValue>ZZdD5VUfF1PCz2Q3Sfp+CIbn5qjtIF2pV86KExEEEcZMLw9+bqmdC+9ZO+JDwVzmrmtb7043ImWso+Ck9TQVY2Xg8i3JFpO5+uZ1Sa/UvEQ4QkDMfF2sjZVCUJQA9hSC2OR3cj1gkW2x5p7wyWbIb4wVNzA33xUO2h8fi1R78Zw=
+		</dsig:SignatureValue>
+		<dsig:KeyInfo>
+			<dsig:KeyValue>
+				<dsig:RSAKeyValue>
+					<dsig:Modulus>7KiaO7wWGffrZcXyLcY3syZ7TWVE5wBzU08/DvglTvvSQeotmJDKBTea8N8Kf8SKqdBANH8dnYT0wRXkedAQ+97YwwWKiwTz+EHYvfwBWQaV3BBu2kLVe9w+hykXPmEEIQzXXbfoBt9xi5pworDsjJJROifK5+eUtjIK2jkGzKM=
+					</dsig:Modulus>
+					<dsig:Exponent>AQAB</dsig:Exponent>
+				</dsig:RSAKeyValue>
+			</dsig:KeyValue>
+		</dsig:KeyInfo>
+	</dsig:Signature>
+	<samlp:NameIDPolicy AllowCreate="true"
+		Format="urn:oasis:names:tc:SAML:2.0:nameid-format:transient" />
+</samlp:AuthnRequest>
