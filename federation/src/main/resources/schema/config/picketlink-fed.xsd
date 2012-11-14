@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:picketlink:identity-federation:config:2.0"
+	xmlns:tns="urn:picketlink:identity-federation:config:2.0"
+	elementFormDefault="qualified" version="2.0">
+	<complexType name="IDPType">
+		<annotation>
+			<documentation>
+				IDP Type defines the configuration for an Identity
+				Provider.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ProviderType">
+				<sequence>
+					<element name="Encryption" type="tns:EncryptionType"
+						maxOccurs="1" minOccurs="0">
+					</element>
+				</sequence>
+				<attribute name="AssertionValidity" type="long"
+					use="optional" default="300000"> <!--  5 minutes expressed in miliseconds -->
+				</attribute>
+				<attribute name="RoleGenerator" type="string"
+					use="optional"
+					default="org.picketlink.identity.federation.bindings.tomcat.TomcatRoleGenerator">
+				</attribute>
+				<attribute name="AttributeManager" type="string"
+					use="optional"
+					default="org.picketlink.identity.federation.bindings.tomcat.TomcatAttributeManager">
+				</attribute>
+				<attribute name="Encrypt" type="boolean" use="optional"
+					default="false">
+				</attribute>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="PicketLinkIDP" type="tns:IDPType">
+    	<annotation>
+    		<documentation>The root configuration for an Identity Provider(IDP) using picketlink Identity.</documentation>
+    	</annotation>
+    </element>
+
+
+    <complexType name="TrustType">
+        <annotation>
+        	<documentation>Aspects involved in trust decisions such as the domains that the IDP or the Service Provider trusts.</documentation>
+        </annotation>
+        <sequence>
+    		<element name="Domains" type="string">
+    			<annotation>
+    				<documentation>Comma Separated domain names such as localhost,picketlink.com,picketlink.org</documentation>
+    			</annotation>
+    	    </element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="KeyProviderType">
+    	<annotation>
+    		<documentation>
+    			Source of the Signing and Validating Key
+    		</documentation>
+    	</annotation>
+    	<sequence>
+    		<element name="Auth" type="tns:AuthPropertyType"
+    			maxOccurs="unbounded" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					Key Value Pairs Needed to authenticate into the
+    					provider.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="ValidatingAlias" type="tns:KeyValueType"
+    			maxOccurs="unbounded" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					Key Value pairs identifying domains against the
+    					alias for validating key
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="SigningAlias" type="string" maxOccurs="1"
+    			minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					An alias that identifies the signing key
+    				</documentation>
+    			</annotation>
+    		</element>
+    	</sequence>
+    	<attribute name="ClassName" type="string"></attribute>
+    </complexType>
+
+    <complexType name="KeyValueType"> 
+    	<attribute name="Key" type="string"></attribute>
+    	<attribute name="Value" type="string"></attribute>
+    </complexType>
+
+    <complexType name="ProviderType">
+    	<annotation>
+    		<documentation>Base Type for IDP and SP</documentation>
+    	</annotation>
+    	<sequence>
+    		<element name="IdentityURL" type="string" maxOccurs="1" minOccurs="0">
+    		</element>
+    		<element name="Trust" type="tns:TrustType" maxOccurs="1"
+    			minOccurs="0">
+    		</element>
+    		<element name="KeyProvider" type="tns:KeyProviderType"
+    			maxOccurs="1" minOccurs="0">
+    		</element>
+    		<element name="MetaDataProvider" type="tns:MetadataProviderType" maxOccurs="1" minOccurs="0"></element>
+    	</sequence>
+    	<!-- Specify what is the server environment where the IDP or SP exists -->
+    	<attribute name="ServerEnvironment" use="optional" default="picketlink">
+    	  <simpleType>
+    	    <restriction base="string">
+    	     <enumeration value="picketlink"></enumeration>
+    	     <enumeration value="TOMCAT"></enumeration>
+    	    </restriction>
+    	  </simpleType>
+    	</attribute>
+    	<attribute name="CanonicalizationMethod" use="optional" default="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"
+    	           type="string"/>
+    </complexType>
+
+    <complexType name="SPType">
+    	<annotation>
+    		<documentation>Service Provider Type</documentation>
+    	</annotation>
+    	<complexContent>
+    		<extension base="tns:ProviderType">
+    			<sequence>
+    				<element name="ServiceURL" type="string"></element>
+    				<element name="IDPMetadataFile" type="string" minOccurs="0" maxOccurs="1"></element>
+    			</sequence>
+    		</extension>
+    	</complexContent>
+    </complexType>
+
+    <complexType name="AuthPropertyType">
+    	<complexContent>
+    		<extension base="tns:KeyValueType"></extension>
+    	</complexContent>
+    </complexType>
+
+    <element name="PicketLinkSP" type="tns:SPType"></element>
+
+    <simpleType name="EncAlgoType">
+    	<restriction base="string">
+    		<enumeration value="AES"></enumeration>
+    		<enumeration value="DES"></enumeration>
+    		<enumeration value="DESede"></enumeration>
+    	</restriction>
+    </simpleType>
+
+    <complexType name="EncryptionType">
+    	<sequence>
+    		<element name="EncAlgo" type="tns:EncAlgoType"></element>
+    		<element name="KeySize" type="int"></element>
+    	</sequence>
+    </complexType>
+    
+    <complexType name="MetadataProviderType">
+    	<sequence>
+    		<element name="Option" type="tns:KeyValueType" maxOccurs="unbounded" minOccurs="0"></element>
+    	</sequence>
+    	<attribute name="ClassName" type="string"></attribute>
+    </complexType> 
+    
+    <!-- Security Token Service Elements -->
+    
+    <complexType name="STSType">
+		<sequence>
+    		<element name="KeyProvider" type="tns:KeyProviderType" minOccurs="0"/>
+			<element name="RequestHandler" type="string" minOccurs="0"/>
+			<element name="ClaimsProcessors" type="tns:ClaimsProcessorsType" minOccurs="0"/>
+			<element name="TokenProviders" type="tns:TokenProvidersType" minOccurs="0"/>
+			<element name="ServiceProviders" type="tns:ServiceProvidersType" minOccurs="0"/>
+		</sequence>
+		<attribute name="STSName" default="PicketLinkSTS" type="string" use="optional"/>
+		<attribute name="TokenTimeout" default="3600" type="int" use="optional"/>
+		<attribute name="SignToken" default="true" type="boolean" use="optional"/>
+		<attribute name="EncryptToken" default="false" type="boolean" use="optional"/>
+		<attribute name="CanonicalizationMethod" default="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" type="string" use="optional"/>
+    </complexType>
+    
+    <complexType name="ClaimsProcessorsType">
+    	<annotation>
+			<documentation>
+				The claims processors specify the classes that are capable of processing specific claims dialects.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="ClaimsProcessor" type="tns:ClaimsProcessorType" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+    </complexType>
+
+	<complexType name="ClaimsProcessorType">
+		<sequence>
+			<element name="Property" type="tns:KeyValueType" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute name="ProcessorClass" type="string" use="required"/>
+		<attribute name="Dialect" type="string" use="required"/>
+	</complexType>
+    
+    <complexType name="TokenProvidersType">
+    	<annotation>
+			<documentation>
+				The token providers specify the classes that handle the requests for each type of security Token.
+				For example, a SAMLTokenProvider may be used to generate SAML token, while a X509TokenProvider
+				may be used to generate X.509 tokens (certificates).
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="TokenProvider" type="tns:TokenProviderType" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+    </complexType>
+
+	<complexType name="TokenProviderType">
+		<sequence>
+			<element name="Property" type="tns:KeyValueType" minOccurs="0" maxOccurs="unbounded"/>
+		</sequence>
+		<attribute name="ProviderClass" type="string" use="required"/>
+		<attribute name="TokenType" type="string" use="required"/>
+		<attribute name="TokenElement" type="string" use="required"/>
+		<attribute name="TokenElementNS" type="string" use="required"/>		
+	</complexType>
+	
+	<complexType name="ServiceProvidersType">
+		<annotation>
+			<documentation>
+				The service providers specify the token type expected by each service provider.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="ServiceProvider" type="tns:ServiceProviderType" minOccurs="1" maxOccurs="unbounded"/>
+		</sequence>
+	</complexType>
+	    
+	<complexType name="ServiceProviderType">
+		<annotation>
+			<documentation>
+				The service provider type contains information about a specific service provider. In particular,
+				it specifies the type of the token that must be issued for the provider and the alias of the
+				provider's PKC in the truststore. This is used by the STS to locate the PKC when encrypting the
+				generated token. 
+			</documentation>
+		</annotation>
+		<attribute name="Endpoint" type="string" use="required"/>
+		<attribute name="TokenType" type="string" use="required"/>
+		<attribute name="TruststoreAlias" type="string" use="optional"/>
+	</complexType>
+	
+    <element name="PicketLinkSTS" type="tns:STSType"/>
+        
+</schema>

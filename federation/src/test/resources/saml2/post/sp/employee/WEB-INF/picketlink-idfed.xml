@@ -1,0 +1,6 @@
+<PicketLinkSP xmlns="urn:picketlink:identity-federation:config:1.0" 
+  AttributeManager="org.picketlink.identity.federation.core.impl.EmptyAttributeManager">
+<IdentityURL>http://localhost:8080/idp/</IdentityURL>
+<ServiceURL>http://localhost:8080/employee/</ServiceURL>  
+
+</PicketLinkSP>

@@ -1,0 +1,43 @@
+<wst:RequestSecurityToken
+	xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+	<wst:SecondaryParameters>
+		<t:TokenType xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512">http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0
+		</t:TokenType>
+		<t:KeyType xmlns:t="http://docs.oasis-open.org/ws-sx/ws-trust/200512">http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey
+		</t:KeyType>
+	</wst:SecondaryParameters>
+	<wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue
+	</wst:RequestType>
+	<wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+		<wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+			<wsa:Address>http://services.testcorp.org/provider1</wsa:Address>
+		</wsa:EndpointReference>
+	</wsp:AppliesTo>
+	<wst:UseKey>
+		<dsig:KeyInfo xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+			<ds:X509Data xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+				<ds:X509Certificate>
+MIIEFjCCA3+gAwIBAgIJAJORWX2Xsa8DMA0GCSqGSIb3DQEBBQUAMIG5MQswCQYDVQQGEwJVUzER
+MA8GA1UECBMITmV3IFlvcmsxFjAUBgNVBAcTDU5pYWdhcmEgRmFsbHMxLDAqBgNVBAoTI1NhbXBs
+ZSBDbGllbnQgLS0gTk9UIEZPUiBQUk9EVUNUSU9OMRYwFAYDVQQLEw1JVCBEZXBhcnRtZW50MRcw
+FQYDVQQDEw53d3cuY2xpZW50LmNvbTEgMB4GCSqGSIb3DQEJARYRY2xpZW50QGNsaWVudC5jb20w
+HhcNMTEwMjA5MTgzMDI3WhcNMjEwMjA2MTgzMDI3WjCBuTELMAkGA1UEBhMCVVMxETAPBgNVBAgT
+CE5ldyBZb3JrMRYwFAYDVQQHEw1OaWFnYXJhIEZhbGxzMSwwKgYDVQQKEyNTYW1wbGUgQ2xpZW50
+IC0tIE5PVCBGT1IgUFJPRFVDVElPTjEWMBQGA1UECxMNSVQgRGVwYXJ0bWVudDEXMBUGA1UEAxMO
+d3d3LmNsaWVudC5jb20xIDAeBgkqhkiG9w0BCQEWEWNsaWVudEBjbGllbnQuY29tMIGfMA0GCSqG
+SIb3DQEBAQUAA4GNADCBiQKBgQDauFNVqi4B2+u/PC9ktDkn82bglEQYcL4o5JRUhQVEhTK2iElo
+z1Rvo/qyfDhBPc1lzIUn4ams+DKBSSjZMCgop3XbeCXzIVP784ruC8HF5QrYsXUQfTc7lzqafXZX
+H8Bk89gSScA1fFme6TpvYzM0zjBETSXADtKOs9oKB2VOIwIDAQABo4IBIjCCAR4wHQYDVR0OBBYE
+FFIz+0BSZlLtXkA/udRjRgphtREuMIHuBgNVHSMEgeYwgeOAFFIz+0BSZlLtXkA/udRjRgphtREu
+oYG/pIG8MIG5MQswCQYDVQQGEwJVUzERMA8GA1UECBMITmV3IFlvcmsxFjAUBgNVBAcTDU5pYWdh
+cmEgRmFsbHMxLDAqBgNVBAoTI1NhbXBsZSBDbGllbnQgLS0gTk9UIEZPUiBQUk9EVUNUSU9OMRYw
+FAYDVQQLEw1JVCBEZXBhcnRtZW50MRcwFQYDVQQDEw53d3cuY2xpZW50LmNvbTEgMB4GCSqGSIb3
+DQEJARYRY2xpZW50QGNsaWVudC5jb22CCQCTkVl9l7GvAzAMBgNVHRMEBTADAQH/MA0GCSqGSIb3
+DQEBBQUAA4GBAEjEr9QfaYsZf7ELnqB++OkWcKxpMt1Yj/VOyL99AekkVTM+rRHCU9Bu+tncMNsf
+y8mIXUC1JqKQ+Cq5RlaDh/ujzt6i17G7uSGd6U1U/DPZBqTm3Dxwl1cMAGU/CoAKTWE+o+fS4Q2x
+Hv7L1KiXQQc9EWJ4C34Ik45fB6g3DiTj
+				</ds:X509Certificate>
+			</ds:X509Data>
+		</dsig:KeyInfo>
+	</wst:UseKey>
+</wst:RequestSecurityToken>

@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntitiesDescriptor Name="urn:mace:shibboleth:testshib:two"
+	xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+	xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<EntityDescriptor entityID="https://idp.testshib.org/idp/shibboleth">
+		<IDPSSODescriptor
+			protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:mace:shibboleth:1.0 urn:oasis:names:tc:SAML:2.0:protocol">
+			<Extensions>
+				<shibmd:Scope regexp="false">testshib.org</shibmd:Scope>
+			</Extensions>
+			<KeyDescriptor>
+				<ds:KeyInfo>
+					<ds:X509Data>
+						<ds:X509Certificate>MIIEDjCCAvagAwIBAgIBADANBgkqhkiG9w0BAQUFADBnMQswCQYDVQQGEwJVUzEV
+							MBMGA1UECBMMUGVubnN5bHZhbmlhMRMwEQYDVQQHEwpQaXR0c2J1cmdoMREwDwYD
+							VQQKEwhUZXN0U2hpYjEZMBcGA1UEAxMQaWRwLnRlc3RzaGliLm9yZzAeFw0wNjA4
+							MzAyMTEyMjVaFw0xNjA4MjcyMTEyMjVaMGcxCzAJBgNVBAYTAlVTMRUwEwYDVQQI
+							EwxQZW5uc3lsdmFuaWExEzARBgNVBAcTClBpdHRzYnVyZ2gxETAPBgNVBAoTCFRl
+							c3RTaGliMRkwFwYDVQQDExBpZHAudGVzdHNoaWIub3JnMIIBIjANBgkqhkiG9w0B
+							AQEFAAOCAQ8AMIIBCgKCAQEArYkCGuTmJp9eAOSGHwRJo1SNatB5ZOKqDM9ysg7C
+							yVTDClcpu93gSP10nH4gkCZOlnESNgttg0r+MqL8tfJC6ybddEFB3YBo8PZajKSe
+							3OQ01Ow3yT4I+Wdg1tsTpSge9gEz7SrC07EkYmHuPtd71CHiUaCWDv+xVfUQX0aT
+							NPFmDixzUjoYzbGDrtAyCqA8f9CN2txIfJnpHE6q6CmKcoLADS4UrNPlhHSzd614
+							kR/JYiks0K4kbRqCQF0Dv0P5Di+rEfefC6glV8ysC8dB5/9nb0yh/ojRuJGmgMWH
+							gWk6h0ihjihqiu4jACovUZ7vVOCgSE5Ipn7OIwqd93zp2wIDAQABo4HEMIHBMB0G
+							A1UdDgQWBBSsBQ869nh83KqZr5jArr4/7b+QazCBkQYDVR0jBIGJMIGGgBSsBQ86
+							9nh83KqZr5jArr4/7b+Qa6FrpGkwZzELMAkGA1UEBhMCVVMxFTATBgNVBAgTDFBl
+							bm5zeWx2YW5pYTETMBEGA1UEBxMKUGl0dHNidXJnaDERMA8GA1UEChMIVGVzdFNo
+							aWIxGTAXBgNVBAMTEGlkcC50ZXN0c2hpYi5vcmeCAQAwDAYDVR0TBAUwAwEB/zAN
+							BgkqhkiG9w0BAQUFAAOCAQEAjR29PhrCbk8qLN5MFfSVk98t3CT9jHZoYxd8QMRL
+							I4j7iYQxXiGJTT1FXs1nd4Rha9un+LqTfeMMYqISdDDI6tv8iNpkOAvZZUosVkUo
+							93pv1T0RPz35hcHHYq2yee59HJOco2bFlcsH8JBXRSRrJ3Q7Eut+z9uo80JdGNJ4
+							/SJy5UorZ8KazGj16lfJhOBXldgrhppQBb0Nq6HKHguqmwRfJ+WkxemZXzhediAj
+							Geka8nz8JjwxpUjAiSWYKLtJhGEaTqCYxCCX2Dw+dOTqUzHOZ7WKv4JXPK5G/Uhr
+							8K/qhmFT2nIQi538n6rVYLeWj8Bbnl+ev0peYzxFyF5sQA==
+						</ds:X509Certificate>
+					</ds:X509Data>
+				</ds:KeyInfo>
+			</KeyDescriptor>
+			<ArtifactResolutionService
+				Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding"
+				Location="https://idp.testshib.org:8443/idp/profile/SAML1/SOAP/ArtifactResolution"
+				index="1" />
+			<ArtifactResolutionService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+				Location="https://idp.testshib.org:8443/idp/profile/SAML2/SOAP/ArtifactResolution"
+				index="2" />
+			<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+			<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+			</NameIDFormat>
+			<SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest"
+				Location="https://idp.testshib.org/idp/profile/Shibboleth/SSO" />
+			<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+				Location="https://idp.testshib.org/idp/profile/SAML2/POST/SSO" />
+			<SingleSignOnService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+				Location="https://idp.testshib.org/idp/profile/SAML2/Redirect/SSO" />
+		</IDPSSODescriptor>
+		<AttributeAuthorityDescriptor
+			protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
+			<KeyDescriptor>
+				<ds:KeyInfo>
+					<ds:X509Data>
+						<ds:X509Certificate>MIIEKjCCAxKgAwIBAgIJAIgUuHL4QvkYMA0GCSqGSIb3DQEBBQUAMGsxCzAJBgNV
+							BAYTAkdCMRIwEAYDVQQIEwlCZXJrc2hpcmUxEDAOBgNVBAcTB05ld2J1cnkxFzAV
+							BgNVBAoTDk15IENvbXBhbnkgTHRkMR0wGwYDVQQDExRpZHAudHdvLnRlc3RzaGli
+							Lm9yZzAeFw0wNzEyMTcxOTE4NDFaFw0xNzEyMTQxOTE4NDFaMGsxCzAJBgNVBAYT
+							AkdCMRIwEAYDVQQIEwlCZXJrc2hpcmUxEDAOBgNVBAcTB05ld2J1cnkxFzAVBgNV
+							BAoTDk15IENvbXBhbnkgTHRkMR0wGwYDVQQDExRpZHAudHdvLnRlc3RzaGliLm9y
+							ZzCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK2JAhrk5iafXgDkhh8E
+							SaNUjWrQeWTiqgzPcrIOwslUwwpXKbvd4Ej9dJx+IJAmTpZxEjYLbYNK/jKi/LXy
+							Qusm3XRBQd2AaPD2WoykntzkNNTsN8k+CPlnYNbbE6UoHvYBM+0qwtOxJGJh7j7X
+							e9Qh4lGglg7/sVX1EF9GkzTxZg4sc1I6GM2xg67QMgqgPH/QjdrcSHyZ6RxOqugp
+							inKCwA0uFKzT5YR0s3eteJEfyWIpLNCuJG0agkBdA79D+Q4vqxH3nwuoJVfMrAvH
+							Qef/Z29Mof6I0biRpoDFh4FpOodIoY4oaoruIwAqL1Ge71TgoEhOSKZ+ziMKnfd8
+							6dsCAwEAAaOB0DCBzTAdBgNVHQ4EFgQUrAUPOvZ4fNyqma+YwK6+P+2/kGswgZ0G
+							A1UdIwSBlTCBkoAUrAUPOvZ4fNyqma+YwK6+P+2/kGuhb6RtMGsxCzAJBgNVBAYT
+							AkdCMRIwEAYDVQQIEwlCZXJrc2hpcmUxEDAOBgNVBAcTB05ld2J1cnkxFzAVBgNV
+							BAoTDk15IENvbXBhbnkgTHRkMR0wGwYDVQQDExRpZHAudHdvLnRlc3RzaGliLm9y
+							Z4IJAIgUuHL4QvkYMAwGA1UdEwQFMAMBAf8wDQYJKoZIhvcNAQEFBQADggEBAEti
+							KJki8WO2wGhpJc3oIAF7V0CYBR3303S37iqSodabyN/2nxFXTqd+ZSAdfe+14E/G
+							dyC9Dtbq4VL2lF0fbaNarCzfhMD7DExSANFkOPFk/lz54ccFdfIRHRVeLHvEtGAI
+							UTK+qEqaEl1vjZVKmvNSdDet06EQ+MGZf1MnW6jid4AMrSdboDHFW34qet+tr9gf
+							5k6bZx6oIiOILgXWHk7hK1ZuxK5w0bpbktNIfO35HoQSPBx6u6wuxt4yN/m6QLiq
+							nGEzsHlzsPFv1Iw+ccdALcqR0zor7GEJrKmp4Gcb/zH3oy1rQNZHUlz29emJhS/1
+							q1og9SGCUU2yRL1tC+Y=</ds:X509Certificate>
+					</ds:X509Data>
+				</ds:KeyInfo>
+			</KeyDescriptor>
+			<KeyDescriptor>
+				<ds:KeyInfo>
+					<ds:X509Data>
+						<ds:X509Certificate>MIIEDjCCAvagAwIBAgIBADANBgkqhkiG9w0BAQUFADBnMQswCQYDVQQGEwJVUzEV
+							MBMGA1UECBMMUGVubnN5bHZhbmlhMRMwEQYDVQQHEwpQaXR0c2J1cmdoMREwDwYD
+							VQQKEwhUZXN0U2hpYjEZMBcGA1UEAxMQaWRwLnRlc3RzaGliLm9yZzAeFw0wNjA4
+							MzAyMTEyMjVaFw0xNjA4MjcyMTEyMjVaMGcxCzAJBgNVBAYTAlVTMRUwEwYDVQQI
+							EwxQZW5uc3lsdmFuaWExEzARBgNVBAcTClBpdHRzYnVyZ2gxETAPBgNVBAoTCFRl
+							c3RTaGliMRkwFwYDVQQDExBpZHAudGVzdHNoaWIub3JnMIIBIjANBgkqhkiG9w0B
+							AQEFAAOCAQ8AMIIBCgKCAQEArYkCGuTmJp9eAOSGHwRJo1SNatB5ZOKqDM9ysg7C
+							yVTDClcpu93gSP10nH4gkCZOlnESNgttg0r+MqL8tfJC6ybddEFB3YBo8PZajKSe
+							3OQ01Ow3yT4I+Wdg1tsTpSge9gEz7SrC07EkYmHuPtd71CHiUaCWDv+xVfUQX0aT
+							NPFmDixzUjoYzbGDrtAyCqA8f9CN2txIfJnpHE6q6CmKcoLADS4UrNPlhHSzd614
+							kR/JYiks0K4kbRqCQF0Dv0P5Di+rEfefC6glV8ysC8dB5/9nb0yh/ojRuJGmgMWH
+							gWk6h0ihjihqiu4jACovUZ7vVOCgSE5Ipn7OIwqd93zp2wIDAQABo4HEMIHBMB0G
+							A1UdDgQWBBSsBQ869nh83KqZr5jArr4/7b+QazCBkQYDVR0jBIGJMIGGgBSsBQ86
+							9nh83KqZr5jArr4/7b+Qa6FrpGkwZzELMAkGA1UEBhMCVVMxFTATBgNVBAgTDFBl
+							bm5zeWx2YW5pYTETMBEGA1UEBxMKUGl0dHNidXJnaDERMA8GA1UEChMIVGVzdFNo
+							aWIxGTAXBgNVBAMTEGlkcC50ZXN0c2hpYi5vcmeCAQAwDAYDVR0TBAUwAwEB/zAN
+							BgkqhkiG9w0BAQUFAAOCAQEAjR29PhrCbk8qLN5MFfSVk98t3CT9jHZoYxd8QMRL
+							I4j7iYQxXiGJTT1FXs1nd4Rha9un+LqTfeMMYqISdDDI6tv8iNpkOAvZZUosVkUo
+							93pv1T0RPz35hcHHYq2yee59HJOco2bFlcsH8JBXRSRrJ3Q7Eut+z9uo80JdGNJ4
+							/SJy5UorZ8KazGj16lfJhOBXldgrhppQBb0Nq6HKHguqmwRfJ+WkxemZXzhediAj
+							Geka8nz8JjwxpUjAiSWYKLtJhGEaTqCYxCCX2Dw+dOTqUzHOZ7WKv4JXPK5G/Uhr
+							8K/qhmFT2nIQi538n6rVYLeWj8Bbnl+ev0peYzxFyF5sQA==
+						</ds:X509Certificate>
+					</ds:X509Data>
+				</ds:KeyInfo>
+			</KeyDescriptor>
+			<AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding"
+				Location="https://idp.testshib.org:8443/idp/profile/SAML1/SOAP/AttributeQuery" />
+			<AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+				Location="https://idp.testshib.org:8443/idp/profile/SAML2/SOAP/AttributeQuery" />
+			<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+			<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+			</NameIDFormat>
+		</AttributeAuthorityDescriptor>
+		<Organization>
+			<OrganizationName xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+				xml:lang="en">TestShib Two Identity Provider</OrganizationName>
+			<OrganizationDisplayName xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+				xml:lang="en">TestShib Two</OrganizationDisplayName>
+			<OrganizationURL xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+				xml:lang="en">http://www.testshib.org/testshib-two/</OrganizationURL>
+		</Organization>
+		<ContactPerson contactType="technical">
+			<GivenName>Nate</GivenName>
+			<SurName>Klingenstein</SurName>
+			<EmailAddress>ndk@internet2.edu</EmailAddress>
+		</ContactPerson>
+	</EntityDescriptor>
+	<EntityDescriptor entityID="https://sp.testshib.org/shibboleth-sp">
+		<SPSSODescriptor
+			protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.1:protocol http://schemas.xmlsoap.org/ws/2003/07/secext">
+			<Extensions>
+				<idpdisc:DiscoveryResponse
+					Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol"
+					Location="https://sp.testshib.org/Shibboleth.sso/DS" index="1"
+					xmlns:idpdisc="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" />
+			</Extensions>
+			<KeyDescriptor>
+				<ds:KeyInfo>
+					<ds:X509Data>
+						<ds:X509Certificate>MIIEPjCCAyagAwIBAgIBADANBgkqhkiG9w0BAQUFADB3MQswCQYDVQQGEwJVUzEV
+							MBMGA1UECBMMUGVubnN5bHZhbmlhMRMwEQYDVQQHEwpQaXR0c2J1cmdoMSIwIAYD
+							VQQKExlUZXN0U2hpYiBTZXJ2aWNlIFByb3ZpZGVyMRgwFgYDVQQDEw9zcC50ZXN0
+							c2hpYi5vcmcwHhcNMDYwODMwMjEyNDM5WhcNMTYwODI3MjEyNDM5WjB3MQswCQYD
+							VQQGEwJVUzEVMBMGA1UECBMMUGVubnN5bHZhbmlhMRMwEQYDVQQHEwpQaXR0c2J1
+							cmdoMSIwIAYDVQQKExlUZXN0U2hpYiBTZXJ2aWNlIFByb3ZpZGVyMRgwFgYDVQQD
+							Ew9zcC50ZXN0c2hpYi5vcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB
+							AQDJyR6ZP6MXkQ9z6RRziT0AuCabDd3x1m7nLO9ZRPbr0v1LsU+nnC363jO8nGEq
+							sqkgiZ/bSsO5lvjEt4ehff57ERio2Qk9cYw8XCgmYccVXKH9M+QVO1MQwErNobWb
+							AjiVkuhWcwLWQwTDBowfKXI87SA7KR7sFUymNx5z1aoRvk3GM++tiPY6u4shy8c7
+							vpWbVfisfTfvef/y+galxjPUQYHmegu7vCbjYP3On0V7/Ivzr+r2aPhp8egxt00Q
+							XpilNai12LBYV3Nv/lMsUzBeB7+CdXRVjZOHGuQ8mGqEbsj8MBXvcxIKbcpeK5Zi
+							JCVXPfarzuriM1G5y5QkKW+LAgMBAAGjgdQwgdEwHQYDVR0OBBYEFKB6wPDxwYrY
+							StNjU5P4b4AjBVQVMIGhBgNVHSMEgZkwgZaAFKB6wPDxwYrYStNjU5P4b4AjBVQV
+							oXukeTB3MQswCQYDVQQGEwJVUzEVMBMGA1UECBMMUGVubnN5bHZhbmlhMRMwEQYD
+							VQQHEwpQaXR0c2J1cmdoMSIwIAYDVQQKExlUZXN0U2hpYiBTZXJ2aWNlIFByb3Zp
+							ZGVyMRgwFgYDVQQDEw9zcC50ZXN0c2hpYi5vcmeCAQAwDAYDVR0TBAUwAwEB/zAN
+							BgkqhkiG9w0BAQUFAAOCAQEAc06Kgt7ZP6g2TIZgMbFxg6vKwvDL0+2dzF11Onpl
+							5sbtkPaNIcj24lQ4vajCrrGKdzHXo9m54BzrdRJ7xDYtw0dbu37l1IZVmiZr12eE
+							Iay/5YMU+aWP1z70h867ZQ7/7Y4HW345rdiS6EW663oH732wSYNt9kr7/0Uer3KD
+							9CuPuOidBacospDaFyfsaJruE99Kd6Eu/w5KLAGG+m0iqENCziDGzVA47TngKz2v
+							PVA+aokoOyoz3b53qeti77ijatSEoKjxheBWpO+eoJeGq/e49Um3M2ogIX/JAlMa
+							Inh+vYSYngQB2sx9LGkR9KHaMKNIGCDehk93Xla4pWJx1w==
+						</ds:X509Certificate>
+					</ds:X509Data>
+				</ds:KeyInfo>
+			</KeyDescriptor>
+			<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP"
+				Location="https://sp.testshib.org/Shibboleth.sso/SLO/SOAP" />
+			<SingleLogoutService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+				Location="https://sp.testshib.org/Shibboleth.sso/SLO/Redirect" />
+			<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+				Location="https://sp.testshib.org/Shibboleth.sso/SLO/POST" />
+			<SingleLogoutService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+				Location="https://sp.testshib.org/Shibboleth.sso/SLO/Artifact" />
+			<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient
+			</NameIDFormat>
+			<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+			<AssertionConsumerService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://sp.testshib.org/Shibboleth.sso/SAML2/POST"
+				index="1" isDefault="true" />
+			<AssertionConsumerService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign"
+				Location="https://sp.testshib.org/Shibboleth.sso/SAML2/POST-SimpleSign"
+				index="2" />
+			<AssertionConsumerService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact"
+				Location="https://sp.testshib.org/Shibboleth.sso/SAML2/Artifact"
+				index="3" />
+			<AssertionConsumerService
+				Binding="urn:oasis:names:tc:SAML:1.0:profiles:browser-post"
+				Location="https://sp.testshib.org/Shibboleth.sso/SAML/POST" index="4" />
+			<AssertionConsumerService
+				Binding="urn:oasis:names:tc:SAML:1.0:profiles:artifact-01" Location="https://sp.testshib.org/Shibboleth.sso/SAML/Artifact"
+				index="5" />
+			<AssertionConsumerService
+				Binding="http://schemas.xmlsoap.org/ws/2003/07/secext" Location="https://sp.testshib.org/Shibboleth.sso/ADFS"
+				index="6" />
+			<AssertionConsumerService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://www.testshib.org/Shibboleth.sso/SAML2/POST"
+				index="7" />
+			<AssertionConsumerService
+				Binding="urn:oasis:names:tc:SAML:1.0:profiles:browser-post"
+				Location="https://www.testshib.org/Shibboleth.sso/SAML/POST" index="8" />
+			<AssertionConsumerService
+				Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect"
+				Location="https://www.testshib.org/Shibboleth.sso/SAML/REDIRECT" index="9" />
+		</SPSSODescriptor>
+		<Organization>
+			<OrganizationName xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+				xml:lang="en">TestShib Two Service Provider</OrganizationName>
+			<OrganizationDisplayName xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+				xml:lang="en">TestShib Two</OrganizationDisplayName>
+			<OrganizationURL xmlns="urn:oasis:names:tc:SAML:2.0:metadata"
+				xml:lang="en">http://www.testshib.org/testshib-two/</OrganizationURL>
+		</Organization>
+		<ContactPerson contactType="technical">
+			<GivenName>Nate</GivenName>
+			<SurName>Klingenstein</SurName>
+			<EmailAddress>ndk@internet2.edu</EmailAddress>
+		</ContactPerson>
+	</EntityDescriptor>
+</EntitiesDescriptor>

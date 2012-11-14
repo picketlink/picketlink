@@ -1,0 +1,8 @@
+<wst:RequestSecurityToken xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" Context="testcontext">
+  <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue</wst:RequestType>
+  <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+    <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+      <wsa:Address>http://services.testcorp.org/provider2</wsa:Address>
+    </wsa:EndpointReference>
+  </wsp:AppliesTo>
+</wst:RequestSecurityToken>

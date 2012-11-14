@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="urn:picketlink:identity-federation:handler:config:1.0"
+	xmlns:tns="urn:picketlink:identity-federation:handler:config:1.0"
+	xmlns:idfed="urn:picketlink:identity-federation:config:1.0"
+	elementFormDefault="qualified">
+
+    <!--  Import the JBID configuration schema -->
+	<import schemaLocation="picketlink-fed.xsd" 
+	        namespace="urn:picketlink:identity-federation:config:1.0">
+	</import>
+	
+
+	<complexType name="Handler">
+		<sequence>
+			<element name="Option" type="idfed:KeyValueType" maxOccurs="unbounded" 
+			         minOccurs="0">
+			</element>
+		</sequence>
+		<attribute name="name" type="string"></attribute>
+		<attribute name="class" type="string"></attribute>
+	</complexType>
+	
+
+	<complexType name="Handlers">
+		<sequence>
+			<element name="Handler" type="tns:Handler" maxOccurs="unbounded" minOccurs="1"></element>
+		</sequence>
+	</complexType>
+	
+	<element name="Handlers" type="tns:Handlers"/>
+</schema>

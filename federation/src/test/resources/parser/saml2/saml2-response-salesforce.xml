@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<samlp:Response Destination="https://xxx.somecompany.com:8443/elements/elements.jsp" ID="_2bf8c7ab1057d96d2eb494473c31a3881329420450465" InResponseTo="ID_f7fd2a28-b187-46a5-b780-7cf74f68ec06" IssueInstant="2012-02-16T19:27:30.465Z" Version="2.0" xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"><saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">https://somecompany.my.salesforce.com</saml:Issuer><ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"/>
+<ds:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"/>
+<ds:Reference URI="#_2bf8c7ab1057d96d2eb494473c31a3881329420450465" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:Transforms xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+<ds:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"/>
+<ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ec:InclusiveNamespaces PrefixList="ds saml samlp xs" xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#"/></ds:Transform>
+</ds:Transforms>
+<ds:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" xmlns:ds="http://www.w3.org/2000/09/xmldsig#"/>
+<ds:DigestValue xmlns:ds="http://www.w3.org/2000/09/xmldsig#">B5X6YU82tV6XqasIFohUBCs6AhQ=</ds:DigestValue>
+</ds:Reference>
+</ds:SignedInfo>
+<ds:SignatureValue xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+MiBs02QjKgKYhBiks+TIoQDEo6j5KM5DW6Of7edIhG7OgsDPv7siV1luqg/SWrI1uEJF4ycxEH9k
+G0kzIoEKWNPT9q4exVQ6g9RC3a9Goxpg78de709rHhcjnoJB6Ci5zGwPbwv8yIGxMJg+ckLKKM5r
++dTheSjaciQWJ7UrN4RsAT+R5M15TDYqBWHLWIkxkbE3i98Jg6u17Zwma5ai7YYk9D6hsq8bs8d2
+YcMjbtwpgJyKjIW0PTvEcvqcVAn7lcEx4FBV0CCNjLtbfuVfWKq7GZLNOUMxyewVlhRhTUa5Cmmm
+x5Y1at23Wm4FKDorevNRqXNJ7g4bLZFCelzHJA==
+</ds:SignatureValue>
+<ds:KeyInfo><ds:X509Data><ds:X509Certificate>MIIEazCCA1OgAwIBAgIOATTn7sPeAAAAACJDlbwwDQYJKoZIhvcNAQEFBQAwfDEUMBIGA1UEAwwL
+SW5kaWNlZSBJbmMxGDAWBgNVBAsMDzAwRDcwMDAwMDAwSWdPYjEXMBUGA1UECgwOU2FsZXNmb3Jj
+ZS5jb20xFjAUBgNVBAcMDVNhbiBGcmFuY2lzY28xCzAJBgNVBAgMAkNBMQwwCgYDVQQGEwNVU0Ew
+HhcNMTIwMTE2MTkxMTUxWhcNMTQwMTE1MTkxMTUxWjB8MRQwEgYDVQQDDAtJbmRpY2VlIEluYzEY
+MBYGA1UECwwPMDBENzAwMDAwMDBJZ09iMRcwFQYDVQQKDA5TYWxlc2ZvcmNlLmNvbTEWMBQGA1UE
+BwwNU2FuIEZyYW5jaXNjbzELMAkGA1UECAwCQ0ExDDAKBgNVBAYTA1VTQTCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBAKe6tpwiqyL8+VYTKBg/x4dnnMt9RIjWKG5XbGkSPlowRh6QQtvY
+CgPfdpcbq/q0vn5/IKlfOTGZ04zVpqjL9rWieTPKUtRBCeBDBoTliJ45SuVZ9ko4Si960b1mFf+W
+F2WcCdPanLzSohXR3opvb8KipiXl6oQUSKkTz9pkmNxo3KR4d+eN0zZoWnoRQnp8p7v4VN4zLcQ4
+Pkhn8iZ72pzy7jTcZ0NC8u7dI7fz8R3DmUJzUz+HGyoikVVF3763kLF1im3zMg9PL7StS6ZEkABa
+T8ahMSZpZSr2RicK7iioLvC/5C4FQ1/Fc0MtLbDvprgHX2fI3BtqmX52qS3WtJ8CAwEAAaOB6jCB
+5zAdBgNVHQ4EFgQUdA5kj6jOy4ky295VS9J/7uSCJ/cwgbQGA1UdIwSBrDCBqYAUdA5kj6jOy4ky
+295VS9J/7uSCJ/ehgYCkfjB8MRQwEgYDVQQDDAtJbmRpY2VlIEluYzEYMBYGA1UECwwPMDBENzAw
+MDAwMDBJZ09iMRcwFQYDVQQKDA5TYWxlc2ZvcmNlLmNvbTEWMBQGA1UEBwwNU2FuIEZyYW5jaXNj
+bzELMAkGA1UECAwCQ0ExDDAKBgNVBAYTA1VTQYIOATTn7sPgAAAAACJDlbwwDwYDVR0TAQH/BAUw
+AwEB/zANBgkqhkiG9w0BAQUFAAOCAQEALs22H1XQWpI3ZRfHZ7oZDvZkUbdEGRoKpZ82EevzCEz6
+6bV9NzGQ+ygJ5FD2X/DZtvAgq/nq8gv+BL73fMS1Rqd666rDDoddixDq/Dqtdk1jvVvpjRpVlQWz
+iVyYQuRjBFNJ7uL/IyGX424jqFWWd9Io8fsc/dct3ABffkBnEbSjY6Tqyi9YHcOYCIzupGFaE+J2
+nu3AGYihupCkOeErRNuAXH76PGBjaM/Psku5Z8MzI2g4XXbxy7/y0ruwmfD28Itt83JAzIqwbRiF
+GzGV15Vv86ziAPl37b0MApJ9ZloHuFxc8hFysqMrOdVWhSvzbmFybPnM/aHMjHhvj7ZL/g==</ds:X509Certificate>
+</ds:X509Data></ds:KeyInfo></ds:Signature>
+<samlp:Status><samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/></samlp:Status>
+<saml:Assertion ID="_55a620fd5920a06abed345eecb1b13481329420450465" IssueInstant="2012-02-16T19:27:30.465Z" 
+Version="2.0" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+<saml:Issuer Format="urn:oasis:names:tc:SAML:2.0:nameid-format:entity">https://xxx.my.salesforce.com</saml:Issuer>
+<saml:Subject>
+<saml:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">xxx@somecompany.com</saml:NameID>
+<saml:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer">
+<saml:SubjectConfirmationData InResponseTo="ID_f7fd2a28-b187-46a5-b780-7cf74f68ec06" 
+NotOnOrAfter="2012-02-16T19:32:30.466Z" Recipient="https://xxx.somecompany.com:8443/elements/elements.jsp"/>
+</saml:SubjectConfirmation>
+</saml:Subject>
+<saml:Conditions NotBefore="2012-02-16T19:27:30.466Z" NotOnOrAfter="2012-02-16T19:32:30.466Z">
+<saml:AudienceRestriction><saml:Audience>https://xxx.somecompany.com:8443/elements/elements.jsp</saml:Audience>
+</saml:AudienceRestriction></saml:Conditions><saml:AuthnStatement AuthnInstant="2012-02-16T19:27:30.465Z">
+<saml:AuthnContext><saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</saml:AuthnContextClassRef></saml:AuthnContext>
+</saml:AuthnStatement>
+<saml:AttributeStatement><saml:Attribute Name="userId" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:type="xs:anyType">005700000018Mth</saml:AttributeValue>
+</saml:Attribute>
+<saml:Attribute Name="username" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:type="xs:anyType">xxx@somecompany.com</saml:AttributeValue></saml:Attribute>
+<saml:Attribute Name="email" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:type="xs:anyType">xxx@somecompany.com</saml:AttributeValue></saml:Attribute>
+
+<saml:Attribute Name="is_portal_user" NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+<saml:AttributeValue xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:type="xs:anyType">false</saml:AttributeValue>
+</saml:Attribute>
+</saml:AttributeStatement>
+</saml:Assertion>
+</samlp:Response>

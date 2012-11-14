@@ -1,0 +1,15 @@
+<ns3:LogoutResponse xmlns:ns3="urn:oasis:names:tc:SAML:2.0:protocol" 
+                    xmlns="urn:oasis:names:tc:SAML:2.0:assertion" 
+                    xmlns:ns2="http://www.w3.org/2000/09/xmldsig#" 
+                    xmlns:ns4="http://www.w3.org/2001/04/xmlenc#" 
+                    ID="ID_97d332a8-3224-4653-a1ff-65c966e56852" 
+                    InResponseTo="ID_230a1668-c2ab-47af-83f7-79613f9994d9" 
+                    IssueInstant="2010-07-29T13:46:03.862-05:00"
+                    Version="2.0">
+   <Issuer>http://localhost:8080/employee-post/</Issuer>
+   <ns3:Status>
+       <ns3:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">
+          <ns3:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success"/>
+       </ns3:StatusCode>
+    </ns3:Status>
+</ns3:LogoutResponse>

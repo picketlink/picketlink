@@ -1,0 +1,24 @@
+<saml2:Assertion ID="ID_144fa48dc370c7a921414f3c53ed111b"
+	IssueInstant="2011-11-09T15:04:07.000Z" Version="2.0"
+	xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+
+	<saml2:Issuer>TheDUDE</saml2:Issuer>
+	<saml2:Subject>
+	    <saml2:NameID Format="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified">A_DUDE</saml2:NameID>
+		<saml2:SubjectConfirmation
+			Method="urn:oasis:names:tc:SAML:2.0:cm:sender-vouches">
+			<saml2:NameID>CN=theDUDE</saml2:NameID>
+		</saml2:SubjectConfirmation>
+	</saml2:Subject>
+
+	<saml2:Conditions NotBefore="2011-11-09T15:02:07.000Z"
+		NotOnOrAfter="2011-11-09T15:09:07.000Z" />
+
+	<saml2:AuthnStatement AuthnInstant="2011-11-09T15:04:07.000Z">
+		<saml2:SubjectLocality Address="127.0.0.1" />
+		<saml2:AuthnContext>
+			<saml2:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:Password
+			</saml2:AuthnContextClassRef>
+		</saml2:AuthnContext>
+	</saml2:AuthnStatement>
+</saml2:Assertion>

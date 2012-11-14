@@ -1,0 +1,10 @@
+<wst:RequestSecurityTokenCollection xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512">
+  <wst:RequestSecurityToken Context="context1">
+    <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/BatchIssue</wst:RequestType>
+    <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+  </wst:RequestSecurityToken>
+  <wst:RequestSecurityToken Context="context2">
+    <wst:RequestType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/BatchIssue</wst:RequestType>
+    <wst:TokenType>http://www.tokens.org/SpecialToken</wst:TokenType>
+  </wst:RequestSecurityToken>
+</wst:RequestSecurityTokenCollection>

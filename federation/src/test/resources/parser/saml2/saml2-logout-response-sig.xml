@@ -1,0 +1,40 @@
+<samlp:LogoutResponse xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol"
+	xmlns="urn:oasis:names:tc:SAML:2.0:assertion" ID="ID_2b178fbb-224c-4f01-950d-e3d1be2d3821"
+	InResponseTo="ID_3709478a-4818-47d6-9d38-5cac7221ac0b" IssueInstant="2011-04-04T11:48:32.372-05:00"
+	Version="2.0">
+	<Issuer>http://localhost:8080/idp-sig/</Issuer>
+	<samlp:Status>
+		<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">
+			<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Success" />
+		</samlp:StatusCode>
+	</samlp:Status>
+	<dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+		<dsig:SignedInfo>
+			<dsig:CanonicalizationMethod
+				Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments" />
+			<dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1" />
+			<dsig:Reference URI="#ID_2b178fbb-224c-4f01-950d-e3d1be2d3821">
+				<dsig:Transforms>
+					<dsig:Transform
+						Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature" />
+					<dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#" />
+				</dsig:Transforms>
+				<dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+				<dsig:DigestValue>BPisd+dKE3LyHTXQUuYeVWr3rM8=</dsig:DigestValue>
+			</dsig:Reference>
+		</dsig:SignedInfo>
+		<dsig:SignatureValue>aCMsh9lMJ/YZYYUAUnj/mcwCnmKOVSRHeNSvYxARYCzZv3FU9ieL4X+vr5rQ+LgU98NVfMO9YmEh
+			hgNhOYy7klRTVDa0RsrYX56T99Dhun9hZIXBKxHbx9T9W3glU1uiCuT4zlJuKJA9nGNRdkstf3Fn
+			qy0vEhxhhZymvh1lkXQ=</dsig:SignatureValue>
+		<dsig:KeyInfo>
+			<dsig:KeyValue>
+				<dsig:RSAKeyValue>
+					<dsig:Modulus>7KiaO7wWGffrZcXyLcY3syZ7TWVE5wBzU08/DvglTvvSQeotmJDKBTea8N8Kf8SKqdBANH8dnYT0
+						wRXkedAQ+97YwwWKiwTz+EHYvfwBWQaV3BBu2kLVe9w+hykXPmEEIQzXXbfoBt9xi5pworDsjJJR
+						OifK5+eUtjIK2jkGzKM=</dsig:Modulus>
+					<dsig:Exponent>AQAB</dsig:Exponent>
+				</dsig:RSAKeyValue>
+			</dsig:KeyValue>
+		</dsig:KeyInfo>
+	</dsig:Signature>
+</samlp:LogoutResponse>

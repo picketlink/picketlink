@@ -1,0 +1,61 @@
+<wst:RequestSecurityTokenResponseCollection xmlns:wst="http://docs.oasis-open.org/ws-sx/ws-trust/200512" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+   <wst:RequestSecurityTokenResponse Context="testcontext">
+      <wst:TokenType>http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0</wst:TokenType>
+      <wst:Lifetime>
+         <wsu:Created>2010-11-11T16:34:19.466Z</wsu:Created>
+         <wsu:Expires>2010-11-11T18:34:19.466Z</wsu:Expires>
+      </wst:Lifetime>
+      <wsp:AppliesTo xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy">
+         <wsa:EndpointReference xmlns:wsa="http://www.w3.org/2005/08/addressing">
+            <wsa:Address>http://services.testcorp.org/provider2</wsa:Address>
+         </wsa:EndpointReference>
+      </wsp:AppliesTo>
+      <wst:KeySize>128</wst:KeySize>
+      <wst:KeyType>http://docs.oasis-open.org/ws-sx/ws-trust/200512/Bearer</wst:KeyType>
+      <wst:RequestedSecurityToken>
+         <saml2:Assertion ID="ID_9e316914-0934-4138-b72b-d095a02da6c0" IssueInstant="2010-11-11T16:34:19.466Z" Version="2.0" xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+            <saml2:Issuer>Test STS</saml2:Issuer>
+            <saml2:Subject>
+               <saml2:NameID NameQualifier="urn:picketlink:identity-federation">jduke</saml2:NameID>
+               <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+            </saml2:Subject>
+            <saml2:Conditions NotBefore="2010-11-11T16:34:19.466Z" NotOnOrAfter="2010-11-11T18:34:19.466Z">
+               <saml2:AudienceRestriction>
+                  <saml2:Audience>http://services.testcorp.org/provider2</saml2:Audience>
+               </saml2:AudienceRestriction>
+            </saml2:Conditions>
+            <dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#">
+               <dsig:SignedInfo>
+                  <dsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#WithComments"/>
+                  <dsig:SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+                  <dsig:Reference URI="#ID_9e316914-0934-4138-b72b-d095a02da6c0">
+                     <dsig:Transforms>
+                        <dsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+                        <dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/>
+                     </dsig:Transforms>
+                     <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+                     <dsig:DigestValue>BqUzdf4lWiqRG9YZRKjTeWI7cdg=</dsig:DigestValue>
+                  </dsig:Reference>
+               </dsig:SignedInfo>
+               <dsig:SignatureValue>
+ANyfL86/tF5t+0XKnKMv5Gd3eV+mtqRvVxekEjAoDbc4bmZ9bAz3mpmNmcOXthrk6AlwasBA+AMS
+5gfHmCFXHcHhcQ2RvrfM8LtFrcxAnb2U/s7kTEJKmPRuLstjFAtA9BV3jKUTBt6siVZjMo8QP54r
+XwC2SZv0gVWhyYXEdH4=
+               </dsig:SignatureValue>
+               <dsig:KeyInfo>
+                  <dsig:KeyValue>
+                     <dsig:RSAKeyValue>
+                        <dsig:Modulus>
+suGIyhVTbFvDwZdx8Av62zmP+aGOlsBN8WUE3eEEcDtOIZgO78SImMQGwB2C0eIVMhiLRzVPqoW1
+dCPAveTm653zHOmubaps1fY0lLJDSZbTbhjeYhoQmmaBro/tDpVw5lKJwspqVnMuRK19ju2dxpKw
+lYGGtrP5VQv00dfNPbs=
+                        </dsig:Modulus>
+                        <dsig:Exponent>AQAB</dsig:Exponent>
+                     </dsig:RSAKeyValue>
+                  </dsig:KeyValue>
+               </dsig:KeyInfo>
+            </dsig:Signature>
+         </saml2:Assertion>
+      </wst:RequestedSecurityToken>
+   </wst:RequestSecurityTokenResponse>
+</wst:RequestSecurityTokenResponseCollection>
