@@ -179,14 +179,6 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!(identityType instanceof User)) {
             throw new IllegalArgumentException("For now only the User type is supported as the IdentityType argument.");
         }
-        /*
-        MembershipQuery query = createMembershipQuery();
-        
-        query.setRole(role);
-        query.setGroup(group);
-        query.setUser((User) identityType);
-        
-        return !query.executeQuery().isEmpty();*/
 
         // TODO rewrite this implementation to use the IdentityCache instead of a query
 
@@ -234,14 +226,17 @@ public class DefaultIdentityManager implements IdentityManager {
         store.updateCredential(getContextFactory().getContext(store), user, credential);
     }
 
+    @Override
     public void setEnabled(IdentityType identityType, boolean enabled) {
         throw new RuntimeException();
     }
 
+    @Override
     public void setExpirationDate(IdentityType identityType, Date expirationDate) {
         throw new RuntimeException();
     }
 
+    @Override
     public IdentityStoreInvocationContextFactory getContextFactory() {
         return contextFactory;
     }
@@ -256,14 +251,6 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends IdentityType> IdentityQuery<T> createQuery() {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    public void test() {
-        List<User> users = this.<User>createQuery()
-                .setParameter(User.MEMBER_OF.group("Head Office").role("Admin"), true)
-                .setParameter(User.MEMBER_OF.group("Springfield"), false)
-                .setParameter(User.MEMBER_OF.role("Contractor"), false)
-                .getResultList();
     }
 
     @Override
