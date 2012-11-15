@@ -21,6 +21,7 @@
  */
 package org.picketlink.idm.internal;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
@@ -265,14 +267,13 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void setAttribute(IdentityType identityType, String attributeName, String attributeValue) {
-        // TODO Auto-generated method stub
-
+    public void setAttribute(IdentityType identityType, Attribute<? extends Serializable> attribute) {
+        // TODO implement this
     }
 
     @Override
-    public String getAttribute(IdentityType identityType, String attributeName) {
-        // TODO Auto-generated method stub
+    public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
+        // TODO implement this
         return null;
     }
 

@@ -21,10 +21,12 @@
  */
 package org.picketlink.idm;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
@@ -129,7 +131,7 @@ public interface IdentityManager {
 
     // Attributes
 
-    void setAttribute(IdentityType identityType, String attributeName, String attributeValue);
+    void setAttribute(IdentityType identityType, Attribute<? extends Serializable> attribute);
 
-    String getAttribute(IdentityType identityType, String attributeName);
+    <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName);
 }
