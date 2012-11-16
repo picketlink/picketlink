@@ -30,6 +30,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
@@ -169,11 +170,11 @@ public class JPARoleQueryTestCase extends AbstractJPAIdentityManagerTestCase {
 
             identityManager.grantRole(this.user, currentRole, this.group);
 
-            currentRole.setAttribute("attribute1", "attributeValue1");
-            currentRole.setAttribute("attribute1", "attributeValue12");
-            currentRole.setAttribute("attribute1", "attributeValue123");
+            currentRole.setAttribute(new Attribute<String>("attribute1", "attributeValue1"));
+            currentRole.setAttribute(new Attribute<String>("attribute1", "attributeValue12"));
+            currentRole.setAttribute(new Attribute<String>("attribute1", "attributeValue123"));
 
-            currentRole.setAttribute("attribute2", "attributeValue2");
+            currentRole.setAttribute(new Attribute<String>("attribute2", "attributeValue2"));
         }
     }
 

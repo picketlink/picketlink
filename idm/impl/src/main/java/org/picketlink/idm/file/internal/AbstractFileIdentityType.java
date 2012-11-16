@@ -22,27 +22,25 @@
 
 package org.picketlink.idm.file.internal;
 
+import java.io.Serializable;
+
 import org.picketlink.idm.model.AbstractIdentityType;
+import org.picketlink.idm.model.Attribute;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
 public abstract class AbstractFileIdentityType extends AbstractIdentityType {
+    private static final long serialVersionUID = 5764166766542804646L;
 
     protected transient FileChangeListener changeListener;
-    
+
     protected abstract void update();
 
     @Override
-    public void setAttribute(String name, String value) {
-        super.setAttribute(name, new String[] { value });
-        update();
-    }
-
-    @Override
-    public void setAttribute(String name, String[] values) {
-        super.setAttribute(name, values);
+    public void setAttribute(Attribute<? extends Serializable> attribute) {
+        super.setAttribute(attribute);
         update();
     }
 

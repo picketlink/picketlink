@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.file.internal.FileUser;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
@@ -272,11 +273,11 @@ public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
 
             identityManager.grantRole(user, role, group);
 
-            currentUser.setAttribute("attribute1", "attributeValue1");
-            currentUser.setAttribute("attribute1", "attributeValue12");
-            currentUser.setAttribute("attribute1", "attributeValue123");
+            currentUser.setAttribute(new Attribute<String>("attribute1", "attributeValue1"));
+            currentUser.setAttribute(new Attribute<String>("attribute1", "attributeValue12"));
+            currentUser.setAttribute(new Attribute<String>("attribute1", "attributeValue123"));
 
-            currentUser.setAttribute("attribute2", "attributeValue2");
+            currentUser.setAttribute(new Attribute<String>("attribute2", "attributeValue2"));
         }
     }
 

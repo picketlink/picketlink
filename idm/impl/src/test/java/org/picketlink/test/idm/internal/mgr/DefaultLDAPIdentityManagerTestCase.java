@@ -49,6 +49,7 @@ import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
@@ -96,12 +97,12 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         assertEquals("Saldhana", anil.getLastName());
 
         // Deal with Anil's attributes
-        anil.setAttribute("QuestionTotal", "2");
-        anil.setAttribute("Question1", "What is favorite toy?");
-        anil.setAttribute("Question1Answer", "Gum");
+        anil.setAttribute(new Attribute<String>("QuestionTotal", "2"));
+        anil.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
+        anil.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
 
-        anil.setAttribute("Question2", "What is favorite word?");
-        anil.setAttribute("Question2Answer", "Hi");
+        anil.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
+        anil.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
 
         // Certificate
         InputStream bis = getClass().getClassLoader().getResourceAsStream("cert/servercert.txt");
@@ -111,30 +112,29 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         bis.close();
 
         String encodedCert = Base64.encodeBytes(cert.getEncoded());
-        anil.setAttribute("x509", encodedCert);
+        anil.setAttribute(new Attribute<String>("x509", encodedCert));
 
         // Try saving the cert as standard ldap cert
         im.updateCredential(anil, new X509CertificateCredential(cert));
 
         // let us retrieve the attributes from ldap store and see if they are the same
         anil = im.getUser("asaldhan");
-        Map<String, String[]> attributes = anil.getAttributes();
-        assertNotNull(attributes);
+        assertNotNull(anil.getAttributes());
 
         // Can we still get the cert as an attribute?
-        String strCert = anil.getAttribute("usercertificate");
+        String strCert = anil.<String>getAttribute("usercertificate").getValue();
         byte[] decodedCert = Base64.decode(strCert);
         ByteArrayInputStream byteStream = new ByteArrayInputStream(decodedCert);
         X509Certificate newCert = (X509Certificate) cf.generateCertificate(byteStream);
         assertNotNull(newCert);
 
-        assertEquals("2", attributes.get("QuestionTotal")[0]);
-        assertEquals("What is favorite toy?", attributes.get("Question1")[0]);
-        assertEquals("Gum", attributes.get("Question1Answer")[0]);
-        assertEquals("What is favorite word?", attributes.get("Question2")[0]);
-        assertEquals("Hi", attributes.get("Question2Answer")[0]);
+        assertEquals("2", anil.<String[]>getAttribute("QuestionTotal").getValue()[0]);
+        assertEquals("What is favorite toy?", anil.<String[]>getAttribute("Question1").getValue()[0]);
+        assertEquals("Gum", anil.<String[]>getAttribute("Question1Answer").getValue()[0]);
+        assertEquals("What is favorite word?", anil.<String[]>getAttribute("Question2").getValue()[0]);
+        assertEquals("Hi", anil.<String[]>getAttribute("Question2Answer").getValue()[0]);
 
-        String loadedCert = attributes.get("x509")[0];
+        String loadedCert = anil.<String[]>getAttribute("x509").getValue()[0];
         byte[] certBytes = Base64.decode(loadedCert);
 
         cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));

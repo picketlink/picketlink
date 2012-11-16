@@ -27,8 +27,10 @@ import static org.junit.Assert.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.Map;
 
 import org.junit.Before;
@@ -40,6 +42,7 @@ import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPUser;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
@@ -92,14 +95,14 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         assertEquals(USER_LASTNAME, anil.getLastName());
 
         // Deal with Anil's attributes
-        anil.setAttribute("telephoneNumber", "12345678");
+        anil.setAttribute(new Attribute<String>("telephoneNumber", "12345678"));
 
-        anil.setAttribute("QuestionTotal", "2");
-        anil.setAttribute("Question1", "What is favorite toy?");
-        anil.setAttribute("Question1Answer", "Gum");
+        anil.setAttribute(new Attribute<String>("QuestionTotal", "2"));
+        anil.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
+        anil.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
 
-        anil.setAttribute("Question2", "What is favorite word?");
-        anil.setAttribute("Question2Answer", "Hi");
+        anil.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
+        anil.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
 
         // Certificate
         InputStream bis = getClass().getClassLoader().getResourceAsStream("cert/servercert.txt");
@@ -109,20 +112,22 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         bis.close();
 
         String encodedCert = Base64.encodeBytes(cert.getEncoded());
-        anil.setAttribute("x509", encodedCert);
+        anil.setAttribute(new Attribute<String>("x509", encodedCert));
+
+        // FIXME the attribute values aren't persisted
 
         // let us retrieve the attributes from ldap store and see if they are the same
-        Map<String, String[]> attributes = store.getAttributes(null, anil);
-        assertNotNull(attributes);
+        anil = store.getUser(null, anil.getId());
+        assertNotNull(anil.getAttributes());
 
-        assertEquals("12345678", attributes.get("telephoneNumber")[0]);
-        assertEquals("2", attributes.get("QuestionTotal")[0]);
-        assertEquals("What is favorite toy?", attributes.get("Question1")[0]);
-        assertEquals("Gum", attributes.get("Question1Answer")[0]);
-        assertEquals("What is favorite word?", attributes.get("Question2")[0]);
-        assertEquals("Hi", attributes.get("Question2Answer")[0]);
+        assertEquals("12345678", anil.<String[]>getAttribute("telephoneNumber").getValue()[0]);
+        assertEquals("2", anil.<String[]>getAttribute("QuestionTotal").getValue()[0]);
+        assertEquals("What is favorite toy?", anil.<String[]>getAttribute("Question1").getValue()[0]);
+        assertEquals("Gum", anil.<String[]>getAttribute("Question1Answer").getValue()[0]);
+        assertEquals("What is favorite word?", anil.<String[]>getAttribute("Question2").getValue()[0]);
+        assertEquals("Hi", anil.<String[]>getAttribute("Question2Answer").getValue()[0]);
 
-        String loadedCert = attributes.get("x509")[0];
+        String loadedCert = anil.<String[]>getAttribute("x509").getValue()[0];
         byte[] certBytes = Base64.decode(loadedCert);
 
         cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));

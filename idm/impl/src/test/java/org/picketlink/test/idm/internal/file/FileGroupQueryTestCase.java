@@ -30,6 +30,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
@@ -229,11 +230,11 @@ public class FileGroupQueryTestCase extends AbstractFileIdentityManagerTestCase 
 
             identityManager.grantRole(user, role, currentGroup);
 
-            currentGroup.setAttribute("attribute1", "attributeValue1");
-            currentGroup.setAttribute("attribute1", "attributeValue12");
-            currentGroup.setAttribute("attribute1", "attributeValue123");
+            currentGroup.setAttribute(new Attribute<String>("attribute1", "attributeValue1"));
+            currentGroup.setAttribute(new Attribute<String>("attribute1", "attributeValue12"));
+            currentGroup.setAttribute(new Attribute<String>("attribute1", "attributeValue123"));
 
-            currentGroup.setAttribute("attribute2", "attributeValue2");
+            currentGroup.setAttribute(new Attribute<String>("attribute2", "attributeValue2"));
         }
     }
 

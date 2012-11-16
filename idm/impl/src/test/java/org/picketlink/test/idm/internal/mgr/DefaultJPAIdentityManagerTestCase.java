@@ -43,6 +43,7 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
@@ -88,12 +89,12 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         assertEquals("Igor", user.getLastName());
 
         // Deal with user's attributes
-        user.setAttribute("QuestionTotal", "2");
-        user.setAttribute("Question1", "What is favorite toy?");
-        user.setAttribute("Question1Answer", "Gum");
+        user.setAttribute(new Attribute<String>("QuestionTotal", "2"));
+        user.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
+        user.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
 
-        user.setAttribute("Question2", "What is favorite word?");
-        user.setAttribute("Question2Answer", "Hi");
+        user.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
+        user.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
 
         // Certificate
         InputStream bis = getClass().getClassLoader().getResourceAsStream("cert/servercert.txt");
@@ -103,20 +104,19 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         bis.close();
 
         String encodedCert = Base64.encodeBytes(cert.getEncoded());
-        user.setAttribute("x509", encodedCert);
+        user.setAttribute(new Attribute<String>("x509", encodedCert));
 
         // let us retrieve the attributes from ldap store and see if they are the same
         user = im.getUser("pedroigor");
-        Map<String, String[]> attributes = user.getAttributes();
-        assertNotNull(attributes);
+        assertNotNull(user.getAttributes());
 
-        assertEquals("2", attributes.get("QuestionTotal")[0]);
-        assertEquals("What is favorite toy?", attributes.get("Question1")[0]);
-        assertEquals("Gum", attributes.get("Question1Answer")[0]);
-        assertEquals("What is favorite word?", attributes.get("Question2")[0]);
-        assertEquals("Hi", attributes.get("Question2Answer")[0]);
+        assertEquals("2", user.<String[]>getAttribute("QuestionTotal").getValue()[0]);
+        assertEquals("What is favorite toy?", user.<String[]>getAttribute("Question1").getValue()[0]);
+        assertEquals("Gum", user.<String[]>getAttribute("Question1Answer").getValue()[0]);
+        assertEquals("What is favorite word?", user.<String[]>getAttribute("Question2").getValue()[0]);
+        assertEquals("Hi", user.<String[]>getAttribute("Question2Answer").getValue()[0]);
 
-        String loadedCert = attributes.get("x509")[0];
+        String loadedCert = user.<String[]>getAttribute("x509").getValue()[0];
         byte[] certBytes = Base64.decode(loadedCert);
 
         cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));

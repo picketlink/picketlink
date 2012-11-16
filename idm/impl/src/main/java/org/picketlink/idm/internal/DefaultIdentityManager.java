@@ -236,7 +236,6 @@ public class DefaultIdentityManager implements IdentityManager {
         throw new RuntimeException();
     }
 
-    @Override
     public IdentityStoreInvocationContextFactory getContextFactory() {
         return contextFactory;
     }
@@ -262,6 +261,11 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
         // TODO implement this
         return null;
+    }
+
+    @Override
+    public void removeAttribute(IdentityType identityType, String attributeName) {
+        // TODO implement this
     }
 
 }

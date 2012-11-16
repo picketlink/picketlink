@@ -28,6 +28,7 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -104,16 +105,20 @@ public class LDAPUser extends DirContextAdaptor implements User {
     }
 
     @Override
-    public String getAttribute(String name) {
+    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
         if(lookup == null){
             throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
         }
         if (lookup.isManaged(name) == false) {
-            return (String) customAttributes.getAttribute(name);
+            // FIXME
+            //return customAttributes.getAttribute(name);
+            
         }
         return super.getAttribute(name);
     }
 
+    // TODO methods no longer required?
+    /*
     @Override
     public String[] getAttributeValues(String name) {
         if(lookup == null){
@@ -145,20 +150,23 @@ public class LDAPUser extends DirContextAdaptor implements User {
             }
         }
         return map;
-    }
+    }*/
 
     @Override
-    public void setAttribute(String name, String value) {
+    public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
         if(lookup == null){
             throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
         }
-        if (lookup.isManaged(name)) {
-            super.setAttribute(name, value);
+        if (lookup.isManaged(attribute.getName())) {
+            super.setAttribute(attribute);
         } else {
-            setCustomAttribute(name, value);
+            // FIXME
+            //setCustomAttribute(name, value);
         }
     }
 
+    // TODO method no longer required
+    /*
     @Override
     public void setAttribute(String name, String[] values) {
         if(lookup == null){
@@ -169,7 +177,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
         } else {
             setCustomAttribute(name, values);
         }
-    }
+    }*/
 
     public void setCustomAttribute(String name, String value) {
         // Add into the custom attributes also
@@ -367,7 +375,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
         this.email = email;
         Attribute theAttribute = attributes.get(LDAPConstants.EMAIL);
         if (theAttribute == null) {
-            setAttribute(LDAPConstants.EMAIL, email);
+            setAttribute(new org.picketlink.idm.model.Attribute<String>(LDAPConstants.EMAIL, email));
         } else {
             replaceAttribute(LDAPConstants.EMAIL, email);
         }

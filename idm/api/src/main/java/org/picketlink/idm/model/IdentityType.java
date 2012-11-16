@@ -21,8 +21,9 @@
  */
 package org.picketlink.idm.model;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Map;
 
 import org.picketlink.idm.query.QueryParameter;
 
@@ -141,22 +142,12 @@ public interface IdentityType {
     // Attributes
 
     /**
-     * Set the attribute with given name and value. This operation will overwrite any previous value. 
-     * A null value will remove the attribute.
+     * Set the specified attribute. This operation will overwrite any previous value. 
      *
      * @param name of attribute
      * @param value to be set
      */
-    void setAttribute(String name, String value);
-
-    /**
-     * Set the attribute with given name and values. This operation will overwrite any previous values. 
-     * A null value or empty array will remove the attribute.
-     *
-     * @param name of attribute
-     * @param values to be set
-     */
-    void setAttribute(String name, String[] values);
+    void setAttribute(Attribute<? extends Serializable> attribute);
 
     /**
      * Remove the attribute with given name
@@ -172,21 +163,13 @@ public interface IdentityType {
      * @return attribute value or null if attribute with given name doesn't exist. If given attribute has many values method
      *         will return first one
      */
-    String getAttribute(String name);
-
-    /**
-     * Return the attribute values with the specified name
-     * 
-     * @param name of attribute
-     * @return attribute values or null if attribute with given name doesn't exist
-     */
-    String[] getAttributeValues(String name);
+    <T extends Serializable> Attribute<T> getAttribute(String name);
 
     /**
      * Returns a Map containing all attribute values for this IdentityType instance.
      * 
      * @return map of attribute names and their values
      */
-    Map<String, String[]> getAttributes();
+    Collection<Attribute<? extends Serializable>> getAttributes();
 
 }

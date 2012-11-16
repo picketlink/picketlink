@@ -22,6 +22,7 @@
 package org.picketlink.idm.model;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,8 @@ public abstract class AbstractIdentityType implements IdentityType, Serializable
     private boolean enabled = true;
     private Date createdDate = null;
     private Date expiryDate = null;
-    private Map<String, String[]> attributes = new HashMap<String, String[]>();
+    private Map<String, Attribute<? extends Serializable>> attributes = 
+            new HashMap<String, Attribute<? extends Serializable>>();
 
     public boolean isEnabled() {
         return this.enabled;
@@ -52,29 +54,21 @@ public abstract class AbstractIdentityType implements IdentityType, Serializable
         return this.createdDate;
     }
 
-    public void setAttribute(String name, String value) {
-        attributes.put(name, new String[] { value });
-    }
-
-    public void setAttribute(String name, String[] values) {
-        attributes.put(name, values);
+    public void setAttribute(Attribute<? extends Serializable> attribute) {
+        attributes.put(attribute.getName(), attribute);
     }
 
     public void removeAttribute(String name) {
         attributes.remove(name);
     }
 
-    public String getAttribute(String name) {
-        String[] vals = attributes.get(name);
-        return null == vals ? null : ((vals.length != 0) ? vals[0] : null);
+    @SuppressWarnings("unchecked")
+    public <T extends Serializable> Attribute<T> getAttribute(String name) {
+        return (Attribute<T>) attributes.get(name);
     }
 
-    public String[] getAttributeValues(String name) {
-        return attributes.get(name);
-    }
-
-    public Map<String, String[]> getAttributes() {
-        return java.util.Collections.unmodifiableMap(attributes);
+    public Collection<Attribute<? extends Serializable>> getAttributes() {
+        return java.util.Collections.unmodifiableCollection(attributes.values());
     }
 
 }

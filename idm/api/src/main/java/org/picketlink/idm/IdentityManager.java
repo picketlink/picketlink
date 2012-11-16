@@ -134,4 +134,6 @@ public interface IdentityManager {
     void setAttribute(IdentityType identityType, Attribute<? extends Serializable> attribute);
 
     <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName);
+
+    void removeAttribute(IdentityType identityType, String attributeName);
 }

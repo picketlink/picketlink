@@ -21,6 +21,8 @@
  */
 package org.picketlink.idm.spi;
 
+import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +30,7 @@ import java.util.Set;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
@@ -221,38 +224,15 @@ public interface IdentityStore {
      * @param user
      * @param credential
      */
-    void updateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential);    
+    void updateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential);
 
     // Attributes
 
-    /**
-     * Set attribute with given name and values. Operation will overwrite any previous values. Null value or empty array will
-     * remove attribute.
-     *
-     * @param identity
-     * @param name of attribute
-     * @param values to be set
-     */
-    void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name, String[] values);
+    void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, 
+            Attribute<? extends Serializable> attribute);
 
-    /**
-     * @param identity Remove attribute for the specified IdentityType
-     *
-     * @param name of attribute
-     */
-    void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name);
+    <T extends Serializable> Attribute<T> getAttribute(IdentityStoreInvocationContext ctx, 
+            IdentityType identityType, String attributeName);
 
-    /**
-     * @param identity
-     * @param name of attribute
-     * @return attribute values or null if attribute with given name doesn't exist
-     */
-    String[] getAttributeValues(IdentityStoreInvocationContext ctx, IdentityType identity, String name);
-
-    /**
-     * @param identity
-     * @return map of attribute names and their values
-     */
-    Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, IdentityType identity);
-
+    void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String attributeName);
 }

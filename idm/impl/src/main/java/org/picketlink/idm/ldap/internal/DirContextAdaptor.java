@@ -21,7 +21,9 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -379,16 +381,6 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     public Date getCreatedDate() {
         return null;
     }
-    
-    @Override
-    public void setAttribute(String name, String value) {
-        attributes.put(name, value);
-        Attribute anAttribute = attributes.get(name);
-
-        if (handler != null) {
-            handler.handle(new LDAPObjectChangedNotification(this, NType.ADD_ATTRIBUTE, anAttribute));
-        }
-    }
 
     /**
      * <p>Replaces an attribute and reflects the change in the LDAP tree.</p>
@@ -406,9 +398,9 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     }
 
     @Override
-    public void setAttribute(String name, String[] values) {
-        attributes.put(name, values);
-        Attribute anAttribute = attributes.get(name);
+    public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
+        attributes.put(attribute.getName(), attribute.getValue());
+        Attribute anAttribute = attributes.get(attribute.getName());
         if (handler != null) {
             handler.handle(new LDAPObjectChangedNotification(this, NType.ADD_ATTRIBUTE, anAttribute));
         }
@@ -424,22 +416,29 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     }
 
     @Override
-    public String getAttribute(String name) {
+    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
         try {
             Attribute theAttribute = attributes.get(name);
             Object obj = theAttribute.get();
+
+            // FIXME need to update this for new attributes API
+            /*
             String val = null;
             if (obj instanceof byte[]) {
                 val = new String(Base64.encodeBytes((byte[]) obj));
             } else {
                 val = (String) obj;
             }
-            return val;
+            return val;*/
+
+            return null;
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
     }
 
+    // TODO method no longer required?
+    /*
     @Override
     public String[] getAttributeValues(String name) {
         try {
@@ -451,14 +450,18 @@ public class DirContextAdaptor implements DirContext, IdentityType {
             throw new RuntimeException(e);
         }
         return null;
-    }
+    }*/
 
     @SuppressWarnings("unchecked")
     @Override
-    public Map<String, String[]> getAttributes() {
+    public Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> getAttributes() {
         try {
-            Map<String, String[]> map = new HashMap<String, String[]>();
+            Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> attribs =
+                    new ArrayList<org.picketlink.idm.model.Attribute<? extends Serializable>>();
+
             NamingEnumeration<? extends Attribute> theAttributes = attributes.getAll();
+
+            // FIXME need to fix this to populate attribs variable
             while (theAttributes.hasMore()) {
                 Attribute anAttribute = theAttributes.next();
                 NamingEnumeration<Object> ne = (NamingEnumeration<Object>) anAttribute.getAll();
@@ -477,9 +480,9 @@ public class DirContextAdaptor implements DirContext, IdentityType {
                 String[] valuesArr = new String[theList.size()];
                 theList.toArray(valuesArr);
 
-                map.put(anAttribute.getID(), valuesArr);
+                //map.put(anAttribute.getID(), valuesArr);
             }
-            return map;
+            return attribs;
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }

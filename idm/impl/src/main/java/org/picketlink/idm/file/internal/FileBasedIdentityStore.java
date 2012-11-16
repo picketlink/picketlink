@@ -28,6 +28,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import org.picketlink.idm.credential.DigestCredentialUtil;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
@@ -350,8 +352,8 @@ public class FileBasedIdentityStore implements IdentityStore {
             fileUser.setLastName(user.getLastName());
             fileUser.setEmail(user.getEmail());
             
-            for (String attribName : user.getAttributes().keySet()) {
-                fileUser.setAttribute(attribName, user.getAttribute(attribName));
+            for (Attribute<? extends Serializable> attrib : user.getAttributes()) {
+                fileUser.setAttribute(attrib);
             }
         } else {
             fileUser = (FileUser) user;
@@ -747,26 +749,27 @@ public class FileBasedIdentityStore implements IdentityStore {
     }*/
 
     @Override
-    public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String name, String[] values) {
+    public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, 
+            Attribute<? extends Serializable> attribute) {
         if (identityType instanceof FileUser) {
             FileUser user = (FileUser) identityType;
             FileUser fileUser = (FileUser) getUser(ctx, user.getId());
 
-            fileUser.setAttribute(name, values);
+            fileUser.setAttribute(attribute);
 
             flushUsers();
         } else if (identityType instanceof FileRole) {
             FileRole role = (FileRole) identityType;
             FileRole fileRole = (FileRole) getRole(ctx, role.getName());
 
-            fileRole.setAttribute(name, values);
+            fileRole.setAttribute(attribute);
 
             flushRoles();
         } else if (identityType instanceof FileGroup) {
             FileGroup group = (FileGroup) identityType;
             FileGroup fileGroup = (FileGroup) getGroup(ctx, group.getName());
 
-            fileGroup.setAttribute(name, values);
+            fileGroup.setAttribute(attribute);
 
             flushRoles();
         } else {
@@ -808,6 +811,8 @@ public class FileBasedIdentityStore implements IdentityStore {
         }
     }
 
+    // TODO method no longer necessary?
+    /*
     @Override
     public String[] getAttributeValues(IdentityStoreInvocationContext ctx, IdentityType identityType, String name) {
         if (identityType instanceof FileUser) {
@@ -838,9 +843,10 @@ public class FileBasedIdentityStore implements IdentityStore {
         }
 
         return null;
-    }
+    }*/
 
-    @Override
+    // TODO don't need this method now?
+    /*@Override
     public Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, IdentityType identityType) {
         if (identityType instanceof FileUser) {
             FileUser user = (FileUser) identityType;
@@ -870,7 +876,7 @@ public class FileBasedIdentityStore implements IdentityStore {
         }
 
         return null;
-    }
+    }*/
     
     @Override
     public boolean validateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
@@ -878,14 +884,14 @@ public class FileBasedIdentityStore implements IdentityStore {
             PasswordCredential passwordCredential = (PasswordCredential) credential;
 
             User storedUser = getUser(ctx, user.getId());
-            String storedPassword = storedUser.getAttribute(USER_PASSWORD_ATTRIBUTE);
+            String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
 
             return storedPassword != null && storedPassword.equals(passwordCredential.getPassword());
         } else if (credential instanceof DigestCredential) {
             DigestCredential digestCredential = (DigestCredential) credential;
             
             User storedUser = getUser(ctx, user.getId());
-            String storedPassword = storedUser.getAttribute(USER_PASSWORD_ATTRIBUTE);
+            String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
             
             return DigestCredentialUtil.matchCredential(digestCredential, storedPassword.toCharArray());
         } else if (credential instanceof X509CertificateCredential) {
@@ -893,7 +899,7 @@ public class FileBasedIdentityStore implements IdentityStore {
             
             User storedUser = getUser(ctx, user.getId());
             
-            String storedCert = storedUser.getAttribute(USER_CERTIFICATE_ATTRIBUTE);
+            String storedCert = storedUser.<String>getAttribute(USER_CERTIFICATE_ATTRIBUTE).getValue();
             
             if (storedCert != null) {
                 try {
@@ -916,7 +922,7 @@ public class FileBasedIdentityStore implements IdentityStore {
 
             User storedUser = getUser(ctx, user.getId());
 
-            storedUser.setAttribute(USER_PASSWORD_ATTRIBUTE, passwordCredential.getPassword());
+            storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, passwordCredential.getPassword()));
             
             flushUsers();
         } else if (credential instanceof X509CertificateCredential) {
@@ -925,7 +931,8 @@ public class FileBasedIdentityStore implements IdentityStore {
             User storedUser = getUser(ctx, user.getId());
 
             try {
-                storedUser.setAttribute(USER_CERTIFICATE_ATTRIBUTE, new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded())));
+                storedUser.setAttribute(new Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, 
+                        new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded()))));
             } catch (CertificateEncodingException e) {
                 throw new RuntimeException(e);
             }
@@ -969,7 +976,7 @@ public class FileBasedIdentityStore implements IdentityStore {
                     String searchAttributeKey = entry.getKey();
                     String[] searchAttributeValue = entry.getValue();
 
-                    String[] userAttributes = fileUser.getAttributeValues(searchAttributeKey);
+                    String[] userAttributes = fileUser.<String[]>getAttribute(searchAttributeKey).getValue();
 
                     if (userAttributes == null) {
                         users.remove(fileUser);
@@ -1019,7 +1026,15 @@ public class FileBasedIdentityStore implements IdentityStore {
     @Override
     public void updateUser(IdentityStoreInvocationContext ctx, User user) {
         // TODO implement this
-        
+
+    }
+
+    // TODO implement this method
+    @Override
+    public <T extends Serializable> Attribute<T> getAttribute(IdentityStoreInvocationContext ctx,
+            IdentityType identityType, String attributeName) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

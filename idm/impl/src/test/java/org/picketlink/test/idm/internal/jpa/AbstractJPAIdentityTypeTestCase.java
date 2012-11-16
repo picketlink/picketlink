@@ -27,6 +27,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 
 /**
@@ -47,18 +48,19 @@ public abstract class AbstractJPAIdentityTypeTestCase extends AbstractJPAIdentit
     protected void testAddAttributes() throws Exception {
         IdentityType identityType = getIdentityTypeFromDatabase(getIdentityManager());
 
-        identityType.setAttribute("QuestionTotal", "2");
-        identityType.setAttribute("Question1", "What is favorite toy?");
-        identityType.setAttribute("Question1Answer", "Gum");
-        identityType.setAttribute("MultiValuedAttribute", new String[] { "value1", "value2", "value3" });
+        identityType.setAttribute(new Attribute<String>("QuestionTotal", "2"));
+        identityType.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
+        identityType.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
+        identityType.setAttribute(new Attribute<String[]>("MultiValuedAttribute", 
+                new String[] { "value1", "value2", "value3" }));
 
         assertEquals("2", identityType.getAttribute("QuestionTotal"));
         assertEquals("What is favorite toy?", identityType.getAttribute("Question1"));
         assertEquals("Gum", identityType.getAttribute("Question1Answer"));
 
-        assertEquals("value1", identityType.getAttributeValues("MultiValuedAttribute")[0]);
-        assertEquals("value2", identityType.getAttributeValues("MultiValuedAttribute")[1]);
-        assertEquals("value3", identityType.getAttributeValues("MultiValuedAttribute")[2]);
+        assertEquals("value1", identityType.<String[]>getAttribute("MultiValuedAttribute").getValue()[0]);
+        assertEquals("value2", identityType.<String[]>getAttribute("MultiValuedAttribute").getValue()[1]);
+        assertEquals("value3", identityType.<String[]>getAttribute("MultiValuedAttribute").getValue()[2]);
     }
 
     protected abstract IdentityType getIdentityTypeFromDatabase(IdentityManager identityStore);
@@ -75,11 +77,11 @@ public abstract class AbstractJPAIdentityTypeTestCase extends AbstractJPAIdentit
 
         IdentityType identityType = getIdentityTypeFromDatabase(identityManager);
 
-        assertNotNull(identityType.getAttributeValues("MultiValuedAttribute"));
+        assertNotNull(identityType.<String[]>getAttribute("MultiValuedAttribute").getValue());
 
         identityType.removeAttribute("MultiValuedAttribute");
 
-        assertNull(identityType.getAttributeValues("MultiValuedAttribute"));
+        assertNull(identityType.<String[]>getAttribute("MultiValuedAttribute").getValue());
     }
 
 }

@@ -29,6 +29,7 @@ import java.security.SecureRandom;
 
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.internal.util.Base64;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.User;
 
 /**
@@ -61,7 +62,7 @@ public class SHASaltedPasswordEncoder implements PasswordEncoder {
     public String encodePassword(User user, String rawPassword) {
         MessageDigest messageDigest = getMessageDigest();
 
-        String salt = user.getAttribute(PASSWORD_SALT_USER_ATTRIBUTE);
+        String salt = user.<String>getAttribute(PASSWORD_SALT_USER_ATTRIBUTE).getValue();
 
         // user does not have a salt. let's generate a fresh one.
         if (salt == null) {
@@ -77,7 +78,7 @@ public class SHASaltedPasswordEncoder implements PasswordEncoder {
 
             salt = String.valueOf(psuedoRng.nextLong());
 
-            user.setAttribute(PASSWORD_SALT_USER_ATTRIBUTE, salt);
+            user.setAttribute(new Attribute<String>(PASSWORD_SALT_USER_ATTRIBUTE, salt));
         }
 
         byte[] encodedPassword = null;

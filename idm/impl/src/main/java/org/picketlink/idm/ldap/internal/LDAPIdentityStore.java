@@ -26,6 +26,7 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -575,19 +576,21 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
      * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.User, java.lang.String, java.lang.String[])
      */
     @Override
-    public void setAttribute(IdentityStoreInvocationContext invocationContext, IdentityType identity, String name, String[] values) {
+    public void setAttribute(IdentityStoreInvocationContext invocationContext, IdentityType identity, 
+            org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
         if (identity instanceof User) {
             LDAPUser ldapUser = null;
-    
+
             if (identity instanceof LDAPUser) {
                 ldapUser = (LDAPUser) identity;
             } else {
                 ldapUser = (LDAPUser) getUser(invocationContext, ((User) identity).getFullName());
             }
-            if (isManaged(name)) {
-                ldapUser.setAttribute(name, values);
+            if (isManaged(attribute.getName())) {
+                ldapUser.setAttribute(attribute); 
             } else {
-                ldapUser.setCustomAttribute(name, values);
+                // FIXME 
+                // ldapUser.setCustomAttribute(attribute.getName(), attribute.getValue());
             }
         } else if (identity instanceof Group) {
             LDAPGroup ldapGroup = null;
@@ -596,7 +599,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             } else {
                 ldapGroup = (LDAPGroup) getGroup(invocationContext, ((Group) identity).getName());
             }
-            ldapGroup.setAttribute(name, values);            
+            ldapGroup.setAttribute(attribute);
         } else if (identity instanceof Role) {
             LDAPRole ldapRole = null;
             if (identity instanceof LDAPGroup) {
@@ -604,7 +607,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             } else {
                 ldapRole = (LDAPRole) getRole(invocationContext, ((Role) identity).getName());
             }
-            ldapRole.setAttribute(name, values);
+            ldapRole.setAttribute(attribute);
         }
     }
 
@@ -641,6 +644,9 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#getAttributeValues(org.picketlink.idm.model.User, java.lang.String)
      */
+    
+    // TODO method no longer required?
+    /*
     @Override
     public String[] getAttributeValues(IdentityStoreInvocationContext invocationContext, IdentityType identity, String name) {
         if (identity instanceof User) {
@@ -668,11 +674,14 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         } else {
             throw new IllegalArgumentException("identity parameter must be an instance of User, Group or Role");
         }
-    }
+    }*/
 
     /* (non-Javadoc)
      * @see org.picketlink.idm.spi.IdentityStore#getAttributes(org.picketlink.idm.model.User)
      */
+    
+    // TODO method no longer required?
+    /*
     @Override
     public Map<String, String[]> getAttributes(IdentityStoreInvocationContext invocationContext, IdentityType identity) {
         if (identity instanceof User) {
@@ -700,7 +709,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         } else {
             throw new IllegalArgumentException("identity parameter must be an instance of User, Group or Role");
         }
-    }
+    }*/
 
     protected void ensureGroupDNExists() {
         try {
@@ -854,7 +863,7 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
 
         for (String key : keys) {
             String[] values = filters.get(key);
-            String[] attValues = user.getAttributeValues(key);
+            String[] attValues = user.<String[]>getAttribute(key).getValue();
             if (IDMUtil.arraysEqual(values, attValues) == false) {
                 return false;
             }
@@ -978,7 +987,8 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
             X509CertificateCredential cc = (X509CertificateCredential) credential;
             try {
                 LDAPUser ldapUser = (LDAPUser) user;
-                ldapUser.setAttribute(USER_CERTIFICATE_ATTRIBUTE, new String(Base64.encodeBytes(cc.getCertificate().getEncoded())));
+                ldapUser.setAttribute(new org.picketlink.idm.model.Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, 
+                        new String(Base64.encodeBytes(cc.getCertificate().getEncoded()))));
                 ModificationItem[] mods = new ModificationItem[1];
 
                 byte[] certbytes = cc.getCertificate().getEncoded();
@@ -1095,8 +1105,8 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
         if(user.getEmail() != null){
             ldapuser.setEmail(user.getEmail());   
         }
-        for (String attribName : user.getAttributes().keySet()) {
-            ldapuser.setAttribute(attribName, user.getAttribute(attribName));
+        for (org.picketlink.idm.model.Attribute<? extends Serializable> attrib : user.getAttributes()) {
+            ldapuser.setAttribute(attrib);
         } 
         return ldapuser;
     }
@@ -1116,6 +1126,13 @@ public class LDAPIdentityStore implements IdentityStore, LDAPChangeNotificationH
     @Override
     public Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
         // TODO implement this
+        return null;
+    }
+
+    @Override
+    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(
+            IdentityStoreInvocationContext ctx, IdentityType identityType, String attributeName) {
+        // TODO Auto-generated method stub
         return null;
     }
 

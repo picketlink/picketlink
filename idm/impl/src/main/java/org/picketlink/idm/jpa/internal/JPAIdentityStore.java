@@ -1,5 +1,6 @@
 package org.picketlink.idm.jpa.internal;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
@@ -737,8 +739,8 @@ public class JPAIdentityStore implements IdentityStore {
             ctx.getEventBridge().raiseEvent(event);
 
             if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
-                for (String key : user.getAttributes().keySet()) {
-                    setAttribute(ctx, user, key, user.getAttributeValues(key));
+                for (Attribute<? extends Serializable> attrib : user.getAttributes()) {
+                    setAttribute(ctx, user, attrib);
                 }
             }
 
@@ -907,7 +909,8 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name, String[] values) {
+    public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, 
+            Attribute<? extends Serializable> attrib) {
         // TODO Auto-generated method stub
         
     }
@@ -919,14 +922,9 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public String[] getAttributeValues(IdentityStoreInvocationContext ctx, IdentityType identity, String name) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Map<String, String[]> getAttributes(IdentityStoreInvocationContext ctx, IdentityType identity) {
-        // TODO Auto-generated method stub
+    public <T extends Serializable> Attribute<T> getAttribute(IdentityStoreInvocationContext ctx, 
+            IdentityType identityType, String attributeName) {
+        // TODO implement this
         return null;
     }
 

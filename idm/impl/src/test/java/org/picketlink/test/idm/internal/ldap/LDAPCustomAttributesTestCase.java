@@ -37,6 +37,7 @@ import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPUser;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
@@ -92,23 +93,22 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
         assertEquals("Saldhana", anil.getLastName());
 
         // Deal with Anil's attributes
-        store.setAttribute(null, anil, "QuestionTotal", new String[] { "2" });
-        store.setAttribute(null, anil, "Question1", new String[] { "What is favorite toy?" });
-        store.setAttribute(null, anil, "Question1Answer", new String[] { "Gum" });
+        store.setAttribute(null, anil, new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
+        store.setAttribute(null, anil, new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
+        store.setAttribute(null, anil, new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
 
-        store.setAttribute(null, anil, "Question2", new String[] { "What is favorite word?" });
-        store.setAttribute(null, anil, "Question2Answer", new String[] { "Hi" });
+        store.setAttribute(null, anil, new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
+        store.setAttribute(null, anil, new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
 
         // let us retrieve the attributes from ldap store and see if they are the same
         anil = im.getUser("Anil Saldhana");
-        Map<String, String[]> attributes = anil.getAttributes();
-        assertNotNull(attributes);
+        assertNotNull(anil.getAttributes());
 
-        assertEquals("2", attributes.get("QuestionTotal")[0]);
-        assertEquals("What is favorite toy?", attributes.get("Question1")[0]);
-        assertEquals("Gum", attributes.get("Question1Answer")[0]);
-        assertEquals("What is favorite word?", attributes.get("Question2")[0]);
-        assertEquals("Hi", attributes.get("Question2Answer")[0]);
+        assertEquals("2", anil.<String[]>getAttribute("QuestionTotal").getValue()[0]);
+        assertEquals("What is favorite toy?", anil.<String[]>getAttribute("Question1").getValue()[0]);
+        assertEquals("Gum", anil.<String[]>getAttribute("Question1Answer").getValue()[0]);
+        assertEquals("What is favorite word?", anil.<String[]>getAttribute("Question2").getValue()[0]);
+        assertEquals("Hi", anil.<String[]>getAttribute("Question2Answer").getValue()[0]);
     }
 
     private LDAPConfiguration getConfiguration() {
