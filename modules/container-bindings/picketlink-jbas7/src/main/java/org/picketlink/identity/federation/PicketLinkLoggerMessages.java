@@ -211,10 +211,6 @@ public interface PicketLinkLoggerMessages extends BasicLogger {
     void samlHandlerRoleGeneratorSetupError(@Cause Throwable t);
 
     @LogMessage(level = Level.ERROR)
-    @Message(id = 238, value = "AttributeManager set to %s")
-    void samlHandlerAttributeSetup(String name);
-
-    @LogMessage(level = Level.ERROR)
     @Message(id = 239, value = "Key Pair cannot be found")
     void samlHandlerKeyPairNotFound();
 

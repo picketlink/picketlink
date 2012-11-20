@@ -938,13 +938,6 @@ public final class PicketLinkLoggerImpl implements PicketLinkLogger {
     }
 
     /* (non-Javadoc)
-     * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAttributeSetup(java.lang.String)
-     */
-    public void samlHandlerAttributeSetup(String name) {
-        PicketLinkLoggerMessages.ROOT_LOGGER.samlHandlerAttributeSetup(name);
-    }
-
-    /* (non-Javadoc)
      * @see org.picketlink.identity.federation.PicketLinkLogger#samlHandlerAssertionNotFound()
      */
     public RuntimeException samlHandlerAssertionNotFound() {
