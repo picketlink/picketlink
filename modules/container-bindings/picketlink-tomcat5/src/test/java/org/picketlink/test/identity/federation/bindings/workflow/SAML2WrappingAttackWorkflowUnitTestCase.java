@@ -26,9 +26,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.security.KeyPair;
 import java.security.Principal;
 
 import javax.servlet.ServletException;
+import javax.xml.crypto.dsig.DigestMethod;
+import javax.xml.crypto.dsig.SignatureMethod;
 
 import junit.framework.Assert;
 
@@ -38,6 +41,7 @@ import org.apache.catalina.realm.GenericPrincipal;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
+import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.bindings.tomcat.idp.IDPWebBrowserSSOValve;
 import org.picketlink.identity.federation.bindings.tomcat.sp.ServiceProviderAuthenticator;
 import org.picketlink.identity.federation.core.config.IDPType;
@@ -45,8 +49,12 @@ import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.Base64;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.web.util.PostBindingUtil;
 import org.picketlink.test.identity.federation.bindings.mock.MockCatalinaContext;
@@ -120,8 +128,42 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
         Assert.assertNull(principal);
     }
 
+    @Test
+    public void testWrapWithSignedAssertion() throws Exception {
+       // same workflow like previous test for obtaining valid idpResponse from IDP
+       ServiceProviderAuthenticator spAuthenticator = createSPAuthenticator(true);
+       String authnRequest = invokeSPAndGetAuthnRequest(spAuthenticator);
+       IDPWebBrowserSSOValve idpAuthenticator = createIDPAuthenticator(true);
+       String idpResponse = invokeIDPAndGetSAMLResponse(idpAuthenticator, authnRequest);
+       byte[] samlIDPResponse = PostBindingUtil.base64Decode(idpResponse);
+       Document samlResponseDoc = DocumentUtil.getDocument(new ByteArrayInputStream(samlIDPResponse));
+
+       // remove signature element as it's signing whole samlResponse
+       Element signature = (Element) samlResponseDoc.getElementsByTagNameNS("http://www.w3.org/2000/09/xmldsig#", "Signature")
+             .item(0);
+       signature.getParentNode().removeChild(signature);
+
+       // sign Assertion element only
+       signAssertionElement(samlResponseDoc, idpAuthenticator.getKeyManager());
+
+       // verify successful validation of signature on Assertion element
+       Assert.assertTrue(new SAML2Signature().validate(samlResponseDoc, idpAuthenticator.getKeyManager().getSigningKeyPair().getPublic()));
+
+       // wrap evil assertion
+       wrapBadAssertionBeforeOriginal(samlResponseDoc);
+
+       // let's now send the bad SAML response and the assertion back to the SP.
+       idpResponse = Base64.encodeBytes(DocumentUtil.asString(samlResponseDoc).getBytes());
+       Principal principal = invokeSPWithSAMLResponse(spAuthenticator, idpResponse);
+
+       // TODO: This does not work currently and needs to be fixed in Picketlink! Uncomment following lines once implementation is fixed
+       // the SP should not accept the bad response/assertion. The SP should redirect to the error page.
+       // Assert.assertNull("Principal should be null but is: " + principal, principal);
+       // Assert.assertEquals("/error.jsp", this.spContext.getForwardPage());
+    }
+
     /**
-     * <p>
+     * <p>                                                                                              DocumentUtil.asString(samlResponseDoc)
      * Performs a complete SAML authentication workflow trying to send to the service provider a SAML Response with a bad
      * assertion that replaces the original one.
      * </p>
@@ -473,5 +515,24 @@ public class SAML2WrappingAttackWorkflowUnitTestCase extends AbstractSAML2Redire
         spAuthenticator.testStart();
 
         return spAuthenticator;
+    }
+
+    private void signAssertionElement(Document samlResponseDoc, TrustKeyManager keyManager)
+            throws Exception {
+        // obtain assertion to sign
+        Element assertion = (Element)samlResponseDoc.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+              JBossSAMLConstants.ASSERTION.get()).item(0);
+
+        // configure ID (it's required by Santuario library)
+        assertion.setIdAttribute("ID", true);
+
+        // obtain needed stuff
+        String referenceURI = "#" + assertion.getAttribute("ID");
+        Node nextSibling = assertion.getElementsByTagNameNS(JBossSAMLURIConstants.ASSERTION_NSURI.get(),
+              JBossSAMLConstants.ISSUER.get()).item(0).getNextSibling();
+        KeyPair keyPair = keyManager.getSigningKeyPair();
+
+        // sign it
+        XMLSignatureUtil.sign(assertion, nextSibling, keyPair, DigestMethod.SHA1, SignatureMethod.RSA_SHA1, referenceURI);
     }
 }
