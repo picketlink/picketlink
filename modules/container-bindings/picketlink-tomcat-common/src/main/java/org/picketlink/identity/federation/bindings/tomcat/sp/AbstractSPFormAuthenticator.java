@@ -469,9 +469,21 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 session.setNote(Constants.SESS_USERNAME_NOTE, username);
                 session.setNote(Constants.SESS_PASSWORD_NOTE, password);
                 request.setUserPrincipal(principal);
-                // Get the original saved request
+                // Get the original saved request and redirects the user back to the previous URI
                 if (saveRestoreRequest) {
-                    this.restoreRequest(request, session);
+                    if (this.restoreRequest(request, session)) {
+                        String requestURI = request.getRequestURI();
+                        
+                        if (requestURI.indexOf(this.spConfiguration.getLogOutPage()) != -1) {
+                            requestURI = request.getContextPath();
+                        }
+                        
+                        if (request.getQueryString() == null) {
+                            response.sendRedirect(response.encodeRedirectURL(requestURI));
+                        } else {
+                            response.sendRedirect(response.encodeRedirectURL(requestURI + "?" + request.getQueryString()));
+                        }
+                    }
                 }
 
                 if (enableAudit) {
