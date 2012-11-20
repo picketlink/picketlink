@@ -42,6 +42,7 @@ import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.TierStore;
 
 /**
  * Unit test the ability to add custom attributes to {@link LDAPUser}
@@ -76,6 +77,11 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
             public void mapConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
                     Class<? extends IdentityStore> storeClass) {
                 // noop
+            }
+            @Override
+            public TierStore createTierStore(IdentityStoreConfiguration config) {
+                // TODO Auto-generated method stub
+                return null;
             }
         });
 

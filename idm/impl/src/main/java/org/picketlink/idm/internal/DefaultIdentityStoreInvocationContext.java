@@ -1,6 +1,8 @@
 package org.picketlink.idm.internal;
 
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreSession;
 
@@ -26,5 +28,17 @@ public class DefaultIdentityStoreInvocationContext implements IdentityStoreInvoc
     @Override
     public EventBridge getEventBridge() {
         return eventBridge;
+    }
+
+    @Override
+    public Realm getRealm() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Tier getTier() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

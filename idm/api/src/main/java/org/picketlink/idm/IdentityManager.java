@@ -29,7 +29,9 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityStoreFactory;
@@ -63,7 +65,6 @@ public interface IdentityManager {
      * @param factory
      */
     void setIdentityStoreFactory(IdentityStoreFactory factory);
-
 
     // User
 
@@ -136,4 +137,26 @@ public interface IdentityManager {
     <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName);
 
     void removeAttribute(IdentityType identityType, String attributeName);
+
+    // Realm
+
+    void createRealm(Realm realm);
+
+    void removeRealm(Realm realm);
+
+    Realm getRealm(String name);
+
+    // Tier
+
+    void createTier(Tier tier);
+
+    void removeTier(Tier tier);
+
+    Tier getTier(String id);
+
+    // Context
+
+    IdentityManager forRealm(Realm realm);
+
+    IdentityManager forTier(Tier tier);
 }

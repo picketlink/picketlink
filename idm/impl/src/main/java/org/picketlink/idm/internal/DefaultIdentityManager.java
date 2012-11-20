@@ -35,8 +35,10 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.IdentityQuery;
@@ -224,7 +226,7 @@ public class DefaultIdentityManager implements IdentityManager {
     public void updateCredential(User user, Credential credential) {
         IdentityStore store = getStoreForFeature(Feature.validateCredential);
         store.updateCredential(getContextFactory().getContext(store), user, credential);
-    }
+    }    
 
     @Override
     public void setEnabled(IdentityType identityType, boolean enabled) {
@@ -266,6 +268,54 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void removeAttribute(IdentityType identityType, String attributeName) {
         // TODO implement this
+    }
+
+    @Override
+    public void createRealm(Realm realm) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeRealm(Realm realm) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Realm getRealm(String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void createTier(Tier tier) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeTier(Tier tier) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Tier getTier(String id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IdentityManager forRealm(Realm realm) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IdentityManager forTier(Tier tier) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

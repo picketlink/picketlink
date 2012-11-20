@@ -11,6 +11,7 @@ import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.TierStore;
 
 /**
  * Default IdentityStoreFactory implementation.  This factory is pre-configured to be
@@ -54,5 +55,11 @@ public class DefaultIdentityStoreFactory implements IdentityStoreFactory {
     public void mapConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
             Class<? extends IdentityStore> storeClass) {
         configMap.put(configClass,  storeClass);
+    }
+
+    @Override
+    public TierStore createTierStore(IdentityStoreConfiguration config) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

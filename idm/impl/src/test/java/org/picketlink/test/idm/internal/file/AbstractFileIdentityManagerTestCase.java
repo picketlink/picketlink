@@ -30,6 +30,7 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.TierStore;
 
 /**
  * <p>
@@ -69,6 +70,12 @@ public abstract class AbstractFileIdentityManagerTestCase {
                 public void mapConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
                         Class<? extends IdentityStore> storeClass) {
                     // no-op
+                }
+
+                @Override
+                public TierStore createTierStore(IdentityStoreConfiguration config) {
+                    // TODO Auto-generated method stub
+                    return null;
                 }
             });
             // hack end
