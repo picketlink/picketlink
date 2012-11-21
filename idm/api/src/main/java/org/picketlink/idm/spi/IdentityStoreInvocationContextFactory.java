@@ -1,10 +1,12 @@
 package org.picketlink.idm.spi;
 
 /**
- * Factory for providing IdentityStoreInvocationContext instances
+ * Factory for creating and initializing IdentityStoreInvocationContext instances
  *  
  * @author Shane Bryzak
  */
 public interface IdentityStoreInvocationContextFactory {
-    IdentityStoreInvocationContext getContext(IdentityStore store);
+    IdentityStoreInvocationContext createContext();
+
+    void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store);
 }

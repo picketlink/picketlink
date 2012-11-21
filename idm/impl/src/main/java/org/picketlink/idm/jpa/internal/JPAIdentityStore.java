@@ -44,7 +44,6 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.JPAIdentityStoreSession;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
@@ -54,6 +53,9 @@ import org.picketlink.idm.spi.IdentityStore.Feature;
  * @author Shane Bryzak
  */
 public class JPAIdentityStore implements IdentityStore {
+
+    // Invocation context parameters
+    public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
 
     // Event context parameters
     public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
@@ -681,7 +683,11 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     protected EntityManager getEntityManager(IdentityStoreInvocationContext invocationContext) {
-        return ((JPAIdentityStoreSession) invocationContext.getIdentityStoreSession()).getEntityManager();
+        if (!invocationContext.isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
+            throw new IllegalStateException("Error while trying to determine EntityManager - context parameter not set.");
+        }
+
+        return (EntityManager) invocationContext.getParameter(INVOCATION_CTX_ENTITY_MANAGER);
     }
 
 

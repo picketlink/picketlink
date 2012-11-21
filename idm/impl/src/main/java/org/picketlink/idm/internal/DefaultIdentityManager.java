@@ -22,10 +22,8 @@
 package org.picketlink.idm.internal;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.picketlink.idm.IdentityManager;
@@ -37,7 +35,6 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
@@ -45,6 +42,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 
 /**
@@ -91,52 +89,58 @@ public class DefaultIdentityManager implements IdentityManager {
         }
     }
 
+    private IdentityStoreInvocationContext getContextForStore(IdentityStore store) {
+        IdentityStoreInvocationContext ctx = getContextFactory().createContext();
+        getContextFactory().initContextForStore(ctx, store);
+        return ctx;
+    }
+
     @Override
     public void createUser(User user) {
         IdentityStore store = getStoreForFeature(Feature.createUser);
-        store.createUser(getContextFactory().getContext(store), user);
+        store.createUser(getContextForStore(store), user);
     }
 
     @Override
     public void removeUser(User user) {
         IdentityStore store = getStoreForFeature(Feature.deleteUser);
-        store.removeUser(getContextFactory().getContext(store), user);
+        store.removeUser(getContextForStore(store), user);
     }
 
     @Override
     public void updateUser(User user) {
         IdentityStore store = getStoreForFeature(Feature.updateUser);
-        store.updateUser(getContextFactory().getContext(store), user);
+        store.updateUser(getContextForStore(store), user);
     }
 
     @Override
     public User getUser(String name) {
         IdentityStore store = getStoreForFeature(Feature.readUser);
-        return store.getUser(getContextFactory().getContext(store), name);
+        return store.getUser(getContextForStore(store), name);
     }
 
     @Override
     public void createGroup(Group group) {
         IdentityStore store = getStoreForFeature(Feature.createGroup);
-        store.createGroup(getContextFactory().getContext(store), group);
+        store.createGroup(getContextForStore(store), group);
     }
 
     @Override
     public void removeGroup(Group group) {
         IdentityStore store = getStoreForFeature(Feature.deleteGroup);
-        store.removeGroup(getContextFactory().getContext(store), group);
+        store.removeGroup(getContextForStore(store), group);
     }
 
     @Override
     public Group getGroup(String groupId) {
         IdentityStore store = getStoreForFeature(Feature.readGroup);
-        return store.getGroup(getContextFactory().getContext(store), groupId);
+        return store.getGroup(getContextForStore(store), groupId);
     }
 
     @Override
     public Group getGroup(String groupName, Group parent) {
         IdentityStore store = getStoreForFeature(Feature.readGroup);
-        return store.getGroup(getContextFactory().getContext(store), groupName, parent);
+        return store.getGroup(getContextForStore(store), groupName, parent);
     }
 
     public boolean isMember(IdentityType identityType, Group group) {
@@ -157,19 +161,19 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void createRole(Role role) {
         IdentityStore store = getStoreForFeature(Feature.createRole);
-        store.createRole(getContextFactory().getContext(store), role);
+        store.createRole(getContextForStore(store), role);
     }
 
     @Override
     public void removeRole(Role role) {
         IdentityStore store = getStoreForFeature(Feature.deleteRole);
-        store.removeRole(getContextFactory().getContext(store), role);
+        store.removeRole(getContextForStore(store), role);
     }
 
     @Override
     public Role getRole(String name) {
         IdentityStore store = getStoreForFeature(Feature.readRole);
-        return store.getRole(getContextFactory().getContext(store), name);
+        return store.getRole(getContextForStore(store), name);
     }
 
     /* (non-Javadoc)
@@ -190,7 +194,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void grantGroupRole(IdentityType identityType, Role role, Group group) {
         IdentityStore store = getStoreForFeature(Feature.createMembership);
-        store.createMembership(getContextFactory().getContext(store), identityType, group, role);
+        store.createMembership(getContextForStore(store), identityType, group, role);
     }
 
     @Override
@@ -219,13 +223,13 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public boolean validateCredential(User user, Credential credential) {
         IdentityStore store = getStoreForFeature(Feature.validateCredential);
-        return store.validateCredential(getContextFactory().getContext(store), user, credential);
+        return store.validateCredential(getContextForStore(store), user, credential);
     }
 
     @Override
     public void updateCredential(User user, Credential credential) {
         IdentityStore store = getStoreForFeature(Feature.validateCredential);
-        store.updateCredential(getContextFactory().getContext(store), user, credential);
+        store.updateCredential(getContextForStore(store), user, credential);
     }    
 
     @Override
