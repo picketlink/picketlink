@@ -103,8 +103,14 @@ public interface IdentityType {
         public static MembershipParameter group(String name) {
             return new MembershipParameter(name, null);
         }
+    }
+
+    public final class GRANTED {
         public static MembershipParameter role(String name) {
             return new MembershipParameter(null, name);
+        }
+        public static MembershipParameter groupRole(String group, String role) {
+            return new MembershipParameter(group, role);
         }
     }
 
