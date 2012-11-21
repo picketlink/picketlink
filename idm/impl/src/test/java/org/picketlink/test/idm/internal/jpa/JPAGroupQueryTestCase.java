@@ -236,7 +236,7 @@ public class JPAGroupQueryTestCase extends AbstractJPAIdentityManagerTestCase {
             Role role = new SimpleRole(ROLE_NAME_PREFIX + index);
             identityManager.createRole(role);
 
-            identityManager.grantRole(user, role, currentGroup);
+            identityManager.grantGroupRole(user, role, currentGroup);
 
             currentGroup.setAttribute(new Attribute<String>("attribute1", "attributeValue1"));
             currentGroup.setAttribute(new Attribute<String>("attribute1", "attributeValue12"));

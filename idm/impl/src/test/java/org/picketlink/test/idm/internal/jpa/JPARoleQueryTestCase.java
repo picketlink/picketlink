@@ -168,7 +168,7 @@ public class JPARoleQueryTestCase extends AbstractJPAIdentityManagerTestCase {
                 this.role = currentRole;
             }
 
-            identityManager.grantRole(this.user, currentRole, this.group);
+            identityManager.grantGroupRole(this.user, currentRole, this.group);
 
             currentRole.setAttribute(new Attribute<String>("attribute1", "attributeValue1"));
             currentRole.setAttribute(new Attribute<String>("attribute1", "attributeValue12"));

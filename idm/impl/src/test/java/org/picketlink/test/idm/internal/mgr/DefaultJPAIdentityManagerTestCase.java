@@ -146,7 +146,7 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         Group testGroup = new SimpleGroup("Test Group", null);
         im.createGroup(testGroup);
 
-        im.grantRole(user, adminRole, testGroup);
+        im.grantGroupRole(user, adminRole, testGroup);
 
         // FIXME rewrite using Query API
         Collection<Role> rolesByUser = null; //im.getRoles(user, null);

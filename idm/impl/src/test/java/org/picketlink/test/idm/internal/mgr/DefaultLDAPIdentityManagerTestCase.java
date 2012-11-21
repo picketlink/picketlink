@@ -168,7 +168,7 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         im.createGroup(unusedGroup);
 
         // grant adminRole to anil and put the user in the testGroup
-        im.grantRole(anil, adminRole, testGroup);
+        im.grantGroupRole(anil, adminRole, testGroup);
 
         // get the roles for anil. We should have only adminRole
         // FIXME rewrite using Query API

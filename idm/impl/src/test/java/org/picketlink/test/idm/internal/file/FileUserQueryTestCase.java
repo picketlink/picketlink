@@ -271,7 +271,7 @@ public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
             Group group = new SimpleGroup(GROUP_NAME_PREFIX + index, (Group) null);
             identityManager.createGroup(group);
 
-            identityManager.grantRole(user, role, group);
+            identityManager.grantGroupRole(user, role, group);
 
             currentUser.setAttribute(new Attribute<String>("attribute1", "attributeValue1"));
             currentUser.setAttribute(new Attribute<String>("attribute1", "attributeValue12"));

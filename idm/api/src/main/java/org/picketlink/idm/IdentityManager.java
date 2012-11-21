@@ -100,17 +100,17 @@ public interface IdentityManager {
 
     Role getRole(String name);
 
-    boolean hasRole(IdentityType identityType, Role role, Group group);
+    boolean hasGroupRole(IdentityType identityType, Role role, Group group);
 
-    void grantRole(IdentityType identityType, Role role, Group group);
+    void grantGroupRole(IdentityType identityType, Role role, Group group);
 
-    void revokeRole(IdentityType identityType, Role role, Group group);
+    void revokeGroupRole(IdentityType identityType, Role role, Group group);
 
-    boolean hasApplicationRole(IdentityType identityType, Role role);
+    boolean hasRole(IdentityType identityType, Role role);
 
-    void grantApplicationRole(IdentityType identityType, Role role);
+    void grantRole(IdentityType identityType, Role role);
 
-    void revokeApplicationRole(IdentityType identityType, Role role);
+    void revokeRole(IdentityType identityType, Role role);
 
     // Query API
 

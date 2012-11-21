@@ -65,7 +65,7 @@ public class FileMembershipTestCase extends AbstractFileIdentityManagerTestCase 
         Group group = new SimpleGroup("Administrators", (Group) null);
         identityStore.createGroup(group);
 
-        identityStore.grantRole(user, role, group);
+        identityStore.grantGroupRole(user, role, group);
 
         // FIXME rewrite this to use the query API
         Collection<Role> roles = null; //getIdentityManager().getRoles(null, group);

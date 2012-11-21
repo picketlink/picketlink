@@ -176,7 +176,7 @@ public class DefaultIdentityManager implements IdentityManager {
      * @see org.picketlink.idm.IdentityManager#hasRole(org.picketlink.idm.model.Role, org.picketlink.idm.model.IdentityType, org.picketlink.idm.model.Group)
      */
     @Override
-    public boolean hasRole(IdentityType identityType, Role role, Group group) {
+    public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
         //TODO: the MembershipQuery defines only a setUser. Need more discussion about others IdentityTypes.
         if (!(identityType instanceof User)) {
             throw new IllegalArgumentException("For now only the User type is supported as the IdentityType argument.");
@@ -188,30 +188,30 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void grantRole(IdentityType identityType, Role role, Group group) {
+    public void grantGroupRole(IdentityType identityType, Role role, Group group) {
         IdentityStore store = getStoreForFeature(Feature.createMembership);
         store.createMembership(getContextFactory().getContext(store), identityType, group, role);
     }
 
     @Override
-    public void revokeRole(IdentityType identityType, Role role, Group group) {
+    public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
         throw new RuntimeException();
     }
 
     @Override
-    public boolean hasApplicationRole(IdentityType identityType, Role role) {
+    public boolean hasRole(IdentityType identityType, Role role) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public void grantApplicationRole(IdentityType identityType, Role role) {
+    public void grantRole(IdentityType identityType, Role role) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void revokeApplicationRole(IdentityType identityType, Role role) {
+    public void revokeRole(IdentityType identityType, Role role) {
         // TODO Auto-generated method stub
 
     }
