@@ -161,8 +161,17 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     public Membership createMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
         if (member instanceof User) {
             DatabaseUser dbUser = (DatabaseUser) getUser(ctx, ((User) member).getId());
-            DatabaseRole dbRole = (DatabaseRole) getRole(ctx, role.getName());
-            DatabaseGroup dbGroup = (DatabaseGroup) getGroup(ctx, group.getName());
+            DatabaseRole dbRole = null;
+            
+            if (role != null) {
+                dbRole = (DatabaseRole) getRole(ctx, role.getName());
+            }
+
+            DatabaseGroup dbGroup = null;
+            
+            if (group != null) {
+                dbGroup = (DatabaseGroup) getGroup(ctx, group.getName());
+            }
             
             DatabaseMembership newMembership = new DatabaseMembership(dbUser, dbGroup, dbRole);
     
