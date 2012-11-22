@@ -22,7 +22,6 @@
 package org.picketlink.idm.spi;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -49,6 +48,8 @@ public interface IdentityStore {
     /**
      * This enum defines the individual features that an IdentityStore implementation or
      * instance may support.
+     * 
+     *  // TODO document each enum here 
      */
     public enum Feature { createUser, readUser, updateUser, deleteUser, 
                           createGroup, readGroup, updateGroup, deleteGroup,
@@ -56,6 +57,7 @@ public interface IdentityStore {
                           createMembership, readMembership, updateMembership, deleteMembership,
                           validateCredential, updateCredential,
                           readAttribute, updateAttribute, deleteAttribute,
+                          supportsTiers, supportsRealms,
                           all }
 
     /**
@@ -228,11 +230,32 @@ public interface IdentityStore {
 
     // Attributes
 
+    /**
+     * Sets the specified Attribute value for the specified IdentityType
+     * 
+     * @param ctx
+     * @param identityType
+     * @param attribute
+     */
     void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, 
             Attribute<? extends Serializable> attribute);
 
+    /**
+     * Returns the Attribute value with the specified name, for the specified IdentityType
+     * @param ctx
+     * @param identityType
+     * @param attributeName
+     * @return
+     */
     <T extends Serializable> Attribute<T> getAttribute(IdentityStoreInvocationContext ctx, 
             IdentityType identityType, String attributeName);
 
+    /**
+     * Removes the specified Attribute value, for the specified IdentityType
+     * 
+     * @param ctx
+     * @param identityType
+     * @param attributeName
+     */
     void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String attributeName);
 }

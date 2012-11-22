@@ -32,31 +32,89 @@ import org.picketlink.idm.spi.IdentityStore.Feature;
 /**
  * Represents a configuration for {@link IdentityStore}
  *
- * @author anil saldhana
+ * @author Anil Saldhana
+ * @author Shane Bryzak
  * @since Sep 6, 2012
  */
 public abstract class IdentityStoreConfiguration {
 
+    /**
+     * Defines the realm supported by this identity store.  If no realm is specified, then
+     * this identity store will be used during all supported operations where the selected
+     * realm is not explicitly served by a different identity store.
+     */
+    private String realm;
+
+    /**
+     * Defines arbitrary property values for the identity store
+     */
     private final Map<String,String> properties = new HashMap<String,String>();
 
+    /**
+     * Metadata reflecting which features are supported by this identity store
+     */
     private final Set<Feature> supportedFeatures = new HashSet<Feature>();
 
+    /**
+     * Returns the realm for this identity store
+     * 
+     * @return
+     */
+    public String getRealm() {
+        return realm;
+    }
+
+    /**
+     * Sets the realm for this identity store
+     * 
+     * @param realm
+     */
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
+
+    /**
+     * Returns a Set describing the features supported by this identity store
+     * 
+     * @return
+     */
     public Set<Feature> getSupportedFeatures() {
         return supportedFeatures;
     }
 
+    /**
+     * Adds the specified feature to the supported features for this identity store
+     * 
+     * @param feature
+     */
     public void addSupportedFeature(Feature feature) {
         supportedFeatures.add(feature);
     }
 
+    /**
+     * Removes the specified feature from the supported features for this identity store
+     * @param feature
+     */
     public void removeSupportedFeature(Feature feature) {
         supportedFeatures.remove(feature);
     }
 
+    /**
+     * Sets a property value
+     * 
+     * @param name
+     * @param value
+     */
     public void setProperty(String name, String value) {
         properties.put(name, value);
     }
 
+    /**
+     * Returns the specified property value
+     * 
+     * @param name
+     * @return
+     */
     public String getPropertyValue(String name) {
         return properties.get(name);
     }

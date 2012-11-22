@@ -7,5 +7,13 @@ package org.picketlink.idm.config;
  *
  */
 public class TierStoreConfiguration {
+    private Class<?> tierClass;
 
+    public Class<?> getTierClass() {
+        return tierClass;
+    }
+
+    public void setTierClass(Class<?> tierClass) {
+        this.tierClass = tierClass;
+    }
 }
