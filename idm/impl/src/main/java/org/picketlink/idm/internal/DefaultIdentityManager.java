@@ -22,6 +22,9 @@
 package org.picketlink.idm.internal;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +56,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
  */
 public class DefaultIdentityManager implements IdentityManager {
 
-    private Map<Feature,IdentityStore> featureToStoreMap = new HashMap<Feature,IdentityStore>();
+    private Map<String,Map<Feature,IdentityStore>> realmStores = new HashMap<String,Map<Feature,IdentityStore>>();
 
     private PasswordEncoder passwordEncoder;
 
@@ -61,10 +64,77 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private IdentityStoreInvocationContextFactory contextFactory;
 
+    private static Method METHOD_CREATE_CONTEXT;
+
+    { 
+        try {
+            METHOD_CREATE_CONTEXT = DefaultIdentityManager.class.getMethod("createContext");
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating DefaultIdentityManager - createContext() method not available");
+        } 
+    };
+
+    @Override
+    public IdentityManager forRealm(final Realm realm) {
+        final DefaultIdentityManager proxied = this;
+
+        return (IdentityManager) Proxy.newProxyInstance(this.getClass().getClassLoader(), 
+                new Class[] {IdentityManager.class}, 
+                new InvocationHandler(){
+
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        if (method.equals(METHOD_CREATE_CONTEXT)) {
+                            IdentityStoreInvocationContext ctx = proxied.createContext();
+                            ctx.setRealm(realm);
+                            return ctx;
+                        }
+                        else {
+                            return method.invoke(proxied, args);
+                        }
+                    }});
+    }
+
+    @Override
+    public IdentityManager forTier(final Tier tier) {
+        final DefaultIdentityManager proxied = this;
+
+        return (IdentityManager) Proxy.newProxyInstance(this.getClass().getClassLoader(), 
+                new Class[] {IdentityManager.class}, 
+                new InvocationHandler(){
+
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        if (method.equals(METHOD_CREATE_CONTEXT)) {
+                            IdentityStoreInvocationContext ctx = proxied.createContext();
+                            ctx.setTier(tier);
+                            return ctx;
+                        }
+                        else {
+                            return method.invoke(proxied, args);
+                        }
+                    }});
+    }
+
     @Override
     public void bootstrap(IdentityConfiguration identityConfig, IdentityStoreInvocationContextFactory contextFactory) {
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
+
             IdentityStore store = storeFactory.createIdentityStore(config);
+
+            Map<Feature,IdentityStore> featureToStoreMap;
+
+            String realm = config.getRealm();
+            if (realm == null || realm.isEmpty()) {
+                realm = Realm.DEFAULT_REALM;
+            }
+
+            if (realmStores.containsKey(realm)) {
+                featureToStoreMap = realmStores.get(realm);
+            } else {
+                featureToStoreMap = new HashMap<Feature,IdentityStore>();
+                realmStores.put(realm, featureToStoreMap);
+            }
 
             for (Feature f : store.getFeatureSet()) {
                 featureToStoreMap.put(f, store);
@@ -79,68 +149,70 @@ public class DefaultIdentityManager implements IdentityManager {
         this.storeFactory = factory;
     }
 
-    private IdentityStore getStoreForFeature(Feature feature) {
+    private IdentityStore getContextualStoreForFeature(IdentityStoreInvocationContext ctx, Feature feature) {
+        String realm = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
+
+        if (!realmStores.containsKey(realm)) {
+            throw new SecurityException("The specified realm '" + realm + "' has not been configured."); 
+        }
+
+        IdentityStore store = null;
+        Map<Feature,IdentityStore> featureToStoreMap = realmStores.get(realm);
+
         if (featureToStoreMap.containsKey(feature)) {
-            return featureToStoreMap.get(feature);
+            store = featureToStoreMap.get(feature);
         } else if (featureToStoreMap.containsKey(Feature.all)) {
-            return featureToStoreMap.get(Feature.all);
+            store = featureToStoreMap.get(Feature.all);
         } else {
             throw new UnsupportedOperationException("This identity management feature is not available");
         }
+
+        getContextFactory().initContextForStore(ctx, store);
+        return store.forContext(ctx);
     }
 
-    private IdentityStoreInvocationContext getContextForStore(IdentityStore store) {
-        IdentityStoreInvocationContext ctx = getContextFactory().createContext();
-        getContextFactory().initContextForStore(ctx, store);
-        return ctx;
+    private IdentityStoreInvocationContext createContext() {
+        return getContextFactory().createContext();
     }
 
     @Override
     public void createUser(User user) {
-        IdentityStore store = getStoreForFeature(Feature.createUser);
-        store.createUser(getContextForStore(store), user);
+        getContextualStoreForFeature(createContext(), Feature.createUser).createUser(user);
     }
 
     @Override
     public void removeUser(User user) {
-        IdentityStore store = getStoreForFeature(Feature.deleteUser);
-        store.removeUser(getContextForStore(store), user);
+        getContextualStoreForFeature(createContext(), Feature.deleteUser).removeUser(user);
     }
 
     @Override
     public void updateUser(User user) {
-        IdentityStore store = getStoreForFeature(Feature.updateUser);
-        store.updateUser(getContextForStore(store), user);
+        getContextualStoreForFeature(createContext(), Feature.updateUser).updateUser(user);
     }
 
     @Override
     public User getUser(String name) {
-        IdentityStore store = getStoreForFeature(Feature.readUser);
-        return store.getUser(getContextForStore(store), name);
+        return getContextualStoreForFeature(createContext(), Feature.readUser).getUser(name);
     }
 
     @Override
     public void createGroup(Group group) {
-        IdentityStore store = getStoreForFeature(Feature.createGroup);
-        store.createGroup(getContextForStore(store), group);
+        getContextualStoreForFeature(createContext(), Feature.createGroup).createGroup(group);
     }
 
     @Override
     public void removeGroup(Group group) {
-        IdentityStore store = getStoreForFeature(Feature.deleteGroup);
-        store.removeGroup(getContextForStore(store), group);
+        getContextualStoreForFeature(createContext(), Feature.deleteGroup).removeGroup(group);
     }
 
     @Override
     public Group getGroup(String groupId) {
-        IdentityStore store = getStoreForFeature(Feature.readGroup);
-        return store.getGroup(getContextForStore(store), groupId);
+        return getContextualStoreForFeature(createContext(), Feature.readGroup).getGroup(groupId);
     }
 
     @Override
     public Group getGroup(String groupName, Group parent) {
-        IdentityStore store = getStoreForFeature(Feature.readGroup);
-        return store.getGroup(getContextForStore(store), groupName, parent);
+        return getContextualStoreForFeature(createContext(), Feature.readGroup).getGroup(groupName, parent);
     }
 
     public boolean isMember(IdentityType identityType, Group group) {
@@ -160,20 +232,17 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void createRole(Role role) {
-        IdentityStore store = getStoreForFeature(Feature.createRole);
-        store.createRole(getContextForStore(store), role);
+        getContextualStoreForFeature(createContext(), Feature.createRole).createRole(role);
     }
 
     @Override
     public void removeRole(Role role) {
-        IdentityStore store = getStoreForFeature(Feature.deleteRole);
-        store.removeRole(getContextForStore(store), role);
+        getContextualStoreForFeature(createContext(), Feature.deleteRole).removeRole(role);
     }
 
     @Override
     public Role getRole(String name) {
-        IdentityStore store = getStoreForFeature(Feature.readRole);
-        return store.getRole(getContextForStore(store), name);
+        return getContextualStoreForFeature(createContext(), Feature.readRole).getRole(name);
     }
 
     /* (non-Javadoc)
@@ -181,10 +250,6 @@ public class DefaultIdentityManager implements IdentityManager {
      */
     @Override
     public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
-        //TODO: the MembershipQuery defines only a setUser. Need more discussion about others IdentityTypes.
-        if (!(identityType instanceof User)) {
-            throw new IllegalArgumentException("For now only the User type is supported as the IdentityType argument.");
-        }
 
         // TODO rewrite this implementation to use the IdentityCache instead of a query
 
@@ -193,8 +258,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantGroupRole(IdentityType identityType, Role role, Group group) {
-        IdentityStore store = getStoreForFeature(Feature.createMembership);
-        store.createMembership(getContextForStore(store), identityType, group, role);
+        getContextualStoreForFeature(createContext(), Feature.createMembership).createMembership(identityType, group, role);
     }
 
     @Override
@@ -222,15 +286,15 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean validateCredential(User user, Credential credential) {
-        IdentityStore store = getStoreForFeature(Feature.validateCredential);
-        return store.validateCredential(getContextForStore(store), user, credential);
+        return getContextualStoreForFeature(createContext(), 
+                Feature.validateCredential).validateCredential(user, credential);
     }
 
     @Override
     public void updateCredential(User user, Credential credential) {
-        IdentityStore store = getStoreForFeature(Feature.validateCredential);
-        store.updateCredential(getContextForStore(store), user, credential);
-    }    
+        getContextualStoreForFeature(createContext(), Feature.validateCredential)
+            .updateCredential(user, credential);
+    }
 
     @Override
     public void setEnabled(IdentityType identityType, boolean enabled) {
@@ -306,18 +370,6 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Tier getTier(String id) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IdentityManager forRealm(Realm realm) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IdentityManager forTier(Tier tier) {
         // TODO Auto-generated method stub
         return null;
     }

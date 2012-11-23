@@ -7,6 +7,8 @@ package org.picketlink.idm.model;
  * @author Shane Bryzak
  */
 public class Realm {
+    public static final String DEFAULT_REALM = "default";
+
     private String name;
 
     public Realm(String name) {

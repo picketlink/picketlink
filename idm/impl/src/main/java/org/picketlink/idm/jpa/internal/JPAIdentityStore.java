@@ -43,8 +43,7 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.IdentityStore.Feature;
+import org.picketlink.idm.spi.internal.AbstractBaseIdentityStore;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational
@@ -52,7 +51,7 @@ import org.picketlink.idm.spi.IdentityStore.Feature;
  * 
  * @author Shane Bryzak
  */
-public class JPAIdentityStore implements IdentityStore {
+public class JPAIdentityStore extends AbstractBaseIdentityStore implements IdentityStore {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -682,12 +681,12 @@ public class JPAIdentityStore implements IdentityStore {
         }
     }
 
-    protected EntityManager getEntityManager(IdentityStoreInvocationContext invocationContext) {
-        if (!invocationContext.isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
+    protected EntityManager getEntityManager() {
+        if (!getContext().isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
             throw new IllegalStateException("Error while trying to determine EntityManager - context parameter not set.");
         }
 
-        return (EntityManager) invocationContext.getParameter(INVOCATION_CTX_ENTITY_MANAGER);
+        return (EntityManager) getContext().getParameter(INVOCATION_CTX_ENTITY_MANAGER);
     }
 
 
@@ -702,7 +701,7 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void createUser(IdentityStoreInvocationContext ctx, User user) {
+    public void createUser(User user) {
         try {
             // Create the identity instance first
             Object identity = identityClass.newInstance();
@@ -725,7 +724,7 @@ public class JPAIdentityStore implements IdentityStore {
                 modelProperties.get(PROPERTY_USER_EMAIL).setValue(identity, user.getEmail());
             }
 
-            EntityManager em = getEntityManager(ctx);
+            EntityManager em = getEntityManager();
 
             // Create any related entities that may be containers for attribute values
             for (String attribName : attributeProperties.keySet()) {
@@ -742,11 +741,11 @@ public class JPAIdentityStore implements IdentityStore {
 
             UserCreatedEvent event = new UserCreatedEvent(user);
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
-            ctx.getEventBridge().raiseEvent(event);
+            getContext().getEventBridge().raiseEvent(event);
 
             if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
                 for (Attribute<? extends Serializable> attrib : user.getAttributes()) {
-                    setAttribute(ctx, user, attrib);
+                    setAttribute(user, attrib);
                 }
             }
 
@@ -855,8 +854,8 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void removeUser(IdentityStoreInvocationContext ctx, User user) {
-        EntityManager em = getEntityManager(ctx);
+    public void removeUser(User user) {
+        EntityManager em = getEntityManager();
         Object entity = lookupIdentityObjectByKey(em, user.getKey());
         removeIdentityObject(em, entity);
 
@@ -864,90 +863,88 @@ public class JPAIdentityStore implements IdentityStore {
 
         UserDeletedEvent event = new UserDeletedEvent(user);
         event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
-        ctx.getEventBridge().raiseEvent(event);
+        getContext().getEventBridge().raiseEvent(event);
     }
 
     @Override
-    public boolean validateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
+    public boolean validateCredential(User user, Credential credential) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public void updateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
+    public void updateCredential(User user, Credential credential) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public User getUser(IdentityStoreInvocationContext ctx, String id) {
+    public User getUser(String id) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void removeGroup(IdentityStoreInvocationContext ctx, Group group) {
-        EntityManager em = getEntityManager(ctx);
+    public void removeGroup(Group group) {
+        EntityManager em = getEntityManager();
         Object entity = lookupIdentityObjectByKey(em, group.getKey());
         removeIdentityObject(em, entity);
 
         GroupDeletedEvent event = new GroupDeletedEvent(group);
         event.getContext().setValue(EVENT_CONTEXT_GROUP_ENTITY, entity);
-        ctx.getEventBridge().raiseEvent(event);
+        getContext().getEventBridge().raiseEvent(event);
     }
 
     @Override
-    public Group getGroup(IdentityStoreInvocationContext ctx, String name) {
+    public Group getGroup(String name) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void removeRole(IdentityStoreInvocationContext ctx, Role role) {
+    public void removeRole(Role role) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public Role getRole(IdentityStoreInvocationContext ctx, String name) {
+    public Role getRole(String name) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, 
-            Attribute<? extends Serializable> attrib) {
+    public void setAttribute(IdentityType identity, Attribute<? extends Serializable> attrib) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identity, String name) {
+    public void removeAttribute(IdentityType identity, String name) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public <T extends Serializable> Attribute<T> getAttribute(IdentityStoreInvocationContext ctx, 
-            IdentityType identityType, String attributeName) {
+    public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
         // TODO implement this
         return null;
     }
 
     @Override
-    public Membership createMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+    public Membership createMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void removeMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+    public void removeMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public Membership getMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+    public Membership getMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -959,25 +956,25 @@ public class JPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public void updateUser(IdentityStoreInvocationContext ctx, User user) {
+    public void updateUser(User user) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public void createGroup(IdentityStoreInvocationContext ctx, Group group) {
+    public void createGroup(Group group) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
+    public Group getGroup(String name, Group parent) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void createRole(IdentityStoreInvocationContext ctx, Role role) {
+    public void createRole(Role role) {
         // TODO Auto-generated method stub
         
     }

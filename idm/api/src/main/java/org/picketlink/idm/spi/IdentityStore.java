@@ -69,6 +69,22 @@ public interface IdentityStore {
 
     void configure(IdentityStoreConfiguration config) throws SecurityConfigurationException;
 
+    /**
+     * Returns a proxied reference to this IdentityStore that will execute its operations within
+     * the specified context
+     * 
+     * @param ctx
+     * @return
+     */
+    IdentityStore forContext(IdentityStoreInvocationContext ctx);
+
+    /**
+     * Returns the current context for the IdentityStore
+     * 
+     * @return
+     */
+    IdentityStoreInvocationContext getContext();
+
     // User
 
     /**
@@ -77,7 +93,7 @@ public interface IdentityStore {
      * @param ctx
      * @param user
      */
-    void createUser(IdentityStoreInvocationContext ctx, User user);
+    void createUser(User user);
 
     /**
      * Removes the specified User from persistent storage.
@@ -85,7 +101,7 @@ public interface IdentityStore {
      * @param ctx
      * @param user
      */
-    void removeUser(IdentityStoreInvocationContext ctx, User user);
+    void removeUser(User user);
     
     /**
      * Updates the persisted User details with those provided by the specified User
@@ -93,7 +109,7 @@ public interface IdentityStore {
      * @param ctx
      * @param user
      */
-    void updateUser(IdentityStoreInvocationContext ctx, User user);
+    void updateUser(User user);
 
     /**
      * Returns the User with the specified id value. 
@@ -102,7 +118,7 @@ public interface IdentityStore {
      * @param id
      * @return
      */
-    User getUser(IdentityStoreInvocationContext ctx, String id);
+    User getUser(String id);
 
     // Group
 
@@ -113,7 +129,7 @@ public interface IdentityStore {
      * @param parent The parent group.  If the group to be created has no parent, then pass null.
      * @return
      */
-    void createGroup(IdentityStoreInvocationContext ctx, Group group);
+    void createGroup(Group group);
 
     /**
      * Removes the specified Group from persistent storage.
@@ -121,7 +137,7 @@ public interface IdentityStore {
      * @param ctx
      * @param group The Group to remove
      */
-    void removeGroup(IdentityStoreInvocationContext ctx, Group group);
+    void removeGroup(Group group);
 
     /**
      * Returns the Group with the specified Group ID.
@@ -130,7 +146,7 @@ public interface IdentityStore {
      * @param groupId
      * @return
      */
-    Group getGroup(IdentityStoreInvocationContext ctx, String groupId);
+    Group getGroup(String groupId);
 
     /**
      * Returns the Group with the specified name and parent group
@@ -139,7 +155,7 @@ public interface IdentityStore {
      * @param name The name of the Group to return
      * @return
      */
-    Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent);
+    Group getGroup(String name, Group parent);
 
     // Role
 
@@ -150,7 +166,7 @@ public interface IdentityStore {
      * @param name The name of the Role to create
      * @return
      */
-    void createRole(IdentityStoreInvocationContext ctx, Role role);
+    void createRole(Role role);
 
     /**
      * Removes the specified Role from persistent storage
@@ -158,7 +174,7 @@ public interface IdentityStore {
      * @param ctx
      * @param role The Role instance to remove
      */
-    void removeRole(IdentityStoreInvocationContext ctx, Role role);
+    void removeRole(Role role);
 
     /**
      * Returns the specified role
@@ -167,7 +183,7 @@ public interface IdentityStore {
      * @param name The name of the Role to return
      * @return A Role instance, or null if the Role with the specified name wasn't found
      */
-    Role getRole(IdentityStoreInvocationContext ctx, String name);
+    Role getRole(String name);
 
     // Memberships
 
@@ -180,7 +196,7 @@ public interface IdentityStore {
      * @param role The Role instance that the User or Group will become a member of
      * @return A Membership instance representing the new membership.
      */
-    Membership createMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role);
+    Membership createMembership(IdentityType member, Group group, Role role);
 
     /**
      * Removes a Membership from persistent storage 
@@ -190,7 +206,7 @@ public interface IdentityStore {
      * @param group The Group of the membership
      * @param role The Role of the membership
      */
-    void removeMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role);
+    void removeMembership(IdentityType member, Group group, Role role);
 
     /**
      * Returns the specified Membership
@@ -201,7 +217,7 @@ public interface IdentityStore {
      * @param role
      * @return
      */
-    Membership getMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role);
+    Membership getMembership(IdentityType member, Group group, Role role);
 
     // Identity query
 
@@ -217,7 +233,7 @@ public interface IdentityStore {
      * @param credential
      * @return
      */
-    boolean validateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential);
+    boolean validateCredential(User user, Credential credential);
 
     /**
      * Updates a credential for the specified User 
@@ -226,7 +242,7 @@ public interface IdentityStore {
      * @param user
      * @param credential
      */
-    void updateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential);
+    void updateCredential(User user, Credential credential);
 
     // Attributes
 
@@ -237,7 +253,7 @@ public interface IdentityStore {
      * @param identityType
      * @param attribute
      */
-    void setAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, 
+    void setAttribute(IdentityType identityType, 
             Attribute<? extends Serializable> attribute);
 
     /**
@@ -247,8 +263,7 @@ public interface IdentityStore {
      * @param attributeName
      * @return
      */
-    <T extends Serializable> Attribute<T> getAttribute(IdentityStoreInvocationContext ctx, 
-            IdentityType identityType, String attributeName);
+    <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName);
 
     /**
      * Removes the specified Attribute value, for the specified IdentityType
@@ -257,5 +272,5 @@ public interface IdentityStore {
      * @param identityType
      * @param attributeName
      */
-    void removeAttribute(IdentityStoreInvocationContext ctx, IdentityType identityType, String attributeName);
+    void removeAttribute(IdentityType identityType, String attributeName);
 }
