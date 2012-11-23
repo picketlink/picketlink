@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
 
@@ -51,6 +52,7 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
 
     private String id;
 
+    @Column (name="_key")
     private String key;
     private boolean enabled = true;
     private Date expiryDate;
