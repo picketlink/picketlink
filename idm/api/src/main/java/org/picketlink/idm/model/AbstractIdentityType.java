@@ -29,8 +29,10 @@ import java.util.Map;
 
 /**
  * Abstract base class for IdentityType implementations
+ * 
+ * @author Shane Bryzak
  */
-public abstract class AbstractIdentityType implements IdentityType, Serializable {
+public abstract class AbstractIdentityType implements IdentityType {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,6 +41,7 @@ public abstract class AbstractIdentityType implements IdentityType, Serializable
     private Date expiryDate = null;
     private Map<String, Attribute<? extends Serializable>> attributes = 
             new HashMap<String, Attribute<? extends Serializable>>();
+    private Partition partition;
 
     public boolean isEnabled() {
         return this.enabled;
@@ -71,4 +74,11 @@ public abstract class AbstractIdentityType implements IdentityType, Serializable
         return java.util.Collections.unmodifiableCollection(attributes.values());
     }
 
+    public Partition getPartition() {
+        return partition;
+    }
+
+    public void setPartition(Partition partition) {
+        this.partition = partition;
+    }
 }

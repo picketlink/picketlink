@@ -34,7 +34,7 @@ import org.picketlink.idm.query.QueryParameter;
  *
  * @author Shane Bryzak
  */
-public interface IdentityType {
+public interface IdentityType extends Serializable {
     /**
      *  A query parameter used to set the key value.
      */
@@ -178,4 +178,10 @@ public interface IdentityType {
      */
     Collection<Attribute<? extends Serializable>> getAttributes();
 
+    /**
+     * Returns the owning Partition for this identity object.
+     * 
+     * @return
+     */
+    Partition getPartition();
 }

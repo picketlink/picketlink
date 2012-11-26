@@ -25,10 +25,9 @@ package org.picketlink.idm.model;
  * A simple User implementation
  */
 public class SimpleUser extends AbstractIdentityType implements User {
-    
-    
-    private static final long serialVersionUID = 1L;
-    
+
+    private static final long serialVersionUID = -8878182208588103681L;
+
     private String id;
     private String firstName;
     private String lastName;

@@ -75,10 +75,10 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
         user.setId("asaldhan");
         user.setFullName("Anil Saldhana");
 
-        store.createUser(null, user);
+        store.createUser(user);
         assertNotNull(user);
 
-        User anil = store.getUser(null, "asaldhan");
+        User anil = store.getUser("asaldhan");
         assertNotNull(anil);
         assertEquals("Anil Saldhana", anil.getFullName());
         assertEquals("Anil", anil.getFirstName());
@@ -86,51 +86,51 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
 
         // Roles
         Role role = new SimpleRole("testRole");
-        store.createRole(null, role);
+        store.createRole(role);
         assertNotNull(role);
         assertEquals("testRole", role.getName());
 
-        Role ldapRole = store.getRole(null, "testRole");
+        Role ldapRole = store.getRole("testRole");
         assertNotNull(ldapRole);
         assertEquals("testRole", ldapRole.getName());
 
         // Groups
         Group ldapGroup = new SimpleGroup("PicketBox Team", null);
-        store.createGroup(null, ldapGroup);
+        store.createGroup(ldapGroup);
         assertNotNull(ldapGroup);
 
-        Group retrievedLDAPGroup = store.getGroup(null, "PicketBox Team");
+        Group retrievedLDAPGroup = store.getGroup("PicketBox Team");
         assertNotNull(retrievedLDAPGroup);
         assertNull(retrievedLDAPGroup.getParentGroup());
 
         // Parent Groups Now
         Group devGroup = new SimpleGroup("Dev", ldapGroup);
-        store.createGroup(null, devGroup);
+        store.createGroup(devGroup);
         assertNotNull(devGroup);
 
-        Group retrievedDevGroup = store.getGroup(null, "Dev");
+        Group retrievedDevGroup = store.getGroup("Dev");
         assertNotNull(retrievedDevGroup);
         Group parentOfDevGroup = retrievedDevGroup.getParentGroup();
         assertNotNull(parentOfDevGroup);
         assertEquals("PicketBox Team", parentOfDevGroup.getName());
 
         // Add a relationship between an user, role and group
-        Membership membership = store.createMembership(null, anil, ldapGroup, ldapRole);
+        Membership membership = store.createMembership(anil, ldapGroup, ldapRole);
         assertNotNull(membership);
 
         // Deal with removal of users, roles and groups
-        store.removeMembership(null, anil, ldapGroup, ldapRole);
+        store.removeMembership(anil, ldapGroup, ldapRole);
 
-        store.removeUser(null, anil);
-        store.removeRole(null, ldapRole);
-        store.removeGroup(null, ldapGroup);
-        store.removeGroup(null, devGroup);
+        store.removeUser(anil);
+        store.removeRole(ldapRole);
+        store.removeGroup(ldapGroup);
+        store.removeGroup(devGroup);
 
-        anil = store.getUser(null, "Anil Saldhana");
+        anil = store.getUser("Anil Saldhana");
         assertNull(anil);
-        ldapRole = store.getRole(null, "testRole");
+        ldapRole = store.getRole("testRole");
         assertNull(ldapRole);
-        assertNull(store.getGroup(null, "Dev"));
-        assertNull(store.getGroup(null, "PicketBox Team"));
+        assertNull(store.getGroup("Dev"));
+        assertNull(store.getGroup("PicketBox Team"));
     }
 }

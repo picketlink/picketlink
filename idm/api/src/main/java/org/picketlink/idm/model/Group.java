@@ -46,13 +46,6 @@ public interface Group extends IdentityType, Serializable {
 
     String KEY_PREFIX = "GROUP://";
 
-    // TODO: Javadocs
-    // TODO: Exceptions
-
-    // TODO: getId() -> getPath()? Should it stick to natural Id(path) or have non meaningful one
-
-    // Self related
-
     /**
      * Groups are stored in tree hierarchy and therefore ID represents a path. ID string always begins with "/" element that
      * represents root of the tree
@@ -71,8 +64,6 @@ public interface Group extends IdentityType, Serializable {
      * @return name
      */
     String getName();
-
-    // Sub groups
 
     /**
      * @return parent group or null if it refers to root ("/") in a group tree.

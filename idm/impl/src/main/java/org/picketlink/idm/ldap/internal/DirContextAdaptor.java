@@ -49,6 +49,7 @@ import javax.naming.directory.SearchResult;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification.NType;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 
 /**
  * An adaptor class that provides barebones implementation of the {@link DirContext}
@@ -486,5 +487,11 @@ public class DirContextAdaptor implements DirContext, IdentityType {
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Partition getPartition() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

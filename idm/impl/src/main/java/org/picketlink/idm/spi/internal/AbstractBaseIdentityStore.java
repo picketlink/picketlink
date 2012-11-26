@@ -19,9 +19,9 @@ public abstract class AbstractBaseIdentityStore implements IdentityStore {
 
     { 
         try {
-            m = IdentityStore.class.getMethod("getContext");
+            m = IdentityStore.class.getDeclaredMethod("getContext");
         } catch (Exception e) {
-            throw new RuntimeException("Error creating IdentityStore - getContext() method not available");
+            throw new RuntimeException("Error creating IdentityStore - getContext() method not available", e);
         } 
     };
 

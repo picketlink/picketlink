@@ -99,12 +99,12 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
         assertEquals("Saldhana", anil.getLastName());
 
         // Deal with Anil's attributes
-        store.setAttribute(null, anil, new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
-        store.setAttribute(null, anil, new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
-        store.setAttribute(null, anil, new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
+        store.setAttribute(anil, new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
+        store.setAttribute(anil, new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
+        store.setAttribute(anil, new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
 
-        store.setAttribute(null, anil, new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
-        store.setAttribute(null, anil, new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
+        store.setAttribute(anil, new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
+        store.setAttribute(anil, new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
 
         // let us retrieve the attributes from ldap store and see if they are the same
         anil = im.getUser("Anil Saldhana");

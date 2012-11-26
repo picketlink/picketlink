@@ -6,7 +6,7 @@ package org.picketlink.idm.model;
  * 
  * @author Shane Bryzak
  */
-public class Realm {
+public class Realm implements Partition {
     public static final String DEFAULT_REALM = "default";
 
     private String name;
@@ -18,4 +18,6 @@ public class Realm {
     public String getName() {
         return name;
     }
+
+    // TODO implement hashCode() and equals() methods
 }

@@ -27,7 +27,7 @@ package org.picketlink.idm.model;
  */
 public class SimpleGroup extends AbstractIdentityType implements Group {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -3553832607918448916L;
 
     private String id = null;
 
@@ -80,6 +80,7 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
 
         Group other = (Group) obj;
 
+        // FIXME The Partition should also be taken into account
         return other.getId() != null && this.getId() != null && other.getId().equals(this.getId());
     }
 }

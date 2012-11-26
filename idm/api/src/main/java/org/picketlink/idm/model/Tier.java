@@ -1,12 +1,12 @@
 package org.picketlink.idm.model;
 
 /**
- * A hierarchical abstraction representing a partitioned set or subset of services
+ * A hierarchical abstraction representing a partitioned set or subset of services, for which
+ * specialized Roles and Groups may be created.
  * 
  * @author Shane Bryzak
- *
  */
-public class Tier {
+public class Tier implements Partition {
     private String id;
     private String description;
     private Tier parent;
@@ -28,4 +28,6 @@ public class Tier {
     public Tier getParent() {
         return parent;
     }
+
+    // TODO implement hashCode() and equals() methods
 }

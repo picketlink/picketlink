@@ -68,9 +68,9 @@ public class DefaultIdentityManager implements IdentityManager {
 
     { 
         try {
-            METHOD_CREATE_CONTEXT = DefaultIdentityManager.class.getMethod("createContext");
+            METHOD_CREATE_CONTEXT = DefaultIdentityManager.class.getDeclaredMethod("createContext");
         } catch (Exception e) {
-            throw new RuntimeException("Error creating DefaultIdentityManager - createContext() method not available");
+            throw new RuntimeException("Error creating DefaultIdentityManager - createContext() method not available", e);
         } 
     };
 
