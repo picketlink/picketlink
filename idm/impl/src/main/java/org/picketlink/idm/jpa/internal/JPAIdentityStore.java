@@ -73,6 +73,8 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
     private static final String PROPERTY_IDENTITY_ENABLED = "IDENTITY_ENABLED";
     private static final String PROPERTY_IDENTITY_CREATED = "IDENTITY_CREATED";
     private static final String PROPERTY_IDENTITY_EXPIRES = "IDENTITY_EXPIRES";
+    private static final String PROPERTY_IDENTITY_REALM = "IDENTITY_REALM";
+    private static final String PROPERTY_IDENTITY_TIER = "IDENTITY_TIER";
 
     // Properties specific to Users
     private static final String PROPERTY_USER_FIRST_NAME = "USER_FIRST_NAME";
@@ -234,6 +236,8 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
         configureIdentityEnabled();
         configureIdentityCreationDate();
         configureIdentityExpiryDate();
+        configureIdentityRealm();
+        configureIdentityTier();
 
         configureUserProperties();
 
@@ -414,6 +418,42 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
 
             if (prop != null) {
                 modelProperties.put(PROPERTY_IDENTITY_EXPIRES, prop);
+            }
+        }
+    }
+
+    protected void configureIdentityRealm() {
+        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
+                .addCriteria(new PropertyTypeCriteria(PropertyType.REALM)).getResultList();
+
+        if (props.size() == 1) {
+            modelProperties.put(PROPERTY_IDENTITY_REALM, props.get(0));
+        } else if (props.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous identity realm property in identity class "
+                    + identityClass.getName());
+        } else {
+            Property<Object> prop = findNamedProperty(identityClass, "realm");
+
+            if (prop != null) {
+                modelProperties.put(PROPERTY_IDENTITY_REALM, prop);
+            }
+        }
+    }
+
+    protected void configureIdentityTier() {
+        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
+                .addCriteria(new PropertyTypeCriteria(PropertyType.TIER)).getResultList();
+
+        if (props.size() == 1) {
+            modelProperties.put(PROPERTY_IDENTITY_TIER, props.get(0));
+        } else if (props.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous identity tier property in identity class "
+                    + identityClass.getName());
+        } else {
+            Property<Object> prop = findNamedProperty(identityClass, "tier");
+
+            if (prop != null) {
+                modelProperties.put(PROPERTY_IDENTITY_TIER, prop);
             }
         }
     }
