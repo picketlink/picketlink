@@ -56,7 +56,7 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     private String key;
     private boolean enabled = true;
     private Date expiryDate;
-    private Date createdDate;
+    private Date createdDate = new Date();
 
     @Transient
     private Map<String, String[]> userAttributesMap;
