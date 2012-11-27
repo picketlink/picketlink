@@ -75,6 +75,11 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
     private static final String PROPERTY_IDENTITY_EXPIRES = "IDENTITY_EXPIRES";
     private static final String PROPERTY_IDENTITY_PARTITION = "IDENTITY_PARTITION";
 
+    // Properties specific to Partitions
+    private static final String PROPERTY_PARTITION_NAME = "PARTITION_NAME";
+    private static final String PROPERTY_PARTITION_TYPE = "PARTITION_TYPE";
+    private static final String PROPERTY_PARTITION_PARENT = "PARTITION_PARENT";
+
     // Properties specific to Users
     private static final String PROPERTY_USER_FIRST_NAME = "USER_FIRST_NAME";
     private static final String PROPERTY_USER_LAST_NAME = "USER_LAST_NAME";
@@ -115,11 +120,6 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
     private static final String ATTRIBUTE_TYPE_DOUBLE = "double";
 
     /**
-     * Cache used to lookup User, Role and Group instances
-     */
-    private IdentityCache identityCache;
-
-    /**
      * Defines the feature set for this IdentityStore
      */
     private Set<Feature> featureSet = new HashSet<Feature>();
@@ -129,6 +129,7 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
     private Class<?> membershipClass;
     private Class<?> credentialClass;
     private Class<?> attributeClass;
+    private Class<?> partitionClass;
 
     /**
      * Model properties
@@ -205,10 +206,6 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
         }
     }
 
-    public JPAIdentityStore(IdentityCache identityCache) {
-        this.identityCache = identityCache;
-    }
-
     @Override
     public void configure(IdentityStoreConfiguration configuration) throws SecurityConfigurationException {
         if (!(configuration instanceof JPAIdentityStoreConfiguration)) {
@@ -236,6 +233,8 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
         configureIdentityCreationDate();
         configureIdentityExpiryDate();
         configureIdentityPartition();
+
+        configurePartitions();
 
         configureUserProperties();
 
@@ -436,6 +435,33 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
                 modelProperties.put(PROPERTY_IDENTITY_PARTITION, prop);
             }
         }
+    }
+
+    protected void configurePartitions() {
+        if (partitionClass == null) {
+            return;
+        }
+
+        List<Property<Object>> props = PropertyQueries.createQuery(partitionClass)
+                .addCriteria(new PropertyTypeCriteria(PropertyType.NAME)).getResultList();
+
+        if (props.size() == 1) {
+            modelProperties.put(PROPERTY_PARTITION_NAME, props.get(0));
+        } else if (props.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous name property in partition class " + 
+                    partitionClass.getName());
+        } else {
+            Property<Object> prop = findNamedProperty(partitionClass, "name", "id");
+
+            if (prop != null) {
+                modelProperties.put(PROPERTY_PARTITION_NAME, prop);
+            }
+        }
+
+        props = PropertyQueries.createQuery(partitionClass)
+                .addCriteria(new PropertyTypeCriteria(PropertyType.PARTITION_TYPE)).getResultList();
+
+                  
     }
 
     /**
@@ -878,8 +904,6 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
         EntityManager em = getEntityManager();
         Object entity = lookupIdentityObjectByKey(em, user.getKey());
         removeIdentityObject(em, entity);
-
-        identityCache.invalidate(user);
 
         UserDeletedEvent event = new UserDeletedEvent(user);
         event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
