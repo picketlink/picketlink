@@ -121,6 +121,7 @@ public class DefaultIdentityManager implements IdentityManager {
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
 
             IdentityStore store = storeFactory.createIdentityStore(config);
+            store.configure(config);
 
             Map<Feature,IdentityStore> featureToStoreMap;
 
