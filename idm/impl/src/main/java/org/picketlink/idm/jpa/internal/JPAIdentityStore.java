@@ -235,8 +235,7 @@ public class JPAIdentityStore extends AbstractBaseIdentityStore implements Ident
         configureIdentityEnabled();
         configureIdentityCreationDate();
         configureIdentityExpiryDate();
-        configureIdentityRealm();
-        configureIdentityTier();
+        configureIdentityPartition();
 
         configureUserProperties();
 
