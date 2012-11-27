@@ -22,13 +22,10 @@
 package org.picketlink.idm.ldap.internal;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.EMAIL;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.GIVENNAME;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,12 +36,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 
-import org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification.NType;
 import org.picketlink.idm.model.User;
 
 /**
  * LDAP Representation of an {@link User}
- *
+ * 
  * @author anil saldhana
  * @since Aug 30, 2012
  */
@@ -54,12 +50,11 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
     protected String userid, firstName, lastName, fullName, email, userDNSuffix;
 
-    protected LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
-
-    protected transient ManagedAttributeLookup lookup;
+    // protected transient ManagedAttributeLookup lookup;
 
     public LDAPUser() {
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
+
         oc.add("inetOrgPerson");
         oc.add("organizationalPerson");
         oc.add("person");
@@ -68,24 +63,27 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
         attributes.put(oc);
     }
-    
 
+    // public LDAPUser(String userId, ManagedAttributeLookup lookup) {
+    // this();
+    // setLookup(lookup);
+    // setId(userId);
+    // setFullName(userId);
+    // }
 
     public LDAPUser(String userId, ManagedAttributeLookup lookup) {
         this();
-        setLookup(lookup);
+//        setLookup(lookup);
         setId(userId);
-        setFullName(userId);
     }
 
-
-    public ManagedAttributeLookup getLookup() {
-        return lookup;
-    }
-
-    public void setLookup(ManagedAttributeLookup lookup) {
-        this.lookup = lookup;
-    }
+//    public ManagedAttributeLookup getLookup() {
+//        return lookup;
+//    }
+//
+//    public void setLookup(ManagedAttributeLookup lookup) {
+//        this.lookup = lookup;
+//    }
 
     @SuppressWarnings("rawtypes")
     @Override
@@ -104,104 +102,51 @@ public class LDAPUser extends DirContextAdaptor implements User {
         return collectiveAttributes;
     }
 
-    @Override
-    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
-        if(lookup == null){
-            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
-        }
-        if (lookup.isManaged(name) == false) {
-            // FIXME
-            //return customAttributes.getAttribute(name);
-            
-        }
-        return super.getAttribute(name);
-    }
+//    @Override
+//    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
+//        if (lookup == null) {
+//            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
+//        }
+//        if (lookup.isManaged(name) == false) {
+//            // FIXME
+//            // return customAttributes.getAttribute(name);
+//
+//        }
+//        return super.getAttribute(name);
+//    }
 
     // TODO methods no longer required?
     /*
-    @Override
-    public String[] getAttributeValues(String name) {
-        if(lookup == null){
-            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
-        }
-        if (lookup.isManaged(name) == false) {
-            Object value = customAttributes.getAttribute(name);
-            if (value instanceof String[]) {
-                return (String[]) value;
-            } else {
-                return new String[] { (String) value };
-            }
-        }
-        return super.getAttributeValues(name);
-    }
+     * @Override public String[] getAttributeValues(String name) { if(lookup == null){ throw new
+     * IllegalStateException("ManagedAttributeLookup injection has not happened"); } if (lookup.isManaged(name) == false) {
+     * Object value = customAttributes.getAttribute(name); if (value instanceof String[]) { return (String[]) value; } else {
+     * return new String[] { (String) value }; } } return super.getAttributeValues(name); }
+     * 
+     * @Override public Map<String, String[]> getAttributes() { Map<String, String[]> map = super.getAttributes(); Map<String,
+     * Object> values = customAttributes.getAttributes(); Set<String> keys = values.keySet(); for (String key : keys) { Object
+     * value = values.get(key); if (value instanceof String[]) { map.put(key, (String[]) value); } else if (value instanceof
+     * String) { String[] arr = new String[] { (String) value }; map.put(key, arr); } } return map; }
+     */
 
-    @Override
-    public Map<String, String[]> getAttributes() {
-        Map<String, String[]> map = super.getAttributes();
-        Map<String, Object> values = customAttributes.getAttributes();
-        Set<String> keys = values.keySet();
-        for (String key : keys) {
-            Object value = values.get(key);
-            if (value instanceof String[]) {
-                map.put(key, (String[]) value);
-            } else if (value instanceof String) {
-                String[] arr = new String[] { (String) value };
-                map.put(key, arr);
-            }
-        }
-        return map;
-    }*/
-
-    @Override
-    public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
-        if(lookup == null){
-            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
-        }
-        if (lookup.isManaged(attribute.getName())) {
-            super.setAttribute(attribute);
-        } else {
-            // FIXME
-            //setCustomAttribute(name, value);
-        }
-    }
+//    @Override
+//    public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
+//        if (lookup == null) {
+//            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
+//        }
+//        if (lookup.isManaged(attribute.getName())) {
+//            super.setAttribute(attribute);
+//        } else {
+//            // FIXME
+//            // setCustomAttribute(name, value);
+//        }
+//    }
 
     // TODO method no longer required
     /*
-    @Override
-    public void setAttribute(String name, String[] values) {
-        if(lookup == null){
-            throw new IllegalStateException("ManagedAttributeLookup injection has not happened");
-        }
-        if (lookup.isManaged(name)) {
-            super.setAttribute(name, values);
-        } else {
-            setCustomAttribute(name, values);
-        }
-    }*/
-
-    public void setCustomAttribute(String name, String value) {
-        // Add into the custom attributes also
-        customAttributes.addAttribute(name, value);
-        if (handler != null) {
-            handler.handle(new LDAPObjectChangedNotification(this, NType.CUSTOM_ATTRIBUTE, null));
-        }
-    }
-
-    public void setCustomAttribute(String name, String[] values) {
-        // Add into the custom attributes also
-        customAttributes.addAttribute(name, values);
-        if (handler != null) {
-            handler.handle(new LDAPObjectChangedNotification(this, NType.CUSTOM_ATTRIBUTE, null));
-        }
-    }
-
-    public LDAPUserCustomAttributes getCustomAttributes() {
-        return customAttributes;
-    }
-
-    public void setCustomAttributes(LDAPUserCustomAttributes customAttributes) {
-        this.customAttributes = customAttributes;
-    }
+     * @Override public void setAttribute(String name, String[] values) { if(lookup == null){ throw new
+     * IllegalStateException("ManagedAttributeLookup injection has not happened"); } if (lookup.isManaged(name)) {
+     * super.setAttribute(name, values); } else { setCustomAttribute(name, values); } }
+     */
 
     public void setUserDNSuffix(String udn) {
         this.userDNSuffix = udn;
@@ -240,7 +185,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
         }
         return null;
     }
-    
+
     @Override
     public String getKey() {
         return getId();
@@ -249,136 +194,142 @@ public class LDAPUser extends DirContextAdaptor implements User {
     @Override
     public String getFirstName() {
         try {
-            if (firstName == null) {
+//            if (firstName == null) {
                 Attribute theAttribute = attributes.get(LDAPConstants.GIVENNAME);
                 if (theAttribute != null) {
-                    firstName = (String) theAttribute.get();
+//                    firstName = (String) theAttribute.get();
+                    return (String) theAttribute.get();
                 }
-            }
+//            }
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
-        return firstName;
+        
+        return null;
     }
 
     @Override
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
-        Attribute theAttribute = attributes.get(LDAPConstants.GIVENNAME);
+//        this.firstName = firstName;
+//        Attribute theAttribute = attributes.get(LDAPConstants.GIVENNAME);
 
-        if (theAttribute == null) {
+//        if (theAttribute == null) {
             attributes.put(LDAPConstants.GIVENNAME, firstName);
-        } else {
-            replaceAttribute(LDAPConstants.GIVENNAME, firstName);
-        }
+//        } else {
+//            replaceAttribute(LDAPConstants.GIVENNAME, firstName);
+//        }
 
-        Attribute cnAttribute = attributes.get(CN);
+//        Attribute cnAttribute = attributes.get(CN);
 
-        if (cnAttribute != null) {
-            replaceAttribute(CN, firstName);
-        }
+//        if (cnAttribute != null) {
+//            replaceAttribute(CN, firstName);
+//        }
 
-        attributes.put(CN, firstName);
+//        attributes.put(CN, firstName);
     }
 
     @Override
     public String getLastName() {
         try {
-            if (lastName == null) {
+//            if (lastName == null) {
                 Attribute theAttribute = attributes.get(SN);
                 if (theAttribute != null) {
-                    lastName = (String) theAttribute.get();
+//                    lastName = (String) theAttribute.get();
+                    return (String) theAttribute.get();
                 }
-            }
+//            }
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
-        return lastName;
+        
+        return null;
     }
 
     @Override
     public void setLastName(String lastName) {
-        this.lastName = lastName;
-        Attribute theAttribute = attributes.get(SN);
-
-        if (theAttribute == null) {
+//        this.lastName = lastName;
+//        Attribute theAttribute = attributes.get(SN);
+//
+//        if (theAttribute == null) {
             attributes.put(SN, lastName);
-        } else {
-            theAttribute.clear();
-            theAttribute.add(lastName);
-            //theAttribute.set(0, lastName);
-        }
-
-        Attribute cnAttribute = attributes.get(CN);
-
-        if (cnAttribute == null) {
-            cnAttribute = new BasicAttribute(CN, lastName);
-            attributes.put(cnAttribute);
-        } else {
-            try {
-                replaceAttribute(SN, lastName);
-                replaceAttribute(CN, cnAttribute.get().toString() + " " + lastName);
-            } catch (NamingException e) {
-                throw new RuntimeException("Could not set user's last name.", e);
-            }
-        }
-
+//        } else {
+//            theAttribute.clear();
+//            theAttribute.add(lastName);
+//            // theAttribute.set(0, lastName);
+//        }
+//
+//        Attribute cnAttribute = attributes.get(CN);
+//
+//        if (cnAttribute == null) {
+//            cnAttribute = new BasicAttribute(CN, lastName);
+//            attributes.put(cnAttribute);
+//        } else {
+//            try {
+//                replaceAttribute(SN, lastName);
+//                replaceAttribute(CN, cnAttribute.get().toString() + " " + lastName);
+//            } catch (NamingException e) {
+//                throw new RuntimeException("Could not set user's last name.", e);
+//            }
+//        }
     }
 
     @Override
     public String getFullName() {
         try {
-            if (fullName == null) {
+//            if (fullName == null) {
                 Attribute theAttribute = attributes.get(CN);
+                
                 if (theAttribute != null) {
-                    fullName = (String) theAttribute.get();
+//                    fullName = (String) theAttribute.get();
+                    return (String) theAttribute.get();
                 }
-            }
+//            }
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
-        return fullName;
+        
+        return null;
     }
 
     public void setFullName(String fullName) {
-        this.fullName = fullName;
-
-        Attribute theAttribute = attributes.get(CN);
-
-        if (theAttribute == null) {
+//        this.fullName = fullName;
+//
+//        Attribute theAttribute = attributes.get(CN);
+//
+//        if (theAttribute == null) {
             attributes.put(CN, fullName);
-        } else {
-            theAttribute.set(0, fullName);
-        }
-
-        setFirstName(getFirstName(fullName));
-        setLastName(getLastName(fullName));
+//        } else {
+//            theAttribute.set(0, fullName);
+//        }
+//
     }
 
     @Override
     public String getEmail() {
         try {
-            if (email == null) {
+//            if (email == null) {
                 Attribute theAttribute = attributes.get(LDAPConstants.EMAIL);
                 if (theAttribute != null) {
-                    email = (String) theAttribute.get();
+//                    email = (String) theAttribute.get();
+                    return (String) theAttribute.get();
                 }
-            }
+//            }
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
-        return email;
+        
+        return null;
     }
 
     @Override
     public void setEmail(String email) {
-        this.email = email;
-        Attribute theAttribute = attributes.get(LDAPConstants.EMAIL);
-        if (theAttribute == null) {
+//        this.email = email;
+//        Attribute theAttribute = attributes.get(LDAPConstants.EMAIL);
+//        if (theAttribute == null) {
             setAttribute(new org.picketlink.idm.model.Attribute<String>(LDAPConstants.EMAIL, email));
-        } else {
-            replaceAttribute(LDAPConstants.EMAIL, email);
-        }
+//        } else {
+//            replaceAttribute(LDAPConstants.EMAIL, email);
+//        }
     }
 
     private String getFirstName(String name) {

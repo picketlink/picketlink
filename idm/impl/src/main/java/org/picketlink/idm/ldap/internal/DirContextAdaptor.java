@@ -25,10 +25,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 import javax.naming.Binding;
 import javax.naming.Context;
@@ -65,6 +63,8 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     protected Attributes attributes = new BasicAttributes(true);
 
     protected LDAPChangeNotificationHandler handler = null;
+    
+    protected LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
 
     public void addAllLDAPAttributes(Attributes theAttributes) {
         if (theAttributes != null) {
@@ -85,9 +85,9 @@ public class DirContextAdaptor implements DirContext, IdentityType {
         return null;
     }
 
-    public void setLDAPChangeNotificationHandler(LDAPChangeNotificationHandler lh) {
-        this.handler = lh;
-    }
+//    public void setLDAPChangeNotificationHandler(LDAPChangeNotificationHandler lh) {
+//        this.handler = lh;
+//    }
 
     @Override
     public Object lookup(String name) throws NamingException {
@@ -401,6 +401,7 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     @Override
     public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
         attributes.put(attribute.getName(), attribute.getValue());
+        customAttributes.addAttribute(attribute.getName(), attribute.getValue());
         Attribute anAttribute = attributes.get(attribute.getName());
         if (handler != null) {
             handler.handle(new LDAPObjectChangedNotification(this, NType.ADD_ATTRIBUTE, anAttribute));
@@ -411,17 +412,50 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     public void removeAttribute(String name) {
         Attribute anAttribute = attributes.get(name);
         attributes.remove(name);
+        this.customAttributes.removeAttribute(name);
         if (handler != null) {
             handler.handle(new LDAPObjectChangedNotification(this, NType.REMOVE_ATTRIBUTE, anAttribute));
         }
+    }
+    
+    public void setCustomAttribute(String name, String value) {
+        // Add into the custom attributes also
+        customAttributes.addAttribute(name, value);
+//        if (handler != null) {
+//            handler.handle(new LDAPObjectChangedNotification(this, NType.CUSTOM_ATTRIBUTE, null));
+//        }
+    }
+
+    public void setCustomAttribute(String name, String[] values) {
+        // Add into the custom attributes also
+        customAttributes.addAttribute(name, values);
+//        if (handler != null) {
+//            handler.handle(new LDAPObjectChangedNotification(this, NType.CUSTOM_ATTRIBUTE, null));
+//        }
+    }
+
+    public LDAPUserCustomAttributes getCustomAttributes() {
+        return customAttributes;
+    }
+
+    public void setCustomAttributes(LDAPUserCustomAttributes customAttributes) {
+        this.customAttributes = customAttributes;
     }
 
     @Override
     public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
         try {
             Attribute theAttribute = attributes.get(name);
-            Object obj = theAttribute.get();
-
+            Object value = null;
+            
+            if (theAttribute != null) {
+                value = theAttribute.get();    
+            } else if (this.customAttributes.getAttributes().containsKey(name)) {
+                value = this.customAttributes.getAttribute(name);
+            } else {
+                return null;
+            }
+            
             // FIXME need to update this for new attributes API
             /*
             String val = null;
@@ -432,7 +466,7 @@ public class DirContextAdaptor implements DirContext, IdentityType {
             }
             return val;*/
 
-            return null;
+            return new org.picketlink.idm.model.Attribute<T>(name, (T) value);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }

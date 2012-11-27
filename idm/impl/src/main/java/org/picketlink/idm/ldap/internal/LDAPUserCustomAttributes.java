@@ -40,6 +40,10 @@ public class LDAPUserCustomAttributes implements Serializable {
     public void addAttribute(String key, Object value) {
         attributes.put(key, value);
     }
+    
+    public void removeAttribute(String key) {
+        this.attributes.remove(key);
+    }
 
     public Map<String, Object> getAttributes() {
         return Collections.unmodifiableMap(attributes);
