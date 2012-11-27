@@ -139,6 +139,8 @@ public class DefaultIdentityManager implements IdentityManager {
             for (Feature f : store.getFeatureSet()) {
                 featureToStoreMap.put(f, store);
             }
+            
+            store.configure(config);
         }
 
         this.contextFactory = contextFactory;
