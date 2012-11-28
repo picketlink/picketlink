@@ -22,9 +22,11 @@
 
 package org.picketlink.test.idm;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
@@ -61,7 +63,6 @@ public class UserAttributeManagementTestCase extends AbstractLDAPTest {
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testSetOneValuedAttribute() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -75,8 +76,8 @@ public class UserAttributeManagementTestCase extends AbstractLDAPTest {
         
         Attribute<String> oneValuedAttribute = updatedUserInstance.getAttribute("one-valued");
         
-        Assert.assertNotNull(oneValuedAttribute);
-        Assert.assertEquals("1", oneValuedAttribute.getValue());
+        assertNotNull(oneValuedAttribute);
+        assertEquals("1", oneValuedAttribute.getValue());
     }
     
     /**
@@ -85,7 +86,6 @@ public class UserAttributeManagementTestCase extends AbstractLDAPTest {
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testSetMultiValuedAttribute() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -99,10 +99,48 @@ public class UserAttributeManagementTestCase extends AbstractLDAPTest {
         
         Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
         
-        Assert.assertNotNull(multiValuedAttribute);
-        Assert.assertEquals("1", multiValuedAttribute.getValue()[0]);
-        Assert.assertEquals("2", multiValuedAttribute.getValue()[1]);
-        Assert.assertEquals("3", multiValuedAttribute.getValue()[2]);
+        assertNotNull(multiValuedAttribute);
+        assertEquals("1", multiValuedAttribute.getValue()[0]);
+        assertEquals("2", multiValuedAttribute.getValue()[1]);
+        assertEquals("3", multiValuedAttribute.getValue()[2]);
+    }
+    
+    /**
+     * <p>Updates an attribute.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testUpdateAttribute() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+        
+        storedUserInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
+        
+        identityManager.updateUser(storedUserInstance);
+        
+        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        
+        Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+
+        multiValuedAttribute.setValue(new String[] {"3", "4", "5"});
+        
+        updatedUserInstance.setAttribute(multiValuedAttribute);
+        
+        identityManager.updateUser(updatedUserInstance);
+        
+        updatedUserInstance = identityManager.getUser("admin");
+        
+        multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        assertEquals("3", multiValuedAttribute.getValue()[0]);
+        assertEquals("4", multiValuedAttribute.getValue()[1]);
+        assertEquals("5", multiValuedAttribute.getValue()[2]);
+
     }
     
     /**
@@ -124,9 +162,9 @@ public class UserAttributeManagementTestCase extends AbstractLDAPTest {
         
         Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
         
-        Assert.assertNotNull(multiValuedAttribute);
+        assertNotNull(multiValuedAttribute);
         
-//        updatedUserInstance.removeAttribute("multi-valued");
+        updatedUserInstance.removeAttribute("multi-valued");
         
         identityManager.updateUser(updatedUserInstance);
         
@@ -134,7 +172,7 @@ public class UserAttributeManagementTestCase extends AbstractLDAPTest {
         
         multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
         
-        Assert.assertNull(multiValuedAttribute);
+        assertNull(multiValuedAttribute);
     }
     
     private IdentityManager getIdentityManager() {
