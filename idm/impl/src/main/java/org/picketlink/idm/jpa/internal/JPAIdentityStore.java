@@ -96,14 +96,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return (EntityManager) getContext().getParameter(INVOCATION_CTX_ENTITY_MANAGER);
     }
 
-    @Override
-    public Set<Feature> getFeatureSet() {
-        // TODO implement this!!
-        Set<Feature> features = new HashSet<Feature>();
-        features.add(Feature.all);
-        return features;
-    }
-
     private Object lookupPartitionObject(Partition partition) {
         // TODO implement realm lookup
         return null;

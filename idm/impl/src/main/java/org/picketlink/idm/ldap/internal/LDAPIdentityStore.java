@@ -124,16 +124,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     @Override
-    public Set<Feature> getFeatureSet() {
-        // TODO implement this!!
-        Set<Feature> features = new HashSet<Feature>();
-
-        features.add(Feature.all);
-
-        return features;
-    }
-
-    @Override
     public void createUser(User user) {
         if (user.getId() == null) {
             throw new RuntimeException("No identifier was provided. You should provide one before storing the user.");
