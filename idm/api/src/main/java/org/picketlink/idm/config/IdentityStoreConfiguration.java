@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 
@@ -54,6 +55,16 @@ public abstract class IdentityStoreConfiguration {
      * Metadata reflecting which features are supported by this identity store
      */
     private final Set<Feature> supportedFeatures = new HashSet<Feature>();
+
+    /**
+     * Initializes this configuration
+     * 
+     * @throws SecurityConfigurationException
+     */
+    public abstract void init() throws SecurityConfigurationException;
+
+
+    public abstract Set<Feature> getFeatureSet();
 
     /**
      * Returns the realm for this identity store

@@ -56,7 +56,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
  */
 public class DefaultIdentityManager implements IdentityManager {
 
-    private Map<String,Map<Feature,IdentityStore>> realmStores = new HashMap<String,Map<Feature,IdentityStore>>();
+    private Map<String,Map<Feature,IdentityStoreConfiguration>> realmStores = new HashMap<String,Map<Feature,IdentityStoreConfiguration>>();
 
     private PasswordEncoder passwordEncoder;
 
@@ -120,10 +120,9 @@ public class DefaultIdentityManager implements IdentityManager {
     public void bootstrap(IdentityConfiguration identityConfig, IdentityStoreInvocationContextFactory contextFactory) {
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
 
-            IdentityStore store = storeFactory.createIdentityStore(config);
-            store.configure(config);
+            config.init();
 
-            Map<Feature,IdentityStore> featureToStoreMap;
+            Map<Feature,IdentityStoreConfiguration> featureToStoreMap;
 
             String realm = config.getRealm();
             if (realm == null || realm.isEmpty()) {
@@ -133,15 +132,13 @@ public class DefaultIdentityManager implements IdentityManager {
             if (realmStores.containsKey(realm)) {
                 featureToStoreMap = realmStores.get(realm);
             } else {
-                featureToStoreMap = new HashMap<Feature,IdentityStore>();
+                featureToStoreMap = new HashMap<Feature,IdentityStoreConfiguration>();
                 realmStores.put(realm, featureToStoreMap);
             }
 
-            for (Feature f : store.getFeatureSet()) {
-                featureToStoreMap.put(f, store);
+            for (Feature f : config.getFeatureSet()) {
+                featureToStoreMap.put(f, config);
             }
-            
-            store.configure(config);
         }
 
         this.contextFactory = contextFactory;
@@ -152,26 +149,28 @@ public class DefaultIdentityManager implements IdentityManager {
         this.storeFactory = factory;
     }
 
-    private IdentityStore getContextualStoreForFeature(IdentityStoreInvocationContext ctx, Feature feature) {
+    private IdentityStore<?> getContextualStoreForFeature(IdentityStoreInvocationContext ctx, Feature feature) {
         String realm = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
 
         if (!realmStores.containsKey(realm)) {
             throw new SecurityException("The specified realm '" + realm + "' has not been configured."); 
         }
 
-        IdentityStore store = null;
-        Map<Feature,IdentityStore> featureToStoreMap = realmStores.get(realm);
+        IdentityStoreConfiguration config = null;
+        Map<Feature,IdentityStoreConfiguration> featureToStoreMap = realmStores.get(realm);
 
         if (featureToStoreMap.containsKey(feature)) {
-            store = featureToStoreMap.get(feature);
+            config = featureToStoreMap.get(feature);
         } else if (featureToStoreMap.containsKey(Feature.all)) {
-            store = featureToStoreMap.get(Feature.all);
+            config = featureToStoreMap.get(Feature.all);
         } else {
-            throw new UnsupportedOperationException("This identity management feature is not available");
+            throw new UnsupportedOperationException("The requested identity management feature [" + 
+                    feature.toString() + "] is not configured.");
         }
 
+        IdentityStore<?> store = storeFactory.createIdentityStore(config, ctx);
         getContextFactory().initContextForStore(ctx, store);
-        return store.forContext(ctx);
+        return store;
     }
 
     private IdentityStoreInvocationContext createContext() {

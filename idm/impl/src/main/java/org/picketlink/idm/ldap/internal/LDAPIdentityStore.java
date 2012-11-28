@@ -66,7 +66,7 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.internal.AbstractBaseIdentityStore;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
@@ -74,7 +74,7 @@ import org.picketlink.idm.spi.internal.AbstractBaseIdentityStore;
  * @author Shane Bryzak
  * @author Anil Saldhana
  */
-public class LDAPIdentityStore extends AbstractBaseIdentityStore implements IdentityStore, LDAPChangeNotificationHandler,
+public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAPChangeNotificationHandler,
         ManagedAttributeLookup {
     private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
@@ -89,7 +89,6 @@ public class LDAPIdentityStore extends AbstractBaseIdentityStore implements Iden
 
     protected LDAPConfiguration ldapConfiguration = null;
 
-    @Override
     public void configure(IdentityStoreConfiguration configuration) throws SecurityConfigurationException {
         if (!(configuration instanceof LDAPConfiguration)) {
             throw new IllegalArgumentException("Can only pass instance of LDAPConfiguration to LDAPIdentityStore");
@@ -1129,6 +1128,24 @@ public class LDAPIdentityStore extends AbstractBaseIdentityStore implements Iden
     @Override
     public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(IdentityType identityType,
             String attributeName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setup(LDAPConfiguration config, IdentityStoreInvocationContext context) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public LDAPConfiguration getConfig() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IdentityStoreInvocationContext getContext() {
         // TODO Auto-generated method stub
         return null;
     }

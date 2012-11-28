@@ -22,14 +22,19 @@
 
 package org.picketlink.test.idm.internal.file;
 
+import java.util.Set;
+
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStore.Feature;
 import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.TierStore;
 
 /**
@@ -57,12 +62,24 @@ public abstract class AbstractFileIdentityManagerTestCase {
 
             // TODO this hack is a workaround until the configuration stuff is implemented
             // hack start
-            IdentityStoreConfiguration storeConfig = new IdentityStoreConfiguration() {};
+            IdentityStoreConfiguration storeConfig = new IdentityStoreConfiguration() {
+
+                @Override
+                public void init() throws SecurityConfigurationException {
+                    // TODO Auto-generated method stub
+                    
+                }
+
+                @Override
+                public Set<Feature> getFeatureSet() {
+                    // TODO Auto-generated method stub
+                    return null;
+                }};
             identityConfig.addStoreConfiguration(storeConfig);
             this.identityManager.setIdentityStoreFactory(new IdentityStoreFactory() {
 
                 @Override
-                public IdentityStore createIdentityStore(IdentityStoreConfiguration config) {
+                public IdentityStore createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext ctx) {
                     return store;
                 }
 

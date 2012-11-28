@@ -24,6 +24,7 @@ package org.picketlink.idm.ldap.internal;
 import java.util.Properties;
 import java.util.Set;
 
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
@@ -160,6 +161,18 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
 
     @Override
     public Set<Feature> getSupportedFeatures() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void init() throws SecurityConfigurationException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Set<Feature> getFeatureSet() {
         // TODO Auto-generated method stub
         return null;
     }

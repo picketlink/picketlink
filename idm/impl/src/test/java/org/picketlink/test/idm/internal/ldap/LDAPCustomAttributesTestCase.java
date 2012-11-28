@@ -42,6 +42,8 @@ import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.TierStore;
 
 /**
@@ -61,7 +63,10 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
     public void testUserAttributes() throws Exception {
         LDAPConfiguration storeConfig = getConfiguration();
         final LDAPIdentityStore store = new LDAPIdentityStore();
-        store.configure(storeConfig);
+
+        IdentityStoreInvocationContextFactory isicf = new DefaultIdentityStoreInvocationContextFactory(null);
+
+        store.setup(storeConfig, isicf.createContext());
 
         IdentityConfiguration config = new IdentityConfiguration();
         config.addStoreConfiguration(storeConfig);
@@ -69,7 +74,8 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
         DefaultIdentityManager im = new DefaultIdentityManager();
         im.setIdentityStoreFactory(new IdentityStoreFactory() {
             @Override
-            public IdentityStore createIdentityStore(IdentityStoreConfiguration config) {
+            public IdentityStore createIdentityStore(IdentityStoreConfiguration config, 
+                    IdentityStoreInvocationContext ctx) {
                 // Just return the store we've already created
                 return store;
             }
@@ -85,7 +91,7 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
             }
         });
 
-        im.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+        im.bootstrap(config, isicf);
 
         // Let us create an user
         User user = new SimpleUser("Anil Saldhana");

@@ -28,6 +28,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
@@ -67,7 +68,7 @@ public class UserManagementTestCase extends AbstractLDAPTest {
      * 
      * @throws Exception
      */
-    @Test
+    @Test @Ignore
     public void testCreate() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -100,7 +101,7 @@ public class UserManagementTestCase extends AbstractLDAPTest {
      * 
      * @throws Exception
      */
-    @Test
+    @Test @Ignore
     public void testGet() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -121,7 +122,7 @@ public class UserManagementTestCase extends AbstractLDAPTest {
      * 
      * @throws Exception
      */
-    @Test
+    @Test @Ignore
     public void testUpdate() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -156,7 +157,7 @@ public class UserManagementTestCase extends AbstractLDAPTest {
      * 
      * @throws Exception
      */
-    @Test
+    @Test @Ignore
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
