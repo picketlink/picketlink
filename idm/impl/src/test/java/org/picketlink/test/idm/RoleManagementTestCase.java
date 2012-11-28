@@ -102,7 +102,7 @@ public class RoleManagementTestCase extends AbstractLDAPTest {
     }
     
     /**
-     * <p>Remove from the LDAP tree an already stored user.</p>
+     * <p>Remove from the LDAP tree an already stored role.</p>
      * 
      * @throws Exception
      */
