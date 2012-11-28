@@ -449,7 +449,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (group == null) {
             Object instance = lookupIdentityObjectById(Group.class, groupId);
 
-            group = convertGroupEntityToGroup(instance);
+            group = convertGroupEntityToGroup(partition, instance);
 
             // TODO we need to also set attribute values
             //group.setAttribute(attribute);
@@ -460,13 +460,42 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return group;
     }
 
-    private Group convertGroupEntityToGroup(Object instance) {
+    private Group convertGroupEntityToGroup(Partition partition, Object instance) {
         String name = getModelProperty(String.class, instance, PROPERTY_IDENTITY_NAME);
-        Object parent = getModelProperty(Object.class, instance, PROPERTY_PARENT_GROUP);
-        Group group = parent != null ? new SimpleGroup(name, convertGroupEntityToGroup(parent)) : 
-            new SimpleGroup(name);
+
+        Object parentInstance = getModelProperty(Object.class, instance, PROPERTY_PARENT_GROUP);
+
+        SimpleGroup group = null;
+        if (parentInstance != null) {
+            String parentId = getModelProperty(String.class, parentInstance, PROPERTY_IDENTITY_ID);
+
+            Group parent = getContext().getCache().lookupGroup(partition, parentId);
+            if (parent == null) {
+                parent = convertGroupEntityToGroup(partition, parentInstance);
+                getContext().getCache().putGroup(partition, parent);
+            }
+
+            group = new SimpleGroup(name, parent);
+        } else {
+            group = new SimpleGroup(name);
+        }
+
+        if (getConfig().isModelPropertySet(PROPERTY_IDENTITY_PARTITION)) {
+
+            // TODO implement cache support for partitions
+            Object partitionInstance = getModelProperty(Object.class, instance, PROPERTY_IDENTITY_PARTITION);
+            group.setPartition(convertPartitionEntityToPartition(partitionInstance));
+
+        } else {
+            group.setPartition(partition);
+        }
 
         return group;
+    }
+
+    private Partition convertPartitionEntityToPartition(Object instance) {
+        // TODO implement this
+        return null;
     }
 
     @Override
