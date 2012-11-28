@@ -33,7 +33,15 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
 
     private String name;
     private Group parentGroup;
+    
+    public SimpleGroup(String name) {
+        if (name == null || name.isEmpty()) {
+            throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
+        }
 
+        this.name = name;
+    }
+    
     public SimpleGroup(String name, Group parentGroup) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
