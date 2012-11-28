@@ -26,15 +26,8 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfiguration;
-import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.SimpleGroup;
@@ -47,17 +40,10 @@ import org.picketlink.idm.model.SimpleGroup;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class GroupManagementTestCase extends AbstractLDAPTest {
+public class GroupManagementTestCase {
 
-    private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
-
-    @Before
-    @Override
-    public void setup() throws Exception {
-        super.setup();
-        importLDIF("ldap/users.ldif");
-    }
-
+    private IdentityManager identityManager;
+    
     /**
      * <p>
      * Creates a new {@link Group} instance using the API. This method also checks if the user was properly created by retrieving
@@ -269,27 +255,12 @@ public class GroupManagementTestCase extends AbstractLDAPTest {
 //        
 //        assertNull(multiValuedAttribute);
     }
-
-    private IdentityManager getIdentityManager() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        config.addStoreConfiguration(getConfiguration());
-
-        IdentityManager identityManager = new DefaultIdentityManager();
-
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
-        
-        return identityManager;
+    
+    public IdentityManager getIdentityManager() {
+        return this.identityManager;
     }
-
-    private LDAPConfiguration getConfiguration() {
-        LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
-        LDAPConfiguration config = (LDAPConfiguration) builder.build();
-
-        config.setBindDN(adminDN).setBindCredential(adminPW).setLdapURL("ldap://localhost:10389");
-        config.setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix("ou=Roles,dc=jboss,dc=org");
-        config.setGroupDNSuffix("ou=Groups,dc=jboss,dc=org");
-
-        return config;
+    
+    public void setIdentityManager(IdentityManager identityManager) {
+        this.identityManager = identityManager;
     }
 }
