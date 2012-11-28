@@ -28,7 +28,6 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
@@ -38,6 +37,7 @@ import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPUser;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
@@ -93,7 +93,6 @@ public class UserManagementTestCase extends AbstractLDAPTest {
         assertEquals(newUserInstance.getFirstName(), storedUserInstance.getFirstName());
         assertEquals(newUserInstance.getLastName(), storedUserInstance.getLastName());
         assertEquals(newUserInstance.getEmail(), storedUserInstance.getEmail());
-//        assertEquals(newUserInstance.getFullName(), storedUserInstance.getFullName());
     }
 
     /**
@@ -113,7 +112,6 @@ public class UserManagementTestCase extends AbstractLDAPTest {
         assertEquals("The", storedUserInstance.getFirstName());
         assertEquals("Administrator", storedUserInstance.getLastName());
         assertEquals("admin@jboss.org", storedUserInstance.getEmail());
-//        assertEquals("The Administrator", storedUserInstance.getFullName());
     }
     
     /**
@@ -134,7 +132,6 @@ public class UserManagementTestCase extends AbstractLDAPTest {
         assertEquals("The", storedUserInstance.getFirstName());
         assertEquals("Administrator", storedUserInstance.getLastName());
         assertEquals("admin@jboss.org", storedUserInstance.getEmail());
-//        assertEquals("The Administrator", storedUserInstance.getFullName());
 
         // let's update some user information
         storedUserInstance.setFirstName("Updated " + storedUserInstance.getFirstName());
@@ -149,7 +146,6 @@ public class UserManagementTestCase extends AbstractLDAPTest {
         assertEquals("Updated The", updatedUser.getFirstName());
         assertEquals("Updated Administrator", updatedUser.getLastName());
         assertEquals("Updated admin@jboss.org", updatedUser.getEmail());
-//        assertEquals("Updated The Updated Administrator", updatedUser.getFullName());
 
     }
     
@@ -171,6 +167,123 @@ public class UserManagementTestCase extends AbstractLDAPTest {
         User removedUserInstance = identityManager.getUser("admin");
         
         assertNull(removedUserInstance);
+    }
+    
+    /**
+     * <p>Sets an one-valued attribute.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testSetOneValuedAttribute() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+        
+        storedUserInstance.setAttribute(new Attribute<String>("one-valued", "1"));
+        
+        identityManager.updateUser(storedUserInstance);
+        
+        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        
+        Attribute<String> oneValuedAttribute = updatedUserInstance.getAttribute("one-valued");
+        
+        assertNotNull(oneValuedAttribute);
+        assertEquals("1", oneValuedAttribute.getValue());
+    }
+    
+    /**
+     * <p>Sets a multi-valued attribute.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testSetMultiValuedAttribute() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+        
+        storedUserInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
+        
+        identityManager.updateUser(storedUserInstance);
+        
+        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        
+        Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        assertEquals("1", multiValuedAttribute.getValue()[0]);
+        assertEquals("2", multiValuedAttribute.getValue()[1]);
+        assertEquals("3", multiValuedAttribute.getValue()[2]);
+    }
+    
+    /**
+     * <p>Updates an attribute.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testUpdateAttribute() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+        
+        storedUserInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
+        
+        identityManager.updateUser(storedUserInstance);
+        
+        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        
+        Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+
+        multiValuedAttribute.setValue(new String[] {"3", "4", "5"});
+        
+        updatedUserInstance.setAttribute(multiValuedAttribute);
+        
+        identityManager.updateUser(updatedUserInstance);
+        
+        updatedUserInstance = identityManager.getUser("admin");
+        
+        multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        assertEquals("3", multiValuedAttribute.getValue()[0]);
+        assertEquals("4", multiValuedAttribute.getValue()[1]);
+        assertEquals("5", multiValuedAttribute.getValue()[2]);
+    }
+    
+    /**
+     * <p>Removes an attribute.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRemoveAttribute() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+        
+        storedUserInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
+        
+        identityManager.updateUser(storedUserInstance);
+        
+        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        
+        Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        
+        updatedUserInstance.removeAttribute("multi-valued");
+        
+        identityManager.updateUser(updatedUserInstance);
+        
+        updatedUserInstance = identityManager.getUser("admin");
+        
+        multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        
+        assertNull(multiValuedAttribute);
     }
 
     private IdentityManager getIdentityManager() {
