@@ -748,5 +748,21 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
     public void setIdentityTypeUser(String identityTypeUser) {
         this.identityTypeUser = identityTypeUser;
-    }    
+    }
+
+    public String getIdentityTypeGroup() {
+        return identityTypeGroup;
+    }
+
+    public void setIdentityTypeGroup(String identityTypeGroup) {
+        this.identityTypeGroup = identityTypeGroup;
+    }
+
+    public String getIdentityTypeRole() {
+        return identityTypeRole;
+    }
+
+    public void setIdentityTypeRole(String identityTypeRole) {
+        this.identityTypeRole = identityTypeRole;
+    }
 }

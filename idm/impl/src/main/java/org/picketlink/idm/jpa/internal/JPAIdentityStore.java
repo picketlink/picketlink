@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -32,14 +31,15 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
+import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
@@ -60,7 +60,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
     public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
 
+    /**
+     * The configuration for this instance 
+     */
     private JPAIdentityStoreConfiguration config;
+
+    /**
+     * The invocation context
+     */
     private IdentityStoreInvocationContext context;
 
     public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
@@ -88,8 +95,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public Set<Feature> getFeatureSet() {
-        //return featureSet;
-
         // TODO implement this!!
         Set<Feature> features = new HashSet<Feature>();
         features.add(Feature.all);
@@ -99,6 +104,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     private Object lookupPartitionObject(Partition partition) {
         // TODO implement realm lookup
         return null;
+    }
+
+    private <P> P getModelProperty(Class<P> propertyType, Object instance, String propertyName) {
+        @SuppressWarnings("unchecked")
+        Property<P> property = (Property<P>) getConfig().getModelProperty(propertyName);
+        return property == null ? null : property.getValue(instance);
     }
 
     private void setModelProperty(Object instance, String propertyName, Object value) {
@@ -164,6 +175,51 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         } catch (Exception ex) {
             throw new IdentityManagementException("Exception while creating user", ex);
         }
+    }
+
+    private Object lookupIdentityObjectById(Class<? extends IdentityType> cls, String id) {
+        if (id == null) {
+            return null;
+        }
+
+        EntityManager em = getEntityManager();
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getIdentityClass());
+        Root<?> root = criteria.from(getConfig().getIdentityClass());
+        List<Predicate> predicates = new ArrayList<Predicate>();
+        predicates.add(builder.equal(
+                root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getName()), 
+                id));
+
+        if (User.class.equals(cls)) {
+            predicates.add(builder.equal(
+                    root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()), 
+                    getConfig().getIdentityTypeUser()));
+        } else if (Group.class.equals(cls)) {
+            predicates.add(builder.equal(
+                    root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()), 
+                    getConfig().getIdentityTypeGroup()));
+        } else if (Role.class.equals(cls)) {
+            predicates.add(builder.equal(
+                    root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()), 
+                    getConfig().getIdentityTypeRole()));
+        } else {
+            throw new SecurityException("Could not lookup identity by id - unsupported IdentityType [" 
+                    + cls.getName() + "]");
+        }
+
+        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        List<?> results = em.createQuery(criteria).getResultList();
+
+        if (results.size() == 1) {
+            return results.get(0);
+        } else {
+            throw new SecurityException("Error looking up identity by id - ambiguous identities found for id: [" + 
+                    id + "]");
+        }
+
     }
 
     private Object lookupIdentityObjectByKey(String key) {
@@ -314,7 +370,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public void removeUser(User user) {
-        Object entity = lookupIdentityObjectByKey(user.getKey());
+        Object entity = lookupIdentityObjectById(User.class, user.getId());
         removeIdentityObject(entity);
 
         UserDeletedEvent event = new UserDeletedEvent(user);
@@ -336,8 +392,25 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public User getUser(String id) {
-        // TODO Auto-generated method stub
-        return null;
+        // Check the cache first
+        User user = getContext().getCache().lookupUser(context.getRealm(), id);
+
+        // If the cache doesn't have a reference to the User, we have to look it up and create the instance
+        if (user == null) {
+            Object instance = lookupIdentityObjectById(User.class, id);
+
+            user = new SimpleUser(id);
+            user.setFirstName(getModelProperty(String.class, instance, PROPERTY_USER_FIRST_NAME));
+            user.setLastName(getModelProperty(String.class, instance, PROPERTY_USER_LAST_NAME));
+            user.setEmail(getModelProperty(String.class, instance, PROPERTY_USER_EMAIL));
+
+            // TODO we need to also set attribute values
+            //user.setAttribute(attribute);
+
+            getContext().getCache().putUser(context.getRealm(), user);
+        }
+
+        return user;
     }
 
     @Override
