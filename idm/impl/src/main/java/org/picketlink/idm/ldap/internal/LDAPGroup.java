@@ -53,11 +53,11 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
         oc.add("top");
         oc.add("groupOfNames");
-        attributes.put(oc);
+        getLDAPAttributes().put(oc);
     }
 
     public LDAPGroup(Attributes attributes, String groupDNSuffix) {
-        this.attributes = attributes;
+        setLDAPAttributes(attributes);
         this.groupDNSuffix = groupDNSuffix;
     }
 
@@ -66,7 +66,7 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
     }
 
     public void addRole(LDAPRole role) {
-        Attribute memberAttribute = attributes.get(MEMBER);
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         if (memberAttribute != null) {
             if (memberAttribute.contains(SPACE_STRING)) {
                 memberAttribute.remove(SPACE_STRING);
@@ -79,8 +79,8 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
         memberAttribute.add(role.getDN());
     }
 
-    public void addUser(LDAPUser user) {
-        Attribute memberAttribute = attributes.get(MEMBER);
+    public void addUser(String userDN) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         if (memberAttribute != null) {
             if (memberAttribute.contains(SPACE_STRING)) {
                 memberAttribute.remove(SPACE_STRING);
@@ -92,11 +92,12 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
             memberAttribute.add("person");
             memberAttribute.add("top");
         }
-        memberAttribute.add(user.getDN());
+        
+        memberAttribute.add(userDN);
     }
 
     public void removeRole(LDAPRole role) {
-        Attribute memberAttribute = attributes.get(MEMBER);
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         if (memberAttribute != null) {
             memberAttribute.remove(role.getDN());
         }
@@ -109,19 +110,19 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
 
     public void setName(String name) {
         this.groupName = name;
-        Attribute theAttribute = attributes.get(CN);
+        Attribute theAttribute = getLDAPAttributes().get(CN);
         if (theAttribute == null) {
-            attributes.put(CN, groupName);
+            getLDAPAttributes().put(CN, groupName);
         } else {
             theAttribute.set(0, groupName);
         }
-        attributes.put(MEMBER, SPACE_STRING); // Dummy member for now
+        getLDAPAttributes().put(MEMBER, SPACE_STRING); // Dummy member for now
     }
 
     @Override
     public String getName() {
         if (groupName == null) {
-            Attribute cnAttribute = attributes.get(CN);
+            Attribute cnAttribute = getLDAPAttributes().get(CN);
             if (cnAttribute != null) {
                 try {
                     groupName = (String) cnAttribute.get();
@@ -149,7 +150,7 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
 
     public void addChildGroup(LDAPGroup childGroup) {
         // Deal with attributes
-        Attribute memberAttribute = attributes.get(MEMBER);
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         if (memberAttribute != null) {
             if (memberAttribute.contains(SPACE_STRING)) {
                 memberAttribute.remove(SPACE_STRING);

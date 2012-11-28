@@ -48,7 +48,7 @@ public class LDAPRole extends DirContextAdaptor implements Role {
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
         oc.add("top");
         oc.add(LDAPConstants.GROUP_OF_NAMES);
-        attributes.put(oc);
+        getLDAPAttributes().put(oc);
     }
 
     /**
@@ -60,7 +60,7 @@ public class LDAPRole extends DirContextAdaptor implements Role {
      * @param ldapAttributes
      */
     public LDAPRole(Attributes ldapAttributes, String roleDNSuffix) {
-        attributes = ldapAttributes;
+        setLDAPAttributes(ldapAttributes);
         this.roleDNSuffix = roleDNSuffix;
     }
 
@@ -74,19 +74,19 @@ public class LDAPRole extends DirContextAdaptor implements Role {
 
     public void setName(String roleName) {
         this.roleName = roleName;
-        Attribute theAttribute = attributes.get(CN);
+        Attribute theAttribute = getLDAPAttributes().get(CN);
         if (theAttribute == null) {
-            attributes.put(CN, roleName);
+            getLDAPAttributes().put(CN, roleName);
         } else {
             theAttribute.set(0, roleName);
         }
-        attributes.put(MEMBER, SPACE_STRING); // Dummy member for now
+        getLDAPAttributes().put(MEMBER, SPACE_STRING); // Dummy member for now
     }
 
     @Override
     public String getName() {
         if (roleName == null) {
-            Attribute cnAttribute = attributes.get(CN);
+            Attribute cnAttribute = getLDAPAttributes().get(CN);
             if (cnAttribute != null) {
                 try {
                     roleName = (String) cnAttribute.get();
@@ -97,8 +97,8 @@ public class LDAPRole extends DirContextAdaptor implements Role {
         return roleName;
     }
 
-    public void addUser(LDAPUser user) {
-        Attribute memberAttribute = attributes.get(MEMBER);
+    public void addUser(String userDN) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         if (memberAttribute != null) {
             if (memberAttribute.contains(SPACE_STRING)) {
                 memberAttribute.remove(SPACE_STRING);
@@ -110,13 +110,13 @@ public class LDAPRole extends DirContextAdaptor implements Role {
             memberAttribute.add("person");
             memberAttribute.add("top");
         }
-        memberAttribute.add(user.getDN());
+        memberAttribute.add(userDN);
     }
 
-    public void removeUser(LDAPUser user) {
-        Attribute memberAttribute = attributes.get(MEMBER);
+    public void removeUser(String userDN) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         if (memberAttribute != null) {
-            memberAttribute.remove(user.getDN());
+            memberAttribute.remove(userDN);
         }
     }
 }
