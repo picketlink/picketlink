@@ -44,10 +44,12 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
     private static final long serialVersionUID = 1L;
     
     public final String COMMA = ",";
-    private LDAPGroup parent;
+    private Group parent;
     private String groupName;
 
     private String groupDNSuffix;
+
+    private String id;
 
     public LDAPGroup() {
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
@@ -62,7 +64,7 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
     }
 
     public String getDN() {
-        return CN + EQUAL + groupName + COMMA + groupDNSuffix;
+        return CN + EQUAL + getName() + COMMA + groupDNSuffix;
     }
 
     public void addRole(LDAPRole role) {
@@ -105,7 +107,17 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
 
     @Override
     public String getId() {
-        return getName();
+        if (this.id == null) {
+            this.id = getParentGroup() == null ? String.format("/%s", getName()) : 
+                String.format("%s/%s", getParentGroup().getId(), getName());
+        }
+        
+        return this.id;
+    }
+    
+    @Override
+    public String getKey() {
+        return String.format("%s%s", KEY_PREFIX, getId());
     }
 
     public void setName(String name) {
@@ -134,13 +146,7 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
     }
 
     public void setParentGroup(Group parent) {
-        if (!(parent instanceof LDAPGroup)) {
-            throw new RuntimeException("Wrong type:" + parent.getClass());
-        }
-
-        LDAPGroup parentGroup = (LDAPGroup) parent;
-
-        this.parent = parentGroup;
+        this.parent = parent;
     }
 
     @Override
