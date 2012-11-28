@@ -48,7 +48,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
     private static final long serialVersionUID = 1L;
 
-    protected String userid, firstName, lastName, fullName, email, userDNSuffix;
+    protected String userid, firstName, lastName, fullName, email;
 
     // protected transient ManagedAttributeLookup lookup;
 
@@ -61,7 +61,17 @@ public class LDAPUser extends DirContextAdaptor implements User {
         oc.add("top");
         oc.add("extensibleObject");
 
-        attributes.put(oc);
+        getLDAPAttributes().put(oc);
+    }
+
+    public LDAPUser(Attributes attributes) {
+        this();
+        addAllLDAPAttributes(attributes);
+    }
+
+    public LDAPUser(Attributes attributes, LDAPUserCustomAttributes customAttributes) {
+        this(attributes);
+        setCustomAttributes(customAttributes);
     }
 
     // public LDAPUser(String userId, ManagedAttributeLookup lookup) {
@@ -71,11 +81,11 @@ public class LDAPUser extends DirContextAdaptor implements User {
     // setFullName(userId);
     // }
 
-    public LDAPUser(String userId, ManagedAttributeLookup lookup) {
-        this();
+//    public LDAPUser(String userId, ManagedAttributeLookup lookup) {
+//        this();
 //        setLookup(lookup);
-        setId(userId);
-    }
+//        setId(userId);
+//    }
 
 //    public ManagedAttributeLookup getLookup() {
 //        return lookup;
@@ -89,7 +99,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
     @Override
     public Attributes getAttributes(String name) throws NamingException {
         Attributes collectiveAttributes = new BasicAttributes(true);
-        NamingEnumeration ne = attributes.getAll();
+        NamingEnumeration ne = getLDAPAttributes().getAll();
         while (ne.hasMore()) {
             collectiveAttributes.put((Attribute) ne.next());
         }
@@ -148,26 +158,11 @@ public class LDAPUser extends DirContextAdaptor implements User {
      * super.setAttribute(name, values); } else { setCustomAttribute(name, values); } }
      */
 
-    public void setUserDNSuffix(String udn) {
-        this.userDNSuffix = udn;
-    }
-
-    public String getDN() {
-        try {
-            if (userid == null) {
-                userid = (String) attributes.get(UID).get();
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-        return UID + EQUAL + getId() + COMMA + userDNSuffix;
-    }
-
     public void setId(String id) {
         this.userid = id;
-        Attribute theAttribute = attributes.get(UID);
+        Attribute theAttribute = getLDAPAttributes().get(UID);
         if (theAttribute == null) {
-            attributes.put(UID, id);
+            getLDAPAttributes().put(UID, id);
         } else {
             theAttribute.set(0, id);
         }
@@ -175,7 +170,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
     @Override
     public String getId() {
-        Attribute theAttribute = attributes.get(UID);
+        Attribute theAttribute = getLDAPAttributes().get(UID);
         if (theAttribute != null) {
             try {
                 return (String) theAttribute.get();
@@ -195,7 +190,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
     public String getFirstName() {
         try {
 //            if (firstName == null) {
-                Attribute theAttribute = attributes.get(LDAPConstants.GIVENNAME);
+                Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.GIVENNAME);
                 if (theAttribute != null) {
 //                    firstName = (String) theAttribute.get();
                     return (String) theAttribute.get();
@@ -211,28 +206,28 @@ public class LDAPUser extends DirContextAdaptor implements User {
     @Override
     public void setFirstName(String firstName) {
 //        this.firstName = firstName;
-//        Attribute theAttribute = attributes.get(LDAPConstants.GIVENNAME);
+//        Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.GIVENNAME);
 
 //        if (theAttribute == null) {
-            attributes.put(LDAPConstants.GIVENNAME, firstName);
+            getLDAPAttributes().put(LDAPConstants.GIVENNAME, firstName);
 //        } else {
 //            replaceAttribute(LDAPConstants.GIVENNAME, firstName);
 //        }
 
-//        Attribute cnAttribute = attributes.get(CN);
+//        Attribute cnAttribute = getLDAPAttributes().get(CN);
 
 //        if (cnAttribute != null) {
 //            replaceAttribute(CN, firstName);
 //        }
 
-//        attributes.put(CN, firstName);
+//        getLDAPAttributes().put(CN, firstName);
     }
 
     @Override
     public String getLastName() {
         try {
 //            if (lastName == null) {
-                Attribute theAttribute = attributes.get(SN);
+                Attribute theAttribute = getLDAPAttributes().get(SN);
                 if (theAttribute != null) {
 //                    lastName = (String) theAttribute.get();
                     return (String) theAttribute.get();
@@ -248,21 +243,21 @@ public class LDAPUser extends DirContextAdaptor implements User {
     @Override
     public void setLastName(String lastName) {
 //        this.lastName = lastName;
-//        Attribute theAttribute = attributes.get(SN);
+//        Attribute theAttribute = getLDAPAttributes().get(SN);
 //
 //        if (theAttribute == null) {
-            attributes.put(SN, lastName);
+            getLDAPAttributes().put(SN, lastName);
 //        } else {
 //            theAttribute.clear();
 //            theAttribute.add(lastName);
 //            // theAttribute.set(0, lastName);
 //        }
 //
-//        Attribute cnAttribute = attributes.get(CN);
+//        Attribute cnAttribute = getLDAPAttributes().get(CN);
 //
 //        if (cnAttribute == null) {
 //            cnAttribute = new BasicAttribute(CN, lastName);
-//            attributes.put(cnAttribute);
+//            getLDAPAttributes().put(cnAttribute);
 //        } else {
 //            try {
 //                replaceAttribute(SN, lastName);
@@ -273,11 +268,11 @@ public class LDAPUser extends DirContextAdaptor implements User {
 //        }
     }
 
-    @Override
+//    @Override
     public String getFullName() {
         try {
 //            if (fullName == null) {
-                Attribute theAttribute = attributes.get(CN);
+                Attribute theAttribute = getLDAPAttributes().get(CN);
                 
                 if (theAttribute != null) {
 //                    fullName = (String) theAttribute.get();
@@ -294,10 +289,10 @@ public class LDAPUser extends DirContextAdaptor implements User {
     public void setFullName(String fullName) {
 //        this.fullName = fullName;
 //
-//        Attribute theAttribute = attributes.get(CN);
+//        Attribute theAttribute = getLDAPAttributes().get(CN);
 //
 //        if (theAttribute == null) {
-            attributes.put(CN, fullName);
+            getLDAPAttributes().put(CN, fullName);
 //        } else {
 //            theAttribute.set(0, fullName);
 //        }
@@ -308,7 +303,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
     public String getEmail() {
         try {
 //            if (email == null) {
-                Attribute theAttribute = attributes.get(LDAPConstants.EMAIL);
+                Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.EMAIL);
                 if (theAttribute != null) {
 //                    email = (String) theAttribute.get();
                     return (String) theAttribute.get();
@@ -324,7 +319,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
     @Override
     public void setEmail(String email) {
 //        this.email = email;
-//        Attribute theAttribute = attributes.get(LDAPConstants.EMAIL);
+//        Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.EMAIL);
 //        if (theAttribute == null) {
             setAttribute(new org.picketlink.idm.model.Attribute<String>(LDAPConstants.EMAIL, email));
 //        } else {

@@ -30,7 +30,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
 
     @Override
     public IdentityStoreInvocationContext createContext() {
-        return new IdentityStoreInvocationContext(eventBridge);
+        return new IdentityStoreInvocationContext(null, eventBridge);
     }
 
     @Override

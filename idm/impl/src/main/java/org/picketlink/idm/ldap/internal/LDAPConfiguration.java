@@ -21,6 +21,7 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
@@ -52,6 +53,7 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     private String standardAttributesFileName = "standardattributes.txt";
     private boolean isActiveDirectory = false;
     private Properties additionalProperties = new Properties();
+    private Set<Feature> featuresSet = new HashSet<IdentityStore.Feature>();
 
     public String getStandardAttributesFileName() {
         return standardAttributesFileName;
@@ -167,13 +169,11 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
 
     @Override
     public void init() throws SecurityConfigurationException {
-        // TODO Auto-generated method stub
-        
+        this.featuresSet.add(Feature.all);
     }
 
     @Override
     public Set<Feature> getFeatureSet() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.featuresSet ;
     }
 }

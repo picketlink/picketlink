@@ -25,6 +25,7 @@ import static javax.naming.directory.DirContext.REPLACE_ATTRIBUTE;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -56,8 +57,6 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
-import org.picketlink.idm.internal.util.IDMUtil;
-import org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification.NType;
 import org.picketlink.idm.model.DefaultMembership;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -74,8 +73,10 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author Shane Bryzak
  * @author Anil Saldhana
  */
-public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAPChangeNotificationHandler,
-        ManagedAttributeLookup {
+public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>
+//, LDAPChangeNotificationHandler,
+//        ManagedAttributeLookup 
+{
     private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
     public final String COMMA = ",";
@@ -88,7 +89,24 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
     protected List<String> managedAttributes = new ArrayList<String>();
 
     protected LDAPConfiguration ldapConfiguration = null;
+    
+    @Override
+    public void setup(LDAPConfiguration config, IdentityStoreInvocationContext context) {
+        configure(config);
+    }
 
+    @Override
+    public LDAPConfiguration getConfig() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IdentityStoreInvocationContext getContext() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
     public void configure(IdentityStoreConfiguration configuration) throws SecurityConfigurationException {
         if (!(configuration instanceof LDAPConfiguration)) {
             throw new IllegalArgumentException("Can only pass instance of LDAPConfiguration to LDAPIdentityStore");
@@ -109,15 +127,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
     public Set<Feature> getFeatureSet() {
         // TODO implement this!!
         Set<Feature> features = new HashSet<Feature>();
+
         features.add(Feature.all);
+
         return features;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createUser(org.picketlink.idm.model.User)
-     */
     @Override
     public void createUser(User user) {
         if (user.getId() == null) {
@@ -134,83 +149,57 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
 
         // ldapUser.setLookup(this);
         // ldapUser.setLDAPChangeNotificationHandler(this);
-        ldapUser.setUserDNSuffix(userDNSuffix);
 
-        try {
-            ctx.bind(ldapUser.getDN(), ldapUser);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+        bind(getUserDN(ldapUser), ldapUser);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeUser(org.picketlink.idm.model.User)
-     */
-    @SuppressWarnings("unused")
     @Override
     public void removeUser(User user) {
+        // Look for custom attributes
+        LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
+
+        String customDN = getCustomAttributesDN(ldapUser);
+
         try {
-            // Look for custom attributes
-            LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
-            String customDN = ldapUser.getCustomAttributes().getDN() + COMMA + ldapUser.getDN();
-            try {
-                LDAPUserCustomAttributes lca = (LDAPUserCustomAttributes) ctx.lookup(customDN);
-                ctx.destroySubcontext(customDN);
-            } catch (Exception ignore) {
-            }
-            ctx.destroySubcontext(ldapUser.getDN());
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
+            lookup(customDN);
+            destroySubcontext(customDN);
+        } catch (Exception ignore) {
         }
+
+        destroySubcontext(getUserDN(ldapUser));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getUser(java.lang.String)
-     */
     @Override
     public User getUser(String name) {
         LDAPUser user = null;
+
         try {
             Attributes matchAttrs = new BasicAttributes(true); // ignore attribute name case
+
             matchAttrs.put(new BasicAttribute(LDAPConstants.UID, name));
 
             NamingEnumeration<SearchResult> answer = ctx.search(userDNSuffix, matchAttrs);
-            while (answer.hasMore()) {
+
+            if (answer.hasMore()) {
                 SearchResult sr = answer.next();
-                Attributes attributes = sr.getAttributes();
-                user = new LDAPUser();
+
                 // user.setLookup(this);
-                user.setUserDNSuffix(userDNSuffix);
-                user.addAllLDAPAttributes(attributes);
 
                 // user.setLDAPChangeNotificationHandler(this);
 
                 // Get the custom attributes
-                String customDN = user.getCustomAttributes().getDN() + COMMA + user.getDN();
-                try {
-                    LDAPUserCustomAttributes lca = (LDAPUserCustomAttributes) ctx.lookup(customDN);
-                    if (lca != null) {
-                        user.setCustomAttributes(lca);
-                    }
-                } catch (Exception ignore) {
-                }
-                break;
+
+                user = new LDAPUser(sr.getAttributes());
+                
+                user.setCustomAttributes(getCustomAttributes(user));
             }
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
+
         return user;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createGroup(java.lang.String, org.picketlink.idm.model.Group)
-     */
     @Override
     public void createGroup(Group group) {
         ensureGroupDNExists();
@@ -240,11 +229,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeGroup(org.picketlink.idm.model.Group)
-     */
     @Override
     public void removeGroup(Group group) {
         try {
@@ -255,11 +239,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getGroup(java.lang.String)
-     */
     @Override
     public Group getGroup(String name) {
         LDAPGroup ldapGroup = null;
@@ -287,11 +266,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
         return ldapGroup;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createRole(java.lang.String)
-     */
     @Override
     public void createRole(Role role) {
         LDAPRole ldapRole = new LDAPRole();
@@ -307,11 +281,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeRole(org.picketlink.idm.model.Role)
-     */
     @Override
     public void removeRole(Role role) {
         try {
@@ -323,11 +292,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getRole(java.lang.String)
-     */
     @Override
     public Role getRole(String role) {
         try {
@@ -349,12 +313,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#createMembership(org.picketlink.idm.model.Role, org.picketlink.idm.model.User,
-     * org.picketlink.idm.model.Group)
-     */
     @Override
     public Membership createMembership(IdentityType member, Group group, Role role) {
         if (member instanceof User) {
@@ -362,9 +320,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
             final LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
             final LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
 
-            ldapRole.addUser(ldapUser);
+            ldapRole.addUser(getUserDN(ldapUser));
             ldapGroup.addRole(ldapRole);
-            ldapGroup.addUser(ldapUser);
+            ldapGroup.addUser(getUserDN(ldapUser));
 
             try {
                 ctx.modifyAttributes(ldapRole.getDN(), REPLACE_ATTRIBUTE, ldapRole.getAttributes(MEMBER));
@@ -387,12 +345,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeMembership(org.picketlink.idm.model.Role, org.picketlink.idm.model.User,
-     * org.picketlink.idm.model.Group)
-     */
     @Override
     public void removeMembership(IdentityType member, Group group, Role role) {
         if (member instanceof User) {
@@ -400,23 +352,590 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
             final LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
             final LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
 
-            ldapRole.removeUser(ldapUser);
+            ldapRole.removeUser(getUserDN(ldapUser));
             ldapGroup.removeRole(ldapRole);
         } else if (member instanceof Group) {
             // FIXME implement Group membership if supported
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getMembership(org.picketlink.idm.model.Role, org.picketlink.idm.model.User,
-     * org.picketlink.idm.model.Group)
-     */
     @Override
     public Membership getMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.User, java.lang.String,
+     * java.lang.String[])
+     */
+    @Override
+    public void setAttribute(IdentityType identity, org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
+        if (identity instanceof User) {
+            LDAPUser ldapUser = null;
+
+            if (identity instanceof LDAPUser) {
+                ldapUser = (LDAPUser) identity;
+            } else {
+                ldapUser = (LDAPUser) getUser(((User) identity).getId());
+            }
+            if (isManaged(attribute.getName())) {
+                ldapUser.setAttribute(attribute);
+            } else {
+                // FIXME
+                // ldapUser.setCustomAttribute(attribute.getName(), attribute.getValue());
+            }
+        } else if (identity instanceof Group) {
+            LDAPGroup ldapGroup = null;
+            if (identity instanceof LDAPGroup) {
+                ldapGroup = (LDAPGroup) identity;
+            } else {
+                ldapGroup = (LDAPGroup) getGroup(((Group) identity).getName());
+            }
+            ldapGroup.setAttribute(attribute);
+        } else if (identity instanceof Role) {
+            LDAPRole ldapRole = null;
+            if (identity instanceof LDAPGroup) {
+                ldapRole = (LDAPRole) identity;
+            } else {
+                ldapRole = (LDAPRole) getRole(((Role) identity).getName());
+            }
+            ldapRole.setAttribute(attribute);
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.User, java.lang.String)
+     */
+    @Override
+    public void removeAttribute(IdentityType identity, String name) {
+        if (identity instanceof User) {
+            if (identity instanceof LDAPUser == false) {
+                throw new RuntimeException("Wrong type:" + identity);
+            }
+            LDAPUser ldapUser = (LDAPUser) identity;
+            ldapUser.removeAttribute(name);
+        } else if (identity instanceof Group) {
+            LDAPGroup ldapGroup = null;
+            if (identity instanceof LDAPGroup) {
+                ldapGroup = (LDAPGroup) identity;
+            } else {
+                ldapGroup = (LDAPGroup) getGroup(((Group) identity).getName());
+            }
+            ldapGroup.removeAttribute(name);
+        } else if (identity instanceof Role) {
+            LDAPRole ldapRole = null;
+            if (identity instanceof LDAPGroup) {
+                ldapRole = (LDAPRole) identity;
+            } else {
+                ldapRole = (LDAPRole) getRole(((Role) identity).getName());
+            }
+            ldapRole.removeAttribute(name);
+        }
+    }
+
+    protected void ensureGroupDNExists() {
+        try {
+            Object obj = ctx.lookup(groupDNSuffix);
+
+            if (obj == null) {
+                createGroupDN();
+            }
+
+            return; // exists
+        } catch (NamingException e) {
+            if (e instanceof NameNotFoundException) {
+                createGroupDN();
+                return;
+            }
+
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void createGroupDN() {
+        try {
+            Attributes attributes = new BasicAttributes(true);
+
+            Attribute oc = new BasicAttribute(OBJECT_CLASS);
+            oc.add("top");
+            oc.add("organizationalUnit");
+            attributes.put(oc);
+            ctx.createSubcontext(groupDNSuffix, attributes);
+        } catch (NamingException ne) {
+            throw new RuntimeException(ne);
+        }
+    }
+
+    /**
+     * <p>
+     * Returns the parent group for the given child group.
+     * </p>
+     * 
+     * @param childGroup
+     * @return
+     */
+    protected Group getParentGroup(LDAPGroup childGroup) {
+        Attributes matchAttrs = new BasicAttributes(true);
+        matchAttrs.put(new BasicAttribute(MEMBER, CN + EQUAL + childGroup.getName() + COMMA + groupDNSuffix));
+        // Search for objects with these matching attributes
+        try {
+            NamingEnumeration<SearchResult> answer = ctx.search(groupDNSuffix, matchAttrs, new String[] { CN });
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.nextElement();
+                Attributes attributes = sr.getAttributes();
+                String cn = (String) attributes.get(CN).get();
+                return getGroup(cn);
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException("Error looking parent group for [" + childGroup.getDN() + "]", e);
+        }
+
+        return null;
+    }
+
+    public boolean isManaged(String attributeName) {
+        if (managedAttributes.contains(attributeName)) {
+            return true;
+        } else {
+            if (checkDirectoryServerForAttributePresence(attributeName)) {
+                managedAttributes.add(attributeName);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Ask the ldap server for the schema for the attribute
+     * 
+     * @param attributeName
+     * @return
+     */
+    private boolean checkDirectoryServerForAttributePresence(String attributeName) {
+
+        try {
+            DirContext schema = ctx.getSchema("");
+
+            DirContext cnSchema = (DirContext) schema.lookup("AttributeDefinition/" + attributeName);
+            if (cnSchema != null) {
+                return true;
+            }
+        } catch (Exception e) {
+            return false; // Probably an unmanaged attribute
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean validateCredential(User user, Credential credential) {
+        if (credential instanceof PasswordCredential) {
+            PasswordCredential pc = (PasswordCredential) credential;
+            boolean valid = false;
+            // We have to bind
+            try {
+                LDAPUser ldapUser = null;
+                if (user instanceof LDAPUser == false) {
+                    ldapUser = convert(user);
+                } else {
+                    ldapUser = (LDAPUser) user;
+                }
+
+                String filter = "(&(objectClass=inetOrgPerson)(uid={0}))";
+                SearchControls ctls = new SearchControls();
+                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+                ctls.setReturningAttributes(new String[0]);
+                ctls.setReturningObjFlag(true);
+                NamingEnumeration<SearchResult> enm = ctx.search(userDNSuffix, filter, new String[] { ldapUser.getId() }, ctls);
+
+                String dn = null;
+                if (enm.hasMore()) {
+                    SearchResult result = enm.next();
+                    dn = result.getNameInNamespace();
+
+                    System.out.println("dn: " + dn);
+                }
+
+                if (dn == null || enm.hasMore()) {
+                    // uid not found or not unique
+                    throw new NamingException("Authentication failed");
+                }
+
+                // Step 3: Bind with found DN and given password
+                ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
+                ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, pc.getPassword());
+                lookup(dn);
+                valid = true;
+            } catch (NamingException e) {
+                // Ignore
+            }
+
+            constructContext();
+            return valid;
+        } else {
+            throwsNotSupportedCredentialType(credential);
+        }
+
+        return false;
+    }
+
+    @Override
+    public void updateCredential(User user, Credential credential) {
+        if (credential instanceof PasswordCredential) {
+            PasswordCredential pc = (PasswordCredential) credential;
+            if (isActiveDirectory) {
+                updateADPassword((LDAPUser) user, pc.getPassword());
+            } else {
+                LDAPUser ldapuser = null;
+                if (user instanceof LDAPUser == false) {
+                    ldapuser = convert(user);
+                } else {
+                    ldapuser = (LDAPUser) user;
+                }
+
+                ModificationItem[] mods = new ModificationItem[1];
+
+                Attribute mod0 = new BasicAttribute(USER_PASSWORD_ATTRIBUTE, pc.getPassword());
+
+                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
+
+                try {
+                    ctx.modifyAttributes(getUserDN(ldapuser), mods);
+                } catch (NamingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } else if (credential instanceof X509CertificateCredential) {
+            X509CertificateCredential cc = (X509CertificateCredential) credential;
+            try {
+                LDAPUser ldapUser = (LDAPUser) user;
+                ldapUser.setAttribute(new org.picketlink.idm.model.Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, new String(
+                        Base64.encodeBytes(cc.getCertificate().getEncoded()))));
+                ModificationItem[] mods = new ModificationItem[1];
+
+                byte[] certbytes = cc.getCertificate().getEncoded();
+
+                mods[0] = new ModificationItem(REPLACE_ATTRIBUTE, new BasicAttribute(USER_CERTIFICATE_ATTRIBUTE, certbytes));
+
+                // Perform the update
+                ctx.modifyAttributes(getUserDN(ldapUser), mods);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            throwsNotSupportedCredentialType(credential);
+        }
+    }
+    
+    @Override
+    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
+        // TODO implement this
+        return null;
+    }
+
+    @Override
+    public void updateUser(User user) {
+        LDAPUser ldapUser = (LDAPUser) user;
+
+        try {
+            String fullName = ldapUser.getFirstName();
+
+            if (ldapUser.getLastName() != null) {
+                fullName = fullName + " " + ldapUser.getLastName();
+            }
+
+            ldapUser.setFullName(fullName);
+
+            LDAPUser storedUser = (LDAPUser) getUser(user.getId());
+
+            NamingEnumeration<? extends Attribute> storedAttributes = storedUser.getLDAPAttributes().getAll();
+
+            // check for attributes to replace or remove
+            while (storedAttributes.hasMore()) {
+                Attribute storedAttribute = storedAttributes.next();
+                Attribute updatedAttribute = ldapUser.getLDAPAttributes().get(storedAttribute.getID());
+
+                // if the stored attribute exists in the updated attributes list, replace it. Otherwise remove it from the store.
+                if (updatedAttribute != null) {
+                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                            updatedAttribute) };
+                    ctx.modifyAttributes(getUserDN(ldapUser), mods);
+                } else {
+                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE,
+                            storedAttribute) };
+                    ctx.modifyAttributes(getUserDN(ldapUser), mods);
+                }
+            }
+
+            NamingEnumeration<? extends Attribute> enumUpdatedAttributes = ldapUser.getLDAPAttributes().getAll();
+
+            while (enumUpdatedAttributes.hasMore()) {
+                Attribute updatedAttribute = enumUpdatedAttributes.next();
+                Attribute storedAttribute = storedUser.getLDAPAttributes().get(updatedAttribute.getID());
+                
+                // if the attribute is not stored and is a managed attribute add it to the store.
+                if (storedAttribute == null && isManaged(updatedAttribute.getID())) {
+                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE,
+                            updatedAttribute) };
+                    ctx.modifyAttributes(getUserDN(ldapUser), mods);
+                }
+            }
+
+            LDAPUserCustomAttributes attributes = ldapUser.getCustomAttributes();
+
+            Set<Entry<String, Object>> entrySet = new HashMap<String, Object>(attributes.getAttributes()).entrySet();
+            
+            for (Entry<String, Object> entry : entrySet) {
+                // if the custom attribute is managed, add it to the LDAP managed attributes list. Otherwise remove it from the list of LDAP managed attributes.
+                if (isManaged(entry.getKey())) {
+                    ldapUser.getLDAPAttributes().put(entry.getKey(), entry.getValue());
+                    attributes.removeAttribute(entry.getKey());
+                } else {
+                    ldapUser.getLDAPAttributes().remove(entry.getKey());
+                }
+            }
+
+            ctx.rebind(getCustomAttributesDN(ldapUser), attributes);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Group getGroup(String name, Group parent) {
+        // TODO implement this
+        return null;
+    }
+
+    @Override
+    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(IdentityType identityType,
+            String attributeName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    private void constructContext() {
+        if (ctx != null) {
+            try {
+                ctx.close();
+            } catch (NamingException ignore) {
+
+            }
+        }
+        // Construct the dir ctx
+        Properties env = new Properties();
+        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, ldapConfiguration.getFactoryName());
+        env.setProperty(Context.SECURITY_AUTHENTICATION, ldapConfiguration.getAuthType());
+
+        String protocol = ldapConfiguration.getProtocol();
+        if (protocol != null) {
+            env.setProperty(Context.SECURITY_PROTOCOL, protocol);
+        }
+        String bindDN = ldapConfiguration.getBindDN();
+        char[] bindCredential = null;
+
+        if (ldapConfiguration.getBindCredential() != null) {
+            bindCredential = ldapConfiguration.getBindCredential().toCharArray();
+        }
+
+        if (bindDN != null) {
+            env.setProperty(Context.SECURITY_PRINCIPAL, bindDN);
+            env.put(Context.SECURITY_CREDENTIALS, bindCredential);
+        }
+
+        String url = ldapConfiguration.getLdapURL();
+        if (url == null) {
+            throw new RuntimeException("url");
+        }
+
+        env.setProperty(Context.PROVIDER_URL, url);
+
+        // Just dump the additional properties
+        Properties additionalProperties = ldapConfiguration.getAdditionalProperties();
+        Set<Object> keys = additionalProperties.keySet();
+        for (Object key : keys) {
+            env.setProperty((String) key, additionalProperties.getProperty((String) key));
+        }
+
+        try {
+            ctx = new InitialLdapContext(env, null);
+        } catch (NamingException e1) {
+            throw new RuntimeException(e1);
+        }
+    }
+
+    // Remember the updation has to happen over SSL. That is handled by the JNDI Ctx Parameters
+    private void updateADPassword(LDAPUser user, String password) {
+        try {
+            // set password is a ldap modfy operation
+            ModificationItem[] mods = new ModificationItem[1];
+
+            // Replace the "unicdodePwd" attribute with a new value
+            // Password must be both Unicode and a quoted string
+            String newQuotedPassword = "\"" + password + "\"";
+            byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
+
+            mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("unicodePwd", newUnicodePassword));
+
+            // Perform the update
+            ctx.modifyAttributes(getUserDN(user), mods);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * <p>
+     * Helper method to throws a {@link IllegalArgumentException} when the specified {@link Credential} is not supported.
+     * </p>
+     * TODO: when using JBoss Logging this method should be removed.
+     * 
+     * @param credential
+     * @return
+     */
+    private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
+        throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
+    }
+
+    private LDAPUser convert(User user) {
+        LDAPUser ldapuser = new LDAPUser();
+
+        // ldapuser.setLookup(this);
+        // ldapuser.setLDAPChangeNotificationHandler(this);
+        // ldapuser.setUserDNSuffix(userDNSuffix);
+
+        ldapuser.setId(user.getId());
+        ldapuser.setFirstName(" ");
+        ldapuser.setLastName(" ");
+
+        if (user.getFirstName() != null) {
+            ldapuser.setFirstName(user.getFirstName());
+            ldapuser.setFullName(user.getFirstName());
+        }
+
+        if (user.getLastName() != null) {
+            ldapuser.setLastName(user.getLastName());
+
+            if (ldapuser.getFullName() != null) {
+                ldapuser.setFullName(ldapuser.getFullName() + " " + user.getLastName());
+            } else {
+                ldapuser.setFullName(user.getLastName());
+            }
+        }
+
+        if (user.getEmail() != null) {
+            ldapuser.setEmail(user.getEmail());
+        }
+
+        for (org.picketlink.idm.model.Attribute<? extends Serializable> attrib : user.getAttributes()) {
+            ldapuser.setAttribute(attrib);
+        }
+
+        return ldapuser;
+    }
+
+    /**
+     * <p>Returns the custom attributes for the given {@link LDAPUser}.</p>
+     * 
+     * @param user
+     * @return
+     */
+    private LDAPUserCustomAttributes getCustomAttributes(LDAPUser user) {
+        String customDN = getCustomAttributesDN(user);
+
+        LDAPUserCustomAttributes customAttributes = null;
+
+        try {
+            customAttributes = lookup(customDN);
+        } catch (Exception ignore) {
+        }
+        
+        return customAttributes;
+    }
+    
+    /**
+     * <p>
+     * Returns a DN for the {@link LDAPUser} custom attributes entry.
+     * </p>
+     * 
+     * @param ldapUser
+     * @return
+     */
+    private String getCustomAttributesDN(LDAPUser ldapUser) {
+        return "cn=custom-attributes" + COMMA + getUserDN(ldapUser);
+    }
+    
+    /**
+     * <p>Returns a DN for the given {@link LDAPUser}.</p>
+     * 
+     * @param user
+     * @return
+     */
+    private String getUserDN(LDAPUser user) {
+        String uid = user.getId();
+        
+        try {
+            if (uid != null) {
+                uid = (String) user.getLDAPAttributes().get(UID).get();
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+        
+        return UID + EQUAL + uid + COMMA + userDNSuffix;
+    }
+
+    /**
+     * <p>
+     * Binds a {@link Object} to the LDAP tree.
+     * </p>
+     * 
+     * @param ldapUser
+     */
+    private void bind(String dn, Object object) {
+        try {
+            ctx.bind(dn, object);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * <p>
+     * Looks up a entry on the LDAP tree with the given DN.
+     * </p>
+     * 
+     * @param dn
+     * @return
+     * @throws NamingException
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T lookup(String dn) {
+        try {
+            return (T) ctx.lookup(dn);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * <p>
+     * Destroys a subcontext with the given DN from the LDAP tree.
+     * </p>
+     * 
+     * @param dn
+     */
+    private void destroySubcontext(String dn) {
+        try {
+            ctx.destroySubcontext(dn);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /*
@@ -536,86 +1055,59 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
      * 
      * return roles; }
      */
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.User, java.lang.String,
-     * java.lang.String[])
-     */
-    @Override
-    public void setAttribute(IdentityType identity, org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
-        if (identity instanceof User) {
-            LDAPUser ldapUser = null;
-
-            if (identity instanceof LDAPUser) {
-                ldapUser = (LDAPUser) identity;
-            } else {
-                ldapUser = (LDAPUser) getUser(((User) identity).getFullName());
-            }
-            if (isManaged(attribute.getName())) {
-                ldapUser.setAttribute(attribute);
-            } else {
-                // FIXME
-                // ldapUser.setCustomAttribute(attribute.getName(), attribute.getValue());
-            }
-        } else if (identity instanceof Group) {
-            LDAPGroup ldapGroup = null;
-            if (identity instanceof LDAPGroup) {
-                ldapGroup = (LDAPGroup) identity;
-            } else {
-                ldapGroup = (LDAPGroup) getGroup(((Group) identity).getName());
-            }
-            ldapGroup.setAttribute(attribute);
-        } else if (identity instanceof Role) {
-            LDAPRole ldapRole = null;
-            if (identity instanceof LDAPGroup) {
-                ldapRole = (LDAPRole) identity;
-            } else {
-                ldapRole = (LDAPRole) getRole(((Role) identity).getName());
-            }
-            ldapRole.setAttribute(attribute);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.User, java.lang.String)
-     */
-    @Override
-    public void removeAttribute(IdentityType identity, String name) {
-        if (identity instanceof User) {
-            if (identity instanceof LDAPUser == false) {
-                throw new RuntimeException("Wrong type:" + identity);
-            }
-            LDAPUser ldapUser = (LDAPUser) identity;
-            ldapUser.removeAttribute(name);
-        } else if (identity instanceof Group) {
-            LDAPGroup ldapGroup = null;
-            if (identity instanceof LDAPGroup) {
-                ldapGroup = (LDAPGroup) identity;
-            } else {
-                ldapGroup = (LDAPGroup) getGroup(((Group) identity).getName());
-            }
-            ldapGroup.removeAttribute(name);
-        } else if (identity instanceof Role) {
-            LDAPRole ldapRole = null;
-            if (identity instanceof LDAPGroup) {
-                ldapRole = (LDAPRole) identity;
-            } else {
-                ldapRole = (LDAPRole) getRole(((Role) identity).getName());
-            }
-            ldapRole.removeAttribute(name);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#getAttributeValues(org.picketlink.idm.model.User, java.lang.String)
-     */
-
+    
+//  private Attributes getManagedAttributes(Map<String, String[]> filters) {
+//  Attributes attr = new BasicAttributes(true);
+//  Set<String> keys = filters.keySet();
+//  for (String key : keys) {
+//      if (isManaged(key)) {
+//          attr.put(key, filters.get(key));
+//      }
+//  }
+//  return attr;
+//}
+//
+//private boolean userHasRequiredAttributes(LDAPUser user, Map<String, String[]> filters) {
+//  Set<String> keys = filters.keySet();
+//
+//  for (String key : keys) {
+//      String[] values = filters.get(key);
+//      String[] attValues = user.<String[]> getAttribute(key).getValue();
+//      if (IDMUtil.arraysEqual(values, attValues) == false) {
+//          return false;
+//      }
+//  }
+//  return true;
+//}
+//
+//private List<User> getAllUsers() {
+//  List<User> users = new ArrayList<User>();
+//  // Perform the search
+//  try {
+//      Attributes attr = new BasicAttributes(true);
+//      NamingEnumeration<SearchResult> answer = ctx.search(userDNSuffix, attr);
+//      
+//      while (answer.hasMore()) {
+//          SearchResult sr = answer.next();
+//          Attributes attributes = sr.getAttributes();
+//          LDAPUser user = new LDAPUser(attributes);
+//          
+//          LDAPUserCustomAttributes customAttributes = getCustomAttributes(user);
+//          // user.setLookup(this);
+//          
+//          user.setCustomAttributes(customAttributes);
+//          
+//          // user.setLDAPChangeNotificationHandler(this);
+//
+//          users.add(user);
+//      }
+//  } catch (NamingException e) {
+//      throw new RuntimeException(e);
+//  }
+//  
+//  return users;
+//}
+    
     // TODO method no longer required?
     /*
      * @Override public String[] getAttributeValues(IdentityStoreInvocationContext invocationContext, IdentityType identity,
@@ -647,538 +1139,43 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
      * identity).getName()); } return ldapRole.getAttributes(); } else { throw new
      * IllegalArgumentException("identity parameter must be an instance of User, Group or Role"); } }
      */
-
-    protected void ensureGroupDNExists() {
-        try {
-            Object obj = ctx.lookup(groupDNSuffix);
-
-            if (obj == null) {
-                createGroupDN();
-            }
-
-            return; // exists
-        } catch (NamingException e) {
-            if (e instanceof NameNotFoundException) {
-                createGroupDN();
-                return;
-            }
-
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected void createGroupDN() {
-        try {
-            Attributes attributes = new BasicAttributes(true);
-
-            Attribute oc = new BasicAttribute(OBJECT_CLASS);
-            oc.add("top");
-            oc.add("organizationalUnit");
-            attributes.put(oc);
-            ctx.createSubcontext(groupDNSuffix, attributes);
-        } catch (NamingException ne) {
-            throw new RuntimeException(ne);
-        }
-    }
-
-    /**
-     * <p>
-     * Returns the parent group for the given child group.
-     * </p>
-     * 
-     * @param childGroup
-     * @return
-     */
-    protected Group getParentGroup(LDAPGroup childGroup) {
-        Attributes matchAttrs = new BasicAttributes(true);
-        matchAttrs.put(new BasicAttribute(MEMBER, CN + EQUAL + childGroup.getName() + COMMA + groupDNSuffix));
-        // Search for objects with these matching attributes
-        try {
-            NamingEnumeration<SearchResult> answer = ctx.search(groupDNSuffix, matchAttrs, new String[] { CN });
-            while (answer.hasMoreElements()) {
-                SearchResult sr = (SearchResult) answer.nextElement();
-                Attributes attributes = sr.getAttributes();
-                String cn = (String) attributes.get(CN).get();
-                return getGroup(cn);
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException("Error looking parent group for [" + childGroup.getDN() + "]", e);
-        }
-
-        return null;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.ldap.internal.LDAPChangeNotificationHandler#handle(org.picketlink.idm.ldap.internal.
-     * LDAPObjectChangedNotification)
-     */
-    @Override
-    public void handle(LDAPObjectChangedNotification notification) {
-        DirContext object = notification.getLDAPObject();
-        if (object instanceof LDAPUser) {
-            LDAPUser user = (LDAPUser) object;
-            LDAPUserCustomAttributes ldapUserCustomAttributes = user.getCustomAttributes();
-            try {
-                String userDN = user.getDN();
-                if (notification.getNtype() == NType.ADD_ATTRIBUTE) {
-                    Attribute attrib = notification.getAttribute();
-                    if (attrib == null)
-                        throw new RuntimeException("attrib is null");
-                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE, attrib) };
-                    ctx.modifyAttributes(user.getDN(), mods);
-                }
-                if (notification.getNtype() == NType.REPLACE_ATTRIBUTE) {
-                    Attribute attrib = notification.getAttribute();
-                    if (attrib == null)
-                        throw new RuntimeException("attrib is null");
-                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                            attrib) };
-                    ctx.modifyAttributes(user.getDN(), mods);
-                }
-                if (notification.getNtype() == NType.REMOVE_ATTRIBUTE) {
-                    Attribute attrib = notification.getAttribute();
-                    if (attrib == null)
-                        throw new RuntimeException("attrib is null");
-                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attrib) };
-                    ctx.modifyAttributes(user.getDN(), mods);
-                }
-                // ctx.rebind(userDN, object);
-                ctx.rebind(ldapUserCustomAttributes.getDN() + COMMA + userDN, ldapUserCustomAttributes);
-            } catch (NamingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.ldap.internal.ManagedAttributeLookup#isManaged(java.lang.String)
-     */
-    @Override
-    public boolean isManaged(String attributeName) {
-        if (managedAttributes.contains(attributeName)) {
-            return true;
-        } else {
-            if (checkDirectoryServerForAttributePresence(attributeName)) {
-                managedAttributes.add(attributeName);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Ask the ldap server for the schema for the attribute
-     * 
-     * @param attributeName
-     * @return
-     */
-    private boolean checkDirectoryServerForAttributePresence(String attributeName) {
-
-        try {
-            DirContext schema = ctx.getSchema("");
-
-            DirContext cnSchema = (DirContext) schema.lookup("AttributeDefinition/" + attributeName);
-            if (cnSchema != null) {
-                return true;
-            }
-        } catch (Exception e) {
-            return false; // Probably an unmanaged attribute
-        }
-
-        return false;
-    }
-
-    private Attributes getManagedAttributes(Map<String, String[]> filters) {
-        Attributes attr = new BasicAttributes(true);
-        Set<String> keys = filters.keySet();
-        for (String key : keys) {
-            if (isManaged(key)) {
-                attr.put(key, filters.get(key));
-            }
-        }
-        return attr;
-    }
-
-    private boolean userHasRequiredAttributes(LDAPUser user, Map<String, String[]> filters) {
-        Set<String> keys = filters.keySet();
-
-        for (String key : keys) {
-            String[] values = filters.get(key);
-            String[] attValues = user.<String[]> getAttribute(key).getValue();
-            if (IDMUtil.arraysEqual(values, attValues) == false) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private List<User> getAllUsers() {
-        List<User> users = new ArrayList<User>();
-        // Perform the search
-        try {
-            Attributes attr = new BasicAttributes(true);
-            NamingEnumeration<SearchResult> answer = ctx.search(userDNSuffix, attr);
-            while (answer.hasMore()) {
-                SearchResult sr = answer.next();
-                Attributes attributes = sr.getAttributes();
-                LDAPUser user = new LDAPUser();
-                // user.setLookup(this);
-                user.setUserDNSuffix(userDNSuffix);
-                user.addAllLDAPAttributes(attributes);
-
-                // user.setLDAPChangeNotificationHandler(this);
-
-                // Get the custom attributes
-                String customDN = user.getCustomAttributes().getDN() + COMMA + user.getDN();
-                try {
-                    LDAPUserCustomAttributes lca = (LDAPUserCustomAttributes) ctx.lookup(customDN);
-                    if (lca != null) {
-                        user.setCustomAttributes(lca);
-                    }
-                } catch (Exception ignore) {
-                }
-                users.add(user);
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-        return users;
-    }
-
-    @Override
-    public boolean validateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential pc = (PasswordCredential) credential;
-            boolean valid = false;
-            // We have to bind
-            try {
-                LDAPUser ldapUser = null;
-                if (user instanceof LDAPUser == false) {
-                    ldapUser = convert(user);
-                } else {
-                    ldapUser = (LDAPUser) user;
-                }
-
-                String filter = "(&(objectClass=inetOrgPerson)(uid={0}))";
-                SearchControls ctls = new SearchControls();
-                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                ctls.setReturningAttributes(new String[0]);
-                ctls.setReturningObjFlag(true);
-                NamingEnumeration<SearchResult> enm = ctx.search(userDNSuffix, filter, new String[] { ldapUser.getId() }, ctls);
-
-                String dn = null;
-                if (enm.hasMore()) {
-                    SearchResult result = enm.next();
-                    dn = result.getNameInNamespace();
-
-                    System.out.println("dn: " + dn);
-                }
-
-                if (dn == null || enm.hasMore()) {
-                    // uid not found or not unique
-                    throw new NamingException("Authentication failed");
-                }
-
-                // Step 3: Bind with found DN and given password
-                ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
-                ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, pc.getPassword());
-                // Perform a lookup in order to force a bind operation with JNDI
-                ctx.lookup(dn);
-                valid = true;
-            } catch (NamingException e) {
-                // Ignore
-            }
-
-            constructContext();
-            return valid;
-        } else {
-            throwsNotSupportedCredentialType(credential);
-        }
-
-        return false;
-    }
-
-    @Override
-    public void updateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential pc = (PasswordCredential) credential;
-            if (isActiveDirectory) {
-                updateADPassword((LDAPUser) user, pc.getPassword());
-            } else {
-                LDAPUser ldapuser = null;
-                if (user instanceof LDAPUser == false) {
-                    ldapuser = convert(user);
-                } else {
-                    ldapuser = (LDAPUser) user;
-                }
-
-                ModificationItem[] mods = new ModificationItem[1];
-
-                Attribute mod0 = new BasicAttribute(USER_PASSWORD_ATTRIBUTE, pc.getPassword());
-
-                mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
-
-                try {
-                    ctx.modifyAttributes(ldapuser.getDN(), mods);
-                } catch (NamingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential cc = (X509CertificateCredential) credential;
-            try {
-                LDAPUser ldapUser = (LDAPUser) user;
-                ldapUser.setAttribute(new org.picketlink.idm.model.Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, new String(
-                        Base64.encodeBytes(cc.getCertificate().getEncoded()))));
-                ModificationItem[] mods = new ModificationItem[1];
-
-                byte[] certbytes = cc.getCertificate().getEncoded();
-
-                mods[0] = new ModificationItem(REPLACE_ATTRIBUTE, new BasicAttribute(USER_CERTIFICATE_ATTRIBUTE, certbytes));
-
-                // Perform the update
-                ctx.modifyAttributes(ldapUser.getDN(), mods);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            throwsNotSupportedCredentialType(credential);
-        }
-    }
-
-    private void constructContext() {
-        if (ctx != null) {
-            try {
-                ctx.close();
-            } catch (NamingException ignore) {
-
-            }
-        }
-        // Construct the dir ctx
-        Properties env = new Properties();
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, ldapConfiguration.getFactoryName());
-        env.setProperty(Context.SECURITY_AUTHENTICATION, ldapConfiguration.getAuthType());
-
-        String protocol = ldapConfiguration.getProtocol();
-        if (protocol != null) {
-            env.setProperty(Context.SECURITY_PROTOCOL, protocol);
-        }
-        String bindDN = ldapConfiguration.getBindDN();
-        char[] bindCredential = null;
-
-        if (ldapConfiguration.getBindCredential() != null) {
-            bindCredential = ldapConfiguration.getBindCredential().toCharArray();
-        }
-
-        if (bindDN != null) {
-            env.setProperty(Context.SECURITY_PRINCIPAL, bindDN);
-            env.put(Context.SECURITY_CREDENTIALS, bindCredential);
-        }
-
-        String url = ldapConfiguration.getLdapURL();
-        if (url == null) {
-            throw new RuntimeException("url");
-        }
-
-        env.setProperty(Context.PROVIDER_URL, url);
-
-        // Just dump the additional properties
-        Properties additionalProperties = ldapConfiguration.getAdditionalProperties();
-        Set<Object> keys = additionalProperties.keySet();
-        for (Object key : keys) {
-            env.setProperty((String) key, additionalProperties.getProperty((String) key));
-        }
-
-        try {
-            ctx = new InitialLdapContext(env, null);
-        } catch (NamingException e1) {
-            throw new RuntimeException(e1);
-        }
-    }
-
-    // Remember the updation has to happen over SSL. That is handled by the JNDI Ctx Parameters
-    private void updateADPassword(LDAPUser user, String password) {
-        try {
-            // set password is a ldap modfy operation
-            ModificationItem[] mods = new ModificationItem[1];
-
-            // Replace the "unicdodePwd" attribute with a new value
-            // Password must be both Unicode and a quoted string
-            String newQuotedPassword = "\"" + password + "\"";
-            byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
-
-            mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute("unicodePwd", newUnicodePassword));
-
-            // Perform the update
-            ctx.modifyAttributes(user.getDN(), mods);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * <p>
-     * Helper method to throws a {@link IllegalArgumentException} when the specified {@link Credential} is not supported.
-     * </p>
-     * TODO: when using JBoss Logging this method should be removed.
-     * 
-     * @param credential
-     * @return
-     */
-    private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
-        throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
-    }
-
-    private LDAPUser convert(User user) {
-        LDAPUser ldapuser = new LDAPUser();
-
-        // ldapuser.setLookup(this);
-        // ldapuser.setLDAPChangeNotificationHandler(this);
-        // ldapuser.setUserDNSuffix(userDNSuffix);
-
-        ldapuser.setId(user.getId());
-        ldapuser.setFirstName(" ");
-        ldapuser.setLastName(" ");
-
-        if (user.getFirstName() != null) {
-            ldapuser.setFirstName(user.getFirstName());
-            ldapuser.setFullName(user.getFirstName());
-        }
-
-        if (user.getLastName() != null) {
-            ldapuser.setLastName(user.getLastName());
-
-            if (ldapuser.getFullName() != null) {
-                ldapuser.setFullName(ldapuser.getFullName() + " " + user.getLastName());
-            } else {
-                ldapuser.setFullName(user.getLastName());
-            }
-        }
-
-        if (user.getEmail() != null) {
-            ldapuser.setEmail(user.getEmail());
-        }
-
-        for (org.picketlink.idm.model.Attribute<? extends Serializable> attrib : user.getAttributes()) {
-            ldapuser.setAttribute(attrib);
-        }
-
-        return ldapuser;
-    }
-
-    @Override
-    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
-        // TODO implement this
-        return null;
-    }
-
-    @Override
-    public void updateUser(User user) {
-        LDAPUser ldapUser = (LDAPUser) user;
-
-        try {
-            String fullName = ldapUser.getFirstName();
-
-            if (ldapUser.getLastName() != null) {
-                fullName = fullName + " " + ldapUser.getLastName();
-            }
-
-            ldapUser.setFullName(fullName);
-            
-            LDAPUser storedUser = (LDAPUser) getUser(user.getId());
-            
-            Attributes storedAttributes = storedUser.attributes;
-            
-            NamingEnumeration<? extends Attribute> enumStoredAttributes = storedAttributes.getAll();
-            
-            while (enumStoredAttributes.hasMore()) {
-                Attribute storedAttribute = enumStoredAttributes.next();
-                Attribute updatedAttribute = ldapUser.attributes.get(storedAttribute.getID());
-                
-                if (updatedAttribute != null) {
-                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
-                            updatedAttribute) };
-                    ctx.modifyAttributes(ldapUser.getDN(), mods);
-                } else {
-                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE, storedAttribute) };
-                    ctx.modifyAttributes(ldapUser.getDN(), mods);
-                }
-            }
-
-            NamingEnumeration<? extends Attribute> enumUpdatedAttributes = ldapUser.attributes.getAll();
-            
-            while (enumUpdatedAttributes.hasMore()) {
-                Attribute updatedAttribute = enumUpdatedAttributes.next();
-                Attribute storedAttribute = storedUser.attributes.get(updatedAttribute.getID());
-                
-                if (storedAttribute == null && isManaged(updatedAttribute.getID())) {
-                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE,
-                            updatedAttribute) };
-                    ctx.modifyAttributes(ldapUser.getDN(), mods);
-                } 
-            }
-            
-            LDAPUserCustomAttributes attributes = ldapUser.getCustomAttributes();
-
-            Set<Entry<String, Object>> entrySet = new HashMap(attributes.getAttributes()).entrySet();
-
-            for (Entry<String, Object> entry : entrySet) {
-                if (isManaged(entry.getKey())) {
-                    ldapUser.attributes.put(entry.getKey(), entry.getValue());
-                    attributes.removeAttribute(entry.getKey());
-                } else {
-                    ldapUser.attributes.remove(entry.getKey());
-                }
-            }
-            
-//            try {
-//                ctx.unbind(attributes.getDN() + COMMA + ldapUser.getDN());                
-//            } catch (Exception e) { 
-//            } finally {
-//                
-//            }
-//            
-//            ctx.unbind(ldapUser.getDN());
-//            ctx.bind(ldapUser.getDN(), ldapUser, ldapUser.attributes);
-            ctx.rebind(attributes.getDN() + COMMA + ldapUser.getDN(), attributes);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public Group getGroup(String name, Group parent) {
-        // TODO implement this
-        return null;
-    }
-
-    @Override
-    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(IdentityType identityType,
-            String attributeName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void setup(LDAPConfiguration config, IdentityStoreInvocationContext context) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public LDAPConfiguration getConfig() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public IdentityStoreInvocationContext getContext() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+    
+//  @Override
+//  public void handle(LDAPObjectChangedNotification notification) {
+//      DirContext object = notification.getLDAPObject();
+//      if (object instanceof LDAPUser) {
+//          LDAPUser user = (LDAPUser) object;
+//          LDAPUserCustomAttributes ldapUserCustomAttributes = user.getCustomAttributes();
+//          try {
+//              String userDN = getUserDN(user);
+//              if (notification.getNtype() == NType.ADD_ATTRIBUTE) {
+//                  Attribute attrib = notification.getAttribute();
+//                  if (attrib == null)
+//                      throw new RuntimeException("attrib is null");
+//                  ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE, attrib) };
+//                  ctx.modifyAttributes(userDN, mods);
+//              }
+//              if (notification.getNtype() == NType.REPLACE_ATTRIBUTE) {
+//                  Attribute attrib = notification.getAttribute();
+//                  if (attrib == null)
+//                      throw new RuntimeException("attrib is null");
+//                  ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+//                          attrib) };
+//                  ctx.modifyAttributes(userDN, mods);
+//              }
+//              if (notification.getNtype() == NType.REMOVE_ATTRIBUTE) {
+//                  Attribute attrib = notification.getAttribute();
+//                  if (attrib == null)
+//                      throw new RuntimeException("attrib is null");
+//                  ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attrib) };
+//                  ctx.modifyAttributes(userDN, mods);
+//              }
+//              // ctx.rebind(userDN, object);
+//              ctx.rebind(getCustomAttributesDN(user), ldapUserCustomAttributes);
+//          } catch (NamingException e) {
+//              throw new RuntimeException(e);
+//          }
+//      }
+//  }
 
 }
