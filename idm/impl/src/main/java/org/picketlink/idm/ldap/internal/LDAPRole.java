@@ -69,7 +69,7 @@ public class LDAPRole extends DirContextAdaptor implements Role {
     }
 
     public String getDN() {
-        return CN + EQUAL + getAttribute(CN) + COMMA + roleDNSuffix;
+        return CN + EQUAL + getAttribute(CN).getValue() + COMMA + roleDNSuffix;
     }
 
     public void setName(String roleName) {
@@ -118,5 +118,10 @@ public class LDAPRole extends DirContextAdaptor implements Role {
         if (memberAttribute != null) {
             memberAttribute.remove(userDN);
         }
+    }
+    
+    @Override
+    public String getKey() {
+        return String.format("%s%s", KEY_PREFIX, getName());
     }
 }

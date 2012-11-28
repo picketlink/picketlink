@@ -24,7 +24,6 @@ package org.picketlink.test.idm;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
@@ -36,7 +35,6 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
-import org.picketlink.idm.ldap.internal.LDAPUser;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
@@ -86,9 +84,6 @@ public class UserManagementTestCase extends AbstractLDAPTest {
 
         assertNotNull(storedUserInstance);
         
-        // the user instance returned by the store must be a LDAPUser instance
-        assertTrue(storedUserInstance instanceof LDAPUser);
-
         assertEquals(newUserInstance.getId(), storedUserInstance.getId());
         assertEquals(newUserInstance.getFirstName(), storedUserInstance.getFirstName());
         assertEquals(newUserInstance.getLastName(), storedUserInstance.getLastName());
@@ -126,7 +121,6 @@ public class UserManagementTestCase extends AbstractLDAPTest {
         User storedUserInstance = identityManager.getUser("admin");
 
         assertNotNull(storedUserInstance);
-        assertTrue(storedUserInstance instanceof LDAPUser);
 
         assertEquals("admin", storedUserInstance.getId());
         assertEquals("The", storedUserInstance.getFirstName());
