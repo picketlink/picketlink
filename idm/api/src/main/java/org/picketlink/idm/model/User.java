@@ -26,9 +26,13 @@ import java.io.Serializable;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
- * User representation
+ * This interface represents a User; a human or non-human agent that may 
+ * consume the services provided by an application.
+ * 
+ * @author Shane Bryzak
  */
 public interface User extends IdentityType, Serializable {
+
     /**
      * A query parameter used to set the id value.
      */
@@ -49,21 +53,10 @@ public interface User extends IdentityType, Serializable {
      */
     QueryParameter EMAIL = new QueryParameter() {};
 
+    /**
+     * This String prefixes all values returned by the getKey() method.
+     */
     String KEY_PREFIX = "USER://";
-
-    // TODO: Javadocs
-    // TODO: Exceptions
-
-    // TODO: minimal set of "hard-coded" attributes that make sense:
-    // TODO: Personal - First/Last/Full Name, Phone, Email, Organization, Created Date, Birthdate; Too much??
-
-    // TODO: separate UserProfile?
-
-    // TODO: for some of those builtin attributes like email proper validation (dedicated exception?) is needed
-
-    // TODO: authentication - password/token validation
-
-    // TODO: non human identity - another interface?
 
     // Built in attributes
 
@@ -76,9 +69,6 @@ public interface User extends IdentityType, Serializable {
     String getLastName();
 
     void setLastName(String lastName);
-
-    // TODO: this one could be configurable with some regex
-    String getFullName();
 
     String getEmail();
 

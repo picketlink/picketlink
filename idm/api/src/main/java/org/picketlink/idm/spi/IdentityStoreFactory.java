@@ -15,7 +15,7 @@ public interface IdentityStoreFactory {
      * @param config
      * @return
      */
-    IdentityStore createIdentityStore(IdentityStoreConfiguration config);
+    IdentityStore createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext context);
 
     TierStore createTierStore(IdentityStoreConfiguration config);
 

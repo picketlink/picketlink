@@ -3,6 +3,7 @@ package org.picketlink.idm.spi;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
@@ -15,14 +16,43 @@ import org.picketlink.idm.model.Tier;
  */
 public class IdentityStoreInvocationContext {
 
+    /**
+     * 
+     */
+    private IdentityCache cache;
+
+    /**
+     * 
+     */
     private EventBridge eventBridge;
+
+    /**
+     * 
+     */
     private Realm realm;
+
+    /**
+     * 
+     */
     private Tier tier;
 
+    /**
+     * 
+     */
     private Map<String,Object> parameters = new HashMap<String,Object>();
 
-    public IdentityStoreInvocationContext(EventBridge eventBridge) {
+    public IdentityStoreInvocationContext(IdentityCache cache, EventBridge eventBridge) {
+        this.cache = cache;
         this.eventBridge = eventBridge;
+    }
+
+    /**
+     * Returns the cache for this invocation context.
+     * 
+     * @return
+     */
+    public IdentityCache getCache() {
+        return cache;
     }
 
     /**

@@ -55,7 +55,7 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.internal.AbstractBaseIdentityStore;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * <p>
@@ -66,7 +66,7 @@ import org.picketlink.idm.spi.internal.AbstractBaseIdentityStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class FileBasedIdentityStore extends AbstractBaseIdentityStore implements IdentityStore {
+public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfiguration> {
     
     private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userPassword";
@@ -93,11 +93,6 @@ public class FileBasedIdentityStore extends AbstractBaseIdentityStore implements
         this.workingDir = workingDir;
         this.alwaysCreateFiles = alwaysCreateFiles;
         initialize();
-    }
-    
-    @Override
-    public void configure(IdentityStoreConfiguration config) {
-        // TODO implement configuration
     }
 
     /**
@@ -1018,20 +1013,36 @@ public class FileBasedIdentityStore extends AbstractBaseIdentityStore implements
     }
 
     @Override
-    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
+    public void updateUser(User user) {
+        // TODO implement this
+
+    }
+    @Override
+    public void setup(IdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public IdentityStoreConfiguration getConfig() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void updateUser(User user) {
-        // TODO implement this
-
+    public IdentityStoreInvocationContext getContext() {
+        // TODO Auto-generated method stub
+        return null;
     }
 
-    // TODO implement this method
     @Override
-    public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
+    public List fetchQueryResults(Map parameters) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Attribute getAttribute(IdentityType identityType, String attributeName) {
         // TODO Auto-generated method stub
         return null;
     }

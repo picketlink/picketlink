@@ -268,7 +268,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
 //        }
     }
 
-    @Override
+//    @Override
     public String getFullName() {
         try {
 //            if (fullName == null) {

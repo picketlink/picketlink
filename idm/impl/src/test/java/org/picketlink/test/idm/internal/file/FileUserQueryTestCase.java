@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.file.internal.FileUser;
@@ -45,6 +46,7 @@ import org.picketlink.idm.model.User;
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
+@Ignore
 public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
 
     private static final String GROUP_NAME_PREFIX = "Administrators";

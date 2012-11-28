@@ -43,7 +43,7 @@ import org.picketlink.idm.query.QueryParameter;
  * @author Boleslaw Dawidowicz
  * @author Shane Bryzak
  */
-public interface IdentityStore {
+public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * This enum defines the individual features that an IdentityStore implementation or
@@ -67,19 +67,23 @@ public interface IdentityStore {
      */
     Set<Feature> getFeatureSet();
 
-    void configure(IdentityStoreConfiguration config) throws SecurityConfigurationException;
+    /**
+     * Sets the configuration and context in which the IdentityStore will execute its operations
+     * 
+     * @param config
+     * @param context
+     */
+    void setup(T config, IdentityStoreInvocationContext context);
 
     /**
-     * Returns a proxied reference to this IdentityStore that will execute its operations within
-     * the specified context
+     * Returns the configuration for this IdentityStore instance
      * 
-     * @param ctx
      * @return
      */
-    IdentityStore forContext(IdentityStoreInvocationContext ctx);
+    T getConfig();
 
     /**
-     * Returns the current context for the IdentityStore
+     * Returns the current context for this IdentityStore instance
      * 
      * @return
      */
