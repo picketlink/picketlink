@@ -12,6 +12,8 @@ import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROP
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_EMAIL;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_FIRST_NAME;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_LAST_NAME;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,6 +41,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -395,7 +398,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // Check the cache first
         User user = getContext().getCache().lookupUser(context.getRealm(), id);
 
-        // If the cache doesn't have a reference to the User, we have to look it up and create the instance
+        // If the cache doesn't have a reference to the User, we have to look up it's identity object
+        // and create a User instance based on it
         if (user == null) {
             Object instance = lookupIdentityObjectById(User.class, id);
 
@@ -424,9 +428,45 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public Group getGroup(String name) {
-        // TODO Auto-generated method stub
-        return null;
+    public Group getGroup(String groupId) {
+        Partition partition;
+
+        if (getContext().getRealm() != null && getContext().getTier() != null) {
+            throw new SecurityException("Ambiguous context state while looking up group - both realm and tier have been set.");
+        } else if (getContext().getRealm() != null) {
+            partition = getContext().getRealm();
+        } else if (getContext().getTier() != null) {
+            partition = getContext().getTier();
+        } else {
+            throw new SecurityException("Error while looking up group - context defines no realm or tier");
+        }
+
+        // Check the cache first
+        Group group = getContext().getCache().lookupGroup(partition, groupId);
+
+        // If the cache doesn't have a reference to the Group, we have to look up it's identity object
+        // and create a Group instance based on it
+        if (group == null) {
+            Object instance = lookupIdentityObjectById(Group.class, groupId);
+
+            group = convertGroupEntityToGroup(instance);
+
+            // TODO we need to also set attribute values
+            //group.setAttribute(attribute);
+
+            getContext().getCache().putGroup(context.getRealm(), group);
+        }
+
+        return group;
+    }
+
+    private Group convertGroupEntityToGroup(Object instance) {
+        String name = getModelProperty(String.class, instance, PROPERTY_IDENTITY_NAME);
+        Object parent = getModelProperty(Object.class, instance, PROPERTY_PARENT_GROUP);
+        Group group = parent != null ? new SimpleGroup(name, convertGroupEntityToGroup(parent)) : 
+            new SimpleGroup(name);
+
+        return group;
     }
 
     @Override
