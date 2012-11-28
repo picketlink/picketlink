@@ -49,10 +49,6 @@ public class LDAPUserCustomAttributes implements Serializable {
         return Collections.unmodifiableMap(attributes);
     }
 
-    public String getDN() {
-        return "cn=custom-attributes";
-    }
-
     public Object getAttribute(String name) {
         return attributes.get(name);
     }

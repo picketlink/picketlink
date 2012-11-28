@@ -107,7 +107,6 @@ public class UserManagementTestCase extends AbstractLDAPTest {
         User storedUserInstance = identityManager.getUser("admin");
 
         assertNotNull(storedUserInstance);
-        assertTrue(storedUserInstance instanceof LDAPUser);
 
         assertEquals("admin", storedUserInstance.getId());
         assertEquals("The", storedUserInstance.getFirstName());
@@ -135,13 +134,15 @@ public class UserManagementTestCase extends AbstractLDAPTest {
         assertEquals("Administrator", storedUserInstance.getLastName());
         assertEquals("admin@jboss.org", storedUserInstance.getEmail());
         assertEquals("The Administrator", storedUserInstance.getFullName());
-        
+
+        // let's update some user information
         storedUserInstance.setFirstName("Updated " + storedUserInstance.getFirstName());
         storedUserInstance.setLastName("Updated " + storedUserInstance.getLastName());
         storedUserInstance.setEmail("Updated " + storedUserInstance.getEmail());
         
         identityManager.updateUser(storedUserInstance);
         
+        // let's load again the user from the store and check for the updated information
         User updatedUser = identityManager.getUser(storedUserInstance.getId());
         
         assertEquals("Updated The", updatedUser.getFirstName());

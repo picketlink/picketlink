@@ -60,7 +60,7 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     public static final String COMMA = ",";
     public static final String EQUAL = "=";
     public static final String SPACE_STRING = " ";
-    protected Attributes attributes = new BasicAttributes(true);
+    private Attributes attributes = new BasicAttributes(true);
 
     protected LDAPChangeNotificationHandler handler = null;
     
@@ -233,9 +233,14 @@ public class DirContextAdaptor implements DirContext, IdentityType {
      *
      * @return
      */
-    public Attributes getLDAPAttributes() {
+    protected Attributes getLDAPAttributes() {
         return this.attributes;
     }
+    
+    protected void setLDAPAttributes(Attributes attributes) {
+        this.attributes = attributes;
+    }
+
 
     @Override
     public Attributes getAttributes(Name name, String[] ids) throws NamingException {
@@ -401,7 +406,7 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     @Override
     public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
         attributes.put(attribute.getName(), attribute.getValue());
-        customAttributes.addAttribute(attribute.getName(), attribute.getValue());
+        getCustomAttributes().addAttribute(attribute.getName(), attribute.getValue());
         Attribute anAttribute = attributes.get(attribute.getName());
         if (handler != null) {
             handler.handle(new LDAPObjectChangedNotification(this, NType.ADD_ATTRIBUTE, anAttribute));
@@ -435,7 +440,11 @@ public class DirContextAdaptor implements DirContext, IdentityType {
     }
 
     public LDAPUserCustomAttributes getCustomAttributes() {
-        return customAttributes;
+        if (this.customAttributes == null) {
+            this.customAttributes = new LDAPUserCustomAttributes();
+        }
+
+        return this.customAttributes;
     }
 
     public void setCustomAttributes(LDAPUserCustomAttributes customAttributes) {
@@ -528,4 +537,5 @@ public class DirContextAdaptor implements DirContext, IdentityType {
         // TODO Auto-generated method stub
         return null;
     }
+    
 }
