@@ -45,6 +45,10 @@ public class Attribute<T extends Serializable> {
     public boolean isUnique() {
         return unique;
     }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
 }
 
 
