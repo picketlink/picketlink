@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
@@ -121,6 +122,12 @@ public class DefaultIdentityManager implements IdentityManager {
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
 
             config.init();
+
+            if (config.getFeatureSet() == null) {
+                throw new SecurityConfigurationException(
+                        "A feature set has not been configured for IdentityStoreConfiguration: " +
+                        config);
+            }
 
             Map<Feature,IdentityStoreConfiguration> featureToStoreMap;
 
