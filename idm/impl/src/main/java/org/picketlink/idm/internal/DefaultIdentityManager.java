@@ -172,7 +172,7 @@ public class DefaultIdentityManager implements IdentityManager {
             config = featureToStoreMap.get(Feature.all);
         } else {
             throw new UnsupportedOperationException("The requested identity management feature [" + 
-                    feature.toString() + "] is not configured.");
+                    feature.toString() + "] has not been configured.");
         }
 
         IdentityStore<?> store = storeFactory.createIdentityStore(config, ctx);

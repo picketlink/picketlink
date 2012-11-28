@@ -5,6 +5,7 @@ import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROP
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_DISCRIMINATOR;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_ID;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_KEY;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_PARTITION;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE;
@@ -36,6 +37,7 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -93,28 +95,39 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return features;
     }
 
+    private Object lookupRealmObject(Realm realm) {
+        // TODO implement realm lookup
+        return null;
+    }
+
+    private void setModelProperty(Object instance, String propertyName, Object value) {
+        setModelProperty(instance, propertyName, value, false);
+    }
+
+    private void setModelProperty(Object instance, String propertyName, Object value, boolean required) {
+        if (getConfig().isModelPropertySet(propertyName)) {
+            getConfig().getModelProperty(propertyName).setValue(instance, value);
+        } else if (required) {
+            throw new SecurityException("Model property [" + propertyName + "] has not been configured.");
+        }
+    }
+
     @Override
     public void createUser(User user) {
         try {
-            // Create the identity instance first
+            // Create the identity entity instance first
             Object identity = getConfig().getIdentityClass().newInstance();
 
-            getConfig().getModelProperty(PROPERTY_IDENTITY_ID).setValue(identity, user.getId());
+            setModelProperty(identity, PROPERTY_IDENTITY_ID, user.getId(), true);
+            setModelProperty(identity, PROPERTY_IDENTITY_DISCRIMINATOR, getConfig().getIdentityTypeUser(), true);
+            setModelProperty(identity, PROPERTY_IDENTITY_KEY, user.getKey(), true);
 
-            getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).setValue(identity, getConfig().getIdentityTypeUser());
+            setModelProperty(identity, PROPERTY_USER_FIRST_NAME, user.getFirstName());
+            setModelProperty(identity, PROPERTY_USER_LAST_NAME, user.getLastName());
+            setModelProperty(identity, PROPERTY_USER_EMAIL, user.getEmail());
 
-            getConfig().getModelProperty(PROPERTY_IDENTITY_KEY).setValue(identity, user.getKey());
-
-            if (getConfig().isModelPropertySet(PROPERTY_USER_FIRST_NAME)) {
-                getConfig().getModelProperty(PROPERTY_USER_FIRST_NAME).setValue(identity, user.getFirstName());
-            }
-
-            if (getConfig().isModelPropertySet(PROPERTY_USER_LAST_NAME)) {
-                getConfig().getModelProperty(PROPERTY_USER_LAST_NAME).setValue(identity, user.getLastName());
-            }
-
-            if (getConfig().isModelPropertySet(PROPERTY_USER_EMAIL)) {
-                getConfig().getModelProperty(PROPERTY_USER_EMAIL).setValue(identity, user.getEmail());
+            if (getContext().getRealm() != null) {
+                setModelProperty(identity, PROPERTY_IDENTITY_PARTITION, lookupRealmObject(getContext().getRealm()));
             }
 
             EntityManager em = getEntityManager();
