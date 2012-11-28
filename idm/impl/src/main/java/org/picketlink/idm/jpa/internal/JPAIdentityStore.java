@@ -537,7 +537,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public void removeMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -555,13 +555,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public void updateUser(User user) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void createGroup(Group group) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -573,7 +573,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public void createRole(Role role) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

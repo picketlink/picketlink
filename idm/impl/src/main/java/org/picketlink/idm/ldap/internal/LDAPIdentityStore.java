@@ -73,10 +73,10 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author Shane Bryzak
  * @author Anil Saldhana
  */
-public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>
+public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 //, LDAPChangeNotificationHandler,
 //        ManagedAttributeLookup 
-{
+
     private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
     public final String COMMA = ",";
