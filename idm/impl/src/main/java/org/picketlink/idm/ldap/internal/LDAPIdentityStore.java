@@ -1088,7 +1088,40 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
             }
 
             ldapUser.setFullName(fullName);
+            
+            LDAPUser storedUser = (LDAPUser) getUser(user.getId());
+            
+            Attributes storedAttributes = storedUser.attributes;
+            
+            NamingEnumeration<? extends Attribute> enumStoredAttributes = storedAttributes.getAll();
+            
+            while (enumStoredAttributes.hasMore()) {
+                Attribute storedAttribute = enumStoredAttributes.next();
+                Attribute updatedAttribute = ldapUser.attributes.get(storedAttribute.getID());
+                
+                if (updatedAttribute != null) {
+                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                            updatedAttribute) };
+                    ctx.modifyAttributes(ldapUser.getDN(), mods);
+                } else {
+                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE, storedAttribute) };
+                    ctx.modifyAttributes(ldapUser.getDN(), mods);
+                }
+            }
 
+            NamingEnumeration<? extends Attribute> enumUpdatedAttributes = ldapUser.attributes.getAll();
+            
+            while (enumUpdatedAttributes.hasMore()) {
+                Attribute updatedAttribute = enumUpdatedAttributes.next();
+                Attribute storedAttribute = storedUser.attributes.get(updatedAttribute.getID());
+                
+                if (storedAttribute == null && isManaged(updatedAttribute.getID())) {
+                    ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE,
+                            updatedAttribute) };
+                    ctx.modifyAttributes(ldapUser.getDN(), mods);
+                } 
+            }
+            
             LDAPUserCustomAttributes attributes = ldapUser.getCustomAttributes();
 
             Set<Entry<String, Object>> entrySet = new HashMap(attributes.getAttributes()).entrySet();
@@ -1102,17 +1135,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, LDAP
                 }
             }
             
-            NamingEnumeration<? extends Attribute> all = ldapUser.attributes.getAll();
-            
-            while (all.hasMore()) {
-                Attribute attribute = all.next();
-                
-                if (!isManaged(attribute.getID())) {
-                    ldapUser.attributes.remove(attribute.getID());
-                }
-            }
-
-            ctx.rebind(ldapUser.getDN(), ldapUser, ldapUser.attributes);
+//            try {
+//                ctx.unbind(attributes.getDN() + COMMA + ldapUser.getDN());                
+//            } catch (Exception e) { 
+//            } finally {
+//                
+//            }
+//            
+//            ctx.unbind(ldapUser.getDN());
+//            ctx.bind(ldapUser.getDN(), ldapUser, ldapUser.attributes);
             ctx.rebind(attributes.getDN() + COMMA + ldapUser.getDN(), attributes);
         } catch (NamingException e) {
             throw new RuntimeException(e);
