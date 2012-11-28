@@ -37,6 +37,7 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -95,7 +96,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return features;
     }
 
-    private Object lookupRealmObject(Realm realm) {
+    private Object lookupPartitionObject(Partition partition) {
         // TODO implement realm lookup
         return null;
     }
@@ -127,12 +128,15 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             setModelProperty(identity, PROPERTY_USER_EMAIL, user.getEmail());
 
             if (getContext().getRealm() != null) {
-                setModelProperty(identity, PROPERTY_IDENTITY_PARTITION, lookupRealmObject(getContext().getRealm()));
+                setModelProperty(identity, PROPERTY_IDENTITY_PARTITION, lookupPartitionObject(getContext().getRealm()));
             }
 
             EntityManager em = getEntityManager();
 
-            // Create any related entities that may be containers for attribute values
+            // Create any related entities that may be containers for attribute values -
+            // we are not setting the attribute values themselves, just creating the entities
+            // that they are contained in, and setting a reference to those entities from within
+            // the identity object.
             for (String attribName : getConfig().getAttributeProperties().keySet()) {
                 MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
                 if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
@@ -163,16 +167,64 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     private Object lookupIdentityObjectByKey(String key) {
-        final String annotatedEntityName = getConfig().getIdentityClass().getAnnotation(Entity.class).name();
-        final String entityName = ("".equals(annotatedEntityName) ? 
-                getConfig().getIdentityClass().getSimpleName() : annotatedEntityName);
+        if (key == null) {
+            return null;
+        }
 
-        return getEntityManager().createQuery("select i from " +
-                entityName + " i where i." +
-                getConfig().getModelProperty(PROPERTY_IDENTITY_KEY).getName() +
-                " = :key")
-                .setParameter("key", key)
-                .getSingleResult();
+        EntityManager em = getEntityManager();
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getIdentityClass());
+        Root<?> root = criteria.from(getConfig().getIdentityClass());
+        List<Predicate> predicates = new ArrayList<Predicate>();
+        predicates.add(builder.equal(
+                root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_KEY).getName()), 
+                key));
+
+        if (getConfig().isModelPropertySet(PROPERTY_IDENTITY_PARTITION)) {
+            // We need to determine what type of key we're dealing with.. if it's a User key, then
+            // we need to set the Realm value
+            if (key.startsWith(User.KEY_PREFIX)) {
+                if (getContext().getRealm() == null) {
+                    throw new SecurityException("Cannot look up User key without a provided realm.");
+                }
+
+                predicates.add(builder.equal(
+                        root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
+                        lookupPartitionObject(getContext().getRealm())));
+
+            // Otherwise if it's a group or role key, we need to set either the realm or the tier
+            } else if (key.startsWith(Group.KEY_PREFIX) || key.startsWith(Role.KEY_PREFIX)) {
+                if (getContext().getRealm() != null && getContext().getTier() != null) {
+                    throw new SecurityException(
+                            "Ambiguous lookup for key [" + key + 
+                            "] - both Realm and Tier have been specified in context.");
+                }
+
+                if (getContext().getRealm() != null) {
+                    predicates.add(builder.equal(
+                            root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
+                            lookupPartitionObject(getContext().getRealm())));
+                } else if (getContext().getTier() != null) {
+                    predicates.add(builder.equal(
+                            root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
+                            lookupPartitionObject(getContext().getTier())));
+                } else {
+                    throw new SecurityException("Cannot look up key [" + key + "] without a provided realm or tier.");
+                }
+            }
+        }
+
+        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        List<?> results = em.createQuery(criteria).getResultList();
+
+        if (results.size() == 1) {
+            return results.get(0);
+        } else {
+            throw new SecurityException("Error looking up identity by key - ambiguous identities found for key: [" + 
+                    key + "]");
+        }
     }
 
     private void removeIdentityObject(Object object) {

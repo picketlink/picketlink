@@ -57,10 +57,6 @@ public class SimpleUser extends AbstractIdentityType implements User {
         this.lastName = lastName;
     }
 
-    public String getFullName() {
-        return String.format("%s %s", firstName, lastName);
-    }
-
     public String getEmail() {
         return email;
     }
