@@ -12,7 +12,7 @@ import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.TierStore;
+import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * Default IdentityStoreFactory implementation.  This factory is pre-configured to be
@@ -63,7 +63,7 @@ public class DefaultIdentityStoreFactory implements IdentityStoreFactory {
     }
 
     @Override
-    public TierStore createTierStore(IdentityStoreConfiguration config) {
+    public PartitionStore createTierStore(IdentityStoreConfiguration config) {
         // TODO Auto-generated method stub
         return null;
     }

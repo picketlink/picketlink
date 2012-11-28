@@ -35,7 +35,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 import org.picketlink.idm.spi.IdentityStoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.TierStore;
+import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * <p>
@@ -90,7 +90,7 @@ public abstract class AbstractFileIdentityManagerTestCase {
                 }
 
                 @Override
-                public TierStore createTierStore(IdentityStoreConfiguration config) {
+                public PartitionStore createTierStore(IdentityStoreConfiguration config) {
                     // TODO Auto-generated method stub
                     return null;
                 }
