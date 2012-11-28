@@ -231,8 +231,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>
 
     @Override
     public void removeGroup(Group group) {
+        LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
+        
+        if (ldapGroup == null) {
+            throw new RuntimeException("There is no group with name [" + group.getName() + "]");
+        }
+        
         try {
-            LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getId());
             ctx.destroySubcontext(ldapGroup.getDN());
         } catch (NamingException e) {
             throw new RuntimeException(e);
