@@ -21,11 +21,9 @@
  */
 package org.picketlink.idm.internal;
 
-import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +34,6 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credential;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -47,9 +44,9 @@ import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
-import org.picketlink.idm.spi.StoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * Default implementation of the IdentityManager interface
@@ -349,16 +346,6 @@ public class DefaultIdentityManager implements IdentityManager {
             .updateCredential(user, credential);
     }
 
-    @Override
-    public void setEnabled(IdentityType identityType, boolean enabled) {
-        throw new RuntimeException();
-    }
-
-    @Override
-    public void setExpirationDate(IdentityType identityType, Date expirationDate) {
-        throw new RuntimeException();
-    }
-
     public IdentityStoreInvocationContextFactory getContextFactory() {
         return contextFactory;
     }
@@ -373,22 +360,6 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends IdentityType> IdentityQuery<T> createQuery() {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public void setAttribute(IdentityType identityType, Attribute<? extends Serializable> attribute) {
-        // TODO implement this
-    }
-
-    @Override
-    public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
-        // TODO implement this
-        return null;
-    }
-
-    @Override
-    public void removeAttribute(IdentityType identityType, String attributeName) {
-        // TODO implement this
     }
 
     @Override
@@ -435,6 +406,11 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void updateGroup(Group group) {
         getContextualStoreForFeature(createContext(), Feature.updateGroup).updateGroup(group);
+    }
+
+    @Override
+    public void loadAttribute(IdentityType identityType, String attributeName) {
+        
     }
 
 }
