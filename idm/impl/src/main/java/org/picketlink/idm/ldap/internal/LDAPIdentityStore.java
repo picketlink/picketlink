@@ -25,9 +25,9 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,13 +75,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
-    protected String userDNSuffix, roleDNSuffix, groupDNSuffix;
-    protected boolean isActiveDirectory = false;
-
-    protected List<String> managedAttributes = new ArrayList<String>();
-
-    protected LDAPConfiguration ldapConfiguration = null;
     private LDAPOperationManager ldapManager;
+    private LDAPConfiguration configuration;
 
     @Override
     public void setup(LDAPConfiguration config, IdentityStoreInvocationContext context) {
@@ -105,13 +100,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             throw new IllegalArgumentException("Can only pass instance of LDAPConfiguration to LDAPIdentityStore");
         }
 
-        LDAPConfiguration config = (LDAPConfiguration) configuration;
-
-        this.ldapConfiguration = config;
-        userDNSuffix = config.getUserDNSuffix();
-        roleDNSuffix = config.getRoleDNSuffix();
-        groupDNSuffix = config.getGroupDNSuffix();
-        isActiveDirectory = config.isActiveDirectory();
+        this.configuration = (LDAPConfiguration) configuration;
 
         constructContext();
     }
@@ -130,69 +119,64 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             ldapUser = (LDAPUser) user;
         }
 
-        getLdapManager().bind(ldapUser.getDN(), ldapUser);
-        getLdapManager().bind(getCustomAttributesDN(ldapUser.getDN()), ldapUser.getCustomAttributes());
+        ldapUser.setFullName(getUserCN(ldapUser));
+
+        store(ldapUser);
+    }
+
+    @Override
+    public void createRole(Role role) {
+        LDAPRole ldapRole = new LDAPRole(this.configuration.getRoleDNSuffix());
+
+        ldapRole.setName(role.getName());
+
+        store(ldapRole);
+    }
+
+    @Override
+    public void createGroup(Group group) {
+        LDAPGroup ldapGroup = new LDAPGroup(this.configuration.getGroupDNSuffix());
+
+        ldapGroup.setName(group.getName());
+
+        store(ldapGroup);
+
+        if (group.getParentGroup() != null) {
+            String parentName = group.getParentGroup().getName();
+            LDAPGroup parentGroup = (LDAPGroup) getGroup(parentName);
+
+            if (parentGroup == null) {
+                throw new RuntimeException("Parent group [" + parentName + "] does not exists.");
+            }
+
+            parentGroup.addChildGroup(ldapGroup);
+
+            ldapGroup.setParentGroup(parentGroup);
+
+            getLdapManager().modifyAttribute(parentGroup.getDN(), parentGroup.getLDAPAttributes().get(MEMBER));
+        }
     }
 
     @Override
     public void removeUser(User user) {
         LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
 
-        String customDN = getCustomAttributesDN(ldapUser.getDN());
-
-        try {
-            getLdapManager().lookup(customDN);
-            getLdapManager().destroySubcontext(customDN);
-        } catch (Exception ignore) {
+        if (ldapUser == null) {
+            throw new RuntimeException("User [" + user.getId() + "] does not exists.");
         }
 
-        getLdapManager().destroySubcontext(ldapUser.getDN());
+        remove(ldapUser);
     }
 
     @Override
-    public User getUser(String name) {
-        LDAPUser user = null;
+    public void removeRole(Role role) {
+        LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
 
-        try {
-            Attributes matchAttrs = new BasicAttributes(true);
-
-            matchAttrs.put(new BasicAttribute(LDAPConstants.UID, name));
-
-            NamingEnumeration<SearchResult> answer = getLdapManager().search(userDNSuffix, matchAttrs);
-
-            if (answer.hasMore()) {
-                SearchResult sr = answer.next();
-
-                user = new LDAPUser(this.userDNSuffix, sr.getAttributes());
-
-                user.setCustomAttributes(getCustomAttributes(user.getDN()));
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
+        if (ldapRole == null) {
+            throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
         }
 
-        return user;
-    }
-
-    @Override
-    public void createGroup(Group group) {
-        LDAPGroup ldapGroup = new LDAPGroup(this.groupDNSuffix);
-
-        ldapGroup.setName(group.getName());
-
-        getLdapManager().bind(ldapGroup.getDN(), ldapGroup);
-        getLdapManager().bind(getCustomAttributesDN(ldapGroup.getDN()), ldapGroup.getCustomAttributes());
-
-        if (group.getParentGroup() != null) {
-            ldapGroup.setParentGroup(group.getParentGroup());
-
-            LDAPGroup parentGroup = (LDAPGroup) getGroup(group.getParentGroup().getName());
-            ldapGroup.setParentGroup(parentGroup);
-
-            parentGroup.addChildGroup(ldapGroup);
-
-            getLdapManager().modifyAttribute(parentGroup.getDN(), parentGroup.getLDAPAttributes().get(MEMBER));
-        }
+        remove(ldapRole);
     }
 
     @Override
@@ -200,29 +184,42 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
 
         if (ldapGroup == null) {
-            throw new RuntimeException("There is no group with name [" + group.getName() + "]");
+            throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
         }
 
-        getLdapManager().destroySubcontext(ldapGroup.getDN());
+        remove(ldapGroup);
+    }
+
+    @Override
+    public User getUser(String name) {
+        final String baseDN = this.configuration.getUserDNSuffix();
+
+        List<User> answer = getLdapManager().searchByAttribute(baseDN, UID, name, new LDAPSearchCallback<User>() {
+
+            @Override
+            public User processResult(SearchResult sr) {
+                LDAPUser user = new LDAPUser(baseDN, sr.getAttributes());
+
+                user.setCustomAttributes(getCustomAttributes(user.getDN()));
+
+                return user;
+            }
+
+        });
+
+        return answer.isEmpty() ? null : answer.get(0);
     }
 
     @Override
     public Group getGroup(String name) {
-        LDAPGroup ldapGroup = null;
-        try {
-            Attributes matchAttrs = new BasicAttributes(true);
+        final String baseDN = this.configuration.getGroupDNSuffix();
 
-            matchAttrs.put(new BasicAttribute(CN, name));
+        List<Group> answer = getLdapManager().searchByAttribute(baseDN, CN, name, new LDAPSearchCallback<Group>() {
 
-            NamingEnumeration<SearchResult> answer = getLdapManager().search(groupDNSuffix, matchAttrs);
+            @Override
+            public Group processResult(SearchResult sr) {
+                LDAPGroup ldapGroup = new LDAPGroup(sr.getAttributes(), baseDN);
 
-            while (answer.hasMore()) {
-                SearchResult sr = answer.next();
-                Attributes attributes = sr.getAttributes();
-
-                ldapGroup = new LDAPGroup(this.groupDNSuffix);
-
-                ldapGroup.addAllLDAPAttributes(attributes);
                 ldapGroup.setCustomAttributes(getCustomAttributes(ldapGroup.getDN()));
 
                 Group parentGroup = getParentGroup(ldapGroup);
@@ -230,62 +227,43 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 if (parentGroup != null) {
                     ldapGroup.setParentGroup(parentGroup);
                 }
+
+                return ldapGroup;
             }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
 
-        return ldapGroup;
+        });
+
+        return answer.isEmpty() ? null : answer.get(0);
     }
 
     @Override
-    public Group getGroup(String name, Group parent) {
-        Group group = getGroup(name);
+    public Role getRole(String name) {
+        final String baseDN = this.configuration.getRoleDNSuffix();
 
-        if (group != null && group.getParentGroup().getName().equals(parent.getName())) {
-            return group;
-        }
+        List<Role> answer = getLdapManager().searchByAttribute(baseDN, CN, name, new LDAPSearchCallback<Role>() {
 
-        return null;
-    }
-
-    @Override
-    public void createRole(Role role) {
-        LDAPRole ldapRole = new LDAPRole(this.roleDNSuffix);
-
-        ldapRole.setName(role.getName());
-
-        getLdapManager().bind(ldapRole.getDN(), role);
-        getLdapManager().bind(getCustomAttributesDN(ldapRole.getDN()), ldapRole.getCustomAttributes());
-    }
-
-    @Override
-    public void removeRole(Role role) {
-        LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-
-        getLdapManager().destroySubcontext(ldapRole.getDN());
-    }
-
-    @Override
-    public Role getRole(String role) {
-        try {
-            Attributes matchAttrs = new BasicAttributes(true); // ignore attribute name case
-
-            matchAttrs.put(new BasicAttribute(CN, role));
-
-            NamingEnumeration<SearchResult> searchResult = getLdapManager().search(roleDNSuffix, matchAttrs);
-
-            if (searchResult.hasMore()) {
-                SearchResult result = searchResult.next();
-
-                LDAPRole ldapRole = new LDAPRole(result.getAttributes(), this.roleDNSuffix);
+            @Override
+            public Role processResult(SearchResult sr) {
+                LDAPRole ldapRole = new LDAPRole(sr.getAttributes(), baseDN);
 
                 ldapRole.setCustomAttributes(getCustomAttributes(ldapRole.getDN()));
 
                 return ldapRole;
             }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
+
+        });
+
+        return answer.isEmpty() ? null : answer.get(0);
+    }
+
+    @Override
+    public Group getGroup(String name, Group parent) {
+        Group ldapGroup = getGroup(name);
+        Group ldapGroupParent = ldapGroup.getParentGroup();
+
+        if (parent != null && ldapGroup != null && ldapGroupParent != null
+                && ldapGroupParent.getName().equals(parent.getName())) {
+            return ldapGroup;
         }
 
         return null;
@@ -350,7 +328,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             } else {
                 ldapUser = (LDAPUser) getUser(((User) identity).getId());
             }
-            if (isManaged(attribute.getName())) {
+            if (getLdapManager().isManagedAttribute(attribute.getName())) {
                 ldapUser.setAttribute(attribute);
             } else {
                 // FIXME
@@ -407,45 +385,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         }
     }
 
-    /**
-     * <p>
-     * Returns the parent group for the given child group.
-     * </p>
-     * 
-     * @param childGroup
-     * @return
-     */
-    protected Group getParentGroup(LDAPGroup childGroup) {
-        Attributes matchAttrs = new BasicAttributes(true);
-        matchAttrs.put(new BasicAttribute(MEMBER, CN + EQUAL + childGroup.getName() + COMMA + groupDNSuffix));
-        // Search for objects with these matching attributes
-        try {
-            NamingEnumeration<SearchResult> answer = getLdapManager().search(groupDNSuffix, matchAttrs, new String[] { CN });
-            while (answer.hasMoreElements()) {
-                SearchResult sr = (SearchResult) answer.nextElement();
-                Attributes attributes = sr.getAttributes();
-                String cn = (String) attributes.get(CN).get();
-                return getGroup(cn);
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException("Error looking parent group for [" + childGroup.getDN() + "]", e);
-        }
-
-        return null;
-    }
-
-    public boolean isManaged(String attributeName) {
-        if (managedAttributes.contains(attributeName)) {
-            return true;
-        } else {
-            if (getLdapManager().checkAttributePresence(attributeName)) {
-                managedAttributes.add(attributeName);
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     public boolean validateCredential(User user, Credential credential) {
         if (credential instanceof PasswordCredential) {
@@ -465,7 +404,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
                 ctls.setReturningAttributes(new String[0]);
                 ctls.setReturningObjFlag(true);
-                NamingEnumeration<SearchResult> enm = getLdapManager().search(userDNSuffix, filter, new String[] { ldapUser.getId() }, ctls);
+                NamingEnumeration<SearchResult> enm = getLdapManager().search(this.configuration.getUserDNSuffix(), filter,
+                        new String[] { ldapUser.getId() }, ctls);
 
                 String dn = null;
                 if (enm.hasMore()) {
@@ -487,7 +427,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             }
 
             constructContext();
-            
+
             return valid;
         } else {
             throwsNotSupportedCredentialType(credential);
@@ -500,7 +440,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     public void updateCredential(User user, Credential credential) {
         if (credential instanceof PasswordCredential) {
             PasswordCredential pc = (PasswordCredential) credential;
-            if (isActiveDirectory) {
+            if (this.configuration.isActiveDirectory()) {
                 updateADPassword((LDAPUser) user, pc.getPassword());
             } else {
                 LDAPUser ldapuser = null;
@@ -547,25 +487,23 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     @Override
     public void updateUser(User user) {
-        LDAPUser ldapUser = (LDAPUser) user;
+        LDAPUser updatedUser = (LDAPUser) user;
 
         try {
-            String fullName = ldapUser.getFirstName();
+            LDAPUser storedUser = (LDAPUser) getUser(user.getId());
 
-            if (ldapUser.getLastName() != null) {
-                fullName = fullName + " " + ldapUser.getLastName();
+            if (storedUser == null) {
+                throw new RuntimeException("User [" + user.getId() + "] does not exists.");
             }
 
-            ldapUser.setFullName(fullName);
-
-            LDAPUser storedUser = (LDAPUser) getUser(user.getId());
+            updatedUser.setFullName(getUserCN(updatedUser));
 
             NamingEnumeration<? extends Attribute> storedAttributes = storedUser.getLDAPAttributes().getAll();
 
             // check for attributes to replace or remove
             while (storedAttributes.hasMore()) {
                 Attribute storedAttribute = storedAttributes.next();
-                Attribute updatedAttribute = ldapUser.getLDAPAttributes().get(storedAttribute.getID());
+                Attribute updatedAttribute = updatedUser.getLDAPAttributes().get(storedAttribute.getID());
 
                 // if the stored attribute exists in the updated attributes list, replace it. Otherwise remove it from the
                 // store.
@@ -576,34 +514,20 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 }
             }
 
-            NamingEnumeration<? extends Attribute> enumUpdatedAttributes = ldapUser.getLDAPAttributes().getAll();
-
+            NamingEnumeration<? extends Attribute> enumUpdatedAttributes = updatedUser.getLDAPAttributes().getAll();
+            
+            // check for attributes to add
             while (enumUpdatedAttributes.hasMore()) {
                 Attribute updatedAttribute = enumUpdatedAttributes.next();
                 Attribute storedAttribute = storedUser.getLDAPAttributes().get(updatedAttribute.getID());
 
                 // if the attribute is not stored and is a managed attribute add it to the store.
-                if (storedAttribute == null && isManaged(updatedAttribute.getID())) {
+                if (storedAttribute == null && getLdapManager().isManagedAttribute(updatedAttribute.getID())) {
                     getLdapManager().addAttribute(storedUser.getDN(), updatedAttribute);
                 }
             }
 
-            LDAPUserCustomAttributes attributes = ldapUser.getCustomAttributes();
-
-            Set<Entry<String, Object>> entrySet = new HashMap<String, Object>(attributes.getAttributes()).entrySet();
-
-            for (Entry<String, Object> entry : entrySet) {
-                // if the custom attribute is managed, add it to the LDAP managed attributes list. Otherwise remove it from the
-                // list of LDAP managed attributes.
-                if (isManaged(entry.getKey())) {
-                    ldapUser.getLDAPAttributes().put(entry.getKey(), entry.getValue());
-                    attributes.removeAttribute(entry.getKey());
-                } else {
-                    ldapUser.getLDAPAttributes().remove(entry.getKey());
-                }
-            }
-
-            getLdapManager().rebind(getCustomAttributesDN(storedUser.getDN()), attributes);
+            updateCustomAttributes(updatedUser);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -619,9 +543,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
         LDAPRole updatedRole = (LDAPRole) role;
 
-        getLdapManager().rebind(getCustomAttributesDN(storedRole.getDN()), updatedRole.getCustomAttributes());
+        updateCustomAttributes(updatedRole);
     }
-
+    
     @Override
     public void updateGroup(Group group) {
         LDAPGroup storedGroup = (LDAPGroup) getGroup(group.getName());
@@ -632,7 +556,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
         LDAPGroup updatedGroup = (LDAPGroup) group;
 
-        getLdapManager().rebind(getCustomAttributesDN(storedGroup.getDN()), updatedGroup.getCustomAttributes());
+        updateCustomAttributes(updatedGroup);
     }
 
     @Override
@@ -645,18 +569,18 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     private void constructContext() {
         // Construct the dir ctx
         Properties env = new Properties();
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, ldapConfiguration.getFactoryName());
-        env.setProperty(Context.SECURITY_AUTHENTICATION, ldapConfiguration.getAuthType());
+        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, this.configuration.getFactoryName());
+        env.setProperty(Context.SECURITY_AUTHENTICATION, this.configuration.getAuthType());
 
-        String protocol = ldapConfiguration.getProtocol();
+        String protocol = this.configuration.getProtocol();
         if (protocol != null) {
             env.setProperty(Context.SECURITY_PROTOCOL, protocol);
         }
-        String bindDN = ldapConfiguration.getBindDN();
+        String bindDN = this.configuration.getBindDN();
         char[] bindCredential = null;
 
-        if (ldapConfiguration.getBindCredential() != null) {
-            bindCredential = ldapConfiguration.getBindCredential().toCharArray();
+        if (this.configuration.getBindCredential() != null) {
+            bindCredential = this.configuration.getBindCredential().toCharArray();
         }
 
         if (bindDN != null) {
@@ -664,7 +588,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             env.put(Context.SECURITY_CREDENTIALS, bindCredential);
         }
 
-        String url = ldapConfiguration.getLdapURL();
+        String url = this.configuration.getLdapURL();
         if (url == null) {
             throw new RuntimeException("url");
         }
@@ -672,7 +596,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         env.setProperty(Context.PROVIDER_URL, url);
 
         // Just dump the additional properties
-        Properties additionalProperties = ldapConfiguration.getAdditionalProperties();
+        Properties additionalProperties = this.configuration.getAdditionalProperties();
         Set<Object> keys = additionalProperties.keySet();
         for (Object key : keys) {
             env.setProperty((String) key, additionalProperties.getProperty((String) key));
@@ -694,7 +618,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             byte[] newUnicodePassword = newQuotedPassword.getBytes("UTF-16LE");
 
             BasicAttribute unicodePwd = new BasicAttribute("unicodePwd", newUnicodePassword);
-            
+
             getLdapManager().modifyAttribute(user.getDN(), unicodePwd);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -714,37 +638,38 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
     }
 
+    /**
+     * <p>
+     * Converts the given {@link User} instance to a {@link LDAPUser} instance.
+     * </p>
+     * 
+     * @param user
+     * @return
+     */
     private LDAPUser convert(User user) {
-        LDAPUser ldapuser = new LDAPUser(this.userDNSuffix);
+        LDAPUser ldapUser = new LDAPUser(this.configuration.getUserDNSuffix());
 
-        ldapuser.setId(user.getId());
-        ldapuser.setFirstName(" ");
-        ldapuser.setLastName(" ");
+        ldapUser.setId(user.getId());
+        ldapUser.setFirstName(" ");
+        ldapUser.setLastName(" ");
 
         if (user.getFirstName() != null) {
-            ldapuser.setFirstName(user.getFirstName());
-            ldapuser.setFullName(user.getFirstName());
+            ldapUser.setFirstName(user.getFirstName());
         }
 
         if (user.getLastName() != null) {
-            ldapuser.setLastName(user.getLastName());
-
-            if (ldapuser.getFullName() != null) {
-                ldapuser.setFullName(ldapuser.getFullName() + " " + user.getLastName());
-            } else {
-                ldapuser.setFullName(user.getLastName());
-            }
+            ldapUser.setLastName(user.getLastName());
         }
 
         if (user.getEmail() != null) {
-            ldapuser.setEmail(user.getEmail());
+            ldapUser.setEmail(user.getEmail());
         }
 
         for (org.picketlink.idm.model.Attribute<? extends Serializable> attrib : user.getAttributes()) {
-            ldapuser.setAttribute(attrib);
+            ldapUser.setAttribute(attrib);
         }
 
-        return ldapuser;
+        return ldapUser;
     }
 
     /**
@@ -755,10 +680,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
      * @param parentDN
      * @return
      */
-    private LDAPUserCustomAttributes getCustomAttributes(String parentDN) {
+    private LDAPCustomAttributes getCustomAttributes(String parentDN) {
         String customDN = getCustomAttributesDN(parentDN);
 
-        LDAPUserCustomAttributes customAttributes = null;
+        LDAPCustomAttributes customAttributes = null;
 
         try {
             customAttributes = getLdapManager().lookup(customDN);
@@ -778,6 +703,109 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
      */
     private String getCustomAttributesDN(String parentDN) {
         return "cn=custom-attributes" + COMMA + parentDN;
+    }
+
+    /**
+     * <p>
+     * Returns the user CN attribute value. The CN is composed of user's first and last name.
+     * </p>
+     * 
+     * @param ldapUser
+     * @return
+     */
+    private String getUserCN(LDAPUser ldapUser) {
+        String fullName = ldapUser.getFirstName();
+
+        if (ldapUser.getLastName() != null) {
+            fullName = fullName + " " + ldapUser.getLastName();
+        }
+        return fullName;
+    }
+
+    /**
+     * <p>
+     * Stores the given {@link DirContextAdaptor} instance in the LDAP tree. This method performs a bind for both
+     * {@link DirContextAdaptor} instance and its {@link LDAPCustomAttributes}.
+     * </p>
+     * 
+     * @param ldapEntry
+     */
+    private void store(DirContextAdaptor ldapEntry) {
+        getLdapManager().bind(ldapEntry.getDN(), ldapEntry);
+        getLdapManager().bind(getCustomAttributesDN(ldapEntry.getDN()), ldapEntry.getCustomAttributes());
+    }
+
+    /**
+     * <p>
+     * Removes the given {@link DirContextAdaptor} entry from the LDAP tree. This method also remove the custom attribute entry
+     * for the given parent instance.
+     * </p>
+     * 
+     * @param ldapEntry
+     */
+    private void remove(DirContextAdaptor ldapEntry) {
+        String customDN = getCustomAttributesDN(ldapEntry.getDN());
+
+        try {
+            getLdapManager().lookup(customDN);
+            getLdapManager().destroySubcontext(customDN);
+        } catch (Exception ignore) {
+        }
+
+        getLdapManager().destroySubcontext(ldapEntry.getDN());
+    }
+
+    /**
+     * <p>
+     * Returns the parent group for the given child group.
+     * </p>
+     * 
+     * @param childGroup
+     * @return
+     */
+    private Group getParentGroup(LDAPGroup childGroup) {
+        Attributes matchAttrs = new BasicAttributes(true);
+        matchAttrs.put(new BasicAttribute(MEMBER, CN + EQUAL + childGroup.getName() + COMMA
+                + this.configuration.getGroupDNSuffix()));
+        // Search for objects with these matching attributes
+        try {
+            NamingEnumeration<SearchResult> answer = getLdapManager().search(this.configuration.getGroupDNSuffix(), matchAttrs,
+                    new String[] { CN });
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.nextElement();
+                Attributes attributes = sr.getAttributes();
+                String cn = (String) attributes.get(CN).get();
+                return getGroup(cn);
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException("Error looking parent group for [" + childGroup.getDN() + "]", e);
+        }
+
+        return null;
+    }
+    
+    /**
+     * <p>Updates the custom attributes for the given {@link DirContextAdaptor} instance.</p>
+     * 
+     * @param ldapEntry
+     */
+    private void updateCustomAttributes(DirContextAdaptor ldapEntry) {
+        LDAPCustomAttributes attributes = ldapEntry.getCustomAttributes();
+
+        Set<Entry<String, Object>> entrySet = new HashMap<String, Object>(attributes.getAttributes()).entrySet();
+
+        for (Entry<String, Object> entry : entrySet) {
+            // if the custom attribute is managed, add it to the LDAP managed attributes list. Otherwise remove it from the
+            // list of LDAP managed attributes.
+            if (getLdapManager().isManagedAttribute(entry.getKey())) {
+                ldapEntry.getLDAPAttributes().put(entry.getKey(), entry.getValue());
+                attributes.removeAttribute(entry.getKey());
+            } else {
+                ldapEntry.getLDAPAttributes().remove(entry.getKey());
+            }
+        }
+
+        getLdapManager().rebind(getCustomAttributesDN(ldapEntry.getDN()), attributes);
     }
 
     public LDAPOperationManager getLdapManager() {

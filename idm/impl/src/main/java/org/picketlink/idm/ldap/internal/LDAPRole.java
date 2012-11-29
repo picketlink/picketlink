@@ -78,7 +78,7 @@ public class LDAPRole extends DirContextAdaptor implements Role {
         } else {
             theAttribute.set(0, roleName);
         }
-        getLDAPAttributes().put(MEMBER, SPACE_STRING); // Dummy member for now
+//        getLDAPAttributes().put(MEMBER, SPACE_STRING); // Dummy member for now
     }
 
     @Override

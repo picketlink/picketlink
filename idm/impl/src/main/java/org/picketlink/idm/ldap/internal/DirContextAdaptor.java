@@ -66,7 +66,7 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
     private static final long serialVersionUID = 1L;
 
     private Attributes attributes = new BasicAttributes(true);
-    private LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
+    private LDAPCustomAttributes customAttributes = new LDAPCustomAttributes();
     private String dnSuffix;
     
     private boolean enabled = true;
@@ -169,9 +169,9 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
         getCustomAttributes().removeAttribute(name);
     }
 
-    public LDAPUserCustomAttributes getCustomAttributes() {
+    public LDAPCustomAttributes getCustomAttributes() {
         if (this.customAttributes == null) {
-            this.customAttributes = new LDAPUserCustomAttributes();
+            this.customAttributes = new LDAPCustomAttributes();
         }
         
         this.customAttributes.addAttribute("enabled", String.valueOf(isEnabled()));
@@ -184,7 +184,7 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
         return this.customAttributes;
     }
 
-    public void setCustomAttributes(LDAPUserCustomAttributes customAttributes) {
+    public void setCustomAttributes(LDAPCustomAttributes customAttributes) {
         this.customAttributes = customAttributes;
         
         if (this.customAttributes != null) {

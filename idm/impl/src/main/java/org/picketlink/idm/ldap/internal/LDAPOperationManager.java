@@ -22,30 +22,39 @@
 
 package org.picketlink.idm.ldap.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 /**
- * <p>This class provides a set of operations to manage LDAP trees.</p>
+ * <p>
+ * This class provides a set of operations to manage LDAP trees.
+ * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 public class LDAPOperationManager {
+
+    private List<String> managedAttributes = new ArrayList<String>();
 
     private DirContext ctx;
 
     public LDAPOperationManager(DirContext context) {
         this.ctx = context;
     }
-    
+
     /**
      * <p>
      * Binds a {@link Object} to the LDAP tree.
@@ -145,24 +154,41 @@ public class LDAPOperationManager {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
-     * <p>Searches the LDAP tree.</p>
+     * <p>
+     * Searches the LDAP tree.
+     * </p>
      * 
      * @param baseDN
      * @param attributesToSearch
      * @return
      */
-    public NamingEnumeration<SearchResult> search(String baseDN, Attributes attributesToSearch) {
+    public <T extends Object> List<T> searchByAttribute(String baseDN, String attributeName, String attributeValue,
+            LDAPSearchCallback<T> searchCallback) {
+        List<T> result = new ArrayList<T>();
+
         try {
-            return ctx.search(baseDN, attributesToSearch);
+            Attributes attributesToSearch = new BasicAttributes(true);
+
+            attributesToSearch.put(new BasicAttribute(attributeName, attributeValue));
+
+            NamingEnumeration<SearchResult> answer = this.ctx.search(baseDN, attributesToSearch);
+
+            while (answer.hasMore()) {
+                result.add(searchCallback.processResult(answer.next()));
+            }
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
+
+        return result;
     }
-    
+
     /**
-     * <p>Searches the LDAP tree.</p>
+     * <p>
+     * Searches the LDAP tree.
+     * </p>
      * 
      * @param baseDN
      * @param attributesToSearch
@@ -175,9 +201,11 @@ public class LDAPOperationManager {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
-     * <p>Searches the LDAP tree.</p>
+     * <p>
+     * Searches the LDAP tree.
+     * </p>
      * 
      * @param baseDN
      * @param filter
@@ -185,14 +213,14 @@ public class LDAPOperationManager {
      * @param searchControls
      * @return
      */
-    public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn, SearchControls searchControls) {
+    public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn,
+            SearchControls searchControls) {
         try {
             return this.ctx.search(baseDN, filter, attributesToReturn, searchControls);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
     }
-
 
     /**
      * <p>
@@ -208,9 +236,33 @@ public class LDAPOperationManager {
             throw new RuntimeException(e);
         }
     }
-    
+
     /**
-     * <p>Ask the ldap server for the schema for the attribute.</p>
+     * <p>
+     * Checks if the attribute with the given name is a managed attributes. Managed attributes are the ones defined in the
+     * underlying schema or those defined in the managed attribute list.
+     * </p>
+     * 
+     * @param attributeName
+     * @return
+     */
+    public boolean isManagedAttribute(String attributeName) {
+        if (this.managedAttributes.contains(attributeName)) {
+            return true;
+        }
+
+        if (checkAttributePresence(attributeName)) {
+            this.managedAttributes.add(attributeName);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * <p>
+     * Ask the ldap server for the schema for the attribute.
+     * </p>
      * 
      * @param attributeName
      * @return
@@ -238,7 +290,7 @@ public class LDAPOperationManager {
         } catch (Exception e) {
             return false;
         }
-        
+
         return true;
     }
 
