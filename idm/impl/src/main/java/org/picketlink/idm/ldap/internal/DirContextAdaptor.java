@@ -21,6 +21,10 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,18 +63,36 @@ import org.picketlink.idm.model.Partition;
  */
 public abstract class DirContextAdaptor implements DirContext, IdentityType {
 
-    public static final String COMMA = ",";
-    public static final String EQUAL = "=";
-    public static final String SPACE_STRING = " ";
+    private static final long serialVersionUID = 1L;
+
     private Attributes attributes = new BasicAttributes(true);
-
-    // protected LDAPChangeNotificationHandler handler = null;
-
-    protected LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
+    private LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
+    private String dnSuffix;
+    
     private boolean enabled = true;
     private Date expiryDate;
     private Date createDate = new Date();
+    
+    public DirContextAdaptor(String dnSuffix) {
+        this.dnSuffix = dnSuffix;
+    }
 
+    public String getDN() {
+        try {
+            return getDN(getLDAPAttributes().get(doGetAttributeForBinding()).get().toString());
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    protected String doGetAttributeForBinding() {
+        return CN;
+    }
+
+    public String getDN(String name) {
+        return CN + EQUAL + name + COMMA + this.dnSuffix;
+    }
+    
     protected void addAllLDAPAttributes(Attributes theAttributes) {
         if (theAttributes != null) {
             NamingEnumeration<? extends Attribute> ne = theAttributes.getAll();
@@ -139,20 +161,12 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
     public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
         getLDAPAttributes().put(attribute.getName(), attribute.getValue());
         getCustomAttributes().addAttribute(attribute.getName(), attribute.getValue());
-        // Attribute anAttribute = attributes.get(attribute.getName());
-        // if (handler != null) {
-        // handler.handle(new LDAPObjectChangedNotification(this, NType.ADD_ATTRIBUTE, anAttribute));
-        // }
     }
 
     @Override
     public void removeAttribute(String name) {
         getLDAPAttributes().remove(name);
         getCustomAttributes().removeAttribute(name);
-        // if (handler != null) {
-        // Attribute anAttribute = attributes.get(name);
-        // handler.handle(new LDAPObjectChangedNotification(this, NType.REMOVE_ATTRIBUTE, anAttribute));
-        // }
     }
 
     public LDAPUserCustomAttributes getCustomAttributes() {
@@ -192,6 +206,7 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
 }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
         try {
@@ -205,12 +220,6 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
             } else {
                 return null;
             }
-
-            // FIXME need to update this for new attributes API
-            /*
-             * String val = null; if (obj instanceof byte[]) { val = new String(Base64.encodeBytes((byte[]) obj)); } else { val
-             * = (String) obj; } return val;
-             */
 
             return new org.picketlink.idm.model.Attribute<T>(name, (T) value);
         } catch (NamingException e) {
@@ -272,10 +281,6 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
     public Object lookup(Name name) throws NamingException {
         return null;
     }
-
-    // public void setLDAPChangeNotificationHandler(LDAPChangeNotificationHandler lh) {
-    // this.handler = lh;
-    // }
 
     @Override
     public Object lookup(String name) throws NamingException {
@@ -414,6 +419,10 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
     @Override
     public Attributes getAttributes(String name) throws NamingException {
         return attributes;
+    }
+    
+    public void setDnSuffix(String dnSuffix) {
+        this.dnSuffix = dnSuffix;
     }
 
     @Override

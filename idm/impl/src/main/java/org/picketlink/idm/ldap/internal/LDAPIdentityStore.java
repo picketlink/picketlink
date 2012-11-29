@@ -181,10 +181,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public void createGroup(Group group) {
         ensureGroupDNExists();
-        LDAPGroup ldapGroup = new LDAPGroup();
+        LDAPGroup ldapGroup = new LDAPGroup(this.groupDNSuffix);
 
         ldapGroup.setName(group.getName());
-        ldapGroup.setGroupDNSuffix(groupDNSuffix);
 
         bind(ldapGroup.getDN(), ldapGroup);
         bind(getCustomAttributesDN(ldapGroup.getDN()), ldapGroup.getCustomAttributes());
@@ -194,10 +193,19 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
             LDAPGroup parentGroup = (LDAPGroup) getGroup(group.getParentGroup().getName());
             ldapGroup.setParentGroup(parentGroup);
+            
+            boolean hasMemberAttribute = parentGroup.getLDAPAttributes().get(MEMBER) != null;
+            
             parentGroup.addChildGroup(ldapGroup);
 
             try {
-                ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                int operation = DirContext.ADD_ATTRIBUTE;
+                
+                if (hasMemberAttribute) {
+                    operation = DirContext.REPLACE_ATTRIBUTE;
+                }
+                
+                ModificationItem[] mods = new ModificationItem[] { new ModificationItem(operation,
                         parentGroup.getLDAPAttributes().get(MEMBER)) };
                 ctx.modifyAttributes(parentGroup.getDN(), mods);
             } catch (NamingException e) {
@@ -235,8 +243,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 SearchResult sr = answer.next();
                 Attributes attributes = sr.getAttributes();
 
-                ldapGroup = new LDAPGroup();
-                ldapGroup.setGroupDNSuffix(groupDNSuffix);
+                ldapGroup = new LDAPGroup(this.groupDNSuffix);
+                
                 ldapGroup.addAllLDAPAttributes(attributes);
                 ldapGroup.setCustomAttributes(getCustomAttributes(ldapGroup.getDN()));
 
@@ -266,10 +274,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     @Override
     public void createRole(Role role) {
-        LDAPRole ldapRole = new LDAPRole();
+        LDAPRole ldapRole = new LDAPRole(this.roleDNSuffix);
 
         ldapRole.setName(role.getName());
-        ldapRole.setRoleDNSuffix(roleDNSuffix);
 
         bind(ldapRole.getDN(), role);
         bind(getCustomAttributesDN(ldapRole.getDN()), ldapRole.getCustomAttributes());

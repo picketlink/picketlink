@@ -24,6 +24,7 @@ package org.picketlink.idm.ldap.internal;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -42,13 +43,18 @@ public class LDAPRole extends DirContextAdaptor implements Role {
 
     private static final long serialVersionUID = 1L;
     
-    private String roleName, roleDNSuffix;
+    private String roleName;
 
     public LDAPRole() {
+        super(null);
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
         oc.add("top");
         oc.add(LDAPConstants.GROUP_OF_NAMES);
         getLDAPAttributes().put(oc);
+    }
+    
+    public LDAPRole(String roleDNSuffix) {
+        super(roleDNSuffix);
     }
 
     /**
@@ -60,16 +66,8 @@ public class LDAPRole extends DirContextAdaptor implements Role {
      * @param ldapAttributes
      */
     public LDAPRole(Attributes ldapAttributes, String roleDNSuffix) {
+        super(roleDNSuffix);
         setLDAPAttributes(ldapAttributes);
-        this.roleDNSuffix = roleDNSuffix;
-    }
-
-    public void setRoleDNSuffix(String rdns) {
-        this.roleDNSuffix = rdns;
-    }
-
-    public String getDN() {
-        return CN + EQUAL + getAttribute(CN).getValue() + COMMA + roleDNSuffix;
     }
 
     public void setName(String roleName) {
