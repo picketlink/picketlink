@@ -37,7 +37,7 @@ public abstract class AbstractIdentityType implements IdentityType {
     private static final long serialVersionUID = 1L;
 
     private boolean enabled = true;
-    private Date createdDate = null;
+    private Date createdDate = new Date();
     private Date expiryDate = null;
     private Map<String, Attribute<? extends Serializable>> attributes = 
             new HashMap<String, Attribute<? extends Serializable>>();
