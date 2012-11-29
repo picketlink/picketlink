@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
+import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
@@ -41,7 +42,7 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.StoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.PartitionStore;
@@ -72,7 +73,7 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
         config.addStoreConfiguration(storeConfig);
 
         DefaultIdentityManager im = new DefaultIdentityManager();
-        im.setIdentityStoreFactory(new IdentityStoreFactory() {
+        im.setIdentityStoreFactory(new StoreFactory() {
             @Override
             public IdentityStore createIdentityStore(IdentityStoreConfiguration config, 
                     IdentityStoreInvocationContext ctx) {
@@ -80,14 +81,20 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
                 return store;
             }
             @Override
-            public void mapConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
+            public void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
                     Class<? extends IdentityStore> storeClass) {
                 // noop
             }
             @Override
-            public PartitionStore createTierStore(IdentityStoreConfiguration config) {
+            public PartitionStore createPartitionStore(PartitionStoreConfiguration config) {
                 // TODO Auto-generated method stub
                 return null;
+            }
+            @Override
+            public void mapPartitionConfiguration(Class<? extends PartitionStoreConfiguration> configClass,
+                    Class<? extends PartitionStore> storeClass) {
+                // TODO Auto-generated method stub
+                
             }
         });
 

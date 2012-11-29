@@ -21,9 +21,7 @@
  */
 package org.picketlink.idm.config;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.picketlink.idm.SecurityConfigurationException;
@@ -37,7 +35,7 @@ import org.picketlink.idm.spi.IdentityStore.Feature;
  * @author Shane Bryzak
  * @since Sep 6, 2012
  */
-public abstract class IdentityStoreConfiguration {
+public abstract class IdentityStoreConfiguration extends BaseAbstractStoreConfiguration implements StoreConfiguration {
 
     /**
      * Defines the realm supported by this identity store.  If no realm is specified, then
@@ -47,22 +45,9 @@ public abstract class IdentityStoreConfiguration {
     private String realm;
 
     /**
-     * Defines arbitrary property values for the identity store
-     */
-    private final Map<String,String> properties = new HashMap<String,String>();
-
-    /**
      * Metadata reflecting which features are supported by this identity store
      */
     private final Set<Feature> supportedFeatures = new HashSet<Feature>();
-
-    /**
-     * Initializes this configuration
-     * 
-     * @throws SecurityConfigurationException
-     */
-    public abstract void init() throws SecurityConfigurationException;
-
 
     public abstract Set<Feature> getFeatureSet();
 
@@ -110,23 +95,4 @@ public abstract class IdentityStoreConfiguration {
         supportedFeatures.remove(feature);
     }
 
-    /**
-     * Sets a property value
-     * 
-     * @param name
-     * @param value
-     */
-    public void setProperty(String name, String value) {
-        properties.put(name, value);
-    }
-
-    /**
-     * Returns the specified property value
-     * 
-     * @param name
-     * @return
-     */
-    public String getPropertyValue(String name) {
-        return properties.get(name);
-    }
 }

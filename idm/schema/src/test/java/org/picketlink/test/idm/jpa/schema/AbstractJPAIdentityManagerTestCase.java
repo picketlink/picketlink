@@ -38,7 +38,7 @@ import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.schema.internal.JPATemplate;
 import org.picketlink.idm.jpa.schema.internal.SimpleJPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * <p>
@@ -127,7 +127,7 @@ public abstract class AbstractJPAIdentityManagerTestCase {
 
             final IdentityStore store = createIdentityStore();
             this.identityManager = new DefaultIdentityManager();
-            this.identityManager.setIdentityStoreFactory(new IdentityStoreFactory() {
+            this.identityManager.setIdentityStoreFactory(new StoreFactory() {
                 @Override
                 public IdentityStore createIdentityStore(IdentityStoreConfiguration config) {
                     return store;

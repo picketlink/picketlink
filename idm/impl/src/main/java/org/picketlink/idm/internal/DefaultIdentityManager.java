@@ -33,6 +33,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.config.PartitionStoreConfiguration;
+import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
@@ -45,7 +47,7 @@ import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
-import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.StoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 
@@ -59,9 +61,11 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private Map<String,Map<Feature,IdentityStoreConfiguration>> realmStores = new HashMap<String,Map<Feature,IdentityStoreConfiguration>>();
 
+    private PartitionStoreConfiguration partitionStore;
+
     private PasswordEncoder passwordEncoder;
 
-    private IdentityStoreFactory storeFactory = new DefaultIdentityStoreFactory();
+    private StoreFactory storeFactory = new DefaultStoreFactory();
 
     private IdentityStoreInvocationContextFactory contextFactory;
 
@@ -119,32 +123,37 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void bootstrap(IdentityConfiguration identityConfig, IdentityStoreInvocationContextFactory contextFactory) {
-        for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
+        for (StoreConfiguration config : identityConfig.getConfiguredStores()) {
 
             config.init();
 
-            if (config.getFeatureSet() == null) {
-                throw new SecurityConfigurationException(
-                        "A feature set has not been configured for IdentityStoreConfiguration: " +
-                        config);
-            }
+            if (IdentityStoreConfiguration.class.isInstance(config)) {
+                IdentityStoreConfiguration identityStoreConfig = (IdentityStoreConfiguration) config;
+                if (identityStoreConfig.getFeatureSet() == null) {
+                    throw new SecurityConfigurationException(
+                            "A feature set has not been configured for IdentityStoreConfiguration: " +
+                            config);
+                }
 
-            Map<Feature,IdentityStoreConfiguration> featureToStoreMap;
+                Map<Feature,IdentityStoreConfiguration> featureToStoreMap;
 
-            String realm = config.getRealm();
-            if (realm == null || realm.isEmpty()) {
-                realm = Realm.DEFAULT_REALM;
-            }
+                String realm = identityStoreConfig.getRealm();
+                if (realm == null || realm.isEmpty()) {
+                    realm = Realm.DEFAULT_REALM;
+                }
 
-            if (realmStores.containsKey(realm)) {
-                featureToStoreMap = realmStores.get(realm);
-            } else {
-                featureToStoreMap = new HashMap<Feature,IdentityStoreConfiguration>();
-                realmStores.put(realm, featureToStoreMap);
-            }
+                if (realmStores.containsKey(realm)) {
+                    featureToStoreMap = realmStores.get(realm);
+                } else {
+                    featureToStoreMap = new HashMap<Feature,IdentityStoreConfiguration>();
+                    realmStores.put(realm, featureToStoreMap);
+                }
 
-            for (Feature f : config.getFeatureSet()) {
-                featureToStoreMap.put(f, config);
+                for (Feature f : identityStoreConfig.getFeatureSet()) {
+                    featureToStoreMap.put(f, identityStoreConfig);
+                }
+            } else if (PartitionStoreConfiguration.class.isInstance(config)) {
+                partitionStore = (PartitionStoreConfiguration) config;
             }
         }
 
@@ -152,7 +161,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void setIdentityStoreFactory(IdentityStoreFactory factory) {
+    public void setIdentityStoreFactory(StoreFactory factory) {
         this.storeFactory = factory;
     }
 

@@ -10,13 +10,13 @@ import java.util.List;
  * @author Shane Bryzak
  */
 public class IdentityConfiguration {
-    private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
+    private List<StoreConfiguration> configuredStores = new ArrayList<StoreConfiguration>();
 
-    public List<IdentityStoreConfiguration> getConfiguredStores() {
+    public List<StoreConfiguration> getConfiguredStores() {
         return configuredStores;
     }
 
-    public void addStoreConfiguration(IdentityStoreConfiguration config) {
+    public void addStoreConfiguration(StoreConfiguration config) {
         configuredStores.add(config);
     }
 }

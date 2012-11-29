@@ -34,7 +34,7 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.StoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 
 /**
@@ -64,7 +64,7 @@ public interface IdentityManager {
      * 
      * @param factory
      */
-    void setIdentityStoreFactory(IdentityStoreFactory factory);
+    void setIdentityStoreFactory(StoreFactory factory);
 
     // User
 

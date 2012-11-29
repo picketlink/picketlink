@@ -28,12 +28,13 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
-import org.picketlink.idm.spi.IdentityStoreFactory;
+import org.picketlink.idm.spi.StoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.PartitionStore;
 
@@ -76,7 +77,7 @@ public abstract class AbstractFileIdentityManagerTestCase {
                     return null;
                 }};
             identityConfig.addStoreConfiguration(storeConfig);
-            this.identityManager.setIdentityStoreFactory(new IdentityStoreFactory() {
+            this.identityManager.setIdentityStoreFactory(new StoreFactory() {
 
                 @Override
                 public IdentityStore createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext ctx) {
@@ -84,15 +85,22 @@ public abstract class AbstractFileIdentityManagerTestCase {
                 }
 
                 @Override
-                public void mapConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
+                public void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
                         Class<? extends IdentityStore> storeClass) {
                     // no-op
                 }
 
                 @Override
-                public PartitionStore createTierStore(IdentityStoreConfiguration config) {
+                public PartitionStore createPartitionStore(PartitionStoreConfiguration config) {
                     // TODO Auto-generated method stub
                     return null;
+                }
+
+                @Override
+                public void mapPartitionConfiguration(Class<? extends PartitionStoreConfiguration> configClass,
+                        Class<? extends PartitionStore> storeClass) {
+                    // TODO Auto-generated method stub
+                    
                 }
             });
             // hack end
