@@ -9,5 +9,5 @@ import java.io.Serializable;
  * @author Shane Bryzak
  */
 public interface Partition extends Serializable {
-
+    String getKey();
 }

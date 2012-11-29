@@ -7,11 +7,20 @@ package org.picketlink.idm.model;
  * @author Shane Bryzak
  */
 public class Tier implements Partition {
+
+    private static final long serialVersionUID = 7797059334915537276L;
+
+    private static final String KEY_PREFIX = "TIER://";
+
     private String id;
     private String description;
     private Tier parent;
 
     public Tier(String id, String description, Tier parent) {
+        if (id == null) {
+            throw new InstantiationError("Tier id must not be null");
+        }
+
         this.id = id;
         this.description = description;
         this.parent = parent;
@@ -27,6 +36,11 @@ public class Tier implements Partition {
 
     public Tier getParent() {
         return parent;
+    }
+
+    @Override
+    public String getKey() {
+        return String.format("%s%s", KEY_PREFIX, id);
     }
 
     // TODO implement hashCode() and equals() methods
