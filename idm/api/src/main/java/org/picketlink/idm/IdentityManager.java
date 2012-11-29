@@ -21,12 +21,8 @@
  */
 package org.picketlink.idm;
 
-import java.io.Serializable;
-import java.util.Date;
-
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credential;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -34,8 +30,8 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.spi.StoreFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * Manages all Identity Management related operations.
@@ -124,19 +120,12 @@ public interface IdentityManager {
 
     // User / Role / Group enablement / expiry
 
-    void setEnabled(IdentityType identityType, boolean enabled);
-
-    void setExpirationDate(IdentityType identityType, Date expirationDate);
-
     IdentityType lookupIdentityByKey(String key);
 
     // Attributes
 
-    void setAttribute(IdentityType identityType, Attribute<? extends Serializable> attribute);
 
-    <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName);
-
-    void removeAttribute(IdentityType identityType, String attributeName);
+    void loadAttribute(IdentityType identityType, String attributeName);
 
     // Realm
 
