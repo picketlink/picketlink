@@ -162,7 +162,7 @@ public interface IdentityManager {
 
     /**
      * <p>
-     * Updates the give {@link Role} instance.
+     * Updates the given {@link Role} instance.
      * </p>
      * <p><b>Important:</b> Only the role attributes will be updated, it is not possible to update the role
      * name. For that you should recreate the role with the new name.</p>
@@ -173,7 +173,7 @@ public interface IdentityManager {
 
     /**
      * <p>
-     * Updates the give {@link Group} instance.
+     * Updates the given {@link Group} instance.
      * </p>
      * <p><b>Important:</b> Only the group attributes will be updated, it is not possible to update the group
      * name or parent group. For that you should recreate the group.</p>
