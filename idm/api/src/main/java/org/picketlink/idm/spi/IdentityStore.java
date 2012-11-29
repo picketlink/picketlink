@@ -275,4 +275,11 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param role
      */
     void updateRole(Role role);
+
+    /**
+     * <p>Updates the given {@link Group} instance.</p>
+     * 
+     * @param group
+     */
+    void updateGroup(Group group);
 }

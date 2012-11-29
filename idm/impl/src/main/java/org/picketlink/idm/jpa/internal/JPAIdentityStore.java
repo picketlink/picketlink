@@ -572,4 +572,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         
     }
 
+    @Override
+    public void updateGroup(Group group) {
+        
+    }
+
 }

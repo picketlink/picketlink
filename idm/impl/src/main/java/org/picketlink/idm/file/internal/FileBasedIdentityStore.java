@@ -1026,12 +1026,6 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public Attribute getAttribute(IdentityType identityType, String attributeName) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO Auto-generated method stub
         return null;
@@ -1040,6 +1034,17 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     @Override
     public void updateRole(Role role) {
         // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void updateGroup(Group group) {
         
     }
 

@@ -152,14 +152,14 @@ public class GroupManagementTestCase {
         
         storedGroupInstance.setAttribute(new Attribute<String>("one-valued", "1"));
         
-//        identityManager.updateGroup(storedGroupInstance);
+        identityManager.updateGroup(storedGroupInstance);
         
-//        Group updatedGroupInstance = identityManager.getGroup(storedGroupInstance.getId());
+        Group updatedGroupInstance = identityManager.getGroup(storedGroupInstance.getName());
         
-//        Attribute<String> oneValuedAttribute = updatedGroupInstance.getAttribute("one-valued");
+        Attribute<String> oneValuedAttribute = updatedGroupInstance.getAttribute("one-valued");
         
-//        assertNotNull(oneValuedAttribute);
-//        assertEquals("1", oneValuedAttribute.getValue());
+        assertNotNull(oneValuedAttribute);
+        assertEquals("1", oneValuedAttribute.getValue());
     }
     
     /**

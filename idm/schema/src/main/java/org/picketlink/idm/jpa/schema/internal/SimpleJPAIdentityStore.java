@@ -921,4 +921,10 @@ public class SimpleJPAIdentityStore implements IdentityStore {
         // TODO Auto-generated method stub
         
     }
+
+    @Override
+    public void updateGroup(Group group) {
+        // TODO Auto-generated method stub
+        
+    }
 }

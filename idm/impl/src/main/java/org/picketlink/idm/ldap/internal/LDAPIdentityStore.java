@@ -968,6 +968,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         }
     }
 
+    @Override
+    public void updateGroup(Group group) {
+        // TODO Auto-generated method stub
+        
+    }
+
     /*
      * (non-Javadoc)
      * 

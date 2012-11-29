@@ -170,4 +170,15 @@ public interface IdentityManager {
      * @param role
      */
     void updateRole(Role role);
+
+    /**
+     * <p>
+     * Updates the give {@link Group} instance.
+     * </p>
+     * <p><b>Important:</b> Only the group attributes will be updated, it is not possible to update the group
+     * name or parent group. For that you should recreate the group.</p>
+     * 
+     * @param group
+     */
+    void updateGroup(Group group);
 }

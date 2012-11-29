@@ -432,4 +432,9 @@ public class DefaultIdentityManager implements IdentityManager {
         getContextualStoreForFeature(createContext(), Feature.updateRole).updateRole(role);
     }
 
+    @Override
+    public void updateGroup(Group group) {
+        getContextualStoreForFeature(createContext(), Feature.updateGroup).updateGroup(group);
+    }
+
 }
