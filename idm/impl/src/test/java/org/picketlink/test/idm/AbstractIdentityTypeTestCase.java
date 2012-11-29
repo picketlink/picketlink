@@ -96,6 +96,11 @@ public abstract class AbstractIdentityTypeTestCase {
         assertEquals("3", multiValuedAttribute.getValue()[2]);
     }
     
+    /**
+     * <p>Sets multiple attributes and check if they are properly stored.</p>
+     * 
+     * @throws Exception
+     */
     @Test
     public void testSetMultipleAttributes() throws Exception {
         IdentityManager identityManager = getIdentityManager();
@@ -120,6 +125,11 @@ public abstract class AbstractIdentityTypeTestCase {
         assertEquals("Hi", updatedUserInstance.<String[]>getAttribute("Question2Answer").getValue()[0]);
     }
     
+    /**
+     * <p>Gets all stored attributes.</p>
+     * 
+     * @throws Exception
+     */
     @Test
     public void testGetAllAttributes() throws Exception {
         IdentityManager identityManager = getIdentityManager();
