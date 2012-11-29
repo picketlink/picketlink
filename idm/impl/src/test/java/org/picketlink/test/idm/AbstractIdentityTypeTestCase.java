@@ -46,6 +46,26 @@ public abstract class AbstractIdentityTypeTestCase {
     
     /**
      * <p>
+     * Disables an user.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testDisable() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+
+        assertNotNull(storedUserInstance);
+        
+//        identityManager.setEnabled(storedUserInstance, false);
+        
+        User removedUserInstance = identityManager.getUser("admin");
+    }
+
+    /**
+     * <p>
      * Sets an one-valued attribute.
      * </p>
      * 
