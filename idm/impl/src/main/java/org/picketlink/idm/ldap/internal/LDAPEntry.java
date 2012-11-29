@@ -56,12 +56,12 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 
 /**
- * An adaptor class that provides barebones implementation of the {@link DirContext}
+ * <p>An adaptor class that provides barebones implementation of the {@link DirContext}.</p>
  * 
  * @author anil saldhana
  * @since Aug 30, 2012
  */
-public abstract class DirContextAdaptor implements DirContext, IdentityType {
+public abstract class LDAPEntry implements DirContext, IdentityType {
 
     private static final long serialVersionUID = 1L;
 
@@ -73,7 +73,7 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
     private Date expiryDate;
     private Date createDate = new Date();
     
-    public DirContextAdaptor(String dnSuffix) {
+    public LDAPEntry(String dnSuffix) {
         this.dnSuffix = dnSuffix;
     }
 

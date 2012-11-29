@@ -39,7 +39,7 @@ import org.picketlink.idm.model.User;
  * @author anil saldhana
  * @since Aug 30, 2012
  */
-public class LDAPUser extends DirContextAdaptor implements User {
+public class LDAPUser extends LDAPEntry implements User {
 
     private static final long serialVersionUID = 1L;
 

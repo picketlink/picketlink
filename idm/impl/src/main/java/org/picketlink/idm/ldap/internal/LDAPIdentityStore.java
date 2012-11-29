@@ -724,26 +724,26 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     /**
      * <p>
-     * Stores the given {@link DirContextAdaptor} instance in the LDAP tree. This method performs a bind for both
-     * {@link DirContextAdaptor} instance and its {@link LDAPCustomAttributes}.
+     * Stores the given {@link LDAPEntry} instance in the LDAP tree. This method performs a bind for both
+     * {@link LDAPEntry} instance and its {@link LDAPCustomAttributes}.
      * </p>
      * 
      * @param ldapEntry
      */
-    private void store(DirContextAdaptor ldapEntry) {
+    private void store(LDAPEntry ldapEntry) {
         getLdapManager().bind(ldapEntry.getDN(), ldapEntry);
         getLdapManager().bind(getCustomAttributesDN(ldapEntry.getDN()), ldapEntry.getCustomAttributes());
     }
 
     /**
      * <p>
-     * Removes the given {@link DirContextAdaptor} entry from the LDAP tree. This method also remove the custom attribute entry
+     * Removes the given {@link LDAPEntry} entry from the LDAP tree. This method also remove the custom attribute entry
      * for the given parent instance.
      * </p>
      * 
      * @param ldapEntry
      */
-    private void remove(DirContextAdaptor ldapEntry) {
+    private void remove(LDAPEntry ldapEntry) {
         String customDN = getCustomAttributesDN(ldapEntry.getDN());
 
         try {
@@ -785,11 +785,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
     
     /**
-     * <p>Updates the custom attributes for the given {@link DirContextAdaptor} instance.</p>
+     * <p>Updates the custom attributes for the given {@link LDAPEntry} instance.</p>
      * 
      * @param ldapEntry
      */
-    private void updateCustomAttributes(DirContextAdaptor ldapEntry) {
+    private void updateCustomAttributes(LDAPEntry ldapEntry) {
         LDAPCustomAttributes attributes = ldapEntry.getCustomAttributes();
 
         Set<Entry<String, Object>> entrySet = new HashMap<String, Object>(attributes.getAttributes()).entrySet();
