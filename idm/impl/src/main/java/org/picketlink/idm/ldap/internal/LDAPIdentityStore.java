@@ -151,6 +151,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>
         // ldapUser.setLDAPChangeNotificationHandler(this);
 
         bind(getUserDN(ldapUser), ldapUser);
+        bind(getCustomAttributesDN(ldapUser), ldapUser.getCustomAttributes());
     }
 
     @Override

@@ -23,8 +23,14 @@
 package org.picketlink.test.idm;
 
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Date;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -74,6 +80,8 @@ public class UserManagementTestCase {
         assertEquals(newUserInstance.getFirstName(), storedUserInstance.getFirstName());
         assertEquals(newUserInstance.getLastName(), storedUserInstance.getLastName());
         assertEquals(newUserInstance.getEmail(), storedUserInstance.getEmail());
+        assertTrue(storedUserInstance.isEnabled());
+        assertTrue(new Date().compareTo(storedUserInstance.getCreatedDate()) > 0);
     }
 
     /**
@@ -154,6 +162,26 @@ public class UserManagementTestCase {
 
         assertNull(removedUserInstance);
     }
+    
+    /**
+     * <p>
+     * Disables an user.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testDisable() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+
+        assertNotNull(storedUserInstance);
+        
+        identityManager.setEnabled(storedUserInstance, false);
+        
+        User removedUserInstance = identityManager.getUser("admin");
+    }
 
     /**
      * <p>
@@ -206,6 +234,83 @@ public class UserManagementTestCase {
         assertEquals("2", multiValuedAttribute.getValue()[1]);
         assertEquals("3", multiValuedAttribute.getValue()[2]);
     }
+    
+    @Test
+    public void testSetMultipleAttributes() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+
+        storedUserInstance.setAttribute(new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
+        storedUserInstance.setAttribute(new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
+        storedUserInstance.setAttribute(new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
+
+        storedUserInstance.setAttribute(new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
+        storedUserInstance.setAttribute(new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
+
+        identityManager.updateUser(storedUserInstance);
+
+        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        
+        assertEquals("2", updatedUserInstance.<String[]>getAttribute("QuestionTotal").getValue()[0]);
+        assertEquals("What is favorite toy?", updatedUserInstance.<String[]>getAttribute("Question1").getValue()[0]);
+        assertEquals("Gum", updatedUserInstance.<String[]>getAttribute("Question1Answer").getValue()[0]);
+        assertEquals("What is favorite word?", updatedUserInstance.<String[]>getAttribute("Question2").getValue()[0]);
+        assertEquals("Hi", updatedUserInstance.<String[]>getAttribute("Question2Answer").getValue()[0]);
+    }
+    
+    @Test
+    public void testGetAllAttributes() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        User storedUserInstance = identityManager.getUser("admin");
+
+        storedUserInstance.setAttribute(new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
+        storedUserInstance.setAttribute(new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
+        storedUserInstance.setAttribute(new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
+
+        storedUserInstance.setAttribute(new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
+        storedUserInstance.setAttribute(new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
+
+        identityManager.updateUser(storedUserInstance);
+
+        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        
+        Collection<Attribute<? extends Serializable>> allAttributes = updatedUserInstance.getAttributes();
+        
+        assertFalse(allAttributes.isEmpty());
+        
+        boolean hasQuestionTotal = false;
+        boolean hasQuestion1 = false;
+        boolean hasQuestion1Answer = false;
+        boolean hasQuestion2 = false;
+        boolean hasQuestion2Answer = false;
+        
+        for (Attribute<? extends Serializable> attribute : allAttributes) {
+            if (attribute.getName().equals("QuestionTotal")) {
+                hasQuestionTotal = true;
+            }
+            if (attribute.getName().equals("Question1")) {
+                hasQuestion1 = true;
+            }
+            if (attribute.getName().equals("Question1Answer")) {
+                hasQuestion1Answer = true;
+            }
+            if (attribute.getName().equals("Question2")) {
+                hasQuestion2 = true;
+            }
+            if (attribute.getName().equals("Question2Answer")) {
+                hasQuestion2Answer = true;
+            }
+        }
+        
+        assertTrue(hasQuestionTotal);
+        assertTrue(hasQuestion1);
+        assertTrue(hasQuestion1Answer);
+        assertTrue(hasQuestion2);
+        assertTrue(hasQuestion2Answer);
+    }
+
 
     /**
      * <p>
