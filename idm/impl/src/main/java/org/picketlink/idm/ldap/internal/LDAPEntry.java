@@ -56,24 +56,24 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 
 /**
- * An adaptor class that provides barebones implementation of the {@link DirContext}
+ * <p>An adaptor class that provides barebones implementation of the {@link DirContext}.</p>
  * 
  * @author anil saldhana
  * @since Aug 30, 2012
  */
-public abstract class DirContextAdaptor implements DirContext, IdentityType {
+public abstract class LDAPEntry implements DirContext, IdentityType {
 
     private static final long serialVersionUID = 1L;
 
     private Attributes attributes = new BasicAttributes(true);
-    private LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
+    private LDAPCustomAttributes customAttributes = new LDAPCustomAttributes();
     private String dnSuffix;
     
     private boolean enabled = true;
     private Date expiryDate;
     private Date createDate = new Date();
     
-    public DirContextAdaptor(String dnSuffix) {
+    public LDAPEntry(String dnSuffix) {
         this.dnSuffix = dnSuffix;
     }
 
@@ -169,9 +169,9 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
         getCustomAttributes().removeAttribute(name);
     }
 
-    public LDAPUserCustomAttributes getCustomAttributes() {
+    public LDAPCustomAttributes getCustomAttributes() {
         if (this.customAttributes == null) {
-            this.customAttributes = new LDAPUserCustomAttributes();
+            this.customAttributes = new LDAPCustomAttributes();
         }
         
         this.customAttributes.addAttribute("enabled", String.valueOf(isEnabled()));
@@ -184,7 +184,7 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
         return this.customAttributes;
     }
 
-    public void setCustomAttributes(LDAPUserCustomAttributes customAttributes) {
+    public void setCustomAttributes(LDAPCustomAttributes customAttributes) {
         this.customAttributes = customAttributes;
         
         if (this.customAttributes != null) {

@@ -40,7 +40,7 @@ import org.picketlink.idm.model.Group;
  * @author anil saldhana
  * @since Sep 4, 2012
  */
-public class LDAPGroup extends DirContextAdaptor implements Group {
+public class LDAPGroup extends LDAPEntry implements Group {
 
     private static final long serialVersionUID = 1L;
     

@@ -39,11 +39,9 @@ import org.picketlink.idm.model.User;
  * @author anil saldhana
  * @since Aug 30, 2012
  */
-public class LDAPUser extends DirContextAdaptor implements User {
+public class LDAPUser extends LDAPEntry implements User {
 
     private static final long serialVersionUID = 1L;
-
-    protected String userid, firstName, lastName, fullName, email;
 
     // protected transient ManagedAttributeLookup lookup;
 
@@ -69,7 +67,7 @@ public class LDAPUser extends DirContextAdaptor implements User {
         addAllLDAPAttributes(attributes);
     }
 
-    public LDAPUser(String dnSuffix, Attributes attributes, LDAPUserCustomAttributes customAttributes) {
+    public LDAPUser(String dnSuffix, Attributes attributes, LDAPCustomAttributes customAttributes) {
         this(dnSuffix, attributes);
         setCustomAttributes(customAttributes);
     }
@@ -80,7 +78,6 @@ public class LDAPUser extends DirContextAdaptor implements User {
     }
     
     public void setId(String id) {
-        this.userid = id;
         Attribute theAttribute = getLDAPAttributes().get(UID);
         if (theAttribute == null) {
             getLDAPAttributes().put(UID, id);
@@ -143,24 +140,6 @@ public class LDAPUser extends DirContextAdaptor implements User {
     @Override
     public void setLastName(String lastName) {
         getLDAPAttributes().put(SN, lastName);
-    }
-
-    // @Override
-    public String getFullName() {
-        try {
-            // if (fullName == null) {
-            Attribute theAttribute = getLDAPAttributes().get(CN);
-
-            if (theAttribute != null) {
-                // fullName = (String) theAttribute.get();
-                return (String) theAttribute.get();
-            }
-            // }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-
-        return null;
     }
 
     public void setFullName(String fullName) {

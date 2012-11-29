@@ -32,7 +32,7 @@ import java.util.Map;
  * @author anil saldhana
  * @since Sep 7, 2012
  */
-public class LDAPUserCustomAttributes implements Serializable {
+public class LDAPCustomAttributes implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Map<String, Object> attributes = new HashMap<String, Object>();
