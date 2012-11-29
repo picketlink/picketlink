@@ -29,10 +29,6 @@ import java.lang.reflect.Method;
  * A property criteria can be used to filter the properties found by a {@link PropertyQuery}
  * </p>
  * <p/>
- * <p>
- * DeltaSpike provides a number of property queries ( {@link TypedPropertyCriteria}, {@link NamedPropertyCriteria} and
- * {@link AnnotatedPropertyCriteria}), or you can create a custom query by implementing this interface.
- * </p>
  *
  * @see PropertyQuery#addCriteria(PropertyCriteria)
  * @see PropertyQueries

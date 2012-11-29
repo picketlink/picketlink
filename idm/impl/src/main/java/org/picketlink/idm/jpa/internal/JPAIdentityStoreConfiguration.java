@@ -154,7 +154,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return identityClass != null;
     }
 
-    private class PropertyTypeCriteria implements PropertyCriteria {
+    public class PropertyTypeCriteria implements PropertyCriteria {
         private PropertyType pt;
 
         public PropertyTypeCriteria(PropertyType pt) {

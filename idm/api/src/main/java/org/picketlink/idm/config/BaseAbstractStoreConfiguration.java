@@ -3,6 +3,7 @@ package org.picketlink.idm.config;
 import java.util.HashMap;
 import java.util.Map;
 
+
 /**
  * The base class for store configurations
  * 
