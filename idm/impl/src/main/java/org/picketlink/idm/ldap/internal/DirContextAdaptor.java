@@ -27,6 +27,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.naming.Binding;
 import javax.naming.Context;
@@ -45,28 +48,30 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.internal.util.Base64;
-import org.picketlink.idm.ldap.internal.LDAPObjectChangedNotification.NType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 
 /**
  * An adaptor class that provides barebones implementation of the {@link DirContext}
- *
+ * 
  * @author anil saldhana
  * @since Aug 30, 2012
  */
-public class DirContextAdaptor implements DirContext, IdentityType {
+public abstract class DirContextAdaptor implements DirContext, IdentityType {
 
     public static final String COMMA = ",";
     public static final String EQUAL = "=";
     public static final String SPACE_STRING = " ";
     private Attributes attributes = new BasicAttributes(true);
 
-    protected LDAPChangeNotificationHandler handler = null;
-    
-    protected LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
+    // protected LDAPChangeNotificationHandler handler = null;
 
-    public void addAllLDAPAttributes(Attributes theAttributes) {
+    protected LDAPUserCustomAttributes customAttributes = new LDAPUserCustomAttributes();
+    private boolean enabled = true;
+    private Date expiryDate;
+    private Date createDate = new Date();
+
+    protected void addAllLDAPAttributes(Attributes theAttributes) {
         if (theAttributes != null) {
             NamingEnumeration<? extends Attribute> ne = theAttributes.getAll();
             try {
@@ -80,14 +85,197 @@ public class DirContextAdaptor implements DirContext, IdentityType {
         }
     }
 
+    /**
+     * <p>
+     * Returns the LDAP attributes.
+     * </p>
+     * 
+     * @return
+     */
+    protected Attributes getLDAPAttributes() {
+        return this.attributes;
+    }
+
+    protected void setLDAPAttributes(Attributes attributes) {
+        this.attributes = attributes;
+    }
+
+    @Override
+    public Attributes getAttributes(Name name, String[] ids) throws NamingException {
+        return getAttributes(name.toString(), ids);
+    }
+
+    @Override
+    public Attributes getAttributes(String name, String[] ids) throws NamingException {
+        if (!name.equals(""))
+            throw new NameNotFoundException();
+        Attributes answer = new BasicAttributes(true);
+        Attribute target;
+        for (int i = 0; i < ids.length; i++) {
+            target = attributes.get(ids[i]);
+            if (target != null) {
+                answer.put(target);
+            }
+        }
+        return answer;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
+
+    @Override
+    public Date getExpiryDate() {
+        return this.expiryDate;
+    }
+
+    @Override
+    public Date getCreatedDate() {
+        return this.createDate;
+    }
+
+    @Override
+    public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
+        getLDAPAttributes().put(attribute.getName(), attribute.getValue());
+        getCustomAttributes().addAttribute(attribute.getName(), attribute.getValue());
+        // Attribute anAttribute = attributes.get(attribute.getName());
+        // if (handler != null) {
+        // handler.handle(new LDAPObjectChangedNotification(this, NType.ADD_ATTRIBUTE, anAttribute));
+        // }
+    }
+
+    @Override
+    public void removeAttribute(String name) {
+        getLDAPAttributes().remove(name);
+        getCustomAttributes().removeAttribute(name);
+        // if (handler != null) {
+        // Attribute anAttribute = attributes.get(name);
+        // handler.handle(new LDAPObjectChangedNotification(this, NType.REMOVE_ATTRIBUTE, anAttribute));
+        // }
+    }
+
+    public LDAPUserCustomAttributes getCustomAttributes() {
+        if (this.customAttributes == null) {
+            this.customAttributes = new LDAPUserCustomAttributes();
+        }
+        
+        this.customAttributes.addAttribute("enabled", String.valueOf(isEnabled()));
+        this.customAttributes.addAttribute("createDate", String.valueOf(getCreatedDate().getTime()));
+        
+        if (this.expiryDate != null) {
+            this.customAttributes.addAttribute("expiryDate", String.valueOf(getExpiryDate().getTime()));            
+        }
+
+        return this.customAttributes;
+    }
+
+    public void setCustomAttributes(LDAPUserCustomAttributes customAttributes) {
+        this.customAttributes = customAttributes;
+        
+        if (this.customAttributes != null) {
+            Object enabledAttribute = this.customAttributes.getAttribute("enabled");
+            Object createDateAttribute = this.customAttributes.getAttribute("createDate");
+            Object expiryDateAttribute = this.customAttributes.getAttribute("expiryDate");
+            
+            if (enabledAttribute != null) {
+                this.enabled = Boolean.valueOf(enabledAttribute.toString());    
+            }
+            
+            if (createDateAttribute != null) {
+                this.createDate = new Date(Long.valueOf(createDateAttribute.toString()));            
+            }
+
+            if (expiryDateAttribute != null) {
+                this.expiryDate = new Date(Long.valueOf(expiryDateAttribute.toString()));            
+            }
+}
+    }
+
+    @Override
+    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
+        try {
+            Attribute theAttribute = attributes.get(name);
+            Object value = null;
+
+            if (theAttribute != null) {
+                value = theAttribute.get();
+            } else if (this.customAttributes.getAttributes().containsKey(name)) {
+                value = this.customAttributes.getAttribute(name);
+            } else {
+                return null;
+            }
+
+            // FIXME need to update this for new attributes API
+            /*
+             * String val = null; if (obj instanceof byte[]) { val = new String(Base64.encodeBytes((byte[]) obj)); } else { val
+             * = (String) obj; } return val;
+             */
+
+            return new org.picketlink.idm.model.Attribute<T>(name, (T) value);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> getAttributes() {
+        try {
+            Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> attribs = new ArrayList<org.picketlink.idm.model.Attribute<? extends Serializable>>();
+
+            // retrieve all ldap attributes
+            NamingEnumeration<? extends Attribute> theAttributes = getLDAPAttributes().getAll();
+
+            while (theAttributes.hasMore()) {
+                Attribute anAttribute = theAttributes.next();
+                NamingEnumeration<Object> ne = (NamingEnumeration<Object>) anAttribute.getAll();
+
+                List<String> theList = new ArrayList<String>();
+                while (ne.hasMoreElements()) {
+                    String val = null;
+                    Object obj = ne.next();
+                    if (obj instanceof byte[]) {
+                        val = new String(Base64.encodeBytes((byte[]) obj));
+                    } else {
+                        val = (String) obj;
+                    }
+                    theList.add(val);
+                }
+                String[] valuesArr = new String[theList.size()];
+                theList.toArray(valuesArr);
+
+                attribs.add(new org.picketlink.idm.model.Attribute<Serializable>(anAttribute.getID(), valuesArr));
+            }
+
+            // retrieve all custom attributes
+            Map<String, Object> customAttributes = getCustomAttributes().getAttributes();
+            Set<Entry<String, Object>> entrySet = customAttributes.entrySet();
+
+            for (Entry<String, Object> entry : entrySet) {
+                attribs.add(new org.picketlink.idm.model.Attribute<Serializable>(entry.getKey(), (Serializable) entry
+                        .getValue()));
+            }
+
+            return attribs;
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public Partition getPartition() {
+        return null;
+    }
+
     @Override
     public Object lookup(Name name) throws NamingException {
         return null;
     }
 
-//    public void setLDAPChangeNotificationHandler(LDAPChangeNotificationHandler lh) {
-//        this.handler = lh;
-//    }
+    // public void setLDAPChangeNotificationHandler(LDAPChangeNotificationHandler lh) {
+    // this.handler = lh;
+    // }
 
     @Override
     public Object lookup(String name) throws NamingException {
@@ -228,40 +416,6 @@ public class DirContextAdaptor implements DirContext, IdentityType {
         return attributes;
     }
 
-    /**
-     * <p>Returns the LDAP attributes.</p>
-     *
-     * @return
-     */
-    protected Attributes getLDAPAttributes() {
-        return this.attributes;
-    }
-    
-    protected void setLDAPAttributes(Attributes attributes) {
-        this.attributes = attributes;
-    }
-
-
-    @Override
-    public Attributes getAttributes(Name name, String[] ids) throws NamingException {
-        return getAttributes(name.toString(), ids);
-    }
-
-    @Override
-    public Attributes getAttributes(String name, String[] ids) throws NamingException {
-        if (!name.equals(""))
-            throw new NameNotFoundException();
-        Attributes answer = new BasicAttributes(true);
-        Attribute target;
-        for (int i = 0; i < ids.length; i++) {
-            target = attributes.get(ids[i]);
-            if (target != null) {
-                answer.put(target);
-            }
-        }
-        return answer;
-    }
-
     @Override
     public void modifyAttributes(Name name, int mod_op, Attributes attrs) throws NamingException {
     }
@@ -367,175 +521,4 @@ public class DirContextAdaptor implements DirContext, IdentityType {
             throws NamingException {
         return null;
     }
-
-    @Override
-    public String getKey() {
-        return null;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
-    
-    @Override
-    public Date getExpiryDate() {
-        return null;
-    }
-    
-    @Override
-    public Date getCreatedDate() {
-        return null;
-    }
-
-    /**
-     * <p>Replaces an attribute and reflects the change in the LDAP tree.</p>
-     *
-     * @param name
-     * @param value
-     */
-    protected void replaceAttribute(String name, String value) {
-        attributes.put(name, value);
-        Attribute anAttribute = attributes.get(name);
-
-        if (handler != null) {
-            handler.handle(new LDAPObjectChangedNotification(this, NType.REPLACE_ATTRIBUTE, anAttribute));
-        }
-    }
-
-    @Override
-    public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
-        attributes.put(attribute.getName(), attribute.getValue());
-        getCustomAttributes().addAttribute(attribute.getName(), attribute.getValue());
-        Attribute anAttribute = attributes.get(attribute.getName());
-        if (handler != null) {
-            handler.handle(new LDAPObjectChangedNotification(this, NType.ADD_ATTRIBUTE, anAttribute));
-        }
-    }
-
-    @Override
-    public void removeAttribute(String name) {
-        Attribute anAttribute = attributes.get(name);
-        attributes.remove(name);
-        this.customAttributes.removeAttribute(name);
-        if (handler != null) {
-            handler.handle(new LDAPObjectChangedNotification(this, NType.REMOVE_ATTRIBUTE, anAttribute));
-        }
-    }
-    
-    public void setCustomAttribute(String name, String value) {
-        // Add into the custom attributes also
-        customAttributes.addAttribute(name, value);
-//        if (handler != null) {
-//            handler.handle(new LDAPObjectChangedNotification(this, NType.CUSTOM_ATTRIBUTE, null));
-//        }
-    }
-
-    public void setCustomAttribute(String name, String[] values) {
-        // Add into the custom attributes also
-        customAttributes.addAttribute(name, values);
-//        if (handler != null) {
-//            handler.handle(new LDAPObjectChangedNotification(this, NType.CUSTOM_ATTRIBUTE, null));
-//        }
-    }
-
-    public LDAPUserCustomAttributes getCustomAttributes() {
-        if (this.customAttributes == null) {
-            this.customAttributes = new LDAPUserCustomAttributes();
-        }
-
-        return this.customAttributes;
-    }
-
-    public void setCustomAttributes(LDAPUserCustomAttributes customAttributes) {
-        this.customAttributes = customAttributes;
-    }
-
-    @Override
-    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
-        try {
-            Attribute theAttribute = attributes.get(name);
-            Object value = null;
-            
-            if (theAttribute != null) {
-                value = theAttribute.get();    
-            } else if (this.customAttributes.getAttributes().containsKey(name)) {
-                value = this.customAttributes.getAttribute(name);
-            } else {
-                return null;
-            }
-            
-            // FIXME need to update this for new attributes API
-            /*
-            String val = null;
-            if (obj instanceof byte[]) {
-                val = new String(Base64.encodeBytes((byte[]) obj));
-            } else {
-                val = (String) obj;
-            }
-            return val;*/
-
-            return new org.picketlink.idm.model.Attribute<T>(name, (T) value);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    // TODO method no longer required?
-    /*
-    @Override
-    public String[] getAttributeValues(String name) {
-        try {
-            Attribute theAttribute = attributes.get(name);
-            if (theAttribute != null) {
-                return (String[]) theAttribute.get();
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
-    }*/
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> getAttributes() {
-        try {
-            Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> attribs =
-                    new ArrayList<org.picketlink.idm.model.Attribute<? extends Serializable>>();
-
-            NamingEnumeration<? extends Attribute> theAttributes = attributes.getAll();
-
-            // FIXME need to fix this to populate attribs variable
-            while (theAttributes.hasMore()) {
-                Attribute anAttribute = theAttributes.next();
-                NamingEnumeration<Object> ne = (NamingEnumeration<Object>) anAttribute.getAll();
-
-                List<String> theList = new ArrayList<String>();
-                while (ne.hasMoreElements()) {
-                    String val = null;
-                    Object obj = ne.next();
-                    if (obj instanceof byte[]) {
-                        val = new String(Base64.encodeBytes((byte[]) obj));
-                    } else {
-                        val = (String) obj;
-                    }
-                    theList.add(val);
-                }
-                String[] valuesArr = new String[theList.size()];
-                theList.toArray(valuesArr);
-
-                //map.put(anAttribute.getID(), valuesArr);
-            }
-            return attribs;
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public Partition getPartition() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
 }

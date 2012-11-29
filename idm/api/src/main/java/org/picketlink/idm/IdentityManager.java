@@ -52,8 +52,8 @@ public interface IdentityManager {
     // TODO: linking identities
 
     /**
-     * This method must be invoked to set up the IdentityManager instance before any
-     * identity management operations may be performed.
+     * This method must be invoked to set up the IdentityManager instance before any identity management operations may be
+     * performed.
      * 
      * @param configuration
      */
@@ -159,4 +159,15 @@ public interface IdentityManager {
     IdentityManager forRealm(Realm realm);
 
     IdentityManager forTier(Tier tier);
+
+    /**
+     * <p>
+     * Updates the give {@link Role} instance.
+     * </p>
+     * <p><b>Important:</b> Only the role attributes will be updated, it is not possible to update the role
+     * name. For that you should recreate the role with the new name.</p>
+     * 
+     * @param role
+     */
+    void updateRole(Role role);
 }

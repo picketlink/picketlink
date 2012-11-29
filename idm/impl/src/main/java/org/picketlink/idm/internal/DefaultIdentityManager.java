@@ -427,4 +427,9 @@ public class DefaultIdentityManager implements IdentityManager {
         return null;
     }
 
+    @Override
+    public void updateRole(Role role) {
+        
+    }
+
 }
