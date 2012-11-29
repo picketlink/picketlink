@@ -1,6 +1,7 @@
 package org.picketlink.idm;
 
-import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.User;
 
@@ -21,12 +22,30 @@ public interface IdentityCache {
     User lookupUser(Realm realm, String id);
 
     /**
+     * Returns the cached Group object with the specified group id, in the specified partition.  If the
+     * Group has not previously been cached, returns null.
+     * 
+     * @param partition
+     * @param groupId
+     * @return
+     */
+    Group lookupGroup(Partition partition, String groupId);
+
+    /**
      * Inserts the specified user into the cache, for the specified Realm.
      * 
      * @param realm
      * @param user
      */
     void putUser(Realm realm, User user);
+
+    /**
+     * Inserts the specified group into the cache, within the specified Partition.
+     * 
+     * @param partition
+     * @param group
+     */
+    void putGroup(Partition partition, Group group);
 
     /**
      * 

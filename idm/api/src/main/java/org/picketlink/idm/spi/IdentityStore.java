@@ -61,13 +61,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
                           all }
 
     /**
-     * Indicates which particular features this IdentityStore supports.
-     * 
-     * @return A Set containing the features supported by this IdentityStore.
-     */
-    Set<Feature> getFeatureSet();
-
-    /**
      * Sets the configuration and context in which the IdentityStore will execute its operations
      * 
      * @param config

@@ -5,20 +5,20 @@ import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROP
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_DISCRIMINATOR;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_ID;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_KEY;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_PARTITION;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_EMAIL;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_FIRST_NAME;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_LAST_NAME;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -39,6 +39,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -91,14 +92,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         return (EntityManager) getContext().getParameter(INVOCATION_CTX_ENTITY_MANAGER);
-    }
-
-    @Override
-    public Set<Feature> getFeatureSet() {
-        // TODO implement this!!
-        Set<Feature> features = new HashSet<Feature>();
-        features.add(Feature.all);
-        return features;
     }
 
     private Object lookupPartitionObject(Partition partition) {
@@ -395,7 +388,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // Check the cache first
         User user = getContext().getCache().lookupUser(context.getRealm(), id);
 
-        // If the cache doesn't have a reference to the User, we have to look it up and create the instance
+        // If the cache doesn't have a reference to the User, we have to look up it's identity object
+        // and create a User instance based on it
         if (user == null) {
             Object instance = lookupIdentityObjectById(User.class, id);
 
@@ -424,8 +418,73 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public Group getGroup(String name) {
-        // TODO Auto-generated method stub
+    public Group getGroup(String groupId) {
+        Partition partition;
+
+        if (getContext().getRealm() != null && getContext().getTier() != null) {
+            throw new SecurityException("Ambiguous context state while looking up group - both realm and tier have been set.");
+        } else if (getContext().getRealm() != null) {
+            partition = getContext().getRealm();
+        } else if (getContext().getTier() != null) {
+            partition = getContext().getTier();
+        } else {
+            throw new SecurityException("Error while looking up group - context defines no realm or tier");
+        }
+
+        // Check the cache first
+        Group group = getContext().getCache().lookupGroup(partition, groupId);
+
+        // If the cache doesn't have a reference to the Group, we have to look up it's identity object
+        // and create a Group instance based on it
+        if (group == null) {
+            Object instance = lookupIdentityObjectById(Group.class, groupId);
+
+            group = convertGroupEntityToGroup(partition, instance);
+
+            // TODO we need to also set attribute values
+            //group.setAttribute(attribute);
+
+            getContext().getCache().putGroup(context.getRealm(), group);
+        }
+
+        return group;
+    }
+
+    private Group convertGroupEntityToGroup(Partition partition, Object instance) {
+        String name = getModelProperty(String.class, instance, PROPERTY_IDENTITY_NAME);
+
+        Object parentInstance = getModelProperty(Object.class, instance, PROPERTY_PARENT_GROUP);
+
+        SimpleGroup group = null;
+        if (parentInstance != null) {
+            String parentId = getModelProperty(String.class, parentInstance, PROPERTY_IDENTITY_ID);
+
+            Group parent = getContext().getCache().lookupGroup(partition, parentId);
+            if (parent == null) {
+                parent = convertGroupEntityToGroup(partition, parentInstance);
+                getContext().getCache().putGroup(partition, parent);
+            }
+
+            group = new SimpleGroup(name, parent);
+        } else {
+            group = new SimpleGroup(name);
+        }
+
+        if (getConfig().isModelPropertySet(PROPERTY_IDENTITY_PARTITION)) {
+
+            // TODO implement cache support for partitions
+            Object partitionInstance = getModelProperty(Object.class, instance, PROPERTY_IDENTITY_PARTITION);
+            group.setPartition(convertPartitionEntityToPartition(partitionInstance));
+
+        } else {
+            group.setPartition(partition);
+        }
+
+        return group;
+    }
+
+    private Partition convertPartitionEntityToPartition(Object instance) {
+        // TODO implement this
         return null;
     }
 
@@ -468,7 +527,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public void removeMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -486,13 +545,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public void updateUser(User user) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void createGroup(Group group) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -504,7 +563,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public void createRole(Role role) {
         // TODO Auto-generated method stub
-        
+
     }
 
 }

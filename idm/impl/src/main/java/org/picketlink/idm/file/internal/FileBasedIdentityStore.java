@@ -327,15 +327,6 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
         }
     }
 
-
-    @Override
-    public Set<Feature> getFeatureSet() {
-        // TODO implement this!!
-        Set<Feature> features = new HashSet<Feature>();
-        features.add(Feature.all);
-        return features;
-    }
-
     @Override
     public void createUser(User user) {
         FileUser fileUser;

@@ -17,7 +17,7 @@ public interface IdentityStoreFactory {
      */
     IdentityStore createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext context);
 
-    TierStore createTierStore(IdentityStoreConfiguration config);
+    PartitionStore createTierStore(IdentityStoreConfiguration config);
 
     /**
      * Maps specific implementations of IdentityStoreConfiguration to a corresponding
