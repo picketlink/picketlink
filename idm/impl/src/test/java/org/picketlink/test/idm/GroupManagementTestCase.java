@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.SimpleGroup;
 
@@ -44,7 +43,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase {
 
     /**
      * <p>
-     * Creates a new {@link Group} instance using the API. This method also checks if the user was properly created by retrieving
+     * Creates a new {@link Group} instance using the API. This method also checks if the group was properly created by retrieving
      * his information from the store.
      * </p>
      * 
@@ -70,7 +69,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase {
     
     /**
      * <p>
-     * Creates a new {@link Group} instance as a child of another {@link Group} using the API. This method also checks if the user was properly created by retrieving
+     * Creates a new {@link Group} instance as a child of another {@link Group} using the API. This method also checks if the group was properly created by retrieving
      * his information from the store.
      * </p>
      * 
@@ -86,10 +85,10 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase {
         
         Group childGroup = new SimpleGroup("childGroup", parentGroup);
 
-        // let's create the new role
+        // let's create the new group
         identityManager.createGroup(childGroup);
 
-        // let's retrieve the role information and see if they are properly stored
+        // let's retrieve the group information and see if they are properly stored
         Group storedChildGroup = identityManager.getGroup(childGroup.getName());
 
         assertNotNull(storedChildGroup);
@@ -101,7 +100,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase {
     }
 
     /**
-     * <p>Loads from the LDAP tree an already stored role.</p>
+     * <p>Loads from the LDAP tree an already stored group.</p>
      * 
      * @throws Exception
      */
@@ -119,7 +118,29 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase {
     }
     
     /**
-     * <p>Remove from the LDAP tree an already stored role.</p>
+     * <p>Loads from the LDAP tree an already stored group.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGetWithParent() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        Group storedGroupInstance = identityManager.getGroup("Test Group", new SimpleGroup("Test Parent Group"));
+
+        assertNotNull(storedGroupInstance);
+        assertNotNull(storedGroupInstance.getParentGroup());
+
+        assertEquals("GROUP:///Test Parent Group/Test Group", storedGroupInstance.getKey());
+        assertEquals("Test Group", storedGroupInstance.getName());
+        
+        Group invalidGroupInstance = identityManager.getGroup("Test Group", new SimpleGroup("Invalid Parent Group"));
+        
+        assertNull(invalidGroupInstance);
+    }
+    
+    /**
+     * <p>Remove from the LDAP tree an already stored group.</p>
      * 
      * @throws Exception
      */
