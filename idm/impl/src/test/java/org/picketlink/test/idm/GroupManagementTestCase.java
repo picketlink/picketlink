@@ -114,6 +114,7 @@ public class GroupManagementTestCase {
         Group storedGroupInstance = identityManager.getGroup("Test Group");
 
         assertNotNull(storedGroupInstance);
+        assertNotNull(storedGroupInstance.getParentGroup());
 
         assertEquals("GROUP:///Test Parent Group/Test Group", storedGroupInstance.getKey());
         assertEquals("Test Group", storedGroupInstance.getName());
@@ -175,16 +176,16 @@ public class GroupManagementTestCase {
         
         storedGroupInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
         
-//        identityManager.updateGroup(storedGroupInstance);
-//        
-//        Group updatedGroupInstance = identityManager.getGroup(storedGroupInstance.getId());
-//        
-//        Attribute<String[]> multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
-//        
-//        assertNotNull(multiValuedAttribute);
-//        assertEquals("1", multiValuedAttribute.getValue()[0]);
-//        assertEquals("2", multiValuedAttribute.getValue()[1]);
-//        assertEquals("3", multiValuedAttribute.getValue()[2]);
+        identityManager.updateGroup(storedGroupInstance);
+        
+        Group updatedGroupInstance = identityManager.getGroup(storedGroupInstance.getName());
+        
+        Attribute<String[]> multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        assertEquals("1", multiValuedAttribute.getValue()[0]);
+        assertEquals("2", multiValuedAttribute.getValue()[1]);
+        assertEquals("3", multiValuedAttribute.getValue()[2]);
     }
     
     /**
@@ -200,28 +201,28 @@ public class GroupManagementTestCase {
         
         storedGroupInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
         
-//        identityManager.updateGroup(storedGroupInstance);
-//        
-//        Group updatedGroupInstance = identityManager.getGroup(storedGroupInstance.getId());
-//        
-//        Attribute<String[]> multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
-//        
-//        assertNotNull(multiValuedAttribute);
-//
-//        multiValuedAttribute.setValue(new String[] {"3", "4", "5"});
-//        
-//        updatedGroupInstance.setAttribute(multiValuedAttribute);
-//        
-//        identityManager.updateGroup(updatedGroupInstance);
-//        
-//        updatedGroupInstance = identityManager.getGroup("Administrator");
-//        
-//        multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
-//        
-//        assertNotNull(multiValuedAttribute);
-//        assertEquals("3", multiValuedAttribute.getValue()[0]);
-//        assertEquals("4", multiValuedAttribute.getValue()[1]);
-//        assertEquals("5", multiValuedAttribute.getValue()[2]);
+        identityManager.updateGroup(storedGroupInstance);
+        
+        Group updatedGroupInstance = identityManager.getGroup(storedGroupInstance.getName());
+        
+        Attribute<String[]> multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+
+        multiValuedAttribute.setValue(new String[] {"3", "4", "5"});
+        
+        updatedGroupInstance.setAttribute(multiValuedAttribute);
+        
+        identityManager.updateGroup(updatedGroupInstance);
+        
+        updatedGroupInstance = identityManager.getGroup("Test Group");
+        
+        multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        assertEquals("3", multiValuedAttribute.getValue()[0]);
+        assertEquals("4", multiValuedAttribute.getValue()[1]);
+        assertEquals("5", multiValuedAttribute.getValue()[2]);
     }
     
     /**
@@ -237,23 +238,23 @@ public class GroupManagementTestCase {
         
         storedGroupInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
         
-//        identityManager.updateGroup(storedGroupInstance);
-//        
-//        Group updatedGroupInstance = identityManager.getGroup(storedGroupInstance.getId());
-//        
-//        Attribute<String[]> multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
-//        
-//        assertNotNull(multiValuedAttribute);
-//        
-//        updatedGroupInstance.removeAttribute("multi-valued");
-//        
-//        identityManager.updateGroup(updatedGroupInstance);
-//        
-//        updatedGroupInstance = identityManager.getGroup("Administrator");
-//        
-//        multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
-//        
-//        assertNull(multiValuedAttribute);
+        identityManager.updateGroup(storedGroupInstance);
+        
+        Group updatedGroupInstance = identityManager.getGroup(storedGroupInstance.getName());
+        
+        Attribute<String[]> multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        
+        updatedGroupInstance.removeAttribute("multi-valued");
+        
+        identityManager.updateGroup(updatedGroupInstance);
+        
+        updatedGroupInstance = identityManager.getGroup("Test Group");
+        
+        multiValuedAttribute = updatedGroupInstance.getAttribute("multi-valued");
+        
+        assertNull(multiValuedAttribute);
     }
     
     public IdentityManager getIdentityManager() {

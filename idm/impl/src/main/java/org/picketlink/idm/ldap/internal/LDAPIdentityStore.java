@@ -199,20 +199,20 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         ldapGroup.setName(group.getName());
         ldapGroup.setGroupDNSuffix(groupDNSuffix);
 
-        try {
-            ctx.bind(ldapGroup.getDN(), ldapGroup);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-
+        bind(ldapGroup.getDN(), ldapGroup);
+        bind(getCustomAttributesDN(ldapGroup.getDN()), ldapGroup.getCustomAttributes());
+        
         if (group.getParentGroup() != null) {
             ldapGroup.setParentGroup(group.getParentGroup());
 
             LDAPGroup parentGroup = (LDAPGroup) getGroup(group.getParentGroup().getName());
             ldapGroup.setParentGroup(parentGroup);
             parentGroup.addChildGroup(ldapGroup);
+            
             try {
-                ctx.rebind(parentGroup.getDN(), parentGroup);
+                ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+                        parentGroup.getLDAPAttributes().get(MEMBER)) };
+                ctx.modifyAttributes(parentGroup.getDN(), mods);
             } catch (NamingException e) {
                 throw new RuntimeException(e);
             }
@@ -239,17 +239,23 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         LDAPGroup ldapGroup = null;
         try {
             Attributes matchAttrs = new BasicAttributes(true); // ignore attribute name case
+            
             matchAttrs.put(new BasicAttribute(CN, name));
-
+            
             NamingEnumeration<SearchResult> answer = ctx.search(groupDNSuffix, matchAttrs);
+            
             while (answer.hasMore()) {
                 SearchResult sr = answer.next();
                 Attributes attributes = sr.getAttributes();
+                
                 ldapGroup = new LDAPGroup();
                 ldapGroup.setGroupDNSuffix(groupDNSuffix);
                 ldapGroup.addAllLDAPAttributes(attributes);
+                ldapGroup.setCustomAttributes(getCustomAttributes(ldapGroup.getDN()));
+                
                 // Let us work out any parent groups for this group exist
                 Group parentGroup = getParentGroup(ldapGroup);
+                
                 if (parentGroup != null) {
                     ldapGroup.setParentGroup(parentGroup);
                 }
@@ -970,8 +976,19 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     @Override
     public void updateGroup(Group group) {
-        // TODO Auto-generated method stub
+        LDAPGroup storedGroup = (LDAPGroup) getGroup(group.getName());
         
+        if (storedGroup == null) {
+            throw new RuntimeException("No group found with the given name [" + group.getName() + "].");
+        }
+        
+        LDAPGroup updatedGroup = (LDAPGroup) group;
+        
+        try {
+            ctx.rebind(getCustomAttributesDN(storedGroup.getDN()), updatedGroup.getCustomAttributes());
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /*
