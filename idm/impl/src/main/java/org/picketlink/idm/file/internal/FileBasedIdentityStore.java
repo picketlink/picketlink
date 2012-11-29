@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1027,15 +1026,21 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public List fetchQueryResults(Map parameters) {
+    public Attribute getAttribute(IdentityType identityType, String attributeName) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public Attribute getAttribute(IdentityType identityType, String attributeName) {
+    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void updateRole(Role role) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

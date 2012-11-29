@@ -429,7 +429,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void updateRole(Role role) {
-        
+        getContextualStoreForFeature(createContext(), Feature.updateRole).updateRole(role);
     }
 
 }

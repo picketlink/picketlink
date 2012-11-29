@@ -566,4 +566,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     }
 
+    @Override
+    public void updateRole(Role role) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

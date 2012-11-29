@@ -30,7 +30,6 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -932,6 +931,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void updateRole(Role role) {
+        // TODO Auto-generated method stub
+        
     }
 
     /*

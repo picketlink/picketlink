@@ -24,9 +24,7 @@ package org.picketlink.idm.spi;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Attribute;
@@ -270,4 +268,11 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param attributeName
      */
     void removeAttribute(IdentityType identityType, String attributeName);
+
+    /**
+     * <p>Updates the given {@link Role} instance.</p>
+     * 
+     * @param role
+     */
+    void updateRole(Role role);
 }

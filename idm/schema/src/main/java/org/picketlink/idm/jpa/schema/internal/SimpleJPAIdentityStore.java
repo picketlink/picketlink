@@ -53,6 +53,7 @@ import org.picketlink.idm.jpa.schema.DatabaseMembership;
 import org.picketlink.idm.jpa.schema.DatabaseRole;
 import org.picketlink.idm.jpa.schema.DatabaseUser;
 import org.picketlink.idm.jpa.schema.DatabaseUserAttribute;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Membership;
@@ -781,5 +782,143 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     public Group getGroup(IdentityStoreInvocationContext ctx, String name, Group parent) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void setup(IdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public IdentityStoreConfiguration getConfig() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IdentityStoreInvocationContext getContext() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void createUser(User user) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeUser(User user) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void updateUser(User user) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public User getUser(String id) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void createGroup(Group group) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeGroup(Group group) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Group getGroup(String groupId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Group getGroup(String name, Group parent) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void createRole(Role role) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void removeRole(Role role) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Role getRole(String name) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Membership createMembership(IdentityType member, Group group, Role role) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void removeMembership(IdentityType member, Group group, Role role) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Membership getMembership(IdentityType member, Group group, Role role) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public boolean validateCredential(User user, Credential credential) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void updateCredential(User user, Credential credential) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setAttribute(IdentityType identityType, Attribute attribute) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Attribute getAttribute(IdentityType identityType, String attributeName) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void removeAttribute(IdentityType identityType, String attributeName) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void updateRole(Role role) {
+        // TODO Auto-generated method stub
+        
     }
 }

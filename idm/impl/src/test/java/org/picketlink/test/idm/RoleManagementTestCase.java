@@ -120,14 +120,14 @@ public class RoleManagementTestCase {
         
         storedRoleInstance.setAttribute(new Attribute<String>("one-valued", "1"));
         
-//        identityManager.updateRole(storedRoleInstance);
+        identityManager.updateRole(storedRoleInstance);
         
-//        Role updatedRoleInstance = identityManager.getRole(storedRoleInstance.getId());
+        Role updatedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
         
-//        Attribute<String> oneValuedAttribute = updatedRoleInstance.getAttribute("one-valued");
+        Attribute<String> oneValuedAttribute = updatedRoleInstance.getAttribute("one-valued");
         
-//        assertNotNull(oneValuedAttribute);
-//        assertEquals("1", oneValuedAttribute.getValue());
+        assertNotNull(oneValuedAttribute);
+        assertEquals("1", oneValuedAttribute.getValue());
     }
     
     /**
