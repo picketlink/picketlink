@@ -47,8 +47,8 @@ public class LDAPUser extends DirContextAdaptor implements User {
 
     // protected transient ManagedAttributeLookup lookup;
 
-    public LDAPUser() {
-        super(null);
+    public LDAPUser(String dnSuffix) {
+        super(dnSuffix);
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
 
         oc.add("inetOrgPerson");
@@ -60,13 +60,17 @@ public class LDAPUser extends DirContextAdaptor implements User {
         getLDAPAttributes().put(oc);
     }
 
-    public LDAPUser(Attributes attributes) {
-        this();
+    public LDAPUser() {
+        this((String) null);
+    }
+
+    public LDAPUser(String dnSuffix, Attributes attributes) {
+        this(dnSuffix);
         addAllLDAPAttributes(attributes);
     }
 
-    public LDAPUser(Attributes attributes, LDAPUserCustomAttributes customAttributes) {
-        this(attributes);
+    public LDAPUser(String dnSuffix, Attributes attributes, LDAPUserCustomAttributes customAttributes) {
+        this(dnSuffix, attributes);
         setCustomAttributes(customAttributes);
     }
 

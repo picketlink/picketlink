@@ -90,7 +90,7 @@ public abstract class DirContextAdaptor implements DirContext, IdentityType {
     }
 
     public String getDN(String name) {
-        return CN + EQUAL + name + COMMA + this.dnSuffix;
+        return doGetAttributeForBinding() + EQUAL + name + COMMA + this.dnSuffix;
     }
     
     protected void addAllLDAPAttributes(Attributes theAttributes) {
