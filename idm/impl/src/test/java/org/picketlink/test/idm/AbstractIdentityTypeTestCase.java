@@ -31,6 +31,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
@@ -51,7 +52,7 @@ public abstract class AbstractIdentityTypeTestCase {
      * 
      * @throws Exception
      */
-    @Test
+    @Test @Ignore
     public void testDisable() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 

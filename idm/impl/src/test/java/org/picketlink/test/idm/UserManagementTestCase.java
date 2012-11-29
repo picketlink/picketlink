@@ -157,25 +157,5 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase {
 
         assertNull(removedUserInstance);
     }
-    
-    /**
-     * <p>
-     * Disables an user.
-     * </p>
-     * 
-     * @throws Exception
-     */
-    @Test @Ignore
-    public void testDisable() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        User storedUserInstance = identityManager.getUser("admin");
-
-        assertNotNull(storedUserInstance);
-        
-        identityManager.setEnabled(storedUserInstance, false);
-        
-        User removedUserInstance = identityManager.getUser("admin");
-    }
 
 }

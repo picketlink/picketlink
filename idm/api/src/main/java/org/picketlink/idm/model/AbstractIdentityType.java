@@ -38,7 +38,7 @@ public abstract class AbstractIdentityType implements IdentityType {
 
     private boolean enabled = true;
     private Date createdDate = new Date();
-    private Date expiryDate = null;
+    private Date expirationDate = null;
     private Map<String, Attribute<? extends Serializable>> attributes = 
             new HashMap<String, Attribute<? extends Serializable>>();
     private Partition partition;
@@ -46,10 +46,20 @@ public abstract class AbstractIdentityType implements IdentityType {
     public boolean isEnabled() {
         return this.enabled;
     }
+    
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
-    public Date getExpiryDate() {
-        return this.expiryDate;
+    public Date getExpirationDate() {
+        return this.expirationDate;
+    }
+    
+    @Override
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     @Override

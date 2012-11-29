@@ -55,7 +55,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
                           createMembership, readMembership, updateMembership, deleteMembership,
                           validateCredential, updateCredential,
                           readAttribute, updateAttribute, deleteAttribute,
-                          supportsTiers, supportsRealms,
+                          supportsTiers, supportsRealms, disableRole, disableGroup, disableUser,
                           all }
 
     /**

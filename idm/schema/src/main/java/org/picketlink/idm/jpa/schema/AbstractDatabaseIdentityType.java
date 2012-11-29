@@ -121,7 +121,7 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     }
     
     @Override
-    public Date getExpiryDate() {
+    public Date getExpirationDate() {
         return this.expiryDate;
     }
     
@@ -292,7 +292,7 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     @Override
     public String toString() {
         return new ToStringBuilder(this).append("id", getId()).append("key", getKey()).append("enabled", isEnabled())
-                .append("expirationDate", getExpiryDate()).append("creationDate", getCreatedDate()).toString();
+                .append("expirationDate", getExpirationDate()).append("creationDate", getCreatedDate()).toString();
     }
 
     @Override

@@ -129,8 +129,14 @@ public interface IdentityType extends Serializable {
      * @return A boolean value indicating whether this IdentityType is enabled.
      */
     boolean isEnabled();
-
-
+    
+    /**
+     * <p>Sets the current enabled status of this {@link IdentityType}.</p>
+     * 
+     * @param enabled
+     */
+    void setEnabled(boolean enabled);
+    
     /**
      * Returns the date that this IdentityType instance was created.
      * 
@@ -143,8 +149,15 @@ public interface IdentityType extends Serializable {
      * 
      * @return
      */
-    Date getExpiryDate();
-
+    Date getExpirationDate();
+    
+    /**
+     * <p>Sets the date that this {@link IdentityType} expires.</p>
+     * 
+     * @param expirationDate
+     */
+    void setExpirationDate(Date expirationDate);
+    
     // Attributes
 
     /**

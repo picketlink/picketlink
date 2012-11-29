@@ -70,7 +70,7 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
     private String dnSuffix;
     
     private boolean enabled = true;
-    private Date expiryDate;
+    private Date expirationDate;
     private Date createDate = new Date();
     
     public LDAPEntry(String dnSuffix) {
@@ -146,10 +146,20 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
     public boolean isEnabled() {
         return this.enabled;
     }
+    
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     @Override
-    public Date getExpiryDate() {
-        return this.expiryDate;
+    public Date getExpirationDate() {
+        return this.expirationDate;
+    }
+    
+    @Override
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
     @Override
@@ -177,8 +187,8 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
         this.customAttributes.addAttribute("enabled", String.valueOf(isEnabled()));
         this.customAttributes.addAttribute("createDate", String.valueOf(getCreatedDate().getTime()));
         
-        if (this.expiryDate != null) {
-            this.customAttributes.addAttribute("expiryDate", String.valueOf(getExpiryDate().getTime()));            
+        if (this.expirationDate != null) {
+            this.customAttributes.addAttribute("expiryDate", String.valueOf(getExpirationDate().getTime()));            
         }
 
         return this.customAttributes;
@@ -201,7 +211,7 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
             }
 
             if (expiryDateAttribute != null) {
-                this.expiryDate = new Date(Long.valueOf(expiryDateAttribute.toString()));            
+                this.expirationDate = new Date(Long.valueOf(expiryDateAttribute.toString()));            
             }
 }
     }
