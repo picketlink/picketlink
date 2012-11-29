@@ -143,16 +143,16 @@ public class RoleManagementTestCase {
         
         storedRoleInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
         
-//        identityManager.updateRole(storedRoleInstance);
-//        
-//        Role updatedRoleInstance = identityManager.getRole(storedRoleInstance.getId());
-//        
-//        Attribute<String[]> multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
-//        
-//        assertNotNull(multiValuedAttribute);
-//        assertEquals("1", multiValuedAttribute.getValue()[0]);
-//        assertEquals("2", multiValuedAttribute.getValue()[1]);
-//        assertEquals("3", multiValuedAttribute.getValue()[2]);
+        identityManager.updateRole(storedRoleInstance);
+        
+        Role updatedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
+        
+        Attribute<String[]> multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        assertEquals("1", multiValuedAttribute.getValue()[0]);
+        assertEquals("2", multiValuedAttribute.getValue()[1]);
+        assertEquals("3", multiValuedAttribute.getValue()[2]);
     }
     
     /**
@@ -168,28 +168,28 @@ public class RoleManagementTestCase {
         
         storedRoleInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
         
-//        identityManager.updateRole(storedRoleInstance);
-//        
-//        Role updatedRoleInstance = identityManager.getRole(storedRoleInstance.getId());
-//        
-//        Attribute<String[]> multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
-//        
-//        assertNotNull(multiValuedAttribute);
-//
-//        multiValuedAttribute.setValue(new String[] {"3", "4", "5"});
-//        
-//        updatedRoleInstance.setAttribute(multiValuedAttribute);
-//        
-//        identityManager.updateRole(updatedRoleInstance);
-//        
-//        updatedRoleInstance = identityManager.getRole("Administrator");
-//        
-//        multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
-//        
-//        assertNotNull(multiValuedAttribute);
-//        assertEquals("3", multiValuedAttribute.getValue()[0]);
-//        assertEquals("4", multiValuedAttribute.getValue()[1]);
-//        assertEquals("5", multiValuedAttribute.getValue()[2]);
+        identityManager.updateRole(storedRoleInstance);
+        
+        Role updatedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
+        
+        Attribute<String[]> multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+
+        multiValuedAttribute.setValue(new String[] {"3", "4", "5"});
+        
+        updatedRoleInstance.setAttribute(multiValuedAttribute);
+        
+        identityManager.updateRole(updatedRoleInstance);
+        
+        updatedRoleInstance = identityManager.getRole("Administrator");
+        
+        multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        assertEquals("3", multiValuedAttribute.getValue()[0]);
+        assertEquals("4", multiValuedAttribute.getValue()[1]);
+        assertEquals("5", multiValuedAttribute.getValue()[2]);
     }
     
     /**
@@ -205,23 +205,23 @@ public class RoleManagementTestCase {
         
         storedRoleInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] {"1", "2", "3"}));
         
-//        identityManager.updateRole(storedRoleInstance);
-//        
-//        Role updatedRoleInstance = identityManager.getRole(storedRoleInstance.getId());
-//        
-//        Attribute<String[]> multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
-//        
-//        assertNotNull(multiValuedAttribute);
-//        
-//        updatedRoleInstance.removeAttribute("multi-valued");
-//        
-//        identityManager.updateRole(updatedRoleInstance);
-//        
-//        updatedRoleInstance = identityManager.getRole("Administrator");
-//        
-//        multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
-//        
-//        assertNull(multiValuedAttribute);
+        identityManager.updateRole(storedRoleInstance);
+        
+        Role updatedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
+        
+        Attribute<String[]> multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
+        
+        assertNotNull(multiValuedAttribute);
+        
+        updatedRoleInstance.removeAttribute("multi-valued");
+        
+        identityManager.updateRole(updatedRoleInstance);
+        
+        updatedRoleInstance = identityManager.getRole("Administrator");
+        
+        multiValuedAttribute = updatedRoleInstance.getAttribute("multi-valued");
+        
+        assertNull(multiValuedAttribute);
     }
     
     public IdentityManager getIdentityManager() {

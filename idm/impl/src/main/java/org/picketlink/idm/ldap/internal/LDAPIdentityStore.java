@@ -269,11 +269,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         ldapRole.setName(role.getName());
         ldapRole.setRoleDNSuffix(roleDNSuffix);
 
-        try {
-            ctx.bind(ldapRole.getDN(), role);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+        bind(ldapRole.getDN(), role);
+        bind(getCustomAttributesDN(ldapRole.getDN()), ldapRole.getCustomAttributes());
     }
 
     @Override
@@ -296,10 +293,14 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
             NamingEnumeration<SearchResult> searchResult = ctx.search(roleDNSuffix, matchAttrs);
 
-            while (searchResult.hasMore()) {
+            if (searchResult.hasMore()) {
                 SearchResult result = searchResult.next();
 
-                return new LDAPRole(result.getAttributes(), this.roleDNSuffix);
+                LDAPRole ldapRole = new LDAPRole(result.getAttributes(), this.roleDNSuffix);
+                
+                ldapRole.setCustomAttributes(getCustomAttributes(ldapRole.getDN()));
+                
+                return ldapRole;
             }
         } catch (NamingException e) {
             throw new RuntimeException(e);
@@ -852,7 +853,20 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         
         return customAttributes;
     }
-    
+
+    private LDAPUserCustomAttributes getCustomAttributes(String dn) {
+        String customDN = getCustomAttributesDN(dn);
+
+        LDAPUserCustomAttributes customAttributes = null;
+
+        try {
+            customAttributes = lookup(customDN);
+        } catch (Exception ignore) {
+        }
+        
+        return customAttributes;
+    }
+
     /**
      * <p>
      * Returns a DN for the {@link LDAPUser} custom attributes entry.
@@ -864,7 +878,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     private String getCustomAttributesDN(LDAPUser ldapUser) {
         return "cn=custom-attributes" + COMMA + getUserDN(ldapUser);
     }
-    
+
+    private String getCustomAttributesDN(String dn) {
+        return "cn=custom-attributes" + COMMA + dn;
+    }
+
     /**
      * <p>Returns a DN for the given {@link LDAPUser}.</p>
      * 
@@ -935,8 +953,19 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     @Override
     public void updateRole(Role role) {
-        // TODO Auto-generated method stub
+        LDAPRole storedRole = (LDAPRole) getRole(role.getName());
         
+        if (storedRole == null) {
+            throw new RuntimeException("No role found with the given name [" + role.getName() + "].");
+        }
+        
+        LDAPRole updatedRole = (LDAPRole) role;
+        
+        try {
+            ctx.rebind(getCustomAttributesDN(storedRole.getDN()), updatedRole.getCustomAttributes());
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /*
