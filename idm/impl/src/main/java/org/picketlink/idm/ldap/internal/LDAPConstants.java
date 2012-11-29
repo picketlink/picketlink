@@ -36,4 +36,9 @@ public interface LDAPConstants {
     String OBJECT_CLASS = "objectclass";
     String UID = "uid";
     Object GROUP_OF_NAMES = "groupOfNames";
+    
+    public static final String COMMA = ",";
+    public static final String EQUAL = "=";
+    public static final String SPACE_STRING = " ";
+
 }

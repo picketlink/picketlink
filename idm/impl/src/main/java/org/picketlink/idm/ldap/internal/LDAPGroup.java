@@ -25,6 +25,7 @@ package org.picketlink.idm.ldap.internal;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -43,15 +44,17 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
 
     private static final long serialVersionUID = 1L;
     
-    public final String COMMA = ",";
     private Group parent;
     private String groupName;
-
-    private String groupDNSuffix;
 
     private String id;
 
     public LDAPGroup() {
+        this(null);
+    }
+
+    public LDAPGroup(String groupDNSuffix) {
+        super(groupDNSuffix);
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
         oc.add("top");
         oc.add("groupOfNames");
@@ -59,12 +62,8 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
     }
 
     public LDAPGroup(Attributes attributes, String groupDNSuffix) {
+        super(groupDNSuffix);
         setLDAPAttributes(attributes);
-        this.groupDNSuffix = groupDNSuffix;
-    }
-
-    public String getDN() {
-        return CN + EQUAL + getName() + COMMA + groupDNSuffix;
     }
 
     public void addRole(LDAPRole role) {
@@ -155,22 +154,14 @@ public class LDAPGroup extends DirContextAdaptor implements Group {
     }
 
     public void addChildGroup(LDAPGroup childGroup) {
-        // Deal with attributes
         Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        if (memberAttribute != null) {
-            if (memberAttribute.contains(SPACE_STRING)) {
-                memberAttribute.remove(SPACE_STRING);
-            }
-
-            memberAttribute.add(CN + "=" + childGroup.getName() + COMMA + groupDNSuffix);
+        
+        if (memberAttribute == null) {
+            memberAttribute = new BasicAttribute(MEMBER);
+            getLDAPAttributes().put(memberAttribute);
         }
+        
+        memberAttribute.add(getDN(childGroup.getName()));
     }
 
-    public String getGroupDNSuffix() {
-        return groupDNSuffix;
-    }
-
-    public void setGroupDNSuffix(String groupDNSuffix) {
-        this.groupDNSuffix = groupDNSuffix;
-    }
 }
