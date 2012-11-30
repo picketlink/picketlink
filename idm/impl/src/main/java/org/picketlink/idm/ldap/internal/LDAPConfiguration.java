@@ -25,6 +25,9 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.spi.IdentityStore;
@@ -54,6 +57,7 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     private boolean isActiveDirectory = false;
     private Properties additionalProperties = new Properties();
     private Set<Feature> featuresSet = new HashSet<IdentityStore.Feature>();
+    private LDAPOperationManager ldapManager;
 
     public String getStandardAttributesFileName() {
         return standardAttributesFileName;
@@ -169,11 +173,58 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
 
     @Override
     public void init() throws SecurityConfigurationException {
+        constructContext();
         this.featuresSet.add(Feature.all);
     }
 
     @Override
     public Set<Feature> getFeatureSet() {
         return this.featuresSet ;
+    }
+    
+    private void constructContext() {
+        Properties env = new Properties();
+        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, getFactoryName());
+        env.setProperty(Context.SECURITY_AUTHENTICATION, getAuthType());
+
+        String protocol = getProtocol();
+        if (protocol != null) {
+            env.setProperty(Context.SECURITY_PROTOCOL, protocol);
+        }
+        String bindDN = getBindDN();
+        char[] bindCredential = null;
+
+        if (getBindCredential() != null) {
+            bindCredential = getBindCredential().toCharArray();
+        }
+
+        if (bindDN != null) {
+            env.setProperty(Context.SECURITY_PRINCIPAL, bindDN);
+            env.put(Context.SECURITY_CREDENTIALS, bindCredential);
+        }
+
+        String url = getLdapURL();
+        if (url == null) {
+            throw new RuntimeException("url");
+        }
+
+        env.setProperty(Context.PROVIDER_URL, url);
+
+        // Just dump the additional properties
+        Properties additionalProperties = getAdditionalProperties();
+        Set<Object> keys = additionalProperties.keySet();
+        for (Object key : keys) {
+            env.setProperty((String) key, additionalProperties.getProperty((String) key));
+        }
+
+        try {
+            this.ldapManager = new LDAPOperationManager(env);
+        } catch (NamingException e1) {
+            throw new RuntimeException(e1);
+        }
+    }
+
+    public LDAPOperationManager getLdapManager() {
+        return this.ldapManager;
     }
 }

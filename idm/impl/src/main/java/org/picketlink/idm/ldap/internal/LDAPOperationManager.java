@@ -24,6 +24,7 @@ package org.picketlink.idm.ldap.internal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
@@ -36,12 +37,14 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.InitialLdapContext;
 
 /**
  * <p>
  * This class provides a set of operations to manage LDAP trees.
  * </p>
  * 
+ * @author Anil Saldhana
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
@@ -49,10 +52,13 @@ public class LDAPOperationManager {
 
     private List<String> managedAttributes = new ArrayList<String>();
 
+    @SuppressWarnings("unused")
+    private Properties properties;
     private DirContext ctx;
 
-    public LDAPOperationManager(DirContext context) {
-        this.ctx = context;
+    public LDAPOperationManager(Properties properties) throws NamingException {
+        this.ctx = new InitialLdapContext(properties, null);
+        this.properties = properties;
     }
 
     /**

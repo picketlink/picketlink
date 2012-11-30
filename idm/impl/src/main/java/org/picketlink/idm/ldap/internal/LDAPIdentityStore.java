@@ -32,10 +32,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
 import java.util.Set;
 
-import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -46,7 +44,6 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.InitialLdapContext;
 
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -75,7 +72,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
-    private LDAPOperationManager ldapManager;
     private LDAPConfiguration configuration;
 
     @Override
@@ -96,13 +92,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     public void configure(IdentityStoreConfiguration configuration) throws SecurityConfigurationException {
-        if (!(configuration instanceof LDAPConfiguration)) {
-            throw new IllegalArgumentException("Can only pass instance of LDAPConfiguration to LDAPIdentityStore");
-        }
-
-        this.configuration = (LDAPConfiguration) configuration;
-
-        constructContext();
     }
 
     @Override
@@ -426,8 +415,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 // Ignore
             }
 
-            constructContext();
-
             return valid;
         } else {
             throwsNotSupportedCredentialType(credential);
@@ -564,49 +551,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             String attributeName) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    private void constructContext() {
-        // Construct the dir ctx
-        Properties env = new Properties();
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, this.configuration.getFactoryName());
-        env.setProperty(Context.SECURITY_AUTHENTICATION, this.configuration.getAuthType());
-
-        String protocol = this.configuration.getProtocol();
-        if (protocol != null) {
-            env.setProperty(Context.SECURITY_PROTOCOL, protocol);
-        }
-        String bindDN = this.configuration.getBindDN();
-        char[] bindCredential = null;
-
-        if (this.configuration.getBindCredential() != null) {
-            bindCredential = this.configuration.getBindCredential().toCharArray();
-        }
-
-        if (bindDN != null) {
-            env.setProperty(Context.SECURITY_PRINCIPAL, bindDN);
-            env.put(Context.SECURITY_CREDENTIALS, bindCredential);
-        }
-
-        String url = this.configuration.getLdapURL();
-        if (url == null) {
-            throw new RuntimeException("url");
-        }
-
-        env.setProperty(Context.PROVIDER_URL, url);
-
-        // Just dump the additional properties
-        Properties additionalProperties = this.configuration.getAdditionalProperties();
-        Set<Object> keys = additionalProperties.keySet();
-        for (Object key : keys) {
-            env.setProperty((String) key, additionalProperties.getProperty((String) key));
-        }
-
-        try {
-            this.ldapManager = new LDAPOperationManager(new InitialLdapContext(env, null));
-        } catch (NamingException e1) {
-            throw new RuntimeException(e1);
-        }
     }
 
     // Remember the updation has to happen over SSL. That is handled by the JNDI Ctx Parameters
@@ -809,6 +753,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     public LDAPOperationManager getLdapManager() {
-        return this.ldapManager;
+        return this.configuration.getLdapManager();
     }
 }
