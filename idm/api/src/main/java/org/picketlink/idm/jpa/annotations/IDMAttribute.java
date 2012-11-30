@@ -20,4 +20,5 @@ import java.lang.annotation.Target;
 @Inherited
 public @interface IDMAttribute {
     String name() default "";
+    boolean lazyLoaded() default false;
 }

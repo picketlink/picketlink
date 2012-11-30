@@ -10,10 +10,26 @@ import java.io.Serializable;
  * @param <T>
  */
 public class Attribute<T extends Serializable> {
+
+    /**
+     * The name of the attribute
+     */
     private String name;
+
+    /**
+     * The attribute value.
+     */
     private T value;
+
+    /**
+     * Indicates whether this Attribute has a read-only value
+     */
     private boolean readOnly = false;
-    private boolean unique = false;
+
+    /**
+     * Indicates whether the Attribute value has been loaded
+     */
+    private boolean loaded = false;
 
     public Attribute(String name, T value) {
         this.name = name;
@@ -23,11 +39,6 @@ public class Attribute<T extends Serializable> {
     public Attribute(String name, T value, boolean readOnly) {
         this(name, value);
         this.readOnly = readOnly;
-    }
-
-    public Attribute(String name, T value, boolean readOnly, boolean unique) {
-        this(name, value, readOnly);
-        this.unique = unique;
     }
 
     public String getName() {
@@ -42,11 +53,23 @@ public class Attribute<T extends Serializable> {
         return readOnly;
     }
 
-    public boolean isUnique() {
-        return unique;
+    public boolean isLoaded() {
+        return loaded;
     }
 
+    public void setLoaded(boolean value) {
+        this.loaded = value;
+    }
+
+    /**
+     * Sets the value for this attribute.  If the Attribute value is readOnly, a RuntimeException is thrown. 
+     * 
+     * @param value
+     */
     public void setValue(T value) {
+        if (readOnly) {
+            throw new RuntimeException("Error setting Attribute value [" + name + " ] - value is read only."); 
+        }
         this.value = value;
     }
 }
