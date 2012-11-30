@@ -22,6 +22,7 @@
 
 package org.picketlink.test.idm.suites;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
@@ -36,6 +37,8 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.UserManagementTestCase;
@@ -44,23 +47,23 @@ import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
 /**
- * <p>Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore}.</p>
+ * <p>
+ * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore}.
+ * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class})
-public class JPAIdentityStoreTestSuite implements TestLifecycle{
+@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class })
+public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
 
-    private IdentityManager identityManager;
-    
     public static TestLifecycle init() throws Exception {
         return new JPAIdentityStoreTestSuite();
     }
-    
+
     /**
      * <p>
      * Creates a shared {@link EntityManagerFactory} and database instances
@@ -72,7 +75,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle{
     public static void onBeforeTests() throws Exception {
         emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
     }
-    
+
     /**
      * <p>
      * Closes the shared {@link EntityManagerFactory} instance.
@@ -84,38 +87,46 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle{
     public static void onAfterTests() throws Exception {
         emf.close();
     }
-    
+
+    private EntityManager entityManager;
+
     @Override
     public void onInit() {
-        // TODO: put here the initialization logic. This method will be called before each test method.
+        this.entityManager = emf.createEntityManager();
+        this.entityManager.getTransaction().begin();
     }
 
     @Override
     public IdentityManager createIdentityManager() {
-        if (this.identityManager == null) {
-            IdentityConfiguration config = new IdentityConfiguration();
-            
-            config.addStoreConfiguration(getConfiguration());
+        IdentityConfiguration config = new IdentityConfiguration();
 
-            this.identityManager = new DefaultIdentityManager();
+        config.addStoreConfiguration(getConfiguration());
 
-            identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf));
-        }
-        
-        return this.identityManager;
+        IdentityManager identityManager = new DefaultIdentityManager();
+
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf) {
+            @Override
+            public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
+                super.initContextForStore(ctx, store);
+                ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
+            }
+        });
+
+        return identityManager;
     }
-    
+
     private IdentityStoreConfiguration getConfiguration() {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
-        
+
         configuration.setIdentityClass(IdentityObject.class);
-        
+
         return configuration;
     }
 
     @Override
     public void onDestroy() {
-     // TODO: put here the initialization logic. This method will be called after each test method.
+        this.entityManager.getTransaction().commit();
+        this.entityManager.close();
     }
 
 }
