@@ -46,7 +46,6 @@ import javax.naming.ldap.InitialLdapContext;
  * 
  * @author Anil Saldhana
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
  */
 public class LDAPOperationManager {
 

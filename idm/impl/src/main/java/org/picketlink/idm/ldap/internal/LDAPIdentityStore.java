@@ -64,6 +64,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * 
  * @author Shane Bryzak
  * @author Anil Saldhana
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
