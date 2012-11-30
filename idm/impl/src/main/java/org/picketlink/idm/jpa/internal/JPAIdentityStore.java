@@ -41,6 +41,7 @@ import org.picketlink.idm.model.Membership;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -484,6 +485,24 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         return group;
     }
+    
+    private Role convertRoleEntityToRole(Partition partition, Object instance) {
+        String name = getModelProperty(String.class, instance, PROPERTY_IDENTITY_NAME);
+
+        SimpleRole role = new SimpleRole(name);
+
+        if (getConfig().isModelPropertySet(PROPERTY_IDENTITY_PARTITION)) {
+
+            // TODO implement cache support for partitions
+            Object partitionInstance = getModelProperty(Object.class, instance, PROPERTY_IDENTITY_PARTITION);
+            role.setPartition(convertPartitionEntityToPartition(partitionInstance));
+
+        } else {
+            role.setPartition(partition);
+        }
+
+        return role;
+    }
 
     private Partition convertPartitionEntityToPartition(Object instance) {
         // TODO implement this
@@ -503,8 +522,36 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public Role getRole(String name) {
-        // TODO Auto-generated method stub
-        return null;
+        Partition partition;
+
+        if (getContext().getRealm() != null && getContext().getTier() != null) {
+            throw new SecurityException("Ambiguous context state while looking up role - both realm and tier have been set.");
+        } else if (getContext().getRealm() != null) {
+            partition = getContext().getRealm();
+        } else if (getContext().getTier() != null) {
+            partition = getContext().getTier();
+        } else {
+            throw new SecurityException("Error while looking up role - context defines no realm or tier");
+        }
+
+        // Check the cache first
+        Role role = getContext().getCache().lookupRole(partition, name);
+
+        // If the cache doesn't have a reference to the Role, we have to look up it's identity object
+        // and create a Role instance based on it
+        if (role == null) {
+            Object instance = lookupIdentityObjectByKey(String.format("%s%s", Role.KEY_PREFIX, name));
+
+            role = convertRoleEntityToRole(partition, instance);
+
+            // TODO we need to also set attribute values
+            //group.setAttribute(attribute);
+
+            getContext().getCache().putRole(context.getRealm(), role);
+        }
+
+        return role;
+
     }
 
     @Override
