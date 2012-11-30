@@ -30,18 +30,18 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Date;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.IdentityType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public abstract class AbstractIdentityTypeTestCase {
+public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> {
 
     private IdentityManager identityManager;
     
@@ -52,17 +52,55 @@ public abstract class AbstractIdentityTypeTestCase {
      * 
      * @throws Exception
      */
-    @Test @Ignore
+    @Test
     public void testDisable() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
+        T enabledIdentityTypeInstance = getIdentityType();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        assertTrue(enabledIdentityTypeInstance.isEnabled());
+        
+        enabledIdentityTypeInstance.setEnabled(false);
+        
+        updateIdentityType(enabledIdentityTypeInstance);
+        
+        T disabledIdentityTypeInstance = getIdentityType();
+        
+        assertFalse(disabledIdentityTypeInstance.isEnabled());
+        
+        disabledIdentityTypeInstance.setEnabled(true);
+        
+        updateIdentityType(disabledIdentityTypeInstance);
+        
+        enabledIdentityTypeInstance = getIdentityType();
+        
+        assertTrue(enabledIdentityTypeInstance.isEnabled());
+    }
 
-        assertNotNull(storedUserInstance);
+    protected abstract void updateIdentityType(T identityTypeInstance);
+
+    protected abstract T getIdentityType();
+    
+    /**
+     * <p>
+     * Expires an user.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testExpiration() throws Exception {
+        T validIdentityTypeInstance = getIdentityType();
         
-//        identityManager.setEnabled(storedUserInstance, false);
+        Date expirationDate = new Date();
         
-        User removedUserInstance = identityManager.getUser("admin");
+        validIdentityTypeInstance.setExpirationDate(expirationDate);
+        
+        updateIdentityType(validIdentityTypeInstance);
+        
+        T expiredIdentityTypeInstance = getIdentityType();
+        
+        assertNotNull(expiredIdentityTypeInstance.getExpirationDate());
+        assertTrue(new Date().after(expiredIdentityTypeInstance.getExpirationDate()));
+        assertTrue(expirationDate.compareTo(expiredIdentityTypeInstance.getExpirationDate()) == 0);
     }
 
     /**
@@ -74,17 +112,15 @@ public abstract class AbstractIdentityTypeTestCase {
      */
     @Test
     public void testSetOneValuedAttribute() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
+        T storedIdentityTypeInstance = getIdentityType();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("one-valued", "1"));
 
-        storedUserInstance.setAttribute(new Attribute<String>("one-valued", "1"));
+        updateIdentityType(storedIdentityTypeInstance);
 
-        identityManager.updateUser(storedUserInstance);
+        T updatedIdentityTypeInstance = getIdentityType();
 
-        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
-
-        Attribute<String> oneValuedAttribute = updatedUserInstance.getAttribute("one-valued");
+        Attribute<String> oneValuedAttribute = updatedIdentityTypeInstance.getAttribute("one-valued");
 
         assertNotNull(oneValuedAttribute);
         assertEquals("1", oneValuedAttribute.getValue());
@@ -99,17 +135,15 @@ public abstract class AbstractIdentityTypeTestCase {
      */
     @Test
     public void testSetMultiValuedAttribute() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
+        T storedIdentityTypeInstance = getIdentityType();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
 
-        storedUserInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+        updateIdentityType(storedIdentityTypeInstance);
 
-        identityManager.updateUser(storedUserInstance);
+        T updatedIdentityTypeInstance = getIdentityType();
 
-        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
-
-        Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        Attribute<String[]> multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNotNull(multiValuedAttribute);
         assertEquals("1", multiValuedAttribute.getValue()[0]);
@@ -124,26 +158,24 @@ public abstract class AbstractIdentityTypeTestCase {
      */
     @Test
     public void testSetMultipleAttributes() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
+        T storedIdentityTypeInstance = getIdentityType();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
 
-        storedUserInstance.setAttribute(new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
-        storedUserInstance.setAttribute(new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
-        storedUserInstance.setAttribute(new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
 
-        storedUserInstance.setAttribute(new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
-        storedUserInstance.setAttribute(new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
+        updateIdentityType(storedIdentityTypeInstance);
 
-        identityManager.updateUser(storedUserInstance);
-
-        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        T updatedIdentityTypeInstance = getIdentityType();
         
-        assertEquals("2", updatedUserInstance.<String[]>getAttribute("QuestionTotal").getValue()[0]);
-        assertEquals("What is favorite toy?", updatedUserInstance.<String[]>getAttribute("Question1").getValue()[0]);
-        assertEquals("Gum", updatedUserInstance.<String[]>getAttribute("Question1Answer").getValue()[0]);
-        assertEquals("What is favorite word?", updatedUserInstance.<String[]>getAttribute("Question2").getValue()[0]);
-        assertEquals("Hi", updatedUserInstance.<String[]>getAttribute("Question2Answer").getValue()[0]);
+        assertEquals("2", updatedIdentityTypeInstance.<String[]>getAttribute("QuestionTotal").getValue()[0]);
+        assertEquals("What is favorite toy?", updatedIdentityTypeInstance.<String[]>getAttribute("Question1").getValue()[0]);
+        assertEquals("Gum", updatedIdentityTypeInstance.<String[]>getAttribute("Question1Answer").getValue()[0]);
+        assertEquals("What is favorite word?", updatedIdentityTypeInstance.<String[]>getAttribute("Question2").getValue()[0]);
+        assertEquals("Hi", updatedIdentityTypeInstance.<String[]>getAttribute("Question2Answer").getValue()[0]);
     }
     
     /**
@@ -153,22 +185,20 @@ public abstract class AbstractIdentityTypeTestCase {
      */
     @Test
     public void testGetAllAttributes() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
+        T storedIdentityTypeInstance = getIdentityType();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
 
-        storedUserInstance.setAttribute(new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
-        storedUserInstance.setAttribute(new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
-        storedUserInstance.setAttribute(new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
 
-        storedUserInstance.setAttribute(new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
-        storedUserInstance.setAttribute(new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
+        updateIdentityType(storedIdentityTypeInstance);
 
-        identityManager.updateUser(storedUserInstance);
-
-        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        T updatedIdentityTypeInstance = getIdentityType();
         
-        Collection<Attribute<? extends Serializable>> allAttributes = updatedUserInstance.getAttributes();
+        Collection<Attribute<? extends Serializable>> allAttributes = updatedIdentityTypeInstance.getAttributes();
         
         assertFalse(allAttributes.isEmpty());
         
@@ -213,29 +243,27 @@ public abstract class AbstractIdentityTypeTestCase {
      */
     @Test
     public void testUpdateAttribute() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
+        T storedIdentityTypeInstance = getIdentityType();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
 
-        storedUserInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+        updateIdentityType(storedIdentityTypeInstance);
 
-        identityManager.updateUser(storedUserInstance);
+        T updatedIdentityTypeInstance = getIdentityType();
 
-        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
-
-        Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        Attribute<String[]> multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNotNull(multiValuedAttribute);
 
         multiValuedAttribute.setValue(new String[] { "3", "4", "5" });
 
-        updatedUserInstance.setAttribute(multiValuedAttribute);
+        updatedIdentityTypeInstance.setAttribute(multiValuedAttribute);
 
-        identityManager.updateUser(updatedUserInstance);
+        updateIdentityType(updatedIdentityTypeInstance);
 
-        updatedUserInstance = identityManager.getUser("admin");
+        updatedIdentityTypeInstance = getIdentityType();
 
-        multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNotNull(multiValuedAttribute);
         assertEquals("3", multiValuedAttribute.getValue()[0]);
@@ -252,27 +280,25 @@ public abstract class AbstractIdentityTypeTestCase {
      */
     @Test
     public void testRemoveAttribute() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
+        T storedIdentityTypeInstance = getIdentityType();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
 
-        storedUserInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+        updateIdentityType(storedIdentityTypeInstance);
 
-        identityManager.updateUser(storedUserInstance);
+        T updatedIdentityTypeInstance = getIdentityType();
 
-        User updatedUserInstance = identityManager.getUser(storedUserInstance.getId());
-
-        Attribute<String[]> multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        Attribute<String[]> multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNotNull(multiValuedAttribute);
 
-        updatedUserInstance.removeAttribute("multi-valued");
+        updatedIdentityTypeInstance.removeAttribute("multi-valued");
 
-        identityManager.updateUser(updatedUserInstance);
+        updateIdentityType(updatedIdentityTypeInstance);
 
-        updatedUserInstance = identityManager.getUser("admin");
+        updatedIdentityTypeInstance = getIdentityType();
 
-        multiValuedAttribute = updatedUserInstance.getAttribute("multi-valued");
+        multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNull(multiValuedAttribute);
     }

@@ -29,7 +29,6 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.SimpleUser;
@@ -43,7 +42,7 @@ import org.picketlink.idm.model.User;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class UserManagementTestCase extends AbstractIdentityTypeTestCase {
+public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
     /**
      * <p>
@@ -88,9 +87,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase {
      */
     @Test
     public void testGet() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        User storedUserInstance = identityManager.getUser("admin");
+        User storedUserInstance = getIdentityType();
 
         assertNotNull(storedUserInstance);
 
@@ -111,7 +108,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase {
     public void testUpdate() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        User storedUserInstance = getIdentityType();
 
         assertNotNull(storedUserInstance);
 
@@ -147,15 +144,25 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase {
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        User storedUserInstance = identityManager.getUser("admin");
+        User storedUserInstance = getIdentityType();
 
         assertNotNull(storedUserInstance);
 
         identityManager.removeUser(storedUserInstance);
 
-        User removedUserInstance = identityManager.getUser("admin");
+        User removedUserInstance = getIdentityType();
 
         assertNull(removedUserInstance);
+    }
+
+    @Override
+    protected void updateIdentityType(User identityTypeInstance) {
+        getIdentityManager().updateUser(identityTypeInstance);
+    }
+
+    @Override
+    protected User getIdentityType() {
+        return getIdentityManager().getUser("admin");
     }
 
 }

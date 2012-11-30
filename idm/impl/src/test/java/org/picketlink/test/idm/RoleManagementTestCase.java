@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
 
@@ -40,7 +39,7 @@ import org.picketlink.idm.model.SimpleRole;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class RoleManagementTestCase extends AbstractIdentityTypeTestCase {
+public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
     
     /**
      * <p>
@@ -75,9 +74,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase {
      */
     @Test
     public void testGet() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        Role storedRoleInstance = identityManager.getRole("Administrator");
+        Role storedRoleInstance = getIdentityType();
 
         assertNotNull(storedRoleInstance);
 
@@ -94,15 +91,25 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase {
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        Role storedRoleInstance = identityManager.getRole("Administrator");
+        Role storedRoleInstance = getIdentityType();
 
         assertNotNull(storedRoleInstance);
         
         identityManager.removeRole(storedRoleInstance);
         
-        Role removedRoleInstance = identityManager.getRole("Administrator");
+        Role removedRoleInstance = getIdentityType();
         
         assertNull(removedRoleInstance);
+    }
+
+    @Override
+    protected void updateIdentityType(Role identityTypeInstance) {
+        getIdentityManager().updateRole(identityTypeInstance);
+    }
+
+    @Override
+    protected Role getIdentityType() {
+        return getIdentityManager().getRole("Administrator");
     }
     
 }

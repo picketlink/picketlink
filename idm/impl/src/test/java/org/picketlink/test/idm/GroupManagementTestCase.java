@@ -39,7 +39,7 @@ import org.picketlink.idm.model.SimpleGroup;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class GroupManagementTestCase extends AbstractIdentityTypeTestCase {
+public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group> {
 
     /**
      * <p>
@@ -157,6 +157,16 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase {
         Group removedGroupInstance = identityManager.getGroup("Test Group");
         
         assertNull(removedGroupInstance);
+    }
+
+    @Override
+    protected void updateIdentityType(Group identityTypeInstance) {
+        getIdentityManager().updateGroup(identityTypeInstance);
+    }
+
+    @Override
+    protected Group getIdentityType() {
+        return getIdentityManager().getGroup("Test Group");
     }
     
 }
