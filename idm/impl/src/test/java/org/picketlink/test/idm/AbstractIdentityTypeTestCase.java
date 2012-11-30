@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.junit.Test;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 
@@ -41,10 +40,8 @@ import org.picketlink.idm.model.IdentityType;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> {
+public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> extends AbstractIdentityManagerTestCase {
 
-    private IdentityManager identityManager;
-    
     /**
      * <p>
      * Disables an user.
@@ -301,14 +298,6 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> {
         multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNull(multiValuedAttribute);
-    }
-
-    public IdentityManager getIdentityManager() {
-        return this.identityManager;
-    }
-    
-    public void setIdentityManager(IdentityManager identityManager) {
-        this.identityManager = identityManager;
     }
 
 }

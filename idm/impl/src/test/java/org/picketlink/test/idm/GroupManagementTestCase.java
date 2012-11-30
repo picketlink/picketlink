@@ -55,10 +55,10 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         Group newGroupInstance = new SimpleGroup("someGroup");
 
-        // let's create the new role
+        // let's create the new group
         identityManager.add(newGroupInstance);
 
-        // let's retrieve the role information and see if they are properly stored
+        // let's retrieve the group information and see if they are properly stored
         Group storedGroupInstance = identityManager.getGroup(newGroupInstance.getName());
 
         assertNotNull(storedGroupInstance);
