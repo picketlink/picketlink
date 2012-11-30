@@ -211,15 +211,15 @@ public class FileGroupQueryTestCase extends AbstractFileIdentityManagerTestCase 
         }
 
         this.user = new SimpleUser(USER_NAME);
-        identityManager.createUser(this.user);
+        identityManager.add(this.user);
         
         this.parentGroup = new SimpleGroup(GROUP_PARENT_NAME, null); 
-        identityManager.createGroup(this.parentGroup);
+        identityManager.add(this.parentGroup);
 
         for (int i = 0; i < 10; i++) {
             int index = i + 1;
             Group currentGroup = new SimpleGroup(GROUP_NAME + index, parentGroup); 
-            identityManager.createGroup(currentGroup);
+            identityManager.add(currentGroup);
 
             // store the instance used for testing
             if (this.group == null) {
@@ -228,7 +228,7 @@ public class FileGroupQueryTestCase extends AbstractFileIdentityManagerTestCase 
 
             
             Role role = new SimpleRole(ROLE_NAME_PREFIX + index);
-            identityManager.createRole(role);
+            identityManager.add(role);
 
             identityManager.grantGroupRole(user, role, currentGroup);
 

@@ -80,31 +80,30 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      */
     IdentityStoreInvocationContext getContext();
 
+    // General
+
+    /**
+     * Persists the specified IdentityType
+     * 
+     * @param identityType
+     */
+    void add(IdentityType identityType);
+
+    /**
+     * Updates the specified IdentityType
+     * 
+     * @param identityType
+     */
+    void update(IdentityType identityType);
+
+    /**
+     * Removes the specified IdentityType
+     * 
+     * @param identityType
+     */
+    void remove(IdentityType identityType);
+
     // User
-
-    /**
-     * Persists the specified User 
-     * 
-     * @param ctx
-     * @param user
-     */
-    void createUser(User user);
-
-    /**
-     * Removes the specified User from persistent storage.
-     * 
-     * @param ctx
-     * @param user
-     */
-    void removeUser(User user);
-    
-    /**
-     * Updates the persisted User details with those provided by the specified User
-     * 
-     * @param ctx
-     * @param user
-     */
-    void updateUser(User user);
 
     /**
      * Returns the User with the specified id value. 
@@ -116,23 +115,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
     User getUser(String id);
 
     // Group
-
-    /**
-     * Creates a new persistent Group
-     * 
-     * @param group The group to create.
-     * @param parent The parent group.  If the group to be created has no parent, then pass null.
-     * @return
-     */
-    void createGroup(Group group);
-
-    /**
-     * Removes the specified Group from persistent storage.
-     * 
-     * @param ctx
-     * @param group The Group to remove
-     */
-    void removeGroup(Group group);
 
     /**
      * Returns the Group with the specified Group ID.
@@ -153,23 +135,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
     Group getGroup(String name, Group parent);
 
     // Role
-
-    /**
-     * Creates a new persistent Role
-     * 
-     * @param ctx
-     * @param name The name of the Role to create
-     * @return
-     */
-    void createRole(Role role);
-
-    /**
-     * Removes the specified Role from persistent storage
-     * 
-     * @param ctx
-     * @param role The Role instance to remove
-     */
-    void removeRole(Role role);
 
     /**
      * Returns the specified role

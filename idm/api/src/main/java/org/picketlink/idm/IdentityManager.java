@@ -39,13 +39,6 @@ import org.picketlink.idm.spi.StoreFactory;
  * @author Shane Bryzak
  */
 public interface IdentityManager {
-    // TODO: Javadocs
-
-    // TODO: Exceptions
-
-    // TODO: control hooks & events
-
-    // TODO: linking identities
 
     /**
      * This method must be invoked to set up the IdentityManager instance before any identity management operations may be
@@ -62,21 +55,19 @@ public interface IdentityManager {
      */
     void setIdentityStoreFactory(StoreFactory factory);
 
+    // General
+
+    void add(IdentityType identityType);
+
+    void update(IdentityType identityType);
+
+    void remove(IdentityType identityType);
+
     // User
-
-    void createUser(User user);
-
-    void removeUser(User user);
-
-    void updateUser(User user);
 
     User getUser(String name);
 
     // Group
-
-    void createGroup(Group group);
-
-    void removeGroup(Group group);
 
     Group getGroup(String groupId);
 
@@ -89,10 +80,6 @@ public interface IdentityManager {
     void removeFromGroup(IdentityType identityType, Group group);
 
     // Roles
-
-    void createRole(Role role);
-
-    void removeRole(Role role);
 
     Role getRole(String name);
 

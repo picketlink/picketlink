@@ -265,13 +265,13 @@ public class FileUserQueryTestCase extends AbstractFileIdentityManagerTestCase {
             currentUser.setFirstName(USER_FIRST_NAME + index);
             currentUser.setLastName(USER_LAST_NAME + index);
 
-            identityManager.createUser(currentUser);
+            identityManager.add(currentUser);
 
             Role role = new SimpleRole(ROLE_NAME_PREFIX + index);
-            identityManager.createRole(role);
+            identityManager.add(role);
 
             Group group = new SimpleGroup(GROUP_NAME_PREFIX + index, (Group) null);
-            identityManager.createGroup(group);
+            identityManager.add(group);
 
             identityManager.grantGroupRole(user, role, group);
 

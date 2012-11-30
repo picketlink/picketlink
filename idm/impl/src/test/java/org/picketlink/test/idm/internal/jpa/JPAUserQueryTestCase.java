@@ -258,7 +258,7 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         for (int i = 0; i < 10; i++) {
             int index = i + 1;
             User currentUser = new SimpleUser(USER_USERNAME + index); 
-            identityManager.createUser(currentUser);
+            identityManager.add(currentUser);
 
             // store the instance used for testing
             if (this.user == null) {
@@ -270,9 +270,9 @@ public class JPAUserQueryTestCase extends AbstractJPAIdentityManagerTestCase {
             currentUser.setLastName(USER_LAST_NAME + index);
 
             Role role = new SimpleRole(ROLE_NAME_PREFIX + index);
-            identityManager.createRole(role);
+            identityManager.add(role);
             Group group = new SimpleGroup(GROUP_NAME_PREFIX + index, (Group) null);
-            identityManager.createGroup(group);
+            identityManager.add(group);
 
             identityManager.grantGroupRole(user, role, group);
 

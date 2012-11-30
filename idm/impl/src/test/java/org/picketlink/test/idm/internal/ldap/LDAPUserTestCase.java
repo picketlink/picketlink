@@ -85,7 +85,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         LDAPUser user = new LDAPUser();
         user.setId("Anil Saldhana");
         
-        store.createUser(user);
+        store.add(user);
         assertNotNull(user);
 
         User anil = store.getUser("Anil Saldhana");
@@ -133,7 +133,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(certBytes));
         assertNotNull(cert);
 
-        store.removeUser(anil);
+        store.remove(anil);
         anil = store.getUser("Anil Saldhana");
         assertNull(anil);
     }
@@ -158,7 +158,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         user.setFirstName("Bruno");
         user.setLastName("Oliveira");
 
-        ldapIdentityStore.createUser(user);
+        ldapIdentityStore.add(user);
 
         User anil = ldapIdentityStore.getUser("abstractj");
         assertNotNull(anil);
@@ -166,7 +166,7 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         assertEquals("Bruno", anil.getFirstName());
         assertEquals("Oliveira", anil.getLastName());
 
-        ldapIdentityStore.removeUser(anil);
+        ldapIdentityStore.remove(anil);
         anil = ldapIdentityStore.getUser("abstractj");
         assertNull(anil);
 
@@ -188,6 +188,6 @@ public class LDAPUserTestCase extends AbstractLDAPTest {
         user.setFirstName("Bruno");
         user.setLastName("Oliveira");
 
-        ldapIdentityStore.createUser(user);
+        ldapIdentityStore.add(user);
     }
 }

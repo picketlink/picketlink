@@ -81,7 +81,7 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
 
         // Let us create an user
         User user = new SimpleUser("asaldhan");
-        im.createUser(user);
+        im.add(user);
 
         assertNotNull(user);
 
@@ -159,13 +159,13 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         //assertEquals(1, returnedUsers.size());
 
         Role adminRole = new SimpleRole("admin");
-        im.createRole(adminRole);
+        im.add(adminRole);
 
         Group testGroup = new SimpleGroup("Fake Group", null);
-        im.createGroup(testGroup);
+        im.add(testGroup);
 
         Group unusedGroup = new SimpleGroup("Unused Group", null);
-        im.createGroup(unusedGroup);
+        im.add(unusedGroup);
 
         // grant adminRole to anil and put the user in the testGroup
         im.grantGroupRole(anil, adminRole, testGroup);
@@ -192,7 +192,7 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         assertNotNull(emptyRolesForUnusedGroup);
         assertTrue(emptyRolesForUnusedGroup.isEmpty());
 
-        im.removeUser(anil);
+        im.remove(anil);
 
         anil = im.getUser("asaldhan");
 

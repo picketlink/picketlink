@@ -56,7 +56,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         Role newRoleInstance = new SimpleRole("someRole");
 
         // let's create the new role
-        identityManager.createRole(newRoleInstance);
+        identityManager.add(newRoleInstance);
 
         // let's retrieve the role information and see if they are properly stored
         Role storedRoleInstance = identityManager.getRole(newRoleInstance.getName());
@@ -95,7 +95,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
         assertNotNull(storedRoleInstance);
         
-        identityManager.removeRole(storedRoleInstance);
+        identityManager.remove(storedRoleInstance);
         
         Role removedRoleInstance = getIdentityType();
         

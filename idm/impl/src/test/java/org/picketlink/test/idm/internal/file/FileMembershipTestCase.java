@@ -57,13 +57,13 @@ public class FileMembershipTestCase extends AbstractFileIdentityManagerTestCase 
         IdentityManager identityStore = getIdentityManager();
 
         Role role = new SimpleRole("admin");
-        identityStore.createRole(role);
+        identityStore.add(role);
 
         User user = new SimpleUser("asaldhan");
-        identityStore.createUser(user);
+        identityStore.add(user);
 
         Group group = new SimpleGroup("Administrators", (Group) null);
-        identityStore.createGroup(group);
+        identityStore.add(group);
 
         identityStore.grantGroupRole(user, role, group);
 
@@ -74,7 +74,7 @@ public class FileMembershipTestCase extends AbstractFileIdentityManagerTestCase 
         Assert.assertFalse(roles.isEmpty());
 
         User anotherUser = new SimpleUser("anotherUser");
-        identityStore.createUser(anotherUser);
+        identityStore.add(anotherUser);
 
         // FIXME rewrite to use query API
         roles = null; //getIdentityManager().getRoles(anotherUser, null);

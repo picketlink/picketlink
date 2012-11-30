@@ -56,7 +56,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         Group newGroupInstance = new SimpleGroup("someGroup");
 
         // let's create the new role
-        identityManager.createGroup(newGroupInstance);
+        identityManager.add(newGroupInstance);
 
         // let's retrieve the role information and see if they are properly stored
         Group storedGroupInstance = identityManager.getGroup(newGroupInstance.getName());
@@ -81,12 +81,12 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         Group parentGroup = new SimpleGroup("parentGroup");
         
-        identityManager.createGroup(parentGroup);
+        identityManager.add(parentGroup);
         
         Group childGroup = new SimpleGroup("childGroup", parentGroup);
 
         // let's create the new group
-        identityManager.createGroup(childGroup);
+        identityManager.add(childGroup);
 
         // let's retrieve the group information and see if they are properly stored
         Group storedChildGroup = identityManager.getGroup(childGroup.getName());
@@ -152,7 +152,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         assertNotNull(storedGroupInstance);
         
-        identityManager.removeGroup(storedGroupInstance);
+        identityManager.remove(storedGroupInstance);
         
         Group removedGroupInstance = identityManager.getGroup("Test Group");
         

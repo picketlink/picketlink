@@ -59,7 +59,7 @@ public class JPAUserTestCase extends AbstractJPAIdentityTypeTestCase {
         IdentityManager identityManager = getIdentityManager();
 
         User user = new SimpleUser(USER_USERNAME);
-        identityManager.createUser(user);
+        identityManager.add(user);
 
         user.setEmail(USER_EMAIL);
         user.setFirstName(USER_FIRST_NAME);
@@ -133,7 +133,7 @@ public class JPAUserTestCase extends AbstractJPAIdentityTypeTestCase {
 
         assertNotNull(user);
 
-        identityManager.removeUser(user);
+        identityManager.remove(user);
 
         user = identityManager.getUser(USER_USERNAME);
 

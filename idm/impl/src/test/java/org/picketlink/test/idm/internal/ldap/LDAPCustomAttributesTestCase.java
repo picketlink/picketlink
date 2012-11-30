@@ -102,7 +102,7 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
 
         // Let us create an user
         User user = new SimpleUser("Anil Saldhana");
-        im.createUser(user);
+        im.add(user);
         assertNotNull(user);
 
         User anil = im.getUser("Anil Saldhana");

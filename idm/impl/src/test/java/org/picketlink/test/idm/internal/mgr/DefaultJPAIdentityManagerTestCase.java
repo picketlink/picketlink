@@ -75,7 +75,7 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
 
         // Let us create an user
         User user = new SimpleUser("pedroigor");
-        im.createUser(user);
+        im.add(user);
 
         user.setFirstName("Pedro");
         user.setLastName("Igor");
@@ -141,10 +141,10 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         //assertEquals(1, returnedUsers.size());
 
         Role adminRole = new SimpleRole("admin");
-        im.createRole(adminRole);
+        im.add(adminRole);
 
         Group testGroup = new SimpleGroup("Test Group", null);
-        im.createGroup(testGroup);
+        im.add(testGroup);
 
         im.grantGroupRole(user, adminRole, testGroup);
 
@@ -160,7 +160,7 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         assertNotNull(rolesByUserAndGroup);
         assertEquals(1, rolesByUserAndGroup.size());
 
-        im.removeUser(user);
+        im.remove(user);
         user = im.getUser("pedroigor");
         assertNull(user);
     }
@@ -180,7 +180,7 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
 
         // Let us create an user
         User user = new SimpleUser("pedroigor");
-        identityManager.createUser(user);
+        identityManager.add(user);
         String password = "easypassword";
         PasswordCredential pc = new PasswordCredential(password);
 
@@ -188,7 +188,7 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
 
         assertTrue(identityManager.validateCredential(user, pc));
         
-        identityManager.removeUser(user);
+        identityManager.remove(user);
     }
 
     private DefaultIdentityManager createIdentityManager() {

@@ -101,7 +101,7 @@ public class UserManagementTestCase {
         jduke.setFirstName("Java");
         jduke.setLastName("Duke");
         
-        identityManager.createUser(jduke);
+        identityManager.add(jduke);
         
         assertNotNull(jduke);
     }
@@ -142,7 +142,7 @@ public class UserManagementTestCase {
             }
         });
         
-        identityManager.removeUser(new SimpleUser("jduke"));
+        identityManager.remove(new SimpleUser("jduke"));
     }
 
     private IdentityStoreConfiguration getConfiguration() {

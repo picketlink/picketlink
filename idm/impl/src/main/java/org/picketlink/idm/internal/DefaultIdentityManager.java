@@ -191,43 +191,94 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void createUser(User user) {
-        getContextualStoreForFeature(createContext(), Feature.createUser).createUser(user);
+    public void add(IdentityType identityType) {
+        Feature feature;
+
+        IdentityStoreInvocationContext ctx = createContext();
+
+        if (User.class.isInstance(identityType)) {
+            feature = Feature.createUser;
+        } else if (Group.class.isInstance(identityType)) {
+            if (ctx.getRealm() != null && ctx.getTier() != null) {
+                throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the " +
+                        "scope of a Realm or a Tier, however both have been set.");
+            }
+            feature = Feature.createGroup;
+        } else if (Role.class.isInstance(identityType)) {
+            if (ctx.getRealm() != null && ctx.getTier() != null) {
+                throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the " +
+                        "scope of a Realm or a Tier, however both have been set.");
+            }
+
+            feature = Feature.createRole;
+        } else {
+            throw new IllegalArgumentException("Unsupported IdentityType");
+        }
+
+        getContextualStoreForFeature(ctx, feature).add(identityType);
     }
 
     @Override
-    public void removeUser(User user) {
-        getContextualStoreForFeature(createContext(), Feature.deleteUser).removeUser(user);
+    public void update(IdentityType identityType) {
+        Feature feature;
+
+        IdentityStoreInvocationContext ctx = createContext();
+
+        if (User.class.isInstance(identityType)) {
+            feature = Feature.updateUser;
+        } else if (Group.class.isInstance(identityType)) {
+            if (ctx.getRealm() != null && ctx.getTier() != null) {
+                throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the " +
+                        "scope of a Realm or a Tier, however both have been set.");
+            }
+
+            feature = Feature.updateGroup;
+        } else if (Role.class.isInstance(identityType)) {
+            if (ctx.getRealm() != null && ctx.getTier() != null) {
+                throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the " +
+                        "scope of a Realm or a Tier, however both have been set.");
+            }
+
+            feature = Feature.updateRole;
+        } else {
+            throw new IllegalArgumentException("Unsupported IdentityType");
+        }
+
+        getContextualStoreForFeature(createContext(), feature).update(identityType);
     }
 
     @Override
-    public void updateUser(User user) {
-        getContextualStoreForFeature(createContext(), Feature.updateUser).updateUser(user);
+    public void remove(IdentityType identityType) {
+        Feature feature;
+
+        IdentityStoreInvocationContext ctx = createContext();
+
+        if (User.class.isInstance(identityType)) {
+            feature = Feature.deleteUser;
+        } else if (Group.class.isInstance(identityType)) {
+            if (ctx.getRealm() != null && ctx.getTier() != null) {
+                throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the " +
+                        "scope of a Realm or a Tier, however both have been set.");
+            }
+
+            feature = Feature.deleteGroup;
+        } else if (Role.class.isInstance(identityType)) {
+            if (ctx.getRealm() != null && ctx.getTier() != null) {
+                throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the " +
+                        "scope of a Realm or a Tier, however both have been set.");
+            }
+
+            feature = Feature.deleteRole;
+        } else {
+            throw new IllegalArgumentException("Unsupported IdentityType");
+        }
+
+        getContextualStoreForFeature(ctx, feature).remove(identityType);
     }
 
     @Override
     public User getUser(String name) {
         return getContextualStoreForFeature(createContext(), Feature.readUser).getUser(name);
-    }
-
-    @Override
-    public void createGroup(Group group) {
-        IdentityStoreInvocationContext ctx = createContext();
-        if (ctx.getRealm() != null && ctx.getTier() != null) {
-            throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the " +
-                    "scope of a Realm or a Tier, however both have been set.");
-        }
-        getContextualStoreForFeature(ctx, Feature.createGroup).createGroup(group);
-    }
-
-    @Override
-    public void removeGroup(Group group) {
-        IdentityStoreInvocationContext ctx = createContext();
-        if (ctx.getRealm() != null && ctx.getTier() != null) {
-            throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the " +
-                    "scope of a Realm or a Tier, however both have been set.");
-        }
-        getContextualStoreForFeature(ctx, Feature.deleteGroup).removeGroup(group);
     }
 
     @Override
@@ -263,26 +314,6 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
         throw new RuntimeException();
-    }
-
-    @Override
-    public void createRole(Role role) {
-        IdentityStoreInvocationContext ctx = createContext();
-        if (ctx.getRealm() != null && ctx.getTier() != null) {
-            throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the " +
-                    "scope of a Realm or a Tier, however both have been set.");
-        }
-        getContextualStoreForFeature(ctx, Feature.createRole).createRole(role);
-    }
-
-    @Override
-    public void removeRole(Role role) {
-        IdentityStoreInvocationContext ctx = createContext();
-        if (ctx.getRealm() != null && ctx.getTier() != null) {
-            throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the " +
-                    "scope of a Realm or a Tier, however both have been set.");
-        }
-        getContextualStoreForFeature(ctx, Feature.deleteRole).removeRole(role);
     }
 
     @Override

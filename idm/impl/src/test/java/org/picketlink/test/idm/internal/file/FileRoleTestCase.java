@@ -56,7 +56,7 @@ public class FileRoleTestCase extends AbstractFileIdentityTypeTestCase {
         IdentityManager identityManager = getIdentityManager();
 
         Role role = new SimpleRole(ROLE_NAME);
-        identityManager.createRole(role);
+        identityManager.add(role);
 
         assertNotNull(role);
         assertNotNull(role.getKey());
@@ -102,7 +102,7 @@ public class FileRoleTestCase extends AbstractFileIdentityTypeTestCase {
 
         assertNotNull(role);
 
-        identityManager.removeRole(role);
+        identityManager.remove(role);
 
         role = identityManager.getRole(ROLE_NAME);
 

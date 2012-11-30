@@ -121,55 +121,59 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void createUser(User user) {
-        try {
-            // Create the identity entity instance first
-            Object identity = getConfig().getIdentityClass().newInstance();
+    public void add(IdentityType identityType) {
+        if (User.class.isInstance(identityType)) {
+            try {
+                User user = (User) identityType;
 
-            setModelProperty(identity, PROPERTY_IDENTITY_ID, user.getId(), true);
-            setModelProperty(identity, PROPERTY_IDENTITY_DISCRIMINATOR, getConfig().getIdentityTypeUser(), true);
-            setModelProperty(identity, PROPERTY_IDENTITY_KEY, user.getKey(), true);
+                // Create the identity entity instance first
+                Object identity = getConfig().getIdentityClass().newInstance();
 
-            setModelProperty(identity, PROPERTY_USER_FIRST_NAME, user.getFirstName());
-            setModelProperty(identity, PROPERTY_USER_LAST_NAME, user.getLastName());
-            setModelProperty(identity, PROPERTY_USER_EMAIL, user.getEmail());
+                setModelProperty(identity, PROPERTY_IDENTITY_ID, user.getId(), true);
+                setModelProperty(identity, PROPERTY_IDENTITY_DISCRIMINATOR, getConfig().getIdentityTypeUser(), true);
+                setModelProperty(identity, PROPERTY_IDENTITY_KEY, user.getKey(), true);
 
-            if (getContext().getRealm() != null) {
-                setModelProperty(identity, PROPERTY_IDENTITY_PARTITION, lookupPartitionObject(getContext().getRealm()));
-            }
+                setModelProperty(identity, PROPERTY_USER_FIRST_NAME, user.getFirstName());
+                setModelProperty(identity, PROPERTY_USER_LAST_NAME, user.getLastName());
+                setModelProperty(identity, PROPERTY_USER_EMAIL, user.getEmail());
 
-            EntityManager em = getEntityManager();
-
-            // Create any related entities that may be containers for attribute values -
-            // we are not setting the attribute values themselves, just creating the entities
-            // that they are contained in, and setting a reference to those entities from within
-            // the identity object.
-            for (String attribName : getConfig().getAttributeProperties().keySet()) {
-                MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
-                if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
-                    Object instance = attrib.getIdentityProperty().getJavaClass().newInstance();
-                    attrib.getIdentityProperty().setValue(identity, instance);
-
-                    em.persist(instance);
+                if (getContext().getRealm() != null) {
+                    setModelProperty(identity, PROPERTY_IDENTITY_PARTITION, lookupPartitionObject(getContext().getRealm()));
                 }
-            }
 
-            em.persist(identity);
+                EntityManager em = getEntityManager();
 
-            UserCreatedEvent event = new UserCreatedEvent(user);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
-            getContext().getEventBridge().raiseEvent(event);
+                // Create any related entities that may be containers for attribute values -
+                // we are not setting the attribute values themselves, just creating the entities
+                // that they are contained in, and setting a reference to those entities from within
+                // the identity object.
+                for (String attribName : getConfig().getAttributeProperties().keySet()) {
+                    MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
+                    if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
+                        Object instance = attrib.getIdentityProperty().getJavaClass().newInstance();
+                        attrib.getIdentityProperty().setValue(identity, instance);
 
-            if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
-                for (Attribute<? extends Serializable> attrib : user.getAttributes()) {
-                    setAttribute(user, attrib);
+                        em.persist(instance);
+                    }
                 }
+
+                em.persist(identity);
+
+                UserCreatedEvent event = new UserCreatedEvent(user);
+                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+                getContext().getEventBridge().raiseEvent(event);
+
+                if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
+                    for (Attribute<? extends Serializable> attrib : user.getAttributes()) {
+                        setAttribute(user, attrib);
+                    }
+                }
+
+                em.flush();
+
+            } catch (Exception ex) {
+                throw new IdentityManagementException("Exception while creating user", ex);
             }
-
-            em.flush();
-
-        } catch (Exception ex) {
-            throw new IdentityManagementException("Exception while creating user", ex);
         }
     }
 
@@ -365,13 +369,34 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void removeUser(User user) {
-        Object entity = lookupIdentityObjectById(User.class, user.getId());
-        removeIdentityObject(entity);
+    public void remove(IdentityType identityType) {
+        if (User.class.isInstance(identityType)) {
+            User user = (User) identityType;
+            Object entity = lookupIdentityObjectById(User.class, user.getId());
+            removeIdentityObject(entity);
 
-        UserDeletedEvent event = new UserDeletedEvent(user);
-        event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
-        getContext().getEventBridge().raiseEvent(event);
+            UserDeletedEvent event = new UserDeletedEvent(user);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (Group.class.isInstance(identityType)) {
+            Group group = (Group) identityType;
+
+            Object entity = lookupIdentityObjectByKey(group.getKey());
+            removeIdentityObject(entity);
+
+            GroupDeletedEvent event = new GroupDeletedEvent(group);
+            event.getContext().setValue(EVENT_CONTEXT_GROUP_ENTITY, entity);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (Role.class.isInstance(identityType)) {
+            Role role = (Role) identityType;
+
+            Object entity = lookupIdentityObjectByKey(role.getKey());
+            removeIdentityObject(entity);
+
+            RoleDeletedEvent event = new RoleDeletedEvent(role);
+            event.getContext().setValue(EVENT_CONTEXT_ROLE_ENTITY, entity);
+            getContext().getEventBridge().raiseEvent(event);
+        }
     }
 
     @Override
@@ -408,16 +433,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         return user;
-    }
-
-    @Override
-    public void removeGroup(Group group) {
-        Object entity = lookupIdentityObjectByKey(group.getKey());
-        removeIdentityObject(entity);
-
-        GroupDeletedEvent event = new GroupDeletedEvent(group);
-        event.getContext().setValue(EVENT_CONTEXT_GROUP_ENTITY, entity);
-        getContext().getEventBridge().raiseEvent(event);
     }
 
     @Override
@@ -510,17 +525,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void removeRole(Role role) {
-        Object entity = lookupIdentityObjectByKey(role.getKey());
-        removeIdentityObject(entity);
-
-        RoleDeletedEvent event = new RoleDeletedEvent(role);
-        event.getContext().setValue(EVENT_CONTEXT_ROLE_ENTITY, entity);
-        getContext().getEventBridge().raiseEvent(event);
-
-    }
-
-    @Override
     public Role getRole(String name) {
         Partition partition;
 
@@ -597,37 +601,25 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void updateUser(User user) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void createGroup(Group group) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public Group getGroup(String name, Group parent) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void createRole(Role role) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void updateRole(Role role) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void updateGroup(Group group) {
+
+    }
+
+    @Override
+    public void update(IdentityType identityType) {
+        // TODO Auto-generated method stub
         
     }
 

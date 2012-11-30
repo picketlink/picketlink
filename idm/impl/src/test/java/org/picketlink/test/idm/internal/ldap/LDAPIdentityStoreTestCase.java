@@ -75,7 +75,7 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
         user.setId("asaldhan");
         user.setFullName("Anil Saldhana");
 
-        store.createUser(user);
+        store.add(user);
         assertNotNull(user);
 
         User anil = store.getUser("asaldhan");
@@ -86,7 +86,7 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
 
         // Roles
         Role role = new SimpleRole("testRole");
-        store.createRole(role);
+        store.add(role);
         assertNotNull(role);
         assertEquals("testRole", role.getName());
 
@@ -96,7 +96,7 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
 
         // Groups
         Group ldapGroup = new SimpleGroup("PicketBox Team", null);
-        store.createGroup(ldapGroup);
+        store.add(ldapGroup);
         assertNotNull(ldapGroup);
 
         Group retrievedLDAPGroup = store.getGroup("PicketBox Team");
@@ -105,7 +105,7 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
 
         // Parent Groups Now
         Group devGroup = new SimpleGroup("Dev", ldapGroup);
-        store.createGroup(devGroup);
+        store.add(devGroup);
         assertNotNull(devGroup);
 
         Group retrievedDevGroup = store.getGroup("Dev");
@@ -121,10 +121,10 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
         // Deal with removal of users, roles and groups
         store.removeMembership(anil, ldapGroup, ldapRole);
 
-        store.removeUser(anil);
-        store.removeRole(ldapRole);
-        store.removeGroup(ldapGroup);
-        store.removeGroup(devGroup);
+        store.remove(anil);
+        store.remove(ldapRole);
+        store.remove(ldapGroup);
+        store.remove(devGroup);
 
         anil = store.getUser("Anil Saldhana");
         assertNull(anil);

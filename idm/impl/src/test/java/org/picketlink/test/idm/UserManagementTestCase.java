@@ -63,7 +63,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         newUserInstance.setLastName("Duke");
 
         // let's create the new user
-        identityManager.createUser(newUserInstance);
+        identityManager.add(newUserInstance);
 
         // let's retrieve the user information and see if they are properly stored
         User storedUserInstance = identityManager.getUser(newUserInstance.getId());
@@ -122,7 +122,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         storedUserInstance.setLastName("Updated " + storedUserInstance.getLastName());
         storedUserInstance.setEmail("Updated " + storedUserInstance.getEmail());
 
-        identityManager.updateUser(storedUserInstance);
+        identityManager.update(storedUserInstance);
 
         // let's load again the user from the store and check for the updated information
         User updatedUser = identityManager.getUser(storedUserInstance.getId());
@@ -148,7 +148,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         assertNotNull(storedUserInstance);
 
-        identityManager.removeUser(storedUserInstance);
+        identityManager.remove(storedUserInstance);
 
         User removedUserInstance = getIdentityType();
 
@@ -157,7 +157,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
     @Override
     protected void updateIdentityType(User identityTypeInstance) {
-        getIdentityManager().updateUser(identityTypeInstance);
+        getIdentityManager().update(identityTypeInstance);
     }
 
     @Override

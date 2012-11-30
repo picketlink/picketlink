@@ -58,7 +58,7 @@ public class FileUserTestCase extends AbstractFileIdentityTypeTestCase {
     public void testUserStore() throws Exception {
         FileUser user = new FileUser(USER_USERNAME);
         
-        getIdentityManager().createUser(user);
+        getIdentityManager().add(user);
 
         user.setEmail(USER_EMAIL);
         user.setFirstName(USER_FIRST_NAME);
@@ -100,7 +100,7 @@ public class FileUserTestCase extends AbstractFileIdentityTypeTestCase {
 
         assertNotNull(user);
 
-        identityManager.removeUser(user);
+        identityManager.remove(user);
 
         user = identityManager.getUser(USER_USERNAME);
 

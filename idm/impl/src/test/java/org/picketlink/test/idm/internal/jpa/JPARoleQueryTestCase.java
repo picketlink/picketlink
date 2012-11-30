@@ -153,15 +153,15 @@ public class JPARoleQueryTestCase extends AbstractJPAIdentityManagerTestCase {
         }
 
         this.group = new SimpleGroup(GROUP_NAME, (Group) null);
-        identityManager.createGroup(this.group);
+        identityManager.add(this.group);
 
         this.user = new SimpleUser(USER_NAME);
-        identityManager.createUser(this.user);
+        identityManager.add(this.user);
 
         for (int i = 0; i < 10; i++) {
             int index = i + 1;
             Role currentRole = new SimpleRole(ROLE_NAME + index);
-            identityManager.createRole(currentRole);
+            identityManager.add(currentRole);
 
             // store the instance used for testing
             if (this.role == null) {

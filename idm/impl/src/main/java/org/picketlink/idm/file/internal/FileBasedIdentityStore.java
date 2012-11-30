@@ -327,35 +327,76 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public void createUser(User user) {
-        FileUser fileUser;
+    public void add(IdentityType identityType) {
+        if (User.class.isInstance(identityType)) {
+            User user = (User) identityType;
 
-        if (!(user instanceof FileUser)) {
-            fileUser = new FileUser(user.getId());
-            
-            fileUser.setFirstName(user.getFirstName());
-            fileUser.setLastName(user.getLastName());
-            fileUser.setEmail(user.getEmail());
-            
-            for (Attribute<? extends Serializable> attrib : user.getAttributes()) {
-                fileUser.setAttribute(attrib);
+            FileUser fileUser;
+
+            if (!(user instanceof FileUser)) {
+                fileUser = new FileUser(user.getId());
+
+                fileUser.setFirstName(user.getFirstName());
+                fileUser.setLastName(user.getLastName());
+                fileUser.setEmail(user.getEmail());
+
+                for (Attribute<? extends Serializable> attrib : user.getAttributes()) {
+                    fileUser.setAttribute(attrib);
+                }
+            } else {
+                fileUser = (FileUser) user;
             }
-        } else {
-            fileUser = (FileUser) user;
+
+            fileUser.setChangeListener(this.changeListener);
+
+            this.users.put(user.getId(), fileUser);
+
+            flushUsers();
+        } else if (Group.class.isInstance(identityType)) {
+            Group group = (Group) identityType;
+
+            // FIXME
+            //this.groups.put(group.getName(), group);
+
+            // FIXME
+            //group.setChangeListener(this.changeListener);
+
+            flushGroups();
+        } else if (Role.class.isInstance(identityType)) {
+            Role role = (Role) identityType;
+
+            this.roles.put(role.getName(), role);
+
+            // FIXME need to fix this?
+            //role.setChangeListener(this.changeListener);
+
+            flushRoles();
         }
-
-        fileUser.setChangeListener(this.changeListener);
-
-        this.users.put(user.getId(), fileUser);
-
-        flushUsers();
     }
 
     @Override
-    public void removeUser(User user) {
-        this.users.remove(user.getId());
+    public void update(IdentityType identityType) {
+        // TODO implement this
+    }
 
-        flushUsers();
+    @Override
+    public void remove(IdentityType identityType) {
+        if (User.class.isInstance(identityType)) {
+            User user = (User) identityType;
+
+            this.users.remove(user.getId());
+
+            flushUsers();
+        } else if (Group.class.isInstance(identityType)) {
+            Group group = (Group) identityType;
+            this.groups.remove(group.getName());
+            flushGroups();
+        } else if (Role.class.isInstance(identityType)) {
+            Role role = (Role) identityType;
+
+            this.roles.remove(role.getName());
+            flushRoles();
+        }
     }
 
     @Override
@@ -367,23 +408,6 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
         }
 
         return user;
-    }
-
-    @Override
-    public void createGroup(Group group) {
-        // FIXME
-        //this.groups.put(group.getName(), group);
-
-        // FIXME
-        //group.setChangeListener(this.changeListener);
-
-        flushGroups();
-    }
-
-    @Override
-    public void removeGroup(Group group) {
-        this.groups.remove(group.getName());
-        flushGroups();
     }
 
     @Override
@@ -401,22 +425,6 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     public Group getGroup(String name, Group parent) {
         // TODO implement this
         return null;
-    }
-
-    @Override
-    public void createRole(Role role) {
-        this.roles.put(role.getName(), role);
-
-        // FIXME need to fix this?
-        //role.setChangeListener(this.changeListener);
-
-        flushRoles();
-    }
-
-    @Override
-    public void removeRole(Role role) {
-        this.roles.remove(role.getName());
-        flushRoles();
     }
 
     @Override
@@ -1002,11 +1010,6 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
         throw new IllegalArgumentException("IdentityType not supported: " + identityType.getClass());
     }
 
-    @Override
-    public void updateUser(User user) {
-        // TODO implement this
-
-    }
     @Override
     public void setup(IdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         // TODO Auto-generated method stub

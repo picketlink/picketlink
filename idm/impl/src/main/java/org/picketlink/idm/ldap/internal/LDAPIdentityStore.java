@@ -91,88 +91,146 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     @Override
-    public void createUser(User user) {
-        if (user.getId() == null) {
-            throw new RuntimeException("No identifier was provided. You should provide one before storing the user.");
-        }
+    public void add(IdentityType identityType) {
+        if (User.class.isInstance(identityType)) {
+            User user = (User) identityType;
 
-        LDAPUser ldapUser = null;
+            if (user.getId() == null) {
+                throw new RuntimeException("No identifier was provided. You should provide one before storing the user.");
+            }
+    
+            LDAPUser ldapUser = null;
+    
+            if (!(user instanceof LDAPUser)) {
+                ldapUser = convert(user);
+            } else {
+                ldapUser = (LDAPUser) user;
+            }
+    
+            ldapUser.setFullName(getUserCN(ldapUser));
 
-        if (!(user instanceof LDAPUser)) {
-            ldapUser = convert(user);
-        } else {
-            ldapUser = (LDAPUser) user;
-        }
+            store(ldapUser);
+        } else if (Group.class.isInstance(identityType)) {
+            Group group = (Group) identityType;
 
-        ldapUser.setFullName(getUserCN(ldapUser));
+            LDAPGroup ldapGroup = new LDAPGroup(this.configuration.getGroupDNSuffix());
 
-        store(ldapUser);
-    }
+            ldapGroup.setName(group.getName());
 
-    @Override
-    public void createRole(Role role) {
-        LDAPRole ldapRole = new LDAPRole(this.configuration.getRoleDNSuffix());
+            store(ldapGroup);
 
-        ldapRole.setName(role.getName());
+            if (group.getParentGroup() != null) {
+                String parentName = group.getParentGroup().getName();
+                LDAPGroup parentGroup = (LDAPGroup) getGroup(parentName);
 
-        store(ldapRole);
-    }
+                if (parentGroup == null) {
+                    throw new RuntimeException("Parent group [" + parentName + "] does not exists.");
+                }
 
-    @Override
-    public void createGroup(Group group) {
-        LDAPGroup ldapGroup = new LDAPGroup(this.configuration.getGroupDNSuffix());
+                parentGroup.addChildGroup(ldapGroup);
 
-        ldapGroup.setName(group.getName());
+                ldapGroup.setParentGroup(parentGroup);
 
-        store(ldapGroup);
-
-        if (group.getParentGroup() != null) {
-            String parentName = group.getParentGroup().getName();
-            LDAPGroup parentGroup = (LDAPGroup) getGroup(parentName);
-
-            if (parentGroup == null) {
-                throw new RuntimeException("Parent group [" + parentName + "] does not exists.");
+                getLdapManager().modifyAttribute(parentGroup.getDN(), parentGroup.getLDAPAttributes().get(MEMBER));
             }
 
-            parentGroup.addChildGroup(ldapGroup);
+        } else if (Role.class.isInstance(identityType)) {
+            Role role = (Role) identityType;
 
-            ldapGroup.setParentGroup(parentGroup);
+            LDAPRole ldapRole = new LDAPRole(this.configuration.getRoleDNSuffix());
 
-            getLdapManager().modifyAttribute(parentGroup.getDN(), parentGroup.getLDAPAttributes().get(MEMBER));
+            ldapRole.setName(role.getName());
+
+            store(ldapRole);
         }
     }
 
     @Override
-    public void removeUser(User user) {
-        LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
+    public void update(IdentityType identityType) {
+        if (User.class.isInstance(identityType)) {
+            User user = (User) identityType;
 
-        if (ldapUser == null) {
-            throw new RuntimeException("User [" + user.getId() + "] does not exists.");
+            LDAPUser updatedUser = (LDAPUser) user;
+
+            try {
+                LDAPUser storedUser = (LDAPUser) getUser(user.getId());
+
+                if (storedUser == null) {
+                    throw new RuntimeException("User [" + user.getId() + "] does not exists.");
+                }
+
+                updatedUser.setFullName(getUserCN(updatedUser));
+
+                NamingEnumeration<? extends Attribute> storedAttributes = storedUser.getLDAPAttributes().getAll();
+
+                // check for attributes to replace or remove
+                while (storedAttributes.hasMore()) {
+                    Attribute storedAttribute = storedAttributes.next();
+                    Attribute updatedAttribute = updatedUser.getLDAPAttributes().get(storedAttribute.getID());
+
+                    // if the stored attribute exists in the updated attributes list, replace it. Otherwise remove it from the
+                    // store.
+                    if (updatedAttribute != null) {
+                        getLdapManager().modifyAttribute(storedUser.getDN(), updatedAttribute);
+                    } else {
+                        getLdapManager().removeAttribute(storedUser.getDN(), storedAttribute);
+                    }
+                }
+
+                NamingEnumeration<? extends Attribute> enumUpdatedAttributes = updatedUser.getLDAPAttributes().getAll();
+                
+                // check for attributes to add
+                while (enumUpdatedAttributes.hasMore()) {
+                    Attribute updatedAttribute = enumUpdatedAttributes.next();
+                    Attribute storedAttribute = storedUser.getLDAPAttributes().get(updatedAttribute.getID());
+
+                    // if the attribute is not stored and is a managed attribute add it to the store.
+                    if (storedAttribute == null && getLdapManager().isManagedAttribute(updatedAttribute.getID())) {
+                        getLdapManager().addAttribute(storedUser.getDN(), updatedAttribute);
+                    }
+                }
+
+                updateCustomAttributes(updatedUser);
+            } catch (NamingException e) {
+                throw new RuntimeException(e);
+            }
         }
-
-        remove(ldapUser);
     }
 
     @Override
-    public void removeRole(Role role) {
-        LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
+    public void remove(IdentityType identityType) {
+        if (User.class.isInstance(identityType)) {
+            User user = (User) identityType;
 
-        if (ldapRole == null) {
-            throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
+            LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
+
+            if (ldapUser == null) {
+                throw new RuntimeException("User [" + user.getId() + "] does not exists.");
+            }
+
+            remove(ldapUser);
+        } else if (Group.class.isInstance(identityType)) {
+            Group group = (Group) identityType;
+
+            LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
+
+            if (ldapGroup == null) {
+                throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
+            }
+
+            remove(ldapGroup);
+
+        } else if (Role.class.isInstance(identityType)) {
+            Role role = (Role) identityType;
+
+            LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
+
+            if (ldapRole == null) {
+                throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
+            }
+
+            remove(ldapRole);
         }
-
-        remove(ldapRole);
-    }
-
-    @Override
-    public void removeGroup(Group group) {
-        LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
-
-        if (ldapGroup == null) {
-            throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
-        }
-
-        remove(ldapGroup);
     }
 
     @Override
@@ -466,54 +524,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
         // TODO implement this
         return null;
-    }
-
-    @Override
-    public void updateUser(User user) {
-        LDAPUser updatedUser = (LDAPUser) user;
-
-        try {
-            LDAPUser storedUser = (LDAPUser) getUser(user.getId());
-
-            if (storedUser == null) {
-                throw new RuntimeException("User [" + user.getId() + "] does not exists.");
-            }
-
-            updatedUser.setFullName(getUserCN(updatedUser));
-
-            NamingEnumeration<? extends Attribute> storedAttributes = storedUser.getLDAPAttributes().getAll();
-
-            // check for attributes to replace or remove
-            while (storedAttributes.hasMore()) {
-                Attribute storedAttribute = storedAttributes.next();
-                Attribute updatedAttribute = updatedUser.getLDAPAttributes().get(storedAttribute.getID());
-
-                // if the stored attribute exists in the updated attributes list, replace it. Otherwise remove it from the
-                // store.
-                if (updatedAttribute != null) {
-                    getLdapManager().modifyAttribute(storedUser.getDN(), updatedAttribute);
-                } else {
-                    getLdapManager().removeAttribute(storedUser.getDN(), storedAttribute);
-                }
-            }
-
-            NamingEnumeration<? extends Attribute> enumUpdatedAttributes = updatedUser.getLDAPAttributes().getAll();
-            
-            // check for attributes to add
-            while (enumUpdatedAttributes.hasMore()) {
-                Attribute updatedAttribute = enumUpdatedAttributes.next();
-                Attribute storedAttribute = storedUser.getLDAPAttributes().get(updatedAttribute.getID());
-
-                // if the attribute is not stored and is a managed attribute add it to the store.
-                if (storedAttribute == null && getLdapManager().isManagedAttribute(updatedAttribute.getID())) {
-                    getLdapManager().addAttribute(storedUser.getDN(), updatedAttribute);
-                }
-            }
-
-            updateCustomAttributes(updatedUser);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override

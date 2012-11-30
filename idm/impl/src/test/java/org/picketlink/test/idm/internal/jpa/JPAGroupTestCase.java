@@ -55,10 +55,10 @@ public class JPAGroupTestCase extends AbstractJPAIdentityTypeTestCase {
         IdentityManager identitymanager = getIdentityManager();
 
         Group parentGroup = new SimpleGroup(GROUP_PARENT_NAME, (Group) null);
-        identitymanager.createGroup(parentGroup);
+        identitymanager.add(parentGroup);
 
         Group group = new SimpleGroup(GROUP_NAME, parentGroup);
-        identitymanager.createGroup(group);
+        identitymanager.add(group);
 
         assertNotNull(group);
         assertNotNull(group.getKey());
@@ -106,7 +106,7 @@ public class JPAGroupTestCase extends AbstractJPAIdentityTypeTestCase {
 
         assertNotNull(group);
 
-        identityManager.removeGroup(group);
+        identityManager.remove(group);
 
         group = identityManager.getGroup(GROUP_NAME);
 
