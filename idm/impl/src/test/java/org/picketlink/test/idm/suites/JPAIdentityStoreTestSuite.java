@@ -22,16 +22,30 @@
 
 package org.picketlink.test.idm.suites;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.jpa.internal.JPAIdentityStore;
+import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
 import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.UserManagementTestCase;
+import org.picketlink.test.idm.internal.mgr.IdentityObject;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
 /**
+ * <p>Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore}.</p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
@@ -39,8 +53,36 @@ import org.picketlink.test.idm.runners.TestLifecycle;
 @SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class})
 public class JPAIdentityStoreTestSuite implements TestLifecycle{
 
+    protected static EntityManagerFactory emf;
+
+    private IdentityManager identityManager;
+    
     public static TestLifecycle init() throws Exception {
         return new JPAIdentityStoreTestSuite();
+    }
+    
+    /**
+     * <p>
+     * Creates a shared {@link EntityManagerFactory} and database instances
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @BeforeClass
+    public static void onBeforeTests() throws Exception {
+        emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
+    }
+    
+    /**
+     * <p>
+     * Closes the shared {@link EntityManagerFactory} instance.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @AfterClass
+    public static void onAfterTests() throws Exception {
+        emf.close();
     }
     
     @Override
@@ -50,8 +92,25 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle{
 
     @Override
     public IdentityManager createIdentityManager() {
-        // TODO: put here the logic that creates an IdentityManager instance with the configured store.
-        return null;
+        if (this.identityManager == null) {
+            IdentityConfiguration config = new IdentityConfiguration();
+            
+            config.addStoreConfiguration(getConfiguration());
+
+            this.identityManager = new DefaultIdentityManager();
+
+            identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf));
+        }
+        
+        return this.identityManager;
+    }
+    
+    private IdentityStoreConfiguration getConfiguration() {
+        JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
+        
+        configuration.setIdentityClass(IdentityObject.class);
+        
+        return configuration;
     }
 
     @Override

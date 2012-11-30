@@ -31,6 +31,7 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.UserManagementTestCase;
@@ -38,6 +39,8 @@ import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
 /**
+ * <p>Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.</p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
