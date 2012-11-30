@@ -45,8 +45,6 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
@@ -73,25 +71,22 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
     private LDAPConfiguration configuration;
+    private IdentityStoreInvocationContext context;
 
     @Override
     public void setup(LDAPConfiguration config, IdentityStoreInvocationContext context) {
-        configure(config);
+        this.configuration = config;
+        this.context = context;
     }
 
     @Override
     public LDAPConfiguration getConfig() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.configuration;
     }
 
     @Override
     public IdentityStoreInvocationContext getContext() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void configure(IdentityStoreConfiguration configuration) throws SecurityConfigurationException {
+        return this.context;
     }
 
     @Override
