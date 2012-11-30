@@ -29,6 +29,7 @@ import javax.persistence.criteria.Root;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.event.GroupDeletedEvent;
+import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
@@ -60,6 +61,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     // Event context parameters
     public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
     public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
+    public static final String EVENT_CONTEXT_ROLE_ENTITY = "ROLE_ENTITY";
 
     /**
      * The configuration for this instance 
@@ -490,7 +492,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public void removeRole(Role role) {
-        // TODO Auto-generated method stub
+        Object entity = lookupIdentityObjectByKey(role.getKey());
+        removeIdentityObject(entity);
+
+        RoleDeletedEvent event = new RoleDeletedEvent(role);
+        event.getContext().setValue(EVENT_CONTEXT_ROLE_ENTITY, entity);
+        getContext().getEventBridge().raiseEvent(event);
 
     }
 
