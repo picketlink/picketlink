@@ -12,13 +12,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
 /**
  * <p>
- * JPA Entity that maps {@link Membership} instances.
+ * JPA Entity that maps {@link GroupRole} instances.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -26,7 +26,7 @@ import org.picketlink.idm.model.User;
  */
 @Entity
 @NamedQuery(name = NamedQueries.MEMBERSHIP_LOAD_BY_KEY, query = "select m from DatabaseMembership m where m.role = :role and m.member = :member and m.group = :group")
-public class DatabaseMembership implements Membership {
+public class DatabaseMembership implements GroupRole {
 
     @Id
     @GeneratedValue

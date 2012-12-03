@@ -21,36 +21,19 @@
  */
 package org.picketlink.idm.model;
 
+import java.io.Serializable;
+
 /**
- * Simple implementation of the {@link Membership} interface
- *
- * @author anil saldhana
- * @since Sep 4, 2012
+ * GroupRole links a member (either a User or Group) to a group role.
+ * 
+ * @author Boleslaw Dawidowicz
+ * @author Shane Bryzak
  */
-public class DefaultMembership implements Membership {
+public interface GroupRole extends Serializable {
 
-    private IdentityType member;
-    private Role role;
-    private Group group;
+    IdentityType getMember();
 
-    public DefaultMembership(IdentityType member, Role role, Group group) {
-        this.member = member;
-        this.role = role;
-        this.group = group;
-    }
+    Group getGroup();
 
-    @Override
-    public IdentityType getMember() {
-        return member;
-    }
-
-    @Override
-    public Group getGroup() {
-        return group;
-    }
-
-    @Override
-    public Role getRole() {
-        return role;
-    }
+    Role getRole();
 }

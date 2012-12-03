@@ -30,7 +30,7 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -156,7 +156,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param role The Role instance that the User or Group will become a member of
      * @return A Membership instance representing the new membership.
      */
-    Membership createMembership(IdentityType member, Group group, Role role);
+    GroupRole createMembership(IdentityType member, Group group, Role role);
 
     /**
      * Removes a Membership from persistent storage 
@@ -177,7 +177,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param role
      * @return
      */
-    Membership getMembership(IdentityType member, Group group, Role role);
+    GroupRole getMembership(IdentityType member, Group group, Role role);
 
     // Identity query
 

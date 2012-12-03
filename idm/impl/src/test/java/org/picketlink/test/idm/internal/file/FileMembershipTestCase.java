@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
@@ -47,7 +47,7 @@ public class FileMembershipTestCase extends AbstractFileIdentityManagerTestCase 
 
     /**
      * <p>
-     * Tests the creation of an {@link Membership} with populating some basic attributes.
+     * Tests the creation of an {@link GroupRole} with populating some basic attributes.
      * </p>
      *
      * @throws Exception

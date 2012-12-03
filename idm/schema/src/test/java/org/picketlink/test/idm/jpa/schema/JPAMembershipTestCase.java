@@ -30,7 +30,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.jpa.schema.internal.SimpleJPAIdentityStore;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
@@ -49,7 +49,7 @@ public class JPAMembershipTestCase extends AbstractJPAIdentityManagerTestCase {
 
     /**
      * <p>
-     * Tests the creation of an {@link Membership} with populating some basic attributes.
+     * Tests the creation of an {@link GroupRole} with populating some basic attributes.
      * </p>
      *
      * @throws Exception
@@ -76,7 +76,7 @@ public class JPAMembershipTestCase extends AbstractJPAIdentityManagerTestCase {
 
     /**
      * <p>
-     * Tests the remove of an {@link Membership}.
+     * Tests the remove of an {@link GroupRole}.
      * </p>
      *
      * @throws Exception
@@ -88,7 +88,7 @@ public class JPAMembershipTestCase extends AbstractJPAIdentityManagerTestCase {
         User user = identityStore.getUser(null, "asaldhan");
         Group group = identityStore.getGroup(null, "Administrators");
 
-        Membership membership = identityStore.getMembership(null, user, group, role);
+        GroupRole membership = identityStore.getMembership(null, user, group, role);
 
         assertNotNull(membership);
 
