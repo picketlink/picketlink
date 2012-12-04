@@ -31,7 +31,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.ldap.internal.LDAPUser;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -155,7 +154,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         getIdentityManager().add(user);
         
-        user = (LDAPUser) getIdentityManager().getUser("someUser");
+        user = getIdentityManager().getUser("someUser");
         
         IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
 
@@ -206,7 +205,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         getIdentityManager().add(user);
         
-        user = (LDAPUser) getIdentityManager().getUser("someUser");
+        user = getIdentityManager().getUser("someUser");
         
         IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
 
@@ -244,7 +243,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         Date expirationDate = new Date();
         
-        user = (LDAPUser) getIdentityManager().getUser("someUser");
+        user = getIdentityManager().getUser("someUser");
         
         user.setExpirationDate(expirationDate);
         
