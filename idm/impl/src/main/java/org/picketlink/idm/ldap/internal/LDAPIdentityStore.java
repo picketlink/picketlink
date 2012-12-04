@@ -445,7 +445,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         if (credential instanceof PasswordCredential) {
             PasswordCredential pc = (PasswordCredential) credential;
 
-            valid = getLdapManager().authenticate(ldapUser.getDN(), pc.getPassword());
+            valid = getLdapManager().authenticate(ldapUser.getDN(), new String(pc.getPassword()));
         } else if (credential instanceof X509CertificateCredential) {
             X509CertificateCredential clientCert = (X509CertificateCredential) credential;
 
@@ -473,7 +473,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         if (credential instanceof PasswordCredential) {
             PasswordCredential pc = (PasswordCredential) credential;
             if (this.configuration.isActiveDirectory()) {
-                updateADPassword((LDAPUser) user, pc.getPassword());
+                updateADPassword((LDAPUser) user, new String(pc.getPassword()));
             } else {
                 LDAPUser ldapuser = null;
                 if (user instanceof LDAPUser == false) {

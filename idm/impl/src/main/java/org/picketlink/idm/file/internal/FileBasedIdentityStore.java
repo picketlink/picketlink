@@ -915,7 +915,7 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
 
             User storedUser = getUser(user.getId());
 
-            storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, passwordCredential.getPassword()));
+            storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, new String(passwordCredential.getPassword())));
             
             flushUsers();
         } else if (credential instanceof X509CertificateCredential) {

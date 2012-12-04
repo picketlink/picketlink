@@ -142,13 +142,13 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
 
         // Change password
         String anilpass = "testpass";
-        PasswordCredential pc = new PasswordCredential(anilpass);
+        PasswordCredential pc = new PasswordCredential(anilpass.toCharArray());
         im.updateCredential(anil, pc);
 
         // Let us validate
         assertTrue(im.validateCredential(anil, pc));
 
-        assertFalse(im.validateCredential(anil, new PasswordCredential("BAD")));
+        assertFalse(im.validateCredential(anil, new PasswordCredential("BAD".toCharArray())));
 
         // Let us do UserQuery search
         // FIXME rewrite with new Query API
