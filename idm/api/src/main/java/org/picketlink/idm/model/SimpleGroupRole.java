@@ -21,20 +21,51 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-
 /**
- * Membership links a member (either a User or Group) to a parent Group or Role, 
- * or combination of both.
- * 
- * @author Boleslaw Dawidowicz
+ * Simple implementation of the {@link GroupRole} interface
+ *
  * @author Shane Bryzak
+ * @author anil saldhana
+ * @since Sep 4, 2012
  */
-public interface Membership extends Serializable {
+public class SimpleGroupRole implements GroupRole {
 
-    IdentityType getMember();
+    private static final long serialVersionUID = 2844617870858266637L;
 
-    Group getGroup();
+    private IdentityType member;
+    private Role role;
+    private Group group;
 
-    Role getRole();
+    public SimpleGroupRole(IdentityType member, Role role, Group group) {
+        if (member == null) {
+            throw new IllegalStateException("Member may not be null.");
+        }
+
+        if (role == null) {
+            throw new IllegalStateException("Role may not be null.");
+        }
+
+        if (group == null) {
+            throw new IllegalStateException("Group may not be null.");
+        }
+
+        this.member = member;
+        this.role = role;
+        this.group = group;
+    }
+
+    @Override
+    public IdentityType getMember() {
+        return member;
+    }
+
+    @Override
+    public Group getGroup() {
+        return group;
+    }
+
+    @Override
+    public Role getRole() {
+        return role;
+    }
 }

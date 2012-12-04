@@ -35,7 +35,7 @@ import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPUser;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
@@ -115,7 +115,7 @@ public class LDAPIdentityStoreTestCase extends AbstractLDAPTest {
         assertEquals("PicketBox Team", parentOfDevGroup.getName());
 
         // Add a relationship between an user, role and group
-        Membership membership = store.createMembership(anil, ldapGroup, ldapRole);
+        GroupRole membership = store.createMembership(anil, ldapGroup, ldapRole);
         assertNotNull(membership);
 
         // Deal with removal of users, roles and groups

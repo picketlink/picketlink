@@ -26,14 +26,14 @@ import java.io.Serializable;
 
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class FileMembership implements Membership, Serializable {
+public class FileMembership implements GroupRole, Serializable {
 
     private static final long serialVersionUID = -7424412115619080350L;
     

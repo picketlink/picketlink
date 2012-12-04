@@ -51,10 +51,10 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
-import org.picketlink.idm.model.DefaultMembership;
+import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -315,7 +315,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     @Override
-    public Membership createMembership(IdentityType member, Group group, Role role) {
+    public GroupRole createMembership(IdentityType member, Group group, Role role) {
         if (member instanceof User) {
             final LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
             final LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
@@ -328,7 +328,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
             getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
 
-            return new DefaultMembership(ldapUser, ldapRole, ldapGroup);
+            return new SimpleGroupRole(ldapUser, ldapRole, ldapGroup);
         } else if (member instanceof Group) {
             // FIXME implement Group membership, or return null
             return null;
@@ -352,7 +352,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     @Override
-    public Membership getMembership(IdentityType member, Group group, Role role) {
+    public GroupRole getMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
     }

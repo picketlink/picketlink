@@ -17,16 +17,16 @@ import org.picketlink.idm.query.QueryParameter;
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
     @Override
-    public IdentityQuery<T> setParameter(QueryParameter param, Object value) {
+    public IdentityQuery<T> setParameter(QueryParameter param, Object... value) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
+    /*@Override
     public IdentityQuery<T> setParameter(QueryParameter param, Operator operator, Object value) {
         // TODO Auto-generated method stub
         return null;
-    }
+    }*/
 
     @Override
     public List<T> getResultList() {

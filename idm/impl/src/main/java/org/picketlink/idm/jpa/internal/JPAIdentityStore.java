@@ -37,7 +37,7 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttri
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
@@ -577,7 +577,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public Membership createMembership(IdentityType member, Group group, Role role) {
+    public GroupRole createMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -589,7 +589,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public Membership getMembership(IdentityType member, Group group, Role role) {
+    public GroupRole getMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
     }

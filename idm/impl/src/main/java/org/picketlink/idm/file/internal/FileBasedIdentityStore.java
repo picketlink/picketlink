@@ -49,7 +49,7 @@ import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -439,7 +439,7 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public Membership createMembership(IdentityType member, Group group, Role role) {
+    public GroupRole createMembership(IdentityType member, Group group, Role role) {
         FileMembership membership = new FileMembership(member, group, role);
 
         this.memberships.add(membership);
@@ -451,7 +451,7 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
 
     @Override
     public void removeMembership(IdentityType member, Group group, Role role) {
-        for (Membership membership : new ArrayList<FileMembership>(this.memberships)) {
+        for (GroupRole membership : new ArrayList<FileMembership>(this.memberships)) {
             boolean match = false;
 
             if (role != null) {
@@ -475,8 +475,8 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public Membership getMembership(IdentityType member, Group group, Role role) {
-        for (Membership membership : new ArrayList<FileMembership>(this.memberships)) {
+    public GroupRole getMembership(IdentityType member, Group group, Role role) {
+        for (GroupRole membership : new ArrayList<FileMembership>(this.memberships)) {
             boolean match = false;
 
             if (role != null) {

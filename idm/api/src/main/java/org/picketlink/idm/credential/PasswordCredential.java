@@ -6,13 +6,13 @@ package org.picketlink.idm.credential;
  * @author Shane Bryzak
  */
 public class PasswordCredential implements Credential {
-    private String password;
+    private char[] password;
     
     public PasswordCredential(String password) {
-        this.password = password;
+        this.password = password.toCharArray();
     }
 
     public String getPassword() {
-        return password;
+        return new String(password);
     }    
 }

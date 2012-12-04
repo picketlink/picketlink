@@ -56,7 +56,7 @@ import org.picketlink.idm.jpa.schema.DatabaseUserAttribute;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -155,7 +155,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership createMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
+    public GroupRole createMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
         if (member instanceof User) {
             DatabaseUser dbUser = (DatabaseUser) getUser(ctx, ((User) member).getId());
             DatabaseRole dbRole = (DatabaseRole) getRole(ctx, role.getName());
@@ -175,7 +175,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
 
     @Override
     public void removeMembership(IdentityStoreInvocationContext ctx, IdentityType member, Group group, Role role) {
-        Membership membership = getMembership(ctx, member, group, role);
+        GroupRole membership = getMembership(ctx, member, group, role);
 
         if (membership != null) {
             remove(membership);
@@ -183,8 +183,8 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership getMembership(IdentityStoreInvocationContext ctx, final IdentityType member, final Group group, final Role role) {
-        return (Membership) executeOperation(new JPACallback() {
+    public GroupRole getMembership(IdentityStoreInvocationContext ctx, final IdentityType member, final Group group, final Role role) {
+        return (GroupRole) executeOperation(new JPACallback() {
 
             @Override
             public Object execute(EntityManager entityManager) {
@@ -193,10 +193,10 @@ public class SimpleJPAIdentityStore implements IdentityStore {
                 query.setParameter("member", member);
                 query.setParameter("group", group);
 
-                Membership loadedMembership = null;
+                GroupRole loadedMembership = null;
 
                 try {
-                    loadedMembership = (Membership) query.getSingleResult();
+                    loadedMembership = (GroupRole) query.getSingleResult();
                 } catch (NoResultException nre) {
                     // TODO: what to do when this happens
                 }
@@ -869,7 +869,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership createMembership(IdentityType member, Group group, Role role) {
+    public GroupRole createMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -881,7 +881,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public Membership getMembership(IdentityType member, Group group, Role role) {
+    public GroupRole getMembership(IdentityType member, Group group, Role role) {
         // TODO Auto-generated method stub
         return null;
     }

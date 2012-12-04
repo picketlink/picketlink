@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.jpa.schema.DatabaseUser;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Membership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
@@ -40,7 +40,7 @@ import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * <p>
- * Tests the query support for {@link Membership} instances.
+ * Tests the query support for {@link GroupRole} instances.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -53,7 +53,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
     private Group group;
     private User user;
     private Role role;
-    private Membership membership;
+    private GroupRole membership;
 
     /*
      * (non-Javadoc)

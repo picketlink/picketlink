@@ -55,6 +55,43 @@ public interface IdentityType extends Serializable {
      */
     QueryParameter EXPIRY_DATE = new QueryParameter() {};
 
+    /**
+     * Used to specify either a realm or tier-specific role.  The query should only 
+     * return IdentityType instances that have been granted the specified role
+     */
+    QueryParameter HAS_ROLE = new QueryParameter() {};
+
+    /**
+     * Used to specify either a realm-specific User or Group, or a tier-specific Group.  The
+     * query should only return Role instances that the specified User or Group is a member of
+     */
+    QueryParameter ROLE_OF = new QueryParameter() {};
+
+    /**
+     * Used to specify either a realm-specific or tier-specific group role, of which both the Group
+     * and Role must be provided as parameter values.  The query should only return IdentityType
+     * instances that have been granted the specified group role.
+     */
+    QueryParameter HAS_GROUP_ROLE = new QueryParameter() {};
+
+    /**
+     * Used to specify either a realm-specific User or Group, or a tier-specific Group.  The query
+     * should only return GroupRole instances that the specified User or Group is a member of
+     */
+    QueryParameter GROUP_ROLE_OF = new QueryParameter() {};
+
+    /**
+     * Used to specify either a realm-specific or tier-specific Group.  The query should only return
+     * IdentityType instances that are a member of the specified group.
+     */
+    QueryParameter MEMBER_OF = new QueryParameter() {};
+
+    /**
+     * Used to specify either a realm-specific User or Group, or a tier-specific Group.  The query
+     * should only return Group instances that the specified User or Group is a member of
+     */
+    QueryParameter HAS_MEMBER = new QueryParameter() {};
+
     public class AttributeParameter implements QueryParameter {
         private String name;
         public AttributeParameter(String name) {
@@ -71,49 +108,6 @@ public interface IdentityType extends Serializable {
             return new AttributeParameter(name);
         }
     }
-
-    public class MembershipParameter implements QueryParameter {
-        private String group;
-        private String role;
-        public MembershipParameter(String group, String role) {
-            this.group = group;
-            this.role = role;
-        }
-
-        public MembershipParameter group(String group) {
-            this.group = group;
-            return this;
-        }
-
-        public MembershipParameter role(String role) {
-            this.role = role;
-            return this;
-        }
-
-        public String getGroup() {
-            return group;
-        }
-
-        public String getRole() {
-            return role;
-        }
-    }
-
-    public final class MEMBER_OF {
-        public static MembershipParameter group(String name) {
-            return new MembershipParameter(name, null);
-        }
-    }
-
-    public final class GRANTED {
-        public static MembershipParameter role(String name) {
-            return new MembershipParameter(null, name);
-        }
-        public static MembershipParameter groupRole(String group, String role) {
-            return new MembershipParameter(group, role);
-        }
-    }
-
 
     /**
      * Returns a key value for this IdentityType.  The key may be used to perform a 
