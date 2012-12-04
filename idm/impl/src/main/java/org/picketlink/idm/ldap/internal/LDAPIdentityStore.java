@@ -513,54 +513,57 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     @Override
     public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
-        //TODO: make this code more simple
+        // TODO: make this code more simple
         List<T> result = new ArrayList<T>();
-        
+
         if (User.class.isAssignableFrom(typeClass)) {
             Set<Entry<QueryParameter, Object[]>> entrySet = parameters.entrySet();
-            
+
             Attributes ldapAttributeSearch = new BasicAttributes(true);
             Attributes customAttributeSearch = new BasicAttributes(true);
-            
+
             for (Entry<QueryParameter, Object[]> entry : entrySet) {
                 QueryParameter queryParameter = entry.getKey();
                 Object[] values = entry.getValue();
-                
+
                 Attribute ldapAttribute = LDAPAttributeMapper.map(queryParameter);
-                
+
                 if (ldapAttribute != null) {
                     ldapAttribute.add(values[0]);
                     ldapAttributeSearch.put(ldapAttribute);
                 } else {
                     ldapAttribute = LDAPAttributeMapper.mapCustom(queryParameter);
-                    
+
                     if (ldapAttribute != null) {
                         ldapAttribute.add(values[0]);
                         customAttributeSearch.put(ldapAttribute);
                     }
                 }
             }
-            
+
             LDAPUser user = null;
-            
-            NamingEnumeration<SearchResult> answer = getLdapManager().search(this.configuration.getUserDNSuffix(), ldapAttributeSearch, null);
-            
+
+            NamingEnumeration<SearchResult> answer = getLdapManager().search(this.configuration.getUserDNSuffix(),
+                    ldapAttributeSearch, null);
+
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.nextElement();
                 Attributes attributes = sr.getAttributes();
                 String uid = null;
-                
+
                 try {
                     uid = (String) attributes.get(UID).get();
                 } catch (NamingException e) {
                     e.printStackTrace();
                 }
-                
+
                 user = (LDAPUser) getUser(uid);
-                
+
                 LDAPCustomAttributes customAttributes = user.getCustomAttributes();
-                
+
                 Map<String, Object> attrs = customAttributes.getAttributes();
+                
+                boolean match = false;
                 
                 if (customAttributeSearch.size() > 0) {
                     Set<Entry<String, Object>> entrySet2 = attrs.entrySet();
@@ -571,8 +574,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                         try {
                             if (attribute != null) {
                                 String value = attribute.get().toString();
-                                
-                                if (attribute.getID().equals("createDate")) {
+
+                                if (attribute.getID().equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
+                                        || attribute.getID().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
                                     value = String.valueOf(((Date) attribute.get()).getTime());
                                 }
 
@@ -580,19 +584,23 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                                     user = null;
                                     break;
                                 }
+                                
+                                match = true;
                             }
                         } catch (NamingException e) {
                             e.printStackTrace();
                         }
                     }
+                } else {
+                    match = true;
                 }
-                
-                if (user != null) {
-                    result.add((T) user);                    
+
+                if (user != null && match) {
+                    result.add((T) user);
                 }
             }
         }
-        
+
         return result;
     }
 

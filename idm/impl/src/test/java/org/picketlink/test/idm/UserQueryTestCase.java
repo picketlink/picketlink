@@ -26,6 +26,7 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
@@ -194,7 +195,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
     
     /**
      * <p>
-     * Finds users with the enabled/disabled status.
+     * Finds users by the creation date.
      * </p>
      * 
      * @throws Exception
@@ -211,12 +212,63 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query.setParameter(User.CREATED_DATE, user.getCreatedDate());
         
-        // all enabled users
+        // only the previously created user
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
         assertEquals("someUser", result.get(0).getId());
+        
+        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+
+        query.setParameter(User.CREATED_DATE, new Date());
+        
+        // no users
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+    }
+    
+    /**
+     * <p>
+     * Finds users by the expiration date.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindExpiryDate() throws Exception {
+        User user = new SimpleUser("someUser");
+
+        getIdentityManager().add(user);
+        
+        Date expirationDate = new Date();
+        
+        user = (LDAPUser) getIdentityManager().getUser("someUser");
+        
+        user.setExpirationDate(expirationDate);
+        
+        getIdentityManager().update(user);
+        
+        IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+
+        query.setParameter(User.EXPIRY_DATE, user.getExpirationDate());
+        
+        // all expired users
+        List<User> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertEquals("someUser", result.get(0).getId());
+        
+        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+
+        query.setParameter(User.EXPIRY_DATE, new Date());
+        
+        // no users
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
     }
 
 }
