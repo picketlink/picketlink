@@ -143,7 +143,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
     /**
      * <p>
-     * Find an {@link User} by email.
+     * Finds users with the enabled/disabled status.
      * </p>
      * 
      * @throws Exception
@@ -156,14 +156,11 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         user = (LDAPUser) getIdentityManager().getUser("someUser");
         
-        user.setEnabled(true);
-        
-        getIdentityManager().update(user);
-
         IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
 
         query.setParameter(User.ENABLED, true);
-
+        
+        // all enabled users
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
@@ -172,10 +169,54 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
 
         query.setParameter(User.ENABLED, false);
-
+        
+        // only disabled users. No users are disabled.
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
+        
+        user.setEnabled(false);
+        
+        // let's disabled the user and try to find him
+        getIdentityManager().update(user);
+
+        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+
+        query.setParameter(User.ENABLED, false);
+
+        // get the previously disabled user
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertEquals("someUser", result.get(0).getId());
+    }
+    
+    /**
+     * <p>
+     * Finds users with the enabled/disabled status.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindCreationDate() throws Exception {
+        User user = new SimpleUser("someUser");
+
+        getIdentityManager().add(user);
+        
+        user = (LDAPUser) getIdentityManager().getUser("someUser");
+        
+        IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+
+        query.setParameter(User.CREATED_DATE, user.getCreatedDate());
+        
+        // all enabled users
+        List<User> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertEquals("someUser", result.get(0).getId());
     }
 
 }

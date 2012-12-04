@@ -22,23 +22,15 @@
 package org.picketlink.idm.jpa.schema.internal;
 
 import java.security.cert.CertificateEncodingException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -52,17 +44,15 @@ import org.picketlink.idm.jpa.schema.DatabaseGroup;
 import org.picketlink.idm.jpa.schema.DatabaseMembership;
 import org.picketlink.idm.jpa.schema.DatabaseRole;
 import org.picketlink.idm.jpa.schema.DatabaseUser;
-import org.picketlink.idm.jpa.schema.DatabaseUserAttribute;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * An implementation of IdentityStore backed by a JPA datasource
@@ -761,7 +751,7 @@ public class SimpleJPAIdentityStore implements IdentityStore {
     }
 
     @Override
-    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object[]> parameters) {
+    public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
         // TODO Auto-generated method stub
         return null;
     }

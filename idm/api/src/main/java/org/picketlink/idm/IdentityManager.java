@@ -97,7 +97,7 @@ public interface IdentityManager {
 
     // Query API
 
-    <T extends IdentityType> IdentityQuery<T> createQuery();
+    <T extends IdentityType> IdentityQuery<T> createQuery(Class<T> identityType);
 
     // Credential management
 

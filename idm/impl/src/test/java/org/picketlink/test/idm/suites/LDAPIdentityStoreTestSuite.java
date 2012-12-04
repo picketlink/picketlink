@@ -37,19 +37,21 @@ import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
 /**
- * <p>Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.</p>
+ * <p>
+ * Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.
+ * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserQueryTestCase.class})
-public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle{
+@SuiteClasses({ UserQueryTestCase.class })
+public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     public static TestLifecycle init() throws Exception {
         return new LDAPIdentityStoreTestSuite();
     }
-    
+
     private static final String LDAP_URL = "ldap://localhost:10389";
     private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
     private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
@@ -74,7 +76,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         IdentityManager identityManager = new DefaultIdentityManager();
 
         identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
-        
+
         return identityManager;
     }
 

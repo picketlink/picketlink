@@ -1029,7 +1029,7 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public <T extends IdentityType> List<T> fetchQueryResults(Map<QueryParameter, Object[]> parameters) {
+    public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
         // TODO Auto-generated method stub
         return null;
     }

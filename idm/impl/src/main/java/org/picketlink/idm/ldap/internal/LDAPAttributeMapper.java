@@ -62,6 +62,10 @@ public class LDAPAttributeMapper {
     }
 
     public static Attribute mapCustom(QueryParameter queryParameter) {
+        if (customAttributeMap.get(queryParameter) == null) {
+            return null;
+        }
+        
         return new BasicAttribute(customAttributeMap.get(queryParameter));
     }
     

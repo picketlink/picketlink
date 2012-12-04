@@ -389,13 +389,8 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public <T extends IdentityType> IdentityQuery<T> createQuery() {
-        return null;
-    }
-
     public <T extends IdentityType> IdentityQuery<T> createQuery(Class<T> identityType) {
-        DefaultIdentityQuery<T> query = new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), Feature.createMembership));
-        return query;
+        return new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), Feature.createMembership));
     }
 
     @Override

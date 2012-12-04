@@ -181,7 +181,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     // Identity query
 
-    <T extends IdentityType> List<T> fetchQueryResults(Map<QueryParameter,Object[]> parameters);
+    <T extends IdentityType> List<T> fetchQueryResults(Class<T> identityType, Map<QueryParameter,Object[]> parameters);
 
     // Credential management
 

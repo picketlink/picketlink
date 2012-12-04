@@ -32,6 +32,7 @@ import java.io.Serializable;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -511,11 +512,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     @Override
-    public <T extends IdentityType> List<T> fetchQueryResults(Map<QueryParameter, Object[]> parameters) {
-        return null;
-    }
-    
     public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
+        //TODO: make this code more simple
         List<T> result = new ArrayList<T>();
         
         if (User.class.isAssignableFrom(typeClass)) {
@@ -535,8 +533,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                     ldapAttributeSearch.put(ldapAttribute);
                 } else {
                     ldapAttribute = LDAPAttributeMapper.mapCustom(queryParameter);
-                    ldapAttribute.add(values[0]);
-                    customAttributeSearch.put(ldapAttribute);
+                    
+                    if (ldapAttribute != null) {
+                        ldapAttribute.add(values[0]);
+                        customAttributeSearch.put(ldapAttribute);
+                    }
                 }
             }
             
@@ -568,9 +569,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                         Attribute attribute = customAttributeSearch.get(entry.getKey());
                         
                         try {
-                            if (attribute != null && !(attribute.get().toString().equals(entry.getValue().toString()))) {
-                                user = null;
-                                break;
+                            if (attribute != null) {
+                                String value = attribute.get().toString();
+                                
+                                if (attribute.getID().equals("createDate")) {
+                                    value = String.valueOf(((Date) attribute.get()).getTime());
+                                }
+
+                                if (!(value.equals(entry.getValue().toString()))) {
+                                    user = null;
+                                    break;
+                                }
                             }
                         } catch (NamingException e) {
                             e.printStackTrace();
