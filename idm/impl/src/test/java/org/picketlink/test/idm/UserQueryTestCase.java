@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
-import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -53,7 +52,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindById() throws Exception {
-        IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.ID, "admin");
 
@@ -74,7 +73,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByFirstNameAndLastName() throws Exception {
-        IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.FIRST_NAME, "The");
 
@@ -86,7 +85,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertEquals("admin", result.get(0).getId());
 
-        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.LAST_NAME, "Administrator");
 
@@ -96,7 +95,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.FIRST_NAME, "The");
         query.setParameter(User.LAST_NAME, "Administrator");
@@ -109,7 +108,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertEquals("admin", result.get(0).getId());
 
-        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.FIRST_NAME, "The");
         query.setParameter(User.LAST_NAME, "Bad Administrator");
@@ -129,7 +128,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByEmail() throws Exception {
-        IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.EMAIL, "admin@jboss.org");
 
@@ -156,7 +155,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         user = getIdentityManager().getUser("someUser");
         
-        IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.ENABLED, true);
         
@@ -166,7 +165,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 3);
 
-        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.ENABLED, false);
         
@@ -180,7 +179,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         // let's disabled the user and try to find him
         getIdentityManager().update(user);
 
-        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.ENABLED, false);
 
@@ -207,7 +206,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         user = getIdentityManager().getUser("someUser");
         
-        IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.CREATED_DATE, user.getCreatedDate());
         
@@ -218,7 +217,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.size() == 1);
         assertEquals("someUser", result.get(0).getId());
         
-        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.CREATED_DATE, new Date());
         
@@ -249,7 +248,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         getIdentityManager().update(user);
         
-        IdentityQuery<User> query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.EXPIRY_DATE, user.getExpirationDate());
         
@@ -260,7 +259,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.size() == 1);
         assertEquals("someUser", result.get(0).getId());
         
-        query = ((DefaultIdentityManager) getIdentityManager()).<User> createQuery(User.class);
+        query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.EXPIRY_DATE, new Date());
         
