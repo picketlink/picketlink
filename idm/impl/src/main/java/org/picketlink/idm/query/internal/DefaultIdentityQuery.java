@@ -1,11 +1,16 @@
 package org.picketlink.idm.query.internal;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * Default IdentityQuery implementation.
@@ -16,10 +21,19 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
+    private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
+    private IdentityStore<?> identityStore;
+    private Class<T> identityType;
+    
+    public DefaultIdentityQuery(Class<T> identityType, IdentityStore<?> identityStore) {
+        this.identityStore = identityStore;
+        this.identityType = identityType;
+    }
+    
     @Override
     public IdentityQuery<T> setParameter(QueryParameter param, Object... value) {
-        // TODO Auto-generated method stub
-        return null;
+        parameters.put(param, value);
+        return this;
     }
 
     /*@Override
@@ -30,14 +44,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public List<T> getResultList() {
-
-        // This is a bit hacky, we might need to actually pass in the type to the constructor
-        ParameterizedType parameterizedType = (ParameterizedType)getClass()
-                .getGenericSuperclass();
-        Class type = (Class) parameterizedType.getActualTypeArguments()[0];
-
-        // TODO Auto-generated method stub
-        return null;
+        return ((LDAPIdentityStore) this.identityStore).fetchQueryResults(this.identityType, this.parameters);
 
     }
 

@@ -23,6 +23,9 @@ package org.picketlink.idm.ldap.internal;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
 
 import java.io.Serializable;
@@ -184,11 +187,11 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
             this.customAttributes = new LDAPCustomAttributes();
         }
         
-        this.customAttributes.addAttribute("enabled", String.valueOf(isEnabled()));
-        this.customAttributes.addAttribute("createDate", String.valueOf(getCreatedDate().getTime()));
+        this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_ENABLED, String.valueOf(isEnabled()));
+        this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_CREATE_DATE, String.valueOf(getCreatedDate().getTime()));
         
         if (this.expirationDate != null) {
-            this.customAttributes.addAttribute("expiryDate", String.valueOf(getExpirationDate().getTime()));            
+            this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE, String.valueOf(getExpirationDate().getTime()));            
         }
 
         return this.customAttributes;
@@ -198,9 +201,9 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
         this.customAttributes = customAttributes;
         
         if (this.customAttributes != null) {
-            Object enabledAttribute = this.customAttributes.getAttribute("enabled");
-            Object createDateAttribute = this.customAttributes.getAttribute("createDate");
-            Object expiryDateAttribute = this.customAttributes.getAttribute("expiryDate");
+            Object enabledAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_ENABLED);
+            Object createDateAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_CREATE_DATE);
+            Object expiryDateAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE);
             
             if (enabledAttribute != null) {
                 this.enabled = Boolean.valueOf(enabledAttribute.toString());    

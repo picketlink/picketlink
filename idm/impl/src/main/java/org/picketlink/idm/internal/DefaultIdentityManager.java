@@ -42,6 +42,7 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -389,8 +390,12 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createQuery() {
-        // TODO Auto-generated method stub
         return null;
+    }
+
+    public <T extends IdentityType> IdentityQuery<T> createQuery(Class<T> identityType) {
+        DefaultIdentityQuery<T> query = new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), Feature.createMembership));
+        return query;
     }
 
     @Override

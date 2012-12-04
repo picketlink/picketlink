@@ -32,7 +32,7 @@ import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.test.idm.CredentialManagementTestCase;
+import org.picketlink.test.idm.UserQueryTestCase;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
@@ -43,7 +43,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ CredentialManagementTestCase.class})
+@SuiteClasses({ UserQueryTestCase.class})
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle{
 
     public static TestLifecycle init() throws Exception {

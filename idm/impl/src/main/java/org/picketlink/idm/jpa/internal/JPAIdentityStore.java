@@ -595,7 +595,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
+    public <T extends IdentityType> List<T> fetchQueryResults(Map<QueryParameter, Object[]> parameters) {
         // TODO Auto-generated method stub
         return null;
     }

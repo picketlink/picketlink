@@ -232,6 +232,18 @@ public class LDAPOperationManager {
             throw new RuntimeException(e);
         }
     }
+    
+    public NamingEnumeration<SearchResult> search(String baseDN, String filter) {
+        try {
+            SearchControls cons = new SearchControls();
+            
+            cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            
+            return this.context.search(baseDN, filter, cons);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * <p>

@@ -40,5 +40,9 @@ public interface LDAPConstants {
     String COMMA = ",";
     String EQUAL = "=";
     String SPACE_STRING = " ";
+    
+    String CUSTOM_ATTRIBUTE_ENABLED = "enabled";
+    String CUSTOM_ATTRIBUTE_CREATE_DATE = "createDate";
+    String CUSTOM_ATTRIBUTE_EXPIRY_DATE = "expiryDate";
 
 }

@@ -29,8 +29,8 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -181,7 +181,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     // Identity query
 
-    List<IdentityType> fetchQueryResults(Map<QueryParameter,Object> parameters);
+    <T extends IdentityType> List<T> fetchQueryResults(Map<QueryParameter,Object[]> parameters);
 
     // Credential management
 

@@ -48,8 +48,8 @@ import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -1029,7 +1029,7 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
+    public <T extends IdentityType> List<T> fetchQueryResults(Map<QueryParameter, Object[]> parameters) {
         // TODO Auto-generated method stub
         return null;
     }

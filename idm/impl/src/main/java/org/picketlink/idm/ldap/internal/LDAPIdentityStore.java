@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,11 +52,11 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
-import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
@@ -100,15 +101,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             if (user.getId() == null) {
                 throw new RuntimeException("No identifier was provided. You should provide one before storing the user.");
             }
-    
+
             LDAPUser ldapUser = null;
-    
+
             if (!(user instanceof LDAPUser)) {
                 ldapUser = convert(user);
             } else {
                 ldapUser = (LDAPUser) user;
             }
-    
+
             ldapUser.setFullName(getUserCN(ldapUser));
 
             store(ldapUser);
@@ -180,7 +181,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 }
 
                 NamingEnumeration<? extends Attribute> enumUpdatedAttributes = updatedUser.getLDAPAttributes().getAll();
-                
+
                 // check for attributes to add
                 while (enumUpdatedAttributes.hasMore()) {
                     Attribute updatedAttribute = enumUpdatedAttributes.next();
@@ -433,29 +434,30 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public boolean validateCredential(User user, Credential credential) {
         LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
-        
+
         if (ldapUser == null) {
             return false;
         }
-        
+
         boolean valid = false;
-        
+
         if (credential instanceof PasswordCredential) {
             PasswordCredential pc = (PasswordCredential) credential;
-            
+
             valid = getLdapManager().authenticate(ldapUser.getDN(), pc.getPassword());
-        } else if (credential instanceof X509CertificateCredential){
+        } else if (credential instanceof X509CertificateCredential) {
             X509CertificateCredential clientCert = (X509CertificateCredential) credential;
 
             org.picketlink.idm.model.Attribute<Serializable> certAttribute = ldapUser.getAttribute(USER_CERTIFICATE_ATTRIBUTE);
-            
+
             byte[] certBytes = Base64.decode(new String((byte[]) certAttribute.getValue()));
-            
+
             try {
                 CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-                X509Certificate storedCert = (X509Certificate) certFactory.generateCertificate(new ByteArrayInputStream(certBytes));
+                X509Certificate storedCert = (X509Certificate) certFactory.generateCertificate(new ByteArrayInputStream(
+                        certBytes));
                 X509Certificate providedCert = clientCert.getCertificate();
-                
+
                 valid = storedCert.equals(providedCert);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -491,12 +493,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             X509CertificateCredential cc = (X509CertificateCredential) credential;
             try {
                 LDAPUser ldapUser = (LDAPUser) user;
-                
+
                 String certbytes = Base64.encodeBytes(cc.getCertificate().getEncoded());
-                
+
                 ldapUser.setAttribute(new org.picketlink.idm.model.Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, certbytes));
 
-                
                 BasicAttribute certAttribute = new BasicAttribute(USER_CERTIFICATE_ATTRIBUTE, certbytes);
 
                 // Perform the update
@@ -510,9 +511,80 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     @Override
-    public List<IdentityType> fetchQueryResults(Map<QueryParameter, Object> parameters) {
-        // TODO implement this
+    public <T extends IdentityType> List<T> fetchQueryResults(Map<QueryParameter, Object[]> parameters) {
         return null;
+    }
+    
+    public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
+        List<T> result = new ArrayList<T>();
+        
+        if (User.class.isAssignableFrom(typeClass)) {
+            Set<Entry<QueryParameter, Object[]>> entrySet = parameters.entrySet();
+            
+            Attributes ldapAttributeSearch = new BasicAttributes(true);
+            Attributes customAttributeSearch = new BasicAttributes(true);
+            
+            for (Entry<QueryParameter, Object[]> entry : entrySet) {
+                QueryParameter queryParameter = entry.getKey();
+                Object[] values = entry.getValue();
+                
+                Attribute ldapAttribute = LDAPAttributeMapper.map(queryParameter);
+                
+                if (ldapAttribute != null) {
+                    ldapAttribute.add(values[0]);
+                    ldapAttributeSearch.put(ldapAttribute);
+                } else {
+                    ldapAttribute = LDAPAttributeMapper.mapCustom(queryParameter);
+                    ldapAttribute.add(values[0]);
+                    customAttributeSearch.put(ldapAttribute);
+                }
+            }
+            
+            LDAPUser user = null;
+            
+            NamingEnumeration<SearchResult> answer = getLdapManager().search(this.configuration.getUserDNSuffix(), ldapAttributeSearch, null);
+            
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.nextElement();
+                Attributes attributes = sr.getAttributes();
+                String uid = null;
+                
+                try {
+                    uid = (String) attributes.get(UID).get();
+                } catch (NamingException e) {
+                    e.printStackTrace();
+                }
+                
+                user = (LDAPUser) getUser(uid);
+                
+                LDAPCustomAttributes customAttributes = user.getCustomAttributes();
+                
+                Map<String, Object> attrs = customAttributes.getAttributes();
+                
+                if (customAttributeSearch.size() > 0) {
+                    Set<Entry<String, Object>> entrySet2 = attrs.entrySet();
+                    
+                    for (Entry<String, Object> entry : entrySet2) {
+                        Attribute attribute = customAttributeSearch.get(entry.getKey());
+                        
+                        try {
+                            if (attribute != null && !(attribute.get().toString().equals(entry.getValue().toString()))) {
+                                user = null;
+                                break;
+                            }
+                        } catch (NamingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                
+                if (user != null) {
+                    result.add((T) user);                    
+                }
+            }
+        }
+        
+        return result;
     }
 
     @Override
@@ -527,7 +599,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
         updateCustomAttributes(updatedRole);
     }
-    
+
     @Override
     public void updateGroup(Group group) {
         LDAPGroup storedGroup = (LDAPGroup) getGroup(group.getName());
@@ -663,8 +735,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     /**
      * <p>
-     * Stores the given {@link LDAPEntry} instance in the LDAP tree. This method performs a bind for both
-     * {@link LDAPEntry} instance and its {@link LDAPCustomAttributes}.
+     * Stores the given {@link LDAPEntry} instance in the LDAP tree. This method performs a bind for both {@link LDAPEntry}
+     * instance and its {@link LDAPCustomAttributes}.
      * </p>
      * 
      * @param ldapEntry
@@ -676,8 +748,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     /**
      * <p>
-     * Removes the given {@link LDAPEntry} entry from the LDAP tree. This method also remove the custom attribute entry
-     * for the given parent instance.
+     * Removes the given {@link LDAPEntry} entry from the LDAP tree. This method also remove the custom attribute entry for the
+     * given parent instance.
      * </p>
      * 
      * @param ldapEntry
@@ -722,9 +794,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
         return null;
     }
-    
+
     /**
-     * <p>Updates the custom attributes for the given {@link LDAPEntry} instance.</p>
+     * <p>
+     * Updates the custom attributes for the given {@link LDAPEntry} instance.
+     * </p>
      * 
      * @param ldapEntry
      */

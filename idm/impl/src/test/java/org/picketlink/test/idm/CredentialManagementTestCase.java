@@ -37,7 +37,7 @@ import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.model.User;
 
 /**
- * <p>Test case for credential management. It tests the different {@link Credential} types implementations and usage.</p>
+ * <p>Test case for credential management. Tests the different {@link Credential} types implementations and usage.</p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
