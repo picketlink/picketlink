@@ -43,6 +43,10 @@ import javax.naming.ldap.InitialLdapContext;
  * <p>
  * This class provides a set of operations to manage LDAP trees.
  * </p>
+ * <p>
+ * A different {@link DirContext} is used to perform authentication. The reason is that while managing the ldap tree information
+ * bindings are not allowed. Also, instead of creating a new {@link DirContext} each time we reuse it.
+ * </p>
  * 
  * @author Anil Saldhana
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -53,10 +57,12 @@ public class LDAPOperationManager {
 
     @SuppressWarnings("unused")
     private Properties properties;
-    private DirContext ctx;
+    private DirContext context;
+    private DirContext authenticationContext;
 
     public LDAPOperationManager(Properties properties) throws NamingException {
-        this.ctx = new InitialLdapContext(properties, null);
+        this.context = new InitialLdapContext(properties, null);
+        this.authenticationContext = new InitialLdapContext(properties, null);
         this.properties = properties;
     }
 
@@ -69,7 +75,7 @@ public class LDAPOperationManager {
      */
     public void bind(String dn, Object object) {
         try {
-            ctx.bind(dn, object);
+            context.bind(dn, object);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -86,7 +92,7 @@ public class LDAPOperationManager {
     public void modifyAttribute(String dn, Attribute attribute) {
         try {
             ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute) };
-            ctx.modifyAttributes(dn, mods);
+            context.modifyAttributes(dn, mods);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -103,7 +109,7 @@ public class LDAPOperationManager {
     public void removeAttribute(String dn, Attribute attribute) {
         try {
             ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute) };
-            ctx.modifyAttributes(dn, mods);
+            context.modifyAttributes(dn, mods);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -120,7 +126,7 @@ public class LDAPOperationManager {
     public void addAttribute(String dn, Attribute attribute) {
         try {
             ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute) };
-            ctx.modifyAttributes(dn, mods);
+            context.modifyAttributes(dn, mods);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -136,7 +142,7 @@ public class LDAPOperationManager {
      */
     public void rebind(String dn, Object object) {
         try {
-            ctx.rebind(dn, object);
+            context.rebind(dn, object);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -154,7 +160,7 @@ public class LDAPOperationManager {
     @SuppressWarnings("unchecked")
     public <T> T lookup(String dn) {
         try {
-            return (T) ctx.lookup(dn);
+            return (T) context.lookup(dn);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -178,7 +184,7 @@ public class LDAPOperationManager {
 
             attributesToSearch.put(new BasicAttribute(attributeName, attributeValue));
 
-            NamingEnumeration<SearchResult> answer = this.ctx.search(baseDN, attributesToSearch);
+            NamingEnumeration<SearchResult> answer = this.context.search(baseDN, attributesToSearch);
 
             while (answer.hasMore()) {
                 result.add(searchCallback.processResult(answer.next()));
@@ -201,7 +207,7 @@ public class LDAPOperationManager {
      */
     public NamingEnumeration<SearchResult> search(String baseDN, Attributes attributesToSearch, String[] attributesToReturn) {
         try {
-            return ctx.search(baseDN, attributesToSearch, attributesToReturn);
+            return context.search(baseDN, attributesToSearch, attributesToReturn);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -221,7 +227,7 @@ public class LDAPOperationManager {
     public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn,
             SearchControls searchControls) {
         try {
-            return this.ctx.search(baseDN, filter, attributesToReturn, searchControls);
+            return this.context.search(baseDN, filter, attributesToReturn, searchControls);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -236,7 +242,7 @@ public class LDAPOperationManager {
      */
     public void destroySubcontext(String dn) {
         try {
-            ctx.destroySubcontext(dn);
+            context.destroySubcontext(dn);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -274,7 +280,7 @@ public class LDAPOperationManager {
      */
     public boolean checkAttributePresence(String attributeName) {
         try {
-            DirContext schema = ctx.getSchema("");
+            DirContext schema = context.getSchema("");
 
             DirContext cnSchema = (DirContext) schema.lookup("AttributeDefinition/" + attributeName);
             if (cnSchema != null) {
@@ -287,11 +293,20 @@ public class LDAPOperationManager {
         return false;
     }
 
+    /**
+     * <p>
+     * Performs a simple authentication using the ginve DN and password to bind to the authentication context.
+     * </p>
+     * 
+     * @param dn
+     * @param password
+     * @return
+     */
     public boolean authenticate(String dn, String password) {
         try {
-            ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
-            ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
-            lookup(dn);
+            this.authenticationContext.addToEnvironment(Context.SECURITY_PRINCIPAL, dn);
+            this.authenticationContext.addToEnvironment(Context.SECURITY_CREDENTIALS, password);
+            this.authenticationContext.lookup(dn);
         } catch (Exception e) {
             return false;
         }

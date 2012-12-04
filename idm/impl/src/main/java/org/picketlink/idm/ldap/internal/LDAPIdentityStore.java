@@ -27,7 +27,10 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
+import java.io.ByteArrayInputStream;
 import java.io.Serializable;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +45,6 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.credential.Credential;
@@ -430,51 +432,37 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     @Override
     public boolean validateCredential(User user, Credential credential) {
+        LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
+        
+        if (ldapUser == null) {
+            return false;
+        }
+        
+        boolean valid = false;
+        
         if (credential instanceof PasswordCredential) {
             PasswordCredential pc = (PasswordCredential) credential;
-            boolean valid = false;
-            // We have to bind
+            
+            valid = getLdapManager().authenticate(ldapUser.getDN(), pc.getPassword());
+        } else if (credential instanceof X509CertificateCredential){
+            X509CertificateCredential clientCert = (X509CertificateCredential) credential;
+
+            org.picketlink.idm.model.Attribute<Serializable> certAttribute = ldapUser.getAttribute(USER_CERTIFICATE_ATTRIBUTE);
+            
+            byte[] certBytes = Base64.decode(new String((byte[]) certAttribute.getValue()));
+            
             try {
-                LDAPUser ldapUser = null;
-                if (user instanceof LDAPUser == false) {
-                    ldapUser = convert(user);
-                } else {
-                    ldapUser = (LDAPUser) user;
-                }
-
-                String filter = "(&(objectClass=inetOrgPerson)(uid={0}))";
-                SearchControls ctls = new SearchControls();
-                ctls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-                ctls.setReturningAttributes(new String[0]);
-                ctls.setReturningObjFlag(true);
-                NamingEnumeration<SearchResult> enm = getLdapManager().search(this.configuration.getUserDNSuffix(), filter,
-                        new String[] { ldapUser.getId() }, ctls);
-
-                String dn = null;
-                if (enm.hasMore()) {
-                    SearchResult result = enm.next();
-                    dn = result.getNameInNamespace();
-
-                    System.out.println("dn: " + dn);
-                }
-
-                if (dn == null || enm.hasMore()) {
-                    // uid not found or not unique
-                    throw new NamingException("Authentication failed");
-                }
-
-                // Step 3: Bind with found DN and given password
-                valid = getLdapManager().authenticate(dn, pc.getPassword());
-            } catch (NamingException e) {
-                // Ignore
+                CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+                X509Certificate storedCert = (X509Certificate) certFactory.generateCertificate(new ByteArrayInputStream(certBytes));
+                X509Certificate providedCert = clientCert.getCertificate();
+                
+                valid = storedCert.equals(providedCert);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-            return valid;
-        } else {
-            throwsNotSupportedCredentialType(credential);
         }
 
-        return false;
+        return valid;
     }
 
     @Override
@@ -503,11 +491,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             X509CertificateCredential cc = (X509CertificateCredential) credential;
             try {
                 LDAPUser ldapUser = (LDAPUser) user;
-                ldapUser.setAttribute(new org.picketlink.idm.model.Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, new String(
-                        Base64.encodeBytes(cc.getCertificate().getEncoded()))));
+                
+                String certbytes = Base64.encodeBytes(cc.getCertificate().getEncoded());
+                
+                ldapUser.setAttribute(new org.picketlink.idm.model.Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, certbytes));
 
-                byte[] certbytes = cc.getCertificate().getEncoded();
-
+                
                 BasicAttribute certAttribute = new BasicAttribute(USER_CERTIFICATE_ATTRIBUTE, certbytes);
 
                 // Perform the update
