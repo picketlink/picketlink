@@ -516,35 +516,27 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         // TODO: make this code more simple
         List<T> result = new ArrayList<T>();
 
-        if (User.class.isAssignableFrom(typeClass)) {
-            Set<Entry<QueryParameter, Object[]>> entrySet = parameters.entrySet();
+        Set<Entry<QueryParameter, Object[]>> entrySet = parameters.entrySet();
+        Attributes attributesTosearch = new BasicAttributes(true);
+        Map<QueryParameter, Object[]> customAttributesToSearch = new HashMap<QueryParameter, Object[]>();
 
-            Attributes ldapAttributeSearch = new BasicAttributes(true);
-            Attributes customAttributeSearch = new BasicAttributes(true);
+        for (Entry<QueryParameter, Object[]> entry : entrySet) {
+            QueryParameter queryParameter = entry.getKey();
+            Object[] values = entry.getValue();
 
-            for (Entry<QueryParameter, Object[]> entry : entrySet) {
-                QueryParameter queryParameter = entry.getKey();
-                Object[] values = entry.getValue();
+            Attribute mappedAttribute = LDAPAttributeMapper.map(queryParameter);
 
-                Attribute ldapAttribute = LDAPAttributeMapper.map(queryParameter);
-
-                if (ldapAttribute != null) {
-                    ldapAttribute.add(values[0]);
-                    ldapAttributeSearch.put(ldapAttribute);
-                } else {
-                    ldapAttribute = LDAPAttributeMapper.mapCustom(queryParameter);
-
-                    if (ldapAttribute != null) {
-                        ldapAttribute.add(values[0]);
-                        customAttributeSearch.put(ldapAttribute);
-                    }
-                }
+            if (mappedAttribute != null) {
+                mappedAttribute.add(values[0]);
+                attributesTosearch.put(mappedAttribute);
+            } else {
+                customAttributesToSearch.put(queryParameter, values);
             }
+        }
 
-            LDAPUser user = null;
-
+        if (User.class.isAssignableFrom(typeClass)) {
             NamingEnumeration<SearchResult> answer = getLdapManager().search(this.configuration.getUserDNSuffix(),
-                    ldapAttributeSearch, null);
+                    attributesTosearch, new String[] { UID });
 
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.nextElement();
@@ -557,46 +549,52 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                     e.printStackTrace();
                 }
 
-                user = (LDAPUser) getUser(uid);
+                LDAPUser transientUser = new LDAPUser(this.configuration.getUserDNSuffix());
 
-                LDAPCustomAttributes customAttributes = user.getCustomAttributes();
+                transientUser.setId(uid);
 
-                Map<String, Object> attrs = customAttributes.getAttributes();
-                
-                boolean match = false;
-                
-                if (customAttributeSearch.size() > 0) {
-                    Set<Entry<String, Object>> entrySet2 = attrs.entrySet();
-                    
-                    for (Entry<String, Object> entry : entrySet2) {
-                        Attribute attribute = customAttributeSearch.get(entry.getKey());
-                        
-                        try {
-                            if (attribute != null) {
-                                String value = attribute.get().toString();
+                if (customAttributesToSearch.size() > 0) {
+                    Set<Entry<QueryParameter, Object[]>> customEntrySet = customAttributesToSearch.entrySet();
 
-                                if (attribute.getID().equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
-                                        || attribute.getID().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                                    value = String.valueOf(((Date) attribute.get()).getTime());
+                    for (Entry<QueryParameter, Object[]> entry : customEntrySet) {
+                        QueryParameter queryParameter = entry.getKey();
+                        Object[] values = entry.getValue();
+
+                        LDAPCustomAttributes customAttributes = getCustomAttributes(transientUser.getDN());
+
+                        if (customAttributes != null) {
+                            Set<Entry<String, Object>> customAttr = customAttributes.getAttributes().entrySet();
+
+                            for (Entry<String, Object> entry2 : customAttr) {
+                                String id = entry2.getKey().toString();
+                                String entryValue = entry2.getValue().toString();
+                                Object value = values[0];
+                                Attribute mapCustom = LDAPAttributeMapper.mapCustom(queryParameter);
+
+                                if (mapCustom != null) {
+                                    if (mapCustom.getID().equals(id)) {
+                                        if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
+                                                || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
+                                            value = String.valueOf(((Date) value).getTime());
+                                        }
+
+                                        if (!(value.toString().equals(entryValue))) {
+                                            uid = null;
+                                            break;
+                                        }
+                                    }
                                 }
-                                
-                                if (!(value.equals(entry.getValue().toString()))) {
-                                    user = null;
-                                    break;
-                                }
-                                
-                                match = true;
                             }
-                        } catch (NamingException e) {
-                            e.printStackTrace();
+                        } else {
+                            uid = null;
                         }
                     }
-                } else {
-                    match = true;
-                }
 
-                if (user != null && match) {
-                    result.add((T) user);
+                    if (uid != null) {
+                        result.add((T) getUser(uid));
+                    }
+                } else {
+                    result.add((T) getUser(uid));
                 }
             }
         }
