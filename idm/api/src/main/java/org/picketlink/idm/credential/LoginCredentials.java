@@ -8,7 +8,6 @@ package org.picketlink.idm.credential;
  * 
  * @author Shane Bryzak
  */
-public interface LoginCredentials
-{
+public interface LoginCredentials {
     void invalidate();
 }

@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
@@ -185,24 +186,9 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     // Credential management
 
-    /**
-     * Validates a credential for the specified User 
-     * 
-     * @param ctx
-     * @param user
-     * @param credential
-     * @return
-     */
-    boolean validateCredential(User user, Credential credential);
+    void storeCredential(CredentialStorage storage);
 
-    /**
-     * Updates a credential for the specified User 
-     * 
-     * @param ctx
-     * @param user
-     * @param credential
-     */
-    void updateCredential(User user, Credential credential);
+    CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass);
 
     // Attributes
 

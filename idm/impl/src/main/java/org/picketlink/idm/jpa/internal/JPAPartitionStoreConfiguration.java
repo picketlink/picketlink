@@ -15,7 +15,6 @@ import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
-import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PropertyTypeCriteria;
 
 /**
  * Configuration for the JPA based partition store 

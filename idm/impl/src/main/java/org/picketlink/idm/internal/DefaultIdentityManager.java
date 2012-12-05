@@ -34,6 +34,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.credential.LoginCredentials;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -367,15 +368,18 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public boolean validateCredential(User user, Credential credential) {
-        return getContextualStoreForFeature(createContext(), 
-                Feature.validateCredential).validateCredential(user, credential);
+    public User validateCredentials(LoginCredentials credentials) {
+        IdentityStore store = getContextualStoreForFeature(createContext(), 
+                Feature.validateCredential); //.validateCredential(credentials);
+
+        // TODO implement
+        return null;
     }
 
     @Override
     public void updateCredential(User user, Credential credential) {
-        getContextualStoreForFeature(createContext(), Feature.validateCredential)
-            .updateCredential(user, credential);
+        IdentityStore store = getContextualStoreForFeature(createContext(), Feature.validateCredential);
+            //.updateCredential(user, credential);
     }
 
     public IdentityStoreInvocationContextFactory getContextFactory() {
