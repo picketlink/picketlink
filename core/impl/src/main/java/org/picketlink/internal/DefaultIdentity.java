@@ -22,6 +22,7 @@ import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
+import org.picketlink.credential.internal.DefaultLoginCredentials;
 import org.picketlink.idm.credential.LoginCredentials;
 import org.picketlink.idm.model.User;
 
@@ -45,7 +46,7 @@ public class DefaultIdentity implements Identity
 
     @Inject
     @SuppressWarnings("NonSerializableFieldInSerializableClass")
-    private LoginCredentials loginCredential;
+    private DefaultLoginCredentials loginCredential;
 
     /**
      * Flag indicating whether we are currently authenticating

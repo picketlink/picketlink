@@ -23,13 +23,11 @@ public class DefaultLoginCredentials implements LoginCredentials
 
     private String userId;
 
-    @Override
     public String getUserId()
     {
         return userId;
     }
 
-    @Override
     public void setUserId(String userId)
     {
         this.userId = userId;
@@ -48,7 +46,8 @@ public class DefaultLoginCredentials implements LoginCredentials
     
     public String getPassword()
     {        
-        return credential != null && credential instanceof PasswordCredential ? ((PasswordCredential) credential).getPassword() : null;
+        return credential != null && credential instanceof PasswordCredential ? 
+                new String(((PasswordCredential) credential).getPassword()) : null;
     }
 
     /**
@@ -56,7 +55,7 @@ public class DefaultLoginCredentials implements LoginCredentials
      */
     public void setPassword(final String password)
     {
-        this.credential = new PasswordCredential(password);
+        this.credential = new PasswordCredential(password.toCharArray());
     }
 
     public void invalidate()
