@@ -347,6 +347,60 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
     
     /**
      * <p>
+     * Finds users using the IDM specific attributes and user defined attributes.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindUsingMultipleParameters() throws Exception {
+        User user = getUser("admin");
+        
+        user.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
+        
+        getIdentityManager().update(user);
+        
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
+        
+        query.setParameter(User.EMAIL, "admin@jboss.org");
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+        
+        query.setParameter(User.EMAIL, "admin@jboss.org");
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
+        
+        result = query.getResultList();
+        
+        assertTrue(result.isEmpty());
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+        
+        query.setParameter(User.EMAIL, "admin@jboss.org");
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        query.setParameter(User.FIRST_NAME, "The");
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+        
+        query.setParameter(User.EMAIL, "admin@jboss.org");
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        query.setParameter(User.FIRST_NAME, "Bad First Name");
+        
+        result = query.getResultList();
+        
+        assertTrue(result.isEmpty());
+    }
+    
+    /**
+     * <p>
      * Finds users expired between a specific date.
      * </p>
      * 
