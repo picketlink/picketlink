@@ -434,7 +434,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         }
     }
 
-    //@Override
+    // @Override
     public boolean validateCredential(User user, Credential credential) {
         LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
 
@@ -470,7 +470,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         return valid;
     }
 
-    //@Override
+    // @Override
     public void updateCredential(User user, Credential credential) {
         if (credential instanceof PasswordCredential) {
             PasswordCredential pc = (PasswordCredential) credential;
@@ -525,12 +525,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         for (Entry<QueryParameter, Object[]> entry : parametersEntries) {
             QueryParameter queryParameter = entry.getKey();
             Object[] values = entry.getValue();
-            
+
             Attribute mappedAttribute = null;
-            
+
             if (queryParameter instanceof IdentityType.AttributeParameter) {
                 IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
-                
+
                 if (getLdapManager().isManagedAttribute(attrParameter.getName())) {
                     mappedAttribute = new BasicAttribute(attrParameter.getName());
                     mappedAttribute.add(values[0]);
@@ -538,7 +538,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 }
             } else {
                 mappedAttribute = LDAPAttributeMapper.map(queryParameter);
-             
+
                 if (mappedAttribute != null) {
                     mappedAttribute.add(values[0]);
                     attributesTosearch.put(mappedAttribute);
@@ -580,25 +580,25 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                         if (customAttributes != null) {
                             Set<Entry<String, Object>> customAttr = customAttributes.getAttributes().entrySet();
-                            
+
                             boolean hasAttribute = false;
-                            
+
                             for (Entry<String, Object> customAttribute : customAttr) {
                                 String id = customAttribute.getKey().toString();
-                                String entryValue = customAttribute.getValue().toString();
-                                Object value = values[0];
+                                Object entryValue = customAttribute.getValue();
                                 Attribute mapCustom = LDAPAttributeMapper.mapCustom(queryParameter);
 
                                 if (mapCustom != null) {
                                     if (mapCustom.getID().equals(id)) {
                                         hasAttribute = true;
-                                        
+
                                         if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
                                                 || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                                            long providedTimeInMillis = ((Date) value).getTime();
-                                            long storedTimeInMillis = Long.valueOf(entryValue);
-                                            
-                                            if (queryParameter.equals(User.CREATED_DATE) || queryParameter.equals(User.EXPIRY_DATE)) {
+                                            long providedTimeInMillis = ((Date) values[0]).getTime();
+                                            long storedTimeInMillis = Long.valueOf(entryValue.toString());
+
+                                            if (queryParameter.equals(User.CREATED_DATE)
+                                                    || queryParameter.equals(User.EXPIRY_DATE)) {
                                                 if (providedTimeInMillis != storedTimeInMillis) {
                                                     uid = null;
                                                     break;
@@ -632,32 +632,60 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                                                     }
                                                 }
                                             }
-
-                                            value = String.valueOf(providedTimeInMillis);
                                         } else {
-                                            if (!(value.toString().equals(entryValue))) {
-                                                uid = null;
-                                                break;
+                                            if (queryParameter instanceof IdentityType.AttributeParameter) {
+                                                IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
+
+                                                if (id.equals(attrParameter.getName())) {
+                                                    hasAttribute = true;
+
+                                                    if (!values[0].toString().equals(entryValue.toString())) {
+                                                        uid = null;
+                                                        break;
+                                                    }
+                                                }
+                                            } else {
+                                                if (!(values[0].toString().equals(entryValue.toString()))) {
+                                                    uid = null;
+                                                    break;
+                                                }
                                             }
-                                            
                                         }
                                     }
                                 } else {
                                     if (queryParameter instanceof IdentityType.AttributeParameter) {
                                         IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
-                                        
+
                                         if (id.equals(attrParameter.getName())) {
                                             hasAttribute = true;
                                             
-                                            if (!value.toString().equals(entryValue.toString())) {
-                                                uid = null;
-                                                break;
+                                            if (entryValue.getClass().isArray()) {
+                                                Object[] attributeValues = (Object[]) entryValue;
+                                                int matchCount = 0;
+                                                
+                                                for (Object object : attributeValues) {
+                                                    for (Object parameterValue : values) {
+                                                        if (object.toString().equals(parameterValue.toString())) {
+                                                            matchCount++;
+                                                        }
+                                                    }
+                                                }
+                                                
+                                                if (matchCount != attributeValues.length) {
+                                                    uid = null;
+                                                    break;
+                                                }
+                                            } else {
+                                                if (!values[0].toString().equals(entryValue.toString())) {
+                                                    uid = null;
+                                                    break;
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                            
+
                             if (!hasAttribute) {
                                 uid = null;
                             }
@@ -766,7 +794,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         if (user.getEmail() != null) {
             ldapUser.setEmail(user.getEmail());
         }
-        
+
         if (user.getExpirationDate() != null) {
             ldapUser.setExpirationDate(user.getExpirationDate());
         }
@@ -923,7 +951,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public void storeCredential(CredentialStorage storage) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

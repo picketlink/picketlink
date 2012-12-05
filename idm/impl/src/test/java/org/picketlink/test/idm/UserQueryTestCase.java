@@ -426,10 +426,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         calendar.add(Calendar.YEAR, -1);
         
-        Date createdDate = calendar.getTime();
+        Date expiryDate = calendar.getTime();
         
         // users between the given time period
-        query.setParameter(User.EXPIRY_AFTER, createdDate);
+        query.setParameter(User.EXPIRY_AFTER, expiryDate);
         query.setParameter(User.EXPIRY_BEFORE, new Date());
         
         Thread.sleep(500);
@@ -456,7 +456,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         query = getIdentityManager().<User> createQuery(User.class);
         
         // users expired after the given time
-        query.setParameter(User.EXPIRY_AFTER, createdDate);
+        query.setParameter(User.EXPIRY_AFTER, expiryDate);
         
         result = query.getResultList();
         
@@ -499,7 +499,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      * @throws Exception
      */
     @Test
-    public void testFindByUserDefinedAttribute() throws Exception {
+    public void testFindByUserDefinedAttributes() throws Exception {
         User someUser = getUser("someUser");
         
         someUser.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
@@ -513,10 +513,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
+        assertTrue(contains(result, someUser.getId()));
 
-        assertEquals("someUser", result.get(0).getId());
-        
         someUser.setAttribute(new Attribute<String>("someAttribute", "someAttributeValueChanged"));
         
         getIdentityManager().update(someUser);
@@ -527,7 +525,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         result = query.getResultList();
         
-        assertTrue(result.isEmpty());
+        assertFalse(contains(result, someUser.getId()));
 
         someUser.setAttribute(new Attribute<String>("someAttribute2", "someAttributeValue2"));
         
@@ -541,7 +539,80 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
         
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
+        assertTrue(contains(result, someUser.getId()));
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by looking its multi-valued attributes.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindByUserDefinedMultiValuedAttributes() throws Exception {
+        User someUser = getUser("someUser");
+        
+        someUser.setAttribute(new Attribute<String[]>("someAttribute", new String[] {"someAttributeValue1", "someAttributeValue2"}));
+        
+        getIdentityManager().update(someUser);
+        
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] {"someAttributeValue1", "someAttributeValue2"});
+
+        List<User> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, someUser.getId()));
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] {"someAttributeValue1", "someAttributeValue2"});
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] {"someAttributeValueChanged", "someAttributeValue2"});
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] {"someAttributeValue"});
+
+        result = query.getResultList();
+
+        assertFalse(contains(result, someUser.getId()));
+        
+        someUser.setAttribute(new Attribute<String[]>("someAttribute", new String[] {"someAttributeValue1", "someAttributeValueChanged"}));
+        someUser.setAttribute(new Attribute<String[]>("someAttribute2", new String[] {"someAttribute2Value1", "someAttribute2Value2"}));
+        
+        getIdentityManager().update(someUser);
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] {"someAttributeValue1", "someAttributeValueChanged"});
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] {"someAttribute2Value1", "someAttribute2Value2"});
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, someUser.getId()));
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] {"someAttributeValue1", "someAttributeValueChanged"});
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] {"someAttribute2ValueChanged", "someAttribute2Value2"});
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
     }
     
     private User getUser(String userName) {
@@ -551,8 +622,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
             getIdentityManager().add(user);            
         }
         
-        user = getIdentityManager().getUser(userName);
-        return user;
+        return getIdentityManager().getUser(userName);
     }
     
     private boolean contains(List<User> result, String userId) {
