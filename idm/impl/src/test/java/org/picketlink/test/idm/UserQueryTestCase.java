@@ -268,5 +268,32 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
     }
+    
+    /**
+     * <p>
+     * Finds users created between a specific date.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindBetweenCreationDate() throws Exception {
+        Date createdDate = new Date();
+        
+        getIdentityManager().add(new SimpleUser("someUser"));
+        getIdentityManager().add(new SimpleUser("someAnotherUser"));
+        
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(User.CREATED_AFTER, createdDate);
+        query.setParameter(User.CREATED_BEFORE, new Date());
+        
+        // all expired users
+        List<User> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertEquals("someUser", result.get(0).getId());
+    }
 
 }

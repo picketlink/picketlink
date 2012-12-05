@@ -579,7 +579,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                                         || attribute.getID().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
                                     value = String.valueOf(((Date) attribute.get()).getTime());
                                 }
-
+                                
                                 if (!(value.equals(entry.getValue().toString()))) {
                                     user = null;
                                     break;
