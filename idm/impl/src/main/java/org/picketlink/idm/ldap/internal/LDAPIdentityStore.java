@@ -52,6 +52,7 @@ import javax.naming.directory.SearchResult;
 import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
@@ -433,7 +434,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         }
     }
 
-    @Override
+    //@Override
     public boolean validateCredential(User user, Credential credential) {
         LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
 
@@ -469,7 +470,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         return valid;
     }
 
-    @Override
+    //@Override
     public void updateCredential(User user, Credential credential) {
         if (credential instanceof PasswordCredential) {
             PasswordCredential pc = (PasswordCredential) credential;
@@ -917,5 +918,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     public LDAPOperationManager getLdapManager() {
         return this.configuration.getLdapManager();
+    }
+
+    @Override
+    public void storeCredential(CredentialStorage storage) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

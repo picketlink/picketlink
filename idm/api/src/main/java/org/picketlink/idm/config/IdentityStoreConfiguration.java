@@ -21,14 +21,9 @@
  */
 package org.picketlink.idm.config;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.jpa.annotations.IDMProperty;
-import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 

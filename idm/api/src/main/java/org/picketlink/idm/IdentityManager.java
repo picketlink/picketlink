@@ -23,6 +23,7 @@ package org.picketlink.idm;
 
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.credential.LoginCredentials;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -101,7 +102,7 @@ public interface IdentityManager {
 
     // Credential management
 
-    boolean validateCredential(User user, Credential credential);
+    User validateCredentials(LoginCredentials credentials);
 
     void updateCredential(User user, Credential credential);
 

@@ -45,6 +45,7 @@ import org.picketlink.idm.credential.DigestCredential;
 import org.picketlink.idm.credential.DigestCredentialUtil;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
@@ -871,7 +872,7 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
         return null;
     }*/
     
-    @Override
+    //@Override
     public boolean validateCredential(User user, Credential credential) {
         if (credential instanceof PasswordCredential) {
             PasswordCredential passwordCredential = (PasswordCredential) credential;
@@ -908,7 +909,7 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
         return false;
     }
 
-    @Override
+    //@Override
     public void updateCredential(User user, Credential credential) {
         if (credential instanceof PasswordCredential) {
             PasswordCredential passwordCredential = (PasswordCredential) credential;
@@ -1049,6 +1050,18 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     @Override
     public void updateGroup(Group group) {
         
+    }
+
+    @Override
+    public void storeCredential(CredentialStorage storage) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

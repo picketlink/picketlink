@@ -28,6 +28,7 @@ import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
@@ -400,18 +401,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public boolean validateCredential(User user, Credential credential) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
-    public void updateCredential(User user, Credential credential) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public User getUser(String id) {
         // Check the cache first
         User user = getContext().getCache().lookupUser(context.getRealm(), id);
@@ -621,6 +610,18 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     public void update(IdentityType identityType) {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public void storeCredential(CredentialStorage storage) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }
