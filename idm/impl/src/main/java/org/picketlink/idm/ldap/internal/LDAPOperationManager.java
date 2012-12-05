@@ -238,6 +238,7 @@ public class LDAPOperationManager {
             SearchControls cons = new SearchControls();
             
             cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            cons.setReturningObjFlag(true);
             
             return this.context.search(baseDN, filter, cons);
         } catch (NamingException e) {

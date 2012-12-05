@@ -51,9 +51,29 @@ public interface IdentityType extends Serializable {
     QueryParameter CREATED_DATE = new QueryParameter() {};
 
     /**
+     * A query parameter used to set the created after date
+     */
+    QueryParameter CREATED_AFTER = new QueryParameter() {};
+    
+    /**
+     * A query parameter used to set the created before date
+     */
+    QueryParameter CREATED_BEFORE = new QueryParameter() {};
+
+    /**
      * A query parameter used to set the expiryDate value
      */
     QueryParameter EXPIRY_DATE = new QueryParameter() {};
+
+    /**
+     * A query parameter used to set the expiration after date
+     */
+    QueryParameter EXPIRY_AFTER = new QueryParameter() {};
+
+    /**
+     * A query parameter used to set the expiration before date
+     */
+    QueryParameter EXPIRY_BEFORE = new QueryParameter() {};
 
     /**
      * Used to specify either a realm or tier-specific role.  The query should only 
