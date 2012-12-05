@@ -56,6 +56,7 @@ import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.IdentityType.AttributeParameter;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
@@ -516,20 +517,34 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         // TODO: make this code more simple
         List<T> result = new ArrayList<T>();
 
-        Set<Entry<QueryParameter, Object[]>> entrySet = parameters.entrySet();
+        Set<Entry<QueryParameter, Object[]>> parametersEntries = parameters.entrySet();
         Attributes attributesTosearch = new BasicAttributes(true);
         Map<QueryParameter, Object[]> customAttributesToSearch = new HashMap<QueryParameter, Object[]>();
 
-        for (Entry<QueryParameter, Object[]> entry : entrySet) {
+        for (Entry<QueryParameter, Object[]> entry : parametersEntries) {
             QueryParameter queryParameter = entry.getKey();
             Object[] values = entry.getValue();
-
-            Attribute mappedAttribute = LDAPAttributeMapper.map(queryParameter);
-
-            if (mappedAttribute != null) {
-                mappedAttribute.add(values[0]);
-                attributesTosearch.put(mappedAttribute);
+            
+            Attribute mappedAttribute = null;
+            
+            if (queryParameter instanceof IdentityType.AttributeParameter) {
+                IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
+                
+                if (getLdapManager().isManagedAttribute(attrParameter.getName())) {
+                    mappedAttribute = new BasicAttribute(attrParameter.getName());
+                    mappedAttribute.add(values[0]);
+                    attributesTosearch.put(mappedAttribute);
+                }
             } else {
+                mappedAttribute = LDAPAttributeMapper.map(queryParameter);
+             
+                if (mappedAttribute != null) {
+                    mappedAttribute.add(values[0]);
+                    attributesTosearch.put(mappedAttribute);
+                }
+            }
+
+            if (mappedAttribute == null) {
                 customAttributesToSearch.put(queryParameter, values);
             }
         }
@@ -554,36 +569,96 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 transientUser.setId(uid);
 
                 if (customAttributesToSearch.size() > 0) {
-                    Set<Entry<QueryParameter, Object[]>> customEntrySet = customAttributesToSearch.entrySet();
+                    Set<Entry<QueryParameter, Object[]>> customQueryParameters = customAttributesToSearch.entrySet();
 
-                    for (Entry<QueryParameter, Object[]> entry : customEntrySet) {
-                        QueryParameter queryParameter = entry.getKey();
-                        Object[] values = entry.getValue();
+                    for (Entry<QueryParameter, Object[]> customQueryParameter : customQueryParameters) {
+                        QueryParameter queryParameter = customQueryParameter.getKey();
+                        Object[] values = customQueryParameter.getValue();
 
                         LDAPCustomAttributes customAttributes = getCustomAttributes(transientUser.getDN());
 
                         if (customAttributes != null) {
                             Set<Entry<String, Object>> customAttr = customAttributes.getAttributes().entrySet();
-
-                            for (Entry<String, Object> entry2 : customAttr) {
-                                String id = entry2.getKey().toString();
-                                String entryValue = entry2.getValue().toString();
+                            
+                            boolean hasAttribute = false;
+                            
+                            for (Entry<String, Object> customAttribute : customAttr) {
+                                String id = customAttribute.getKey().toString();
+                                String entryValue = customAttribute.getValue().toString();
                                 Object value = values[0];
                                 Attribute mapCustom = LDAPAttributeMapper.mapCustom(queryParameter);
 
                                 if (mapCustom != null) {
                                     if (mapCustom.getID().equals(id)) {
+                                        hasAttribute = true;
+                                        
                                         if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
                                                 || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                                            value = String.valueOf(((Date) value).getTime());
-                                        }
+                                            long providedTimeInMillis = ((Date) value).getTime();
+                                            long storedTimeInMillis = Long.valueOf(entryValue);
+                                            
+                                            if (queryParameter.equals(User.CREATED_DATE) || queryParameter.equals(User.EXPIRY_DATE)) {
+                                                if (providedTimeInMillis != storedTimeInMillis) {
+                                                    uid = null;
+                                                    break;
+                                                }
+                                            } else if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)) {
+                                                if (queryParameter.equals(User.CREATED_AFTER)) {
+                                                    if (storedTimeInMillis < providedTimeInMillis) {
+                                                        uid = null;
+                                                        break;
+                                                    }
+                                                }
 
-                                        if (!(value.toString().equals(entryValue))) {
-                                            uid = null;
-                                            break;
+                                                if (queryParameter.equals(User.CREATED_BEFORE)) {
+                                                    if (storedTimeInMillis > providedTimeInMillis) {
+                                                        uid = null;
+                                                        break;
+                                                    }
+                                                }
+                                            } else if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
+                                                if (queryParameter.equals(User.EXPIRY_AFTER)) {
+                                                    if (storedTimeInMillis < providedTimeInMillis) {
+                                                        uid = null;
+                                                        break;
+                                                    }
+                                                }
+
+                                                if (queryParameter.equals(User.EXPIRY_BEFORE)) {
+                                                    if (storedTimeInMillis > providedTimeInMillis) {
+                                                        uid = null;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            value = String.valueOf(providedTimeInMillis);
+                                        } else {
+                                            if (!(value.toString().equals(entryValue))) {
+                                                uid = null;
+                                                break;
+                                            }
+                                            
+                                        }
+                                    }
+                                } else {
+                                    if (queryParameter instanceof IdentityType.AttributeParameter) {
+                                        IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
+                                        
+                                        if (id.equals(attrParameter.getName())) {
+                                            hasAttribute = true;
+                                            
+                                            if (!value.toString().equals(entryValue.toString())) {
+                                                uid = null;
+                                                break;
+                                            }
                                         }
                                     }
                                 }
+                            }
+                            
+                            if (!hasAttribute) {
+                                uid = null;
                             }
                         } else {
                             uid = null;
@@ -689,6 +764,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
         if (user.getEmail() != null) {
             ldapUser.setEmail(user.getEmail());
+        }
+        
+        if (user.getExpirationDate() != null) {
+            ldapUser.setExpirationDate(user.getExpirationDate());
         }
 
         for (org.picketlink.idm.model.Attribute<? extends Serializable> attrib : user.getAttributes()) {

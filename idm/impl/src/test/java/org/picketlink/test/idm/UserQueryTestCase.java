@@ -26,11 +26,13 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -150,11 +152,11 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindEnabledAndDisabledUsers() throws Exception {
-        User user = new SimpleUser("someUser");
-
-        getIdentityManager().add(user);
+        User user = getUser("someUser");
         
-        user = getIdentityManager().getUser("someUser");
+        user.setEnabled(true);
+        
+        getIdentityManager().update(user);
         
         IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
@@ -164,8 +166,17 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
 
+        boolean match = false;
+        
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(user.getId())) {
+                match = true;
+            }
+        }
+        
+        assertTrue(match);
+        
         query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.ENABLED, false);
@@ -189,7 +200,18 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
-        assertEquals("someUser", result.get(0).getId());
+        assertEquals(user.getId(), result.get(0).getId());
+    }
+
+    private User getUser(String userName) {
+        User user = new SimpleUser(userName);
+        
+        if (getIdentityManager().getUser(user.getId()) == null) {
+            getIdentityManager().add(user);            
+        }
+        
+        user = getIdentityManager().getUser(userName);
+        return user;
     }
     
     /**
@@ -201,11 +223,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindCreationDate() throws Exception {
-        User user = new SimpleUser("someUser");
-
-        getIdentityManager().add(user);
-        
-        user = getIdentityManager().getUser("someUser");
+        User user = getUser("someUser");
         
         IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
@@ -237,9 +255,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindExpiryDate() throws Exception {
-        User user = new SimpleUser("someUser");
-
-        getIdentityManager().add(user);
+        User user = getUser("someUser");
         
         Date expirationDate = new Date();
         
@@ -257,12 +273,26 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
+        
+        boolean match = false;
+        
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(user.getId())) {
+                match = true;
+            }
+        }
+        
+        assertTrue(match);
+        
         assertEquals("someUser", result.get(0).getId());
         
         query = getIdentityManager().<User> createQuery(User.class);
 
-        query.setParameter(User.EXPIRY_DATE, new Date());
+        Calendar calendar = Calendar.getInstance();
+        
+        calendar.add(Calendar.HOUR, 1);
+        
+        query.setParameter(User.EXPIRY_DATE, calendar.getTime());
         
         // no users
         result = query.getResultList();
@@ -278,24 +308,291 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      * @throws Exception
      */
     @Test
-    @Ignore
     public void testFindBetweenCreationDate() throws Exception {
-        Date createdDate = new Date();
+        User someUser = getUser("someUser");
+        User someAnotherUser = getUser("someAnotherUser");
         
-        getIdentityManager().add(new SimpleUser("someUser"));
-        getIdentityManager().add(new SimpleUser("someAnotherUser"));
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
+        
+        Calendar calendar = Calendar.getInstance();
+        
+        calendar.add(Calendar.YEAR, -1);
+        
+        // users between the given time period
+        query.setParameter(User.CREATED_AFTER, calendar.getTime());
+        query.setParameter(User.CREATED_BEFORE, new Date());
+        
+        Thread.sleep(500);
+        
+        List<User> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        
+        boolean matchSomeUser = false;
+        boolean matchAnotherUser = false;
+        
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(someUser.getId())) {
+                matchSomeUser = true;
+            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
+                matchAnotherUser = true;
+            }
+        }
+        
+        assertTrue(matchSomeUser);
+        assertTrue(matchAnotherUser);
+        
+        assertEquals("someUser", result.get(0).getId());
+        assertEquals("someAnotherUser", result.get(1).getId());
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+        
+        User someFutureUser = getUser("someFutureUser");
+        User someAnotherFutureUser = getUser("someAnotherFutureUser");
+
+        // users created after the given time
+        query.setParameter(User.CREATED_AFTER, calendar.getTime());
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        
+        boolean matchSomeFutureUser = false;
+        boolean matchSomeAnotherFutureUser = false;
+        
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(someUser.getId())) {
+                matchSomeUser = true;
+            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
+                matchAnotherUser = true;
+            } else if (resultUser.getId().equals(someFutureUser.getId())) {
+                matchSomeFutureUser = true;
+            } else if (resultUser.getId().equals(someAnotherFutureUser.getId())) {
+                matchSomeAnotherFutureUser = true;
+            }
+        }
+        
+        assertTrue(matchSomeUser);
+        assertTrue(matchAnotherUser);
+        assertTrue(matchSomeFutureUser);
+        assertTrue(matchSomeAnotherFutureUser);
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+
+        // users created before the given time
+        query.setParameter(User.CREATED_BEFORE, new Date());
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(someUser.getId())) {
+                matchSomeUser = true;
+            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
+                matchAnotherUser = true;
+            } else if (resultUser.getId().equals(someFutureUser.getId())) {
+                matchSomeFutureUser = true;
+            } else if (resultUser.getId().equals(someAnotherFutureUser.getId())) {
+                matchSomeAnotherFutureUser = true;
+            }
+        }
+        
+        assertTrue(matchSomeUser);
+        assertTrue(matchAnotherUser);
+        assertTrue(matchSomeFutureUser);
+        assertTrue(matchSomeAnotherFutureUser);
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+        
+        // users created after the given time. Should return an empty list.
+        query.setParameter(User.CREATED_AFTER, new Date());
+        
+        result = query.getResultList();
+        
+        assertTrue(result.isEmpty());
+    }
+    
+    /**
+     * <p>
+     * Finds users expired between a specific date.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindBetweenExpirationDate() throws Exception {
+        User someUser = getUser("someUser");
+        
+        someUser.setExpirationDate(new Date());
+        
+        getIdentityManager().update(someUser);
+        
+        User someAnotherUser = getUser("someAnotherUser");
+        
+        someAnotherUser.setExpirationDate(new Date());
+        
+        getIdentityManager().update(someAnotherUser);
+        
+        IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
+        
+        Calendar calendar = Calendar.getInstance();
+        
+        calendar.add(Calendar.YEAR, -1);
+        
+        Date createdDate = calendar.getTime();
+        
+        // users between the given time period
+        query.setParameter(User.EXPIRY_AFTER, createdDate);
+        query.setParameter(User.EXPIRY_BEFORE, new Date());
+        
+        Thread.sleep(500);
+        
+        User someFutureUser = getUser("someFutureUser");
+        
+        someFutureUser.setExpirationDate(new Date());
+        
+        getIdentityManager().update(someFutureUser);
+        
+        User someAnotherFutureUser = getUser("someAnotherFutureUser");
+        
+        someAnotherFutureUser.setExpirationDate(new Date());
+        
+        getIdentityManager().update(someAnotherFutureUser);
+
+        List<User> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        
+        boolean matchSomeUser = false;
+        boolean matchAnotherUser = false;
+        
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(someUser.getId())) {
+                matchSomeUser = true;
+            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
+                matchAnotherUser = true;
+            }
+        }
+        
+        assertTrue(matchSomeUser);
+        assertTrue(matchAnotherUser);
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+        
+        // users expired after the given time
+        query.setParameter(User.EXPIRY_AFTER, createdDate);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+
+        boolean matchSomeFutureUser = false;
+        boolean matchSomeAnotherFutureUser = false;
+        
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(someUser.getId())) {
+                matchSomeUser = true;
+            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
+                matchAnotherUser = true;
+            } else if (resultUser.getId().equals(someFutureUser.getId())) {
+                matchSomeFutureUser = true;
+            } else if (resultUser.getId().equals(someAnotherFutureUser.getId())) {
+                matchSomeAnotherFutureUser = true;
+            }
+        }
+        
+        assertTrue(matchSomeUser);
+        assertTrue(matchAnotherUser);
+        assertTrue(matchSomeFutureUser);
+        assertTrue(matchSomeAnotherFutureUser);
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+        
+        // users expired before the given time
+        query.setParameter(User.EXPIRY_BEFORE, new Date());
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(someUser.getId())) {
+                matchSomeUser = true;
+            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
+                matchAnotherUser = true;
+            } else if (resultUser.getId().equals(someFutureUser.getId())) {
+                matchSomeFutureUser = true;
+            } else if (resultUser.getId().equals(someAnotherFutureUser.getId())) {
+                matchSomeAnotherFutureUser = true;
+            }
+        }
+        
+        assertTrue(matchSomeUser);
+        assertTrue(matchAnotherUser);
+        assertTrue(matchSomeFutureUser);
+        assertTrue(matchSomeAnotherFutureUser);
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+        
+        // users expired after the given time. Should return an empty list.
+        query.setParameter(User.EXPIRY_AFTER, new Date());
+        
+        result = query.getResultList();
+        
+        assertTrue(result.isEmpty());
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by looking its attributes.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindByUserDefinedAttribute() throws Exception {
+        User someUser = getUser("someUser");
+        
+        someUser.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
+        
+        getIdentityManager().update(someUser);
         
         IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
-        query.setParameter(User.CREATED_AFTER, createdDate);
-        query.setParameter(User.CREATED_BEFORE, new Date());
-        
-        // all expired users
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
-        assertEquals("someUser", result.get(0).getId());
-    }
 
+        assertEquals("someUser", result.get(0).getId());
+        
+        someUser.setAttribute(new Attribute<String>("someAttribute", "someAttributeValueChanged"));
+        
+        getIdentityManager().update(someUser);
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
+        
+        result = query.getResultList();
+        
+        assertTrue(result.isEmpty());
+
+        someUser.setAttribute(new Attribute<String>("someAttribute2", "someAttributeValue2"));
+        
+        getIdentityManager().update(someUser);
+        
+        query = getIdentityManager().<User> createQuery(User.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValueChanged");
+        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), "someAttributeValue2");
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+    }
 }

@@ -47,7 +47,11 @@ public class LDAPAttributeMapper {
         ldapAttributeMap.put(User.LAST_NAME, LDAPConstants.SN);
         
         customAttributeMap.put(User.CREATED_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
+        customAttributeMap.put(User.CREATED_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
+        customAttributeMap.put(User.CREATED_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
         customAttributeMap.put(User.EXPIRY_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
+        customAttributeMap.put(User.EXPIRY_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
+        customAttributeMap.put(User.EXPIRY_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(User.ENABLED, LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED);
     }
     
