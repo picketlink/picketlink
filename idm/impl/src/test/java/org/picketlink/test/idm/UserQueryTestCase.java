@@ -167,15 +167,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        boolean match = false;
-        
-        for (User resultUser : result) {
-            if (resultUser.getId().equals(user.getId())) {
-                match = true;
-            }
-        }
-        
-        assertTrue(match);
+        assertTrue(contains(result, user.getId()));
         
         query = getIdentityManager().<User> createQuery(User.class);
 
@@ -203,17 +195,6 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(user.getId(), result.get(0).getId());
     }
 
-    private User getUser(String userName) {
-        User user = new SimpleUser(userName);
-        
-        if (getIdentityManager().getUser(user.getId()) == null) {
-            getIdentityManager().add(user);            
-        }
-        
-        user = getIdentityManager().getUser(userName);
-        return user;
-    }
-    
     /**
      * <p>
      * Finds users by the creation date.
@@ -274,15 +255,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
         
-        boolean match = false;
-        
-        for (User resultUser : result) {
-            if (resultUser.getId().equals(user.getId())) {
-                match = true;
-            }
-        }
-        
-        assertTrue(match);
+        assertTrue(contains(result, user.getId()));
         
         assertEquals("someUser", result.get(0).getId());
         
@@ -328,22 +301,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
         
-        boolean matchSomeUser = false;
-        boolean matchAnotherUser = false;
-        
-        for (User resultUser : result) {
-            if (resultUser.getId().equals(someUser.getId())) {
-                matchSomeUser = true;
-            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
-                matchAnotherUser = true;
-            }
-        }
-        
-        assertTrue(matchSomeUser);
-        assertTrue(matchAnotherUser);
-        
-        assertEquals("someUser", result.get(0).getId());
-        assertEquals("someAnotherUser", result.get(1).getId());
+        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someAnotherUser.getId()));
         
         query = getIdentityManager().<User> createQuery(User.class);
         
@@ -357,25 +316,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         assertFalse(result.isEmpty());
         
-        boolean matchSomeFutureUser = false;
-        boolean matchSomeAnotherFutureUser = false;
-        
-        for (User resultUser : result) {
-            if (resultUser.getId().equals(someUser.getId())) {
-                matchSomeUser = true;
-            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
-                matchAnotherUser = true;
-            } else if (resultUser.getId().equals(someFutureUser.getId())) {
-                matchSomeFutureUser = true;
-            } else if (resultUser.getId().equals(someAnotherFutureUser.getId())) {
-                matchSomeAnotherFutureUser = true;
-            }
-        }
-        
-        assertTrue(matchSomeUser);
-        assertTrue(matchAnotherUser);
-        assertTrue(matchSomeFutureUser);
-        assertTrue(matchSomeAnotherFutureUser);
+        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someAnotherUser.getId()));
+        assertTrue(contains(result, someFutureUser.getId()));
+        assertTrue(contains(result, someAnotherFutureUser.getId()));
         
         query = getIdentityManager().<User> createQuery(User.class);
 
@@ -386,22 +330,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         assertFalse(result.isEmpty());
 
-        for (User resultUser : result) {
-            if (resultUser.getId().equals(someUser.getId())) {
-                matchSomeUser = true;
-            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
-                matchAnotherUser = true;
-            } else if (resultUser.getId().equals(someFutureUser.getId())) {
-                matchSomeFutureUser = true;
-            } else if (resultUser.getId().equals(someAnotherFutureUser.getId())) {
-                matchSomeAnotherFutureUser = true;
-            }
-        }
-        
-        assertTrue(matchSomeUser);
-        assertTrue(matchAnotherUser);
-        assertTrue(matchSomeFutureUser);
-        assertTrue(matchSomeAnotherFutureUser);
+        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someAnotherUser.getId()));
+        assertTrue(contains(result, someFutureUser.getId()));
+        assertTrue(contains(result, someAnotherFutureUser.getId()));
         
         query = getIdentityManager().<User> createQuery(User.class);
         
@@ -464,19 +396,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
         
-        boolean matchSomeUser = false;
-        boolean matchAnotherUser = false;
-        
-        for (User resultUser : result) {
-            if (resultUser.getId().equals(someUser.getId())) {
-                matchSomeUser = true;
-            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
-                matchAnotherUser = true;
-            }
-        }
-        
-        assertTrue(matchSomeUser);
-        assertTrue(matchAnotherUser);
+        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someAnotherUser.getId()));
         
         query = getIdentityManager().<User> createQuery(User.class);
         
@@ -487,25 +408,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         assertFalse(result.isEmpty());
 
-        boolean matchSomeFutureUser = false;
-        boolean matchSomeAnotherFutureUser = false;
-        
-        for (User resultUser : result) {
-            if (resultUser.getId().equals(someUser.getId())) {
-                matchSomeUser = true;
-            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
-                matchAnotherUser = true;
-            } else if (resultUser.getId().equals(someFutureUser.getId())) {
-                matchSomeFutureUser = true;
-            } else if (resultUser.getId().equals(someAnotherFutureUser.getId())) {
-                matchSomeAnotherFutureUser = true;
-            }
-        }
-        
-        assertTrue(matchSomeUser);
-        assertTrue(matchAnotherUser);
-        assertTrue(matchSomeFutureUser);
-        assertTrue(matchSomeAnotherFutureUser);
+        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someAnotherUser.getId()));
+        assertTrue(contains(result, someFutureUser.getId()));
+        assertTrue(contains(result, someAnotherFutureUser.getId()));
         
         query = getIdentityManager().<User> createQuery(User.class);
         
@@ -516,22 +422,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         assertFalse(result.isEmpty());
         
-        for (User resultUser : result) {
-            if (resultUser.getId().equals(someUser.getId())) {
-                matchSomeUser = true;
-            } else if (resultUser.getId().equals(someAnotherUser.getId())) {
-                matchAnotherUser = true;
-            } else if (resultUser.getId().equals(someFutureUser.getId())) {
-                matchSomeFutureUser = true;
-            } else if (resultUser.getId().equals(someAnotherFutureUser.getId())) {
-                matchSomeAnotherFutureUser = true;
-            }
-        }
-        
-        assertTrue(matchSomeUser);
-        assertTrue(matchAnotherUser);
-        assertTrue(matchSomeFutureUser);
-        assertTrue(matchSomeAnotherFutureUser);
+        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someAnotherUser.getId()));
+        assertTrue(contains(result, someFutureUser.getId()));
+        assertTrue(contains(result, someAnotherFutureUser.getId()));
         
         query = getIdentityManager().<User> createQuery(User.class);
         
@@ -594,5 +488,26 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
+    }
+    
+    private User getUser(String userName) {
+        User user = new SimpleUser(userName);
+        
+        if (getIdentityManager().getUser(user.getId()) == null) {
+            getIdentityManager().add(user);            
+        }
+        
+        user = getIdentityManager().getUser(userName);
+        return user;
+    }
+    
+    private boolean contains(List<User> result, String userId) {
+        for (User resultUser : result) {
+            if (resultUser.getId().equals(userId)) {
+                return true;
+            }
+        }        
+        
+        return false;
     }
 }
