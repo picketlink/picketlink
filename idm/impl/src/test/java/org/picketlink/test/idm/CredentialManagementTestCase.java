@@ -53,13 +53,13 @@ public class CredentialManagementTestCase extends AbstractIdentityManagerTestCas
     public void testUsernameAndPassword() throws Exception {
         User user = getIdentityManager().getUser("admin");
         
-        assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("admin")));
-        assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("bad_credential")));
+        assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("admin".toCharArray())));
+        assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("bad_credential".toCharArray())));
         
-        getIdentityManager().updateCredential(user, new PasswordCredential("updated_password"));
+        getIdentityManager().updateCredential(user, new PasswordCredential("updated_password".toCharArray()));
         
-        assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("admin")));
-        assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("updated_password")));
+        assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("admin".toCharArray())));
+        assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("updated_password".toCharArray())));
     }
     
     /**

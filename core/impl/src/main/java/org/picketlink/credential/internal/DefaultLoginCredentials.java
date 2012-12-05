@@ -7,8 +7,8 @@ import javax.inject.Named;
 import org.picketlink.authentication.event.LoginFailedEvent;
 import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.idm.credential.Credential;
+import org.picketlink.idm.credential.LoginCredentials;
 import org.picketlink.idm.credential.PasswordCredential;
-import org.picketlink.credential.LoginCredentials;
 
 /**
  * The default LoginCredentials implementation.  This implementation allows for a

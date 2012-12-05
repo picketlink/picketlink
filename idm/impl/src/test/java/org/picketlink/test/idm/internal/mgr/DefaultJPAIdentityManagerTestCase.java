@@ -124,13 +124,13 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
 
         // Change password
         String userpass = "testpass";
-        PasswordCredential pc = new PasswordCredential(userpass);
+        PasswordCredential pc = new PasswordCredential(userpass.toCharArray());
         im.updateCredential(user, pc);
 
         // Let us validate
         assertTrue(im.validateCredential(user, pc));
 
-        assertFalse(im.validateCredential(user, new PasswordCredential("BAD")));
+        assertFalse(im.validateCredential(user, new PasswordCredential("BAD".toCharArray())));
 
         // Let us do UserQuery search
         // FIXME rewrite with new Query API
@@ -182,7 +182,7 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         User user = new SimpleUser("pedroigor");
         identityManager.add(user);
         String password = "easypassword";
-        PasswordCredential pc = new PasswordCredential(password);
+        PasswordCredential pc = new PasswordCredential(password.toCharArray());
 
         identityManager.updateCredential(user, pc);
 
