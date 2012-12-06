@@ -28,61 +28,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.1</version>
-        <executions>
-          <execution>
-           <id>create-binary</id>
-            <phase>package</phase>
-            <goals>
-              <goal>attached</goal>
-            </goals>
-            <configuration>
-              <appendAssemblyId>false</appendAssemblyId>
-              <archive>
-                <manifestEntries>
-                  <Specification-Title>PicketLink</Specification-Title>
-                  <Specification-Version>${project.version}</Specification-Version>
-                  <Specification-Vendor>Red Hat Inc</Specification-Vendor>
-                  <Implementation-Title>PicketLink</Implementation-Title>
-                  <Implementation-Version>${project.version}</Implementation-Version>
-                  <Implementation-VendorId>org.picketlink</Implementation-VendorId>
-                  <Implementation-Vendor>Red Hat Inc</Implementation-Vendor>
-                  <Implementation-URL>http://jboss.org/picketlink</Implementation-URL>
-                </manifestEntries>
-              </archive>
-              <descriptors>
-                <descriptor>bin.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-
-          <execution>
-             <id>create-source-file</id>
-             <phase>package</phase>
-             <goals>
-               <goal>assembly</goal>
-             </goals>
-
-             <configuration>
-              <archive>
-               <manifestEntries>
-                 <Specification-Title>PicketLink</Specification-Title>
-                 <Specification-Version>${project.version}</Specification-Version>
-                 <Specification-Vendor>Red Hat Inc</Specification-Vendor>
-                 <Implementation-Title>PicketLink</Implementation-Title>
-                 <Implementation-Version>${project.version}</Implementation-Version>
-                 <Implementation-VendorId>org.picketlink</Implementation-VendorId>
-                 <Implementation-Vendor>Red Hat Inc</Implementation-Vendor>
-                 <Implementation-URL>http://jboss.org/picketlink</Implementation-URL>
-                </manifestEntries>
-              </archive>
-              <descriptors>
-                <descriptor>sources.xml</descriptor>
-              </descriptors>
-            </configuration>
-          </execution>
-        </executions>
-        <inherited>false</inherited>
       </plugin>
     </plugins>
   </build>
