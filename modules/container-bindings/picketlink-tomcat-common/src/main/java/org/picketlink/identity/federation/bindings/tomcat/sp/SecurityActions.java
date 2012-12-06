@@ -132,7 +132,9 @@ class SecurityActions {
      * @return
      */
     static Method getMethod(final Class<?> clazz, final String methodName, final Class<?>[] parameterTypes) {
-        if (System.getSecurityManager() != null) {
+        SecurityManager sm = System.getSecurityManager();
+
+        if (sm != null) {
             return AccessController.doPrivileged(new PrivilegedAction<Method>() {
                 public Method run() {
                     try {

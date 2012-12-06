@@ -60,7 +60,6 @@ import org.picketlink.trust.jbossws.Constants;
 import org.picketlink.trust.jbossws.PicketLinkDispatch;
 import org.picketlink.trust.jbossws.handler.BinaryTokenHandler;
 import org.picketlink.trust.jbossws.handler.MapBasedTokenHandler;
-import org.picketlink.trust.jbossws.handler.SAML2Handler;
 import org.w3c.dom.Element;
 
 /**
@@ -214,18 +213,21 @@ public class JBWSTokenIssuingLoginModule extends STSIssuingLoginModule {
                     if (token.equalsIgnoreCase("binary")) {
                         BinaryTokenHandler binaryTokenHandler = new BinaryTokenHandler();
                         handlers.add(binaryTokenHandler);
-                    } else if (token.equalsIgnoreCase("saml2")) {
-                        SAML2Handler samlHandler = new SAML2Handler();
-                        handlers.add(samlHandler);
                     } else if (token.equalsIgnoreCase("map")) {
-                        MapBasedTokenHandler mapBasedHandler = new MapBasedTokenHandler(options);
+                        MapBasedTokenHandler mapBasedHandler = new MapBasedTokenHandler(
+                                options);
                         handlers.add(mapBasedHandler);
                     } else {
-                        ClassLoader cl = SecurityActions.getClassLoader(getClass());
+                        String className = (token.equalsIgnoreCase("saml2") ? "org.picketlink.trust.jbossws.handler.SAML2Handler"
+                                : token);
+                        ClassLoader cl = SecurityActions
+                                .getClassLoader(getClass());
                         try {
-                            handlers.add((Handler) cl.loadClass(token).newInstance());
+                            handlers.add((Handler) cl.loadClass(className)
+                                    .newInstance());
                         } catch (Exception e) {
-                            throw logger.authUnableToInstantiateHandler(token, e);
+                            throw logger.authUnableToInstantiateHandler(token,
+                                    e);
                         }
                     }
                 }
