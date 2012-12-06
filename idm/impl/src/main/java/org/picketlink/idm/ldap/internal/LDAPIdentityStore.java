@@ -49,8 +49,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
-import org.picketlink.idm.credential.Credential;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
@@ -435,7 +434,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     // @Override
-    public boolean validateCredential(User user, Credential credential) {
+    public boolean validateCredential(User user, Object credential) {
         LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
 
         if (ldapUser == null) {
@@ -444,8 +443,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
         boolean valid = false;
 
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential pc = (PasswordCredential) credential;
+        if (credential instanceof PlainTextPassword) {
+            PlainTextPassword pc = (PlainTextPassword) credential;
 
             valid = getLdapManager().authenticate(ldapUser.getDN(), new String(pc.getPassword()));
         } else if (credential instanceof X509CertificateCredential) {
@@ -471,9 +470,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     // @Override
-    public void updateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential pc = (PasswordCredential) credential;
+    public void updateCredential(User user, Object credential) {
+        if (credential instanceof PlainTextPassword) {
+            PlainTextPassword pc = (PlainTextPassword) credential;
             if (this.configuration.isActiveDirectory()) {
                 updateADPassword((LDAPUser) user, new String(pc.getPassword()));
             } else {
@@ -764,7 +763,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
      * @param credential
      * @return
      */
-    private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
+    private void throwsNotSupportedCredentialType(Object credential) throws IllegalArgumentException {
         throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
     }
 
@@ -946,17 +945,5 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     public LDAPOperationManager getLdapManager() {
         return this.configuration.getLdapManager();
-    }
-
-    @Override
-    public void storeCredential(CredentialStorage storage) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass) {
-        // TODO Auto-generated method stub
-        return null;
     }
 }

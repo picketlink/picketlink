@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
@@ -183,12 +182,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
     // Identity query
 
     <T extends IdentityType> List<T> fetchQueryResults(Class<T> identityType, Map<QueryParameter,Object[]> parameters);
-
-    // Credential management
-
-    void storeCredential(CredentialStorage storage);
-
-    CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass);
 
     // Attributes
 

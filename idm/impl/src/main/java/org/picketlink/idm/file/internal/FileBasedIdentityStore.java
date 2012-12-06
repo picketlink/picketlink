@@ -40,10 +40,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.credential.Credential;
-import org.picketlink.idm.credential.DigestCredential;
-import org.picketlink.idm.credential.DigestCredentialUtil;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.Digest;
+import org.picketlink.idm.credential.DigestUtil;
+import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
@@ -873,21 +872,21 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }*/
     
     //@Override
-    public boolean validateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential passwordCredential = (PasswordCredential) credential;
+    public boolean validateCredential(User user, Object credential) {
+        if (credential instanceof PlainTextPassword) {
+            PlainTextPassword passwordCredential = (PlainTextPassword) credential;
 
             User storedUser = getUser(user.getId());
             String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
 
             return storedPassword != null && storedPassword.equals(passwordCredential.getPassword());
-        } else if (credential instanceof DigestCredential) {
-            DigestCredential digestCredential = (DigestCredential) credential;
+        } else if (credential instanceof Digest) {
+            Digest digestCredential = (Digest) credential;
             
             User storedUser = getUser(user.getId());
             String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
             
-            return DigestCredentialUtil.matchCredential(digestCredential, storedPassword.toCharArray());
+            return DigestUtil.matchCredential(digestCredential, storedPassword.toCharArray());
         } else if (credential instanceof X509CertificateCredential) {
             X509CertificateCredential certCredential =  (X509CertificateCredential) credential;
             
@@ -910,9 +909,9 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     //@Override
-    public void updateCredential(User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential passwordCredential = (PasswordCredential) credential;
+    public void updateCredential(User user, Object credential) {
+        if (credential instanceof PlainTextPassword) {
+            PlainTextPassword passwordCredential = (PlainTextPassword) credential;
 
             User storedUser = getUser(user.getId());
 
@@ -994,7 +993,7 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
      * @param credential
      * @return
      */
-    private void throwsNotSupportedCredentialType(Credential credential) throws IllegalArgumentException {
+    private void throwsNotSupportedCredentialType(Object credential) throws IllegalArgumentException {
         throw new IllegalArgumentException("Credential type not supported: " + credential.getClass());
     }
 
@@ -1050,18 +1049,6 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     @Override
     public void updateGroup(Group group) {
         
-    }
-
-    @Override
-    public void storeCredential(CredentialStorage storage) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

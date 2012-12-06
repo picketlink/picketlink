@@ -1,6 +1,6 @@
 package org.picketlink.idm.credential.spi;
 
-import org.picketlink.idm.credential.LoginCredentials;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -11,6 +11,6 @@ import org.picketlink.idm.spi.IdentityStore;
  */
 public interface CredentialHandlerFactory {
 
-    CredentialHandler getCredentialHandler(Class<? extends LoginCredentials> credentialsClass, 
+    CredentialHandler getCredentialHandler(Class<? extends Credentials> credentialsClass, 
             Class<? extends IdentityStore> identityStoreClass);
 }

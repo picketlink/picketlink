@@ -23,7 +23,7 @@ import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.internal.DefaultLoginCredentials;
-import org.picketlink.idm.credential.LoginCredentials;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.User;
 
 /**

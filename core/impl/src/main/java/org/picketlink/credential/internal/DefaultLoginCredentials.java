@@ -7,8 +7,8 @@ import javax.inject.Named;
 import org.picketlink.authentication.event.LoginFailedEvent;
 import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.idm.credential.Credential;
-import org.picketlink.idm.credential.LoginCredentials;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.PlainTextPassword;
 
 /**
  * The default LoginCredentials implementation.  This implementation allows for a
@@ -17,7 +17,7 @@ import org.picketlink.idm.credential.PasswordCredential;
  */
 @Named("loginCredentials")
 @RequestScoped
-public class DefaultLoginCredentials implements LoginCredentials
+public class DefaultLoginCredentials implements Credentials
 {
     private Credential credential;
 
@@ -46,8 +46,8 @@ public class DefaultLoginCredentials implements LoginCredentials
     
     public String getPassword()
     {        
-        return credential != null && credential instanceof PasswordCredential ? 
-                new String(((PasswordCredential) credential).getPassword()) : null;
+        return credential != null && credential instanceof PlainTextPassword ? 
+                new String(((PlainTextPassword) credential).getPassword()) : null;
     }
 
     /**
@@ -55,7 +55,7 @@ public class DefaultLoginCredentials implements LoginCredentials
      */
     public void setPassword(final String password)
     {
-        this.credential = new PasswordCredential(password.toCharArray());
+        this.credential = new PlainTextPassword(password.toCharArray());
     }
 
     public void invalidate()

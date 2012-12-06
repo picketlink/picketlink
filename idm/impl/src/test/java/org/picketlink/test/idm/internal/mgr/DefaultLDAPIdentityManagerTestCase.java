@@ -41,7 +41,7 @@ import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
@@ -142,7 +142,7 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
 
         // Change password
         String anilpass = "testpass";
-        PasswordCredential pc = new PasswordCredential(anilpass.toCharArray());
+        PlainTextPassword pc = new PlainTextPassword(anilpass.toCharArray());
         im.updateCredential(anil, pc);
 
         // Let us validate

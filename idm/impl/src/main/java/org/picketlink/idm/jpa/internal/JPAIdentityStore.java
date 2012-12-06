@@ -27,7 +27,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
@@ -609,16 +608,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public void update(IdentityType identityType) {
         // TODO Auto-generated method stub
-        
+
     }
 
-    @Override
     public void storeCredential(CredentialStorage storage) {
         // TODO Auto-generated method stub
-        
+
     }
 
-    @Override
     public CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass) {
         // TODO Auto-generated method stub
         return null;

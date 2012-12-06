@@ -35,9 +35,9 @@ import javax.persistence.Query;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credential;
-import org.picketlink.idm.credential.DigestCredential;
-import org.picketlink.idm.credential.DigestCredentialUtil;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.Digest;
+import org.picketlink.idm.credential.DigestUtil;
+import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.jpa.schema.DatabaseGroup;
@@ -658,19 +658,19 @@ public class SimpleJPAIdentityStore implements IdentityStore {
      */
     @Override
     public boolean validateCredential(IdentityStoreInvocationContext ctx, User user, Credential credential) {
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential passwordCredential = (PasswordCredential) credential;
+        if (credential instanceof PlainTextPassword) {
+            PlainTextPassword passwordCredential = (PlainTextPassword) credential;
             String providedPassword = passwordCredential.getPassword();
             String expectedPassword = user.getAttribute(PASSWORD_ATTRIBUTE_NAME);
             
             return expectedPassword != null && providedPassword != null && providedPassword.equals(expectedPassword);
-        } else if (credential instanceof DigestCredential) {
-            DigestCredential digestCredential = (DigestCredential) credential;
+        } else if (credential instanceof Digest) {
+            Digest digestCredential = (Digest) credential;
             
             User storedUser = getUser(ctx, user.getId());
             String storedPassword = storedUser.getAttribute(PASSWORD_ATTRIBUTE_NAME);
             
-            return DigestCredentialUtil.matchCredential(digestCredential, storedPassword.toCharArray());
+            return DigestUtil.matchCredential(digestCredential, storedPassword.toCharArray());
         } else if (credential instanceof X509CertificateCredential) {
             X509CertificateCredential certCredential = (X509CertificateCredential) credential;
             User storedUser = getUser(ctx, user.getId());
@@ -702,8 +702,8 @@ public class SimpleJPAIdentityStore implements IdentityStore {
             throw new RuntimeException("User not found: " + user.getId());
         }
         
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential passwordCredential = (PasswordCredential) credential;
+        if (credential instanceof PlainTextPassword) {
+            PlainTextPassword passwordCredential = (PlainTextPassword) credential;
             storedUser.setAttribute(PASSWORD_ATTRIBUTE_NAME, passwordCredential.getPassword());
         } else if (credential instanceof X509CertificateCredential) {
             X509CertificateCredential certCredential = (X509CertificateCredential) credential;

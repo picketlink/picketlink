@@ -5,11 +5,11 @@ package org.picketlink.idm.credential;
  * 
  * @author Shane Bryzak
  */
-public class PasswordCredential implements Credential {
+public class PlainTextPassword {
 
     private char[] password;
 
-    public PasswordCredential(char[] password) {
+    public PlainTextPassword(char[] password) {
         this.password = password;
     }
 

@@ -37,7 +37,7 @@ import java.util.Map;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.internal.util.Base64;
@@ -124,7 +124,7 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
 
         // Change password
         String userpass = "testpass";
-        PasswordCredential pc = new PasswordCredential(userpass.toCharArray());
+        PlainTextPassword pc = new PlainTextPassword(userpass.toCharArray());
         im.updateCredential(user, pc);
 
         // Let us validate
@@ -184,7 +184,7 @@ public class DefaultJPAIdentityManagerTestCase extends AbstractJPAIdentityManage
         User user = new SimpleUser("pedroigor");
         identityManager.add(user);
         String password = "easypassword";
-        PasswordCredential pc = new PasswordCredential(password.toCharArray());
+        PlainTextPassword pc = new PlainTextPassword(password.toCharArray());
 
         identityManager.updateCredential(user, pc);
 

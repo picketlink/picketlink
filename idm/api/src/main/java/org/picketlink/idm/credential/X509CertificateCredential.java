@@ -7,7 +7,7 @@ import java.security.cert.X509Certificate;
  * 
  * @author Shane Bryzak
  */
-public class X509CertificateCredential implements Credential {
+public class X509CertificateCredential {
     private X509Certificate certificate;
     
     public X509CertificateCredential(X509Certificate certificate) {

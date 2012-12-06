@@ -22,8 +22,7 @@
 package org.picketlink.idm;
 
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.credential.Credential;
-import org.picketlink.idm.credential.LoginCredentials;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -102,9 +101,9 @@ public interface IdentityManager {
 
     // Credential management
 
-    User validateCredentials(LoginCredentials credentials);
+    void validateCredentials(Credentials credentials);
 
-    void updateCredential(User user, Credential credential);
+    void updateCredential(User user, Object value);
 
     // User / Role / Group enablement / expiry
 

@@ -1,7 +1,6 @@
 package org.picketlink.idm.credential.spi;
 
-import org.picketlink.idm.credential.Credential;
-import org.picketlink.idm.credential.LoginCredentials;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -17,7 +16,7 @@ public interface CredentialHandler {
      * @param store
      * @return
      */
-    User validate(LoginCredentials credentials, IdentityStore store);
+    User validate(Credentials credentials, IdentityStore store);
 
     /**
      * 
@@ -25,5 +24,5 @@ public interface CredentialHandler {
      * @param credential
      * @param store
      */
-    void update(User user, Credential credential, IdentityStore store);
+    void update(User user, Object credential, IdentityStore store);
 }

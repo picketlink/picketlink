@@ -30,51 +30,51 @@ package org.picketlink.idm.credential;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class DigestCredential implements Credential {
+public class Digest {
 
     private String username, realm, nonce, uri, qop, nc, cnonce, clientResponse, opaque, domain, stale, method;
 
-    public DigestCredential setUsername(String username) {
+    public Digest setUsername(String username) {
         this.username = username;
         return this;
     }
 
-    public DigestCredential setRealm(String realm) {
+    public Digest setRealm(String realm) {
         this.realm = realm;
         return this;
     }
 
-    public DigestCredential setNonce(String nonce) {
+    public Digest setNonce(String nonce) {
         this.nonce = nonce;
         return this;
     }
 
-    public DigestCredential setUri(String uri) {
+    public Digest setUri(String uri) {
         this.uri = uri;
         return this;
     }
 
-    public DigestCredential setQop(String qop) {
+    public Digest setQop(String qop) {
         this.qop = qop;
         return this;
     }
 
-    public DigestCredential setNc(String nc) {
+    public Digest setNc(String nc) {
         this.nc = nc;
         return this;
     }
 
-    public DigestCredential setCnonce(String cnonce) {
+    public Digest setCnonce(String cnonce) {
         this.cnonce = cnonce;
         return this;
     }
 
-    public DigestCredential setClientResponse(String clientResponse) {
+    public Digest setClientResponse(String clientResponse) {
         this.clientResponse = clientResponse;
         return this;
     }
 
-    public DigestCredential setOpaque(String opaque) {
+    public Digest setOpaque(String opaque) {
         this.opaque = opaque;
         return this;
     }
@@ -119,7 +119,7 @@ public class DigestCredential implements Credential {
         return domain;
     }
 
-    public DigestCredential setDomain(String domain) {
+    public Digest setDomain(String domain) {
         this.domain = domain;
         return this;
     }
@@ -128,7 +128,7 @@ public class DigestCredential implements Credential {
         return stale;
     }
 
-    public DigestCredential setStale(String stale) {
+    public Digest setStale(String stale) {
         this.stale = stale;
         return this;
     }
@@ -137,7 +137,7 @@ public class DigestCredential implements Credential {
         return method;
     }
 
-    public DigestCredential setMethod(String method) {
+    public Digest setMethod(String method) {
         this.method = method;
         return this;
     }

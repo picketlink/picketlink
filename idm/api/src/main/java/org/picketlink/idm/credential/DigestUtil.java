@@ -29,7 +29,7 @@ import java.security.MessageDigest;
  * @author anil saldhana
  * @since July 5, 2012
  */
-public class DigestCredentialUtil {
+public class DigestUtil {
 
     private static final String UTF8 = "UTF-8";
     private static final String MD5_ALGORITHM = "MD5";
@@ -58,7 +58,7 @@ public class DigestCredentialUtil {
      * @return
      * @throws FormatException
      */
-    public static String clientResponseValue(DigestCredential digest, char[] password) {
+    public static String clientResponseValue(Digest digest, char[] password) {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance(MD5_ALGORITHM);
             byte[] ha1;
@@ -104,7 +104,7 @@ public class DigestCredentialUtil {
      * @return
      * @throws FormatException
      */
-    public static boolean matchCredential(DigestCredential digest, char[] password) {
+    public static boolean matchCredential(Digest digest, char[] password) {
         return clientResponseValue(digest, password).equalsIgnoreCase(digest.getClientResponse());
     }
 
