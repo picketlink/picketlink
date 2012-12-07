@@ -26,8 +26,8 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
 import org.junit.Test;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.User;
 
 /**
@@ -46,34 +46,23 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
     @Test
     public void testGrantRoleToUser() throws Exception {
         User someUser = loadOrCreateUser("someUser", true);
+        Role someRole = loadOrCreateRole("someRole", true);
         
-        Role someRole = new SimpleRole("someRole");
+        IdentityManager identityManager = getIdentityManager();
         
-        if (getIdentityManager().getRole(someRole.getName()) != null) {
-            getIdentityManager().remove(someRole);
-        }
+        identityManager.grantRole(someUser, someRole);
         
-        getIdentityManager().add(someRole);
-        
-        getIdentityManager().grantRole(someUser, someRole);
-        
-        assertTrue(getIdentityManager().hasRole(someUser, someRole));
+        assertTrue(identityManager.hasRole(someUser, someRole));
         
         User someAnotherUser = loadOrCreateUser("someAnotherUser", true);
         
-        assertFalse(getIdentityManager().hasRole(someAnotherUser, someRole));
+        assertFalse(identityManager.hasRole(someAnotherUser, someRole));
         
-        Role someAnotherRole = new SimpleRole("someAnotherRole");
+        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
         
-        if (getIdentityManager().getRole(someAnotherRole.getName()) != null) {
-            getIdentityManager().remove(someAnotherRole);
-        }
+        identityManager.grantRole(someAnotherUser, someAnotherRole);
         
-        getIdentityManager().add(someAnotherRole);
-        
-        getIdentityManager().grantRole(someAnotherUser, someAnotherRole);
-        
-        assertTrue(getIdentityManager().hasRole(someAnotherUser, someAnotherRole));
+        assertTrue(identityManager.hasRole(someAnotherUser, someAnotherRole));
     }
     
     /**
@@ -85,25 +74,16 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
     public void testGrantMultipleRolesToUser() throws Exception {
         User someUser = loadOrCreateUser("someUser", true);
         
-        Role someRole = new SimpleRole("someRole");
-        Role someAnotherRole = new SimpleRole("someAnotherRole");
+        Role someRole = loadOrCreateRole("someRole", true);
+        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
         
-        if (getIdentityManager().getRole(someRole.getName()) != null) {
-            getIdentityManager().remove(someRole);
-        }
+        IdentityManager identityManager = getIdentityManager();
         
-        if (getIdentityManager().getRole(someAnotherRole.getName()) != null) {
-            getIdentityManager().remove(someAnotherRole);
-        }
+        identityManager.grantRole(someUser, someRole);
+        identityManager.grantRole(someUser, someAnotherRole);
         
-        getIdentityManager().add(someRole);
-        getIdentityManager().add(someAnotherRole);
-        
-        getIdentityManager().grantRole(someUser, someRole);
-        getIdentityManager().grantRole(someUser, someAnotherRole);
-        
-        assertTrue(getIdentityManager().hasRole(someUser, someRole));
-        assertTrue(getIdentityManager().hasRole(someUser, someAnotherRole));
+        assertTrue(identityManager.hasRole(someUser, someRole));
+        assertTrue(identityManager.hasRole(someUser, someAnotherRole));
     }
     
     /**
@@ -115,30 +95,21 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
     public void testRevokeRoleFromUser() throws Exception {
         User someUser = loadOrCreateUser("someUser", true);
         
-        Role someRole = new SimpleRole("someRole");
-        Role someAnotherRole = new SimpleRole("someAnotherRole");
+        Role someRole = loadOrCreateRole("someRole", true);
+        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
         
-        if (getIdentityManager().getRole(someRole.getName()) != null) {
-            getIdentityManager().remove(someRole);
-        }
+        IdentityManager identityManager = getIdentityManager();
         
-        if (getIdentityManager().getRole(someAnotherRole.getName()) != null) {
-            getIdentityManager().remove(someAnotherRole);
-        }
+        identityManager.grantRole(someUser, someRole);
+        identityManager.grantRole(someUser, someAnotherRole);
         
-        getIdentityManager().add(someRole);
-        getIdentityManager().add(someAnotherRole);
+        assertTrue(identityManager.hasRole(someUser, someRole));
+        assertTrue(identityManager.hasRole(someUser, someAnotherRole));
         
-        getIdentityManager().grantRole(someUser, someRole);
-        getIdentityManager().grantRole(someUser, someAnotherRole);
+        identityManager.revokeRole(someUser, someRole);
         
-        assertTrue(getIdentityManager().hasRole(someUser, someRole));
-        assertTrue(getIdentityManager().hasRole(someUser, someAnotherRole));
-        
-        getIdentityManager().revokeRole(someUser, someRole);
-        
-        assertFalse(getIdentityManager().hasRole(someUser, someRole));
-        assertTrue(getIdentityManager().hasRole(someUser, someAnotherRole));
+        assertFalse(identityManager.hasRole(someUser, someRole));
+        assertTrue(identityManager.hasRole(someUser, someAnotherRole));
     }
     
 }

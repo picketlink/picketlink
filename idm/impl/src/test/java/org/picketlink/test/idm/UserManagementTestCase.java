@@ -59,10 +59,12 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         newUserInstance.setFirstName("Java");
         newUserInstance.setLastName("Duke");
         
-        getIdentityManager().update(newUserInstance);
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(newUserInstance);
 
         // let's retrieve the user information and see if they are properly stored
-        User storedUserInstance = getIdentityManager().getUser(newUserInstance.getId());
+        User storedUserInstance = identityManager.getUser(newUserInstance.getId());
 
         assertNotNull(storedUserInstance);
 
@@ -85,7 +87,9 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     public void testGet() throws Exception {
         User storedUserInstance = getIdentityType(true);
 
-        storedUserInstance = getIdentityManager().getUser(storedUserInstance.getId());
+        IdentityManager identityManager = getIdentityManager();
+        
+        storedUserInstance = identityManager.getUser(storedUserInstance.getId());
         
         assertNotNull(storedUserInstance);
 
@@ -118,10 +122,12 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         storedUserInstance.setLastName("Updated " + storedUserInstance.getLastName());
         storedUserInstance.setEmail("Updated " + storedUserInstance.getEmail());
 
-        getIdentityManager().update(storedUserInstance);
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(storedUserInstance);
 
         // let's load again the user from the store and check for the updated information
-        User updatedUser = getIdentityManager().getUser(storedUserInstance.getId());
+        User updatedUser = identityManager.getUser(storedUserInstance.getId());
 
         assertEquals("Updated The", updatedUser.getFirstName());
         assertEquals("Updated Administrator", updatedUser.getLastName());

@@ -27,6 +27,7 @@ import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Role;
 
 /**
@@ -51,8 +52,10 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
     public void testCreate() throws Exception {
         Role newRoleInstance = loadOrCreateRole("someRole", true);
 
-        // let's retrieve the role information and see if they are properly stored
-        Role storedRoleInstance = getIdentityManager().getRole(newRoleInstance.getName());
+        // let's retrieve the role information and see if it was properly stored
+        IdentityManager identityManager = getIdentityManager();
+        
+        Role storedRoleInstance = identityManager.getRole(newRoleInstance.getName());
 
         assertNotNull(storedRoleInstance);
         
@@ -71,7 +74,9 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         
         assertNotNull(storedRoleInstance);
         
-        storedRoleInstance = getIdentityManager().getRole(storedRoleInstance.getName());
+        IdentityManager identityManager = getIdentityManager();
+        
+        storedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
 
         assertNotNull(storedRoleInstance);
         assertEquals("ROLE://Administrator", storedRoleInstance.getKey());
@@ -89,9 +94,11 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
         assertNotNull(storedRoleInstance);
         
-        getIdentityManager().remove(storedRoleInstance);
+        IdentityManager identityManager = getIdentityManager();
         
-        Role removedRoleInstance = getIdentityManager().getRole(storedRoleInstance.getName());
+        identityManager.remove(storedRoleInstance);
+        
+        Role removedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
         
         assertNull(removedRoleInstance);
     }

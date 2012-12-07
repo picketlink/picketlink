@@ -26,13 +26,14 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
 /**
- * <p>Test case for the relationship between {@link User} and {@link Group} types.
+ * <p>Test case for the relationship between {@link User}, {@link Group} and {@link Role} types.
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
@@ -54,13 +55,15 @@ public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTe
         Group salesGroup = loadOrCreateGroup("sales", null, true);
         Group employeeGroup = loadOrCreateGroup("employee", null, true);
         
-        getIdentityManager().grantGroupRole(someUser, managerRole, salesGroup);
-        getIdentityManager().grantGroupRole(someUser, developerRole, employeeGroup);
+        IdentityManager identityManager = getIdentityManager();
         
-        assertTrue(getIdentityManager().hasGroupRole(someUser, managerRole, salesGroup));
-        assertTrue(getIdentityManager().hasGroupRole(someUser, developerRole, employeeGroup));
+        identityManager.grantGroupRole(someUser, managerRole, salesGroup);
+        identityManager.grantGroupRole(someUser, developerRole, employeeGroup);
         
-        assertFalse(getIdentityManager().hasGroupRole(someUser, developerRole, salesGroup));
+        assertTrue(identityManager.hasGroupRole(someUser, managerRole, salesGroup));
+        assertTrue(identityManager.hasGroupRole(someUser, developerRole, employeeGroup));
+        
+        assertFalse(identityManager.hasGroupRole(someUser, developerRole, salesGroup));
     }
     
     /**
@@ -77,14 +80,16 @@ public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTe
         Group executiveGroup = managerGroup.getParentGroup();
         Role secretaryRole = loadOrCreateRole("secretary", true);
         
-        getIdentityManager().grantGroupRole(mary, secretaryRole, managerGroup);
-        getIdentityManager().grantGroupRole(john, secretaryRole, executiveGroup);
+        IdentityManager identityManager = getIdentityManager();
         
-        assertTrue(getIdentityManager().hasGroupRole(mary, secretaryRole, managerGroup));
-        assertTrue(getIdentityManager().hasGroupRole(john, secretaryRole, executiveGroup));
+        identityManager.grantGroupRole(mary, secretaryRole, managerGroup);
+        identityManager.grantGroupRole(john, secretaryRole, executiveGroup);
         
-        assertFalse(getIdentityManager().hasGroupRole(mary, secretaryRole, executiveGroup));
-        assertFalse(getIdentityManager().hasGroupRole(john, secretaryRole, managerGroup));
+        assertTrue(identityManager.hasGroupRole(mary, secretaryRole, managerGroup));
+        assertTrue(identityManager.hasGroupRole(john, secretaryRole, executiveGroup));
+        
+        assertFalse(identityManager.hasGroupRole(mary, secretaryRole, executiveGroup));
+        assertFalse(identityManager.hasGroupRole(john, secretaryRole, managerGroup));
     }
     
     /**
@@ -98,13 +103,15 @@ public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTe
         Role managerRole = loadOrCreateRole("manager", true);
         Group salesGroup = loadOrCreateGroup("sales", null, true);
 
-        getIdentityManager().grantGroupRole(someUser, managerRole, salesGroup);
+        IdentityManager identityManager = getIdentityManager();
         
-        assertTrue(getIdentityManager().hasGroupRole(someUser, managerRole, salesGroup));
+        identityManager.grantGroupRole(someUser, managerRole, salesGroup);
         
-        getIdentityManager().revokeGroupRole(someUser, managerRole, salesGroup);
+        assertTrue(identityManager.hasGroupRole(someUser, managerRole, salesGroup));
         
-        assertFalse(getIdentityManager().hasGroupRole(someUser, managerRole, salesGroup));
+        identityManager.revokeGroupRole(someUser, managerRole, salesGroup);
+        
+        assertFalse(identityManager.hasGroupRole(someUser, managerRole, salesGroup));
     }
     
 }
