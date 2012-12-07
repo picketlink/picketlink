@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.naming.Binding;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -232,14 +233,14 @@ public class LDAPOperationManager {
             throw new RuntimeException(e);
         }
     }
-    
+
     public NamingEnumeration<SearchResult> search(String baseDN, String filter) {
         try {
             SearchControls cons = new SearchControls();
-            
+
             cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
             cons.setReturningObjFlag(true);
-            
+
             return this.context.search(baseDN, filter, cons);
         } catch (NamingException e) {
             throw new RuntimeException(e);
@@ -255,10 +256,33 @@ public class LDAPOperationManager {
      */
     public void destroySubcontext(String dn) {
         try {
-            context.destroySubcontext(dn);
+            destroyRecursively(dn);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public void destroyRecursively(String dn) {
+        NamingEnumeration enumeration = null;
+        
+        try {
+            enumeration = this.context.listBindings(dn);
+            
+            while (enumeration.hasMore()) {
+                Binding binding = (Binding) enumeration.next();
+                String name = binding.getNameInNamespace();
+                destroyRecursively(name);
+            }
+            this.context.unbind(dn);
+        } catch (NamingException e) {
+            
+        } finally {
+            try {
+                enumeration.close();
+            } catch (Exception e) {
+                // Never mind this
+            }
+        }        
     }
 
     /**

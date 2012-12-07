@@ -31,7 +31,6 @@ import java.util.Date;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -54,23 +53,16 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      */
     @Test
     public void testCreate() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        User newUserInstance = new SimpleUser("jduke");
-        
-        if (getIdentityManager().getUser(newUserInstance.getId()) != null) {
-            getIdentityManager().remove(newUserInstance);
-        }
+        User newUserInstance = loadOrCreateUser("jduke", true);
         
         newUserInstance.setEmail("jduke@jboss.org");
         newUserInstance.setFirstName("Java");
         newUserInstance.setLastName("Duke");
-
-        // let's create the new user
-        identityManager.add(newUserInstance);
+        
+        getIdentityManager().update(newUserInstance);
 
         // let's retrieve the user information and see if they are properly stored
-        User storedUserInstance = identityManager.getUser(newUserInstance.getId());
+        User storedUserInstance = getIdentityManager().getUser(newUserInstance.getId());
 
         assertNotNull(storedUserInstance);
 
@@ -91,15 +83,9 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      */
     @Test
     public void testGet() throws Exception {
-        User storedUserInstance = getIdentityType();
+        User storedUserInstance = getIdentityType(true);
 
-        storedUserInstance.setEmail("admin@jboss.org");
-        storedUserInstance.setFirstName("The");
-        storedUserInstance.setLastName("Administrator");
-        
-        getIdentityManager().update(storedUserInstance);
-        
-        storedUserInstance = getUser(storedUserInstance.getId());
+        storedUserInstance = getIdentityManager().getUser(storedUserInstance.getId());
         
         assertNotNull(storedUserInstance);
 
@@ -118,12 +104,10 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      */
     @Test
     public void testUpdate() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        User storedUserInstance = getIdentityType();
+        User storedUserInstance = getIdentityType(true);
 
         assertNotNull(storedUserInstance);
-
+        
         assertEquals("admin", storedUserInstance.getId());
         assertEquals("The", storedUserInstance.getFirstName());
         assertEquals("Administrator", storedUserInstance.getLastName());
@@ -134,10 +118,10 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         storedUserInstance.setLastName("Updated " + storedUserInstance.getLastName());
         storedUserInstance.setEmail("Updated " + storedUserInstance.getEmail());
 
-        identityManager.update(storedUserInstance);
+        getIdentityManager().update(storedUserInstance);
 
         // let's load again the user from the store and check for the updated information
-        User updatedUser = identityManager.getUser(storedUserInstance.getId());
+        User updatedUser = getIdentityManager().getUser(storedUserInstance.getId());
 
         assertEquals("Updated The", updatedUser.getFirstName());
         assertEquals("Updated Administrator", updatedUser.getLastName());
@@ -156,7 +140,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        User storedUserInstance = getIdentityType();
+        User storedUserInstance = getIdentityType(true);
 
         assertNotNull(storedUserInstance);
 
@@ -173,8 +157,16 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
 
     @Override
-    protected User getIdentityType() {
-        return getUser("admin");
+    protected User getIdentityType(boolean alwaysCreate) {
+        User user = loadOrCreateUser("admin", alwaysCreate);
+        
+        user.setEmail("admin@jboss.org");
+        user.setFirstName("The");
+        user.setLastName("Administrator");
+        
+        getIdentityManager().update(user);
+        
+        return user;
     }
 
 }

@@ -27,9 +27,7 @@ import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleRole;
 
 /**
  * <p>
@@ -51,19 +49,10 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
      */
     @Test
     public void testCreate() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        Role newRoleInstance = new SimpleRole("someRole");
-        
-        if (getIdentityManager().getRole(newRoleInstance.getName()) != null) {
-            getIdentityManager().remove(newRoleInstance);
-        }
-        
-        // let's create the new role
-        identityManager.add(newRoleInstance);
+        Role newRoleInstance = loadOrCreateRole("someRole", true);
 
         // let's retrieve the role information and see if they are properly stored
-        Role storedRoleInstance = identityManager.getRole(newRoleInstance.getName());
+        Role storedRoleInstance = getIdentityManager().getRole(newRoleInstance.getName());
 
         assertNotNull(storedRoleInstance);
         
@@ -78,10 +67,13 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
      */
     @Test
     public void testGet() throws Exception {
-        Role storedRoleInstance = getIdentityType();
+        Role storedRoleInstance = getIdentityType(true);
+        
+        assertNotNull(storedRoleInstance);
+        
+        storedRoleInstance = getIdentityManager().getRole(storedRoleInstance.getName());
 
         assertNotNull(storedRoleInstance);
-
         assertEquals("ROLE://Administrator", storedRoleInstance.getKey());
         assertEquals("Administrator", storedRoleInstance.getName());
     }
@@ -93,13 +85,11 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
      */
     @Test
     public void testRemove() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        Role storedRoleInstance = getIdentityType();
+        Role storedRoleInstance = getIdentityType(true);
 
         assertNotNull(storedRoleInstance);
         
-        identityManager.remove(storedRoleInstance);
+        getIdentityManager().remove(storedRoleInstance);
         
         Role removedRoleInstance = getIdentityManager().getRole(storedRoleInstance.getName());
         
@@ -112,8 +102,8 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
     }
 
     @Override
-    protected Role getIdentityType() {
-        return getRole("Administrator");
+    protected Role getIdentityType(boolean alwaysCreate) {
+        return loadOrCreateRole("Administrator", alwaysCreate);
     }
     
 }

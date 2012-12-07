@@ -29,8 +29,6 @@ import org.junit.Test;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.User;
 
 /**
@@ -48,39 +46,13 @@ public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTe
      */
     @Test
     public void testGrantGroupRole() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
         
-        Role managerRole = new SimpleRole("manager");
+        Role managerRole = loadOrCreateRole("manager", true);
+        Role developerRole = loadOrCreateRole("developer", true);
         
-        if (getIdentityManager().getRole(managerRole.getName()) != null) {
-            getIdentityManager().remove(managerRole);
-        }
-        
-        getIdentityManager().add(managerRole);
-
-        Role developerRole = new SimpleRole("developer");
-        
-        if (getIdentityManager().getRole(developerRole.getName()) != null) {
-            getIdentityManager().remove(developerRole);
-        }
-        
-        getIdentityManager().add(developerRole);
-
-        Group salesGroup = new SimpleGroup("sales");
-        
-        if (getIdentityManager().getGroup(salesGroup.getName()) != null) {
-            getIdentityManager().remove(salesGroup);
-        }
-        
-        getIdentityManager().add(salesGroup);
-
-        Group employeeGroup = new SimpleGroup("employee");
-        
-        if (getIdentityManager().getGroup(employeeGroup.getName()) != null) {
-            getIdentityManager().remove(employeeGroup);
-        }
-
-        getIdentityManager().add(employeeGroup);
+        Group salesGroup = loadOrCreateGroup("sales", null, true);
+        Group employeeGroup = loadOrCreateGroup("employee", null, true);
         
         getIdentityManager().grantGroupRole(someUser, managerRole, salesGroup);
         getIdentityManager().grantGroupRole(someUser, developerRole, employeeGroup);
@@ -92,37 +64,47 @@ public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTe
     }
     
     /**
+     * <p>Tests adding an {@link User} as a member of a {@link Group} with a specific {@link Role}.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGrantParentGroupRole() throws Exception {
+        User mary = loadOrCreateUser("mary", true);
+        User john = loadOrCreateUser("john", true);
+        
+        Group managerGroup = loadOrCreateGroup("Managers", "Executives", true);
+        Group executiveGroup = managerGroup.getParentGroup();
+        Role secretaryRole = loadOrCreateRole("secretary", true);
+        
+        getIdentityManager().grantGroupRole(mary, secretaryRole, managerGroup);
+        getIdentityManager().grantGroupRole(john, secretaryRole, executiveGroup);
+        
+        assertTrue(getIdentityManager().hasGroupRole(mary, secretaryRole, managerGroup));
+        assertTrue(getIdentityManager().hasGroupRole(john, secretaryRole, executiveGroup));
+        
+        assertFalse(getIdentityManager().hasGroupRole(mary, secretaryRole, executiveGroup));
+        assertFalse(getIdentityManager().hasGroupRole(john, secretaryRole, managerGroup));
+    }
+    
+    /**
      * <p>Tests revoking a {@link GroupRole}.</p>
      * 
      * @throws Exception
      */
     @Test
     public void testRevokeGroupRole() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
+        Role managerRole = loadOrCreateRole("manager", true);
+        Group salesGroup = loadOrCreateGroup("sales", null, true);
+
+        getIdentityManager().grantGroupRole(someUser, managerRole, salesGroup);
         
-        Role someRole = new SimpleRole("manager");
+        assertTrue(getIdentityManager().hasGroupRole(someUser, managerRole, salesGroup));
         
-        if (getIdentityManager().getRole(someRole.getName()) != null) {
-            getIdentityManager().remove(someRole);
-        }
+        getIdentityManager().revokeGroupRole(someUser, managerRole, salesGroup);
         
-        getIdentityManager().add(someRole);
-        
-        Group someGroup = new SimpleGroup("sales");
-        
-        if (getIdentityManager().getGroup(someGroup.getName()) != null) {
-            getIdentityManager().remove(someGroup);
-        }
-        
-        getIdentityManager().add(someGroup);
-        
-        getIdentityManager().grantGroupRole(someUser, someRole, someGroup);
-        
-        assertTrue(getIdentityManager().hasGroupRole(someUser, someRole, someGroup));
-        
-        getIdentityManager().revokeGroupRole(someUser, someRole, someGroup);
-        
-        assertFalse(getIdentityManager().hasGroupRole(someUser, someRole, someGroup));
+        assertFalse(getIdentityManager().hasGroupRole(someUser, managerRole, salesGroup));
     }
     
 }

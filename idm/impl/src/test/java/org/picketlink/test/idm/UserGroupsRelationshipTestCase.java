@@ -27,7 +27,6 @@ import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 
 /**
@@ -45,15 +44,9 @@ public class UserGroupsRelationshipTestCase extends AbstractIdentityManagerTestC
      */
     @Test
     public void testAddUserToGroup() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
+        Group someGroup = loadOrCreateGroup("someGroup", null, true);
         
-        Group someGroup = new SimpleGroup("someGroup");
-        
-        if (getIdentityManager().getGroup(someGroup.getName()) != null) {
-            getIdentityManager().remove(someGroup);
-        }
-        
-        getIdentityManager().add(someGroup);
         getIdentityManager().addToGroup(someUser, someGroup);
         
         assertTrue(getIdentityManager().isMember(someUser, someGroup));
@@ -66,15 +59,9 @@ public class UserGroupsRelationshipTestCase extends AbstractIdentityManagerTestC
      */
     @Test
     public void testRemoveUserFromGroup() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
+        Group someGroup = loadOrCreateGroup("someGroup", null, true);
         
-        Group someGroup = new SimpleGroup("someGroup");
-        
-        if (getIdentityManager().getGroup(someGroup.getName()) != null) {
-            getIdentityManager().remove(someGroup);
-        }
-        
-        getIdentityManager().add(someGroup);
         getIdentityManager().addToGroup(someUser, someGroup);
         
         assertTrue(getIdentityManager().isMember(someUser, someGroup));

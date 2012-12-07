@@ -76,7 +76,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByFirstNameAndLastName() throws Exception {
-        User user = getUser("admin");
+        User user = loadOrCreateUser("admin", true);
         
         user.setFirstName("The");
         user.setLastName("Administrator");
@@ -140,7 +140,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByEmail() throws Exception {
-        User user = getUser("admin");
+        User user = loadOrCreateUser("admin", true);
         
         user.setEmail("admin@jboss.org");
         
@@ -167,7 +167,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindEnabledAndDisabledUsers() throws Exception {
-        User user = getUser("someUser");
+        User user = loadOrCreateUser("someUser", true);
         
         user.setEnabled(true);
         
@@ -219,7 +219,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindCreationDate() throws Exception {
-        User user = getUser("someUser");
+        User user = loadOrCreateUser("someUser", true);
         
         IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
@@ -251,7 +251,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindExpiryDate() throws Exception {
-        User user = getUser("someUser");
+        User user = loadOrCreateUser("someUser", true);
         
         Date expirationDate = new Date();
         
@@ -297,8 +297,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenCreationDate() throws Exception {
-        User someUser = getUser("someUser");
-        User someAnotherUser = getUser("someAnotherUser");
+        User someUser = loadOrCreateUser("someUser", true);
+        User someAnotherUser = loadOrCreateUser("someAnotherUser", true);
         
         IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
         
@@ -321,8 +321,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         query = getIdentityManager().<User> createQuery(User.class);
         
-        User someFutureUser = getUser("someFutureUser");
-        User someAnotherFutureUser = getUser("someAnotherFutureUser");
+        User someFutureUser = loadOrCreateUser("someFutureUser", true);
+        User someAnotherFutureUser = loadOrCreateUser("someAnotherFutureUser", true);
 
         // users created after the given time
         query.setParameter(User.CREATED_AFTER, calendar.getTime());
@@ -369,7 +369,13 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindUsingMultipleParameters() throws Exception {
-        User user = getUser("admin");
+        User user = loadOrCreateUser("admin", true);
+        
+        user.setEmail("admin@jboss.org");
+        user.setFirstName("The");
+        user.setLastName("Administrator");
+        
+        getIdentityManager().update(user);
         
         user.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
         
@@ -423,13 +429,13 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenExpirationDate() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
         
         someUser.setExpirationDate(new Date());
         
         getIdentityManager().update(someUser);
         
-        User someAnotherUser = getUser("someAnotherUser");
+        User someAnotherUser = loadOrCreateUser("someAnotherUser", true);
         
         someAnotherUser.setExpirationDate(new Date());
         
@@ -449,13 +455,13 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         
         Thread.sleep(500);
         
-        User someFutureUser = getUser("someFutureUser");
+        User someFutureUser = loadOrCreateUser("someFutureUser", true);
         
         someFutureUser.setExpirationDate(new Date());
         
         getIdentityManager().update(someFutureUser);
         
-        User someAnotherFutureUser = getUser("someAnotherFutureUser");
+        User someAnotherFutureUser = loadOrCreateUser("someAnotherFutureUser", true);
         
         someAnotherFutureUser.setExpirationDate(new Date());
         
@@ -515,7 +521,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByUserDefinedAttributes() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
         
         someUser.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
         
@@ -566,7 +572,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByUserDefinedMultiValuedAttributes() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
         
         someUser.setAttribute(new Attribute<String[]>("someAttribute", new String[] {"someAttributeValue1", "someAttributeValue2"}));
         

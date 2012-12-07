@@ -141,7 +141,7 @@ public class JPAMembershipQueryTestCase extends AbstractJPAIdentityManagerTestCa
     private void loadMemberships() {
         IdentityStore identityManager = createIdentityStore();
 
-        this.group = identityManager.getGroup(null, GROUP_NAME);
+        this.group = identityManager.loadOrCreateGroup(null, GROUP_NAME);
         this.role = identityManager.getRole(null, ROLE_NAME);
         this.user = identityManager.getUser(null, USER_NAME);
         this.membership = identityManager.getMembership(null, this.user, this.group, this.role);

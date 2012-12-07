@@ -27,7 +27,6 @@ import static junit.framework.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.SimpleGroup;
 
@@ -51,22 +50,12 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testCreate() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        Group newGroupInstance = new SimpleGroup("someGroup");
-        
-        if (getIdentityManager().getGroup(newGroupInstance.getName()) != null) {
-            getIdentityManager().remove(newGroupInstance);
-        }
-        
-        // let's create the new group
-        identityManager.add(newGroupInstance);
+        Group newGroupInstance = loadOrCreateGroup("someGroup", null, true);
 
-        // let's retrieve the group information and see if they are properly stored
-        Group storedGroupInstance = identityManager.getGroup(newGroupInstance.getName());
+        // let's retrieve the group information and see if it was properly stored
+        Group storedGroupInstance = getIdentityManager().getGroup(newGroupInstance.getName());
 
         assertNotNull(storedGroupInstance);
-        
         assertEquals(newGroupInstance.getKey(), storedGroupInstance.getKey());
         assertEquals(newGroupInstance.getName(), storedGroupInstance.getName());
     }
@@ -81,31 +70,13 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testCreateWithParentGroup() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        Group parentGroup = new SimpleGroup("parentGroup");
+        Group childGroup = loadOrCreateGroup("childGroup", "parentGroup", true);
         
-        if (getIdentityManager().getGroup(parentGroup.getName()) != null) {
-            getIdentityManager().remove(parentGroup);
-        }
-        
-        identityManager.add(parentGroup);
-        
-        Group childGroup = new SimpleGroup("childGroup", parentGroup);
-
-        if (getIdentityManager().getGroup(childGroup.getName()) != null) {
-            getIdentityManager().remove(childGroup);
-        }
-
-        // let's create the new group
-        identityManager.add(childGroup);
-
-        // let's retrieve the group information and see if they are properly stored
-        Group storedChildGroup = identityManager.getGroup(childGroup.getName());
+        // let's retrieve the group information and see if it was properly stored
+        Group storedChildGroup = getIdentityManager().getGroup(childGroup.getName());
 
         assertNotNull(storedChildGroup);
         assertNotNull(storedChildGroup.getParentGroup());
-        
         assertEquals(childGroup.getKey(), storedChildGroup.getKey());
         assertEquals(childGroup.getName(), storedChildGroup.getName());
         assertEquals(childGroup.getParentGroup().getName(), storedChildGroup.getParentGroup().getName());
@@ -118,11 +89,10 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testGet() throws Exception {
-        Group storedGroupInstance = getIdentityType();
+        Group storedGroupInstance = getIdentityType(true);
         
         assertNotNull(storedGroupInstance);
         assertNotNull(storedGroupInstance.getParentGroup());
-
         assertEquals("GROUP:///Test Parent Group/Test Group", storedGroupInstance.getKey());
         assertEquals("Test Group", storedGroupInstance.getName());
     }
@@ -134,25 +104,16 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testGetWithParent() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
+        Group storedGroupInstance = getIdentityType(true);
 
-        Group storedGroupInstance = getIdentityType();
-
-        assertNotNull(storedGroupInstance);
-        assertNotNull(storedGroupInstance.getParentGroup());
-
-        assertEquals("GROUP:///Test Parent Group/Test Group", storedGroupInstance.getKey());
-        assertEquals("Test Group", storedGroupInstance.getName());
-        
-        storedGroupInstance = identityManager.getGroup("Test Group", new SimpleGroup("Test Parent Group"));
+        storedGroupInstance = getIdentityManager().getGroup("Test Group", new SimpleGroup("Test Parent Group"));
 
         assertNotNull(storedGroupInstance);
         assertNotNull(storedGroupInstance.getParentGroup());
-
         assertEquals("GROUP:///Test Parent Group/Test Group", storedGroupInstance.getKey());
         assertEquals("Test Group", storedGroupInstance.getName());
 
-        Group invalidGroupInstance = identityManager.getGroup("Test Group", new SimpleGroup("Invalid Parent Group"));
+        Group invalidGroupInstance = getIdentityManager().getGroup("Test Group", new SimpleGroup("Invalid Parent Group"));
         
         assertNull(invalidGroupInstance);
     }
@@ -164,15 +125,13 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testRemove() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        Group storedGroupInstance = identityManager.getGroup("Test Group");
+        Group storedGroupInstance = getIdentityType(true);
 
         assertNotNull(storedGroupInstance);
         
-        identityManager.remove(storedGroupInstance);
+        getIdentityManager().remove(storedGroupInstance);
         
-        Group removedGroupInstance = identityManager.getGroup("Test Group");
+        Group removedGroupInstance = getIdentityManager().getGroup("Test Group");
         
         assertNull(removedGroupInstance);
     }
@@ -183,8 +142,8 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     }
 
     @Override
-    protected Group getIdentityType() {
-        return getGroup("Test Group", "Test Parent Group");
+    protected Group getIdentityType(boolean alwaysCreate) {
+        return loadOrCreateGroup("Test Group", "Test Parent Group", alwaysCreate);
     }
     
 }

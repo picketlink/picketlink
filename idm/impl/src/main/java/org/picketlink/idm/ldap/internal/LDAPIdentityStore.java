@@ -213,7 +213,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             if (ldapUser == null) {
                 throw new RuntimeException("User [" + user.getId() + "] does not exists.");
             }
-
+            
             remove(ldapUser);
         } else if (Group.class.isInstance(identityType)) {
             Group group = (Group) identityType;
@@ -1071,14 +1071,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
      * @param ldapEntry
      */
     private void remove(LDAPEntry ldapEntry) {
-        String customDN = getCustomAttributesDN(ldapEntry.getDN());
-
-        try {
-            getLdapManager().lookup(customDN);
-            getLdapManager().destroySubcontext(customDN);
-        } catch (Exception ignore) {
-        }
-
         getLdapManager().destroySubcontext(ldapEntry.getDN());
     }
 

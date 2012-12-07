@@ -86,7 +86,7 @@ public class JPAMembershipTestCase extends AbstractJPAIdentityManagerTestCase {
 
         Role role = identityStore.getRole(null, "admin");
         User user = identityStore.getUser(null, "asaldhan");
-        Group group = identityStore.getGroup(null, "Administrators");
+        Group group = identityStore.loadOrCreateGroup(null, "Administrators");
 
         GroupRole membership = identityStore.getMembership(null, user, group, role);
 

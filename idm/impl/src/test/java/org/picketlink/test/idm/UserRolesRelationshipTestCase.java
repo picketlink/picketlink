@@ -45,7 +45,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
      */
     @Test
     public void testGrantRoleToUser() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
         
         Role someRole = new SimpleRole("someRole");
         
@@ -59,7 +59,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         
         assertTrue(getIdentityManager().hasRole(someUser, someRole));
         
-        User someAnotherUser = getUser("someAnotherUser");
+        User someAnotherUser = loadOrCreateUser("someAnotherUser", true);
         
         assertFalse(getIdentityManager().hasRole(someAnotherUser, someRole));
         
@@ -83,7 +83,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
      */
     @Test
     public void testGrantMultipleRolesToUser() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
         
         Role someRole = new SimpleRole("someRole");
         Role someAnotherRole = new SimpleRole("someAnotherRole");
@@ -113,7 +113,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
      */
     @Test
     public void testRevokeRoleFromUser() throws Exception {
-        User someUser = getUser("someUser");
+        User someUser = loadOrCreateUser("someUser", true);
         
         Role someRole = new SimpleRole("someRole");
         Role someAnotherRole = new SimpleRole("someAnotherRole");
