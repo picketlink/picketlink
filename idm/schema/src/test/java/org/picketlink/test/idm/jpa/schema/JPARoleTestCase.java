@@ -101,7 +101,7 @@ public class JPARoleTestCase extends AbstractJPAIdentityTypeTestCase {
 
         assertNotNull(role);
 
-        identityManager.removeRole(role);
+        identityManager.removeMember(role);
 
         role = identityManager.getRole(ROLE_NAME);
 

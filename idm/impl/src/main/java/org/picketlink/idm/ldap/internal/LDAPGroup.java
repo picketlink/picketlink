@@ -87,21 +87,27 @@ public class LDAPGroup extends LDAPEntry implements Group {
                 memberAttribute.remove(SPACE_STRING);
             }
         } else {
-            memberAttribute = new BasicAttribute(OBJECT_CLASS);
-            memberAttribute.add("inetOrgPerson");
-            memberAttribute.add("organizationalPerson");
-            memberAttribute.add("person");
-            memberAttribute.add("top");
+            memberAttribute = new BasicAttribute(MEMBER);
         }
         
         memberAttribute.add(userDN);
+        getLDAPAttributes().put(memberAttribute);
     }
 
-    public void removeRole(LDAPRole role) {
+    public void removeMember(String dn) {
         Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         if (memberAttribute != null) {
-            memberAttribute.remove(role.getDN());
+            memberAttribute.remove(dn);
         }
+        
+        try {
+            if (!memberAttribute.getAll().hasMoreElements()) {
+                memberAttribute.add(SPACE_STRING);
+            }
+        } catch (NamingException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override

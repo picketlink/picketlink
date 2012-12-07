@@ -308,18 +308,17 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     public boolean isMember(IdentityType identityType, Group group) {
-        // FIXME implement this
-        return false;
+        return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, group, null) != null;
     }
 
     @Override
     public void addToGroup(IdentityType identityType, Group group) {
-        throw new RuntimeException();
+        getContextualStoreForFeature(createContext(), Feature.readRole).createMembership(identityType, group, null);
     }
 
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
-        throw new RuntimeException();
+        getContextualStoreForFeature(createContext(), Feature.readRole).removeMembership(identityType, group, null);
     }
 
     @Override
@@ -332,15 +331,9 @@ public class DefaultIdentityManager implements IdentityManager {
         return getContextualStoreForFeature(ctx, Feature.readRole).getRole(name);
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.IdentityManager#hasRole(org.picketlink.idm.model.Role, org.picketlink.idm.model.IdentityType, org.picketlink.idm.model.Group)
-     */
     @Override
     public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
-
-        // TODO rewrite this implementation to use the IdentityCache instead of a query
-
-        return false;
+        return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, group, role) != null;
     }
 
     @Override
@@ -350,7 +343,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
-        throw new RuntimeException();
+        getContextualStoreForFeature(createContext(), Feature.createMembership).removeMembership(identityType, group, role);
     }
 
     @Override

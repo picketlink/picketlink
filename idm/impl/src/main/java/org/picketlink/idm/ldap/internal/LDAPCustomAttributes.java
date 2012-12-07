@@ -36,7 +36,6 @@ public class LDAPCustomAttributes implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Map<String, Object> attributes = new HashMap<String, Object>();
-    private String teste = "vasco";
 
     public void addAttribute(String key, Object value) {
         attributes.put(key, value);
@@ -53,14 +52,5 @@ public class LDAPCustomAttributes implements Serializable {
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
-
-    public String getTeste() {
-        return teste;
-    }
-
-    public void setTeste(String teste) {
-        this.teste = teste;
-    }
-    
     
 }

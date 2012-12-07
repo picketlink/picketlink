@@ -25,6 +25,7 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
 import java.io.ByteArrayInputStream;
@@ -343,21 +344,41 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             if (group != null) {
                 ldapGroup = (LDAPGroup) getGroup(group.getName());
             }
-
-            if (ldapUser != null && ldapRole != null) {
-                ldapRole.addUser(ldapUser.getDN());
-                
-                getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
-            }
             
-            if (ldapGroup != null && ldapRole != null) {
-                ldapGroup.addRole(ldapRole);    
-            }
-            
-            if (ldapGroup != null && ldapUser != null) {
-                ldapGroup.addUser(ldapUser.getDN());
+            if (ldapRole != null && ldapGroup != null) {
+                LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
                 
-                getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
+                String dn = groupRole.getDN();
+                
+                LDAPGroupRole storedGroupRole = getLdapManager().lookup(dn);
+                
+                if (storedGroupRole == null) {
+                    storedGroupRole = groupRole;
+                    getLdapManager().bind(dn, storedGroupRole);
+                } else {
+                    Attribute memberAttribute = storedGroupRole.getLDAPAttributes().get(MEMBER);
+                    
+                    if (!memberAttribute.contains(ldapRole.getDN())) {
+                        memberAttribute.add(ldapRole.getDN());
+                        getLdapManager().modifyAttribute(dn, memberAttribute);
+                        getLdapManager().rebind(dn, storedGroupRole);
+                    }
+                }
+            } else {
+                if (ldapUser != null && ldapRole != null) {
+                    ldapRole.addUser(ldapUser.getDN());
+                    getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
+                }
+                
+                if (ldapGroup != null && ldapRole != null) {
+                    ldapGroup.addRole(ldapRole);    
+                }
+                
+                if (ldapGroup != null && ldapUser != null) {
+                    ldapGroup.addUser(ldapUser.getDN());
+                    
+                    getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
+                }
             }
 
             return new SimpleGroupRole(ldapUser, ldapRole, ldapGroup);
@@ -373,21 +394,46 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     public void removeMembership(IdentityType member, Group group, Role role) {
         if (member instanceof User) {
             LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
-            
+
             LDAPRole ldapRole = null;
             
             if (role != null) {
                 ldapRole = (LDAPRole) getRole(role.getName());
-                ldapRole.removeUser(ldapUser.getDN());
-                getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
             }
             
             LDAPGroup ldapGroup = null;
             
             if (group != null) {
                 ldapGroup = (LDAPGroup) getGroup(group.getName());
-                ldapGroup.removeRole(ldapRole);
-                getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
+            }
+
+            if (group != null && role != null) {
+                LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
+                
+                String dn = groupRole.getDN();
+                
+                LDAPGroupRole storedGroupRole = getLdapManager().lookup(dn);
+                
+                if (storedGroupRole != null) {
+                    Attribute memberAttribute = storedGroupRole.getLDAPAttributes().get(MEMBER);
+                    
+                    if (memberAttribute.contains(ldapRole.getDN())) {
+                        memberAttribute.remove(ldapRole.getDN());
+                        memberAttribute.add(SPACE_STRING);
+                        getLdapManager().modifyAttribute(dn, memberAttribute);
+                        getLdapManager().rebind(dn, storedGroupRole);
+                    }
+                }
+            } else {
+                if (ldapRole != null) {
+                    ldapRole.removeUser(ldapUser.getDN());
+                    getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
+                }
+                
+                if (ldapGroup != null) {
+                    ldapGroup.removeMember(ldapUser.getDN());
+                    getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
+                }
             }
         } else if (member instanceof Group) {
             // FIXME implement Group membership if supported
@@ -398,42 +444,104 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     public GroupRole getMembership(IdentityType member, Group group, Role role) {
         GroupRole groupRole = null;
         
-        try {
-            BasicAttributes roleAttributeFilter = new BasicAttributes(true);
-
-            if (role != null && role.getName() != null) {
-                roleAttributeFilter.put(CN, role.getName());
-            }
-
-            NamingEnumeration<SearchResult> roleSearchResult = getLdapManager().search(this.configuration.getRoleDNSuffix(), roleAttributeFilter, null);
-
-            // iterate over the returned roles
-            while (roleSearchResult.hasMore()) {
-                boolean isRoleSelected = true;
-
-                SearchResult roleResult = roleSearchResult.next();
-                Attributes roleAttributes = roleResult.getAttributes();
-
-                LDAPRole ldapRole = new LDAPRole(roleAttributes, this.configuration.getUserDNSuffix());
-                LDAPUser ldapUser = null;
+        if (group != null && role != null) {
+            LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId()); 
+            LDAPRole ldapRole = (LDAPRole) getRole(((Role) role).getName());
+            LDAPGroup ldapGroup = (LDAPGroup) getGroup(((Group) group).getName());
+            
+            String dn = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole).getDN();
+            
+            groupRole = getLdapManager().lookup(dn);
+            
+            LDAPGroupRole ldapGroupRole = (LDAPGroupRole) groupRole;
+            
+            if (groupRole != null) {
+                Attribute memberAttribute = ldapGroupRole.getLDAPAttributes().get(MEMBER);
                 
-                // checks if the role has a member mapped to the owner
-                if (member != null) {
-                    Attribute memberAttribute = roleAttributes.get(MEMBER);
-
-                    ldapUser = (LDAPUser) getUser(((User) member).getId());
-
-                    if (!(memberAttribute != null && memberAttribute.contains(ldapUser.getDN()))) {
-                        isRoleSelected = false;
-                    }
-                }
-
-                if (isRoleSelected) {
-                    groupRole = new SimpleGroupRole(ldapUser, ldapRole, null);
+                if (!memberAttribute.contains(ldapRole.getDN())) {
+                    groupRole = null;
                 }
             }
-        } catch (NamingException e) {
-            throw new RuntimeException("Error executing role query.", e);
+        } else {
+            if (role != null) {
+                try {
+                    BasicAttributes roleAttributeFilter = new BasicAttributes(true);
+
+                    if (role != null && role.getName() != null) {
+                        roleAttributeFilter.put(CN, role.getName());
+                    }
+
+                    NamingEnumeration<SearchResult> roleSearchResult = getLdapManager().search(this.configuration.getRoleDNSuffix(), roleAttributeFilter, null);
+
+                    // iterate over the returned roles
+                    while (roleSearchResult.hasMore()) {
+                        boolean isRoleSelected = true;
+
+                        SearchResult roleResult = roleSearchResult.next();
+                        Attributes roleAttributes = roleResult.getAttributes();
+
+                        LDAPRole ldapRole = new LDAPRole(roleAttributes, this.configuration.getRoleDNSuffix());
+                        LDAPUser ldapUser = null;
+                        
+                        // checks if the role has a member mapped to the owner
+                        if (member != null) {
+                            Attribute memberAttribute = roleAttributes.get(MEMBER);
+
+                            ldapUser = (LDAPUser) getUser(((User) member).getId());
+
+                            if (!(memberAttribute != null && memberAttribute.contains(ldapUser.getDN()))) {
+                                isRoleSelected = false;
+                            }
+                        }
+
+                        if (isRoleSelected) {
+                            groupRole = new SimpleGroupRole(ldapUser, ldapRole, null);
+                        }
+                    }
+                } catch (NamingException e) {
+                    throw new RuntimeException("Error executing role query.", e);
+                }
+            }
+            
+            if (group != null) {
+                try {
+                    BasicAttributes groupAttributeFilter = new BasicAttributes(true);
+
+                    if (group!= null && group.getName() != null) {
+                        groupAttributeFilter.put(CN, group.getName());
+                    }
+
+                    NamingEnumeration<SearchResult> groupSearchResult = getLdapManager().search(this.configuration.getGroupDNSuffix(), groupAttributeFilter, null);
+
+                    // iterate over the returned roles
+                    while (groupSearchResult.hasMore()) {
+                        boolean isRoleSelected = true;
+
+                        SearchResult groupResult = groupSearchResult.next();
+                        Attributes groupAttributes = groupResult.getAttributes();
+
+                        LDAPGroup ldapGroup = new LDAPGroup(groupAttributes, this.configuration.getGroupDNSuffix());
+                        LDAPUser ldapUser = null;
+                        
+                        // checks if the role has a member mapped to the owner
+                        if (member != null) {
+                            Attribute memberAttribute = groupAttributes.get(MEMBER);
+
+                            ldapUser = (LDAPUser) getUser(((User) member).getId());
+
+                            if (!(memberAttribute != null && memberAttribute.contains(ldapUser.getDN()))) {
+                                isRoleSelected = false;
+                            }
+                        }
+
+                        if (isRoleSelected) {
+                            groupRole = new SimpleGroupRole(ldapUser, null, ldapGroup);
+                        }
+                    }
+                } catch (NamingException e) {
+                    throw new RuntimeException("Error executing role query.", e);
+                }
+            }            
         }
         
         return groupRole;

@@ -162,7 +162,7 @@ public class LDAPOperationManager {
         try {
             return (T) context.lookup(dn);
         } catch (NamingException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 

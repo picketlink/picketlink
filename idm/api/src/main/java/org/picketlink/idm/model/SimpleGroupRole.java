@@ -37,13 +37,13 @@ public class SimpleGroupRole implements GroupRole {
     private Group group;
 
     public SimpleGroupRole(IdentityType member, Role role, Group group) {
-        if (member == null) {
-            throw new IllegalStateException("Member may not be null.");
-        }
+//        if (member == null) {
+//            throw new IllegalStateException("Member may not be null.");
+//        }
 
-        if (role == null) {
-            throw new IllegalStateException("Role may not be null.");
-        }
+//        if (role == null) {
+//            throw new IllegalStateException("Role may not be null.");
+//        }
 
 //        if (group == null) {
 //            throw new IllegalStateException("Group may not be null.");
