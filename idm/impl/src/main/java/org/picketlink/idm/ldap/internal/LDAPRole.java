@@ -46,15 +46,15 @@ public class LDAPRole extends LDAPEntry implements Role {
     private String roleName;
 
     public LDAPRole() {
-        super(null);
-        Attribute oc = new BasicAttribute(OBJECT_CLASS);
-        oc.add("top");
-        oc.add(LDAPConstants.GROUP_OF_NAMES);
-        getLDAPAttributes().put(oc);
+        this(null);
     }
     
     public LDAPRole(String roleDNSuffix) {
         super(roleDNSuffix);
+        Attribute oc = new BasicAttribute(OBJECT_CLASS);
+        oc.add("top");
+        oc.add(LDAPConstants.GROUP_OF_NAMES);
+        getLDAPAttributes().put(oc);
     }
 
     /**
@@ -66,7 +66,7 @@ public class LDAPRole extends LDAPEntry implements Role {
      * @param ldapAttributes
      */
     public LDAPRole(Attributes ldapAttributes, String roleDNSuffix) {
-        super(roleDNSuffix);
+        this(roleDNSuffix);
         setLDAPAttributes(ldapAttributes);
     }
 
@@ -78,7 +78,7 @@ public class LDAPRole extends LDAPEntry implements Role {
         } else {
             theAttribute.set(0, roleName);
         }
-//        getLDAPAttributes().put(MEMBER, SPACE_STRING); // Dummy member for now
+        getLDAPAttributes().put(MEMBER, SPACE_STRING);
     }
 
     @Override
@@ -102,19 +102,25 @@ public class LDAPRole extends LDAPEntry implements Role {
                 memberAttribute.remove(SPACE_STRING);
             }
         } else {
-            memberAttribute = new BasicAttribute(OBJECT_CLASS);
-            memberAttribute.add("inetOrgPerson");
-            memberAttribute.add("organizationalPerson");
-            memberAttribute.add("person");
-            memberAttribute.add("top");
+            memberAttribute = new BasicAttribute(MEMBER);
         }
         memberAttribute.add(userDN);
+        
+        getLDAPAttributes().put(memberAttribute);
     }
 
     public void removeUser(String userDN) {
         Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         if (memberAttribute != null) {
             memberAttribute.remove(userDN);
+        }
+        
+        try {
+            if (!memberAttribute.getAll().hasMoreElements()) {
+                memberAttribute.add(SPACE_STRING);
+            }
+        } catch (NamingException e) {
+            e.printStackTrace();
         }
     }
     

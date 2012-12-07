@@ -51,7 +51,6 @@ import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredential;
-import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
@@ -156,7 +155,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         if (User.class.isInstance(identityType)) {
             User user = (User) identityType;
 
-            LDAPUser updatedUser = (LDAPUser) user;
+            LDAPUser updatedUser = convert(user);
 
             try {
                 LDAPUser storedUser = (LDAPUser) getUser(user.getId());
@@ -325,16 +324,41 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public GroupRole createMembership(IdentityType member, Group group, Role role) {
         if (member instanceof User) {
-            final LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-            final LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
-            final LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
+            User user = getUser(((User) member).getId());
+            
+            LDAPRole ldapRole = null;
+            
+            if (role != null) {
+                ldapRole = (LDAPRole) getRole(role.getName());
+            }
+            
+            LDAPUser ldapUser = null;
+            
+            if (user != null) {
+                ldapUser = (LDAPUser) getUser(user.getId());
+            }
+            
+            LDAPGroup ldapGroup = null;
+            
+            if (group != null) {
+                ldapGroup = (LDAPGroup) getGroup(group.getName());
+            }
 
-            ldapRole.addUser(ldapUser.getDN());
-            ldapGroup.addRole(ldapRole);
-            ldapGroup.addUser(ldapUser.getDN());
-
-            getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
-            getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
+            if (ldapUser != null && ldapRole != null) {
+                ldapRole.addUser(ldapUser.getDN());
+                
+                getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
+            }
+            
+            if (ldapGroup != null && ldapRole != null) {
+                ldapGroup.addRole(ldapRole);    
+            }
+            
+            if (ldapGroup != null && ldapUser != null) {
+                ldapGroup.addUser(ldapUser.getDN());
+                
+                getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
+            }
 
             return new SimpleGroupRole(ldapUser, ldapRole, ldapGroup);
         } else if (member instanceof Group) {
@@ -348,12 +372,23 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public void removeMembership(IdentityType member, Group group, Role role) {
         if (member instanceof User) {
-            final LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-            final LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
-            final LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
-
-            ldapRole.removeUser(ldapUser.getDN());
-            ldapGroup.removeRole(ldapRole);
+            LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
+            
+            LDAPRole ldapRole = null;
+            
+            if (role != null) {
+                ldapRole = (LDAPRole) getRole(role.getName());
+                ldapRole.removeUser(ldapUser.getDN());
+                getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
+            }
+            
+            LDAPGroup ldapGroup = null;
+            
+            if (group != null) {
+                ldapGroup = (LDAPGroup) getGroup(group.getName());
+                ldapGroup.removeRole(ldapRole);
+                getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
+            }
         } else if (member instanceof Group) {
             // FIXME implement Group membership if supported
         }
@@ -361,8 +396,47 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     @Override
     public GroupRole getMembership(IdentityType member, Group group, Role role) {
-        // TODO Auto-generated method stub
-        return null;
+        GroupRole groupRole = null;
+        
+        try {
+            BasicAttributes roleAttributeFilter = new BasicAttributes(true);
+
+            if (role != null && role.getName() != null) {
+                roleAttributeFilter.put(CN, role.getName());
+            }
+
+            NamingEnumeration<SearchResult> roleSearchResult = getLdapManager().search(this.configuration.getRoleDNSuffix(), roleAttributeFilter, null);
+
+            // iterate over the returned roles
+            while (roleSearchResult.hasMore()) {
+                boolean isRoleSelected = true;
+
+                SearchResult roleResult = roleSearchResult.next();
+                Attributes roleAttributes = roleResult.getAttributes();
+
+                LDAPRole ldapRole = new LDAPRole(roleAttributes, this.configuration.getUserDNSuffix());
+                LDAPUser ldapUser = null;
+                
+                // checks if the role has a member mapped to the owner
+                if (member != null) {
+                    Attribute memberAttribute = roleAttributes.get(MEMBER);
+
+                    ldapUser = (LDAPUser) getUser(((User) member).getId());
+
+                    if (!(memberAttribute != null && memberAttribute.contains(ldapUser.getDN()))) {
+                        isRoleSelected = false;
+                    }
+                }
+
+                if (isRoleSelected) {
+                    groupRole = new SimpleGroupRole(ldapUser, ldapRole, null);
+                }
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException("Error executing role query.", e);
+        }
+        
+        return groupRole;
     }
 
     /*
@@ -781,30 +855,37 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
      * @return
      */
     private LDAPUser convert(User user) {
-        LDAPUser ldapUser = new LDAPUser(this.configuration.getUserDNSuffix());
+        LDAPUser ldapUser = null;
 
-        ldapUser.setId(user.getId());
-        ldapUser.setFirstName(" ");
-        ldapUser.setLastName(" ");
+        if (user instanceof LDAPUser) {
+            ldapUser = (LDAPUser) user;
+        } else {
+            ldapUser = new LDAPUser(this.configuration.getUserDNSuffix());
+            
+            
+            ldapUser.setId(user.getId());
+            ldapUser.setFirstName(" ");
+            ldapUser.setLastName(" ");
 
-        if (user.getFirstName() != null) {
-            ldapUser.setFirstName(user.getFirstName());
-        }
+            if (user.getFirstName() != null) {
+                ldapUser.setFirstName(user.getFirstName());
+            }
 
-        if (user.getLastName() != null) {
-            ldapUser.setLastName(user.getLastName());
-        }
+            if (user.getLastName() != null) {
+                ldapUser.setLastName(user.getLastName());
+            }
 
-        if (user.getEmail() != null) {
-            ldapUser.setEmail(user.getEmail());
-        }
+            if (user.getEmail() != null) {
+                ldapUser.setEmail(user.getEmail());
+            }
 
-        if (user.getExpirationDate() != null) {
-            ldapUser.setExpirationDate(user.getExpirationDate());
-        }
+            if (user.getExpirationDate() != null) {
+                ldapUser.setExpirationDate(user.getExpirationDate());
+            }
 
-        for (org.picketlink.idm.model.Attribute<? extends Serializable> attrib : user.getAttributes()) {
-            ldapUser.setAttribute(attrib);
+            for (org.picketlink.idm.model.Attribute<? extends Serializable> attrib : user.getAttributes()) {
+                ldapUser.setAttribute(attrib);
+            }
         }
 
         return ldapUser;

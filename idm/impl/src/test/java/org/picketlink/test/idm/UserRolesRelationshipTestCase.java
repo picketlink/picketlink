@@ -22,12 +22,12 @@
 
 package org.picketlink.test.idm;
 
-import junit.framework.Assert;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 
 import org.junit.Test;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
@@ -45,21 +45,76 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
      */
     @Test
     public void testGrantRoleToUser() throws Exception {
-        SimpleUser user = new SimpleUser("someUser");
+        User someUser = getUser("someUser");
         
-        getIdentityManager().add(user);
+        Role someRole = new SimpleRole("someRole");
         
-        user.setEnabled(true);
+        getIdentityManager().add(someRole);
         
-        getIdentityManager().update(user);
+        getIdentityManager().grantRole(someUser, someRole);
         
-        SimpleRole role = new SimpleRole("someRole");
+        assertTrue(getIdentityManager().hasRole(someUser, someRole));
         
-        getIdentityManager().add(role);
+        User someAnotherUser = getUser("someAnotherUser");
         
-        getIdentityManager().grantRole(user, role);
+        assertFalse(getIdentityManager().hasRole(someAnotherUser, someRole));
         
-        Assert.assertTrue(getIdentityManager().hasRole(user, role));
+        Role someAnotherRole = new SimpleRole("someAnotherRole");
+        
+        getIdentityManager().add(someAnotherRole);
+        
+        getIdentityManager().grantRole(someAnotherUser, someAnotherRole);
+        
+        assertTrue(getIdentityManager().hasRole(someAnotherUser, someAnotherRole));
+    }
+    
+    /**
+     * <p>Tests granting multiple roles to users.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGrantMultipleRolesToUser() throws Exception {
+        User someUser = getUser("someUser");
+        
+        Role someRole = new SimpleRole("someRole");
+        Role someAnotherRole = new SimpleRole("someAnotherRole");
+        
+        getIdentityManager().add(someRole);
+        getIdentityManager().add(someAnotherRole);
+        
+        getIdentityManager().grantRole(someUser, someRole);
+        getIdentityManager().grantRole(someUser, someAnotherRole);
+        
+        assertTrue(getIdentityManager().hasRole(someUser, someRole));
+        assertTrue(getIdentityManager().hasRole(someUser, someAnotherRole));
+    }
+    
+    /**
+     * <p>Tests revoking oles from users.</p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testRevokeRoleFromUser() throws Exception {
+        User someUser = getUser("someUser");
+        
+        Role someRole = new SimpleRole("someRole");
+        Role someAnotherRole = new SimpleRole("someAnotherRole");
+        
+        getIdentityManager().add(someRole);
+        getIdentityManager().add(someAnotherRole);
+        
+        getIdentityManager().grantRole(someUser, someRole);
+        getIdentityManager().grantRole(someUser, someAnotherRole);
+        
+        assertTrue(getIdentityManager().hasRole(someUser, someRole));
+        assertTrue(getIdentityManager().hasRole(someUser, someAnotherRole));
+        
+        getIdentityManager().revokeRole(someUser, someRole);
+        
+        assertFalse(getIdentityManager().hasRole(someUser, someRole));
+        assertTrue(getIdentityManager().hasRole(someUser, someAnotherRole));
     }
     
 }

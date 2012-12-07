@@ -45,9 +45,9 @@ public class SimpleGroupRole implements GroupRole {
             throw new IllegalStateException("Role may not be null.");
         }
 
-        if (group == null) {
-            throw new IllegalStateException("Group may not be null.");
-        }
+//        if (group == null) {
+//            throw new IllegalStateException("Group may not be null.");
+//        }
 
         this.member = member;
         this.role = role;

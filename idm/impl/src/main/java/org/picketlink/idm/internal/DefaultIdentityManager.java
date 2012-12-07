@@ -355,20 +355,17 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
-        // TODO Auto-generated method stub
-        return false;
+        return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, null, role) != null;
     }
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
-        // TODO Auto-generated method stub
-
+        getContextualStoreForFeature(createContext(), Feature.createMembership).createMembership(identityType, null, role);
     }
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        // TODO Auto-generated method stub
-
+        getContextualStoreForFeature(createContext(), Feature.deleteMembership).removeMembership(identityType, null, role);
     }
 
     @Override

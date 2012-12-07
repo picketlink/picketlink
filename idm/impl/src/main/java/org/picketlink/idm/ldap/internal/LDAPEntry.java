@@ -172,8 +172,10 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
 
     @Override
     public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
-        getLDAPAttributes().put(attribute.getName(), attribute.getValue());
-        getCustomAttributes().addAttribute(attribute.getName(), attribute.getValue());
+        Serializable value = attribute.getValue();
+        
+        getLDAPAttributes().put(attribute.getName(), value);
+        getCustomAttributes().addAttribute(attribute.getName(), value);
     }
 
     @Override

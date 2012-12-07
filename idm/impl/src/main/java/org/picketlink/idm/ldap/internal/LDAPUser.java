@@ -76,7 +76,7 @@ public class LDAPUser extends LDAPEntry implements User {
     protected String doGetAttributeForBinding() {
         return UID;
     }
-    
+
     public void setId(String id) {
         Attribute theAttribute = getLDAPAttributes().get(UID);
         if (theAttribute == null) {
@@ -106,13 +106,26 @@ public class LDAPUser extends LDAPEntry implements User {
 
     @Override
     public String getFirstName() {
+        Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.GIVENNAME);
+
+        return getAttributeValue(theAttribute);
+    }
+
+    private String getAttributeValue(Attribute attribute) {
+        Object value = null;
+
         try {
-            Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.GIVENNAME);
-            if (theAttribute != null) {
-                return (String) theAttribute.get();
-            }
+            value = attribute.get();
         } catch (NamingException e) {
             throw new RuntimeException(e);
+        }
+
+        if (value != null) {
+            if (value.getClass().isArray()) {
+                return ((Object[]) value)[0].toString();
+            } else {
+                return value.toString();
+            }
         }
 
         return null;
@@ -125,16 +138,9 @@ public class LDAPUser extends LDAPEntry implements User {
 
     @Override
     public String getLastName() {
-        try {
-            Attribute theAttribute = getLDAPAttributes().get(SN);
-            if (theAttribute != null) {
-                return (String) theAttribute.get();
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+        Attribute theAttribute = getLDAPAttributes().get(SN);
 
-        return null;
+        return getAttributeValue(theAttribute);
     }
 
     @Override

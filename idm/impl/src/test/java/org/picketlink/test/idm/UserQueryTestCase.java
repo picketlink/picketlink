@@ -33,7 +33,6 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 
@@ -613,16 +612,6 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
-    }
-    
-    private User getUser(String userName) {
-        User user = new SimpleUser(userName);
-        
-        if (getIdentityManager().getUser(user.getId()) == null) {
-            getIdentityManager().add(user);            
-        }
-        
-        return getIdentityManager().getUser(userName);
     }
     
     private boolean contains(List<User> result, String userId) {
