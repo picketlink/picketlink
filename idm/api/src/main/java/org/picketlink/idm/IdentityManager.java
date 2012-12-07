@@ -23,6 +23,7 @@ package org.picketlink.idm;
 
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -63,9 +64,13 @@ public interface IdentityManager {
 
     void remove(IdentityType identityType);
 
+    // Agent
+
+    Agent getAgent(String id);
+
     // User
 
-    User getUser(String name);
+    User getUser(String id);
 
     // Group
 
@@ -103,7 +108,7 @@ public interface IdentityManager {
 
     void validateCredentials(Credentials credentials);
 
-    void updateCredential(User user, Object value);
+    void updateCredential(Agent agent, Object value);
 
     // User / Role / Group enablement / expiry
 

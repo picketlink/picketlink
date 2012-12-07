@@ -1,5 +1,6 @@
 package org.picketlink.idm.credential;
 
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.User;
 
 /**
@@ -9,16 +10,16 @@ import org.picketlink.idm.model.User;
  */
 public abstract class AbstractBaseCredentials implements Credentials {
 
-    private User validatedUser;
+    private Agent validatedAgent;
     private Status status = Status.UNVALIDATED;
 
     @Override
-    public User getValidatedUser() {
-        return validatedUser;
+    public Agent getValidatedAgent() {
+        return validatedAgent;
     }
 
-    public void setValidatedUser(User user) {
-        this.validatedUser = user;
+    public void setValidatedAgent(Agent agent) {
+        this.validatedAgent = agent;
     }
 
     @Override

@@ -34,6 +34,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -277,9 +278,13 @@ public class DefaultIdentityManager implements IdentityManager {
         getContextualStoreForFeature(ctx, feature).remove(identityType);
     }
 
+    public Agent getAgent(String id) {
+        return getContextualStoreForFeature(createContext(), Feature.readUser).getAgent(id);
+    }
+
     @Override
-    public User getUser(String name) {
-        return getContextualStoreForFeature(createContext(), Feature.readUser).getUser(name);
+    public User getUser(String id) {
+        return getContextualStoreForFeature(createContext(), Feature.readUser).getUser(id);
     }
 
     @Override
@@ -374,7 +379,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void updateCredential(User user, Object credential) {
+    public void updateCredential(Agent agent, Object credential) {
         IdentityStore store = getContextualStoreForFeature(createContext(), Feature.validateCredential);
             //.updateCredential(user, credential);
     }

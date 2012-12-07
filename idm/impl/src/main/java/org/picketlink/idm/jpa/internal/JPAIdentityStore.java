@@ -34,6 +34,7 @@ import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -397,6 +398,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             event.getContext().setValue(EVENT_CONTEXT_ROLE_ENTITY, entity);
             getContext().getEventBridge().raiseEvent(event);
         }
+    }
+
+    @Override
+    public Agent getAgent(String id) {
+        // TODO implement
+        return null;
     }
 
     @Override

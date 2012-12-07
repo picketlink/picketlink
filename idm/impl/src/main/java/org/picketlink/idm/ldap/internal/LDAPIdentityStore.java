@@ -53,6 +53,7 @@ import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
@@ -238,11 +239,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         }
     }
 
+    public Agent getAgent(String id) {
+        return getUser(id);
+    }
+
     @Override
-    public User getUser(String name) {
+    public User getUser(String id) {
         final String baseDN = this.configuration.getUserDNSuffix();
 
-        List<User> answer = getLdapManager().searchByAttribute(baseDN, UID, name, new LDAPSearchCallback<User>() {
+        List<User> answer = getLdapManager().searchByAttribute(baseDN, UID, id, new LDAPSearchCallback<User>() {
 
             @Override
             public User processResult(SearchResult sr) {

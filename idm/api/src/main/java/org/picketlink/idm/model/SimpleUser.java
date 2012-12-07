@@ -24,21 +24,16 @@ package org.picketlink.idm.model;
 /**
  * A simple User implementation
  */
-public class SimpleUser extends AbstractIdentityType implements User {
+public class SimpleUser extends SimpleAgent implements User {
 
     private static final long serialVersionUID = -8878182208588103681L;
 
-    private String id;
     private String firstName;
     private String lastName;
     private String email;
 
     public SimpleUser(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
+        super(id);
     }
 
     public String getFirstName() {
@@ -65,7 +60,8 @@ public class SimpleUser extends AbstractIdentityType implements User {
         this.email = email;
     }
 
+    @Override
     public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, id);
+        return String.format("%s%s", User.KEY_PREFIX, getId());
     }
 }

@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.credential.spi.CredentialStorage;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
@@ -102,6 +102,10 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param identityType
      */
     void remove(IdentityType identityType);
+
+    // Agent
+
+    Agent getAgent(String id);
 
     // User
 

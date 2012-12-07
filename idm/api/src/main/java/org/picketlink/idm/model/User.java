@@ -31,12 +31,7 @@ import org.picketlink.idm.query.QueryParameter;
  * 
  * @author Shane Bryzak
  */
-public interface User extends IdentityType, Serializable {
-
-    /**
-     * A query parameter used to set the id value.
-     */
-    QueryParameter ID = new QueryParameter() {};
+public interface User extends Agent, Serializable {
 
     /**
      * A query parameter used to set the firstName value.
@@ -59,8 +54,6 @@ public interface User extends IdentityType, Serializable {
     String KEY_PREFIX = "USER://";
 
     // Built in attributes
-
-    String getId();
 
     String getFirstName();
 

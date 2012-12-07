@@ -46,6 +46,7 @@ import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
@@ -400,8 +401,13 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public User getUser(String name) {
-        FileUser user = this.users.get(name);
+    public Agent getAgent(String id) {
+        return getUser(id);
+    }
+
+    @Override
+    public User getUser(String id) {
+        FileUser user = this.users.get(id);
 
         if (user != null) {
             user.setChangeListener(this.changeListener);
@@ -1050,5 +1056,4 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     public void updateGroup(Group group) {
         
     }
-
 }

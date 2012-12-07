@@ -1,6 +1,6 @@
 package org.picketlink.idm.credential;
 
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.Agent;
 
 
 /**
@@ -14,7 +14,7 @@ import org.picketlink.idm.model.User;
 public interface Credentials {
     public enum Status {UNVALIDATED, IN_PROGRESS, INVALID, VALID};
 
-    User getValidatedUser();
+    Agent getValidatedAgent();
 
     Status getStatus();
 
