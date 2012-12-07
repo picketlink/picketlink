@@ -49,6 +49,10 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         
         Role someRole = new SimpleRole("someRole");
         
+        if (getIdentityManager().getRole(someRole.getName()) != null) {
+            getIdentityManager().remove(someRole);
+        }
+        
         getIdentityManager().add(someRole);
         
         getIdentityManager().grantRole(someUser, someRole);
@@ -60,6 +64,10 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         assertFalse(getIdentityManager().hasRole(someAnotherUser, someRole));
         
         Role someAnotherRole = new SimpleRole("someAnotherRole");
+        
+        if (getIdentityManager().getRole(someAnotherRole.getName()) != null) {
+            getIdentityManager().remove(someAnotherRole);
+        }
         
         getIdentityManager().add(someAnotherRole);
         
@@ -79,6 +87,14 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         
         Role someRole = new SimpleRole("someRole");
         Role someAnotherRole = new SimpleRole("someAnotherRole");
+        
+        if (getIdentityManager().getRole(someRole.getName()) != null) {
+            getIdentityManager().remove(someRole);
+        }
+        
+        if (getIdentityManager().getRole(someAnotherRole.getName()) != null) {
+            getIdentityManager().remove(someAnotherRole);
+        }
         
         getIdentityManager().add(someRole);
         getIdentityManager().add(someAnotherRole);
@@ -101,6 +117,14 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         
         Role someRole = new SimpleRole("someRole");
         Role someAnotherRole = new SimpleRole("someAnotherRole");
+        
+        if (getIdentityManager().getRole(someRole.getName()) != null) {
+            getIdentityManager().remove(someRole);
+        }
+        
+        if (getIdentityManager().getRole(someAnotherRole.getName()) != null) {
+            getIdentityManager().remove(someAnotherRole);
+        }
         
         getIdentityManager().add(someRole);
         getIdentityManager().add(someAnotherRole);

@@ -25,6 +25,7 @@ package org.picketlink.test.idm;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -75,6 +76,15 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByFirstNameAndLastName() throws Exception {
+        User user = getUser("admin");
+        
+        user.setFirstName("The");
+        user.setLastName("Administrator");
+        
+        getIdentityManager().update(user);
+        
+        assertNotNull(user);
+        
         IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.FIRST_NAME, "The");
@@ -130,6 +140,12 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByEmail() throws Exception {
+        User user = getUser("admin");
+        
+        user.setEmail("admin@jboss.org");
+        
+        getIdentityManager().update(user);
+        
         IdentityQuery<User> query = getIdentityManager().<User> createQuery(User.class);
 
         query.setParameter(User.EMAIL, "admin@jboss.org");

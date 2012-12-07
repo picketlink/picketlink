@@ -55,9 +55,13 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     @Test
     public void testCreate() throws Exception {
         IdentityManager identityManager = getIdentityManager();
-
+        
         User newUserInstance = new SimpleUser("jduke");
-
+        
+        if (getIdentityManager().getUser(newUserInstance.getId()) != null) {
+            getIdentityManager().remove(newUserInstance);
+        }
+        
         newUserInstance.setEmail("jduke@jboss.org");
         newUserInstance.setFirstName("Java");
         newUserInstance.setLastName("Duke");
@@ -89,6 +93,14 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     public void testGet() throws Exception {
         User storedUserInstance = getIdentityType();
 
+        storedUserInstance.setEmail("admin@jboss.org");
+        storedUserInstance.setFirstName("The");
+        storedUserInstance.setLastName("Administrator");
+        
+        getIdentityManager().update(storedUserInstance);
+        
+        storedUserInstance = getUser(storedUserInstance.getId());
+        
         assertNotNull(storedUserInstance);
 
         assertEquals("admin", storedUserInstance.getId());
@@ -150,7 +162,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         identityManager.remove(storedUserInstance);
 
-        User removedUserInstance = getIdentityType();
+        User removedUserInstance = getIdentityManager().getUser("admin");
 
         assertNull(removedUserInstance);
     }
@@ -162,7 +174,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
     @Override
     protected User getIdentityType() {
-        return getIdentityManager().getUser("admin");
+        return getUser("admin");
     }
 
 }
