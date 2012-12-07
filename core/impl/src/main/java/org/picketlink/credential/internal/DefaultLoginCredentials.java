@@ -6,9 +6,9 @@ import javax.inject.Named;
 
 import org.picketlink.authentication.event.LoginFailedEvent;
 import org.picketlink.authentication.event.PostAuthenticateEvent;
-import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.model.Agent;
 
 /**
  * The default LoginCredentials implementation.  This implementation allows for a
@@ -19,7 +19,7 @@ import org.picketlink.idm.credential.PlainTextPassword;
 @RequestScoped
 public class DefaultLoginCredentials implements Credentials
 {
-    private Credential credential;
+    private Object credential;
 
     private String userId;
 
@@ -33,12 +33,12 @@ public class DefaultLoginCredentials implements Credentials
         this.userId = userId;
     }
 
-    public Credential getCredential()
+    public Object getCredential()
     {
         return credential;
     }
 
-    public void setCredential(Credential credential)
+    public void setCredential(Object credential)
     {
         this.credential = credential;
         // TODO manager.fireEvent(new CredentialsUpdatedEvent(this.credential));
@@ -83,5 +83,17 @@ public class DefaultLoginCredentials implements Credentials
     public String toString() 
     {
         return "LoginCredential[" + (userId != null ? userId : "unknown" ) + "]";
+    }
+
+    @Override
+    public Agent getValidatedAgent() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Status getStatus() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
