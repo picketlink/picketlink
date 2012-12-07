@@ -214,6 +214,27 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 throw new RuntimeException("User [" + user.getId() + "] does not exists.");
             }
             
+            // remove the user from the role member attribute
+            String filter = "(member=" + ldapUser.getDN() + ")";
+            
+            NamingEnumeration<SearchResult> results = getLdapManager().search(this.configuration.getRoleDNSuffix(), filter);
+            
+            while (results.hasMoreElements()) {
+                SearchResult searchResult = (SearchResult) results.nextElement();
+                try {
+                    String cn = searchResult.getAttributes().get(CN).get().toString();
+                    
+                    LDAPRole role = (LDAPRole) getRole(cn);
+                    
+                    if (role != null) {
+                        role.removeUser(ldapUser.getDN());
+                        getLdapManager().modifyAttribute(role.getDN(), role.getLDAPAttributes().get(MEMBER));
+                    }
+                } catch (NamingException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
             remove(ldapUser);
         } else if (Group.class.isInstance(identityType)) {
             Group group = (Group) identityType;
@@ -225,7 +246,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             }
 
             remove(ldapGroup);
-
+            
+            NamingEnumeration<SearchResult> results = getLdapManager().search(this.configuration.getUserDNSuffix(), "(&(cn= " + ldapGroup.getName() + "*))");
+            
+            while (results.hasMoreElements()) {
+                SearchResult searchResult = (SearchResult) results.nextElement();
+                String dn = searchResult.getNameInNamespace();
+                getLdapManager().destroySubcontext(dn);
+            }
+            
         } else if (Role.class.isInstance(identityType)) {
             Role role = (Role) identityType;
 
