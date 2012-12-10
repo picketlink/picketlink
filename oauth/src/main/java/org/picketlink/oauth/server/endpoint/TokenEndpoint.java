@@ -38,24 +38,26 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.apache.amber.oauth2.as.issuer.MD5Generator;
-import org.apache.amber.oauth2.as.issuer.OAuthIssuer;
-import org.apache.amber.oauth2.as.issuer.OAuthIssuerImpl;
-import org.apache.amber.oauth2.as.request.OAuthTokenRequest;
-import org.apache.amber.oauth2.as.response.OAuthASResponse;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.error.OAuthError;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
-import org.apache.amber.oauth2.common.message.types.GrantType;
+import org.picketlink.oauth.amber.oauth2.as.issuer.MD5Generator;
+import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuer;
+import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuerImpl;
+import org.picketlink.oauth.amber.oauth2.as.request.OAuthTokenRequest;
+import org.picketlink.oauth.amber.oauth2.as.response.OAuthASResponse;
+import org.picketlink.oauth.amber.oauth2.common.OAuth;
+import org.picketlink.oauth.amber.oauth2.common.error.OAuthError;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
+import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
+import org.picketlink.oauth.amber.oauth2.common.message.types.GrantType;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.IdentityQuery;
 
 /**
  * Token End Point
@@ -107,9 +109,15 @@ public class TokenEndpoint implements Serializable {
                 return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
             }
 
-            UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID",
-                    new String[] { passedClientID });
-            List<User> users = userQuery.executeQuery();
+            // IdentityQuery<User> query = identityManager.createQuery(User.class);
+            IdentityQuery<User> userQuery = identityManager.createQuery();
+            userQuery.setParameter(User.ID, "clientID");
+            /*
+             * UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID", new String[] {
+             * passedClientID });
+             */
+
+            List<User> users = userQuery.getResultList();
 
             if (users.size() == 0) {
                 OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
@@ -125,8 +133,11 @@ public class TokenEndpoint implements Serializable {
             User clientApp = users.get(0);
 
             // Get the values from DB
-            String clientID = clientApp.getAttribute("clientID");
-            String authorizationCode = clientApp.getAttribute("authorizationCode");
+            Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
+            String clientID = clientIDAttr.getValue();
+            Attribute<String> authorizationCodeAttr = clientApp.getAttribute("authorizationCode");
+            String authorizationCode = authorizationCodeAttr.getValue();
+
             String password = "something";
             String username = "yz";
 
@@ -169,7 +180,7 @@ public class TokenEndpoint implements Serializable {
             }
 
             String accessToken = oauthIssuerImpl.accessToken();
-            clientApp.setAttribute("accessToken", accessToken);
+            clientApp.setAttribute(new Attribute("accessToken", accessToken));
 
             OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken)
                     .setExpiresIn("3600").buildJSONMessage();
@@ -212,9 +223,14 @@ public class TokenEndpoint implements Serializable {
                         properties.getProperty("roleDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
 
-                store.setConfiguration(ldapConfiguration);
+                // store.setConfiguration(ldapConfiguration);
+                // Create Identity Configuration
+                IdentityConfiguration config = new IdentityConfiguration();
+                config.addStoreConfiguration(ldapConfiguration);
 
-                ((DefaultIdentityManager) identityManager).setIdentityStore(store);
+                identityManager.bootstrap(config, null);
+
+                // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
         }
     }
