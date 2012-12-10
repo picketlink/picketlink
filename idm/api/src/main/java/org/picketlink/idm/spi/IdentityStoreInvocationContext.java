@@ -65,8 +65,8 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, 
-            Class<? extends IdentityStore> identityStoreClass) {
-        return credentialHandlerFactory.getCredentialValidator(credentialsClass, identityStoreClass);
+            IdentityStore identityStore) {
+        return credentialHandlerFactory.getCredentialValidator(credentialsClass, identityStore.getClass());
     }
 
     /**
@@ -78,8 +78,8 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public CredentialHandler getCredentialUpdater(Class<?> credentialClass, 
-            Class<? extends IdentityStore> identityStoreClass) {
-        return credentialHandlerFactory.getCredentialUpdater(credentialClass, identityStoreClass);
+            IdentityStore identityStore) {
+        return credentialHandlerFactory.getCredentialUpdater(credentialClass, identityStore.getClass());
     }
 
     /**

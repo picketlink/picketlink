@@ -42,7 +42,7 @@ import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.internal.util.Base64;
@@ -115,7 +115,7 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         anil.setAttribute(new Attribute<String>("x509", encodedCert));
 
         // Try saving the cert as standard ldap cert
-        im.updateCredential(anil, new X509CertificateCredential(cert));
+        im.updateCredential(anil, new X509CertificateCredentials(cert));
 
         // let us retrieve the attributes from ldap store and see if they are the same
         anil = im.getUser("asaldhan");

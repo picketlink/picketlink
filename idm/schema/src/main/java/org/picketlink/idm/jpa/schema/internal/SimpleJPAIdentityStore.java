@@ -38,7 +38,7 @@ import org.picketlink.idm.credential.Credential;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestUtil;
 import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.jpa.schema.DatabaseGroup;
 import org.picketlink.idm.jpa.schema.DatabaseMembership;
@@ -671,8 +671,8 @@ public class SimpleJPAIdentityStore implements IdentityStore {
             String storedPassword = storedUser.getAttribute(PASSWORD_ATTRIBUTE_NAME);
             
             return DigestUtil.matchCredential(digestCredential, storedPassword.toCharArray());
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential certCredential = (X509CertificateCredential) credential;
+        } else if (credential instanceof X509CertificateCredentials) {
+            X509CertificateCredentials certCredential = (X509CertificateCredentials) credential;
             User storedUser = getUser(ctx, user.getId());
             
             String storedCert = storedUser.getAttribute(CERTIFICATE_ATTRIBUTE_NAME);
@@ -705,8 +705,8 @@ public class SimpleJPAIdentityStore implements IdentityStore {
         if (credential instanceof PlainTextPassword) {
             PlainTextPassword passwordCredential = (PlainTextPassword) credential;
             storedUser.setAttribute(PASSWORD_ATTRIBUTE_NAME, passwordCredential.getPassword());
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential certCredential = (X509CertificateCredential) credential;
+        } else if (credential instanceof X509CertificateCredentials) {
+            X509CertificateCredentials certCredential = (X509CertificateCredentials) credential;
             
             try {
                 storedUser.setAttribute(CERTIFICATE_ATTRIBUTE_NAME, new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded())));

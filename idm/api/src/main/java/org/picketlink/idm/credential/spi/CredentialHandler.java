@@ -17,7 +17,7 @@ public interface CredentialHandler {
      * @param store
      * @return
      */
-    User validate(Credentials credentials, IdentityStore store);
+    void validate(Credentials credentials, IdentityStore store);
 
     /**
      * 

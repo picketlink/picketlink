@@ -32,7 +32,7 @@ import java.security.cert.X509Certificate;
 
 import org.junit.Test;
 import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.User;
 
 /**
@@ -64,7 +64,7 @@ public class CredentialManagementTestCase extends AbstractIdentityManagerTestCas
     }
     
     /**
-     * <p>Tests the {@link X509CertificateCredential} usage.</p>
+     * <p>Tests the {@link X509CertificateCredentials} usage.</p>
      * 
      * @throws Exception
      */
@@ -73,7 +73,7 @@ public class CredentialManagementTestCase extends AbstractIdentityManagerTestCas
         User user = getIdentityManager().getUser("admin");
         X509Certificate clientCert = getTestingCertificate();
         
-        getIdentityManager().updateCredential(user, new X509CertificateCredential(clientCert));
+        getIdentityManager().updateCredential(user, new X509CertificateCredentials(clientCert));
         
         // FIXME
         //assertTrue(getIdentityManager().validateCredential(user, new X509CertificateCredential(clientCert)));

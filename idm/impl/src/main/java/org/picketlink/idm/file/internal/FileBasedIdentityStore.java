@@ -44,7 +44,7 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestUtil;
 import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Agent;
@@ -894,8 +894,8 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
             String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
             
             return DigestUtil.matchCredential(digestCredential, storedPassword.toCharArray());
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential certCredential =  (X509CertificateCredential) credential;
+        } else if (credential instanceof X509CertificateCredentials) {
+            X509CertificateCredentials certCredential =  (X509CertificateCredentials) credential;
             
             User storedUser = getUser(user.getId());
             
@@ -925,8 +925,8 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
             storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, new String(passwordCredential.getPassword())));
             
             flushUsers();
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential certCredential =  (X509CertificateCredential) credential;
+        } else if (credential instanceof X509CertificateCredentials) {
+            X509CertificateCredentials certCredential =  (X509CertificateCredentials) credential;
             
             User storedUser = getUser(user.getId());
 
