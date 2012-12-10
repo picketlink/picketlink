@@ -11,6 +11,9 @@ import org.picketlink.idm.spi.IdentityStore;
  */
 public interface CredentialHandlerFactory {
 
-    CredentialHandler getCredentialHandler(Class<? extends Credentials> credentialsClass, 
+    CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, 
+            Class<? extends IdentityStore> identityStoreClass);
+
+    CredentialHandler getCredentialUpdater(Class<?> credentialClass, 
             Class<? extends IdentityStore> identityStoreClass);
 }

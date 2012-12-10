@@ -1,6 +1,7 @@
 package org.picketlink.idm.credential.spi;
 
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -24,5 +25,5 @@ public interface CredentialHandler {
      * @param credential
      * @param store
      */
-    void update(User user, Object credential, IdentityStore store);
+    void update(Agent agent, Object credential, IdentityStore store);
 }

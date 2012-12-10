@@ -53,8 +53,8 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
                           createGroup, readGroup, updateGroup, deleteGroup,
                           createRole, readRole, updateRole, deleteRole,
                           createMembership, readMembership, updateMembership, deleteMembership,
-                          validateCredential, updateCredential,
                           readAttribute, updateAttribute, deleteAttribute,
+                          manageCredentials,
                           supportsTiers, supportsRealms, disableRole, disableGroup, disableUser,
                           all }
 

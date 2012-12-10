@@ -34,6 +34,8 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -67,6 +69,8 @@ public class DefaultIdentityManager implements IdentityManager {
     private StoreFactory storeFactory = new DefaultStoreFactory();
 
     private IdentityStoreInvocationContextFactory contextFactory;
+
+    private CredentialHandlerFactory credentialHandlerFactory;
 
     private static Method METHOD_CREATE_CONTEXT;
 
@@ -156,6 +160,7 @@ public class DefaultIdentityManager implements IdentityManager {
             }
         }
 
+        this.credentialHandlerFactory = identityConfig.getCredentialHandlerFactory();
         this.contextFactory = contextFactory;
     }
 
@@ -363,15 +368,24 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void validateCredentials(Credentials credentials) {
-        IdentityStore store = getContextualStoreForFeature(createContext(), 
-                Feature.validateCredential); //.validateCredential(credentials);
-        // TODO implement
+        IdentityStore<?> store = getContextualStoreForFeature(createContext(), 
+                Feature.manageCredentials);
+
+        CredentialHandler handler = credentialHandlerFactory.getCredentialValidator(
+                credentials.getClass(), store.getClass());
+
+        handler.validate(credentials, store);
     }
 
     @Override
     public void updateCredential(Agent agent, Object credential) {
-        IdentityStore store = getContextualStoreForFeature(createContext(), Feature.validateCredential);
-            //.updateCredential(user, credential);
+        IdentityStore<?> store = getContextualStoreForFeature(createContext(), 
+                Feature.manageCredentials);
+
+        CredentialHandler handler = credentialHandlerFactory.getCredentialUpdater(
+                credential.getClass(), store.getClass());
+
+        handler.update(agent, credential, store);
     }
 
     public IdentityStoreInvocationContextFactory getContextFactory() {
