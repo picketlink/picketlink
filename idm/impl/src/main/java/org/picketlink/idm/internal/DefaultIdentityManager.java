@@ -62,7 +62,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private Map<String,Map<Feature,IdentityStoreConfiguration>> realmStores = new HashMap<String,Map<Feature,IdentityStoreConfiguration>>();
 
-    private PartitionStoreConfiguration partitionStore;
+    private PartitionStoreConfiguration partitionStoreConfig;
 
     private PasswordEncoder passwordEncoder;
 
@@ -154,7 +154,7 @@ public class DefaultIdentityManager implements IdentityManager {
                     featureToStoreMap.put(f, identityStoreConfig);
                 }
             } else if (PartitionStoreConfiguration.class.isInstance(config)) {
-                partitionStore = (PartitionStoreConfiguration) config;
+                partitionStoreConfig = (PartitionStoreConfiguration) config;
             }
         }
 
@@ -310,6 +310,11 @@ public class DefaultIdentityManager implements IdentityManager {
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(groupName, parent);
     }
 
+    @Override
+    public void updateGroup(Group group) {
+        getContextualStoreForFeature(createContext(), Feature.updateGroup).updateGroup(group);
+    }
+
     public boolean isMember(IdentityType identityType, Group group) {
         return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, group, null) != null;
     }
@@ -332,6 +337,11 @@ public class DefaultIdentityManager implements IdentityManager {
                     "scope of a Realm or a Tier, however both have been set.");
         }
         return getContextualStoreForFeature(ctx, Feature.readRole).getRole(name);
+    }
+
+    @Override
+    public void updateRole(Role role) {
+        getContextualStoreForFeature(createContext(), Feature.updateRole).updateRole(role);
     }
 
     @Override
@@ -401,49 +411,32 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void createRealm(Realm realm) {
-        
-        // TODO Auto-generated method stub
-        
+        storeFactory.createPartitionStore(partitionStoreConfig).createPartition(realm);
     }
 
     @Override
     public void removeRealm(Realm realm) {
-        // TODO Auto-generated method stub
-        
+        storeFactory.createPartitionStore(partitionStoreConfig).removePartition(realm);
     }
 
     @Override
     public Realm getRealm(String name) {
-        // TODO Auto-generated method stub
-        return null;
+        return storeFactory.createPartitionStore(partitionStoreConfig).getRealm(name);
     }
 
     @Override
     public void createTier(Tier tier) {
-        // TODO Auto-generated method stub
-        
+        storeFactory.createPartitionStore(partitionStoreConfig).createPartition(tier);
     }
 
     @Override
     public void removeTier(Tier tier) {
-        // TODO Auto-generated method stub
-        
+        storeFactory.createPartitionStore(partitionStoreConfig).removePartition(tier);
     }
 
     @Override
     public Tier getTier(String id) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void updateRole(Role role) {
-        getContextualStoreForFeature(createContext(), Feature.updateRole).updateRole(role);
-    }
-
-    @Override
-    public void updateGroup(Group group) {
-        getContextualStoreForFeature(createContext(), Feature.updateGroup).updateGroup(group);
+        return storeFactory.createPartitionStore(partitionStoreConfig).getTier(id);
     }
 
     @Override
