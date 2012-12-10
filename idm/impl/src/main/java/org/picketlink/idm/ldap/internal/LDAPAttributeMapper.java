@@ -45,6 +45,7 @@ public class LDAPAttributeMapper {
         ldapAttributeMap.put(User.EMAIL, LDAPConstants.EMAIL);
         ldapAttributeMap.put(User.FIRST_NAME, LDAPConstants.GIVENNAME);
         ldapAttributeMap.put(User.LAST_NAME, LDAPConstants.SN);
+        ldapAttributeMap.put(User.MEMBER_OF, LDAPConstants.MEMBER_OF);
         
         customAttributeMap.put(User.CREATED_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
         customAttributeMap.put(User.CREATED_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);

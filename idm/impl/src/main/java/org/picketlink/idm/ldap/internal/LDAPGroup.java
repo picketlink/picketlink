@@ -66,50 +66,6 @@ public class LDAPGroup extends LDAPEntry implements Group {
         setLDAPAttributes(attributes);
     }
 
-    public void addRole(LDAPRole role) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        if (memberAttribute != null) {
-            if (memberAttribute.contains(SPACE_STRING)) {
-                memberAttribute.remove(SPACE_STRING);
-            }
-        } else {
-            memberAttribute = new BasicAttribute(OBJECT_CLASS);
-            memberAttribute.add("top");
-            memberAttribute.add("groupOfNames");
-        }
-        memberAttribute.add(role.getDN());
-    }
-
-    public void addUser(String userDN) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        if (memberAttribute != null) {
-            if (memberAttribute.contains(SPACE_STRING)) {
-                memberAttribute.remove(SPACE_STRING);
-            }
-        } else {
-            memberAttribute = new BasicAttribute(MEMBER);
-        }
-        
-        memberAttribute.add(userDN);
-        getLDAPAttributes().put(memberAttribute);
-    }
-
-    public void removeMember(String dn) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        if (memberAttribute != null) {
-            memberAttribute.remove(dn);
-        }
-        
-        try {
-            if (!memberAttribute.getAll().hasMoreElements()) {
-                memberAttribute.add(SPACE_STRING);
-            }
-        } catch (NamingException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     @Override
     public String getId() {
         if (this.id == null) {

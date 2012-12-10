@@ -63,11 +63,6 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         identityManager.grantRole(someAnotherUser, someAnotherRole);
         
         assertTrue(identityManager.hasRole(someAnotherUser, someAnotherRole));
-        
-        identityManager.remove(someAnotherUser);
-        
-        Role role = identityManager.getRole(someAnotherRole.getName());
-        System.out.println(1);
     }
     
     /**
