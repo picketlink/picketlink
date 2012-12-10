@@ -7,14 +7,19 @@ import java.security.cert.X509Certificate;
  * 
  * @author Shane Bryzak
  */
-public class X509CertificateCredential {
+public class X509CertificateCredentials extends AbstractBaseCredentials implements Credentials {
     private X509Certificate certificate;
-    
-    public X509CertificateCredential(X509Certificate certificate) {
+
+    public X509CertificateCredentials(X509Certificate certificate) {
         this.certificate = certificate;
     }
-    
+
     public X509Certificate getCertificate() {
         return certificate;
+    }
+
+    @Override
+    public void invalidate() {
+        certificate = null;
     }
 }

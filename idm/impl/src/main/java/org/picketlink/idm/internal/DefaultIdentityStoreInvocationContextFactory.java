@@ -2,6 +2,7 @@ package org.picketlink.idm.internal;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
@@ -16,6 +17,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 public class DefaultIdentityStoreInvocationContextFactory implements IdentityStoreInvocationContextFactory {
     private EntityManagerFactory emf;
     private EventBridge eventBridge;
+    private CredentialHandlerFactory credentialHandlerFactory;
 
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf) {
         this.emf = emf;
@@ -30,7 +32,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
 
     @Override
     public IdentityStoreInvocationContext createContext() {
-        return new IdentityStoreInvocationContext(null, eventBridge);
+        return new IdentityStoreInvocationContext(null, eventBridge, credentialHandlerFactory);
     }
 
     @Override
@@ -40,6 +42,16 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, emf.createEntityManager());
             }
         }
+    }
+
+    @Override
+    public void setCredentialHandlerFactory(CredentialHandlerFactory factory) {
+        credentialHandlerFactory = factory;
+    }
+
+    @Override
+    public CredentialHandlerFactory getCredentialHandlerFactory() {
+        return credentialHandlerFactory;
     }
 
 }

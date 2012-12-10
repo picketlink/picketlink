@@ -40,10 +40,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestUtil;
 import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Agent;
@@ -67,10 +68,10 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * 
  */
 public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfiguration> {
-    
+
     private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userPassword";
-    
+
     private File usersFile;
     private File rolesFile = new File("/tmp/pl-idm-work/pl-idm-roles.db");
     private File groupsFile = new File("/tmp/pl-idm-work/pl-idm-groups.db");
@@ -893,8 +894,8 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
             String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
             
             return DigestUtil.matchCredential(digestCredential, storedPassword.toCharArray());
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential certCredential =  (X509CertificateCredential) credential;
+        } else if (credential instanceof X509CertificateCredentials) {
+            X509CertificateCredentials certCredential =  (X509CertificateCredentials) credential;
             
             User storedUser = getUser(user.getId());
             
@@ -924,8 +925,8 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
             storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, new String(passwordCredential.getPassword())));
             
             flushUsers();
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential certCredential =  (X509CertificateCredential) credential;
+        } else if (credential instanceof X509CertificateCredentials) {
+            X509CertificateCredentials certCredential =  (X509CertificateCredentials) credential;
             
             User storedUser = getUser(user.getId());
 
@@ -1054,6 +1055,18 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
 
     @Override
     public void updateGroup(Group group) {
+        
+    }
+
+    @Override
+    public void validateCredentials(Credentials credentials) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void updateCredential(Agent agent, Object credential) {
+        // TODO Auto-generated method stub
         
     }
 }

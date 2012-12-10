@@ -27,6 +27,9 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
@@ -45,6 +48,7 @@ import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -618,14 +622,38 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     }
 
-    public void storeCredential(CredentialStorage storage) {
+    public <T extends CredentialStorage> void storeCredential(Agent agent, T storage) {
         // TODO Auto-generated method stub
 
     }
 
-    public CredentialStorage retrieveCredential(Class<? extends CredentialStorage> storageClass) {
+    public <T extends CredentialStorage> T retrieveCredential(Agent agent, Class<T> storageClass) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void validateCredentials(Credentials credentials) {
+        CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
+        if (handler == null) {
+            throw new SecurityConfigurationException(
+                    "No suitable CredentialHandler available for validating Credentials of type [" +
+                    credentials.getClass() + "] for IdentityStore [" +
+                    this.getClass() + "]");
+        }
+        handler.validate(credentials, this);
+    }
+
+    @Override
+    public void updateCredential(Agent agent, Object credential) {
+        CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
+        if (handler == null) {
+            throw new SecurityConfigurationException(
+                    "No suitable CredentialHandler available for updating Credentials of type [" +
+                    credential.getClass() + "] for IdentityStore [" +
+                    this.getClass() + "]");
+        }
+        handler.update(agent, credential, this);
     }
 
 }

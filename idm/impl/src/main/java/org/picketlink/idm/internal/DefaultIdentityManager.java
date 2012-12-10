@@ -34,6 +34,8 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -60,7 +62,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private Map<String,Map<Feature,IdentityStoreConfiguration>> realmStores = new HashMap<String,Map<Feature,IdentityStoreConfiguration>>();
 
-    private PartitionStoreConfiguration partitionStore;
+    private PartitionStoreConfiguration partitionStoreConfig;
 
     private PasswordEncoder passwordEncoder;
 
@@ -152,11 +154,12 @@ public class DefaultIdentityManager implements IdentityManager {
                     featureToStoreMap.put(f, identityStoreConfig);
                 }
             } else if (PartitionStoreConfiguration.class.isInstance(config)) {
-                partitionStore = (PartitionStoreConfiguration) config;
+                partitionStoreConfig = (PartitionStoreConfiguration) config;
             }
         }
 
         this.contextFactory = contextFactory;
+        this.contextFactory.setCredentialHandlerFactory(identityConfig.getCredentialHandlerFactory());
     }
 
     @Override
@@ -307,6 +310,11 @@ public class DefaultIdentityManager implements IdentityManager {
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(groupName, parent);
     }
 
+    @Override
+    public void updateGroup(Group group) {
+        getContextualStoreForFeature(createContext(), Feature.updateGroup).updateGroup(group);
+    }
+
     public boolean isMember(IdentityType identityType, Group group) {
         return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, group, null) != null;
     }
@@ -332,46 +340,58 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
+    public void updateRole(Role role) {
+        getContextualStoreForFeature(createContext(), Feature.updateRole).updateRole(role);
+    }
+
+    @Override
     public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
-        return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, group, role) != null;
+        return getContextualStoreForFeature(createContext(), Feature.createMembership)
+                .getMembership(identityType, group, role) != null;
     }
 
     @Override
     public void grantGroupRole(IdentityType identityType, Role role, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership).createMembership(identityType, group, role);
+        getContextualStoreForFeature(createContext(), Feature.createMembership)
+        .createMembership(identityType, group, role);
     }
 
     @Override
     public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership).removeMembership(identityType, group, role);
+        getContextualStoreForFeature(createContext(), Feature.createMembership)
+            .removeMembership(identityType, group, role);
     }
 
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
-        return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, null, role) != null;
+        return getContextualStoreForFeature(createContext(), Feature.createMembership)
+                .getMembership(identityType, null, role) != null;
     }
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership).createMembership(identityType, null, role);
+        getContextualStoreForFeature(createContext(), Feature.createMembership)
+            .createMembership(identityType, null, role);
     }
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        getContextualStoreForFeature(createContext(), Feature.deleteMembership).removeMembership(identityType, null, role);
+        getContextualStoreForFeature(createContext(), Feature.deleteMembership)
+            .removeMembership(identityType, null, role);
     }
 
     @Override
     public void validateCredentials(Credentials credentials) {
-        IdentityStore store = getContextualStoreForFeature(createContext(), 
-                Feature.validateCredential); //.validateCredential(credentials);
-        // TODO implement
+        IdentityStore<?> store = getContextualStoreForFeature(createContext(), 
+                Feature.manageCredentials);
+        store.validateCredentials(credentials);
     }
 
     @Override
     public void updateCredential(Agent agent, Object credential) {
-        IdentityStore store = getContextualStoreForFeature(createContext(), Feature.validateCredential);
-            //.updateCredential(user, credential);
+        IdentityStore<?> store = getContextualStoreForFeature(createContext(), 
+                Feature.manageCredentials);
+        store.updateCredential(agent, credential);
     }
 
     public IdentityStoreInvocationContextFactory getContextFactory() {
@@ -391,48 +411,32 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void createRealm(Realm realm) {
-        // TODO Auto-generated method stub
-        
+        storeFactory.createPartitionStore(partitionStoreConfig).createPartition(realm);
     }
 
     @Override
     public void removeRealm(Realm realm) {
-        // TODO Auto-generated method stub
-        
+        storeFactory.createPartitionStore(partitionStoreConfig).removePartition(realm);
     }
 
     @Override
     public Realm getRealm(String name) {
-        // TODO Auto-generated method stub
-        return null;
+        return storeFactory.createPartitionStore(partitionStoreConfig).getRealm(name);
     }
 
     @Override
     public void createTier(Tier tier) {
-        // TODO Auto-generated method stub
-        
+        storeFactory.createPartitionStore(partitionStoreConfig).createPartition(tier);
     }
 
     @Override
     public void removeTier(Tier tier) {
-        // TODO Auto-generated method stub
-        
+        storeFactory.createPartitionStore(partitionStoreConfig).removePartition(tier);
     }
 
     @Override
     public Tier getTier(String id) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void updateRole(Role role) {
-        getContextualStoreForFeature(createContext(), Feature.updateRole).updateRole(role);
-    }
-
-    @Override
-    public void updateGroup(Group group) {
-        getContextualStoreForFeature(createContext(), Feature.updateGroup).updateGroup(group);
+        return storeFactory.createPartitionStore(partitionStoreConfig).getTier(id);
     }
 
     @Override

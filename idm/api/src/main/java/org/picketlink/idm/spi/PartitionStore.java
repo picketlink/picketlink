@@ -5,7 +5,8 @@ import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
 
 /**
- * Defines the methods for managing Tiers
+ * Defines the methods for general management of Partitions, in addition to specific
+ * methods for Realms and Tiers
  * 
  * @author Shane Bryzak
  *

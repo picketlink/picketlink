@@ -50,8 +50,9 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.X509CertificateCredential;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
@@ -682,8 +683,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             PlainTextPassword pc = (PlainTextPassword) credential;
 
             valid = getLdapManager().authenticate(ldapUser.getDN(), new String(pc.getPassword()));
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential clientCert = (X509CertificateCredential) credential;
+        } else if (credential instanceof X509CertificateCredentials) {
+            X509CertificateCredentials clientCert = (X509CertificateCredentials) credential;
 
             org.picketlink.idm.model.Attribute<Serializable> certAttribute = ldapUser.getAttribute(USER_CERTIFICATE_ATTRIBUTE);
 
@@ -726,8 +727,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                 getLdapManager().modifyAttribute(ldapuser.getDN(), mod0);
             }
-        } else if (credential instanceof X509CertificateCredential) {
-            X509CertificateCredential cc = (X509CertificateCredential) credential;
+        } else if (credential instanceof X509CertificateCredentials) {
+            X509CertificateCredentials cc = (X509CertificateCredentials) credential;
             try {
                 LDAPUser ldapUser = (LDAPUser) user;
 
@@ -1252,5 +1253,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     public LDAPOperationManager getLdapManager() {
         return this.configuration.getLdapManager();
+    }
+
+    @Override
+    public void validateCredentials(Credentials credentials) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void updateCredential(Agent agent, Object credential) {
+        // TODO Auto-generated method stub
+        
     }
 }

@@ -2,6 +2,8 @@ package org.picketlink.idm.credential.spi;
 
 import java.util.Date;
 
+import org.picketlink.idm.credential.spi.annotations.Stored;
+
 /**
  * A marker interface that indicates a Class is used to store credential related state
  * 
@@ -9,5 +11,5 @@ import java.util.Date;
  *
  */
 public interface CredentialStorage {
-    Date getExpiryDate();
+    @Stored Date getExpiryDate();
 }

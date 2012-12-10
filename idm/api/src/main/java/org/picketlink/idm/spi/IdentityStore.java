@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
@@ -53,8 +54,8 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
                           createGroup, readGroup, updateGroup, deleteGroup,
                           createRole, readRole, updateRole, deleteRole,
                           createMembership, readMembership, updateMembership, deleteMembership,
-                          validateCredential, updateCredential,
                           readAttribute, updateAttribute, deleteAttribute,
+                          manageCredentials,
                           supportsTiers, supportsRealms, disableRole, disableGroup, disableUser,
                           all }
 
@@ -230,4 +231,23 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param group
      */
     void updateGroup(Group group);
+
+    // Credentials
+
+    /**
+     * Validates the specified credentials.  Each IdentityStore implementation typically supports
+     * a concrete set of Credentials types, and will generally obtain a CredentialHandler instance
+     * from the IdentityStoreInvocationContext to process credential validation.
+     * 
+     * @param credentials
+     */
+    void validateCredentials(Credentials credentials);
+
+    /**
+     * Updates the specified credential value for the specified Agent.
+     * 
+     * @param agent
+     * @param credential
+     */
+    void updateCredential(Agent agent, Object credential);
 }
