@@ -35,8 +35,10 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 
@@ -167,6 +169,33 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.size() == 1);
 
         assertEquals("admin", result.get(0).getId());
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Group} and {@link Role}.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindBySingleGroupRole() throws Exception {
+        User user = loadOrCreateUser("someUser", true);
+        Group salesGroup = loadOrCreateGroup("Sales", null, true);
+        Role managerRole = loadOrCreateRole("manager", true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.grantGroupRole(user, managerRole, salesGroup);
+        
+        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] {new SimpleGroupRole(user, managerRole, salesGroup)});
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertEquals(user.getId(), result.get(0).getId());
     }
     
     /**

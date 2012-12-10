@@ -214,16 +214,16 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             if (ldapUser == null) {
                 throw new RuntimeException("User [" + user.getId() + "] does not exists.");
             }
-            
+
             NamingEnumeration<SearchResult> results = findUserRoles(ldapUser);
-            
+
             while (results.hasMoreElements()) {
                 SearchResult searchResult = (SearchResult) results.nextElement();
                 try {
                     String cn = searchResult.getAttributes().get(CN).get().toString();
-                    
+
                     LDAPRole role = (LDAPRole) getRole(cn);
-                    
+
                     if (role != null) {
                         role.removeUser(ldapUser.getDN());
                         getLdapManager().modifyAttribute(role.getDN(), role.getLDAPAttributes().get(MEMBER));
@@ -244,15 +244,16 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             }
 
             remove(ldapGroup);
-            
-            NamingEnumeration<SearchResult> results = getLdapManager().search(this.configuration.getUserDNSuffix(), "(&(cn= " + ldapGroup.getName() + "*))");
-            
+
+            NamingEnumeration<SearchResult> results = getLdapManager().search(this.configuration.getUserDNSuffix(),
+                    "(&(cn= " + ldapGroup.getName() + "*))");
+
             while (results.hasMoreElements()) {
                 SearchResult searchResult = (SearchResult) results.nextElement();
                 String dn = searchResult.getNameInNamespace();
                 getLdapManager().destroySubcontext(dn);
             }
-            
+
         } else if (Role.class.isInstance(identityType)) {
             Role role = (Role) identityType;
 
@@ -267,7 +268,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     /**
-     * <p>Finds {@link Role} instances where the the specified {@link User} is associated.</p>
+     * <p>
+     * Finds {@link Role} instances where the the specified {@link User} is associated.
+     * </p>
      * 
      * @param ldapUser
      * @return
@@ -275,7 +278,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     private NamingEnumeration<SearchResult> findUserRoles(LDAPUser ldapUser) {
         // remove the user from the role member attribute
         String filter = "(member=" + ldapUser.getDN() + ")";
-     
+
         return getLdapManager().search(this.configuration.getRoleDNSuffix(), filter);
     }
 
@@ -366,25 +369,25 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     public GroupRole createMembership(IdentityType member, Group group, Role role) {
         if (member instanceof User) {
             User user = getUser(((User) member).getId());
-            
+
             LDAPRole ldapRole = null;
-            
+
             if (role != null) {
                 ldapRole = (LDAPRole) getRole(role.getName());
             }
-            
+
             LDAPUser ldapUser = null;
-            
+
             if (user != null) {
                 ldapUser = (LDAPUser) getUser(user.getId());
             }
-            
+
             LDAPGroup ldapGroup = null;
-            
+
             if (group != null) {
                 ldapGroup = (LDAPGroup) getGroup(group.getName());
             }
-            
+
             if (ldapRole != null && ldapGroup != null) {
                 LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
                 storeMembershipEntry(groupRole, ldapRole);
@@ -395,14 +398,14 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                     LDAPUserRole userRole = new LDAPUserRole(ldapUser, ldapRole);
                     storeMembershipEntry(userRole, ldapRole);
                 }
-                
+
                 if (ldapGroup != null && ldapRole != null) {
-                    ldapGroup.addRole(ldapRole);    
+                    ldapGroup.addRole(ldapRole);
                 }
-                
+
                 if (ldapGroup != null && ldapUser != null) {
                     ldapGroup.addUser(ldapUser.getDN());
-                    
+
                     getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
                 }
             }
@@ -415,41 +418,41 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             throw new IllegalArgumentException("The member parameter must be an instance of User or Group");
         }
     }
-    
+
     private void storeMembershipEntry(LDAPEntry ldapEntry, LDAPEntry member) {
         String dn = ldapEntry.getDN();
-        
+
         LDAPEntry storedGroupRole = getLdapManager().lookup(dn);
-        
+
         if (storedGroupRole == null) {
             storedGroupRole = ldapEntry;
             getLdapManager().bind(dn, storedGroupRole);
         } else {
             Attribute memberAttribute = storedGroupRole.getLDAPAttributes().get(MEMBER);
-            
+
             if (!memberAttribute.contains(member.getDN())) {
                 memberAttribute.add(member.getDN());
                 getLdapManager().modifyAttribute(dn, memberAttribute);
                 getLdapManager().rebind(dn, storedGroupRole);
             }
-        }        
+        }
     }
-    
+
     private void removeMemberShipEntry(LDAPEntry ldapEntry, LDAPEntry member) {
         String dn = ldapEntry.getDN();
-        
+
         LDAPEntry storedGroupRole = getLdapManager().lookup(dn);
-        
+
         if (storedGroupRole != null) {
             Attribute memberAttribute = storedGroupRole.getLDAPAttributes().get(MEMBER);
-            
+
             if (memberAttribute.contains(member.getDN())) {
                 memberAttribute.remove(member.getDN());
                 memberAttribute.add(SPACE_STRING);
                 getLdapManager().modifyAttribute(dn, memberAttribute);
                 getLdapManager().rebind(dn, storedGroupRole);
             }
-        }        
+        }
     }
 
     @Override
@@ -458,13 +461,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
 
             LDAPRole ldapRole = null;
-            
+
             if (role != null) {
                 ldapRole = (LDAPRole) getRole(role.getName());
             }
-            
+
             LDAPGroup ldapGroup = null;
-            
+
             if (group != null) {
                 ldapGroup = (LDAPGroup) getGroup(group.getName());
             }
@@ -478,7 +481,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                     getLdapManager().modifyAttribute(ldapRole.getDN(), ldapRole.getLDAPAttributes().get(MEMBER));
                     removeMemberShipEntry(new LDAPUserRole(ldapUser, ldapRole), ldapRole);
                 }
-                
+
                 if (ldapGroup != null) {
                     ldapGroup.removeMember(ldapUser.getDN());
                     getLdapManager().modifyAttribute(ldapGroup.getDN(), ldapGroup.getLDAPAttributes().get(MEMBER));
@@ -492,21 +495,21 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public GroupRole getMembership(IdentityType member, Group group, Role role) {
         GroupRole groupRole = null;
-        
+
         if (group != null && role != null) {
-            LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId()); 
+            LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
             LDAPRole ldapRole = (LDAPRole) getRole(((Role) role).getName());
             LDAPGroup ldapGroup = (LDAPGroup) getGroup(((Group) group).getName());
-            
+
             String dn = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole).getDN();
-            
+
             groupRole = getLdapManager().lookup(dn);
-            
+
             LDAPGroupRole ldapGroupRole = (LDAPGroupRole) groupRole;
-            
+
             if (groupRole != null) {
                 Attribute memberAttribute = ldapGroupRole.getLDAPAttributes().get(MEMBER);
-                
+
                 if (!memberAttribute.contains(ldapRole.getDN())) {
                     groupRole = null;
                 }
@@ -520,7 +523,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                         roleAttributeFilter.put(CN, role.getName());
                     }
 
-                    NamingEnumeration<SearchResult> roleSearchResult = getLdapManager().search(this.configuration.getRoleDNSuffix(), roleAttributeFilter, null);
+                    NamingEnumeration<SearchResult> roleSearchResult = getLdapManager().search(
+                            this.configuration.getRoleDNSuffix(), roleAttributeFilter, null);
 
                     // iterate over the returned roles
                     while (roleSearchResult.hasMore()) {
@@ -531,7 +535,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                         LDAPRole ldapRole = new LDAPRole(roleAttributes, this.configuration.getRoleDNSuffix());
                         LDAPUser ldapUser = null;
-                        
+
                         // checks if the role has a member mapped to the owner
                         if (member != null) {
                             Attribute memberAttribute = roleAttributes.get(MEMBER);
@@ -551,16 +555,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                     throw new RuntimeException("Error executing role query.", e);
                 }
             }
-            
+
             if (group != null) {
                 try {
                     BasicAttributes groupAttributeFilter = new BasicAttributes(true);
 
-                    if (group!= null && group.getName() != null) {
+                    if (group != null && group.getName() != null) {
                         groupAttributeFilter.put(CN, group.getName());
                     }
 
-                    NamingEnumeration<SearchResult> groupSearchResult = getLdapManager().search(this.configuration.getGroupDNSuffix(), groupAttributeFilter, null);
+                    NamingEnumeration<SearchResult> groupSearchResult = getLdapManager().search(
+                            this.configuration.getGroupDNSuffix(), groupAttributeFilter, null);
 
                     // iterate over the returned roles
                     while (groupSearchResult.hasMore()) {
@@ -571,7 +576,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                         LDAPGroup ldapGroup = new LDAPGroup(groupAttributes, this.configuration.getGroupDNSuffix());
                         LDAPUser ldapUser = null;
-                        
+
                         // checks if the role has a member mapped to the owner
                         if (member != null) {
                             Attribute memberAttribute = groupAttributes.get(MEMBER);
@@ -590,9 +595,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 } catch (NamingException e) {
                     throw new RuntimeException("Error executing role query.", e);
                 }
-            }            
+            }
         }
-        
+
         return groupRole;
     }
 
@@ -763,8 +768,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             Object[] values = entry.getValue();
 
             Attribute mappedAttribute = null;
-            
-            if (queryParameter.equals(User.HAS_ROLE) || queryParameter.equals(User.MEMBER_OF)) {
+
+            if (queryParameter.equals(User.HAS_ROLE) || queryParameter.equals(User.MEMBER_OF)
+                    || queryParameter.equals(User.HAS_GROUP_ROLE)) {
                 membershipAttributesToSearch.put(queryParameter, values);
                 continue;
             } else if (queryParameter instanceof IdentityType.AttributeParameter) {
@@ -791,21 +797,21 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
         if (User.class.isAssignableFrom(typeClass)) {
             NamingEnumeration<? extends Attribute> attrToSearch = attributesTosearch.getAll();
-            
+
             StringBuffer filter = new StringBuffer("(&(objectClass=*)");
-            
+
             while (attrToSearch.hasMoreElements()) {
                 Attribute attribute = (Attribute) attrToSearch.nextElement();
-                
+
                 try {
                     filter.append("(").append(attribute.getID()).append("=").append(attribute.get().toString()).append(")");
                 } catch (NamingException e) {
                     e.printStackTrace();
                 }
             }
-            
+
             filter.append(")");
-            
+
             NamingEnumeration<SearchResult> answer = getLdapManager().search(this.configuration.getUserDNSuffix(),
                     attributesTosearch, new String[] { UID });
 
@@ -819,60 +825,102 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 } catch (NamingException e) {
                     e.printStackTrace();
                 }
-                
+
                 if (!membershipAttributesToSearch.isEmpty()) {
                     Set<Entry<QueryParameter, Object[]>> memberEntrySet = membershipAttributesToSearch.entrySet();
                     String hasMemberFilter = "(&(member=uid=" + uid + "*)(|";
-                    
+
                     for (Entry<QueryParameter, Object[]> memberEntry : memberEntrySet) {
                         if (memberEntry.getKey().equals(User.HAS_ROLE)) {
                             for (Object role : memberEntry.getValue()) {
-                                hasMemberFilter = hasMemberFilter + "(cn=" + role + ")";                                
+                                hasMemberFilter = hasMemberFilter + "(cn=" + role + ")";
                             }
-                            
+
                             hasMemberFilter = hasMemberFilter + "))";
-                            
-                            NamingEnumeration<SearchResult> search = getLdapManager().search(this.configuration.getRoleDNSuffix(), hasMemberFilter);
-                            
+
+                            NamingEnumeration<SearchResult> search = getLdapManager().search(
+                                    this.configuration.getRoleDNSuffix(), hasMemberFilter);
+
                             int count = 0;
-                            
+
                             while (search.hasMoreElements()) {
                                 search.nextElement();
                                 count++;
                             }
-                            
+
                             if (count == 0 || count != memberEntry.getValue().length) {
                                 uid = null;
                                 break;
                             }
                         } else if (memberEntry.getKey().equals(User.MEMBER_OF)) {
                             for (Object group : memberEntry.getValue()) {
-                                hasMemberFilter = hasMemberFilter + "(cn=" + group + ")";                                
+                                hasMemberFilter = hasMemberFilter + "(cn=" + group + ")";
                             }
-                            
+
                             hasMemberFilter = hasMemberFilter + "))";
-                            
-                            NamingEnumeration<SearchResult> search = getLdapManager().search(this.configuration.getGroupDNSuffix(), hasMemberFilter);
-                            
+
+                            NamingEnumeration<SearchResult> search = getLdapManager().search(
+                                    this.configuration.getGroupDNSuffix(), hasMemberFilter);
+
                             int count = 0;
-                            
+
                             while (search.hasMoreElements()) {
                                 search.nextElement();
                                 count++;
                             }
-                            
+
                             if (count == 0 || count != memberEntry.getValue().length) {
                                 uid = null;
+                                break;
+                            }
+                        } else if (memberEntry.getKey().equals(User.HAS_GROUP_ROLE)) {
+                            hasMemberFilter = "(|";
+
+                            for (Object group : memberEntry.getValue()) {
+                                GroupRole groupRole = (GroupRole) group;
+                                hasMemberFilter = hasMemberFilter + "(cn=" + groupRole.getGroup().getName() + ")";
+                            }
+                            
+                            hasMemberFilter = hasMemberFilter + ")";
+
+                            NamingEnumeration<SearchResult> search = getLdapManager().search(
+                                    "uid=" + uid + COMMA + this.configuration.getUserDNSuffix(), hasMemberFilter.toString());
+                            
+                            if (!search.hasMoreElements()) {
+                                uid = null;
+                                break;
+                            }
+                            
+                            for (Object group : memberEntry.getValue()) {
+                                GroupRole groupRole = (GroupRole) group;
+
+                                while (search.hasMoreElements()) {
+                                    try {
+                                        Attributes attributes2 = search.next().getAttributes();
+                                        Attribute member = attributes2.get(MEMBER);
+
+                                        if (!member.contains("cn=" + groupRole.getRole().getName() + COMMA
+                                                + this.configuration.getRoleDNSuffix())) {
+                                            uid = null;
+                                            break;
+                                        }
+                                    } catch (NamingException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+
+                            if (uid == null) {
                                 break;
                             }
                         }
                     }
                 }
-                
+
                 if (uid == null) {
                     continue;
                 }
-                
+
                 LDAPUser transientUser = new LDAPUser(this.configuration.getUserDNSuffix());
 
                 transientUser.setId(uid);
@@ -966,11 +1014,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                                         if (id.equals(attrParameter.getName())) {
                                             hasAttribute = true;
-                                            
+
                                             if (entryValue.getClass().isArray()) {
                                                 Object[] attributeValues = (Object[]) entryValue;
                                                 int matchCount = 0;
-                                                
+
                                                 for (Object object : attributeValues) {
                                                     for (Object parameterValue : values) {
                                                         if (object.toString().equals(parameterValue.toString())) {
@@ -978,7 +1026,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                                                         }
                                                     }
                                                 }
-                                                
+
                                                 if (matchCount != attributeValues.length) {
                                                     uid = null;
                                                     break;
@@ -1091,8 +1139,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             ldapUser = (LDAPUser) user;
         } else {
             ldapUser = new LDAPUser(this.configuration.getUserDNSuffix());
-            
-            
+
             ldapUser.setId(user.getId());
             ldapUser.setFirstName(" ");
             ldapUser.setLastName(" ");
@@ -1258,12 +1305,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public void validateCredentials(Credentials credentials) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void updateCredential(Agent agent, Object credential) {
         // TODO Auto-generated method stub
-        
+
     }
 }
