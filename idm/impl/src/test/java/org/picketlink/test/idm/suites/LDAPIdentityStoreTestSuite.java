@@ -32,13 +32,7 @@ import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.test.idm.GroupManagementTestCase;
-import org.picketlink.test.idm.RoleManagementTestCase;
-import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.UserGroupsRelationshipTestCase;
-import org.picketlink.test.idm.UserManagementTestCase;
 import org.picketlink.test.idm.UserQueryTestCase;
-import org.picketlink.test.idm.UserRolesRelationshipTestCase;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
@@ -51,9 +45,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
-        UserQueryTestCase.class, UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class,
-        UserGroupRoleRelationshipTestCase.class })
+@SuiteClasses({ UserQueryTestCase.class })
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     public static TestLifecycle init() throws Exception {
@@ -67,12 +59,12 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     @Override
     public void onInit() {
-        // try {
-        // setup();
-        // importLDIF("ldap/users.ldif");
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
+//         try {
+//         setup();
+//         importLDIF("ldap/users.ldif");
+//         } catch (Exception e) {
+//         e.printStackTrace();
+//         }
     }
 
     @Override
@@ -90,11 +82,11 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     @Override
     public void onDestroy() {
-        // try {
-        // tearDown();
-        // } catch (Exception e) {
-        // e.printStackTrace();
-        // }
+//         try {
+//         tearDown();
+//         } catch (Exception e) {
+//         e.printStackTrace();
+//         }
     }
 
     public static LDAPConfiguration getConfiguration() {

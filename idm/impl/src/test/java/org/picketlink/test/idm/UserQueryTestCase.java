@@ -34,7 +34,9 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 
@@ -56,6 +58,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindById() throws Exception {
+        loadOrCreateUser("admin", true);
+        
         IdentityManager identityManager = getIdentityManager();
         
         IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
@@ -163,6 +167,222 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.size() == 1);
 
         assertEquals("admin", result.get(0).getId());
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Group}.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindBySingleGroup() throws Exception {
+        User user = loadOrCreateUser("admin", true);
+        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.addToGroup(user, administratorGroup);
+        
+        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.MEMBER_OF, new String[] {"Administrators"});
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertEquals(user.getId(), result.get(0).getId());
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Role}.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindBySingleRole() throws Exception {
+        User user = loadOrCreateUser("admin", true);
+        Role administratorRole = loadOrCreateRole("Administrators", true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.grantRole(user, administratorRole);
+        
+        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.HAS_ROLE, new String[] {"Administrators"});
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertEquals(user.getId(), result.get(0).getId());
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Group}.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindByMultipleGroups() throws Exception {
+        User user = loadOrCreateUser("admin", true);
+        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
+        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.addToGroup(user, administratorGroup);
+        identityManager.addToGroup(user, someGroup);
+        
+        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.MEMBER_OF, new String[] {administratorGroup.getName(), someGroup.getName()});
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertEquals(user.getId(), result.get(0).getId());
+        
+        // revoke the someRole and try to find the user again.
+        identityManager.removeFromGroup(user, someGroup);
+        
+        query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.MEMBER_OF, new String[] {administratorGroup.getName(), someGroup.getName()});
+        
+        result = query.getResultList();
+        
+        assertTrue(result.isEmpty());
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Role}.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindByMultipleRoles() throws Exception {
+        User user = loadOrCreateUser("admin", true);
+        Role administratorRole = loadOrCreateRole("Administrators", true);
+        Role someRole = loadOrCreateRole("someRole", true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.grantRole(user, administratorRole);
+        identityManager.grantRole(user, someRole);
+        
+        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.HAS_ROLE, new String[] {administratorRole.getName(), someRole.getName()});
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertEquals(user.getId(), result.get(0).getId());
+        
+        // revoke the someRole and try to find the user again.
+        identityManager.revokeRole(user, someRole);
+        
+        query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.HAS_ROLE, new String[] {administratorRole.getName(), someRole.getName()});
+        
+        result = query.getResultList();
+        
+        assertTrue(result.isEmpty());
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Group}.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindByMultipleUserWithGroups() throws Exception {
+        User adminUser = loadOrCreateUser("admin", true);
+        User someUser = loadOrCreateUser("someUser", true);
+        
+        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
+        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.addToGroup(adminUser, administratorGroup);
+        identityManager.addToGroup(someUser, administratorGroup);
+        
+        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.MEMBER_OF, new String[] {administratorGroup.getName()});
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, adminUser.getId()));
+        assertTrue(contains(result, someUser.getId()));
+        
+        identityManager.addToGroup(adminUser, someGroup);
+        
+        query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.MEMBER_OF, new String[] {administratorGroup.getName(), someGroup.getName()});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, adminUser.getId()));
+        assertFalse(contains(result, someUser.getId()));
+    }
+    
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Role}.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindByMultipleUserWithRoles() throws Exception {
+        User adminUser = loadOrCreateUser("admin", true);
+        User someUser = loadOrCreateUser("someUser", true);
+        
+        Role administratorRole = loadOrCreateRole("Administrators", true);
+        Role someRole = loadOrCreateRole("someRole", true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.grantRole(adminUser, administratorRole);
+        identityManager.grantRole(someUser, administratorRole);
+        
+        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.HAS_ROLE, new String[] {administratorRole.getName()});
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, adminUser.getId()));
+        assertTrue(contains(result, someUser.getId()));
+        
+        identityManager.grantRole(adminUser, someRole);
+        
+        query = identityManager.createQuery(User.class);
+        
+        query.setParameter(User.HAS_ROLE, new String[] {administratorRole.getName(), someRole.getName()});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, adminUser.getId()));
+        assertFalse(contains(result, someUser.getId()));
     }
 
     /**
