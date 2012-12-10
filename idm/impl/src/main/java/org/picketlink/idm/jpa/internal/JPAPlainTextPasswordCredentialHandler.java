@@ -1,11 +1,16 @@
 package org.picketlink.idm.jpa.internal;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
 import org.picketlink.idm.password.internal.SHASaltedPasswordHash;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -14,11 +19,14 @@ import org.picketlink.idm.spi.IdentityStore;
  * the validation of UsernamePasswordCredentials, and updating PlainTextPassword credentials.
  *
  * @author Shane Bryzak
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 // TODO Should we support this kind of metadata for convenience? It may be helpful for reducing the amount of parameter validation
 //@SupportsCredentials({UsernamePasswordCredentials.class, PlainTextPassword.class});
 //@SupportsStores({JPAIdentityStore.class});
 public class JPAPlainTextPasswordCredentialHandler implements CredentialHandler {
+
+    private static final String PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt";
 
     @Override
     public void validate(Credentials credentials, IdentityStore store) {
@@ -48,9 +56,33 @@ public class JPAPlainTextPasswordCredentialHandler implements CredentialHandler 
             if (hash == null) {
                 usernamePassword.setStatus(Status.INVALID);
             } else {
+                String salt = agent.<String>getAttribute(PASSWORD_SALT_USER_ATTRIBUTE).getValue();
 
-                // TODO calculate the hash on the provided password and compare it to the stored hash
+                // Agent does not have a salt. let's generate a fresh one.
+                if (salt == null) {
+                    SecureRandom psuedoRng = null;
+                    String algorithm = "SHA1PRNG";
 
+                    try {
+                        psuedoRng = SecureRandom.getInstance(algorithm);
+                        psuedoRng.setSeed(1024);
+                    } catch (NoSuchAlgorithmException e) {
+                        throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
+                    }
+
+                    salt = String.valueOf(psuedoRng.nextLong());
+
+                    agent.setAttribute(new Attribute<String>(PASSWORD_SALT_USER_ATTRIBUTE, salt));
+                    store.update(agent);
+                }
+
+                SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
+                String encoded = encoder.encodePassword(salt, new String(usernamePassword.getPassword().getValue()));
+
+                if (hash.getEncodedHash().equals(encoded)) {
+                    usernamePassword.setStatus(Status.VALID);
+                    usernamePassword.setValidatedAgent(agent);
+                }
             }
         }
     }

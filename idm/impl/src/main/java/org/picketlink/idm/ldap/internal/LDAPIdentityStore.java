@@ -661,9 +661,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         boolean valid = false;
 
         if (credential instanceof PlainTextPassword) {
-            PlainTextPassword pc = (PlainTextPassword) credential;
+            PlainTextPassword password = (PlainTextPassword) credential;
 
-            valid = getLdapManager().authenticate(ldapUser.getDN(), new String(pc.getPassword()));
+            valid = getLdapManager().authenticate(ldapUser.getDN(), new String(password.getValue()));
         } else if (credential instanceof X509CertificateCredentials) {
             X509CertificateCredentials clientCert = (X509CertificateCredentials) credential;
 
@@ -689,9 +689,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     // @Override
     public void updateCredential(User user, Object credential) {
         if (credential instanceof PlainTextPassword) {
-            PlainTextPassword pc = (PlainTextPassword) credential;
+            PlainTextPassword password = (PlainTextPassword) credential;
             if (this.configuration.isActiveDirectory()) {
-                updateADPassword((LDAPUser) user, new String(pc.getPassword()));
+                updateADPassword((LDAPUser) user, new String(password.getValue()));
             } else {
                 LDAPUser ldapuser = null;
                 if (user instanceof LDAPUser == false) {
@@ -702,7 +702,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                 ModificationItem[] mods = new ModificationItem[1];
 
-                Attribute mod0 = new BasicAttribute(USER_PASSWORD_ATTRIBUTE, pc.getPassword());
+                Attribute mod0 = new BasicAttribute(USER_PASSWORD_ATTRIBUTE, password.getValue());
 
                 mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
 

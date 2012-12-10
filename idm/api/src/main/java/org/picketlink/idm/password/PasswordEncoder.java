@@ -43,5 +43,5 @@ public interface PasswordEncoder {
      * @param rawPassword
      * @return
      */
-    String encodePassword(User user, String rawPassword);
+    String encodePassword(String salt, String rawPassword);
 }
