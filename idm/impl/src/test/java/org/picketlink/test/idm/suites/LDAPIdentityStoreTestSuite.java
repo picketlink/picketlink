@@ -64,15 +64,15 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
     private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
     private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
-
+    
     @Override
     public void onInit() {
-        try {
-            setup();
-            importLDIF("ldap/users.ldif");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            setup();
+//            importLDIF("ldap/users.ldif");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -90,11 +90,11 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     @Override
     public void onDestroy() {
-        try {
-            tearDown();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            tearDown();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static LDAPConfiguration getConfiguration() {

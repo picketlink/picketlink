@@ -180,18 +180,27 @@ public class LDAPOperationManager {
             LDAPSearchCallback<T> searchCallback) {
         List<T> result = new ArrayList<T>();
 
+        NamingEnumeration<SearchResult> answer = null;
+        
         try {
             Attributes attributesToSearch = new BasicAttributes(true);
 
             attributesToSearch.put(new BasicAttribute(attributeName, attributeValue));
 
-            NamingEnumeration<SearchResult> answer = this.context.search(baseDN, attributesToSearch);
+            answer = this.context.search(baseDN, attributesToSearch);
 
             while (answer.hasMore()) {
                 result.add(searchCallback.processResult(answer.next()));
             }
         } catch (NamingException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (answer != null) {
+                try {
+                    answer.close();
+                } catch (NamingException e) {
+                }
+            }
         }
 
         return result;
@@ -263,24 +272,24 @@ public class LDAPOperationManager {
     }
     
     public void destroyRecursively(String dn) {
-        NamingEnumeration enumeration = null;
+        NamingEnumeration<Binding> enumeration = null;
         
         try {
             enumeration = this.context.listBindings(dn);
             
             while (enumeration.hasMore()) {
-                Binding binding = (Binding) enumeration.next();
+                Binding binding = enumeration.next();
                 String name = binding.getNameInNamespace();
+                
                 destroyRecursively(name);
             }
             this.context.unbind(dn);
         } catch (NamingException e) {
-            
+            throw new RuntimeException(e);
         } finally {
             try {
                 enumeration.close();
             } catch (Exception e) {
-                // Never mind this
             }
         }        
     }

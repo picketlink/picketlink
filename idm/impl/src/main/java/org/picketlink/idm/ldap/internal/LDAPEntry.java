@@ -27,6 +27,8 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_CR
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
+import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
@@ -284,6 +287,42 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
             return attribs;
         } catch (NamingException e) {
             throw new RuntimeException(e);
+        }
+    }
+    
+    public void addMember(LDAPEntry childEntry) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
+        if (memberAttribute != null) {
+            if (memberAttribute.contains(SPACE_STRING)) {
+                memberAttribute.remove(SPACE_STRING);
+            }
+        } else {
+            memberAttribute = new BasicAttribute(MEMBER);
+        }
+        
+        memberAttribute.add(childEntry.getDN());
+        getLDAPAttributes().put(memberAttribute);
+    }
+    
+    public boolean isMember(LDAPEntry member) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
+
+        return memberAttribute != null && memberAttribute.contains(member.getDN());
+    }   
+
+
+    public void removeMember(LDAPEntry childEntry) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
+        if (memberAttribute != null) {
+            memberAttribute.remove(childEntry.getDN());
+        }
+        
+        try {
+            if (!memberAttribute.getAll().hasMoreElements()) {
+                memberAttribute.add(SPACE_STRING);
+            }
+        } catch (NamingException e) {
+            e.printStackTrace();
         }
     }
 
@@ -544,5 +583,9 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
     public NamingEnumeration<SearchResult> search(String name, String filterExpr, Object[] filterArgs, SearchControls cons)
             throws NamingException {
         return null;
+    }
+    
+    public String getDnSuffix() {
+        return this.dnSuffix;
     }
 }

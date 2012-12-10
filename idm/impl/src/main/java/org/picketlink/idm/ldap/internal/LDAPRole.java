@@ -95,35 +95,6 @@ public class LDAPRole extends LDAPEntry implements Role {
         return roleName;
     }
 
-    public void addUser(String userDN) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        if (memberAttribute != null) {
-            if (memberAttribute.contains(SPACE_STRING)) {
-                memberAttribute.remove(SPACE_STRING);
-            }
-        } else {
-            memberAttribute = new BasicAttribute(MEMBER);
-        }
-        memberAttribute.add(userDN);
-        
-        getLDAPAttributes().put(memberAttribute);
-    }
-
-    public void removeUser(String userDN) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        if (memberAttribute != null) {
-            memberAttribute.remove(userDN);
-        }
-        
-        try {
-            if (!memberAttribute.getAll().hasMoreElements()) {
-                memberAttribute.add(SPACE_STRING);
-            }
-        } catch (NamingException e) {
-            e.printStackTrace();
-        }
-    }
-    
     @Override
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, getName());
