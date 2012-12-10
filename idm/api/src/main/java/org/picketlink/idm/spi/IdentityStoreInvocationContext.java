@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.picketlink.idm.IdentityCache;
+import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
@@ -39,11 +42,44 @@ public class IdentityStoreInvocationContext {
     /**
      * 
      */
+    private CredentialHandlerFactory credentialHandlerFactory;
+
+    /**
+     * 
+     */
     private Map<String,Object> parameters = new HashMap<String,Object>();
 
-    public IdentityStoreInvocationContext(IdentityCache cache, EventBridge eventBridge) {
+    public IdentityStoreInvocationContext(IdentityCache cache, EventBridge eventBridge, 
+            CredentialHandlerFactory factory) {
         this.cache = cache;
         this.eventBridge = eventBridge;
+        this.credentialHandlerFactory = factory;
+    }
+
+    /**
+     * Returns a CredentialHandler instance capable of validating a credential of the specified
+     * Credentials class, for the specified IdentityStore class
+     * 
+     * @param credentialsClass
+     * @param identityStoreClass
+     * @return
+     */
+    public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, 
+            Class<? extends IdentityStore> identityStoreClass) {
+        return credentialHandlerFactory.getCredentialValidator(credentialsClass, identityStoreClass);
+    }
+
+    /**
+     * Returns a CredentialHandler instance capable of updating a credential of the specified
+     * Credentials class, for the specified IdentityStore class
+     * 
+     * @param credentialClass
+     * @param identityStoreClass
+     * @return
+     */
+    public CredentialHandler getCredentialUpdater(Class<?> credentialClass, 
+            Class<? extends IdentityStore> identityStoreClass) {
+        return credentialHandlerFactory.getCredentialUpdater(credentialClass, identityStoreClass);
     }
 
     /**

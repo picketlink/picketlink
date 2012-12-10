@@ -14,6 +14,12 @@ public interface CredentialHandlerFactory {
     CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, 
             Class<? extends IdentityStore> identityStoreClass);
 
+    void setCredentialValidator(Class<? extends Credentials> credentialsClass, 
+            Class<? extends IdentityStore> identityStoreClass, CredentialHandler handler);
+
     CredentialHandler getCredentialUpdater(Class<?> credentialClass, 
             Class<? extends IdentityStore> identityStoreClass);
+
+    void setCredentialHandler(Class<?> credentialClass, Class<? extends IdentityStore> identityStoreClass, 
+            CredentialHandler handler);
 }

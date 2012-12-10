@@ -70,8 +70,6 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private IdentityStoreInvocationContextFactory contextFactory;
 
-    private CredentialHandlerFactory credentialHandlerFactory;
-
     private static Method METHOD_CREATE_CONTEXT;
 
     { 
@@ -160,8 +158,8 @@ public class DefaultIdentityManager implements IdentityManager {
             }
         }
 
-        this.credentialHandlerFactory = identityConfig.getCredentialHandlerFactory();
         this.contextFactory = contextFactory;
+        this.contextFactory.setCredentialHandlerFactory(identityConfig.getCredentialHandlerFactory());
     }
 
     @Override
@@ -338,54 +336,52 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
-        return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, group, role) != null;
+        return getContextualStoreForFeature(createContext(), Feature.createMembership)
+                .getMembership(identityType, group, role) != null;
     }
 
     @Override
     public void grantGroupRole(IdentityType identityType, Role role, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership).createMembership(identityType, group, role);
+        getContextualStoreForFeature(createContext(), Feature.createMembership)
+        .createMembership(identityType, group, role);
     }
 
     @Override
     public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership).removeMembership(identityType, group, role);
+        getContextualStoreForFeature(createContext(), Feature.createMembership)
+            .removeMembership(identityType, group, role);
     }
 
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
-        return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, null, role) != null;
+        return getContextualStoreForFeature(createContext(), Feature.createMembership)
+                .getMembership(identityType, null, role) != null;
     }
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership).createMembership(identityType, null, role);
+        getContextualStoreForFeature(createContext(), Feature.createMembership)
+            .createMembership(identityType, null, role);
     }
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        getContextualStoreForFeature(createContext(), Feature.deleteMembership).removeMembership(identityType, null, role);
+        getContextualStoreForFeature(createContext(), Feature.deleteMembership)
+            .removeMembership(identityType, null, role);
     }
 
     @Override
     public void validateCredentials(Credentials credentials) {
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), 
                 Feature.manageCredentials);
-
-        CredentialHandler handler = credentialHandlerFactory.getCredentialValidator(
-                credentials.getClass(), store.getClass());
-
-        handler.validate(credentials, store);
+        store.validateCredentials(credentials);
     }
 
     @Override
     public void updateCredential(Agent agent, Object credential) {
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), 
                 Feature.manageCredentials);
-
-        CredentialHandler handler = credentialHandlerFactory.getCredentialUpdater(
-                credential.getClass(), store.getClass());
-
-        handler.update(agent, credential, store);
+        store.updateCredential(agent, credential);
     }
 
     public IdentityStoreInvocationContextFactory getContextFactory() {
@@ -405,6 +401,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void createRealm(Realm realm) {
+        
         // TODO Auto-generated method stub
         
     }

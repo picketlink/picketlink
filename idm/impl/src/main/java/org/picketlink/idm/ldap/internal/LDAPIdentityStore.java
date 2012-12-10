@@ -50,6 +50,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredential;
 import org.picketlink.idm.internal.util.Base64;
@@ -1160,5 +1161,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
     public LDAPOperationManager getLdapManager() {
         return this.configuration.getLdapManager();
+    }
+
+    @Override
+    public void validateCredentials(Credentials credentials) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void updateCredential(Agent agent, Object credential) {
+        // TODO Auto-generated method stub
+        
     }
 }
