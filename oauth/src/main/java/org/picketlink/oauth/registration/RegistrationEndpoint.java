@@ -46,8 +46,9 @@ import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.OAuthServ
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.response.OAuthServerRegistrationResponse;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Attribute;
@@ -103,7 +104,9 @@ public class RegistrationEndpoint implements Serializable {
             user.setAttribute(new Attribute("redirectURI", clientRedirectURI));
             user.setAttribute(new Attribute("clientID", generatedClientID));
 
-            identityManager.updateCredential(user, new PasswordCredential(generatedSecret));
+            identityManager.add(user);
+
+            identityManager.updateCredential(user, new PlainTextPassword(generatedSecret.toCharArray()));
             // user.setAttribute("clientSecret", generatedSecret);
 
             OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
@@ -144,7 +147,7 @@ public class RegistrationEndpoint implements Serializable {
                 IdentityConfiguration config = new IdentityConfiguration();
                 config.addStoreConfiguration(ldapConfiguration);
 
-                identityManager.bootstrap(config, null);
+                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
 
                 // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }

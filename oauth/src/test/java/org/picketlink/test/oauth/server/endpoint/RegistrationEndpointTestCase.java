@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Date;
 
+import org.junit.Test;
 import org.picketlink.oauth.amber.oauth2.client.URLConnectionClient;
 import org.picketlink.oauth.amber.oauth2.client.request.OAuthClientRequest;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
@@ -34,8 +35,6 @@ import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.OAuthRegistration
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.common.OAuthRegistration;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
 
 /**
@@ -44,7 +43,6 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  * @author anil saldhana
  * @since Aug 28, 2012
  */
-@Ignore
 public class RegistrationEndpointTestCase extends EndpointTestBase {
 
     @Override

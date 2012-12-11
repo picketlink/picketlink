@@ -28,10 +28,9 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.Map;
 
+import org.junit.Test;
 import org.picketlink.oauth.amber.oauth2.common.OAuth;
 import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.picketlink.oauth.client.ClientOAuth;
 import org.picketlink.oauth.client.ClientOAuth.AuthorizationClient;
 import org.picketlink.oauth.client.ClientOAuth.AuthorizationResponse;
@@ -45,7 +44,6 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  * @author anil saldhana
  * @since Aug 28, 2012
  */
-@Ignore
 public class AuthorizationEndpointTestCase extends EndpointTestBase {
 
     @Override

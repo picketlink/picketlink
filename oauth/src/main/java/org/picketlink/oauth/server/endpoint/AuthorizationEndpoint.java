@@ -52,9 +52,11 @@ import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 
@@ -97,9 +99,8 @@ public class AuthorizationEndpoint implements Serializable {
                 return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
             }
 
-            // IdentityQuery<User> query = identityManager.createQuery(User.class);
-            IdentityQuery<User> userQuery = identityManager.createQuery();
-            userQuery.setParameter(User.ID, "clientID");
+            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
+            userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
             /*
              * UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID", new String[] {
              * passedClientID });
@@ -139,7 +140,10 @@ public class AuthorizationEndpoint implements Serializable {
 
             if (responseType.equals(ResponseType.CODE.toString())) {
                 String authorizationCode = oauthIssuerImpl.authorizationCode();
+
                 clientApp.setAttribute(new Attribute("authorizationCode", authorizationCode));
+                identityManager.update(clientApp);
+
                 builder.setCode(authorizationCode);
             }
             /*
@@ -195,7 +199,7 @@ public class AuthorizationEndpoint implements Serializable {
                 IdentityConfiguration config = new IdentityConfiguration();
                 config.addStoreConfiguration(ldapConfiguration);
 
-                identityManager.bootstrap(config, null);
+                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
 
                 // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
