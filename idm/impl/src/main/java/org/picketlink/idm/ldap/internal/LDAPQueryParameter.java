@@ -51,11 +51,11 @@ public class LDAPQueryParameter {
 
     public Attribute getMappedTo() {
         Attribute mapped = LDAPAttributeMapper.map(queryParameter);
-        
+
         if (mapped == null) {
             mapped = LDAPAttributeMapper.mapCustom(getQueryParameter());
         }
-        
+
         return mapped;
     }
 
@@ -66,29 +66,29 @@ public class LDAPQueryParameter {
     public void setValues(Object[] values) {
         this.values = values;
     }
-    
+
     public boolean isMappedToManagedAttribute() {
         return LDAPAttributeMapper.map(getQueryParameter()) != null && !isMembershipParameter();
     }
-    
+
     public boolean isMembershipParameter() {
         return queryParameter.equals(IdentityType.HAS_ROLE) || queryParameter.equals(IdentityType.MEMBER_OF)
-                 || queryParameter.equals(IdentityType.HAS_GROUP_ROLE);
+                || queryParameter.equals(IdentityType.HAS_GROUP_ROLE);
     }
-    
+
     public String createFilter() {
-        if (getValues().length == 0) {
+        if (getValues().length == 0 || !isMappedToManagedAttribute()) {
             return null;
         }
-        
+
         String filter = "(&";
-        
+
         for (Object value : getValues()) {
             filter = filter + "(" + getMappedTo().getID() + "=" + value.toString() + ")";
         }
-        
+
         filter = filter + ")";
-        
+
         return filter;
     }
 
