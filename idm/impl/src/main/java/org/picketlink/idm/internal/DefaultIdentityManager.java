@@ -124,6 +124,12 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void bootstrap(IdentityConfiguration identityConfig, IdentityStoreInvocationContextFactory contextFactory) {
+        if(identityConfig == null){
+            throw new IllegalArgumentException("identityConfig is null");
+        }
+        if(contextFactory == null){
+            throw new IllegalArgumentException("contextFactory is null");
+        }
         for (StoreConfiguration config : identityConfig.getConfiguredStores()) {
 
             config.init();

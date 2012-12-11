@@ -24,18 +24,18 @@ package org.picketlink.oauth.client;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.apache.amber.oauth2.client.OAuthClient;
-import org.apache.amber.oauth2.client.URLConnectionClient;
-import org.apache.amber.oauth2.client.request.OAuthClientRequest;
-import org.apache.amber.oauth2.client.response.OAuthAccessTokenResponse;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.types.GrantType;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
-import org.apache.amber.oauth2.common.token.OAuthToken;
-import org.apache.amber.oauth2.ext.dynamicreg.client.OAuthRegistrationClient;
-import org.apache.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
-import org.apache.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
-import org.apache.amber.oauth2.ext.dynamicreg.common.OAuthRegistration;
+import org.picketlink.oauth.amber.oauth2.client.OAuthClient;
+import org.picketlink.oauth.amber.oauth2.client.URLConnectionClient;
+import org.picketlink.oauth.amber.oauth2.client.request.OAuthClientRequest;
+import org.picketlink.oauth.amber.oauth2.client.response.OAuthAccessTokenResponse;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
+import org.picketlink.oauth.amber.oauth2.common.message.types.GrantType;
+import org.picketlink.oauth.amber.oauth2.common.message.types.ResponseType;
+import org.picketlink.oauth.amber.oauth2.common.token.OAuthToken;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.OAuthRegistrationClient;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.common.OAuthRegistration;
 
 /**
  * OAuth Client
