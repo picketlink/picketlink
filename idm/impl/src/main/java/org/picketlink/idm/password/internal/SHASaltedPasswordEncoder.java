@@ -25,12 +25,9 @@ package org.picketlink.idm.password.internal;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 
-import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.internal.util.Base64;
-import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.password.PasswordEncoder;
 
 /**
  * <p>
@@ -46,7 +43,7 @@ import org.picketlink.idm.model.User;
  */
 public class SHASaltedPasswordEncoder implements PasswordEncoder {
 
-    private static final String PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt";
+
     private int strength;
 
     public SHASaltedPasswordEncoder(int strength) {
@@ -59,27 +56,8 @@ public class SHASaltedPasswordEncoder implements PasswordEncoder {
      * @see org.picketlink.idm.PasswordEncoder#encodePassword(java.lang.String, java.lang.Object)
      */
     @Override
-    public String encodePassword(User user, String rawPassword) {
+    public String encodePassword(String salt, String rawPassword) {
         MessageDigest messageDigest = getMessageDigest();
-
-        String salt = user.<String>getAttribute(PASSWORD_SALT_USER_ATTRIBUTE).getValue();
-
-        // user does not have a salt. let's generate a fresh one.
-        if (salt == null) {
-            SecureRandom psuedoRng = null;
-            String algorithm = "SHA1PRNG";
-
-            try {
-                psuedoRng = SecureRandom.getInstance(algorithm);
-                psuedoRng.setSeed(1024);
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
-            }
-
-            salt = String.valueOf(psuedoRng.nextLong());
-
-            user.setAttribute(new Attribute<String>(PASSWORD_SALT_USER_ATTRIBUTE, salt));
-        }
 
         byte[] encodedPassword = null;
 

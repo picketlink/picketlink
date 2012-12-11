@@ -10,9 +10,5 @@ import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 public interface IdentityStoreInvocationContextFactory {
     IdentityStoreInvocationContext createContext();
 
-    void setCredentialHandlerFactory(CredentialHandlerFactory factory);
-
-    CredentialHandlerFactory getCredentialHandlerFactory();
-
     void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store);
 }

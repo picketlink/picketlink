@@ -7,20 +7,20 @@ package org.picketlink.idm.credential;
  */
 public class PlainTextPassword {
 
-    private char[] password;
+    private char[] value;
 
-    public PlainTextPassword(char[] password) {
-        this.password = password;
+    public PlainTextPassword(char[] value) {
+        this.value = value;
     }
 
-    public char[] getPassword() {
-        return password;
+    public char[] getValue() {
+        return value;
     }
 
     public void clear() {
-        for (int i = 0; i < password.length; i++) {
-            password[i] = 0x00;
+        for (int i = 0; i < value.length; i++) {
+            value[i] = 0x00;
         }
-        password = null;
+        value = null;
     }
 }

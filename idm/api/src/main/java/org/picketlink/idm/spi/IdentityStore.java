@@ -218,20 +218,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      */
     void removeAttribute(IdentityType identityType, String attributeName);
 
-    /**
-     * <p>Updates the given {@link Role} instance.</p>
-     * 
-     * @param role
-     */
-    void updateRole(Role role);
-
-    /**
-     * <p>Updates the given {@link Group} instance.</p>
-     * 
-     * @param group
-     */
-    void updateGroup(Group group);
-
     // Credentials
 
     /**

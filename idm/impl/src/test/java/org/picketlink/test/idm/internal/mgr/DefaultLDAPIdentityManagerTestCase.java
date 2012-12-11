@@ -43,6 +43,7 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredentials;
+import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.internal.util.Base64;
@@ -77,7 +78,7 @@ public class DefaultLDAPIdentityManagerTestCase extends AbstractLDAPTest {
         config.addStoreConfiguration(getConfiguration());
 
         DefaultIdentityManager im = new DefaultIdentityManager();
-        im.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+        im.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null, new DefaultCredentialHandlerFactory()));
 
         // Let us create an user
         User user = new SimpleUser("asaldhan");

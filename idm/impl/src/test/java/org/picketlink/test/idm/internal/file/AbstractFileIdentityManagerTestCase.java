@@ -29,6 +29,7 @@ import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.PartitionStoreConfiguration;
+import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
@@ -106,7 +107,7 @@ public abstract class AbstractFileIdentityManagerTestCase {
             // hack end
 
             this.identityManager.bootstrap(identityConfig,
-                    new DefaultIdentityStoreInvocationContextFactory(null));
+                    new DefaultIdentityStoreInvocationContextFactory(null, new DefaultCredentialHandlerFactory()));
         }
 
         return this.identityManager;

@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
@@ -120,7 +121,8 @@ public abstract class AbstractJPAIdentityManagerTestCase {
             identityConfig.addStoreConfiguration(config);
 
             this.identityManager = new DefaultIdentityManager();
-            this.identityManager.bootstrap(identityConfig, new DefaultIdentityStoreInvocationContextFactory(emf));
+            this.identityManager.bootstrap(identityConfig, 
+                    new DefaultIdentityStoreInvocationContextFactory(emf, new DefaultCredentialHandlerFactory()));
         }
 
         return this.identityManager;

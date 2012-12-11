@@ -881,12 +881,12 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     //@Override
     public boolean validateCredential(User user, Object credential) {
         if (credential instanceof PlainTextPassword) {
-            PlainTextPassword passwordCredential = (PlainTextPassword) credential;
+            PlainTextPassword password = (PlainTextPassword) credential;
 
             User storedUser = getUser(user.getId());
             String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
 
-            return storedPassword != null && storedPassword.equals(passwordCredential.getPassword());
+            return storedPassword != null && storedPassword.equals(password.getValue());
         } else if (credential instanceof Digest) {
             Digest digestCredential = (Digest) credential;
             
@@ -918,11 +918,11 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     //@Override
     public void updateCredential(User user, Object credential) {
         if (credential instanceof PlainTextPassword) {
-            PlainTextPassword passwordCredential = (PlainTextPassword) credential;
+            PlainTextPassword password = (PlainTextPassword) credential;
 
             User storedUser = getUser(user.getId());
 
-            storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, new String(passwordCredential.getPassword())));
+            storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, new String(password.getValue())));
             
             flushUsers();
         } else if (credential instanceof X509CertificateCredentials) {
@@ -1042,20 +1042,9 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public void updateRole(Role role) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public void updateGroup(Group group) {
-        
     }
 
     @Override

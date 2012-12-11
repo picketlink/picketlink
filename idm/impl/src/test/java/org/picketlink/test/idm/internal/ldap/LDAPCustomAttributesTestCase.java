@@ -32,6 +32,7 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 import org.picketlink.idm.config.PartitionStoreConfiguration;
+import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
@@ -65,7 +66,8 @@ public class LDAPCustomAttributesTestCase extends AbstractLDAPIdentityManagerTes
         LDAPConfiguration storeConfig = getConfiguration();
         final LDAPIdentityStore store = new LDAPIdentityStore();
 
-        IdentityStoreInvocationContextFactory isicf = new DefaultIdentityStoreInvocationContextFactory(null);
+        IdentityStoreInvocationContextFactory isicf = new DefaultIdentityStoreInvocationContextFactory(null, 
+                new DefaultCredentialHandlerFactory());
 
         store.setup(storeConfig, isicf.createContext());
 

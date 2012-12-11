@@ -19,7 +19,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory;
 
-    public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf) {
+    public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf) {
         this.emf = emf;
         this.eventBridge = new EventBridge() {
 
@@ -28,6 +28,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
                 // by default do nothing
             }
         };
+        this.credentialHandlerFactory = chf;
     }
 
     @Override
@@ -43,15 +44,4 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
             }
         }
     }
-
-    @Override
-    public void setCredentialHandlerFactory(CredentialHandlerFactory factory) {
-        credentialHandlerFactory = factory;
-    }
-
-    @Override
-    public CredentialHandlerFactory getCredentialHandlerFactory() {
-        return credentialHandlerFactory;
-    }
-
 }

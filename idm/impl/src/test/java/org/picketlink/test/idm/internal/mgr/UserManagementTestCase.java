@@ -37,6 +37,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
@@ -88,7 +89,8 @@ public class UserManagementTestCase {
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf) {
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf, 
+                new DefaultCredentialHandlerFactory()) {
             @Override
             public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
@@ -115,7 +117,8 @@ public class UserManagementTestCase {
 
         IdentityManager identityManager = new DefaultIdentityManager();
         
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf) {
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf, 
+                new DefaultCredentialHandlerFactory()) {
             @Override
             public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
@@ -135,7 +138,8 @@ public class UserManagementTestCase {
 
         IdentityManager identityManager = new DefaultIdentityManager();
         
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf) {
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf, 
+                new DefaultCredentialHandlerFactory()) {
             @Override
             public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);

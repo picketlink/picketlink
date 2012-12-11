@@ -40,15 +40,14 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttri
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -180,6 +179,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 throw new IdentityManagementException("Exception while creating user", ex);
             }
         }
+    }
+
+    @Override
+    public void update(IdentityType identityType) {
+        // TODO Auto-generated method stub
+
     }
 
     private Object lookupIdentityObjectById(Class<? extends IdentityType> cls, String id) {
@@ -603,23 +608,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     public Group getGroup(String name, Group parent) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public void updateRole(Role role) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void updateGroup(Group group) {
-
-    }
-
-    @Override
-    public void update(IdentityType identityType) {
-        // TODO Auto-generated method stub
-
     }
 
     public <T extends CredentialStorage> void storeCredential(Agent agent, T storage) {
