@@ -147,7 +147,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
     @Override
     protected void updateIdentityType(Group identityTypeInstance) {
-        getIdentityManager().updateGroup(identityTypeInstance);
+        getIdentityManager().update(identityTypeInstance);
     }
 
     @Override

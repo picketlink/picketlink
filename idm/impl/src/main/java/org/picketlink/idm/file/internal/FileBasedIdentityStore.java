@@ -1042,20 +1042,9 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }
 
     @Override
-    public void updateRole(Role role) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
     public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
         // TODO Auto-generated method stub
         return null;
-    }
-
-    @Override
-    public void updateGroup(Group group) {
-        
     }
 
     @Override

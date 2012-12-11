@@ -201,6 +201,29 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             } catch (NamingException e) {
                 throw new RuntimeException(e);
             }
+        } else if (Role.class.isInstance(identityType)) {
+            Role role = (Role) identityType;
+            LDAPRole storedRole = (LDAPRole) getRole(role.getName());
+
+            if (storedRole == null) {
+                throw new RuntimeException("No role found with the given name [" + role.getName() + "].");
+            }
+
+            LDAPRole updatedRole = (LDAPRole) role;
+
+            updateCustomAttributes(updatedRole);
+        } else if (Group.class.isInstance(identityType)) {
+            Group group = (Group) identityType;
+
+            LDAPGroup storedGroup = (LDAPGroup) getGroup(group.getName());
+
+            if (storedGroup == null) {
+                throw new RuntimeException("No group found with the given name [" + group.getName() + "].");
+            }
+
+            LDAPGroup updatedGroup = (LDAPGroup) group;
+
+            updateCustomAttributes(updatedGroup);
         }
     }
 
@@ -874,32 +897,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         }
 
         return result;
-    }
-
-    @Override
-    public void updateRole(Role role) {
-        LDAPRole storedRole = (LDAPRole) getRole(role.getName());
-
-        if (storedRole == null) {
-            throw new RuntimeException("No role found with the given name [" + role.getName() + "].");
-        }
-
-        LDAPRole updatedRole = (LDAPRole) role;
-
-        updateCustomAttributes(updatedRole);
-    }
-
-    @Override
-    public void updateGroup(Group group) {
-        LDAPGroup storedGroup = (LDAPGroup) getGroup(group.getName());
-
-        if (storedGroup == null) {
-            throw new RuntimeException("No group found with the given name [" + group.getName() + "].");
-        }
-
-        LDAPGroup updatedGroup = (LDAPGroup) group;
-
-        updateCustomAttributes(updatedGroup);
     }
 
     @Override

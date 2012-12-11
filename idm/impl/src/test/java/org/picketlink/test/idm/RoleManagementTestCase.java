@@ -105,7 +105,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
     @Override
     protected void updateIdentityType(Role identityTypeInstance) {
-        getIdentityManager().updateRole(identityTypeInstance);
+        getIdentityManager().update(identityTypeInstance);
     }
 
     @Override

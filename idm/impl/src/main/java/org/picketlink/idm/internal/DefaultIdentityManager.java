@@ -309,11 +309,6 @@ public class DefaultIdentityManager implements IdentityManager {
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(groupName, parent);
     }
 
-    @Override
-    public void updateGroup(Group group) {
-        getContextualStoreForFeature(createContext(), Feature.updateGroup).updateGroup(group);
-    }
-
     public boolean isMember(IdentityType identityType, Group group) {
         return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, group, null) != null;
     }
@@ -336,11 +331,6 @@ public class DefaultIdentityManager implements IdentityManager {
                     "scope of a Realm or a Tier, however both have been set.");
         }
         return getContextualStoreForFeature(ctx, Feature.readRole).getRole(name);
-    }
-
-    @Override
-    public void updateRole(Role role) {
-        getContextualStoreForFeature(createContext(), Feature.updateRole).updateRole(role);
     }
 
     @Override
