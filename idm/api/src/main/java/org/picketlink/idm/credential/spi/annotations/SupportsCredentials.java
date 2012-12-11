@@ -1,7 +1,6 @@
 package org.picketlink.idm.credential.spi.annotations;
 
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -10,16 +9,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * This annotation denotes a property of a Class implementing the CredentialStorage
- * interface as being persistent.  Properties annotated with @Stored must be
- * Serializable.
- * 
+ * This annotation is used to declare which credential types are supported by a 
+ * particular CredentialHandler implementation 
+ *  
  * @author Shane Bryzak
  */
-@Target({FIELD, METHOD})
+@Target({TYPE})
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface Stored {
-
+public @interface SupportsCredentials {
+    Class<?>[] value();
 }

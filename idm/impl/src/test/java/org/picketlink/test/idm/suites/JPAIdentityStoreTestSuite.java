@@ -33,6 +33,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
@@ -104,7 +105,8 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf) {
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf, 
+                new DefaultCredentialHandlerFactory()) {
             @Override
             public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
                 super.initContextForStore(ctx, store);

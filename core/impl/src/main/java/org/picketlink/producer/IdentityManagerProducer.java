@@ -26,7 +26,7 @@ public class IdentityManagerProducer {
         IdentityConfiguration identityConfig = new IdentityConfiguration();
 
         IdentityManager identityManager = new DefaultIdentityManager();
-        identityManager.bootstrap(identityConfig, new DefaultIdentityStoreInvocationContextFactory(null));
+        identityManager.bootstrap(identityConfig, new DefaultIdentityStoreInvocationContextFactory(null, null));
         return identityManager;
     }
 

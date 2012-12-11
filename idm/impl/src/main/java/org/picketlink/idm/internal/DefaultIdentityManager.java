@@ -159,7 +159,6 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         this.contextFactory = contextFactory;
-        this.contextFactory.setCredentialHandlerFactory(identityConfig.getCredentialHandlerFactory());
     }
 
     @Override

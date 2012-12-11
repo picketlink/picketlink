@@ -8,6 +8,8 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.credential.spi.annotations.SupportsStores;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
@@ -21,9 +23,8 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-// TODO Should we support this kind of metadata for convenience? It may be helpful for reducing the amount of parameter validation
-//@SupportsCredentials({UsernamePasswordCredentials.class, PlainTextPassword.class});
-//@SupportsStores({JPAIdentityStore.class});
+@SupportsCredentials({UsernamePasswordCredentials.class, PlainTextPassword.class})
+@SupportsStores({JPAIdentityStore.class})
 public class JPAPlainTextPasswordCredentialHandler implements CredentialHandler {
 
     private static final String PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt";
