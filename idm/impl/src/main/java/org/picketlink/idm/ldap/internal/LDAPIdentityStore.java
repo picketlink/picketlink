@@ -586,12 +586,29 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
         List<T> result = new ArrayList<T>();
         LDAPQuery ldapQuery = new LDAPQuery(parameters);
-
+        
+        StringBuffer additionalFilter = new StringBuffer();
+        String dnSuffix = null;
+        String idAttribute = null;
+        NamingEnumeration<SearchResult> answer = null;
+        LDAPSearchCallback<T> callback = null; 
+        boolean restrictAdditionalFilter = true;
+        
         if (User.class.isAssignableFrom(typeClass)) {
-            NamingEnumeration<SearchResult> answer = null;
+            dnSuffix = this.configuration.getUserDNSuffix();
+            idAttribute = UID;
+            callback = (LDAPSearchCallback<T>) new LDAPSearchCallback<T>() {
 
-            StringBuffer filterUsers = new StringBuffer();
-
+                @Override
+                public T processResult(SearchResult sr) {
+                    try {
+                        return (T) getUser(sr.getAttributes().get(UID).get().toString());
+                    } catch (NamingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
+            
             // if there are any membership parameter, filter the users that should be considered during the search
             for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getMemberShipParameters()) {
                 QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
@@ -629,7 +646,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                                     userCount.put(userId, count + 1);
                                 }
 
-                                filterUsers.append("(").append(userId).append(")");
+                                additionalFilter.append("(").append(userId).append(")");
                             }
                         } catch (NamingException e) {
                             e.printStackTrace();
@@ -640,11 +657,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                     for (Entry<String, Integer> entry : entrySet) {
                         if (!entry.getValue().equals(ldapQueryParameter.getValues().length)) {
-                            String filterTmp = filterUsers.toString();
+                            String filterTmp = additionalFilter.toString();
 
                             filterTmp = filterTmp.replaceAll("\\(" + entry.getKey() + "\\)", "");
 
-                            filterUsers = new StringBuffer(filterTmp);
+                            additionalFilter = new StringBuffer(filterTmp);
                         }
                     }
                 } else {
@@ -675,7 +692,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                                     if (member.contains("cn=" + groupRole.getRole().getName() + COMMA
                                             + this.configuration.getRoleDNSuffix())) {
-                                        filterUsers.append("(").append(userId).append(")");
+                                        additionalFilter.append("(").append(userId).append(")");
                                     } else {
                                         break;
                                     }
@@ -695,151 +712,205 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 }
             }
 
-            if (filterUsers.length() == 0 && !ldapQuery.getMemberShipParameters().isEmpty()) {
+            if (additionalFilter.length() == 0 && !ldapQuery.getMemberShipParameters().isEmpty()) {
                 return result;
             }
+        } else if (Role.class.isAssignableFrom(typeClass)) {
+            additionalFilter.append("(!(cn=custom-attributes))");
+            dnSuffix = this.configuration.getRoleDNSuffix();
+            idAttribute = CN;
+            restrictAdditionalFilter = false;
+            callback = (LDAPSearchCallback<T>) new LDAPSearchCallback<T>() {
 
-            try {
-                if (filterUsers.length() > 0) {
-                    filterUsers.insert(0, "(|");
-                    filterUsers.insert(filterUsers.length() - 1, ")");
+                @Override
+                public T processResult(SearchResult sr) {
+                    try {
+                        return (T) getRole(sr.getAttributes().get(CN).get().toString());
+                    } catch (NamingException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
+            };
+        } else if (Group.class.isAssignableFrom(typeClass)) {
+            additionalFilter.append("(!(cn=custom-attributes))");
+            dnSuffix = this.configuration.getGroupDNSuffix();
+            idAttribute = CN;
+            restrictAdditionalFilter = false;
+            callback = (LDAPSearchCallback<T>) new LDAPSearchCallback<T>() {
 
-                StringBuffer filter = ldapQuery.createManagedAttributesFilter();
-
-                if (filter == null) {
-                    filter = new StringBuffer("(&(objectClass=*)(uid=*))");
+                @Override
+                public T processResult(SearchResult sr) {
+                    try {
+                        return (T) getGroup(sr.getAttributes().get(CN).get().toString());
+                    } catch (NamingException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
+            };
+        }
+        
+        try {
+            if (additionalFilter.length() > 0) {
+                if (restrictAdditionalFilter) {
+                    additionalFilter.insert(0, "(|");
+                    additionalFilter.insert(additionalFilter.length() - 1, ")");
+                }
+            }
 
-                filter.insert(filter.length() - 1, filterUsers.toString());
+            StringBuffer filter = ldapQuery.createManagedAttributesFilter();
 
-                answer = getLdapManager().search(this.configuration.getUserDNSuffix(), filter.toString(), new String[] { UID },
-                        null);
+            if (filter == null) {
+                filter = new StringBuffer("(&(objectClass=*)(" + idAttribute + "=*))");
+            }
 
-                while (answer.hasMoreElements()) {
-                    SearchResult sr = (SearchResult) answer.nextElement();
-                    Attributes attributes = sr.getAttributes();
-                    String uid = null;
+            filter.insert(filter.length() - 1, additionalFilter.toString());
 
-                    uid = (String) attributes.get(UID).get();
+            answer = getLdapManager().search(dnSuffix, filter.toString());
 
-                    LDAPUser transientUser = new LDAPUser(this.configuration.getUserDNSuffix());
+            while (answer.hasMoreElements()) {
+                SearchResult sr = (SearchResult) answer.nextElement();
+                Attributes attributes = sr.getAttributes();
+                String uid = null;
 
-                    transientUser.setId(uid);
+                uid = (String) attributes.get(idAttribute).get();
 
-                    if (ldapQuery.hasCustomAttributes()) {
-                        LDAPCustomAttributes customAttributes = getCustomAttributes(transientUser.getDN());
+                if (ldapQuery.hasCustomAttributes()) {
+                    LDAPCustomAttributes customAttributes = getCustomAttributes(idAttribute + "=" + uid +  COMMA + dnSuffix);
 
-                        if (customAttributes != null) {
-                            for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getCustomParameters()) {
-                                QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
-                                Object[] values = ldapQueryParameter.getValues();
-                                String id = null;
-                                Object entryValue = null;
-                                boolean hasAttribute = false;
-
-                                if (!ldapQueryParameter.isMappedToManagedAttribute()) {
-                                    if (ldapQueryParameter.getMappedTo() != null) {
-                                        id = ldapQueryParameter.getMappedTo().getID();
-                                    } else {
-                                        if (queryParameter instanceof IdentityType.AttributeParameter) {
-                                            id = ((IdentityType.AttributeParameter) queryParameter).getName();
-                                        } else {
-                                            id = "";
+                    if (customAttributes != null) {
+                        for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getCustomParameters()) {
+                            QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
+                            Object[] values = ldapQueryParameter.getValues();
+                            String id = null;
+                            Object entryValue = null;
+                            boolean hasAttribute = false;
+                            
+                            if (queryParameter.equals(Group.PARENT)) {
+                                LDAPGroup member = new LDAPGroup(dnSuffix);
+                                
+                                member.setName(uid);
+                                
+                                NamingEnumeration<SearchResult> parents = findParentEntries(dnSuffix, member);
+                                boolean hasParents = false;
+                                
+                                if (parents.hasMoreElements()) {
+                                    while (parents.hasMoreElements()) {
+                                        SearchResult searchResult = (SearchResult) parents.nextElement();
+                                        String parentCn = searchResult.getAttributes().get(CN).get().toString();
+                                        
+                                        if (parentCn.equals(values[0].toString())) {
+                                            hasParents = true;
+                                            break;
                                         }
                                     }
+                                }
+                                
+                                if (!hasParents) {
+                                    uid = null;
+                                    break;
+                                }
+                            } else  if (!ldapQueryParameter.isMappedToManagedAttribute()) {
+                                if (ldapQueryParameter.getMappedTo() != null) {
+                                    id = ldapQueryParameter.getMappedTo().getID();
+                                } else {
+                                    if (queryParameter instanceof IdentityType.AttributeParameter) {
+                                        id = ((IdentityType.AttributeParameter) queryParameter).getName();
+                                    } else {
+                                        id = "";
+                                    }
+                                }
 
-                                    entryValue = customAttributes.getAttribute(id);
+                                entryValue = customAttributes.getAttribute(id);
 
-                                    if (entryValue != null) {
-                                        hasAttribute = true;
+                                if (entryValue != null) {
+                                    hasAttribute = true;
 
-                                        if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
+                                    if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
+                                            || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
+                                        long providedTimeInMillis = ((Date) values[0]).getTime();
+                                        long storedTimeInMillis = Long.valueOf(entryValue.toString());
+
+                                        if (queryParameter.equals(User.CREATED_DATE)
+                                                || queryParameter.equals(User.EXPIRY_DATE)) {
+                                            if (providedTimeInMillis != storedTimeInMillis) {
+                                                uid = null;
+                                                break;
+                                            }
+                                        } else if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
                                                 || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                                            long providedTimeInMillis = ((Date) values[0]).getTime();
-                                            long storedTimeInMillis = Long.valueOf(entryValue.toString());
-
-                                            if (queryParameter.equals(User.CREATED_DATE)
-                                                    || queryParameter.equals(User.EXPIRY_DATE)) {
-                                                if (providedTimeInMillis != storedTimeInMillis) {
+                                            if (queryParameter.equals(User.CREATED_AFTER)
+                                                    || queryParameter.equals(User.EXPIRY_AFTER)) {
+                                                if (storedTimeInMillis < providedTimeInMillis) {
                                                     uid = null;
                                                     break;
                                                 }
-                                            } else if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
-                                                    || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                                                if (queryParameter.equals(User.CREATED_AFTER)
-                                                        || queryParameter.equals(User.EXPIRY_AFTER)) {
-                                                    if (storedTimeInMillis < providedTimeInMillis) {
-                                                        uid = null;
-                                                        break;
-                                                    }
-                                                }
+                                            }
 
-                                                if (queryParameter.equals(User.CREATED_BEFORE)
-                                                        || queryParameter.equals(User.EXPIRY_BEFORE)) {
-                                                    if (storedTimeInMillis > providedTimeInMillis) {
-                                                        uid = null;
-                                                        break;
-                                                    }
+                                            if (queryParameter.equals(User.CREATED_BEFORE)
+                                                    || queryParameter.equals(User.EXPIRY_BEFORE)) {
+                                                if (storedTimeInMillis > providedTimeInMillis) {
+                                                    uid = null;
+                                                    break;
                                                 }
                                             }
-                                        } else {
-                                            if (queryParameter instanceof IdentityType.AttributeParameter
-                                                    && entryValue.getClass().isArray()) {
-                                                IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
+                                        }
+                                    } else {
+                                        if (queryParameter instanceof IdentityType.AttributeParameter
+                                                && entryValue.getClass().isArray()) {
+                                            IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
 
-                                                if (id.equals(attrParameter.getName())) {
-                                                    Object[] attributeValues = (Object[]) entryValue;
+                                            if (id.equals(attrParameter.getName())) {
+                                                Object[] attributeValues = (Object[]) entryValue;
+                                                
+                                                for (Object parameterValue : values) {
+                                                    boolean matchValue = false;
                                                     
-                                                    for (Object parameterValue : values) {
-                                                        boolean matchValue = false;
-                                                        
-                                                        for (Object object : attributeValues) {
-                                                            if (object.toString().equals(parameterValue.toString())) {
-                                                                matchValue = true;
-                                                                break;
-                                                            }
-                                                        }
-                                                        
-                                                        if (!matchValue) {
-                                                            uid = null;
+                                                    for (Object object : attributeValues) {
+                                                        if (object.toString().equals(parameterValue.toString())) {
+                                                            matchValue = true;
                                                             break;
                                                         }
                                                     }
+                                                    
+                                                    if (!matchValue) {
+                                                        uid = null;
+                                                        break;
+                                                    }
                                                 }
-                                            } else {
-                                                if (!values[0].toString().equals(entryValue.toString())) {
-                                                    uid = null;
-                                                    break;
-                                                }
+                                            }
+                                        } else {
+                                            if (!values[0].toString().equals(entryValue.toString())) {
+                                                uid = null;
+                                                break;
                                             }
                                         }
                                     }
+                                }
 
-                                    if (!hasAttribute) {
-                                        uid = null;
-                                        break;
-                                    }
+                                if (!hasAttribute) {
+                                    uid = null;
+                                    break;
                                 }
                             }
                         }
-                    }
-
-                    if (uid != null) {
-                        result.add((T) getUser(uid));
+                    } else {
+                        uid = null;
                     }
                 }
-            } catch (NamingException ne) {
-                throw new RuntimeException(ne);
-            } finally {
-                if (answer != null) {
-                    try {
-                        answer.close();
-                    } catch (NamingException e) {
-                    }
+
+                if (uid != null) {
+                    result.add(callback.processResult(sr));
                 }
             }
-
+        } catch (NamingException ne) {
+            throw new RuntimeException(ne);
+        } finally {
+            if (answer != null) {
+                try {
+                    answer.close();
+                } catch (NamingException e) {
+                }
+            }
         }
 
         return result;

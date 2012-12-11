@@ -53,7 +53,6 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     public void testCreate() throws Exception {
         Group newGroupInstance = loadOrCreateGroup("someGroup", null, true);
 
-        // let's retrieve the group information and see if it was properly stored
         IdentityManager identityManager = getIdentityManager();
         
         Group storedGroupInstance = identityManager.getGroup(newGroupInstance.getName());
@@ -95,6 +94,10 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     @Test
     public void testGet() throws Exception {
         Group storedGroupInstance = getIdentityType(true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        storedGroupInstance = identityManager.getGroup(storedGroupInstance.getName());
         
         assertNotNull(storedGroupInstance);
         assertNotNull(storedGroupInstance.getParentGroup());
@@ -140,7 +143,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         
         identityManager.remove(storedGroupInstance);
         
-        Group removedGroupInstance = identityManager.getGroup("Test Group");
+        Group removedGroupInstance = identityManager.getGroup(storedGroupInstance.getName());
         
         assertNull(removedGroupInstance);
     }

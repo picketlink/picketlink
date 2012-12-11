@@ -52,7 +52,6 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
     public void testCreate() throws Exception {
         Role newRoleInstance = loadOrCreateRole("someRole", true);
 
-        // let's retrieve the role information and see if it was properly stored
         IdentityManager identityManager = getIdentityManager();
         
         Role storedRoleInstance = identityManager.getRole(newRoleInstance.getName());

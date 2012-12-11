@@ -53,6 +53,14 @@ public class UserGroupsRelationshipTestCase extends AbstractIdentityManagerTestC
         identityManager.addToGroup(someUser, someGroup);
         
         assertTrue(identityManager.isMember(someUser, someGroup));
+        
+        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
+        
+        assertFalse(identityManager.isMember(someUser, someAnotherGroup));
+        
+        identityManager.addToGroup(someUser, someAnotherGroup);
+        
+        assertTrue(identityManager.isMember(someUser, someAnotherGroup));
     }
     
     /**
@@ -64,15 +72,22 @@ public class UserGroupsRelationshipTestCase extends AbstractIdentityManagerTestC
     public void testRemoveUserFromGroup() throws Exception {
         User someUser = loadOrCreateUser("someUser", true);
         Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
         
         IdentityManager identityManager = getIdentityManager();
         
         identityManager.addToGroup(someUser, someGroup);
+        identityManager.addToGroup(someUser, someAnotherGroup);
         
         assertTrue(identityManager.isMember(someUser, someGroup));
+        assertTrue(identityManager.isMember(someUser, someAnotherGroup));
         
         identityManager.removeFromGroup(someUser, someGroup);
         
         assertFalse(identityManager.isMember(someUser, someGroup));
-    }
+
+        identityManager.removeFromGroup(someUser, someAnotherGroup);
+        
+        assertFalse(identityManager.isMember(someUser, someAnotherGroup));
+}
 }

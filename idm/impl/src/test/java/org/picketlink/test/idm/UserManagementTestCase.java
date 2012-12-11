@@ -152,7 +152,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         identityManager.remove(storedUserInstance);
 
-        User removedUserInstance = getIdentityManager().getUser("admin");
+        User removedUserInstance = getIdentityManager().getUser(storedUserInstance.getId());
 
         assertNull(removedUserInstance);
     }

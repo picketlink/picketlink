@@ -54,40 +54,18 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         
         assertTrue(identityManager.hasRole(someUser, someRole));
         
-        User someAnotherUser = loadOrCreateUser("someAnotherUser", true);
-        
-        assertFalse(identityManager.hasRole(someAnotherUser, someRole));
-        
         Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
         
-        identityManager.grantRole(someAnotherUser, someAnotherRole);
+        assertFalse(identityManager.hasRole(someUser, someAnotherRole));
         
-        assertTrue(identityManager.hasRole(someAnotherUser, someAnotherRole));
-    }
-    
-    /**
-     * <p>Tests granting multiple roles to users.</p>
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGrantMultipleRolesToUser() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
-        
-        Role someRole = loadOrCreateRole("someRole", true);
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
-        
-        IdentityManager identityManager = getIdentityManager();
-        
-        identityManager.grantRole(someUser, someRole);
         identityManager.grantRole(someUser, someAnotherRole);
         
-        assertTrue(identityManager.hasRole(someUser, someRole));
         assertTrue(identityManager.hasRole(someUser, someAnotherRole));
+        assertTrue(identityManager.hasRole(someUser, someRole));
     }
     
     /**
-     * <p>Tests revoking oles from users.</p>
+     * <p>Tests revoking roles from users.</p>
      * 
      * @throws Exception
      */
@@ -110,6 +88,10 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         
         assertFalse(identityManager.hasRole(someUser, someRole));
         assertTrue(identityManager.hasRole(someUser, someAnotherRole));
+        
+        identityManager.revokeRole(someUser, someAnotherRole);
+        
+        assertFalse(identityManager.hasRole(someUser, someAnotherRole));
     }
     
 }

@@ -47,49 +47,38 @@ public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTe
      */
     @Test
     public void testGrantGroupRole() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
+        User developerUser = loadOrCreateUser("developerUser", true);
+        User projectManagerUser = loadOrCreateUser("projectManagerUser", true);
         
-        Role managerRole = loadOrCreateRole("manager", true);
-        Role developerRole = loadOrCreateRole("developer", true);
+        Role managerRole = loadOrCreateRole("Manager", true);
+        Role developerRole = loadOrCreateRole("Developer", true);
+        Role employeeRole = loadOrCreateRole("Employee", true);
         
-        Group salesGroup = loadOrCreateGroup("sales", null, true);
-        Group employeeGroup = loadOrCreateGroup("employee", null, true);
-        
-        IdentityManager identityManager = getIdentityManager();
-        
-        identityManager.grantGroupRole(someUser, managerRole, salesGroup);
-        identityManager.grantGroupRole(someUser, developerRole, employeeGroup);
-        
-        assertTrue(identityManager.hasGroupRole(someUser, managerRole, salesGroup));
-        assertTrue(identityManager.hasGroupRole(someUser, developerRole, employeeGroup));
-        
-        assertFalse(identityManager.hasGroupRole(someUser, developerRole, salesGroup));
-    }
-    
-    /**
-     * <p>Tests adding an {@link User} as a member of a {@link Group} with a specific {@link Role}.</p>
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGrantParentGroupRole() throws Exception {
-        User mary = loadOrCreateUser("mary", true);
-        User john = loadOrCreateUser("john", true);
-        
-        Group managerGroup = loadOrCreateGroup("Managers", "Executives", true);
-        Group executiveGroup = managerGroup.getParentGroup();
-        Role secretaryRole = loadOrCreateRole("secretary", true);
+        Group companyGroup = loadOrCreateGroup("Company Group", null, true);
+        Group projectGroup = loadOrCreateGroup("Project Group", null, true);
         
         IdentityManager identityManager = getIdentityManager();
         
-        identityManager.grantGroupRole(mary, secretaryRole, managerGroup);
-        identityManager.grantGroupRole(john, secretaryRole, executiveGroup);
+        // developerUser is an employee at the company group
+        identityManager.grantGroupRole(developerUser, employeeRole, companyGroup);
         
-        assertTrue(identityManager.hasGroupRole(mary, secretaryRole, managerGroup));
-        assertTrue(identityManager.hasGroupRole(john, secretaryRole, executiveGroup));
+        // developerUser is a developer at the project group
+        identityManager.grantGroupRole(developerUser, developerRole, projectGroup);
         
-        assertFalse(identityManager.hasGroupRole(mary, secretaryRole, executiveGroup));
-        assertFalse(identityManager.hasGroupRole(john, secretaryRole, managerGroup));
+        // projectManagerUser is an employee at the company group
+        identityManager.grantGroupRole(projectManagerUser, employeeRole, companyGroup);
+
+        // projectManagerUser is the manager of the project group
+        identityManager.grantGroupRole(projectManagerUser, managerRole, projectGroup);
+        
+        assertTrue(identityManager.hasGroupRole(developerUser, employeeRole, companyGroup));
+        assertTrue(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
+        
+        assertTrue(identityManager.hasGroupRole(projectManagerUser, employeeRole, companyGroup));
+        assertTrue(identityManager.hasGroupRole(projectManagerUser, managerRole, projectGroup));
+        
+        assertFalse(identityManager.hasGroupRole(developerUser, managerRole, projectGroup));
+        assertFalse(identityManager.hasGroupRole(projectManagerUser, developerRole, projectGroup));
     }
     
     /**
@@ -99,19 +88,28 @@ public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTe
      */
     @Test
     public void testRevokeGroupRole() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
-        Role managerRole = loadOrCreateRole("manager", true);
-        Group salesGroup = loadOrCreateGroup("sales", null, true);
-
+        User developerUser = loadOrCreateUser("developerUser", true);
+        
+        Role developerRole = loadOrCreateRole("Developer", true);
+        Role employeeRole = loadOrCreateRole("Employee", true);
+        
+        Group companyGroup = loadOrCreateGroup("Company Group", null, true);
+        Group projectGroup = loadOrCreateGroup("Project Group", null, true);
+        
         IdentityManager identityManager = getIdentityManager();
         
-        identityManager.grantGroupRole(someUser, managerRole, salesGroup);
+        // developerUser is an employee at the company group
+        identityManager.grantGroupRole(developerUser, employeeRole, companyGroup);
         
-        assertTrue(identityManager.hasGroupRole(someUser, managerRole, salesGroup));
+        // developerUser is a developer at the project group
+        identityManager.grantGroupRole(developerUser, developerRole, projectGroup);
         
-        identityManager.revokeGroupRole(someUser, managerRole, salesGroup);
+        assertTrue(identityManager.hasGroupRole(developerUser, employeeRole, companyGroup));
+        assertTrue(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
         
-        assertFalse(identityManager.hasGroupRole(someUser, managerRole, salesGroup));
+        identityManager.revokeGroupRole(developerUser, developerRole, projectGroup);
+        
+        assertFalse(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
     }
     
 }

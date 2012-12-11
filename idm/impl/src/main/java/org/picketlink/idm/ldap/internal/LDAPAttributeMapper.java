@@ -28,6 +28,9 @@ import java.util.Map;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -47,13 +50,18 @@ public class LDAPAttributeMapper {
         ldapAttributeMap.put(User.LAST_NAME, LDAPConstants.SN);
         ldapAttributeMap.put(User.MEMBER_OF, LDAPConstants.MEMBER_OF);
         
+        ldapAttributeMap.put(Role.NAME, LDAPConstants.CN);
+        
+        ldapAttributeMap.put(Group.NAME, LDAPConstants.CN);
+        
         customAttributeMap.put(User.CREATED_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
         customAttributeMap.put(User.CREATED_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
         customAttributeMap.put(User.CREATED_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
         customAttributeMap.put(User.EXPIRY_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(User.EXPIRY_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(User.EXPIRY_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
-        customAttributeMap.put(User.ENABLED, LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED);
+        
+        customAttributeMap.put(IdentityType.ENABLED, LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED);
     }
     
     public static Attribute map(QueryParameter parameter) {
