@@ -45,6 +45,7 @@ import org.picketlink.oauth.amber.oauth2.rs.request.OAuthAccessResourceRequest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.User;
@@ -86,7 +87,7 @@ public class OAuthResourceFilter implements Filter {
             String passedClientID = httpRequest.getParameter(OAuth.OAUTH_CLIENT_ID);
             String accessToken = oauthRequest.getAccessToken();
 
-            IdentityQuery<User> userQuery = identityManager.createQuery();
+            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
             userQuery.setParameter(User.ID, passedClientID);
 
             List<User> users = userQuery.getResultList();
@@ -178,7 +179,7 @@ public class OAuthResourceFilter implements Filter {
                 IdentityConfiguration config = new IdentityConfiguration();
                 config.addStoreConfiguration(ldapConfiguration);
 
-                identityManager.bootstrap(config, null);
+                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
 
                 // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
