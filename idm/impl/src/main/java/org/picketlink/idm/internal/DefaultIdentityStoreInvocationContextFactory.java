@@ -2,6 +2,7 @@ package org.picketlink.idm.internal;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
@@ -19,6 +20,8 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory;
 
+    public static DefaultIdentityStoreInvocationContextFactory DEFAULT = new DefaultIdentityStoreInvocationContextFactory(null, new DefaultCredentialHandlerFactory());
+    
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf) {
         this.emf = emf;
         this.eventBridge = new EventBridge() {
