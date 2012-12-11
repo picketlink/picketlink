@@ -51,11 +51,14 @@ import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
 import org.picketlink.oauth.amber.oauth2.common.message.types.GrantType;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 
@@ -109,9 +112,8 @@ public class TokenEndpoint implements Serializable {
                 return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
             }
 
-            // IdentityQuery<User> query = identityManager.createQuery(User.class);
-            IdentityQuery<User> userQuery = identityManager.createQuery();
-            userQuery.setParameter(User.ID, "clientID");
+            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
+            userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
             /*
              * UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID", new String[] {
              * passedClientID });
@@ -136,6 +138,13 @@ public class TokenEndpoint implements Serializable {
             Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
             String clientID = clientIDAttr.getValue();
             Attribute<String> authorizationCodeAttr = clientApp.getAttribute("authorizationCode");
+            if (authorizationCodeAttr == null) {
+
+                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("authorization code is null")
+                        .buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            }
             String authorizationCode = authorizationCodeAttr.getValue();
 
             String password = "something";
@@ -150,12 +159,24 @@ public class TokenEndpoint implements Serializable {
             }
 
             // Validate client secret
-            if (identityManager.validateCredential(clientApp, new PasswordCredential(passedClientSecret)) == false) {
+            UsernamePasswordCredentials upc = new UsernamePasswordCredentials();
+            upc.setUsername(clientApp.getId());
+            upc.setPassword(new PlainTextPassword(passedClientSecret.toCharArray()));
+
+            try {
+                identityManager.validateCredentials(upc);
+            } catch (SecurityException se) {
                 OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Client secret mismatch")
                         .buildJSONMessage();
                 return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
             }
+            /*
+             * if (identityManager.validateCredentials(upc)) == false) { OAuthResponse response =
+             * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+             * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Client secret mismatch")
+             * .buildJSONMessage(); return Response.status(response.getResponseStatus()).entity(response.getBody()).build(); }
+             */
 
             // do checking for different grant types
             if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.AUTHORIZATION_CODE.toString())) {
@@ -181,6 +202,8 @@ public class TokenEndpoint implements Serializable {
 
             String accessToken = oauthIssuerImpl.accessToken();
             clientApp.setAttribute(new Attribute("accessToken", accessToken));
+
+            identityManager.update(clientApp);
 
             OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken)
                     .setExpiresIn("3600").buildJSONMessage();
@@ -228,7 +251,7 @@ public class TokenEndpoint implements Serializable {
                 IdentityConfiguration config = new IdentityConfiguration();
                 config.addStoreConfiguration(ldapConfiguration);
 
-                identityManager.bootstrap(config, null);
+                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
 
                 // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
