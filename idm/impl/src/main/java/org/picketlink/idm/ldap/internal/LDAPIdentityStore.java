@@ -253,15 +253,25 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
             remove(ldapGroup);
 
             // removes the custom grouprole entry from inside the user entries
-            NamingEnumeration<SearchResult> results = getLdapManager().search(this.configuration.getUserDNSuffix(),
-                    "(&(cn= " + ldapGroup.getName() + "*))");
+            NamingEnumeration<SearchResult> results = null;
 
-            while (results.hasMoreElements()) {
-                SearchResult searchResult = (SearchResult) results.nextElement();
-                String dn = searchResult.getNameInNamespace();
-                getLdapManager().destroySubcontext(dn);
+            try {
+                results = getLdapManager()
+                        .search(this.configuration.getUserDNSuffix(), "(&(cn= " + ldapGroup.getName() + "*))");
+
+                while (results.hasMoreElements()) {
+                    SearchResult searchResult = (SearchResult) results.nextElement();
+                    String dn = searchResult.getNameInNamespace();
+                    getLdapManager().destroySubcontext(dn);
+                }
+            } finally {
+                if (results != null) {
+                    try {
+                        results.close();
+                    } catch (NamingException e) {
+                    }
+                }
             }
-
         } else if (Role.class.isInstance(identityType)) {
             Role role = (Role) identityType;
 
@@ -483,28 +493,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         return groupRole;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#setAttribute(org.picketlink.idm.model.User, java.lang.String,
-     * java.lang.String[])
-     */
     @Override
     public void setAttribute(IdentityType identity, org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
         throw new RuntimeException("Not implemented yet.");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.picketlink.idm.spi.IdentityStore#removeAttribute(org.picketlink.idm.model.User, java.lang.String)
-     */
     @Override
     public void removeAttribute(IdentityType identity, String name) {
         throw new RuntimeException("Not implemented yet.");
     }
 
-    // @Override
+    // TODO: match the new credential API design
     public boolean validateCredential(User user, Object credential) {
         LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
 
@@ -540,7 +539,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         return valid;
     }
 
-    // @Override
+    // TODO: match the new credential API design
     public void updateCredential(User user, Object credential) {
         if (credential instanceof PlainTextPassword) {
             PlainTextPassword password = (PlainTextPassword) credential;
@@ -589,65 +588,63 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         LDAPQuery ldapQuery = new LDAPQuery(parameters);
 
         if (User.class.isAssignableFrom(typeClass)) {
-            StringBuffer filter = ldapQuery.createManagedAttributesFilter();
-
-            if (filter == null) {
-                filter = new StringBuffer("(&(objectClass=*)(uid=*))");
-            }
-
             NamingEnumeration<SearchResult> answer = null;
-            
+
             StringBuffer filterUsers = new StringBuffer();
-            
+
+            // if there are any membership parameter, filter the users that should be considered during the search
             for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getMemberShipParameters()) {
                 QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
-                
+
                 if (queryParameter.equals(User.HAS_ROLE) || queryParameter.equals(User.MEMBER_OF)) {
-                    if (queryParameter.equals(User.HAS_ROLE)) {
-                        for (Object role : ldapQueryParameter.getValues()) {
-                            LDAPRole ldapRole = (LDAPRole) getRole(role.toString());
-                            
-                            Attribute members = ldapRole.getLDAPAttributes().get(MEMBER);
-                            
-                            try {
-                                NamingEnumeration<?> all = members.getAll();
-                                
-                                while (all.hasMoreElements()) {
-                                    Object object = (Object) all.nextElement();
-                                    
-                                    if (object.toString().trim().isEmpty()) {
-                                        continue;
-                                    }
-                                    
-                                    filterUsers.append("(").append(object.toString().substring(0, object.toString().indexOf(','))).append(")");
-                                }
-                            } catch (NamingException e) {
-                                e.printStackTrace();
-                            }
+                    Map<String, Integer> userCount = new HashMap<String, Integer>();
+
+                    for (Object name : ldapQueryParameter.getValues()) {
+                        Attribute memberAttribute = null;
+
+                        if (queryParameter.equals(User.HAS_ROLE)) {
+                            LDAPRole ldapRole = (LDAPRole) getRole(name.toString());
+                            memberAttribute = ldapRole.getLDAPAttributes().get(MEMBER);
+                        } else {
+                            LDAPGroup ldapGroup = (LDAPGroup) getGroup(name.toString());
+                            memberAttribute = ldapGroup.getLDAPAttributes().get(MEMBER);
                         }
-                    } 
-                    
-                    if (queryParameter.equals(User.MEMBER_OF)) {
-                        for (Object group : ldapQueryParameter.getValues()) {
-                            LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.toString());
-                            
-                            Attribute members = ldapGroup.getLDAPAttributes().get(MEMBER);
-                            
-                            try {
-                                NamingEnumeration<?> all = members.getAll();
-                                
-                                while (all.hasMoreElements()) {
-                                    Object object = (Object) all.nextElement();
-                                    
-                                    if (object.toString().trim().isEmpty()) {
-                                        continue;
-                                    }
-                                    
-                                    filterUsers.append("(").append(object.toString().substring(0, object.toString().indexOf(','))).append(")");
+
+                        try {
+                            NamingEnumeration<?> members = memberAttribute.getAll();
+
+                            while (members.hasMoreElements()) {
+                                String userDN = (String) members.nextElement();
+
+                                if (userDN.toString().trim().isEmpty()) {
+                                    continue;
                                 }
-                            } catch (NamingException e) {
-                                e.printStackTrace();
+
+                                String userId = userDN.split(",")[0];
+
+                                if (!userCount.containsKey(userId)) {
+                                    userCount.put(userId, 1);
+                                } else {
+                                    Integer count = userCount.get(userId);
+                                    userCount.put(userId, count + 1);
+                                }
+
+                                filterUsers.append("(").append(userId).append(")");
                             }
+                        } catch (NamingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    Set<Entry<String, Integer>> entrySet = userCount.entrySet();
+
+                    for (Entry<String, Integer> entry : entrySet) {
+                        if (!entry.getValue().equals(ldapQueryParameter.getValues().length)) {
+                            String filterTmp = filterUsers.toString();
+
+                            filterTmp = filterTmp.replaceAll("\\(" + entry.getKey() + "\\)", "");
+
+                            filterUsers = new StringBuffer(filterTmp);
                         }
                     }
                 } else {
@@ -663,24 +660,24 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                     NamingEnumeration<SearchResult> search = null;
 
                     try {
-                        search = getLdapManager().search(this.configuration.getUserDNSuffix(),
-                                hasMemberFilter.toString());
-                        
+                        search = getLdapManager().search(this.configuration.getUserDNSuffix(), hasMemberFilter.toString());
+
                         if (search.hasMoreElements()) {
                             for (Object group : ldapQueryParameter.getValues()) {
                                 GroupRole groupRole = (GroupRole) group;
 
                                 while (search.hasMoreElements()) {
                                     SearchResult searchResult = search.next();
-                                    Attributes attributes2 = searchResult.getAttributes();
-                                    Attribute member = attributes2.get(MEMBER);
+                                    String[] nameInNamespace = searchResult.getNameInNamespace().split(",");
+                                    String userId = nameInNamespace[1];
 
-                                    if (!member.contains("cn=" + groupRole.getRole().getName() + COMMA
+                                    Attribute member = searchResult.getAttributes().get(MEMBER);
+
+                                    if (member.contains("cn=" + groupRole.getRole().getName() + COMMA
                                             + this.configuration.getRoleDNSuffix())) {
-                                        break;
+                                        filterUsers.append("(").append(userId).append(")");
                                     } else {
-                                        String[] nameInNamespace = searchResult.getNameInNamespace().split(",");
-                                        filterUsers.append("(").append(nameInNamespace[1]).append(")");
+                                        break;
                                     }
                                 }
                             }
@@ -697,18 +694,25 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                     }
                 }
             }
-            
+
             if (filterUsers.length() == 0 && !ldapQuery.getMemberShipParameters().isEmpty()) {
                 return result;
             }
-            
+
             try {
                 if (filterUsers.length() > 0) {
                     filterUsers.insert(0, "(|");
                     filterUsers.insert(filterUsers.length() - 1, ")");
                 }
-                
+
+                StringBuffer filter = ldapQuery.createManagedAttributesFilter();
+
+                if (filter == null) {
+                    filter = new StringBuffer("(&(objectClass=*)(uid=*))");
+                }
+
                 filter.insert(filter.length() - 1, filterUsers.toString());
+
                 answer = getLdapManager().search(this.configuration.getUserDNSuffix(), filter.toString(), new String[] { UID },
                         null);
 
@@ -718,104 +722,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                     String uid = null;
 
                     uid = (String) attributes.get(UID).get();
-                    
-                    // let's check if there are some memberships parameters (HAS_ROLE, MEMBER_OF, etc) and filter the current user entry.
-                    for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getMemberShipParameters()) {
-                        QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
-
-                        String hasMemberFilter = "(&(member=uid=" + uid + "*)(|";
-
-                        if (queryParameter.equals(User.HAS_ROLE) || queryParameter.equals(User.MEMBER_OF)) {
-                            String dnSuffix = null;
-
-                            if (queryParameter.equals(User.HAS_ROLE)) {
-                                dnSuffix = this.configuration.getRoleDNSuffix();
-                                for (Object role : ldapQueryParameter.getValues()) {
-                                    hasMemberFilter = hasMemberFilter + "(cn=" + role + ")";
-                                }
-                            } else {
-                                dnSuffix = this.configuration.getGroupDNSuffix();
-                                for (Object group : ldapQueryParameter.getValues()) {
-                                    hasMemberFilter = hasMemberFilter + "(cn=" + group + ")";
-                                }
-                            }
-
-                            hasMemberFilter = hasMemberFilter + "))";
-
-                            NamingEnumeration<SearchResult> search = null;
-
-                            try {
-                                search = getLdapManager().search(dnSuffix, hasMemberFilter);
-                                int count = 0;
-
-                                while (search.hasMoreElements()) {
-                                    search.nextElement();
-                                    count++;
-                                }
-
-                                if (count == 0 || count != ldapQueryParameter.getValues().length) {
-                                    uid = null;
-                                    break;
-                                }
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            } finally {
-                                if (search != null) {
-                                    search.close();
-                                }
-                            }
-                        } else if (queryParameter.equals(User.HAS_GROUP_ROLE)) {
-                            hasMemberFilter = "(|";
-
-                            for (Object group : ldapQueryParameter.getValues()) {
-                                GroupRole groupRole = (GroupRole) group;
-                                hasMemberFilter = hasMemberFilter + "(cn=" + groupRole.getGroup().getName() + ")";
-                            }
-
-                            hasMemberFilter = hasMemberFilter + ")";
-
-                            NamingEnumeration<SearchResult> search = null;
-
-                            try {
-                                search = getLdapManager().search("uid=" + uid + COMMA + this.configuration.getUserDNSuffix(),
-                                        hasMemberFilter.toString());
-                                
-                                if (!search.hasMoreElements()) {
-                                    uid = null;
-                                    break;
-                                }
-
-                                for (Object group : ldapQueryParameter.getValues()) {
-                                    GroupRole groupRole = (GroupRole) group;
-
-                                    while (search.hasMoreElements()) {
-                                        Attributes attributes2 = search.next().getAttributes();
-                                        Attribute member = attributes2.get(MEMBER);
-
-                                        if (!member.contains("cn=" + groupRole.getRole().getName() + COMMA
-                                                + this.configuration.getRoleDNSuffix())) {
-                                            uid = null;
-                                            break;
-                                        }
-                                    }
-                                }
-
-                                if (uid == null) {
-                                    break;
-                                }
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            } finally {
-                                if (search != null) {
-                                    search.close();
-                                }
-                            }
-                        }
-                    }
-
-                    if (uid == null) {
-                        continue;
-                    }
 
                     LDAPUser transientUser = new LDAPUser(this.configuration.getUserDNSuffix());
 
@@ -823,100 +729,83 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
                     if (ldapQuery.hasCustomAttributes()) {
                         LDAPCustomAttributes customAttributes = getCustomAttributes(transientUser.getDN());
-                        
-                        if (customAttributes == null) {
-                            uid = null;
-                            continue;
-                        }
-                        
-                        for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getCustomParameters()) {
-                            QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
-                            Object[] values = ldapQueryParameter.getValues();
-                            String id = null;
-                            Object entryValue = null;
-                            boolean hasAttribute = false;
 
-                            if (!ldapQueryParameter.isMappedToManagedAttribute()) {
-                                if (ldapQueryParameter.getMappedTo() != null) {
-                                    id = ldapQueryParameter.getMappedTo().getID();
-                                } else {
-                                    if (queryParameter instanceof IdentityType.AttributeParameter) {
-                                        id = ((IdentityType.AttributeParameter) queryParameter).getName();
+                        if (customAttributes != null) {
+                            for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getCustomParameters()) {
+                                QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
+                                Object[] values = ldapQueryParameter.getValues();
+                                String id = null;
+                                Object entryValue = null;
+                                boolean hasAttribute = false;
+
+                                if (!ldapQueryParameter.isMappedToManagedAttribute()) {
+                                    if (ldapQueryParameter.getMappedTo() != null) {
+                                        id = ldapQueryParameter.getMappedTo().getID();
                                     } else {
-                                        id = "";
-                                    }
-                                }
-
-                                entryValue = customAttributes.getAttribute(id);
-
-                                if (entryValue != null) {
-                                    hasAttribute = true;
-                                } else {
-                                    uid = null;
-                                    break;
-                                }
-
-                                if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
-                                        || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                                    long providedTimeInMillis = ((Date) values[0]).getTime();
-                                    long storedTimeInMillis = Long.valueOf(entryValue.toString());
-
-                                    if (queryParameter.equals(User.CREATED_DATE) || queryParameter.equals(User.EXPIRY_DATE)) {
-                                        if (providedTimeInMillis != storedTimeInMillis) {
-                                            uid = null;
-                                            break;
-                                        }
-                                    } else if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)) {
-                                        if (queryParameter.equals(User.CREATED_AFTER)) {
-                                            if (storedTimeInMillis < providedTimeInMillis) {
-                                                uid = null;
-                                                break;
-                                            }
-                                        }
-
-                                        if (queryParameter.equals(User.CREATED_BEFORE)) {
-                                            if (storedTimeInMillis > providedTimeInMillis) {
-                                                uid = null;
-                                                break;
-                                            }
-                                        }
-                                    } else if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                                        if (queryParameter.equals(User.EXPIRY_AFTER)) {
-                                            if (storedTimeInMillis < providedTimeInMillis) {
-                                                uid = null;
-                                                break;
-                                            }
-                                        }
-
-                                        if (queryParameter.equals(User.EXPIRY_BEFORE)) {
-                                            if (storedTimeInMillis > providedTimeInMillis) {
-                                                uid = null;
-                                                break;
-                                            }
+                                        if (queryParameter instanceof IdentityType.AttributeParameter) {
+                                            id = ((IdentityType.AttributeParameter) queryParameter).getName();
+                                        } else {
+                                            id = "";
                                         }
                                     }
-                                } else {
-                                    if (queryParameter instanceof IdentityType.AttributeParameter) {
-                                        IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
 
-                                        if (id.equals(attrParameter.getName())) {
-                                            hasAttribute = true;
+                                    entryValue = customAttributes.getAttribute(id);
 
-                                            if (entryValue.getClass().isArray()) {
-                                                Object[] attributeValues = (Object[]) entryValue;
-                                                int matchCount = 0;
+                                    if (entryValue != null) {
+                                        hasAttribute = true;
 
-                                                for (Object object : attributeValues) {
-                                                    for (Object parameterValue : values) {
-                                                        if (object.toString().equals(parameterValue.toString())) {
-                                                            matchCount++;
-                                                        }
+                                        if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
+                                                || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
+                                            long providedTimeInMillis = ((Date) values[0]).getTime();
+                                            long storedTimeInMillis = Long.valueOf(entryValue.toString());
+
+                                            if (queryParameter.equals(User.CREATED_DATE)
+                                                    || queryParameter.equals(User.EXPIRY_DATE)) {
+                                                if (providedTimeInMillis != storedTimeInMillis) {
+                                                    uid = null;
+                                                    break;
+                                                }
+                                            } else if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
+                                                    || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
+                                                if (queryParameter.equals(User.CREATED_AFTER)
+                                                        || queryParameter.equals(User.EXPIRY_AFTER)) {
+                                                    if (storedTimeInMillis < providedTimeInMillis) {
+                                                        uid = null;
+                                                        break;
                                                     }
                                                 }
 
-                                                if (matchCount != attributeValues.length) {
-                                                    uid = null;
-                                                    break;
+                                                if (queryParameter.equals(User.CREATED_BEFORE)
+                                                        || queryParameter.equals(User.EXPIRY_BEFORE)) {
+                                                    if (storedTimeInMillis > providedTimeInMillis) {
+                                                        uid = null;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            if (queryParameter instanceof IdentityType.AttributeParameter
+                                                    && entryValue.getClass().isArray()) {
+                                                IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
+
+                                                if (id.equals(attrParameter.getName())) {
+                                                    Object[] attributeValues = (Object[]) entryValue;
+                                                    
+                                                    for (Object parameterValue : values) {
+                                                        boolean matchValue = false;
+                                                        
+                                                        for (Object object : attributeValues) {
+                                                            if (object.toString().equals(parameterValue.toString())) {
+                                                                matchValue = true;
+                                                                break;
+                                                            }
+                                                        }
+                                                        
+                                                        if (!matchValue) {
+                                                            uid = null;
+                                                            break;
+                                                        }
+                                                    }
                                                 }
                                             } else {
                                                 if (!values[0].toString().equals(entryValue.toString())) {
@@ -925,16 +814,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                                                 }
                                             }
                                         }
-                                    } else {
-                                        if (!values[0].toString().equals(entryValue.toString())) {
-                                            uid = null;
-                                            break;
-                                        }
                                     }
-                                }
 
-                                if (!hasAttribute) {
-                                    uid = null;
+                                    if (!hasAttribute) {
+                                        uid = null;
+                                        break;
+                                    }
                                 }
                             }
                         }
