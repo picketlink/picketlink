@@ -45,11 +45,11 @@ public class DefaultLoginCredentials implements Credentials
     }
     
     public String getPassword()
-    {        
-        // FIXME
-        // return credential != null && credential instanceof PlainTextPassword ? 
-        //        new String(((PlainTextPassword) credential).getPassword()) : null;
-        
+    {  
+        if(credential != null && credential instanceof PlainTextPassword){
+            PlainTextPassword ptp = (PlainTextPassword) credential;
+            return new String(ptp.getValue());
+        }
         return null;
     }
 
