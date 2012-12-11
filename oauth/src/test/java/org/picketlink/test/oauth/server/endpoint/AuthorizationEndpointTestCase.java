@@ -28,9 +28,9 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.utils.OAuthUtils;
 import org.junit.Test;
+import org.picketlink.oauth.amber.oauth2.common.OAuth;
+import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
 import org.picketlink.oauth.client.ClientOAuth;
 import org.picketlink.oauth.client.ClientOAuth.AuthorizationClient;
 import org.picketlink.oauth.client.ClientOAuth.AuthorizationResponse;

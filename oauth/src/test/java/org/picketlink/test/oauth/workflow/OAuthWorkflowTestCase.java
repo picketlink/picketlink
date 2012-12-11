@@ -35,8 +35,8 @@ import java.net.URLConnection;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.utils.OAuthUtils;
+import org.picketlink.oauth.amber.oauth2.common.OAuth;
+import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
 import org.junit.Test;
 import org.picketlink.oauth.client.ClientOAuth;
 import org.picketlink.oauth.client.ClientOAuth.AccessTokenClient;
@@ -53,6 +53,7 @@ import org.picketlink.test.oauth.server.endpoint.EndpointTestBase;
  * @author anil saldhana
  * @since Sep 13, 2012
  */
+// @Ignore
 public class OAuthWorkflowTestCase extends EndpointTestBase {
 
     @Override

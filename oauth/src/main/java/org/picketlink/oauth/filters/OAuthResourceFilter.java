@@ -36,18 +36,20 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.types.ParameterStyle;
-import org.apache.amber.oauth2.common.utils.OAuthUtils;
-import org.apache.amber.oauth2.rs.request.OAuthAccessResourceRequest;
+import org.picketlink.oauth.amber.oauth2.common.OAuth;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
+import org.picketlink.oauth.amber.oauth2.common.message.types.ParameterStyle;
+import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
+import org.picketlink.oauth.amber.oauth2.rs.request.OAuthAccessResourceRequest;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.IdentityQuery;
 
 /**
  * An instance of {@link Filter} that performs OAuth checks before allowing access to a resource
@@ -78,16 +80,22 @@ public class OAuthResourceFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         try {
 
-            // Make the OAuth Request out of this request and validate it
+            // Get the OAuth Request out of this request and validate it
             OAuthAccessResourceRequest oauthRequest = new OAuthAccessResourceRequest(httpRequest, ParameterStyle.BODY);
 
             // Get the access token
             String passedClientID = httpRequest.getParameter(OAuth.OAUTH_CLIENT_ID);
             String accessToken = oauthRequest.getAccessToken();
 
-            UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID",
-                    new String[] { passedClientID });
-            List<User> users = userQuery.executeQuery();
+            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
+            userQuery.setParameter(User.ID, passedClientID);
+
+            List<User> users = userQuery.getResultList();
+
+            /*
+             * UserQuery userQuery = identityManager.createQ.createUserQuery().setAttributeFilter("clientID", new String[] {
+             * passedClientID }); List<User> users = userQuery.executeQuery();
+             */
 
             if (users.size() == 0) {
                 httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "client_id not found");
@@ -102,8 +110,8 @@ public class OAuthResourceFilter implements Filter {
             User clientApp = users.get(0);
 
             // Get the values from DB
-            String clientID = clientApp.getAttribute("clientID");
-            String tokenCode = clientApp.getAttribute("accessToken");
+            String clientID = (String) clientApp.getAttribute("clientID").getValue();
+            String tokenCode = (String) clientApp.getAttribute("accessToken").getValue();
 
             // check if clientid is valid
             if (!clientID.equals(passedClientID)) {
@@ -165,9 +173,15 @@ public class OAuthResourceFilter implements Filter {
                         properties.getProperty("roleDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
 
-                store.setConfiguration(ldapConfiguration);
+                store.setup(ldapConfiguration, null);
 
-                ((DefaultIdentityManager) identityManager).setIdentityStore(store);
+                // Create Identity Configuration
+                IdentityConfiguration config = new IdentityConfiguration();
+                config.addStoreConfiguration(ldapConfiguration);
+
+                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
+
+                // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
         }
     }

@@ -38,17 +38,20 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
-import org.apache.amber.oauth2.ext.dynamicreg.server.request.JSONHttpServletRequestWrapper;
-import org.apache.amber.oauth2.ext.dynamicreg.server.request.OAuthServerRegistrationRequest;
-import org.apache.amber.oauth2.ext.dynamicreg.server.response.OAuthServerRegistrationResponse;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
+import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.JSONHttpServletRequestWrapper;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.OAuthServerRegistrationRequest;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.response.OAuthServerRegistrationResponse;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.credential.PasswordCredential;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
@@ -67,6 +70,7 @@ public class RegistrationEndpoint implements Serializable {
     @Context
     protected ServletContext context;
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @POST
     @Consumes("application/json")
     @Produces("application/json")
@@ -89,16 +93,20 @@ public class RegistrationEndpoint implements Serializable {
             String generatedClientID = generateClientID();
             String generatedSecret = generateClientSecret();
 
-            User user = identityManager.createUser(clientName);
+            // User user = identityManager.createUser(clientName);
+            User user = new SimpleUser(clientName);
             user.setFirstName(clientName);
             user.setLastName(" ");
-            user.setAttribute("url", clientURL);
 
-            user.setAttribute("description", clientDescription);
-            user.setAttribute("redirectURI", clientRedirectURI);
-            user.setAttribute("clientID", generatedClientID);
+            user.setAttribute(new Attribute("url", clientURL));
 
-            identityManager.updateCredential(user, new PasswordCredential(generatedSecret));
+            user.setAttribute(new Attribute("description", clientDescription));
+            user.setAttribute(new Attribute("redirectURI", clientRedirectURI));
+            user.setAttribute(new Attribute("clientID", generatedClientID));
+
+            identityManager.add(user);
+
+            identityManager.updateCredential(user, new PlainTextPassword(generatedSecret.toCharArray()));
             // user.setAttribute("clientSecret", generatedSecret);
 
             OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
@@ -133,9 +141,15 @@ public class RegistrationEndpoint implements Serializable {
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
                 ldapConfiguration.setAdditionalProperties(properties);
 
-                store.setConfiguration(ldapConfiguration);
+                // store.setConfiguration(ldapConfiguration);
 
-                ((DefaultIdentityManager) identityManager).setIdentityStore(store);
+                // Create Identity Configuration
+                IdentityConfiguration config = new IdentityConfiguration();
+                config.addStoreConfiguration(ldapConfiguration);
+
+                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
+
+                // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
         }
     }

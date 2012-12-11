@@ -27,14 +27,14 @@ import static org.junit.Assert.fail;
 
 import java.util.Date;
 
-import org.apache.amber.oauth2.client.URLConnectionClient;
-import org.apache.amber.oauth2.client.request.OAuthClientRequest;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.ext.dynamicreg.client.OAuthRegistrationClient;
-import org.apache.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
-import org.apache.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
-import org.apache.amber.oauth2.ext.dynamicreg.common.OAuthRegistration;
 import org.junit.Test;
+import org.picketlink.oauth.amber.oauth2.client.URLConnectionClient;
+import org.picketlink.oauth.amber.oauth2.client.request.OAuthClientRequest;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.OAuthRegistrationClient;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
+import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.common.OAuthRegistration;
 import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
 
 /**

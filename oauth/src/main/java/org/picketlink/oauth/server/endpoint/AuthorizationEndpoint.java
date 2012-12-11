@@ -38,23 +38,27 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.apache.amber.oauth2.as.issuer.MD5Generator;
-import org.apache.amber.oauth2.as.issuer.OAuthIssuerImpl;
-import org.apache.amber.oauth2.as.request.OAuthAuthzRequest;
-import org.apache.amber.oauth2.as.response.OAuthASResponse;
-import org.apache.amber.oauth2.common.OAuth;
-import org.apache.amber.oauth2.common.error.OAuthError;
-import org.apache.amber.oauth2.common.exception.OAuthProblemException;
-import org.apache.amber.oauth2.common.exception.OAuthSystemException;
-import org.apache.amber.oauth2.common.message.OAuthResponse;
-import org.apache.amber.oauth2.common.message.types.ResponseType;
-import org.apache.amber.oauth2.common.utils.OAuthUtils;
+import org.picketlink.oauth.amber.oauth2.as.issuer.MD5Generator;
+import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuerImpl;
+import org.picketlink.oauth.amber.oauth2.as.request.OAuthAuthzRequest;
+import org.picketlink.oauth.amber.oauth2.as.response.OAuthASResponse;
+import org.picketlink.oauth.amber.oauth2.common.OAuth;
+import org.picketlink.oauth.amber.oauth2.common.error.OAuthError;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
+import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
+import org.picketlink.oauth.amber.oauth2.common.message.types.ResponseType;
+import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.UserQuery;
+import org.picketlink.idm.query.IdentityQuery;
 
 /**
  * OAuth2 Authorization Endpoint
@@ -95,9 +99,14 @@ public class AuthorizationEndpoint implements Serializable {
                 return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
             }
 
-            UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID",
-                    new String[] { passedClientID });
-            List<User> users = userQuery.executeQuery();
+            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
+            userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
+            /*
+             * UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID", new String[] {
+             * passedClientID });
+             */
+
+            List<User> users = userQuery.getResultList();
             if (users.size() == 0) {
                 OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
@@ -112,7 +121,8 @@ public class AuthorizationEndpoint implements Serializable {
             }
 
             User clientApp = users.get(0);
-            String clientID = clientApp.getAttribute("clientID");
+            Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
+            String clientID = clientIDAttr.getValue();
 
             // check if clientid is valid
             if (!clientID.equals(passedClientID)) {
@@ -130,7 +140,10 @@ public class AuthorizationEndpoint implements Serializable {
 
             if (responseType.equals(ResponseType.CODE.toString())) {
                 String authorizationCode = oauthIssuerImpl.authorizationCode();
-                clientApp.setAttribute("authorizationCode", authorizationCode);
+
+                clientApp.setAttribute(new Attribute("authorizationCode", authorizationCode));
+                identityManager.update(clientApp);
+
                 builder.setCode(authorizationCode);
             }
             /*
@@ -181,9 +194,14 @@ public class AuthorizationEndpoint implements Serializable {
                         properties.getProperty("roleDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
 
-                store.setConfiguration(ldapConfiguration);
+                // store.setConfiguration(ldapConfiguration);
+                // Create Identity Configuration
+                IdentityConfiguration config = new IdentityConfiguration();
+                config.addStoreConfiguration(ldapConfiguration);
 
-                ((DefaultIdentityManager) identityManager).setIdentityStore(store);
+                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
+
+                // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
         }
     }
