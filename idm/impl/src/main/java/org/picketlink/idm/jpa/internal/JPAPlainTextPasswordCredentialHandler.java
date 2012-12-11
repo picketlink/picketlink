@@ -56,25 +56,7 @@ public class JPAPlainTextPasswordCredentialHandler implements CredentialHandler 
             if (hash == null) {
                 usernamePassword.setStatus(Status.INVALID);
             } else {
-                String salt = agent.<String>getAttribute(PASSWORD_SALT_USER_ATTRIBUTE).getValue();
-
-                // Agent does not have a salt. let's generate a fresh one.
-                if (salt == null) {
-                    SecureRandom psuedoRng = null;
-                    String algorithm = "SHA1PRNG";
-
-                    try {
-                        psuedoRng = SecureRandom.getInstance(algorithm);
-                        psuedoRng.setSeed(1024);
-                    } catch (NoSuchAlgorithmException e) {
-                        throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
-                    }
-
-                    salt = String.valueOf(psuedoRng.nextLong());
-
-                    agent.setAttribute(new Attribute<String>(PASSWORD_SALT_USER_ATTRIBUTE, salt));
-                    store.update(agent);
-                }
+                String salt = getSalt(agent, store);
 
                 SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
                 String encoded = encoder.encodePassword(salt, new String(usernamePassword.getPassword().getValue()));
@@ -85,6 +67,30 @@ public class JPAPlainTextPasswordCredentialHandler implements CredentialHandler 
                 }
             }
         }
+    }
+
+    private String getSalt(Agent agent, IdentityStore store) {
+        String salt = agent.<String>getAttribute(PASSWORD_SALT_USER_ATTRIBUTE).getValue();
+
+        // Agent does not have a salt. let's generate a fresh one.
+        if (salt == null) {
+            SecureRandom psuedoRng = null;
+            String algorithm = "SHA1PRNG";
+
+            try {
+                psuedoRng = SecureRandom.getInstance(algorithm);
+                psuedoRng.setSeed(1024);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
+            }
+
+            salt = String.valueOf(psuedoRng.nextLong());
+
+            agent.setAttribute(new Attribute<String>(PASSWORD_SALT_USER_ATTRIBUTE, salt));
+            store.update(agent);
+        }
+
+        return salt;
     }
 
     @Override
@@ -98,6 +104,16 @@ public class JPAPlainTextPasswordCredentialHandler implements CredentialHandler 
             throw new IllegalArgumentException("IdentityStore class [" + 
                     store.getClass() + "] not supported by this handler.");
         }
+
+        PlainTextPassword password = (PlainTextPassword) credential;
+        JPAIdentityStore identityStore = (JPAIdentityStore) store;
+
+        SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
+        SHASaltedPasswordHash hash = new SHASaltedPasswordHash();
+        hash.setEncodedHash(encoder.encodePassword(getSalt(agent, store), 
+                new String(password.getValue())));
+
+        identityStore.<SHASaltedPasswordHash>storeCredential(agent, hash);
     }
 
 }
