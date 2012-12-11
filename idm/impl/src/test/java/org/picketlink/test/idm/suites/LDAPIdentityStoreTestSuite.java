@@ -22,6 +22,8 @@
 
 package org.picketlink.test.idm.suites;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
@@ -59,8 +61,14 @@ import org.picketlink.test.idm.runners.TestLifecycle;
         RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class })
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
+    private static LDAPIdentityStoreTestSuite instance;
+
     public static TestLifecycle init() throws Exception {
-        return new LDAPIdentityStoreTestSuite();
+        if (instance == null) {
+            instance = new LDAPIdentityStoreTestSuite();
+        }
+
+        return instance;
     }
 
     private static final String LDAP_URL = "ldap://localhost:10389";
@@ -68,14 +76,29 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
     private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
 
+    @BeforeClass
+    public static void onBeforeClass() {
+        try {
+            init();
+            instance.setup();
+            instance.importLDIF("ldap/users.ldif");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    @AfterClass
+    public static void onDestroyClass() {
+        try {
+            instance.tearDown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     @Override
     public void onInit() {
-//        try {
-//            setup();
-//            importLDIF("ldap/users.ldif");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        
     }
 
     @Override
@@ -93,11 +116,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     @Override
     public void onDestroy() {
-//        try {
-//            tearDown();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        
     }
 
     public static LDAPConfiguration getConfiguration() {
@@ -110,5 +129,9 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
         return config;
     }
-
+    
+    @Override
+    public void importLDIF(String fileName) throws Exception {
+        super.importLDIF(fileName);
+    }
 }

@@ -55,8 +55,8 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class })
+//@RunWith(IdentityManagerRunner.class)
+//@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
