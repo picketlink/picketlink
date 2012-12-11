@@ -46,8 +46,11 @@ public class DefaultLoginCredentials implements Credentials
     
     public String getPassword()
     {        
-        return credential != null && credential instanceof PlainTextPassword ? 
-                new String(((PlainTextPassword) credential).getPassword()) : null;
+        // FIXME
+        // return credential != null && credential instanceof PlainTextPassword ? 
+        //        new String(((PlainTextPassword) credential).getPassword()) : null;
+        
+        return null;
     }
 
     /**
