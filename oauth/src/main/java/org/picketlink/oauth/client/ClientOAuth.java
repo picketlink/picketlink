@@ -21,8 +21,15 @@
  */
 package org.picketlink.oauth.client;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 
 import org.picketlink.oauth.amber.oauth2.client.OAuthClient;
 import org.picketlink.oauth.amber.oauth2.client.URLConnectionClient;
@@ -32,6 +39,7 @@ import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.types.GrantType;
 import org.picketlink.oauth.amber.oauth2.common.message.types.ResponseType;
 import org.picketlink.oauth.amber.oauth2.common.token.OAuthToken;
+import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.OAuthRegistrationClient;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
@@ -75,6 +83,11 @@ public class ClientOAuth {
     public AccessTokenClient tokenClient() {
         clear();
         return new AccessTokenClient();
+    }
+    
+    public ResourceClient resourceClient(String accessToken){
+        clear();
+        return new ResourceClient(accessToken);
     }
 
     private void clear() {
@@ -390,6 +403,44 @@ public class ClientOAuth {
 
         public String getScope() {
             return delegate.getScope();
+        }
+    }
+    
+    public class ResourceClient{
+        private String accessToken;
+        
+        public ResourceClient(String token){
+            this.accessToken = token;
+        }
+        public InputStream execute(String resourceURL) throws IOException {
+            URL resUrl = new URL(resourceURL);
+            URLConnection urlConnection = resUrl.openConnection();
+
+            InputStream inputStream = null;
+            if (urlConnection instanceof HttpURLConnection) {
+                String body = "access_token=" + accessToken;
+
+                HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setAllowUserInteraction(false);
+                httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                httpURLConnection.setRequestProperty("Content-Length", Integer.toString(body.length()));
+                OutputStream ost = httpURLConnection.getOutputStream();
+                PrintWriter pw = new PrintWriter(ost);
+                pw.print(body);
+                pw.flush();
+                pw.close();
+
+                if (httpURLConnection.getResponseCode() == 400) {
+                    inputStream = httpURLConnection.getErrorStream();
+                } else {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+            } else {
+                throw new RuntimeException("Wrong url conn");
+            }
+            return inputStream;
         }
     }
 }
