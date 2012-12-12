@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +39,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.amber.oauth2.as.issuer.MD5Generator;
 import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuer;
 import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuerImpl;
@@ -49,18 +61,6 @@ import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
 import org.picketlink.oauth.amber.oauth2.common.message.types.GrantType;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfiguration;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.IdentityQuery;
 
 /**
  * Token End Point
@@ -97,6 +97,7 @@ public class TokenEndpoint implements Serializable {
 
             String passedClientID = oauthRequest.getClientId();
             String passedClientSecret = oauthRequest.getClientSecret();
+            Set<String> scopes = oauthRequest.getScopes();
 
             if (passedClientID == null) {
                 OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
@@ -114,10 +115,6 @@ public class TokenEndpoint implements Serializable {
 
             IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
             userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
-            /*
-             * UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID", new String[] {
-             * passedClientID });
-             */
 
             List<User> users = userQuery.getResultList();
 
@@ -201,8 +198,10 @@ public class TokenEndpoint implements Serializable {
             }
 
             String accessToken = oauthIssuerImpl.accessToken();
-            clientApp.setAttribute(new Attribute("accessToken", accessToken));
+            clientApp.setAttribute(new Attribute<String>("accessToken", accessToken));
 
+            // Let us store the scopes also
+            clientApp.setAttribute(new Attribute<String>("scopes", scopes.toString()));
             identityManager.update(clientApp);
 
             OAuthResponse response = OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken)
@@ -235,7 +234,6 @@ public class TokenEndpoint implements Serializable {
             identityManager = new DefaultIdentityManager();
             String storeType = context.getInitParameter("storeType");
             if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
-                LDAPIdentityStore store = new LDAPIdentityStore();
                 LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
 
                 Properties properties = getProperties();
@@ -246,14 +244,11 @@ public class TokenEndpoint implements Serializable {
                         properties.getProperty("roleDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
 
-                // store.setConfiguration(ldapConfiguration);
                 // Create Identity Configuration
                 IdentityConfiguration config = new IdentityConfiguration();
                 config.addStoreConfiguration(ldapConfiguration);
 
                 identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
-
-                // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
         }
     }
