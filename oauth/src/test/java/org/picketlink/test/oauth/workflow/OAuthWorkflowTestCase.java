@@ -45,6 +45,7 @@ import org.picketlink.oauth.client.ClientOAuth.AuthorizationClient;
 import org.picketlink.oauth.client.ClientOAuth.AuthorizationResponse;
 import org.picketlink.oauth.client.ClientOAuth.RegistrationClient;
 import org.picketlink.oauth.client.ClientOAuth.RegistrationResponse;
+import org.picketlink.oauth.client.ClientOAuth.ResourceClient;
 import org.picketlink.test.oauth.server.endpoint.EndpointTestBase;
 
 /**
@@ -123,6 +124,14 @@ public class OAuthWorkflowTestCase extends EndpointTestBase {
 
         // Now attempt the resource
         String resourceURL = "http://localhost:11080/oauth/resource";
+        
+        ResourceClient resourceClient = client.resourceClient(accessToken);
+        
+        InputStream inputStream = resourceClient.execute(resourceURL);
+        String responseBody = OAuthUtils.saveStreamAsString(inputStream);
+        assertEquals("I am a Resource", responseBody);
+        
+        /*
         URL resUrl = new URL(resourceURL);
         URLConnection urlConnection = resUrl.openConnection();
 
@@ -151,6 +160,6 @@ public class OAuthWorkflowTestCase extends EndpointTestBase {
             assertEquals("I am a Resource", responseBody);
         } else {
             throw new RuntimeException("Wrong url conn");
-        }
+        }*/
     }
 }
