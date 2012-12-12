@@ -2,6 +2,8 @@ package org.picketlink.idm.internal;
 
 import javax.persistence.EntityManagerFactory;
 
+import org.picketlink.idm.DefaultIdentityCache;
+import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
@@ -19,6 +21,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
     private EntityManagerFactory emf;
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory;
+    private IdentityCache identityCache;
 
     public static DefaultIdentityStoreInvocationContextFactory DEFAULT = new DefaultIdentityStoreInvocationContextFactory(null, new DefaultCredentialHandlerFactory());
     
@@ -33,10 +36,15 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
         };
         this.credentialHandlerFactory = chf;
     }
+    
+    public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf, IdentityCache identityCache) {
+        this(emf, chf);
+        this.identityCache = new DefaultIdentityCache();
+    }
 
     @Override
     public IdentityStoreInvocationContext createContext() {
-        return new IdentityStoreInvocationContext(null, eventBridge, credentialHandlerFactory);
+        return new IdentityStoreInvocationContext(this.identityCache, eventBridge, credentialHandlerFactory);
     }
 
     @Override

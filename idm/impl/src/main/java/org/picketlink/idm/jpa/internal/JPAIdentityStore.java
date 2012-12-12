@@ -1,8 +1,12 @@
 package org.picketlink.idm.jpa.internal;
 
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_ATTRIBUTE_IDENTITY;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_ATTRIBUTE_NAME;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_ATTRIBUTE_VALUE;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_IDENTITY;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_DISCRIMINATOR;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_ENABLED;
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_ID;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_KEY;
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME;
@@ -16,13 +20,21 @@ import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROP
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_LAST_NAME;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -35,7 +47,9 @@ import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
+import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
@@ -53,8 +67,7 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
- * Implementation of IdentityStore that stores its state in a relational
- * database.
+ * Implementation of IdentityStore that stores its state in a relational database.
  * 
  * @author Shane Bryzak
  */
@@ -69,7 +82,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     public static final String EVENT_CONTEXT_ROLE_ENTITY = "ROLE_ENTITY";
 
     /**
-     * The configuration for this instance 
+     * The configuration for this instance
      */
     private JPAIdentityStoreConfiguration config;
 
@@ -136,6 +149,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 setModelProperty(identity, PROPERTY_IDENTITY_ID, user.getId(), true);
                 setModelProperty(identity, PROPERTY_IDENTITY_DISCRIMINATOR, getConfig().getIdentityTypeUser(), true);
                 setModelProperty(identity, PROPERTY_IDENTITY_KEY, user.getKey(), true);
+                setModelProperty(identity, PROPERTY_IDENTITY_ENABLED, user.isEnabled());
+                setModelProperty(identity, PROPERTY_IDENTITY_EXPIRES, user.getExpirationDate());
 
                 setModelProperty(identity, PROPERTY_USER_FIRST_NAME, user.getFirstName());
                 setModelProperty(identity, PROPERTY_USER_LAST_NAME, user.getLastName());
@@ -183,8 +198,137 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public void update(IdentityType identityType) {
-        // TODO Auto-generated method stub
+        if (identityType instanceof User) {
+            try {
+                User user = (User) identityType;
 
+                // Create the identity entity instance first
+                Object identity = lookupIdentityObjectById(User.class, user.getId());
+
+                setModelProperty(identity, PROPERTY_IDENTITY_ID, user.getId(), true);
+                setModelProperty(identity, PROPERTY_IDENTITY_DISCRIMINATOR, getConfig().getIdentityTypeUser(), true);
+                setModelProperty(identity, PROPERTY_IDENTITY_KEY, user.getKey(), true);
+                setModelProperty(identity, PROPERTY_IDENTITY_ENABLED, user.isEnabled(), true);
+                setModelProperty(identity, PROPERTY_IDENTITY_EXPIRES, user.getExpirationDate());
+
+                setModelProperty(identity, PROPERTY_USER_FIRST_NAME, user.getFirstName());
+                setModelProperty(identity, PROPERTY_USER_LAST_NAME, user.getLastName());
+                setModelProperty(identity, PROPERTY_USER_EMAIL, user.getEmail());
+
+                if (getContext().getRealm() != null) {
+                    setModelProperty(identity, PROPERTY_IDENTITY_PARTITION, lookupPartitionObject(getContext().getRealm()));
+                }
+
+                EntityManager em = getEntityManager();
+
+                UserUpdatedEvent event = new UserUpdatedEvent(user);
+                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+                getContext().getEventBridge().raiseEvent(event);
+
+                if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
+                    List<String> attributesToNotRemove = new ArrayList<String>();
+                    String name = getConfig().getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY).getName();
+                    Property<Object> attributeNameProperty = getConfig().getModelProperty(PROPERTY_ATTRIBUTE_NAME);
+                    Property<Object> attributeValueProperty = getConfig().getModelProperty(PROPERTY_ATTRIBUTE_VALUE);
+                    Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY);
+
+                    for (Attribute<? extends Serializable> userAttribute : user.getAttributes()) {
+                        attributesToNotRemove.add(userAttribute.getName());
+
+                        try {
+                            MappedAttribute mappedAttribute = getConfig().getAttributeProperties().get(userAttribute.getName());
+
+                            if (mappedAttribute != null) {
+                                for (String attribName : getConfig().getAttributeProperties().keySet()) {
+                                    MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
+
+                                    if (userAttribute.getName().equals(attribName)) {
+                                        attrib.getAttributeProperty().setValue(identity, userAttribute.getValue());
+                                    }
+                                }
+                            } else {
+                                Object value = userAttribute.getValue();
+                                Object[] values = null;
+
+                                if (value.getClass().isArray()) {
+                                    values = (Object[]) value;
+                                } else {
+                                    values = new Object[] { value };
+                                }
+
+                                CriteriaBuilder builder = em.getCriteriaBuilder();
+                                CriteriaQuery<?> criteria = builder.createQuery(getConfig().getAttributeClass());
+                                Root<?> root = criteria.from(getConfig().getAttributeClass());
+                                List<Predicate> predicates = new ArrayList<Predicate>();
+
+                                Join join = root.join(name);
+
+                                String idName = getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getName();
+
+                                predicates.add(builder.equal(join.get(idName), user.getId()));
+
+                                predicates
+                                        .add(builder.equal(root.get(attributeNameProperty.getName()), userAttribute.getName()));
+
+                                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+                                List<?> results = em.createQuery(criteria).getResultList();
+
+                                for (Object object : results) {
+                                    em.remove(object);
+                                }
+
+                                for (Object attribValue : values) {
+                                    Object newInstance = getConfig().getAttributeClass().newInstance();
+
+                                    attributeNameProperty.setValue(newInstance, userAttribute.getName());
+                                    attributeValueProperty.setValue(newInstance, attribValue);
+                                    attributeIdentityProperty.setValue(newInstance, identity);
+
+                                    em.persist(newInstance);
+                                }
+                            }
+                        } catch (Exception e) {
+                            throw new IdentityManagementException("Error setting attribute [" + userAttribute + "] for ["
+                                    + identity + "]", e);
+                        }
+                    }
+
+                    if (attributesToNotRemove.isEmpty()) {
+                        Query query = em.createQuery("delete from " + getConfig().getAttributeClass().getName() + " where "
+                                + attributeIdentityProperty + " = ?");
+
+                        query.setParameter(1, identity);
+
+                        query.executeUpdate();
+                    } else {
+                        StringBuffer attributeNames = new StringBuffer();
+
+                        for (String string : attributesToNotRemove) {
+                            if (attributeNames.length() != 0) {
+                                attributeNames.append(",");
+                            }
+
+                            attributeNames.append("'").append(string).append("'");
+                        }
+                        
+                        Query query = em.createQuery("delete from " + getConfig().getAttributeClass().getSimpleName() + " where "
+                                + attributeIdentityProperty.getName() + " = ? and " + attributeNameProperty.getName() + " not in ("
+                                + attributeNames.toString() + ")");
+
+                        query.setParameter(1, identity);
+
+                        query.executeUpdate();
+                    }
+                }
+
+                em.merge(identity);
+                em.flush();
+
+            } catch (Exception ex) {
+                throw new IdentityManagementException("Exception while creating user", ex);
+            }
+        }
     }
 
     private Object lookupIdentityObjectById(Class<? extends IdentityType> cls, String id) {
@@ -198,36 +342,33 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getIdentityClass());
         Root<?> root = criteria.from(getConfig().getIdentityClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
-        predicates.add(builder.equal(
-                root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getName()), 
-                id));
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getName()), id));
 
         if (User.class.equals(cls)) {
-            predicates.add(builder.equal(
-                    root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()), 
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
                     getConfig().getIdentityTypeUser()));
         } else if (Group.class.equals(cls)) {
-            predicates.add(builder.equal(
-                    root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()), 
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
                     getConfig().getIdentityTypeGroup()));
         } else if (Role.class.equals(cls)) {
-            predicates.add(builder.equal(
-                    root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()), 
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
                     getConfig().getIdentityTypeRole()));
         } else {
-            throw new SecurityException("Could not lookup identity by id - unsupported IdentityType [" 
-                    + cls.getName() + "]");
+            throw new SecurityException("Could not lookup identity by id - unsupported IdentityType [" + cls.getName() + "]");
         }
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
         List<?> results = em.createQuery(criteria).getResultList();
 
+        if (results.isEmpty()) {
+            return null;
+        }
+
         if (results.size() == 1) {
             return results.get(0);
         } else {
-            throw new SecurityException("Error looking up identity by id - ambiguous identities found for id: [" + 
-                    id + "]");
+            throw new SecurityException("Error looking up identity by id - ambiguous identities found for id: [" + id + "]");
         }
 
     }
@@ -243,9 +384,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getIdentityClass());
         Root<?> root = criteria.from(getConfig().getIdentityClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
-        predicates.add(builder.equal(
-                root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_KEY).getName()), 
-                key));
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_KEY).getName()), key));
 
         if (getConfig().isModelPropertySet(PROPERTY_IDENTITY_PARTITION)) {
             // We need to determine what type of key we're dealing with.. if it's a User key, then
@@ -255,25 +394,21 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                     throw new SecurityException("Cannot look up User key without a provided realm.");
                 }
 
-                predicates.add(builder.equal(
-                        root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
+                predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
                         lookupPartitionObject(getContext().getRealm())));
 
-            // Otherwise if it's a group or role key, we need to set either the realm or the tier
+                // Otherwise if it's a group or role key, we need to set either the realm or the tier
             } else if (key.startsWith(Group.KEY_PREFIX) || key.startsWith(Role.KEY_PREFIX)) {
                 if (getContext().getRealm() != null && getContext().getTier() != null) {
-                    throw new SecurityException(
-                            "Ambiguous lookup for key [" + key + 
-                            "] - both Realm and Tier have been specified in context.");
+                    throw new SecurityException("Ambiguous lookup for key [" + key
+                            + "] - both Realm and Tier have been specified in context.");
                 }
 
                 if (getContext().getRealm() != null) {
-                    predicates.add(builder.equal(
-                            root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
+                    predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
                             lookupPartitionObject(getContext().getRealm())));
                 } else if (getContext().getTier() != null) {
-                    predicates.add(builder.equal(
-                            root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
+                    predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_PARTITION).getName()),
                             lookupPartitionObject(getContext().getTier())));
                 } else {
                     throw new SecurityException("Cannot look up key [" + key + "] without a provided realm or tier.");
@@ -288,8 +423,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (results.size() == 1) {
             return results.get(0);
         } else {
-            throw new SecurityException("Error looking up identity by key - ambiguous identities found for key: [" + 
-                    key + "]");
+            throw new SecurityException("Error looking up identity by key - ambiguous identities found for key: [" + key + "]");
         }
     }
 
@@ -301,9 +435,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             CriteriaQuery<?> criteria = builder.createQuery(getConfig().getCredentialClass());
             Root<?> root = criteria.from(getConfig().getCredentialClass());
             List<Predicate> predicates = new ArrayList<Predicate>();
-            predicates.add(builder.equal(
-                    root.get(getConfig().getModelProperty(PROPERTY_CREDENTIAL_IDENTITY).getName()), 
-                    object));
+            predicates
+                    .add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_CREDENTIAL_IDENTITY).getName()), object));
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
             List<?> results = em.createQuery(criteria).getResultList();
@@ -318,9 +451,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             CriteriaQuery<?> criteria = builder.createQuery(getConfig().getAttributeClass());
             Root<?> root = criteria.from(getConfig().getAttributeClass());
             List<Predicate> predicates = new ArrayList<Predicate>();
-            predicates.add(builder.equal(
-                    root.get(getConfig().getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY).getName()), 
-                    object));
+            predicates
+                    .add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY).getName()), object));
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
             List<?> results = em.createQuery(criteria).getResultList();
@@ -329,16 +461,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
         }
 
-        // Remove memberships - this takes a little more work because the identity may be 
+        // Remove memberships - this takes a little more work because the identity may be
         // a member, a role or a group
         if (getConfig().getMembershipClass() != null) {
             CriteriaBuilder builder = em.getCriteriaBuilder();
             CriteriaQuery<?> criteria = builder.createQuery(getConfig().getMembershipClass());
             Root<?> root = criteria.from(getConfig().getMembershipClass());
             List<Predicate> predicates = new ArrayList<Predicate>();
-            predicates.add(builder.equal(
-                    root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_MEMBER).getName()), 
-                    object));
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_MEMBER).getName()), object));
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
             List<?> results = em.createQuery(criteria).getResultList();
@@ -349,9 +479,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             criteria = builder.createQuery(getConfig().getMembershipClass());
             root = criteria.from(getConfig().getMembershipClass());
             predicates.clear();
-            predicates.add(builder.equal(
-                    root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_GROUP).getName()), 
-                    object));
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_GROUP).getName()), object));
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
             results = em.createQuery(criteria).getResultList();
@@ -362,9 +490,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             criteria = builder.createQuery(getConfig().getMembershipClass());
             root = criteria.from(getConfig().getMembershipClass());
             predicates.clear();
-            predicates.add(builder.equal(
-                    root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_ROLE).getName()), 
-                    object));
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_ROLE).getName()), object));
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
             results = em.createQuery(criteria).getResultList();
@@ -423,17 +549,108 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // If the cache doesn't have a reference to the User, we have to look up it's identity object
         // and create a User instance based on it
         if (user == null) {
-            Object instance = lookupIdentityObjectById(User.class, id);
+            Object identity = lookupIdentityObjectById(User.class, id);
 
-            user = new SimpleUser(id);
-            user.setFirstName(getModelProperty(String.class, instance, PROPERTY_USER_FIRST_NAME));
-            user.setLastName(getModelProperty(String.class, instance, PROPERTY_USER_LAST_NAME));
-            user.setEmail(getModelProperty(String.class, instance, PROPERTY_USER_EMAIL));
+            if (identity != null) {
+                user = new SimpleUser(id);
 
-            // TODO we need to also set attribute values
-            //user.setAttribute(attribute);
+                user.setEnabled(getModelProperty(Boolean.class, identity, PROPERTY_IDENTITY_ENABLED));
+                user.setExpirationDate(getModelProperty(Date.class, identity,
+                        JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES));
 
-            getContext().getCache().putUser(context.getRealm(), user);
+                user.setFirstName(getModelProperty(String.class, identity, PROPERTY_USER_FIRST_NAME));
+                user.setLastName(getModelProperty(String.class, identity, PROPERTY_USER_LAST_NAME));
+                user.setEmail(getModelProperty(String.class, identity, PROPERTY_USER_EMAIL));
+
+                try {
+                    for (MappedAttribute attrib : getConfig().getAttributeProperties().values()) {
+                        if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
+                            // TODO: need to deal with AttributeType
+                        } else {
+                            Member member = attrib.getAttributeProperty().getMember();
+                            String mappedName = null;
+                            Object value = null;
+
+                            if (member instanceof Field) {
+                                Field field = (Field) member;
+
+                                IDMAttribute annotation = field.getAnnotation(IDMAttribute.class);
+
+                                mappedName = annotation.name();
+
+                                field.setAccessible(true);
+
+                                value = field.get(identity);
+                            }
+
+                            user.setAttribute(new Attribute<Serializable>(mappedName, (Serializable) value));
+                        }
+                    }
+
+                    if (getConfig().getAttributeClass() != null) {
+
+                        EntityManager em = getEntityManager();
+
+                        CriteriaBuilder builder = em.getCriteriaBuilder();
+                        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getAttributeClass());
+                        Root<?> root = criteria.from(getConfig().getAttributeClass());
+                        List<Predicate> predicates = new ArrayList<Predicate>();
+
+                        String name = getConfig().getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY).getName();
+
+                        Join join = root.join(name);
+
+                        String idName = getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getName();
+
+                        predicates.add(builder.equal(join.get(idName), user.getId()));
+
+                        List<?> results = em.createQuery(criteria).getResultList();
+
+                        if (!results.isEmpty()) {
+                            Map<String, List<Serializable>> attributes = new HashMap<String, List<Serializable>>();
+
+                            for (Object object : results) {
+                                Property<Object> attributeNameProperty = getConfig().getModelProperty(PROPERTY_ATTRIBUTE_NAME);
+                                Property<Object> attributeValueProperty = getConfig()
+                                        .getModelProperty(PROPERTY_ATTRIBUTE_VALUE);
+
+                                String attribName = (String) attributeNameProperty.getValue(object);
+                                Serializable attribValue = (Serializable) attributeValueProperty.getValue(object);
+
+                                List<Serializable> attributeValues = attributes.get(attribName);
+
+                                if (attributeValues == null) {
+                                    attributeValues = new ArrayList<Serializable>();
+                                    attributes.put(attribName, attributeValues);
+                                }
+
+                                attributeValues.add(attribValue);
+                            }
+
+                            Set<Entry<String, List<Serializable>>> entrySet = attributes.entrySet();
+
+                            for (Entry<String, List<Serializable>> entry : entrySet) {
+                                List<Serializable> values = entry.getValue();
+                                Serializable value = null;
+
+                                if (values.size() > 1) {
+                                    value = values.toArray(new String[values.size()]);
+                                } else {
+                                    value = values.get(0);
+                                }
+
+                                Attribute attribute = new Attribute<Serializable>(entry.getKey(), value);
+
+                                user.setAttribute(attribute);
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    throw new IdentityManagementException("Error setting attribute.", e);
+                }
+
+                getContext().getCache().putUser(context.getRealm(), user);
+            }
         }
 
         return user;
@@ -464,7 +681,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             group = convertGroupEntityToGroup(partition, instance);
 
             // TODO we need to also set attribute values
-            //group.setAttribute(attribute);
+            // group.setAttribute(attribute);
 
             getContext().getCache().putGroup(context.getRealm(), group);
         }
@@ -504,7 +721,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         return group;
     }
-    
+
     private Role convertRoleEntityToRole(Partition partition, Object instance) {
         String name = getModelProperty(String.class, instance, PROPERTY_IDENTITY_NAME);
 
@@ -553,7 +770,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             role = convertRoleEntityToRole(partition, instance);
 
             // TODO we need to also set attribute values
-            //group.setAttribute(attribute);
+            // group.setAttribute(attribute);
 
             getContext().getCache().putRole(context.getRealm(), role);
         }
@@ -563,15 +780,30 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void setAttribute(IdentityType identity, Attribute<? extends Serializable> attrib) {
-        // TODO Auto-generated method stub
-        
+    public void setAttribute(IdentityType identity, Attribute<? extends Serializable> providedAttrib) {
+        EntityManager em = getEntityManager();
+
+        try {
+            for (String attribName : getConfig().getAttributeProperties().keySet()) {
+                MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
+                if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
+                    Object instance = attrib.getIdentityProperty().getJavaClass().newInstance();
+                    attrib.getIdentityProperty().setValue(identity, instance);
+
+                    em.persist(instance);
+                } else {
+                    attrib.getAttributeProperty().setValue(identity, providedAttrib.getValue());
+                }
+            }
+        } catch (Exception e) {
+            throw new IdentityManagementException("Error setting attribute [" + providedAttrib + "] for [" + identity + "]", e);
+        }
     }
 
     @Override
     public void removeAttribute(IdentityType identity, String name) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -625,9 +857,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
         if (handler == null) {
             throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for validating Credentials of type [" +
-                    credentials.getClass() + "] for IdentityStore [" +
-                    this.getClass() + "]");
+                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
+                            + "] for IdentityStore [" + this.getClass() + "]");
         }
         handler.validate(credentials, this);
     }
@@ -637,9 +868,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
         if (handler == null) {
             throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for updating Credentials of type [" +
-                    credential.getClass() + "] for IdentityStore [" +
-                    this.getClass() + "]");
+                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
+                            + "] for IdentityStore [" + this.getClass() + "]");
         }
         handler.update(agent, credential, this);
     }

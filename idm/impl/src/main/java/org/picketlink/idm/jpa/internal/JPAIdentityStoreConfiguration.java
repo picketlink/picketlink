@@ -257,6 +257,8 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         configureAttributes();
 
         // configureCredentials();
+        
+        this.featureSet.add(Feature.all);
     }
 
     protected void configureIdentityDiscriminator() throws SecurityConfigurationException {
@@ -714,32 +716,32 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         }
 
         // scan any entity classes referenced by the identity class also
-        props = PropertyQueries.createQuery(identityClass).getResultList();
-
-        for (Property<Object> p : props) {
-            if (!p.isReadOnly() && p.getJavaClass().isAnnotationPresent(Entity.class)) {
-
-                List<Property<Object>> pp = PropertyQueries.createQuery(p.getJavaClass())
-                        .addCriteria(new AnnotatedPropertyCriteria(IDMAttribute.class)).getResultList();
-
-                for (Property<Object> attributeProperty : pp) {
-                    String attribName = attributeProperty.getAnnotatedElement().getAnnotation(IDMAttribute.class)
-                            .name();
-
-                    if (attributeProperties.containsKey(attribName)) {
-                        Property<Object> other = attributeProperties.get(attribName).getAttributeProperty();
-
-                        throw new SecurityConfigurationException("Multiple properties defined for attribute ["
-                                + attribName + "] - " + "Property: " + other.getDeclaringClass().getName() + "."
-                                + other.getAnnotatedElement().toString() + ", Property: "
-                                + attributeProperty.getDeclaringClass().getName() + "."
-                                + attributeProperty.getAnnotatedElement().toString());
-                    }
-
-                    attributeProperties.put(attribName, new MappedAttribute(p, attributeProperty));
-                }
-            }
-        }
+//        props = PropertyQueries.createQuery(identityClass).getResultList();
+//
+//        for (Property<Object> p : props) {
+//            if (!p.isReadOnly() && p.getJavaClass().isAnnotationPresent(Entity.class)) {
+//
+//                List<Property<Object>> pp = PropertyQueries.createQuery(p.getJavaClass())
+//                        .addCriteria(new AnnotatedPropertyCriteria(IDMAttribute.class)).getResultList();
+//
+//                for (Property<Object> attributeProperty : pp) {
+//                    String attribName = attributeProperty.getAnnotatedElement().getAnnotation(IDMAttribute.class)
+//                            .name();
+//
+//                    if (attributeProperties.containsKey(attribName)) {
+//                        Property<Object> other = attributeProperties.get(attribName).getAttributeProperty();
+//
+//                        throw new SecurityConfigurationException("Multiple properties defined for attribute ["
+//                                + attribName + "] - " + "Property: " + other.getDeclaringClass().getName() + "."
+//                                + other.getAnnotatedElement().toString() + ", Property: "
+//                                + attributeProperty.getDeclaringClass().getName() + "."
+//                                + attributeProperty.getAnnotatedElement().toString());
+//                    }
+//
+//                    attributeProperties.put(attribName, new MappedAttribute(p, attributeProperty));
+//                }
+//            }
+//        }
     }
 
     public String getIdentityTypeUser() {

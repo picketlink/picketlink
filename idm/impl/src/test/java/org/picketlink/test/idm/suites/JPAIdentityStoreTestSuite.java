@@ -30,6 +30,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
+import org.picketlink.idm.DefaultIdentityCache;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -40,10 +41,9 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.test.idm.GroupManagementTestCase;
-import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.UserManagementTestCase;
 import org.picketlink.test.idm.internal.mgr.IdentityObject;
+import org.picketlink.test.idm.internal.mgr.IdentityObjectAttribute;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
@@ -55,8 +55,8 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-//@RunWith(IdentityManagerRunner.class)
-//@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class })
+@RunWith(IdentityManagerRunner.class)
+@SuiteClasses({ UserManagementTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
@@ -105,8 +105,8 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf, 
-                new DefaultCredentialHandlerFactory()) {
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf,
+                new DefaultCredentialHandlerFactory(), new DefaultIdentityCache()) {
             @Override
             public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
                 super.initContextForStore(ctx, store);
@@ -121,6 +121,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
 
         configuration.setIdentityClass(IdentityObject.class);
+        configuration.setAttributeClass(IdentityObjectAttribute.class);
 
         return configuration;
     }

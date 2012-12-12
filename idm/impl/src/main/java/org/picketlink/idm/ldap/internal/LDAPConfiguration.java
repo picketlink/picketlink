@@ -56,7 +56,7 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     private String standardAttributesFileName = "standardattributes.txt";
     private boolean isActiveDirectory = false;
     private Properties additionalProperties = new Properties();
-    private Set<Feature> featuresSet = new HashSet<IdentityStore.Feature>();
+    private Set<Feature> featureSet = new HashSet<IdentityStore.Feature>();
     private LDAPOperationManager ldapManager;
 
     public String getStandardAttributesFileName() {
@@ -174,12 +174,12 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     @Override
     public void init() throws SecurityConfigurationException {
         constructContext();
-        this.featuresSet.add(Feature.all);
+        this.featureSet.add(Feature.all);
     }
 
     @Override
     public Set<Feature> getFeatureSet() {
-        return this.featuresSet ;
+        return this.featureSet ;
     }
     
     private void constructContext() {

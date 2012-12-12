@@ -22,12 +22,15 @@
 
 package org.picketlink.test.idm.internal.mgr;
 
+import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import org.picketlink.idm.jpa.annotations.EntityType;
+import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
@@ -56,6 +59,27 @@ public class IdentityObject {
     @IDMProperty (PropertyType.NAME)
     private String name;
 
+    @IDMProperty (PropertyType.FIRST_NAME)
+    private String firstName;
+
+    @IDMProperty (PropertyType.LAST_NAME)
+    private String lastName;
+
+    @IDMProperty (PropertyType.EMAIL)
+    private String email;
+
+    @IDMProperty (PropertyType.ENABLED)
+    private boolean enabled;
+
+    @IDMProperty (PropertyType.CREATION_DATE)
+    private Date creationDate;
+
+    @IDMProperty (PropertyType.EXPIRY_DATE)
+    private Date expiryDate;
+    
+    @IDMAttribute (name="one-valued")
+    private String oneValued;
+    
     @ManyToOne
     @IDMProperty (PropertyType.PARENT_GROUP)
     private IdentityObject parent;
@@ -100,11 +124,67 @@ public class IdentityObject {
         this.name = name;
     }
     
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
+    }
+
     public IdentityObject getParent() {
         return this.parent;
     }
     
     public void setParent(IdentityObject parent) {
         this.parent = parent;
+    }
+    
+    public String getOneValued() {
+        return this.oneValued;
+    }
+    
+    public void setOneValued(String oneValued) {
+        this.oneValued = oneValued;
     }
 }

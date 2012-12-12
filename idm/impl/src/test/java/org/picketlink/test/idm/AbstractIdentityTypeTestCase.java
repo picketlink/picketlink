@@ -29,6 +29,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 
@@ -157,22 +158,22 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     public void testSetMultipleAttributes() throws Exception {
         T storedIdentityTypeInstance = getIdentityType(true);
 
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("QuestionTotal", "2"));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
 
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
 
         updateIdentityType(storedIdentityTypeInstance);
 
         T updatedIdentityTypeInstance = getIdentityType(false);
         
-        assertEquals("2", updatedIdentityTypeInstance.<String[]>getAttribute("QuestionTotal").getValue()[0]);
-        assertEquals("What is favorite toy?", updatedIdentityTypeInstance.<String[]>getAttribute("Question1").getValue()[0]);
-        assertEquals("Gum", updatedIdentityTypeInstance.<String[]>getAttribute("Question1Answer").getValue()[0]);
-        assertEquals("What is favorite word?", updatedIdentityTypeInstance.<String[]>getAttribute("Question2").getValue()[0]);
-        assertEquals("Hi", updatedIdentityTypeInstance.<String[]>getAttribute("Question2Answer").getValue()[0]);
+        assertEquals("2", updatedIdentityTypeInstance.<String>getAttribute("QuestionTotal").getValue());
+        assertEquals("What is favorite toy?", updatedIdentityTypeInstance.<String>getAttribute("Question1").getValue());
+        assertEquals("Gum", updatedIdentityTypeInstance.<String>getAttribute("Question1Answer").getValue());
+        assertEquals("What is favorite word?", updatedIdentityTypeInstance.<String[]>getAttribute("Question2").getValue());
+        assertEquals("Hi", updatedIdentityTypeInstance.<String>getAttribute("Question2Answer").getValue());
     }
     
     /**
@@ -184,12 +185,12 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     public void testGetAllAttributes() throws Exception {
         T storedIdentityTypeInstance = getIdentityType(true);
 
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("QuestionTotal", new String[] { "2" }));
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question1", new String[] { "What is favorite toy?" }));
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question1Answer", new String[] { "Gum" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("QuestionTotal", "2" ));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
 
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question2", new String[] { "What is favorite word?" }));
-        storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("Question2Answer", new String[] { "Hi" }));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
 
         updateIdentityType(storedIdentityTypeInstance);
 
@@ -263,9 +264,12 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNotNull(multiValuedAttribute);
-        assertEquals("3", multiValuedAttribute.getValue()[0]);
-        assertEquals("4", multiValuedAttribute.getValue()[1]);
-        assertEquals("5", multiValuedAttribute.getValue()[2]);
+        assertEquals(3, multiValuedAttribute.getValue().length);
+        
+        String[] values = multiValuedAttribute.getValue();
+        
+        Arrays.sort(values);
+        assertTrue(Arrays.equals(values, new String[] { "3", "4", "5" }));
     }
 
     /**
