@@ -266,6 +266,27 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
         try {
             Session session = request.getSessionInternal(true);
 
+            // check if this call is resulting from the redirect after successful authentication.
+            // if so, make the authentication successful and continue the original request
+            if (saveRestoreRequest && matchRequest(request)) {
+                logger.trace("Restoring request from session '" + session.getIdInternal() + "'");
+                Principal savedPrincipal = (Principal)session.getNote(Constants.FORM_PRINCIPAL_NOTE);
+                register (request, response, savedPrincipal, Constants.FORM_METHOD, (String)session.getNote(Constants.SESS_USERNAME_NOTE), (String)session.getNote(Constants.SESS_PASSWORD_NOTE));
+                
+                // try to restore the original request (including post data, etc...)
+                if (restoreRequest(request, session)) {
+                    // success!  user is authenticated; continue processing original request
+                    logger.trace("Continuing with restored request.");
+                    return true;
+                }
+                else {
+                    // no saved request found...
+                    logger.trace("Restore of original request failed!");
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+                    return false;
+                }
+            }
+            
             // Eagerly look for Local LogOut
             boolean localLogout = isLocalLogout(request);
 
@@ -469,22 +490,6 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                 session.setNote(Constants.SESS_USERNAME_NOTE, username);
                 session.setNote(Constants.SESS_PASSWORD_NOTE, password);
                 request.setUserPrincipal(principal);
-                // Get the original saved request and redirects the user back to the previous URI
-                if (saveRestoreRequest) {
-                    if (this.restoreRequest(request, session)) {
-                        String requestURI = request.getRequestURI();
-                        
-                        if (requestURI.indexOf(this.spConfiguration.getLogOutPage()) != -1) {
-                            requestURI = request.getContextPath();
-                        }
-                        
-                        if (request.getQueryString() == null) {
-                            response.sendRedirect(response.encodeRedirectURL(requestURI));
-                        } else {
-                            response.sendRedirect(response.encodeRedirectURL(requestURI + "?" + request.getQueryString()));
-                        }
-                    }
-                }
 
                 if (enableAudit) {
                     PicketLinkAuditEvent auditEvent = new PicketLinkAuditEvent(AuditLevel.INFO);
@@ -493,8 +498,23 @@ public abstract class AbstractSPFormAuthenticator extends BaseFormAuthenticator 
                     auditEvent.setWhoIsAuditing(getContextPath());
                     auditHelper.audit(auditEvent);
                 }
+                
+                // Redirect the user to the originally requested URL
+                if (saveRestoreRequest) {
+                    // Store the authenticated principal in the session.
+                    session.setNote(Constants.FORM_PRINCIPAL_NOTE, principal);
+                    
+                    // Redirect to the original URL.  Note that this will trigger the
+                    // authenticator again, but on resubmission we will look in the 
+                    // session notes to retrieve the authenticated principal and
+                    // prevent reauthentication
+                    String requestURI = savedRequestURL(session);
+                    logger.trace("Redirecting back to original Request URI: " + requestURI);
+                    response.sendRedirect(response.encodeRedirectURL(requestURI));
+                    return false;
+                }
+                
                 register(request, response, principal, Constants.FORM_METHOD, username, password);
-
                 return true;
             }
         } catch (ProcessingException pe) {
