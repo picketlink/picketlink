@@ -21,9 +21,6 @@
  */
 package org.picketlink.oauth.client;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -39,7 +36,6 @@ import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.types.GrantType;
 import org.picketlink.oauth.amber.oauth2.common.message.types.ResponseType;
 import org.picketlink.oauth.amber.oauth2.common.token.OAuthToken;
-import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.OAuthRegistrationClient;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.request.OAuthClientRegistrationRequest;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.client.response.OAuthClientRegistrationResponse;
@@ -84,8 +80,14 @@ public class ClientOAuth {
         clear();
         return new AccessTokenClient();
     }
-    
-    public ResourceClient resourceClient(String accessToken){
+
+    /**
+     * Create a client for making resource requests
+     *
+     * @param accessToken
+     * @return
+     */
+    public ResourceClient resourceClient(String accessToken) {
         clear();
         return new ResourceClient(accessToken);
     }
@@ -405,40 +407,44 @@ public class ClientOAuth {
             return delegate.getScope();
         }
     }
-    
-    public class ResourceClient{
+
+    public class ResourceClient {
         private String accessToken;
-        
-        public ResourceClient(String token){
+
+        public ResourceClient(String token) {
             this.accessToken = token;
         }
-        public InputStream execute(String resourceURL) throws IOException {
-            URL resUrl = new URL(resourceURL);
-            URLConnection urlConnection = resUrl.openConnection();
 
+        public InputStream execute(String resourceURL) throws OAuthClientException {
             InputStream inputStream = null;
-            if (urlConnection instanceof HttpURLConnection) {
-                String body = "access_token=" + accessToken;
+            try {
+                URL resUrl = new URL(resourceURL);
+                URLConnection urlConnection = resUrl.openConnection();
+                if (urlConnection instanceof HttpURLConnection) {
+                    String body = "access_token=" + accessToken;
 
-                HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
-                httpURLConnection.setRequestMethod("POST");
-                httpURLConnection.setDoOutput(true);
-                httpURLConnection.setAllowUserInteraction(false);
-                httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                httpURLConnection.setRequestProperty("Content-Length", Integer.toString(body.length()));
-                OutputStream ost = httpURLConnection.getOutputStream();
-                PrintWriter pw = new PrintWriter(ost);
-                pw.print(body);
-                pw.flush();
-                pw.close();
+                    HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
+                    httpURLConnection.setRequestMethod("POST");
+                    httpURLConnection.setDoOutput(true);
+                    httpURLConnection.setAllowUserInteraction(false);
+                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                    httpURLConnection.setRequestProperty("Content-Length", Integer.toString(body.length()));
+                    OutputStream ost = httpURLConnection.getOutputStream();
+                    PrintWriter pw = new PrintWriter(ost);
+                    pw.print(body);
+                    pw.flush();
+                    pw.close();
 
-                if (httpURLConnection.getResponseCode() == 400) {
-                    inputStream = httpURLConnection.getErrorStream();
+                    if (httpURLConnection.getResponseCode() == 400) {
+                        inputStream = httpURLConnection.getErrorStream();
+                    } else {
+                        inputStream = httpURLConnection.getInputStream();
+                    }
                 } else {
-                    inputStream = httpURLConnection.getInputStream();
+                    throw new RuntimeException("Wrong url conn");
                 }
-            } else {
-                throw new RuntimeException("Wrong url conn");
+            } catch (Exception e) {
+                throw new OAuthClientException(e);
             }
             return inputStream;
         }

@@ -38,6 +38,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.amber.oauth2.as.issuer.MD5Generator;
 import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuerImpl;
 import org.picketlink.oauth.amber.oauth2.as.request.OAuthAuthzRequest;
@@ -49,16 +58,6 @@ import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
 import org.picketlink.oauth.amber.oauth2.common.message.types.ResponseType;
 import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfiguration;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.IdentityQuery;
 
 /**
  * OAuth2 Authorization Endpoint
@@ -141,7 +140,7 @@ public class AuthorizationEndpoint implements Serializable {
             if (responseType.equals(ResponseType.CODE.toString())) {
                 String authorizationCode = oauthIssuerImpl.authorizationCode();
 
-                clientApp.setAttribute(new Attribute("authorizationCode", authorizationCode));
+                clientApp.setAttribute(new Attribute<String>("authorizationCode", authorizationCode));
                 identityManager.update(clientApp);
 
                 builder.setCode(authorizationCode);
@@ -183,7 +182,6 @@ public class AuthorizationEndpoint implements Serializable {
             identityManager = new DefaultIdentityManager();
             String storeType = context.getInitParameter("storeType");
             if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
-                LDAPIdentityStore store = new LDAPIdentityStore();
                 LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
 
                 Properties properties = getProperties();
@@ -194,14 +192,11 @@ public class AuthorizationEndpoint implements Serializable {
                         properties.getProperty("roleDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
 
-                // store.setConfiguration(ldapConfiguration);
                 // Create Identity Configuration
                 IdentityConfiguration config = new IdentityConfiguration();
                 config.addStoreConfiguration(ldapConfiguration);
 
                 identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
-
-                // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
             }
         }
     }
