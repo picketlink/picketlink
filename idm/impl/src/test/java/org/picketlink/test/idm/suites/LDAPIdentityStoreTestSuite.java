@@ -51,9 +51,9 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * <p>
  * Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 @RunWith(IdentityManagerRunner.class)
 @SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
@@ -86,7 +86,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
             e.printStackTrace();
         }
     }
-    
+
     @AfterClass
     public static void onDestroyClass() {
         try {
@@ -95,10 +95,10 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
             e.printStackTrace();
         }
     }
-    
+
     @Override
     public void onInit() {
-        
+
     }
 
     @Override
@@ -109,14 +109,15 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null, new DefaultCredentialHandlerFactory()));
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null,
+                new DefaultCredentialHandlerFactory()));
 
         return identityManager;
     }
 
     @Override
     public void onDestroy() {
-        
+
     }
 
     public static LDAPConfiguration getConfiguration() {
@@ -129,7 +130,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
         return config;
     }
-    
+
     @Override
     public void importLDIF(String fileName) throws Exception {
         super.importLDIF(fileName);

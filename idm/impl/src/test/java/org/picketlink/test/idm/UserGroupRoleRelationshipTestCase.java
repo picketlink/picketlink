@@ -33,83 +33,88 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
 /**
- * <p>Test case for the relationship between {@link User}, {@link Group} and {@link Role} types.
- * 
+ * <p>
+ * Test case for the relationship between {@link User}, {@link Group} and {@link Role} types.
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTestCase {
 
     /**
-     * <p>Tests adding an {@link User} as a member of a {@link Group} with a specific {@link Role}.</p>
-     * 
+     * <p>
+     * Tests adding an {@link User} as a member of a {@link Group} with a specific {@link Role}.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testGrantGroupRole() throws Exception {
         User developerUser = loadOrCreateUser("developerUser", true);
         User projectManagerUser = loadOrCreateUser("projectManagerUser", true);
-        
+
         Role managerRole = loadOrCreateRole("Manager", true);
         Role developerRole = loadOrCreateRole("Developer", true);
         Role employeeRole = loadOrCreateRole("Employee", true);
-        
+
         Group companyGroup = loadOrCreateGroup("Company Group", null, true);
         Group projectGroup = loadOrCreateGroup("Project Group", null, true);
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         // developerUser is an employee at the company group
         identityManager.grantGroupRole(developerUser, employeeRole, companyGroup);
-        
+
         // developerUser is a developer at the project group
         identityManager.grantGroupRole(developerUser, developerRole, projectGroup);
-        
+
         // projectManagerUser is an employee at the company group
         identityManager.grantGroupRole(projectManagerUser, employeeRole, companyGroup);
 
         // projectManagerUser is the manager of the project group
         identityManager.grantGroupRole(projectManagerUser, managerRole, projectGroup);
-        
+
         assertTrue(identityManager.hasGroupRole(developerUser, employeeRole, companyGroup));
         assertTrue(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
-        
+
         assertTrue(identityManager.hasGroupRole(projectManagerUser, employeeRole, companyGroup));
         assertTrue(identityManager.hasGroupRole(projectManagerUser, managerRole, projectGroup));
-        
+
         assertFalse(identityManager.hasGroupRole(developerUser, managerRole, projectGroup));
         assertFalse(identityManager.hasGroupRole(projectManagerUser, developerRole, projectGroup));
     }
-    
+
     /**
-     * <p>Tests revoking a {@link GroupRole}.</p>
-     * 
+     * <p>
+     * Tests revoking a {@link GroupRole}.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testRevokeGroupRole() throws Exception {
         User developerUser = loadOrCreateUser("developerUser", true);
-        
+
         Role developerRole = loadOrCreateRole("Developer", true);
         Role employeeRole = loadOrCreateRole("Employee", true);
-        
+
         Group companyGroup = loadOrCreateGroup("Company Group", null, true);
         Group projectGroup = loadOrCreateGroup("Project Group", null, true);
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         // developerUser is an employee at the company group
         identityManager.grantGroupRole(developerUser, employeeRole, companyGroup);
-        
+
         // developerUser is a developer at the project group
         identityManager.grantGroupRole(developerUser, developerRole, projectGroup);
-        
+
         assertTrue(identityManager.hasGroupRole(developerUser, employeeRole, companyGroup));
         assertTrue(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
-        
+
         identityManager.revokeGroupRole(developerUser, developerRole, projectGroup);
-        
+
         assertFalse(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
     }
-    
+
 }

@@ -37,9 +37,9 @@ import org.picketlink.idm.model.User;
  * <p>
  * Test case for {@link User} basic management operations.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
@@ -48,19 +48,19 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      * Creates a new {@link User} instance using the API. This method also checks if the user was properly created by retrieving
      * his information from the store.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void testCreate() throws Exception {
         User newUserInstance = loadOrCreateUser("jduke", true);
-        
+
         newUserInstance.setEmail("jduke@jboss.org");
         newUserInstance.setFirstName("Java");
         newUserInstance.setLastName("Duke");
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         identityManager.update(newUserInstance);
 
         // let's retrieve the user information and see if they are properly stored
@@ -80,7 +80,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      * <p>
      * Loads from the LDAP tree an already stored user.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -88,9 +88,9 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         User storedUserInstance = getIdentityType(true);
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedUserInstance = identityManager.getUser(storedUserInstance.getId());
-        
+
         assertNotNull(storedUserInstance);
 
         assertEquals("admin", storedUserInstance.getId());
@@ -103,7 +103,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      * <p>
      * Updates the stored user information.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -111,7 +111,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         User storedUserInstance = getIdentityType(true);
 
         assertNotNull(storedUserInstance);
-        
+
         assertEquals("admin", storedUserInstance.getId());
         assertEquals("The", storedUserInstance.getFirstName());
         assertEquals("Administrator", storedUserInstance.getLastName());
@@ -123,7 +123,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         storedUserInstance.setEmail("Updated " + storedUserInstance.getEmail());
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         identityManager.update(storedUserInstance);
 
         // let's load again the user from the store and check for the updated information
@@ -139,7 +139,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      * <p>
      * Remove from the LDAP tree an already stored user.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -165,13 +165,13 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     @Override
     protected User getIdentityType(boolean alwaysCreate) {
         User user = loadOrCreateUser("admin", alwaysCreate);
-        
+
         user.setEmail("admin@jboss.org");
         user.setFirstName("The");
         user.setLastName("Administrator");
-        
+
         getIdentityManager().update(user);
-        
+
         return user;
     }
 

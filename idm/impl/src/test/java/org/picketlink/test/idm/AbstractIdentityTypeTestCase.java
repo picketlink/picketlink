@@ -47,7 +47,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      * <p>
      * Disables an user.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -55,47 +55,47 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         T enabledIdentityTypeInstance = getIdentityType(true);
 
         assertTrue(enabledIdentityTypeInstance.isEnabled());
-        
+
         enabledIdentityTypeInstance.setEnabled(false);
-        
+
         updateIdentityType(enabledIdentityTypeInstance);
-        
+
         T disabledIdentityTypeInstance = getIdentityType(false);
-        
+
         assertFalse(disabledIdentityTypeInstance.isEnabled());
-        
+
         disabledIdentityTypeInstance.setEnabled(true);
-        
+
         updateIdentityType(disabledIdentityTypeInstance);
-        
+
         enabledIdentityTypeInstance = getIdentityType(false);
-        
+
         assertTrue(enabledIdentityTypeInstance.isEnabled());
     }
 
     protected abstract void updateIdentityType(T identityTypeInstance);
 
     protected abstract T getIdentityType(boolean alwaysCreate);
-    
+
     /**
      * <p>
      * Expires an user.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void testExpiration() throws Exception {
         T validIdentityTypeInstance = getIdentityType(true);
-        
+
         Date expirationDate = new Date();
-        
+
         validIdentityTypeInstance.setExpirationDate(expirationDate);
-        
+
         updateIdentityType(validIdentityTypeInstance);
-        
+
         T expiredIdentityTypeInstance = getIdentityType(false);
-        
+
         assertNotNull(expiredIdentityTypeInstance.getExpirationDate());
         assertTrue(new Date().after(expiredIdentityTypeInstance.getExpirationDate()));
         assertTrue(expirationDate.compareTo(expiredIdentityTypeInstance.getExpirationDate()) == 0);
@@ -105,7 +105,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      * <p>
      * Sets an one-valued attribute.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -128,7 +128,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      * <p>
      * Sets a multi-valued attribute.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -148,10 +148,12 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertEquals("2", multiValuedAttribute.getValue()[1]);
         assertEquals("3", multiValuedAttribute.getValue()[2]);
     }
-    
+
     /**
-     * <p>Sets multiple attributes and check if they are properly stored.</p>
-     * 
+     * <p>
+     * Sets multiple attributes and check if they are properly stored.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
@@ -168,24 +170,26 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         updateIdentityType(storedIdentityTypeInstance);
 
         T updatedIdentityTypeInstance = getIdentityType(false);
-        
-        assertEquals("2", updatedIdentityTypeInstance.<String>getAttribute("QuestionTotal").getValue());
-        assertEquals("What is favorite toy?", updatedIdentityTypeInstance.<String>getAttribute("Question1").getValue());
-        assertEquals("Gum", updatedIdentityTypeInstance.<String>getAttribute("Question1Answer").getValue());
-        assertEquals("What is favorite word?", updatedIdentityTypeInstance.<String[]>getAttribute("Question2").getValue());
-        assertEquals("Hi", updatedIdentityTypeInstance.<String>getAttribute("Question2Answer").getValue());
+
+        assertEquals("2", updatedIdentityTypeInstance.<String> getAttribute("QuestionTotal").getValue());
+        assertEquals("What is favorite toy?", updatedIdentityTypeInstance.<String> getAttribute("Question1").getValue());
+        assertEquals("Gum", updatedIdentityTypeInstance.<String> getAttribute("Question1Answer").getValue());
+        assertEquals("What is favorite word?", updatedIdentityTypeInstance.<String[]> getAttribute("Question2").getValue());
+        assertEquals("Hi", updatedIdentityTypeInstance.<String> getAttribute("Question2Answer").getValue());
     }
-    
+
     /**
-     * <p>Gets all stored attributes.</p>
-     * 
+     * <p>
+     * Gets all stored attributes.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testGetAllAttributes() throws Exception {
         T storedIdentityTypeInstance = getIdentityType(true);
 
-        storedIdentityTypeInstance.setAttribute(new Attribute<String>("QuestionTotal", "2" ));
+        storedIdentityTypeInstance.setAttribute(new Attribute<String>("QuestionTotal", "2"));
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question1Answer", "Gum"));
 
@@ -195,17 +199,17 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         updateIdentityType(storedIdentityTypeInstance);
 
         T updatedIdentityTypeInstance = getIdentityType(false);
-        
+
         Collection<Attribute<? extends Serializable>> allAttributes = updatedIdentityTypeInstance.getAttributes();
-        
+
         assertFalse(allAttributes.isEmpty());
-        
+
         boolean hasQuestionTotal = false;
         boolean hasQuestion1 = false;
         boolean hasQuestion1Answer = false;
         boolean hasQuestion2 = false;
         boolean hasQuestion2Answer = false;
-        
+
         for (Attribute<? extends Serializable> attribute : allAttributes) {
             if (attribute.getName().equals("QuestionTotal")) {
                 hasQuestionTotal = true;
@@ -223,7 +227,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
                 hasQuestion2Answer = true;
             }
         }
-        
+
         assertTrue(hasQuestionTotal);
         assertTrue(hasQuestion1);
         assertTrue(hasQuestion1Answer);
@@ -231,12 +235,11 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertTrue(hasQuestion2Answer);
     }
 
-
     /**
      * <p>
      * Updates an attribute.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -265,9 +268,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
 
         assertNotNull(multiValuedAttribute);
         assertEquals(3, multiValuedAttribute.getValue().length);
-        
+
         String[] values = multiValuedAttribute.getValue();
-        
+
         Arrays.sort(values);
         assertTrue(Arrays.equals(values, new String[] { "3", "4", "5" }));
     }
@@ -276,7 +279,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      * <p>
      * Removes an attribute.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test

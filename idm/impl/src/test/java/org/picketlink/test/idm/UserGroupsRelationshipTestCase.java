@@ -31,41 +31,46 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.User;
 
 /**
- * <p>Test case for the relationship between {@link User} and {@link Group} types.
- * 
+ * <p>
+ * Test case for the relationship between {@link User} and {@link Group} types.
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class UserGroupsRelationshipTestCase extends AbstractIdentityManagerTestCase {
 
     /**
-     * <p>Tests adding an {@link User} as a member of a {@link Group}.</p>
-     * 
+     * <p>
+     * Tests adding an {@link User} as a member of a {@link Group}.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testAddUserToGroup() throws Exception {
         User someUser = loadOrCreateUser("someUser", true);
         Group someGroup = loadOrCreateGroup("someGroup", null, true);
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         identityManager.addToGroup(someUser, someGroup);
-        
+
         assertTrue(identityManager.isMember(someUser, someGroup));
-        
+
         Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
-        
+
         assertFalse(identityManager.isMember(someUser, someAnotherGroup));
-        
+
         identityManager.addToGroup(someUser, someAnotherGroup);
-        
+
         assertTrue(identityManager.isMember(someUser, someAnotherGroup));
     }
-    
+
     /**
-     * <p>Tests removing an {@link User} from a {@link Group}.</p>
-     * 
+     * <p>
+     * Tests removing an {@link User} from a {@link Group}.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
@@ -73,21 +78,21 @@ public class UserGroupsRelationshipTestCase extends AbstractIdentityManagerTestC
         User someUser = loadOrCreateUser("someUser", true);
         Group someGroup = loadOrCreateGroup("someGroup", null, true);
         Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         identityManager.addToGroup(someUser, someGroup);
         identityManager.addToGroup(someUser, someAnotherGroup);
-        
+
         assertTrue(identityManager.isMember(someUser, someGroup));
         assertTrue(identityManager.isMember(someUser, someAnotherGroup));
-        
+
         identityManager.removeFromGroup(someUser, someGroup);
-        
+
         assertFalse(identityManager.isMember(someUser, someGroup));
 
         identityManager.removeFromGroup(someUser, someAnotherGroup);
-        
+
         assertFalse(identityManager.isMember(someUser, someAnotherGroup));
-}
+    }
 }
