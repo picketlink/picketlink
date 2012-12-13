@@ -34,18 +34,18 @@ import org.picketlink.idm.model.Role;
  * <p>
  * Test case for {@link Role} basic management operations.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
-    
+
     /**
      * <p>
      * Creates a new {@link Role} instance using the API. This method also checks if the user was properly created by retrieving
      * his information from the store.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -53,38 +53,42 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         Role newRoleInstance = loadOrCreateRole("someRole", true);
 
         IdentityManager identityManager = getIdentityManager();
-        
+
         Role storedRoleInstance = identityManager.getRole(newRoleInstance.getName());
 
         assertNotNull(storedRoleInstance);
-        
+
         assertEquals(newRoleInstance.getKey(), storedRoleInstance.getKey());
         assertEquals(newRoleInstance.getName(), storedRoleInstance.getName());
     }
 
     /**
-     * <p>Loads from the LDAP tree an already stored role.</p>
-     * 
+     * <p>
+     * Loads from the LDAP tree an already stored role.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testGet() throws Exception {
         Role storedRoleInstance = getIdentityType(true);
-        
+
         assertNotNull(storedRoleInstance);
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         storedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
 
         assertNotNull(storedRoleInstance);
         assertEquals("ROLE://Administrator", storedRoleInstance.getKey());
         assertEquals("Administrator", storedRoleInstance.getName());
     }
-    
+
     /**
-     * <p>Remove from the LDAP tree an already stored role.</p>
-     * 
+     * <p>
+     * Remove from the LDAP tree an already stored role.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
@@ -92,13 +96,13 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         Role storedRoleInstance = getIdentityType(true);
 
         assertNotNull(storedRoleInstance);
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         identityManager.remove(storedRoleInstance);
-        
+
         Role removedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
-        
+
         assertNull(removedRoleInstance);
     }
 
@@ -111,5 +115,5 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
     protected Role getIdentityType(boolean alwaysCreate) {
         return loadOrCreateRole("Administrator", alwaysCreate);
     }
-    
+
 }

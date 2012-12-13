@@ -51,9 +51,9 @@ import org.picketlink.idm.IdentityManager;
  * After the onInit method is called, this runner injects a {@link IdentityManager} into the current test case. Test cases
  * should have a setter that expects a {@link IdentityManager} instance.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class IdentityManagerRunner extends Suite {
 

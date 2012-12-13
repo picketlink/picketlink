@@ -33,9 +33,9 @@ import org.picketlink.idm.model.User;
  * <p>
  * Base class for test cases using a specific {@link IdentityManager} instance.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class AbstractIdentityManagerTestCase {
 
@@ -55,7 +55,7 @@ public class AbstractIdentityManagerTestCase {
      * is true and the provided {@link User} exists it will be re-created (remove/add). Otherwise the stored instance is always
      * returned.
      * </p>
-     * 
+     *
      * @param userName
      * @param alwaysCreate
      * @return
@@ -82,7 +82,7 @@ public class AbstractIdentityManagerTestCase {
      * is true and the provided {@link Role} exists it will be re-created (remove/add). Otherwise the stored instance is always
      * returned.
      * </p>
-     * 
+     *
      * @param userName
      * @param alwaysCreate
      * @return
@@ -109,7 +109,7 @@ public class AbstractIdentityManagerTestCase {
      * is true and the provided {@link Group} exists it will be re-created (remove/add). Otherwise the stored instance is always
      * returned.
      * </p>
-     * 
+     *
      * @param userName
      * @param alwaysCreate
      * @return
