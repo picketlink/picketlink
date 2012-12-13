@@ -101,9 +101,8 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
         IdentityManager identityManager = new DefaultIdentityManager();
         DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
-
-        identityManager.bootstrap(config, icf);
         icf.setEntityManager(entityManager);
+        identityManager.bootstrap(config, icf);
 
         return identityManager;
     }
