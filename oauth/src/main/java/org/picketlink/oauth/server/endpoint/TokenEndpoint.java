@@ -21,12 +21,9 @@
  */
 package org.picketlink.oauth.server.endpoint;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -36,7 +33,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
 import org.picketlink.oauth.server.util.OAuthServerUtil;
@@ -48,34 +44,15 @@ import org.picketlink.oauth.server.util.OAuthServerUtil;
  * @since Aug 27, 2012
  */
 @Path("/token")
-public class TokenEndpoint implements Serializable {
+public class TokenEndpoint extends BaseEndpoint {
     private static final long serialVersionUID = 1L;
-
-    private static Logger log = Logger.getLogger(TokenEndpoint.class.getName());
-
-    protected IdentityManager identityManager = null;
-
-    @Context
-    protected ServletContext context;
+    protected static Logger log = Logger.getLogger(TokenEndpoint.class.getName());
 
     @POST
     @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
     public Response authorize(@Context HttpServletRequest request) {
-        if (context == null) {
-            throw new RuntimeException("Servlet Context has not been injected");
-        }
-        if (identityManager == null) {
-            try {
-                identityManager = OAuthServerUtil.handleIdentityManager(context);
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Identity Manager setup:", e);
-                throw new RuntimeException(e);
-            }
-            if (identityManager == null) {
-                throw new RuntimeException("Identity Manager has not been created");
-            }
-        }
+        super.setup();
 
         OAuthResponse response = null;
         try {
@@ -91,20 +68,7 @@ public class TokenEndpoint implements Serializable {
     @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
     public Response authorizeGet(@Context HttpServletRequest request) throws OAuthSystemException {
-        if (context == null) {
-            throw new RuntimeException("Servlet Context has not been injected");
-        }
-        if (identityManager == null) {
-            try {
-                identityManager = OAuthServerUtil.handleIdentityManager(context);
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Identity Manager setup:", e);
-                throw new RuntimeException(e);
-            }
-            if (identityManager == null) {
-                throw new RuntimeException("Identity Manager has not been created");
-            }
-        }
+        super.setup();
 
         OAuthResponse response = null;
         try {
