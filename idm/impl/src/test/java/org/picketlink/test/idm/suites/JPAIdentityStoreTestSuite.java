@@ -41,7 +41,7 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.test.idm.UserManagementTestCase;
+import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.internal.mgr.IdentityObject;
 import org.picketlink.test.idm.internal.mgr.IdentityObjectAttribute;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
@@ -56,7 +56,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class })
+@SuiteClasses({ GroupManagementTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
