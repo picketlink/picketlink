@@ -22,42 +22,22 @@
 package org.picketlink.oauth.server.endpoint;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfiguration;
-import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.oauth.amber.oauth2.as.issuer.MD5Generator;
-import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuerImpl;
-import org.picketlink.oauth.amber.oauth2.as.request.OAuthAuthzRequest;
-import org.picketlink.oauth.amber.oauth2.as.response.OAuthASResponse;
-import org.picketlink.oauth.amber.oauth2.common.OAuth;
-import org.picketlink.oauth.amber.oauth2.common.error.OAuthError;
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
-import org.picketlink.oauth.amber.oauth2.common.message.types.ResponseType;
-import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
  * OAuth2 Authorization Endpoint
@@ -68,6 +48,7 @@ import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
 @Path("/authz")
 public class AuthorizationEndpoint implements Serializable {
     private static final long serialVersionUID = 1L;
+    private static Logger log = Logger.getLogger(AuthorizationEndpoint.class.getName());
 
     protected IdentityManager identityManager = null;
 
@@ -75,136 +56,35 @@ public class AuthorizationEndpoint implements Serializable {
     protected ServletContext context;
 
     @GET
-    public Response authorize(@Context HttpServletRequest request) throws URISyntaxException, OAuthSystemException {
-        try {
-            handleIdentityManager();
-        } catch (IOException e1) {
-            throw new RuntimeException(e1);
+    public Response authorize(@Context HttpServletRequest request) {
+        if (context == null) {
+            throw new RuntimeException("Servlet Context has not been injected");
         }
-
-        OAuthAuthzRequest oauthRequest = null;
-
-        OAuthIssuerImpl oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
-
-        try {
-            oauthRequest = new OAuthAuthzRequest(request);
-
-            String passedClientID = oauthRequest.getClientId();
-
-            if (passedClientID == null) {
-                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null")
-                        .buildJSONMessage();
-                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-            }
-
-            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
-            userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
-            /*
-             * UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID", new String[] {
-             * passedClientID });
-             */
-
-            List<User> users = userQuery.getResultList();
-            if (users.size() == 0) {
-                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                        .buildJSONMessage();
-                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-            }
-            if (users.size() > 1) {
-                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Multiple client_id found")
-                        .buildJSONMessage();
-                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-            }
-
-            User clientApp = users.get(0);
-            Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
-            String clientID = clientIDAttr.getValue();
-
-            // check if clientid is valid
-            if (!clientID.equals(passedClientID)) {
-                OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                        .buildJSONMessage();
-                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-            }
-
-            // build response according to response_type
-            String responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE);
-
-            OAuthASResponse.OAuthAuthorizationResponseBuilder builder = OAuthASResponse.authorizationResponse(request,
-                    HttpServletResponse.SC_FOUND);
-
-            if (responseType.equals(ResponseType.CODE.toString())) {
-                String authorizationCode = oauthIssuerImpl.authorizationCode();
-
-                clientApp.setAttribute(new Attribute<String>("authorizationCode", authorizationCode));
-                identityManager.update(clientApp);
-
-                builder.setCode(authorizationCode);
-            }
-            /*
-             * if (responseType.equals(ResponseType.TOKEN.toString())) { builder.setAccessToken(oauthIssuerImpl.accessToken());
-             * builder.setExpiresIn(3600L); }
-             */
-
-            String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
-
-            final OAuthResponse response = builder.location(redirectURI).buildQueryMessage();
-            URI url = new URI(response.getLocationUri());
-
-            return Response.status(response.getResponseStatus()).location(url).build();
-
-        } catch (OAuthProblemException e) {
-
-            final Response.ResponseBuilder responseBuilder = Response.status(HttpServletResponse.SC_FOUND);
-
-            String redirectUri = e.getRedirectUri();
-
-            if (OAuthUtils.isEmpty(redirectUri)) {
-                throw new WebApplicationException(responseBuilder
-                        .entity("OAuth callback url needs to be provided by client!!!").build());
-            }
-            final OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_FOUND).error(e)
-                    .location(redirectUri).buildQueryMessage();
-            final URI location = new URI(response.getLocationUri());
-            return responseBuilder.location(location).build();
-        }
-    }
-
-    private void handleIdentityManager() throws IOException {
         if (identityManager == null) {
-            if (context == null) {
-                throw new RuntimeException("Servlet Context has not been injected");
+            try {
+                identityManager = OAuthServerUtil.handleIdentityManager(context);
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Identity Manager setup:", e);
+                throw new RuntimeException(e);
             }
-            identityManager = new DefaultIdentityManager();
-            String storeType = context.getInitParameter("storeType");
-            if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
-                LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
-
-                Properties properties = getProperties();
-                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
-                        properties.getProperty("bindCredential"));
-                ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
-                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
-                        properties.getProperty("roleDNSuffix"));
-                ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
-
-                // Create Identity Configuration
-                IdentityConfiguration config = new IdentityConfiguration();
-                config.addStoreConfiguration(ldapConfiguration);
-
-                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
+            if (identityManager == null) {
+                throw new RuntimeException("Identity Manager has not been created");
             }
         }
-    }
 
-    private Properties getProperties() throws IOException {
-        Properties properties = new Properties();
-        InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
-        properties.load(is);
-        return properties;
+        OAuthResponse response = null;
+        try {
+            response = OAuthServerUtil.authorizationCodeRequest(request, identityManager);
+        } catch (OAuthSystemException e) {
+            log.log(Level.SEVERE, "OAuth Server Authorization Processing:", e);
+            return Response.serverError().build();
+        }
+        // Check for successful processing
+        String location = response.getLocationUri();
+        if (location != null && location.isEmpty() == false) {
+            return Response.status(response.getResponseStatus()).location(URI.create(location)).build();
+        } else { // We have error
+            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+        }
     }
 }

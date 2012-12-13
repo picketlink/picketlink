@@ -21,6 +21,7 @@
  */
 package org.picketlink.test.oauth.server.endpoint;
 
+import java.io.File;
 import java.net.URL;
 
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -79,6 +80,7 @@ public class EndpointTestBase extends EmbeddedWebServerBase {
         if (needLDAP()) {
             // Deal with LDAP Server
             try {
+                deleteApacheDSTmp();
                 testUtil = new LDAPTestUtil();
                 testUtil.setup();
                 testUtil.createBaseDN("jboss", "dc=jboss,dc=org");
@@ -96,5 +98,33 @@ public class EndpointTestBase extends EmbeddedWebServerBase {
      */
     protected boolean needLDAP() {
         return false;
+    }
+
+    protected void deleteApacheDSTmp() {
+        String tempDir = System.getProperty("java.io.tmpdir");
+        System.out.println("java.io.tmpdir=" + tempDir);
+
+        System.out.println("Going to delete the server-work directory");
+        File workDir = new File(tempDir + "/server-work");
+        if (workDir != null) {
+            recursiveDeleteDir(workDir);
+        }
+    }
+
+    protected boolean recursiveDeleteDir(File dirPath) {
+        if (dirPath.exists()) {
+            File[] files = dirPath.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                    recursiveDeleteDir(files[i]);
+                } else {
+                    files[i].delete();
+                }
+            }
+        }
+        if (dirPath.exists())
+            return dirPath.delete();
+        else
+            return true;
     }
 }
