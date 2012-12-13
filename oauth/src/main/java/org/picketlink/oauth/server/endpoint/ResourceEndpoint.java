@@ -22,11 +22,9 @@
 package org.picketlink.oauth.server.endpoint;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Properties;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -39,17 +37,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.amber.oauth2.as.response.OAuthASResponse;
 import org.picketlink.oauth.amber.oauth2.common.error.OAuthError;
+import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
+import org.picketlink.oauth.amber.oauth2.common.message.types.ParameterStyle;
+import org.picketlink.oauth.amber.oauth2.rs.request.OAuthAccessResourceRequest;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
  * OAuth2 Resource Endpoint
@@ -75,7 +73,18 @@ public class ResourceEndpoint implements Serializable {
         } catch (IOException e1) {
             throw new RuntimeException(e1);
         }
-        String accessToken = request.getParameter("access_token");
+        OAuthAccessResourceRequest oauthRequest = null;
+        try {
+            oauthRequest = new OAuthAccessResourceRequest(request, ParameterStyle.BODY);
+        } catch (OAuthProblemException ope) {
+            OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                    .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("accessToken not found")
+                    .buildJSONMessage();
+            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+        }
+
+        // Get the access token
+        String accessToken = oauthRequest.getAccessToken();
 
         IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
         userQuery.setParameter(IdentityType.ATTRIBUTE.byName("accessToken"), accessToken);
@@ -104,32 +113,10 @@ public class ResourceEndpoint implements Serializable {
             if (context == null) {
                 throw new RuntimeException("Servlet Context has not been injected");
             }
-            identityManager = new DefaultIdentityManager();
-            String storeType = context.getInitParameter("storeType");
-            if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
-                LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
-
-                Properties properties = getProperties();
-                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
-                        properties.getProperty("bindCredential"));
-                ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
-                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
-                        properties.getProperty("roleDNSuffix"));
-                ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
-
-                // Create Identity Configuration
-                IdentityConfiguration config = new IdentityConfiguration();
-                config.addStoreConfiguration(ldapConfiguration);
-
-                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
+            identityManager = OAuthServerUtil.handleIdentityManager(context);
+            if (identityManager == null) {
+                throw new RuntimeException("Identity Manager has not been created");
             }
         }
-    }
-
-    private Properties getProperties() throws IOException {
-        Properties properties = new Properties();
-        InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
-        properties.load(is);
-        return properties;
     }
 }
