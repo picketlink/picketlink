@@ -30,18 +30,16 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
-import org.picketlink.idm.DefaultIdentityCache;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.test.idm.GroupManagementTestCase;
+import org.picketlink.test.idm.RoleManagementTestCase;
+import org.picketlink.test.idm.UserManagementTestCase;
 import org.picketlink.test.idm.internal.mgr.IdentityObject;
 import org.picketlink.test.idm.internal.mgr.IdentityObjectAttribute;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
@@ -51,12 +49,12 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * <p>
  * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore}.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ GroupManagementTestCase.class })
+@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
@@ -69,7 +67,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
      * <p>
      * Creates a shared {@link EntityManagerFactory} and database instances
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @BeforeClass
@@ -81,7 +79,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
      * <p>
      * Closes the shared {@link EntityManagerFactory} instance.
      * </p>
-     * 
+     *
      * @throws Exception
      */
     @AfterClass
@@ -104,15 +102,9 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         config.addStoreConfiguration(getConfiguration());
 
         IdentityManager identityManager = new DefaultIdentityManager();
-
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(emf,
-                new DefaultCredentialHandlerFactory(), new DefaultIdentityCache()) {
-            @Override
-            public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
-                super.initContextForStore(ctx, store);
-                ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
-            }
-        });
+        DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
+        icf.setEntityManager(entityManager);
+        identityManager.bootstrap(config, icf);
 
         return identityManager;
     }

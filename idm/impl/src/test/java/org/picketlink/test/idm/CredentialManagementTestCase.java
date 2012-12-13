@@ -22,9 +22,6 @@
 
 package org.picketlink.test.idm;
 
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
@@ -36,49 +33,55 @@ import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.User;
 
 /**
- * <p>Test case for credential management. Tests the different {@link Credential} types implementations and usage.</p>
- * 
+ * <p>
+ * Test case for credential management. Tests the different {@link Credential} types implementations and usage.
+ * </p>
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class CredentialManagementTestCase extends AbstractIdentityManagerTestCase {
 
     /**
-     * <p>Tests the {@link PlainTextPassword} usage.</p>
-     * 
+     * <p>
+     * Tests the {@link PlainTextPassword} usage.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testUsernameAndPassword() throws Exception {
         User user = getIdentityManager().getUser("admin");
-        
+
         // FIXME
-        //assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("admin".toCharArray())));
-        //assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("bad_credential".toCharArray())));
-        
+        // assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("admin".toCharArray())));
+        // assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("bad_credential".toCharArray())));
+
         getIdentityManager().updateCredential(user, new PlainTextPassword("updated_password".toCharArray()));
-        
+
         // FIXME
-        //assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("admin".toCharArray())));
-        //assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("updated_password".toCharArray())));
+        // assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("admin".toCharArray())));
+        // assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("updated_password".toCharArray())));
     }
-    
+
     /**
-     * <p>Tests the {@link X509CertificateCredentials} usage.</p>
-     * 
+     * <p>
+     * Tests the {@link X509CertificateCredentials} usage.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testX509Certificate() throws Exception {
         User user = getIdentityManager().getUser("admin");
         X509Certificate clientCert = getTestingCertificate();
-        
+
         getIdentityManager().updateCredential(user, new X509CertificateCredentials(clientCert));
-        
+
         // FIXME
-        //assertTrue(getIdentityManager().validateCredential(user, new X509CertificateCredential(clientCert)));
+        // assertTrue(getIdentityManager().validateCredential(user, new X509CertificateCredential(clientCert)));
     }
-    
+
     private X509Certificate getTestingCertificate() {
         // Certificate
         InputStream bis = getClass().getClassLoader().getResourceAsStream("cert/servercert.txt");

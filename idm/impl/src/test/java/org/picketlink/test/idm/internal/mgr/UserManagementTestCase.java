@@ -48,8 +48,10 @@ import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
- * <p>Test case for {@link User} basic management operations.</p>
- * 
+ * <p>
+ * Test case for {@link User} basic management operations.
+ * </p>
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
@@ -61,100 +63,102 @@ public class UserManagementTestCase {
     public static void initEntityManagerFactory() {
         emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
     }
-    
+
     @AfterClass
     public static void closeEntityManagerFactory() {
         emf.close();
     }
 
     private EntityManager entityManager;
-    
+
     @Before
     public void initEntityManager() {
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }
-    
+
     @After
     public void closeEntityManager() {
         this.entityManager.getTransaction().commit();
         this.entityManager.close();
     }
-    
-    @Test @Ignore
+
+    @Test
+    @Ignore
     public void testCreate() throws Exception {
         IdentityConfiguration config = new IdentityConfiguration();
-        
+
         config.addStoreConfiguration(getConfiguration());
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf, 
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf,
                 new DefaultCredentialHandlerFactory()) {
             @Override
             public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
             }
         });
-        
+
         User jduke = new SimpleUser("jduke");
-        
+
         jduke.setEmail("jduke@jboss.org");
         jduke.setFirstName("Java");
         jduke.setLastName("Duke");
-        
+
         identityManager.add(jduke);
-        
+
         assertNotNull(jduke);
     }
-    
+
     @Test
     @Ignore
     public void testGet() throws Exception {
         IdentityConfiguration config = new IdentityConfiguration();
-        
+
         config.addStoreConfiguration(getConfiguration());
 
         IdentityManager identityManager = new DefaultIdentityManager();
-        
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf, 
+
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf,
                 new DefaultCredentialHandlerFactory()) {
             @Override
             public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
             }
         });
-        
+
         User jduke = identityManager.getUser("jduke");
-        
+
         assertNotNull(jduke);
     }
-    
-    @Test @Ignore
+
+    @Test
+    @Ignore
     public void testRemove() throws Exception {
         IdentityConfiguration config = new IdentityConfiguration();
-        
+
         config.addStoreConfiguration(getConfiguration());
 
         IdentityManager identityManager = new DefaultIdentityManager();
-        
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf, 
+
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(this.emf,
                 new DefaultCredentialHandlerFactory()) {
             @Override
             public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManager);
             }
         });
-        
+
         identityManager.remove(new SimpleUser("jduke"));
     }
 
     private IdentityStoreConfiguration getConfiguration() {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
-        
+
         configuration.setIdentityClass(IdentityObject.class);
-        
+
         return configuration;
     }
-    
+
 }

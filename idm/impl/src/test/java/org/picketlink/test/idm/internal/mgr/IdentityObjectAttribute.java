@@ -35,7 +35,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 @Entity
 @IDMEntity(EntityType.IDENTITY_ATTRIBUTE)

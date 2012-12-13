@@ -36,7 +36,7 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.internal.SimpleIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
@@ -96,7 +96,7 @@ public class OAuthServerUtil {
                 IdentityConfiguration config = new IdentityConfiguration();
                 config.addStoreConfiguration(ldapConfiguration);
 
-                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
+                identityManager.bootstrap(config, new SimpleIdentityStoreInvocationContextFactory());
                 context.setAttribute("identityManager", identityManager);
             }
         }

@@ -454,10 +454,22 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 Join join = root.join(name);
 
-                String idName = getIdentityIdProperty().getName();
+                if (User.class.isInstance(identityType)) {
+                    User user = (User) identityType;
+                    
+                    predicates.add(builder.equal(join.get(getIdentityIdProperty().getName()), user.getId()));
+                } else if (Role.class.isInstance(identityType)) {
+                    Role role = (Role) identityType;
+                    
+                    predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), role.getName()));
+                } else if (Group.class.isInstance(identityType)) {
+                    Group group = (Group) identityType;
+                    
+                    predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), group.getName()));
+                }
 
-                predicates.add(builder.equal(join.get(idName), idValue));
-
+                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+                
                 List<?> results = em.createQuery(criteria).getResultList();
 
                 if (!results.isEmpty()) {
@@ -805,7 +817,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     private List<?> findAttributes(IdentityType identityType, String idValue, Attribute<? extends Serializable> userAttribute) {
-        Property<Object> attributeNameProperty = getAttributeNameProperty();
         Property<Object> attributeIdentityProperty = getAttributeIdentityProperty();
 
         EntityManager em = getEntityManager();
@@ -820,9 +831,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (User.class.isInstance(identityType)) {
             predicates.add(builder.equal(join.get(getIdentityIdProperty().getName()), idValue));
         } else {
-            predicates.add(builder.equal(root.get(attributeNameProperty.getName()), userAttribute.getName()));
+            predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), idValue));
         }
-
+        
+        predicates.add(builder.equal(root.get(getAttributeNameProperty().getName()), userAttribute.getName()));
+        
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
         return em.createQuery(criteria).getResultList();

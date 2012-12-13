@@ -31,67 +31,72 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
 /**
- * <p>Test case for the relationship between {@link User} and {@link Role} types.
- * 
+ * <p>
+ * Test case for the relationship between {@link User} and {@link Role} types.
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCase {
 
     /**
-     * <p>Tests granting roles to users.</p>
-     * 
+     * <p>
+     * Tests granting roles to users.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testGrantRoleToUser() throws Exception {
         User someUser = loadOrCreateUser("someUser", true);
         Role someRole = loadOrCreateRole("someRole", true);
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         identityManager.grantRole(someUser, someRole);
-        
+
         assertTrue(identityManager.hasRole(someUser, someRole));
-        
+
         Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
-        
+
         assertFalse(identityManager.hasRole(someUser, someAnotherRole));
-        
+
         identityManager.grantRole(someUser, someAnotherRole);
-        
+
         assertTrue(identityManager.hasRole(someUser, someAnotherRole));
         assertTrue(identityManager.hasRole(someUser, someRole));
     }
-    
+
     /**
-     * <p>Tests revoking roles from users.</p>
-     * 
+     * <p>
+     * Tests revoking roles from users.
+     * </p>
+     *
      * @throws Exception
      */
     @Test
     public void testRevokeRoleFromUser() throws Exception {
         User someUser = loadOrCreateUser("someUser", true);
-        
+
         Role someRole = loadOrCreateRole("someRole", true);
         Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         identityManager.grantRole(someUser, someRole);
         identityManager.grantRole(someUser, someAnotherRole);
-        
+
         assertTrue(identityManager.hasRole(someUser, someRole));
         assertTrue(identityManager.hasRole(someUser, someAnotherRole));
-        
+
         identityManager.revokeRole(someUser, someRole);
-        
+
         assertFalse(identityManager.hasRole(someUser, someRole));
         assertTrue(identityManager.hasRole(someUser, someAnotherRole));
-        
+
         identityManager.revokeRole(someUser, someAnotherRole);
-        
+
         assertFalse(identityManager.hasRole(someUser, someAnotherRole));
     }
-    
+
 }
