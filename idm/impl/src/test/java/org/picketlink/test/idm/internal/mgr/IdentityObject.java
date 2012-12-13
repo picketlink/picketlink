@@ -39,91 +39,91 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-@IDMEntity (EntityType.IDENTITY_TYPE)
+@IDMEntity(EntityType.IDENTITY_TYPE)
 @Entity
 public class IdentityObject {
 
     @Id
     @GeneratedValue
     private long internalId;
-    
-    @IDMProperty (PropertyType.DISCRIMINATOR)
+
+    @IDMProperty(PropertyType.DISCRIMINATOR)
     private String discriminator;
-    
-    @IDMProperty (PropertyType.ID)
+
+    @IDMProperty(PropertyType.ID)
     private String id;
-    
-    @IDMProperty (PropertyType.KEY)
+
+    @IDMProperty(PropertyType.KEY)
     private String key;
-    
-    @IDMProperty (PropertyType.NAME)
+
+    @IDMProperty(PropertyType.NAME)
     private String name;
 
-    @IDMProperty (PropertyType.FIRST_NAME)
+    @IDMProperty(PropertyType.FIRST_NAME)
     private String firstName;
 
-    @IDMProperty (PropertyType.LAST_NAME)
+    @IDMProperty(PropertyType.LAST_NAME)
     private String lastName;
 
-    @IDMProperty (PropertyType.EMAIL)
+    @IDMProperty(PropertyType.EMAIL)
     private String email;
 
-    @IDMProperty (PropertyType.ENABLED)
+    @IDMProperty(PropertyType.ENABLED)
     private boolean enabled;
 
-    @IDMProperty (PropertyType.CREATION_DATE)
+    @IDMProperty(PropertyType.CREATION_DATE)
     private Date creationDate;
 
-    @IDMProperty (PropertyType.EXPIRY_DATE)
+    @IDMProperty(PropertyType.EXPIRY_DATE)
     private Date expiryDate;
-    
-    @IDMAttribute (name="one-valued")
+
+    @IDMAttribute(name = "one-valued")
     private String oneValued;
-    
+
     @ManyToOne
-    @IDMProperty (PropertyType.PARENT_GROUP)
+    @IDMProperty(PropertyType.PARENT_GROUP)
     private IdentityObject parent;
-    
+
     public long getInternalId() {
         return this.internalId;
     }
-    
+
     public void setInternalId(long internalId) {
         this.internalId = internalId;
     }
-    
+
     public String getDiscriminator() {
         return this.discriminator;
     }
-    
+
     public void setDiscriminator(String discriminator) {
         this.discriminator = discriminator;
     }
-    
+
     public String getId() {
         return this.id;
     }
-    
+
     public void setId(String id) {
         this.id = id;
     }
-    
+
     public String getKey() {
         return getDiscriminator() + "://" + getId();
     }
-    
+
     public void setKey(String key) {
         this.key = key;
     }
-    
+
     public String getName() {
         return this.name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getFirstName() {
         return firstName;
     }
@@ -175,15 +175,15 @@ public class IdentityObject {
     public IdentityObject getParent() {
         return this.parent;
     }
-    
+
     public void setParent(IdentityObject parent) {
         this.parent = parent;
     }
-    
+
     public String getOneValued() {
         return this.oneValued;
     }
-    
+
     public void setOneValued(String oneValued) {
         this.oneValued = oneValued;
     }

@@ -25,17 +25,19 @@ package org.picketlink.test.idm.runners;
 import org.picketlink.idm.IdentityManager;
 
 /**
- * <p>Interface used to provide some callback methods called during the tests executed using the {@link IdentityManagerRunner}.</p>
- * 
+ * <p>
+ * Interface used to provide some callback methods called during the tests executed using the {@link IdentityManagerRunner}.
+ * </p>
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
 public interface TestLifecycle {
 
     void onInit();
-    
+
     IdentityManager createIdentityManager();
-    
+
     void onDestroy();
-    
+
 }
