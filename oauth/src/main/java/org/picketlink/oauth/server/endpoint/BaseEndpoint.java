@@ -22,33 +22,32 @@
 package org.picketlink.oauth.server.endpoint;
 
 import java.io.IOException;
-import java.net.URI;
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
-import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
- * OAuth2 Authorization Endpoint
+ * Base class for endpoints
  *
  * @author anil saldhana
- * @since Aug 27, 2012
+ * @since Dec 12, 2012
  */
-@Path("/authz")
-public class AuthorizationEndpoint extends BaseEndpoint {
+public class BaseEndpoint implements Serializable {
     private static final long serialVersionUID = 1L;
-    private static Logger log = Logger.getLogger(AuthorizationEndpoint.class.getName());
+    private static Logger log = Logger.getLogger(BaseEndpoint.class.getName());
 
-    @GET
-    public Response authorize(@Context HttpServletRequest request) {
+    protected IdentityManager identityManager = null;
+
+    @Context
+    protected ServletContext context;
+
+    protected void setup() {
         if (context == null) {
             throw new RuntimeException("Servlet Context has not been injected");
         }
@@ -63,20 +62,6 @@ public class AuthorizationEndpoint extends BaseEndpoint {
                 throw new RuntimeException("Identity Manager has not been created");
             }
         }
-
-        OAuthResponse response = null;
-        try {
-            response = OAuthServerUtil.authorizationCodeRequest(request, identityManager);
-        } catch (OAuthSystemException e) {
-            log.log(Level.SEVERE, "OAuth Server Authorization Processing:", e);
-            return Response.serverError().build();
-        }
-        // Check for successful processing
-        String location = response.getLocationUri();
-        if (location != null && location.isEmpty() == false) {
-            return Response.status(response.getResponseStatus()).location(URI.create(location)).build();
-        } else { // We have error
-            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-        }
     }
+
 }

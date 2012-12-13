@@ -21,14 +21,11 @@
  */
 package org.picketlink.oauth.registration;
 
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.Date;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -38,7 +35,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
@@ -48,7 +44,7 @@ import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.JSONHttpServletRequestWrapper;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.OAuthServerRegistrationRequest;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.response.OAuthServerRegistrationResponse;
-import org.picketlink.oauth.server.util.OAuthServerUtil;
+import org.picketlink.oauth.server.endpoint.BaseEndpoint;
 
 /**
  * Endpoint used in registration of OAuth Client Applications
@@ -57,26 +53,16 @@ import org.picketlink.oauth.server.util.OAuthServerUtil;
  * @since Aug 28, 2012
  */
 @Path("/register")
-public class RegistrationEndpoint implements Serializable {
+public class RegistrationEndpoint extends BaseEndpoint {
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
 
-    protected IdentityManager identityManager = null;
-
-    @Context
-    protected ServletContext context;
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @POST
     @Consumes("application/json")
     @Produces("application/json")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Response register(@Context HttpServletRequest request) {
-        try {
-            handleIdentityManager();
-        } catch (IOException e1) {
-            log.log(Level.SEVERE, "IdentityManager Setup", e1);
-            throw new RuntimeException(e1);
-        }
+        super.setup();
 
         try {
             OAuthServerRegistrationRequest oauthRequest = null;
@@ -105,7 +91,6 @@ public class RegistrationEndpoint implements Serializable {
                 identityManager.add(user);
 
                 identityManager.updateCredential(user, new PlainTextPassword(generatedSecret.toCharArray()));
-                // user.setAttribute("clientSecret", generatedSecret);
 
                 OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
                         .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
@@ -121,18 +106,6 @@ public class RegistrationEndpoint implements Serializable {
         } catch (Exception e) {
             log.log(Level.SEVERE, "OAuth Server Registration Processing:", e);
             return Response.serverError().build();
-        }
-    }
-
-    private void handleIdentityManager() throws IOException {
-        if (identityManager == null) {
-            if (context == null) {
-                throw new RuntimeException("Servlet Context has not been injected");
-            }
-            identityManager = OAuthServerUtil.handleIdentityManager(context);
-            if (identityManager == null) {
-                throw new RuntimeException("Identity Manager has not been created");
-            }
         }
     }
 
