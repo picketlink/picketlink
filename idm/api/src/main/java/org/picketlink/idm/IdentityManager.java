@@ -21,6 +21,8 @@
  */
 package org.picketlink.idm;
 
+import java.io.Serializable;
+
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
@@ -39,7 +41,7 @@ import org.picketlink.idm.spi.StoreFactory;
  * 
  * @author Shane Bryzak
  */
-public interface IdentityManager {
+public interface IdentityManager extends Serializable{
 
     /**
      * This method must be invoked to set up the IdentityManager instance before any identity management operations may be
