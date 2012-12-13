@@ -91,6 +91,7 @@ public class AuthorizationEndpointTestCase extends EndpointTestBase {
         // Msg will contain http://localhost:11080/oauth/redirect?code=3c80bf2325fc6e9ef5b84ea4edc6a2ac
         System.out.println(msg);
         int index = msg.indexOf("http");
+        System.out.println("Received message=" + msg);
         String subString = msg.substring(index + redirectURL.length() + 1);
         Map<String, Object> map = OAuthUtils.decodeForm(subString);
 

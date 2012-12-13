@@ -21,14 +21,11 @@
  */
 package org.picketlink.oauth.registration;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
 import java.util.Date;
-import java.util.Properties;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -38,22 +35,16 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
+import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.JSONHttpServletRequestWrapper;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.OAuthServerRegistrationRequest;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.response.OAuthServerRegistrationResponse;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfiguration;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.User;
+import org.picketlink.oauth.server.endpoint.BaseEndpoint;
 
 /**
  * Endpoint used in registration of OAuth Client Applications
@@ -62,110 +53,60 @@ import org.picketlink.idm.model.User;
  * @since Aug 28, 2012
  */
 @Path("/register")
-public class RegistrationEndpoint implements Serializable {
+public class RegistrationEndpoint extends BaseEndpoint {
     private static final long serialVersionUID = 1L;
+    private static Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
 
-    protected IdentityManager identityManager = null;
-
-    @Context
-    protected ServletContext context;
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    public Response register(@Context HttpServletRequest request) throws OAuthSystemException {
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Response register(@Context HttpServletRequest request) {
+        super.setup();
+
         try {
-            handleIdentityManager();
-        } catch (IOException e1) {
-            throw new RuntimeException(e1);
-        }
+            OAuthServerRegistrationRequest oauthRequest = null;
+            try {
+                oauthRequest = new OAuthServerRegistrationRequest(new JSONHttpServletRequestWrapper(request));
+                oauthRequest.discover();
+                String clientName = oauthRequest.getClientName();
+                String clientURL = oauthRequest.getClientUrl();
+                String clientDescription = oauthRequest.getClientDescription();
+                String clientRedirectURI = oauthRequest.getRedirectURI();
 
-        OAuthServerRegistrationRequest oauthRequest = null;
-        try {
-            oauthRequest = new OAuthServerRegistrationRequest(new JSONHttpServletRequestWrapper(request));
-            oauthRequest.discover();
-            String clientName = oauthRequest.getClientName();
-            String clientURL = oauthRequest.getClientUrl();
-            String clientDescription = oauthRequest.getClientDescription();
-            String clientRedirectURI = oauthRequest.getRedirectURI();
+                String generatedClientID = generateClientID();
+                String generatedSecret = generateClientSecret();
 
-            String generatedClientID = generateClientID();
-            String generatedSecret = generateClientSecret();
+                // User user = identityManager.createUser(clientName);
+                User user = new SimpleUser(clientName);
+                user.setFirstName(clientName);
+                user.setLastName(" ");
 
-            // User user = identityManager.createUser(clientName);
-            User user = new SimpleUser(clientName);
-            user.setFirstName(clientName);
-            user.setLastName(" ");
+                user.setAttribute(new Attribute("url", clientURL));
 
-            user.setAttribute(new Attribute("url", clientURL));
+                user.setAttribute(new Attribute("description", clientDescription));
+                user.setAttribute(new Attribute("redirectURI", clientRedirectURI));
+                user.setAttribute(new Attribute("clientID", generatedClientID));
 
-            user.setAttribute(new Attribute("description", clientDescription));
-            user.setAttribute(new Attribute("redirectURI", clientRedirectURI));
-            user.setAttribute(new Attribute("clientID", generatedClientID));
+                identityManager.add(user);
 
-            identityManager.add(user);
+                identityManager.updateCredential(user, new PlainTextPassword(generatedSecret.toCharArray()));
 
-            identityManager.updateCredential(user, new PlainTextPassword(generatedSecret.toCharArray()));
-            // user.setAttribute("clientSecret", generatedSecret);
+                OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
+                        .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
+                        .setExpiresIn("3600").buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
 
-            OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
-                    .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
-                    .setExpiresIn("3600").buildJSONMessage();
-            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-
-        } catch (OAuthProblemException e) {
-            OAuthResponse response = OAuthServerRegistrationResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e)
-                    .buildJSONMessage();
-            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-        }
-    }
-
-    private void handleIdentityManager() throws IOException {
-        if (identityManager == null) {
-            if (context == null) {
-                throw new RuntimeException("Servlet Context has not been injected");
+            } catch (OAuthProblemException e) {
+                e.printStackTrace();
+                OAuthResponse response = OAuthServerRegistrationResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .error(e).buildJSONMessage();
+                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
             }
-            identityManager = new DefaultIdentityManager();
-            String storeType = context.getInitParameter("storeType");
-            if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
-                LDAPIdentityStore store = new LDAPIdentityStore();
-                LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
-
-                Properties properties = getProperties();
-                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
-                        properties.getProperty("bindCredential"));
-                ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
-                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
-                        properties.getProperty("roleDNSuffix"));
-                ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
-                ldapConfiguration.setAdditionalProperties(properties);
-
-                // store.setConfiguration(ldapConfiguration);
-
-                // Create Identity Configuration
-                IdentityConfiguration config = new IdentityConfiguration();
-                config.addStoreConfiguration(ldapConfiguration);
-
-                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
-
-                // ((DefaultIdentityManager) identityManager).setIdentityStore(store);
-            }
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "OAuth Server Registration Processing:", e);
+            return Response.serverError().build();
         }
-    }
-
-    private User createUser(String name) {
-        User anUser = new SimpleUser(name);
-        anUser.setFirstName(name);
-        anUser.setLastName(" ");
-        return anUser;
-    }
-
-    private Properties getProperties() throws IOException {
-        Properties properties = new Properties();
-        InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
-        properties.load(is);
-        return properties;
     }
 
     private String generateClientID() {
