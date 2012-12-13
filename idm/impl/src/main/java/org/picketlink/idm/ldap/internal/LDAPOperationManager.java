@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.naming.Binding;
+import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -56,7 +57,6 @@ public class LDAPOperationManager {
 
     private List<String> managedAttributes = new ArrayList<String>();
 
-    @SuppressWarnings("unused")
     private Properties properties;
     private DirContext context;
     private DirContext authenticationContext;
@@ -78,7 +78,18 @@ public class LDAPOperationManager {
         try {
             context.bind(dn, object);
         } catch (NamingException e) {
-            throw new RuntimeException(e);
+            if(e instanceof CommunicationException){
+                //Discard context and try to recover from LDAP server communication breakage
+                try {
+                    context.close();
+                    context = new InitialLdapContext(properties,null);
+                    context.bind(dn, object);
+                } catch (NamingException e1) {
+                    throw new RuntimeException(e1);
+                }
+            }else {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -91,12 +102,8 @@ public class LDAPOperationManager {
      * @param attribute
      */
     public void modifyAttribute(String dn, Attribute attribute) {
-        try {
-            ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute) };
-            context.modifyAttributes(dn, mods);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+        ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attribute) };
+        modifyAttributes(dn, mods);
     }
 
     /**
@@ -108,12 +115,8 @@ public class LDAPOperationManager {
      * @param attribute
      */
     public void removeAttribute(String dn, Attribute attribute) {
-        try {
-            ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute) };
-            context.modifyAttributes(dn, mods);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+        ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attribute) };
+        modifyAttributes(dn, mods);
     }
 
     /**
@@ -125,12 +128,8 @@ public class LDAPOperationManager {
      * @param attribute
      */
     public void addAttribute(String dn, Attribute attribute) {
-        try {
             ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute) };
-            context.modifyAttributes(dn, mods);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+            modifyAttributes(dn, mods);
     }
 
     /**
@@ -145,7 +144,18 @@ public class LDAPOperationManager {
         try {
             context.rebind(dn, object);
         } catch (NamingException e) {
-            throw new RuntimeException(e);
+            if(e instanceof CommunicationException){
+                //Discard context and try to recover from LDAP server communication breakage
+                try {
+                    context.close();
+                    context = new InitialLdapContext(properties,null);
+                    context.rebind(dn, object);
+                } catch (NamingException e1) {
+                    throw new RuntimeException(e1);
+                }
+            }else {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -360,4 +370,22 @@ public class LDAPOperationManager {
         return true;
     }
 
+    private void modifyAttributes(String dn, ModificationItem[] mods){
+        try{
+            context.modifyAttributes(dn, mods);
+        } catch (NamingException e) {
+            if(e instanceof CommunicationException){
+                //Discard context and try to recover from LDAP server communication breakage
+                try {
+                    context.close();
+                    context = new InitialLdapContext(properties,null);
+                    context.modifyAttributes(dn, mods);
+                } catch (NamingException e1) {
+                    throw new RuntimeException(e1);
+                }
+            }else {
+                throw new RuntimeException(e);
+            }
+        }
+    }
 }
