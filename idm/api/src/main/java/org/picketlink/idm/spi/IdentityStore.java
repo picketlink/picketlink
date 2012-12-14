@@ -34,6 +34,7 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -186,8 +187,9 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     // Identity query
 
-    <T extends IdentityType> List<T> fetchQueryResults(Class<T> identityType, Map<QueryParameter,Object[]> parameters);
+    <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery);
 
+    <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery);
     // Attributes
 
     /**

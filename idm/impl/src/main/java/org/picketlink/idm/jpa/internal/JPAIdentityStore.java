@@ -62,6 +62,7 @@ import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -670,9 +671,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
+    public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
+        throw new org.picketlink.idm.SecurityException("Not yet implemented") {};
     }
 
     @Override
