@@ -146,15 +146,21 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        User storedUserInstance = getIdentityType(true);
+        User someUser = getIdentityType(true);
+        User anotherUser = loadOrCreateUser("someAnotherUser", true);
 
-        assertNotNull(storedUserInstance);
+        assertNotNull(someUser);
+        assertNotNull(anotherUser);
 
-        identityManager.remove(storedUserInstance);
+        identityManager.remove(someUser);
 
-        User removedUserInstance = getIdentityManager().getUser(storedUserInstance.getId());
+        User removedUserInstance = getIdentityManager().getUser(someUser.getId());
 
         assertNull(removedUserInstance);
+        
+        anotherUser = identityManager.getUser(anotherUser.getId());
+        
+        assertNotNull(anotherUser);
     }
 
     @Override
