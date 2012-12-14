@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.Entity;
-
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.internal.util.properties.Property;
@@ -21,6 +20,10 @@ import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
@@ -766,5 +769,21 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
     public void setIdentityTypeRole(String identityTypeRole) {
         this.identityTypeRole = identityTypeRole;
+    }
+
+    protected String getIdentityTypeGroupDiscriminator(IdentityType identityType) {
+        String discriminator = null;
+        
+        if (User.class.isInstance(identityType)) {
+            discriminator = getIdentityTypeUser();
+        } else if (Role.class.isInstance(identityType)) {
+            discriminator = getIdentityTypeRole();
+        } else if (Group.class.isInstance(identityType)) {
+            discriminator = getIdentityTypeGroup();
+        } else {
+            throw new IdentityManagementException("No discriminator could be determined for type [" + identityType.getClass() + "]");
+        }
+        
+        return discriminator;
     }
 }

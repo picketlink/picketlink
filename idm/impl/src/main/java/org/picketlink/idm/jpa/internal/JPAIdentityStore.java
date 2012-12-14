@@ -123,160 +123,59 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return null;
     }
 
-    private <P> P getModelProperty(Class<P> propertyType, Object instance, String propertyName) {
-        @SuppressWarnings("unchecked")
-        Property<P> property = (Property<P>) getConfig().getModelProperty(propertyName);
-        return property == null ? null : property.getValue(instance);
-    }
-
-    private void setModelProperty(Object instance, String propertyName, Object value) {
-        setModelProperty(instance, propertyName, value, false);
-    }
-
-    private void setModelProperty(Object instance, String propertyName, Object value, boolean required) {
-        if (getConfig().isModelPropertySet(propertyName)) {
-            getConfig().getModelProperty(propertyName).setValue(instance, value);
-        } else if (required) {
-            throw new SecurityException("Model property [" + propertyName + "] has not been configured.");
-        }
-    }
-
     @Override
     public void add(IdentityType identityType) {
         try {
             Object identity = getConfig().getIdentityClass().newInstance();
             EntityManager em = getEntityManager();
 
-            setModelProperty(identity, PROPERTY_IDENTITY_CREATED, identityType.getCreatedDate());
-
-            if (User.class.isInstance(identityType)) {
-
-                User user = (User) identityType;
-
-                populateIdentityInstance(identity, user);
-
-                // Create any related entities that may be containers for attribute values -
-                // we are not setting the attribute values themselves, just creating the entities
-                // that they are contained in, and setting a reference to those entities from within
-                // the identity object.
-                for (String attribName : getConfig().getAttributeProperties().keySet()) {
-                    MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
-                    if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
-                        Object instance = attrib.getIdentityProperty().getJavaClass().newInstance();
-                        attrib.getIdentityProperty().setValue(identity, instance);
-
-                        em.persist(instance);
-                    }
-                }
-
-                UserCreatedEvent event = new UserCreatedEvent(user);
-                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
-                getContext().getEventBridge().raiseEvent(event);
-
-                if (user.getAttributes() != null && !user.getAttributes().isEmpty()) {
-                    for (Attribute<? extends Serializable> attrib : user.getAttributes()) {
-                        setAttribute(user, attrib);
-                    }
-                }
-            } else if (Role.class.isInstance(identityType)) {
-                try {
-                    Role role = (Role) identityType;
-
-                    populateIdentityInstance(identity, role);
-                } catch (Exception ex) {
-                    throw new IdentityManagementException("Exception while creating user", ex);
-                }
-            } else if (Group.class.isInstance(identityType)) {
-                try {
-                    Group group = (Group) identityType;
-
-                    populateIdentityInstance(identity, group);
-
-                    if (group.getParentGroup() != null) {
-                        Object parentIdentity = lookupIdentityObjectById(Group.class, group.getParentGroup().getName());
-
-                        if (parentIdentity == null) {
-                            add(group.getParentGroup());
-                            parentIdentity = lookupIdentityObjectById(Group.class, group.getParentGroup().getName());
-                        }
-
-                        setModelProperty(identity, JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP, parentIdentity, true);
-                    }
-                } catch (Exception ex) {
-                    throw new IdentityManagementException("Exception while creating user", ex);
-                }
-            }
+            populateIdentityInstance(identity, identityType);
 
             em.persist(identity);
             em.flush();
+
+            if (isUserInstance(identityType)) {
+                UserCreatedEvent event = new UserCreatedEvent((User) identityType);
+                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+                getContext().getEventBridge().raiseEvent(event);
+            }
         } catch (Exception ex) {
-            throw new IdentityManagementException("Exception while creating user", ex);
+            throw new IdentityManagementException("Exception while creating IdentityType [" + identityType + "].", ex);
         }
     }
 
     @Override
     public void update(IdentityType identityType) {
-        if (User.class.isInstance(identityType)) {
-            try {
-                User user = (User) identityType;
+        Object identity = lookupIdentityObjectById(identityType);
 
-                // Create the identity entity instance first
-                Object identity = lookupIdentityObjectById(User.class, user.getId());
+        populateIdentityInstance(identity, identityType);
 
-                populateIdentityInstance(identity, user);
+        updateAttributes(identityType, getIdentifierValue(identityType), identity);
 
-                updateAttributes(user, user.getId(), identity);
+        EntityManager em = getEntityManager();
 
-                EntityManager em = getEntityManager();
+        em.merge(identity);
+        em.flush();
 
-                em.merge(identity);
-                em.flush();
-
-                UserUpdatedEvent event = new UserUpdatedEvent(user);
-                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
-                getContext().getEventBridge().raiseEvent(event);
-            } catch (Exception ex) {
-                throw new IdentityManagementException("Exception while creating user", ex);
-            }
-        } else if (Role.class.isInstance(identityType)) {
-            try {
-                Role role = (Role) identityType;
-
-                // Create the identity entity instance first
-                Object identity = lookupIdentityObjectByKey(String.format("%s%s", Role.KEY_PREFIX, role.getName()));
-
-                populateIdentityInstance(identity, role);
-
-                updateAttributes(role, role.getName(), identity);
-
-                EntityManager em = getEntityManager();
-
-                em.merge(identity);
-                em.flush();
-            } catch (Exception ex) {
-                throw new IdentityManagementException("Exception while creating user", ex);
-            }
-        } else if (Group.class.isInstance(identityType)) {
-            try {
-                Group group = (Group) identityType;
-
-                Group storedGroup = getGroup(group.getName());
-
-                // Create the identity entity instance first
-                Object identity = lookupIdentityObjectByKey(storedGroup.getKey());
-
-                populateIdentityInstance(identity, group);
-
-                updateAttributes(group, group.getName(), identity);
-
-                EntityManager em = getEntityManager();
-
-                em.merge(identity);
-                em.flush();
-            } catch (Exception ex) {
-                throw new IdentityManagementException("Exception while creating user", ex);
-            }
+        if (isUserInstance(identityType)) {
+            UserUpdatedEvent event = new UserUpdatedEvent((User) identityType);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+            getContext().getEventBridge().raiseEvent(event);
         }
+    }
+
+    private String getIdentifierValue(IdentityType identityType) {
+        String value = null;
+
+        if (isUserInstance(identityType)) {
+            value = ((User) identityType).getId();
+        } else if (isRoleInstance(identityType)) {
+            value = ((Role) identityType).getName();
+        } else if (isGroupInstance(identityType)) {
+            value = ((Group) identityType).getName();
+        }
+
+        return value;
     }
 
     private void updateAttributes(IdentityType identityType, String idValue, Object identity) {
@@ -329,18 +228,18 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     public void remove(IdentityType identityType) {
         EntityManager em = getEntityManager();
 
-        if (User.class.isInstance(identityType)) {
+        if (isUserInstance(identityType)) {
             User user = (User) identityType;
-            Object entity = lookupIdentityObjectById(User.class, user.getId());
+            Object entity = lookupIdentityObjectById(user);
             removeIdentityObject(entity);
 
             UserDeletedEvent event = new UserDeletedEvent(user);
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
             getContext().getEventBridge().raiseEvent(event);
-        } else if (Group.class.isInstance(identityType)) {
+        } else if (isGroupInstance(identityType)) {
             Group group = (Group) identityType;
 
-            Object entity = lookupIdentityObjectById(Group.class, group.getName());
+            Object entity = lookupIdentityObjectById(group);
 
             if (entity != null) {
                 CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -371,7 +270,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 getContext().getEventBridge().raiseEvent(event);
             }
 
-        } else if (Role.class.isInstance(identityType)) {
+        } else if (isRoleInstance(identityType)) {
             Role role = (Role) identityType;
 
             Object entity = lookupIdentityObjectByKey(role.getKey());
@@ -399,7 +298,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // If the cache doesn't have a reference to the User, we have to look up it's identity object
         // and create a User instance based on it
         if (user == null) {
-            Object identity = lookupIdentityObjectById(User.class, id);
+            Object identity = lookupIdentityObjectById(new SimpleUser(id));
 
             if (identity != null) {
                 user = (User) createFromIdentityInstance(identity);
@@ -414,7 +313,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         String discriminator = getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getValue(identity).toString();
         IdentityType identityType = null;
         String idValue = null;
-        
+
         if (discriminator.equals(getConfig().getIdentityTypeUser())) {
             idValue = getIdentityIdProperty().getValue(identity).toString();
 
@@ -422,26 +321,28 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             user.setLastName(getModelProperty(String.class, identity, PROPERTY_USER_LAST_NAME));
             user.setEmail(getModelProperty(String.class, identity, PROPERTY_USER_EMAIL));
-            
+
             identityType = user;
         } else if (discriminator.equals(getConfig().getIdentityTypeRole())) {
             idValue = getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getValue(identity).toString();
 
             Role role = convertRoleEntityToRole(this.context.getRealm(), identity);
-            
+
             identityType = role;
         } else if (discriminator.equals(getConfig().getIdentityTypeGroup())) {
             idValue = getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getValue(identity).toString();
 
             Group group = convertGroupEntityToGroup(this.context.getRealm(), identity);
-            
+
             identityType = group;
         }
-        
+
         identityType.setEnabled(getModelProperty(Boolean.class, identity, PROPERTY_IDENTITY_ENABLED));
-        identityType.setExpirationDate(getModelProperty(Date.class, identity, JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES));
-        identityType.setCreatedDate(getModelProperty(Date.class, identity, JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_CREATED));
-        
+        identityType.setExpirationDate(getModelProperty(Date.class, identity,
+                JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES));
+        identityType.setCreatedDate(getModelProperty(Date.class, identity,
+                JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_CREATED));
+
         populateAttributes(identityType, idValue, identity);
 
         return identityType;
@@ -485,16 +386,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 Join join = root.join(name);
 
-                if (User.class.isInstance(identityType)) {
+                if (isUserInstance(identityType)) {
                     User user = (User) identityType;
 
                     predicates.add(builder.equal(join.get(getIdentityIdProperty().getName()), user.getId()));
-                } else if (Role.class.isInstance(identityType)) {
+                } else if (isRoleInstance(identityType)) {
                     Role role = (Role) identityType;
 
                     predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
                             role.getName()));
-                } else if (Group.class.isInstance(identityType)) {
+                } else if (isGroupInstance(identityType)) {
                     Group group = (Group) identityType;
 
                     predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
@@ -551,8 +452,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // Check the cache first
         Group group = getContext().getCache().lookupGroup(context.getRealm(), groupId);
 
-        if (group == null) {
-            Object identity = lookupIdentityObjectById(Group.class, groupId);
+        if (group == null && groupId != null) {
+            Object identity = lookupIdentityObjectById(new SimpleGroup(groupId));
 
             if (identity != null) {
                 group = convertGroupEntityToGroup(context.getRealm(), identity);
@@ -572,12 +473,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Object parentInstance = getModelProperty(Object.class, identity, PROPERTY_PARENT_GROUP);
 
         SimpleGroup group = null;
-        
+
         if (parentInstance != null) {
             String parentId = getModelProperty(String.class, parentInstance, PROPERTY_IDENTITY_ID);
 
             Group parent = getContext().getCache().lookupGroup(partition, parentId);
-            
+
             if (parent == null) {
                 parent = convertGroupEntityToGroup(partition, parentInstance);
                 getContext().getCache().putGroup(partition, parent);
@@ -657,23 +558,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public void setAttribute(IdentityType identity, Attribute<? extends Serializable> providedAttrib) {
-        EntityManager em = getEntityManager();
-
-        try {
-            for (String attribName : getConfig().getAttributeProperties().keySet()) {
-                MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
-                if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
-                    Object instance = attrib.getIdentityProperty().getJavaClass().newInstance();
-                    attrib.getIdentityProperty().setValue(identity, instance);
-
-                    em.persist(instance);
-                } else {
-                    attrib.getAttributeProperty().setValue(identity, providedAttrib.getValue());
-                }
-            }
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error setting attribute [" + providedAttrib + "] for [" + identity + "]", e);
-        }
     }
 
     @Override
@@ -711,39 +595,39 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         EntityManager em = getEntityManager();
         Class<?> identityClass = getConfig().getIdentityClass();
         Class<T> typeClass = identityQuery.getIdentityType();
-        
+
         Set<Entry<QueryParameter, Object[]>> parametersEntrySet = identityQuery.getParameters().entrySet();
         boolean hasCustomAttributes = false;
-        
+
         for (Entry<QueryParameter, Object[]> entry : parametersEntrySet) {
             if (IdentityType.AttributeParameter.class.isInstance(entry.getKey())) {
                 hasCustomAttributes = true;
             }
         }
-        
+
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<?> criteria = null;
         Root<?> root = null;
         Root<?> attributeRoot = null;
         List<Predicate> predicates = new ArrayList<Predicate>();
-        
+
         hasCustomAttributes = false;
-        
+
         if (!hasCustomAttributes) {
             criteria = builder.createQuery(identityClass);
             root = criteria.from(identityClass);
         } else {
             criteria = builder.createQuery(getConfig().getAttributeClass());
-            
+
             attributeRoot = criteria.from(getConfig().getAttributeClass());
-            
+
             root = criteria.from(identityClass);
-            
+
             predicates.add(builder.equal(attributeRoot.get(getAttributeIdentityProperty().getName()), root));
         }
-        
+
         String discriminator = null;
-        
+
         for (Entry<QueryParameter, Object[]> entry : parametersEntrySet) {
             QueryParameter queryParameter = entry.getKey();
             Object[] parameterValues = entry.getValue();
@@ -769,7 +653,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                     propertyName = getConfig().getModelProperty(PROPERTY_USER_EMAIL).getName();
                 }
             }
-            
+
             if (Role.class.isAssignableFrom(typeClass)) {
                 discriminator = getConfig().getIdentityTypeRole();
 
@@ -778,7 +662,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 }
 
             }
-            
+
             if (Group.class.isAssignableFrom(typeClass)) {
                 discriminator = getConfig().getIdentityTypeGroup();
 
@@ -795,7 +679,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (queryParameter.equals(IdentityType.CREATED_DATE) || queryParameter.equals(IdentityType.CREATED_AFTER)
                     || queryParameter.equals(IdentityType.CREATED_BEFORE)) {
                 propertyName = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_CREATED).getName();
-                
+
                 if (queryParameter.equals(IdentityType.CREATED_AFTER)) {
                     comparationType = "gt";
                 }
@@ -808,7 +692,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (queryParameter.equals(IdentityType.EXPIRY_DATE) || queryParameter.equals(IdentityType.EXPIRY_AFTER)
                     || queryParameter.equals(IdentityType.EXPIRY_BEFORE)) {
                 propertyName = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES).getName();
-                
+
                 if (queryParameter.equals(IdentityType.EXPIRY_AFTER)) {
                     comparationType = "gt";
                 }
@@ -817,28 +701,32 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                     comparationType = "lt";
                 }
             }
-            
+
             if (queryParameter instanceof IdentityType.AttributeParameter) {
                 AttributeParameter customParameter = (AttributeParameter) queryParameter;
-                
+
                 Subquery<?> subquery = criteria.subquery(getConfig().getAttributeClass());
                 Root fromProject = subquery.from(getConfig().getAttributeClass());
                 Subquery<?> select = subquery.select(fromProject.get(getAttributeIdentityProperty().getName()));
 
                 Predicate conjunction = builder.conjunction();
-                
-                conjunction.getExpressions().add(builder.equal(fromProject.get(getAttributeNameProperty().getName()), customParameter.getName()));
-                conjunction.getExpressions().add((fromProject.get(getAttributeValueProperty().getName()).in((Object[]) parameterValues)));
-                
+
+                conjunction.getExpressions().add(
+                        builder.equal(fromProject.get(getAttributeNameProperty().getName()), customParameter.getName()));
+                conjunction.getExpressions().add(
+                        (fromProject.get(getAttributeValueProperty().getName()).in((Object[]) parameterValues)));
+
                 subquery.where(conjunction);
-                
-                subquery.groupBy(subquery.getSelection()).having(builder.equal(builder.count(subquery.getSelection()), parameterValues.length));
+
+                subquery.groupBy(subquery.getSelection()).having(
+                        builder.equal(builder.count(subquery.getSelection()), parameterValues.length));
 
                 predicates.add(builder.in(root).value(subquery));
             } else if (queryParameter.equals(Group.PARENT)) {
                 Join<Object, Object> join = root.join(getConfig().getModelProperty(PROPERTY_PARENT_GROUP).getName());
-                
-                predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), parameterValues[0]));
+
+                predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
+                        parameterValues[0]));
             } else {
                 if (comparationType.equals("eq")) {
                     predicates.add(builder.equal(root.get(propertyName), parameterValues[0]));
@@ -849,18 +737,18 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 }
             }
         }
-        
+
         predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
                 discriminator));
-        
+
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-        
+
         List<?> queryResult = em.createQuery(criteria).getResultList();
         List<T> result = new ArrayList<T>();
 
         for (Object identity : queryResult) {
             T identityType = null;
-            
+
             if (User.class.isAssignableFrom(typeClass)) {
                 identityType = (T) createFromIdentityInstance(identity);
             } else if (Role.class.isAssignableFrom(typeClass)) {
@@ -868,7 +756,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             } else if (Group.class.isAssignableFrom(typeClass)) {
                 identityType = (T) createFromIdentityInstance(identity);
             }
-            
+
             result.add(identityType);
         }
 
@@ -877,7 +765,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
-        throw new org.picketlink.idm.SecurityException("Not yet implemented") {};
+        throw new org.picketlink.idm.SecurityException("Not yet implemented") {
+        };
     }
 
     @Override
@@ -921,37 +810,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                             + "] for IdentityStore [" + this.getClass() + "]");
         }
         handler.update(agent, credential, this);
-    }
-
-    private void populateIdentityInstance(Object toIdentity, IdentityType identityType) {
-        setModelProperty(toIdentity, PROPERTY_IDENTITY_KEY, identityType.getKey(), true);
-        setModelProperty(toIdentity, PROPERTY_IDENTITY_ENABLED, identityType.isEnabled());
-        setModelProperty(toIdentity, PROPERTY_IDENTITY_EXPIRES, identityType.getExpirationDate());
-
-        if (User.class.isAssignableFrom(identityType.getClass())) {
-            User fromUser = (User) identityType;
-
-            // user properties
-            setModelProperty(toIdentity, PROPERTY_IDENTITY_DISCRIMINATOR, getConfig().getIdentityTypeUser(), true);
-            setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
-            setModelProperty(toIdentity, PROPERTY_USER_FIRST_NAME, fromUser.getFirstName());
-            setModelProperty(toIdentity, PROPERTY_USER_LAST_NAME, fromUser.getLastName());
-            setModelProperty(toIdentity, PROPERTY_USER_EMAIL, fromUser.getEmail());
-        } else if (Role.class.isAssignableFrom(identityType.getClass())) {
-            Role fromRole = (Role) identityType;
-
-            setModelProperty(toIdentity, PROPERTY_IDENTITY_DISCRIMINATOR, getConfig().getIdentityTypeRole(), true);
-            setModelProperty(toIdentity, JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME, fromRole.getName());
-        } else if (Group.class.isAssignableFrom(identityType.getClass())) {
-            Group fromGroup = (Group) identityType;
-
-            setModelProperty(toIdentity, PROPERTY_IDENTITY_DISCRIMINATOR, getConfig().getIdentityTypeGroup(), true);
-            setModelProperty(toIdentity, JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME, fromGroup.getName());
-        }
-
-        if (getContext().getRealm() != null) {
-            setModelProperty(toIdentity, PROPERTY_IDENTITY_PARTITION, lookupPartitionObject(getContext().getRealm()));
-        }
     }
 
     private void storeAttribute(Object identity, Attribute<? extends Serializable> userAttribute)
@@ -1033,7 +891,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         Join<?, ?> join = root.join(attributeIdentityProperty.getName());
 
-        if (User.class.isInstance(identityType)) {
+        if (isUserInstance(identityType)) {
             predicates.add(builder.equal(join.get(getIdentityIdProperty().getName()), idValue));
         } else {
             predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), idValue));
@@ -1058,7 +916,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return getConfig().getModelProperty(PROPERTY_ATTRIBUTE_NAME);
     }
 
-    private Object lookupIdentityObjectById(Class<? extends IdentityType> cls, String id) {
+    private Object lookupIdentityObjectById(IdentityType identityType) {
+        String id = getIdentifierValue(identityType);
+
         if (id == null) {
             return null;
         }
@@ -1070,20 +930,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Root<?> root = criteria.from(getConfig().getIdentityClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
 
-        if (User.class.equals(cls)) {
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
+                getIdentityDiscriminator(identityType)));
+
+        if (isUserInstance(identityType)) {
             predicates.add(builder.equal(root.get(getIdentityIdProperty().getName()), id));
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
-                    getConfig().getIdentityTypeUser()));
-        } else if (Group.class.equals(cls)) {
+        } else if (isGroupInstance(identityType) || isRoleInstance(identityType)) {
             predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), id));
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
-                    getConfig().getIdentityTypeGroup()));
-        } else if (Role.class.equals(cls)) {
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), id));
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
-                    getConfig().getIdentityTypeRole()));
         } else {
-            throw new SecurityException("Could not lookup identity by id - unsupported IdentityType [" + cls.getName() + "]");
+            throw new SecurityException("Could not lookup identity by id - unsupported IdentityType ["
+                    + identityType.getClass().getName() + "]");
         }
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
@@ -1241,5 +1097,90 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
         return em.createQuery(criteria).getResultList();
+    }
+
+    private <P> P getModelProperty(Class<P> propertyType, Object instance, String propertyName) {
+        @SuppressWarnings("unchecked")
+        Property<P> property = (Property<P>) getConfig().getModelProperty(propertyName);
+        return property == null ? null : property.getValue(instance);
+    }
+
+    private void setModelProperty(Object instance, String propertyName, Object value) {
+        setModelProperty(instance, propertyName, value, false);
+    }
+
+    private void setModelProperty(Object instance, String propertyName, Object value, boolean required) {
+        if (getConfig().isModelPropertySet(propertyName)) {
+            getConfig().getModelProperty(propertyName).setValue(instance, value);
+        } else if (required) {
+            throw new SecurityException("Model property [" + propertyName + "] has not been configured.");
+        }
+    }
+
+    private Object getIdentityDiscriminator(IdentityType identityType) {
+        return getConfig().getIdentityTypeGroupDiscriminator(identityType);
+    }
+
+    /**
+     * <p>
+     * Populates the given {@link Object} argument representing a Identity Class (from the config) with the information from the
+     * specified {@link IdentityType}.
+     * </p>
+     * 
+     * @param toIdentity
+     * @param fromIdentityType
+     */
+    private void populateIdentityInstance(Object toIdentity, IdentityType fromIdentityType) {
+        // populate the common properties from IdentityType
+        setModelProperty(toIdentity, PROPERTY_IDENTITY_DISCRIMINATOR, getIdentityDiscriminator(fromIdentityType), true);
+        setModelProperty(toIdentity, PROPERTY_IDENTITY_KEY, fromIdentityType.getKey(), true);
+        setModelProperty(toIdentity, PROPERTY_IDENTITY_ENABLED, fromIdentityType.isEnabled());
+        setModelProperty(toIdentity, PROPERTY_IDENTITY_CREATED, fromIdentityType.getCreatedDate());
+        setModelProperty(toIdentity, PROPERTY_IDENTITY_EXPIRES, fromIdentityType.getExpirationDate());
+
+        if (getContext().getRealm() != null) {
+            setModelProperty(toIdentity, PROPERTY_IDENTITY_PARTITION, lookupPartitionObject(getContext().getRealm()));
+        }
+
+        // IdentityType specific properties
+        if (isUserInstance(fromIdentityType)) {
+            User fromUser = (User) fromIdentityType;
+
+            // user properties
+            setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
+            setModelProperty(toIdentity, PROPERTY_USER_FIRST_NAME, fromUser.getFirstName());
+            setModelProperty(toIdentity, PROPERTY_USER_LAST_NAME, fromUser.getLastName());
+            setModelProperty(toIdentity, PROPERTY_USER_EMAIL, fromUser.getEmail());
+        } else if (isRoleInstance(fromIdentityType)) {
+            Role fromRole = (Role) fromIdentityType;
+            setModelProperty(toIdentity, JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME, fromRole.getName());
+        } else if (isGroupInstance(fromIdentityType)) {
+            Group fromGroup = (Group) fromIdentityType;
+
+            setModelProperty(toIdentity, JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME, fromGroup.getName());
+
+            if (fromGroup.getParentGroup() != null) {
+                Object parentIdentity = lookupIdentityObjectById(fromGroup.getParentGroup());
+
+                if (parentIdentity == null) {
+                    add(fromGroup.getParentGroup());
+                    parentIdentity = lookupIdentityObjectById(fromGroup.getParentGroup());
+                }
+
+                setModelProperty(toIdentity, JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP, parentIdentity, true);
+            }
+        }
+    }
+
+    private boolean isGroupInstance(IdentityType identityType) {
+        return Group.class.isInstance(identityType);
+    }
+
+    private boolean isRoleInstance(IdentityType identityType) {
+        return Role.class.isInstance(identityType);
+    }
+
+    private boolean isUserInstance(IdentityType identityType) {
+        return User.class.isInstance(identityType);
     }
 }
