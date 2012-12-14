@@ -50,6 +50,7 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchResult;
 
+import org.picketlink.idm.SecurityException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.X509CertificateCredentials;
@@ -62,6 +63,7 @@ import org.picketlink.idm.model.IdentityType.AttributeParameter;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -583,9 +585,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     @Override
-    public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
+    public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
+        // TODO: pagination of query results needs to be implemented
         List<T> result = new ArrayList<T>();
-        LDAPQuery ldapQuery = new LDAPQuery(parameters);
+        LDAPQuery ldapQuery = new LDAPQuery(identityQuery.getParameters());
+        Class<T> typeClass = identityQuery.getIdentityType();
         
         StringBuffer additionalFilter = new StringBuffer();
         String dnSuffix = null;
@@ -914,6 +918,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         }
 
         return result;
+    }
+
+    @Override
+    public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
+        throw new SecurityException("Not yet implemented") {};
     }
 
     @Override
