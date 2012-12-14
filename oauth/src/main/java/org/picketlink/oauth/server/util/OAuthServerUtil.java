@@ -127,10 +127,6 @@ public class OAuthServerUtil {
             }
             IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
             userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
-            /*
-             * UserQuery userQuery = identityManager.createUserQuery().setAttributeFilter("clientID", new String[] {
-             * passedClientID });
-             */
 
             List<User> users = userQuery.getResultList();
             if (users.size() == 0) {
@@ -170,10 +166,6 @@ public class OAuthServerUtil {
 
                 builder.setCode(authorizationCode);
             }
-            /*
-             * if (responseType.equals(ResponseType.TOKEN.toString())) { builder.setAccessToken(oauthIssuerImpl.accessToken());
-             * builder.setExpiresIn(3600L); }
-             */
 
             String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
 
@@ -244,8 +236,8 @@ public class OAuthServerUtil {
             }
             String authorizationCode = authorizationCodeAttr.getValue();
 
-            String password = "something";
-            String username = "yz";
+            String username = oauthRequest.getUsername();
+            String password = oauthRequest.getPassword();
 
             // check if clientid is valid
             if (!clientID.equals(passedClientID)) {
@@ -275,14 +267,19 @@ public class OAuthServerUtil {
                             .buildJSONMessage();
                 }
             } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) {
-                if (!password.equals(oauthRequest.getPassword()) || !username.equals(oauthRequest.getUsername())) {
+                UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials();
+                usernamePasswordCredentials.setUsername(username);
+                usernamePasswordCredentials.setPassword(new PlainTextPassword(password.toCharArray()));
+                try{
+                    identityManager.validateCredentials(usernamePasswordCredentials);
+                }catch(Exception e){
                     return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                             .setError(OAuthError.TokenResponse.INVALID_GRANT)
                             .setErrorDescription("invalid username or password").buildJSONMessage();
                 }
             } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.REFRESH_TOKEN.toString())) {
                 return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_GRANT).setErrorDescription("invalid username or password")
+                        .setError(OAuthError.TokenResponse.INVALID_GRANT).setErrorDescription("Refresh Token not yet supported")
                         .buildJSONMessage();
             }
 

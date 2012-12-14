@@ -21,6 +21,8 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
     private IdentityStore<?> identityStore;
     private Class<T> identityType;
+    private int offset;
+    private int limit;
     
     public DefaultIdentityQuery(Class<T> identityType, IdentityStore<?> identityStore) {
         this.identityStore = identityStore;
@@ -33,6 +35,26 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         return this;
     }
 
+    @Override
+    public Class<T> getIdentityType() {
+        return identityType;
+    }
+
+    @Override
+    public Map<QueryParameter, Object[]> getParameters() {
+        return parameters;
+    }
+
+    @Override
+    public int getLimit() {
+        return limit;
+    }
+
+    @Override
+    public int getOffset() {
+        return offset;
+    }
+
     /*@Override
     public IdentityQuery<T> setParameter(QueryParameter param, Operator operator, Object value) {
         // TODO Auto-generated method stub
@@ -41,17 +63,24 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public List<T> getResultList() {
-        return this.identityStore.fetchQueryResults(this.identityType, this.parameters);
+        return this.identityStore.fetchQueryResults(this);
 
+    }
+
+    @Override
+    public int getResultCount() {
+        return this.identityStore.countQueryResults(this);
     }
 
     @Override
     public IdentityQuery<T> setOffset(int offset) {
-        return null;
+        this.offset = offset;
+        return this;
     }
 
     @Override
     public IdentityQuery<T> setLimit(int limit) {
-        return null;
+        this.limit = limit;
+        return this;
     }
 }

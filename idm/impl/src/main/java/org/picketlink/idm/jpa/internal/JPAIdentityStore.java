@@ -65,6 +65,7 @@ import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -706,11 +707,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public <T extends IdentityType> List<T> fetchQueryResults(Class<T> typeClass, Map<QueryParameter, Object[]> parameters) {
+    public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         EntityManager em = getEntityManager();
         Class<?> identityClass = getConfig().getIdentityClass();
+        Class<T> typeClass = identityQuery.getIdentityType();
         
-        Set<Entry<QueryParameter, Object[]>> parametersEntrySet = parameters.entrySet();
+        Set<Entry<QueryParameter, Object[]>> parametersEntrySet = identityQuery.getParameters().entrySet();
         boolean hasCustomAttributes = false;
         
         for (Entry<QueryParameter, Object[]> entry : parametersEntrySet) {
@@ -817,7 +819,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
             
             if (queryParameter instanceof IdentityType.AttributeParameter) {
-                IdentityType.AttributeParameter customParameter = (AttributeParameter) queryParameter;
+                AttributeParameter customParameter = (AttributeParameter) queryParameter;
                 
                 Subquery<?> subquery = criteria.subquery(getConfig().getAttributeClass());
                 Root fromProject = subquery.from(getConfig().getAttributeClass());
@@ -871,6 +873,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         return result;
+    }
+
+    @Override
+    public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
+        throw new org.picketlink.idm.SecurityException("Not yet implemented") {};
     }
 
     @Override
