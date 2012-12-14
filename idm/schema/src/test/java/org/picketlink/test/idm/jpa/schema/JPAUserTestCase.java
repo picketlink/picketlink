@@ -27,8 +27,11 @@ import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.PasswordCredential;
 import org.picketlink.idm.jpa.schema.DatabaseUser;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
 /**
@@ -55,21 +58,21 @@ public class JPAUserTestCase extends AbstractJPAIdentityTypeTestCase {
      */
     @Test
     public void testUserStore() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        DatabaseUser user = new DatabaseUser(USER_USERNAME);
-        
-        identityManager.createUser(user);
-
-        user.setEmail(USER_EMAIL);
-        user.setFirstName(USER_FIRST_NAME);
-        user.setLastName(USER_LAST_NAME);
-
-        assertUserBasicInformation(user);
-
-        testAddAttributes();
-
-        testGetUser();
+//        IdentityManager identityManager = getIdentityManager();
+//
+//        DatabaseUser user = new DatabaseUser(USER_USERNAME);
+//        
+//        identityManager.createUser(user);
+//
+//        user.setEmail(USER_EMAIL);
+//        user.setFirstName(USER_FIRST_NAME);
+//        user.setLastName(USER_LAST_NAME);
+//
+//        assertUserBasicInformation(user);
+//
+//        testAddAttributes();
+//
+//        testGetUser();
 
         testRemoveUser();
     }
@@ -128,16 +131,17 @@ public class JPAUserTestCase extends AbstractJPAIdentityTypeTestCase {
      */
     public void testRemoveUser() throws Exception {
         IdentityManager identityManager = getIdentityManager();
+        
+        User user = identityManager.createUser("admin");
+        User user1 = identityManager.createUser("user1");
 
-        User user = identityManager.getUser(USER_USERNAME);
-
+        identityManager.removeUser(identityManager.getUser(user1.getId()));
+        
+        user1 = identityManager.getUser(user1.getId());
+        user = identityManager.getUser(user.getId());
+        
+        assertNull(user1);
         assertNotNull(user);
-
-        identityManager.removeUser(user);
-
-        user = identityManager.getUser(USER_USERNAME);
-
-        assertNull(user);
     }
 
     /**

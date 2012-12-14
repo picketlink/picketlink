@@ -157,7 +157,14 @@ public interface IdentityType extends Serializable {
      * @return Date value representing the creation date
      */
     Date getCreatedDate();
-
+    
+    /**
+     * <p>Sets the date that this {@link IdentityType} was created.</p>
+     * 
+     * @param expirationDate
+     */
+    void setCreatedDate(Date createdDate);
+    
     /**
      * Returns the date that this IdentityType expires, or null if there is no expiry date.
      * 

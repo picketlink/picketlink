@@ -172,6 +172,11 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
     public Date getCreatedDate() {
         return this.createDate;
     }
+    
+    @Override
+    public void setCreatedDate(Date createdDate) {
+        this.createDate = createdDate;
+    }
 
     @Override
     public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {

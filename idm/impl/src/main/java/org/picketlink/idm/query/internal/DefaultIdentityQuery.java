@@ -1,12 +1,9 @@
 package org.picketlink.idm.query.internal;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -44,7 +41,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public List<T> getResultList() {
-        return ((LDAPIdentityStore) this.identityStore).fetchQueryResults(this.identityType, this.parameters);
+        return this.identityStore.fetchQueryResults(this.identityType, this.parameters);
 
     }
 

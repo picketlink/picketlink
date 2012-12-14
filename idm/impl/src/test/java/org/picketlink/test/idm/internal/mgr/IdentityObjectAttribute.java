@@ -46,7 +46,7 @@ public class IdentityObjectAttribute {
     private Integer attributeId;
 
     @ManyToOne
-    @JoinColumn(name = "IDENTITY_OBJECT_ID")
+    @JoinColumn
     private IdentityObject identityObject;
 
     @IDMProperty(PropertyType.NAME)

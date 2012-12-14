@@ -66,7 +66,12 @@ public abstract class AbstractIdentityType implements IdentityType {
     public Date getCreatedDate() {
         return this.createdDate;
     }
-
+    
+    @Override
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+    
     public void setAttribute(Attribute<? extends Serializable> attribute) {
         attributes.put(attribute.getName(), attribute);
     }

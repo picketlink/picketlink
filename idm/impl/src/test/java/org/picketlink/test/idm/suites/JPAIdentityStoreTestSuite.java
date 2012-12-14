@@ -38,10 +38,13 @@ import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
 import org.picketlink.test.idm.GroupManagementTestCase;
+import org.picketlink.test.idm.GroupQueryTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
-import org.picketlink.test.idm.UserManagementTestCase;
+import org.picketlink.test.idm.RoleQueryTestCase;
+import org.picketlink.test.idm.UserQueryTestCase;
 import org.picketlink.test.idm.internal.mgr.IdentityObject;
 import org.picketlink.test.idm.internal.mgr.IdentityObjectAttribute;
+import org.picketlink.test.idm.internal.mgr.UserManagementTestCase;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
@@ -49,12 +52,13 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * <p>
  * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore}.
  * </p>
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class })
+@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
+        UserQueryTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
@@ -67,7 +71,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
      * <p>
      * Creates a shared {@link EntityManagerFactory} and database instances
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @BeforeClass
@@ -79,7 +83,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
      * <p>
      * Closes the shared {@link EntityManagerFactory} instance.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @AfterClass

@@ -151,7 +151,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindCreationDate() throws Exception {
-        Role role = loadOrCreateRole("someRole", true);
+        Role role = loadOrCreateRole("someRole", false);
 
         IdentityManager identityManager = getIdentityManager();
 
