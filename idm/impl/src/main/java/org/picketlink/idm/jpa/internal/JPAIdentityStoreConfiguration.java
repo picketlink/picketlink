@@ -771,14 +771,14 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         this.identityTypeRole = identityTypeRole;
     }
 
-    protected String getIdentityTypeGroupDiscriminator(IdentityType identityType) {
+    protected String getIdentityTypeDiscriminator(Class<? extends IdentityType> identityType) {
         String discriminator = null;
         
-        if (User.class.isInstance(identityType)) {
+        if (User.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeUser();
-        } else if (Role.class.isInstance(identityType)) {
+        } else if (Role.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeRole();
-        } else if (Group.class.isInstance(identityType)) {
+        } else if (Group.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeGroup();
         } else {
             throw new IdentityManagementException("No discriminator could be determined for type [" + identityType.getClass() + "]");
