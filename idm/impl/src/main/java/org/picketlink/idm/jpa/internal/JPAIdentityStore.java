@@ -37,10 +37,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.GroupUpdatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
@@ -48,6 +44,7 @@ import org.picketlink.idm.event.RoleUpdatedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.event.UserUpdatedEvent;
+import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
@@ -64,7 +61,6 @@ import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
@@ -72,15 +68,10 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * 
  * @author Shane Bryzak
  */
-public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration> {
+public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConfiguration> {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
-
-    // Event context parameters
-    public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
-    public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
-    public static final String EVENT_CONTEXT_ROLE_ENTITY = "ROLE_ENTITY";
 
     /**
      * The configuration for this instance
@@ -112,7 +103,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (identityType == null) {
             throw new IdentityManagementException("No IdentityType instance provided.");
         }
-        
+
         try {
             Object identity = getConfig().getIdentityClass().newInstance();
             EntityManager em = getEntityManager();
@@ -137,13 +128,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (identityType == null) {
             throw new IdentityManagementException("No IdentityType instance provided.");
         }
-        
+
         Object identity = lookupIdentityObjectById(identityType);
-        
+
         if (identity == null) {
             throw new IdentityManagementException("The provided IdentityType instance does not exists.");
         }
-        
+
         populateIdentityInstance(identity, identityType);
 
         updateAttributes(identityType, identity);
@@ -173,15 +164,15 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (identityType == null) {
             throw new IdentityManagementException("No IdentityType instance provided.");
         }
-        
+
         EntityManager em = getEntityManager();
 
         Object identity = lookupIdentityObjectById(identityType);
-        
+
         if (identity == null) {
             throw new IdentityManagementException("The provided IdentityType instance does not exists.");
         }
-        
+
         if (isGroupType(identityType.getClass())) {
             Group group = (Group) identityType;
 
@@ -228,7 +219,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // and create a User instance based on it
         if (user == null) {
             Object identity = lookupIdentityObjectById(new SimpleUser(id));
-            
+
             if (identity != null) {
                 user = (User) createFromIdentityInstance(identity);
                 getContext().getCache().putUser(context.getRealm(), user);
@@ -267,7 +258,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (name == null || parent == null) {
             return null;
         }
-        
+
         Group group = getGroup(name);
 
         if (group.getParentGroup() == null || !group.getParentGroup().getName().equals(parent.getName())) {
@@ -308,10 +299,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         List<T> result = new ArrayList<T>();
-        
+
         try {
             EntityManager em = getEntityManager();
-            
+
             JPACriteriaQueryBuilder criteriaBuilder = new JPACriteriaQueryBuilder(this, identityQuery);
 
             List<Predicate> predicates = criteriaBuilder.getPredicates();
@@ -330,35 +321,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         } catch (Exception e) {
             throw new IdentityManagementException("Error executing query.", e);
         }
-        
+
         return result;
     }
 
     @Override
-    public void validateCredentials(Credentials credentials) {
-        CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
-        if (handler == null) {
-            throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
-        }
-        handler.validate(credentials, this);
-    }
-
-    @Override
-    public void updateCredential(Agent agent, Object credential) {
-        CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
-        if (handler == null) {
-            throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
-        }
-        handler.update(agent, credential, this);
-    }
-
-    @Override
     public Agent getAgent(String id) {
-        throw createNotImplementedYetException();
+        // TODO: need to handle pure Agent instances. For now let's only consider User instances.
+        return getUser(id);
     }
 
     @Override
@@ -378,11 +348,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public GroupRole createMembership(IdentityType member, Group group, Role role) {
-        Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-        Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-        Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+        Property<Object> memberModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+        Property<Object> roleModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+        Property<Object> groupModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
         SimpleGroupRole groupRole = null;
-        
+
         if (member instanceof User) {
             Role storedRole = null;
             Object identityRole = null;
@@ -402,20 +375,20 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             Group storedGroup = null;
             Object identityGroup = null;
-            
+
             if (group != null) {
                 storedGroup = getGroup(group.getName());
                 identityGroup = lookupIdentityObjectById(storedGroup);
             }
-            
+
             Object membership = null;
-            
+
             try {
                 membership = getConfig().getMembershipClass().newInstance();
             } catch (Exception e) {
                 throw new IdentityManagementException("Could not create membership type instance.", e);
             }
-            
+
             if (storedRole != null && storedGroup != null) {
                 try {
                     memberModelProperty.setValue(membership, identityUser);
@@ -432,74 +405,80 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                     groupModelProperty.setValue(membership, identityGroup);
                 }
             }
-            
+
             getEntityManager().persist(membership);
             getEntityManager().flush();
-            
+
             groupRole = new SimpleGroupRole(storedUser, storedRole, storedGroup);
         } else if (member instanceof Group) {
             throw createNotImplementedYetException();
         } else {
             throw new IllegalArgumentException("The member parameter must be an instance of User or Group");
         }
-        
+
         return groupRole;
     }
 
     @Override
     public void removeMembership(IdentityType member, Group group, Role role) {
-        Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-        Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-        Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
-        
+        Property<Object> memberModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+        Property<Object> roleModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+        Property<Object> groupModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+
         EntityManager em = getEntityManager();
-        
+
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getMembershipClass());
         Root<?> root = criteria.from(getConfig().getMembershipClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         Object identityUser = lookupIdentityObjectById(member);
-        
+
         predicates.add(builder.equal(root.get(memberModelProperty.getName()), identityUser));
-        
+
         if (group != null && role != null) {
             Object identityRole = lookupIdentityObjectById(role);
             Object identityGroup = lookupIdentityObjectById(group);
-            
+
             predicates.add(builder.equal(root.get(roleModelProperty.getName()), identityRole));
 
             predicates.add(builder.equal(root.get(groupModelProperty.getName()), identityGroup));
         } else {
             if (role != null) {
                 Object identityRole = lookupIdentityObjectById(role);
-                
+
                 predicates.add(builder.equal(root.get(roleModelProperty.getName()), identityRole));
             }
 
             if (group != null) {
                 Object identityGroup = lookupIdentityObjectById(group);
-                
+
                 predicates.add(builder.equal(root.get(groupModelProperty.getName()), identityGroup));
             }
         }
-        
+
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-        
+
         List<?> resultList = em.createQuery(criteria).getResultList();
-        
+
         for (Object object : resultList) {
             em.remove(object);
         }
-        
+
         em.flush();
     }
 
     @Override
     public GroupRole getMembership(IdentityType member, Group group, Role role) {
-        Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-        Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-        Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+        Property<Object> memberModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+        Property<Object> roleModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+        Property<Object> groupModelProperty = getConfig().getModelProperty(
+                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
         GroupRole groupRole = null;
 
         EntityManager em = getEntityManager();
@@ -510,43 +489,43 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         Object identityUser = lookupIdentityObjectById(member);
-        
+
         predicates.add(builder.equal(root.get(memberModelProperty.getName()), identityUser));
-        
+
         if (group != null && role != null) {
             Object identityRole = lookupIdentityObjectById(role);
             Object identityGroup = lookupIdentityObjectById(group);
-            
+
             predicates.add(builder.equal(root.get(roleModelProperty.getName()), identityRole));
 
             predicates.add(builder.equal(root.get(groupModelProperty.getName()), identityGroup));
         } else {
             if (role != null) {
                 Object identityRole = lookupIdentityObjectById(role);
-                
+
                 predicates.add(builder.equal(root.get(roleModelProperty.getName()), identityRole));
             }
 
             if (group != null) {
                 Object identityGroup = lookupIdentityObjectById(group);
-                
+
                 predicates.add(builder.equal(root.get(groupModelProperty.getName()), identityGroup));
             }
         }
-        
+
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-        
+
         List<?> resultList = em.createQuery(criteria).getResultList();
-        
+
         if (resultList.isEmpty()) {
             return null;
         }
-        
+
         if (resultList.size() == 1) {
             User storedUser = getUser(((User) member).getId());
             Role storedRole = null;
             Group storedGroup = null;
-            
+
             if (role != null) {
                 storedRole = getRole(role.getName());
             }
@@ -563,18 +542,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
-        throw createNotImplementedYetException();
-    }
-
-    private IdentityManagementException createNotImplementedYetException() {
-        return new IdentityManagementException("Not implemented yet.");
-    }
-
-    public <T extends CredentialStorage> void storeCredential(Agent agent, T storage) {
-        throw createNotImplementedYetException();
-    }
-
-    public <T extends CredentialStorage> T retrieveCredential(Agent agent, Class<T> storageClass) {
         throw createNotImplementedYetException();
     }
 
@@ -660,6 +627,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * 
      * @param identity
      */
+    @SuppressWarnings("unchecked")
     private void removeAllAttributes(Object identity) {
         removeAttributes(identity, Collections.EMPTY_LIST);
     }
@@ -960,18 +928,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 setModelProperty(toIdentity, JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP, parentIdentity, true);
             }
         }
-    }
-
-    private boolean isGroupType(Class<? extends IdentityType> identityType) {
-        return Group.class.isAssignableFrom(identityType);
-    }
-
-    private boolean isRoleType(Class<? extends IdentityType> identityType) {
-        return Role.class.isAssignableFrom(identityType);
-    }
-
-    private boolean isUserType(Class<? extends IdentityType> identityType) {
-        return User.class.isAssignableFrom(identityType);
     }
 
     private void updateAttributes(IdentityType identityType, Object identity) {

@@ -37,15 +37,7 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
-import org.picketlink.test.idm.GroupManagementTestCase;
-import org.picketlink.test.idm.GroupQueryTestCase;
-import org.picketlink.test.idm.RoleManagementTestCase;
-import org.picketlink.test.idm.RoleQueryTestCase;
-import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.UserGroupsRelationshipTestCase;
-import org.picketlink.test.idm.UserManagementTestCase;
-import org.picketlink.test.idm.UserQueryTestCase;
-import org.picketlink.test.idm.UserRolesRelationshipTestCase;
+import org.picketlink.test.idm.CredentialManagementTestCase;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
@@ -58,9 +50,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
-    UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-    RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class })
+@SuiteClasses({ CredentialManagementTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;

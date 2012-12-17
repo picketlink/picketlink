@@ -22,6 +22,7 @@
 
 package org.picketlink.test.idm.suites;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -53,6 +54,7 @@ public class IdentityObjectAttribute {
     private String name;
 
     @IDMProperty(PropertyType.VALUE)
+    @Column (length=1024)
     private String value;
 
     @IDMProperty(PropertyType.ATTRIBUTE_TYPE)

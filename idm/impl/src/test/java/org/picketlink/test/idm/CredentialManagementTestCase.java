@@ -27,8 +27,13 @@ import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.credential.X509Cert;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.User;
 
@@ -51,40 +56,77 @@ public class CredentialManagementTestCase extends AbstractIdentityManagerTestCas
      */
     @Test
     public void testUsernameAndPassword() throws Exception {
-        User user = getIdentityManager().getUser("admin");
+        IdentityManager identityManager = getIdentityManager();
+        User user = loadOrCreateUser("someUser", true);
+        PlainTextPassword plainTextPassword = new PlainTextPassword("updated_password".toCharArray());
+        
+        identityManager.updateCredential(user, plainTextPassword);
+        
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
+        
+        credential.setUsername(user.getId());
+        credential.setPassword(plainTextPassword);
+        
+        identityManager.validateCredentials(credential);
+        
+        Assert.assertEquals(Status.VALID, credential.getStatus());
+        
+        UsernamePasswordCredentials badUserName = new UsernamePasswordCredentials();
+        
+        badUserName.setUsername("Bad" + user.getId());
+        badUserName.setPassword(plainTextPassword);
+        
+        identityManager.validateCredentials(badUserName);
+        
+        Assert.assertEquals(Status.INVALID, badUserName.getStatus());
+        
+        UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
+        
+        badPassword.setUsername("Bad" + user.getId());
+        badPassword.setPassword(plainTextPassword);
+        
+        identityManager.validateCredentials(badPassword);
+        
+        Assert.assertEquals(Status.INVALID, badPassword.getStatus());
 
-        // FIXME
-        // assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("admin".toCharArray())));
-        // assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("bad_credential".toCharArray())));
-
-        getIdentityManager().updateCredential(user, new PlainTextPassword("updated_password".toCharArray()));
-
-        // FIXME
-        // assertFalse(getIdentityManager().validateCredential(user, new PasswordCredential("admin".toCharArray())));
-        // assertTrue(getIdentityManager().validateCredential(user, new PasswordCredential("updated_password".toCharArray())));
     }
-
+    
     /**
      * <p>
-     * Tests the {@link X509CertificateCredentials} usage.
+     * Tests the {@link X509Cert} usage.
      * </p>
      *
      * @throws Exception
      */
     @Test
     public void testX509Certificate() throws Exception {
-        User user = getIdentityManager().getUser("admin");
-        X509Certificate clientCert = getTestingCertificate();
-
-        getIdentityManager().updateCredential(user, new X509CertificateCredentials(clientCert));
-
-        // FIXME
-        // assertTrue(getIdentityManager().validateCredential(user, new X509CertificateCredential(clientCert)));
+        IdentityManager identityManager = getIdentityManager();
+        X509Certificate clientCert = getTestingCertificate("servercert.txt");
+        X509Cert certCredential = new X509Cert(clientCert);
+        X509CertificateCredentials credential = new X509CertificateCredentials(certCredential);
+        
+        User user = loadOrCreateUser(credential.getUsername(), true);
+        
+        identityManager.updateCredential(user, certCredential);
+        
+        identityManager.validateCredentials(credential);
+        
+        Assert.assertEquals(Status.VALID, credential.getStatus());
+        
+        X509Certificate badCert = getTestingCertificate("servercert2.txt");
+        X509Cert badClientCertCredential = new X509Cert(badCert);
+        X509CertificateCredentials badCredential = new X509CertificateCredentials(badClientCertCredential);
+        
+        badCredential.setUserName(user.getId());
+        
+        identityManager.validateCredentials(badCredential);
+        
+        Assert.assertEquals(Status.INVALID, badCredential.getStatus());
     }
-
-    private X509Certificate getTestingCertificate() {
+    
+    private X509Certificate getTestingCertificate(String fromTextFile) {
         // Certificate
-        InputStream bis = getClass().getClassLoader().getResourceAsStream("cert/servercert.txt");
+        InputStream bis = getClass().getClassLoader().getResourceAsStream("cert/" + fromTextFile);
         X509Certificate cert = null;
 
         try {

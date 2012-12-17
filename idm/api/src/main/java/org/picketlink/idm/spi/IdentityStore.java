@@ -23,10 +23,10 @@ package org.picketlink.idm.spi;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
@@ -35,7 +35,6 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.QueryParameter;
 
 /**
  * IdentityStore representation providing minimal SPI
@@ -238,4 +237,21 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param credential
      */
     void updateCredential(Agent agent, Object credential);
+    
+    /**
+     * <p>Stores a credential using the given {@link CredentialStorage}.</p>
+     * 
+     * @param agent
+     * @param storage
+     */
+    <C extends CredentialStorage> void storeCredential(Agent agent, C storage);
+    
+    /**
+     * <p>Retrieves a credential for the given {@link Agent} and {@link CredentialStorage} type.
+     * 
+     * @param agent
+     * @param storageClass
+     * @return
+     */
+    <C extends CredentialStorage> C retrieveCredential(Agent agent, Class<C> storageClass);
 }

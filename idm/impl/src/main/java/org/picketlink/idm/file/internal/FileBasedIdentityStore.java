@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.security.cert.CertificateEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,12 +40,7 @@ import java.util.Set;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.Digest;
-import org.picketlink.idm.credential.DigestUtil;
-import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialStorage;
-import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
@@ -55,7 +49,6 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
@@ -880,67 +873,67 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     }*/
     
     //@Override
-    public boolean validateCredential(User user, Object credential) {
-        if (credential instanceof PlainTextPassword) {
-            PlainTextPassword password = (PlainTextPassword) credential;
-
-            User storedUser = getUser(user.getId());
-            String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
-
-            return storedPassword != null && storedPassword.equals(password.getValue());
-        } else if (credential instanceof Digest) {
-            Digest digestCredential = (Digest) credential;
-            
-            User storedUser = getUser(user.getId());
-            String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
-            
-            return DigestUtil.matchCredential(digestCredential, storedPassword.toCharArray());
-        } else if (credential instanceof X509CertificateCredentials) {
-            X509CertificateCredentials certCredential =  (X509CertificateCredentials) credential;
-            
-            User storedUser = getUser(user.getId());
-            
-            String storedCert = storedUser.<String>getAttribute(USER_CERTIFICATE_ATTRIBUTE).getValue();
-            
-            if (storedCert != null) {
-                try {
-                    return storedCert.equals(new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded())));
-                } catch (CertificateEncodingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        } else {
-            throwsNotSupportedCredentialType(credential);
-        }
-
-        return false;
-    }
+//    public boolean validateCredential(User user, Object credential) {
+//        if (credential instanceof PlainTextPassword) {
+//            PlainTextPassword password = (PlainTextPassword) credential;
+//
+//            User storedUser = getUser(user.getId());
+//            String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
+//
+//            return storedPassword != null && storedPassword.equals(password.getValue());
+//        } else if (credential instanceof Digest) {
+//            Digest digestCredential = (Digest) credential;
+//            
+//            User storedUser = getUser(user.getId());
+//            String storedPassword = storedUser.<String>getAttribute(USER_PASSWORD_ATTRIBUTE).getValue();
+//            
+//            return DigestUtil.matchCredential(digestCredential, storedPassword.toCharArray());
+//        } else if (credential instanceof X509CertificateCredentials) {
+//            X509CertificateCredentials certCredential =  (X509CertificateCredentials) credential;
+//            
+//            User storedUser = getUser(user.getId());
+//            
+//            String storedCert = storedUser.<String>getAttribute(USER_CERTIFICATE_ATTRIBUTE).getValue();
+//            
+//            if (storedCert != null) {
+//                try {
+//                    return storedCert.equals(new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded())));
+//                } catch (CertificateEncodingException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
+//        } else {
+//            throwsNotSupportedCredentialType(credential);
+//        }
+//
+//        return false;
+//    }
 
     //@Override
-    public void updateCredential(User user, Object credential) {
-        if (credential instanceof PlainTextPassword) {
-            PlainTextPassword password = (PlainTextPassword) credential;
-
-            User storedUser = getUser(user.getId());
-
-            storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, new String(password.getValue())));
-            
-            flushUsers();
-        } else if (credential instanceof X509CertificateCredentials) {
-            X509CertificateCredentials certCredential =  (X509CertificateCredentials) credential;
-            
-            User storedUser = getUser(user.getId());
-
-            try {
-                storedUser.setAttribute(new Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, 
-                        new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded()))));
-            } catch (CertificateEncodingException e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            throwsNotSupportedCredentialType(credential);
-        }
-    }
+//    public void updateCredential(User user, Object credential) {
+//        if (credential instanceof PlainTextPassword) {
+//            PlainTextPassword password = (PlainTextPassword) credential;
+//
+//            User storedUser = getUser(user.getId());
+//
+//            storedUser.setAttribute(new Attribute<String>(USER_PASSWORD_ATTRIBUTE, new String(password.getValue())));
+//            
+//            flushUsers();
+//        } else if (credential instanceof X509CertificateCredentials) {
+//            X509CertificateCredentials certCredential =  (X509CertificateCredentials) credential;
+//            
+//            User storedUser = getUser(user.getId());
+//
+//            try {
+//                storedUser.setAttribute(new Attribute<String>(USER_CERTIFICATE_ATTRIBUTE, 
+//                        new String(Base64.encodeBytes(certCredential.getCertificate().getEncoded()))));
+//            } catch (CertificateEncodingException e) {
+//                throw new RuntimeException(e);
+//            }
+//        } else {
+//            throwsNotSupportedCredentialType(credential);
+//        }
+//    }
 
     public String getWorkingDir() {
         return this.workingDir;
@@ -1063,5 +1056,17 @@ public class FileBasedIdentityStore implements IdentityStore<IdentityStoreConfig
     public void updateCredential(Agent agent, Object credential) {
         // TODO Auto-generated method stub
         
+    }
+
+    @Override
+    public <C extends CredentialStorage> void storeCredential(Agent agent, C storage) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public <C extends CredentialStorage> C retrieveCredential(Agent agent, Class<C> storageClass) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -1,6 +1,5 @@
 package org.picketlink.idm.credential;
 
-import org.picketlink.idm.model.User;
 
 /**
  * Represents the credentials typically used by standard username/password authentication. 

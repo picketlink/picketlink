@@ -9,6 +9,7 @@ import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.spi.annotations.SupportsStores;
 import org.picketlink.idm.jpa.internal.JPAPlainTextPasswordCredentialHandler;
+import org.picketlink.idm.ldap.internal.LDAPPlainTextPasswordCredentialHandler;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -32,6 +33,8 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
 
     public DefaultCredentialHandlerFactory() {
         defaultHandlers.add(new JPAPlainTextPasswordCredentialHandler());
+        defaultHandlers.add(new LDAPPlainTextPasswordCredentialHandler());
+        defaultHandlers.add(new X509CertificateCredentialHandler());
     }
 
     /**
