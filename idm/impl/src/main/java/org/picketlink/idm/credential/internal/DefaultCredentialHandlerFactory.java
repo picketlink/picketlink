@@ -1,6 +1,10 @@
 package org.picketlink.idm.credential.internal;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.picketlink.idm.credential.Credentials;
@@ -29,6 +33,8 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
      * 
      */
     Set<CredentialHandler> registeredHandlers = new HashSet<CredentialHandler>();
+    
+    private Map<Class<? extends CredentialHandler>, List<Class<? extends IdentityStore>>> additionalStores = new HashMap<Class<? extends CredentialHandler>, List<Class<? extends IdentityStore>>>();
 
 
     public DefaultCredentialHandlerFactory() {
@@ -45,10 +51,25 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
     public void registerHandler(CredentialHandler handler) {
         registeredHandlers.add(handler);
     }
+    
+    /**
+     * Register the specified {@link IdentityStore} to support the given {@link CredentialHandler}. 
+     * 
+     * @param handler
+     */
+    public void registerIdentityStore(Class<? extends CredentialHandler> handler, Class<? extends IdentityStore> identityStore) {
+        List<Class<? extends IdentityStore>> supportedStores = this.additionalStores.get(handler);
+        
+        if (supportedStores == null) {
+            supportedStores = new ArrayList<Class<? extends IdentityStore>>();
+            this.additionalStores.put(handler, supportedStores);
+        }
+        
+        supportedStores.add(identityStore);
+    }
 
     @Override
-    public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass,
-            Class<? extends IdentityStore> identityStoreClass) {
+    public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, Class<? extends IdentityStore> identityStoreClass) {
         for (CredentialHandler handler : registeredHandlers) {
             if (handlerSupports(handler, credentialsClass, identityStoreClass)) {
                 return handler;
@@ -60,13 +81,12 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
                 return handler;
             }
         }
-
+        
         return null;
     }
 
     @Override
-    public CredentialHandler getCredentialUpdater(Class<?> credentialClass,
-            Class<? extends IdentityStore> identityStoreClass) {
+    public CredentialHandler getCredentialUpdater(Class<?> credentialClass, Class<? extends IdentityStore> identityStoreClass) {
         for (CredentialHandler handler : registeredHandlers) {
             if (handlerSupports(handler, credentialClass, identityStoreClass)) {
                 return handler;
@@ -86,15 +106,26 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
             Class<? extends IdentityStore> identityStoreClass) {
         SupportsCredentials sc = handler.getClass().getAnnotation(SupportsCredentials.class);
         SupportsStores ss = handler.getClass().getAnnotation(SupportsStores.class);
+        
         if (sc == null || ss == null) {
             return false;
         }
-
+        
         for (Class<?> cls : sc.value()) {
             if (cls.equals(credentialClass)) {
                 for (Class<? extends IdentityStore> isc : ss.value()) {
                     if (isc.equals(identityStoreClass)) {
                         return true;
+                    }
+                    
+                    if (this.additionalStores.containsKey(handler.getClass())) {
+                        List<Class<? extends IdentityStore>> stores = this.additionalStores.get(handler.getClass());
+                        
+                        for (Class<? extends IdentityStore> storeClass : stores) {
+                            if (storeClass.equals(identityStoreClass)) {
+                                return true;
+                            }
+                        }
                     }
                 }
             }

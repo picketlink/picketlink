@@ -640,7 +640,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(User.CREATED_AFTER, calendar.getTime());
         query.setParameter(User.CREATED_BEFORE, new Date());
 
-        Thread.sleep(500);
+        Thread.sleep(1000);
 
         List<User> result = query.getResultList();
 
@@ -791,7 +791,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(User.EXPIRY_AFTER, expiryDate);
         query.setParameter(User.EXPIRY_BEFORE, new Date());
 
-        Thread.sleep(500);
+        Thread.sleep(1000);
 
         User someFutureUser = loadOrCreateUser("someFutureUser", true);
 

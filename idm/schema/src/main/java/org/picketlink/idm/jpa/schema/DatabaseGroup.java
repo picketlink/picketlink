@@ -63,6 +63,9 @@ public class DatabaseGroup extends AbstractDatabaseIdentityType<DatabaseGroupAtt
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL)
     private List<DatabaseMembership> memberships = new ArrayList<DatabaseMembership>();
 
+    @OneToMany(mappedBy = "parentGroup", cascade = CascadeType.ALL)
+    private List<DatabaseGroup> childs = new ArrayList<DatabaseGroup>();
+
     public DatabaseGroup() {
     }
 
@@ -113,6 +116,14 @@ public class DatabaseGroup extends AbstractDatabaseIdentityType<DatabaseGroupAtt
      */
     public void setMemberships(List<DatabaseMembership> memberships) {
         this.memberships = memberships;
+    }
+
+    public List<DatabaseGroup> getChilds() {
+        return this.childs;
+    }
+
+    public void setChilds(List<DatabaseGroup> childs) {
+        this.childs = childs;
     }
 
     @Override

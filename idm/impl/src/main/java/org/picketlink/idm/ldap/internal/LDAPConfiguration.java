@@ -166,15 +166,10 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     }
 
     @Override
-    public Set<Feature> getSupportedFeatures() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public void init() throws SecurityConfigurationException {
         constructContext();
         this.featureSet.add(Feature.all);
+        getSupportedCredentialHandlers().add(LDAPPlainTextPasswordCredentialHandler.class);
     }
 
     @Override

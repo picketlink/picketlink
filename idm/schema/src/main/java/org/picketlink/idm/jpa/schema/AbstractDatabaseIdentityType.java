@@ -22,12 +22,16 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -35,7 +39,9 @@ import javax.persistence.Transient;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 
 /**
  * <p>
@@ -53,8 +59,8 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
 
     private String key;
     private boolean enabled = true;
-    private Date expiryDate;
-    private Date createdDate;
+    private Date expirationDate;
+    private Date createdDate = new Date();
 
     @Transient
     private Map<String, String[]> userAttributesMap;
@@ -65,7 +71,7 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     public AbstractDatabaseIdentityType(String name) {
         setId(name);
     }
-
+    
     /**
      * @return the id
      */
@@ -80,6 +86,12 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
         this.id = id;
     }
 
+    @Override
+    @Transient
+    public Partition getPartition() {
+        return null;
+    }
+    
     /*
      * (non-Javadoc)
      *
@@ -119,34 +131,44 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
-    
+ 
     @Override
     public Date getExpirationDate() {
-        return this.expiryDate;
+        return expirationDate;
+    }
+
+    @Override
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
+    }
+
+    @Override
+    public void setAttribute(Attribute<? extends Serializable> attribute) {
+        Serializable providedValue = attribute.getValue();
+        String[] values = null;
+        
+        if (providedValue.getClass().isArray()) {
+            Object[] providedValues = (Object[]) providedValue;
+            values = new String[providedValues.length];
+            
+            for (int i = 0; i < providedValues.length; i++) {
+                values[i] = providedValues[i].toString();
+            }
+        } else {
+            values = new String[] {providedValue.toString()};
+        }
+        
+        getUserAttributesMap().put(attribute.getName(), values);
+
+        for (String value : values) {
+            A attributeInstance = createAttribute(attribute.getName(), value);
+
+            attributeInstance.setIdentityType(this);
+
+            getOwnerAttributes().add(attributeInstance);
+        }
     }
     
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.model.IdentityType#setAttribute(java.lang.String, java.lang.String)
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    @Transient
-    public void setAttribute(String name, String value) {
-        getUserAttributesMap().put(name, new String[] { value });
-
-        A attribute = createAttribute(name, value);
-
-        attribute.setIdentityType(this);
-
-        getOwnerAttributes().add(attribute);
-    }
-
     /**
      * <p>
      * Subclasses must override this methid to provide the {@link List} of attributes associated with this type.
@@ -201,25 +223,6 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     /*
      * (non-Javadoc)
      *
-     * @see org.picketlink.idm.model.IdentityType#setAttribute(java.lang.String, java.lang.String[])
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    @Transient
-    public void setAttribute(String name, String[] values) {
-        getUserAttributesMap().put(name, values);
-        for (String value : values) {
-            A attribute = createAttribute(name, value);
-
-            attribute.setIdentityType(this);
-
-            getOwnerAttributes().add(attribute);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     *
      * @see org.picketlink.idm.model.IdentityType#removeAttribute(java.lang.String)
      */
     @SuppressWarnings("unchecked")
@@ -235,43 +238,47 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.model.IdentityType#getAttribute(java.lang.String)
-     */
     @Override
     @Transient
-    public String getAttribute(String name) {
+    public Attribute<Serializable> getAttribute(String name) {
+        Attribute<Serializable> attribute = null;
         String[] values = getUserAttributesMap().get(name);
 
         if (values != null) {
-            return values[0];
+            if (values.length == 1) {
+                attribute = new Attribute<Serializable>(name, values[0]);
+            } else {
+                attribute = new Attribute<Serializable>(name, values);                
+            }
         }
 
-        return null;
+        return attribute;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.model.IdentityType#getAttributeValues(java.lang.String)
-     */
     @Override
     @Transient
-    public String[] getAttributeValues(String name) {
-        return getUserAttributesMap().get(name);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.picketlink.idm.model.IdentityType#getAttributes()
-     */
-    @Override
-    @Transient
-    public Map<String, String[]> getAttributes() {
-        return this.getUserAttributesMap();
+    public Collection<Attribute<? extends Serializable>> getAttributes() {
+        Set<Entry<String, String[]>> entrySet = this.getUserAttributesMap().entrySet();
+        Collection<Attribute<? extends Serializable>> attributes = new ArrayList<Attribute<? extends Serializable>>(); 
+        
+        for (Entry<String, String[]> entry : entrySet) {
+            String name = entry.getKey();
+            String[] values = entry.getValue();
+            Attribute attribute = null;
+            
+            if (values != null) {
+                if (values.length == 1) {
+                    
+                    attribute = new Attribute<Serializable>(name, values[0]);
+                } else {
+                    attribute = new Attribute<Serializable>(name, values);                
+                }
+            }
+            
+            attributes.add(attribute);
+        }
+        
+        return attributes;
     }
 
     @Override

@@ -942,7 +942,7 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
                 try {
                     MappedAttribute mappedAttribute = getConfig().getAttributeProperties().get(userAttribute.getName());
 
-                    // of the attribute was mapped as a property of the identity class
+                    // if the attribute was mapped as a property of the identity class
                     if (mappedAttribute != null) {
                         for (String attribName : getConfig().getAttributeProperties().keySet()) {
                             MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);

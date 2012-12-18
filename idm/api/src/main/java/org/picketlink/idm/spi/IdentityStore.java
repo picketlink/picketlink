@@ -254,4 +254,5 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @return
      */
     <C extends CredentialStorage> C retrieveCredential(Agent agent, Class<C> storageClass);
+
 }

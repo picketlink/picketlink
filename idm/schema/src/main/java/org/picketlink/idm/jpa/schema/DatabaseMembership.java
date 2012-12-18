@@ -11,8 +11,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
@@ -25,20 +25,26 @@ import org.picketlink.idm.model.User;
  *
  */
 @Entity
-@NamedQuery(name = NamedQueries.MEMBERSHIP_LOAD_BY_KEY, query = "select m from DatabaseMembership m where m.role = :role and m.member = :member and m.group = :group")
+@javax.persistence.NamedQueries( 
+        {
+            @NamedQuery (name = NamedQueries.MEMBERSHIP_LOAD_BY_ALL, query = "select m from DatabaseMembership m where m.role = :role and m.member = :member and m.group = :group"),
+            @NamedQuery (name = NamedQueries.MEMBERSHIP_LOAD_BY_MEMBER_GROUP, query = "select m from DatabaseMembership m where m.member = :member and m.group = :group"),
+            @NamedQuery (name = NamedQueries.MEMBERSHIP_LOAD_BY_MEMBER_ROLE, query = "select m from DatabaseMembership m where m.role = :role and m.member = :member")
+        }
+)
 public class DatabaseMembership implements GroupRole {
 
     @Id
     @GeneratedValue
     private long id;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.DETACH)
     private DatabaseUser member;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.DETACH)
     private DatabaseGroup group;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.DETACH)
     private DatabaseRole role;
 
     public DatabaseMembership() {

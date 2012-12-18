@@ -65,12 +65,14 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
             }
         }
     }
+    
     public EntityManager getEntityManager(){
         if(entityManager == null){
             entityManager = emf.createEntityManager();
         }
         return entityManager;
     }
+    
     public void setEntityManager(EntityManager em){
         this.entityManager = em;
     }

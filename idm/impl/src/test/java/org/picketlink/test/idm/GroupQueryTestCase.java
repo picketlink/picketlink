@@ -385,7 +385,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(Group.EXPIRY_AFTER, expiryDate);
         query.setParameter(Group.EXPIRY_BEFORE, new Date());
 
-        Thread.sleep(500);
+        Thread.sleep(1000);
 
         Group someFutureGroup = loadOrCreateGroup("someFutureGroup", null, true);
 

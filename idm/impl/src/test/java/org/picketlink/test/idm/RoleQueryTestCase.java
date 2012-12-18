@@ -373,7 +373,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(Role.EXPIRY_AFTER, expiryDate);
         query.setParameter(Role.EXPIRY_BEFORE, new Date());
 
-        Thread.sleep(500);
+        Thread.sleep(1000);
 
         Role someFutureRole = loadOrCreateRole("someFutureRole", true);
 

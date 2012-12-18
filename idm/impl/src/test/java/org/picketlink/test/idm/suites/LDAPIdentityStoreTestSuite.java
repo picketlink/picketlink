@@ -29,7 +29,6 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
@@ -110,8 +109,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null,
-                new DefaultCredentialHandlerFactory()));
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
         return identityManager;
     }

@@ -24,6 +24,7 @@ package org.picketlink.idm.config;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 
@@ -47,6 +48,11 @@ public abstract class IdentityStoreConfiguration extends BaseAbstractStoreConfig
      * Metadata reflecting which features are supported by this identity store
      */
     private final Set<Feature> supportedFeatures = new HashSet<Feature>();
+
+    /**
+     * Metadata reflecting which {@link CredentialHandler} are supported by this identity store.
+     */
+    private final Set<Class<? extends CredentialHandler>> supportedCredentialHandlers = new HashSet<Class<? extends CredentialHandler>>();
 
     public abstract Set<Feature> getFeatureSet();
 
@@ -75,6 +81,15 @@ public abstract class IdentityStoreConfiguration extends BaseAbstractStoreConfig
      */
     public Set<Feature> getSupportedFeatures() {
         return supportedFeatures;
+    }
+    
+    /**
+     * Returns a {@link Set} describing the {@link CredentialHandler} types supported by this identity store
+     * 
+     * @return
+     */
+    public Set<Class<? extends CredentialHandler>> getSupportedCredentialHandlers() {
+        return supportedCredentialHandlers;
     }
 
     /**
