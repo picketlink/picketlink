@@ -41,6 +41,16 @@ import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.MembershipObject;
 import org.picketlink.test.idm.ApplicationRegistrationTestCase;
+import org.picketlink.test.idm.CredentialManagementTestCase;
+import org.picketlink.test.idm.GroupManagementTestCase;
+import org.picketlink.test.idm.GroupQueryTestCase;
+import org.picketlink.test.idm.RoleManagementTestCase;
+import org.picketlink.test.idm.RoleQueryTestCase;
+import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
+import org.picketlink.test.idm.UserGroupsRelationshipTestCase;
+import org.picketlink.test.idm.UserManagementTestCase;
+import org.picketlink.test.idm.UserQueryTestCase;
+import org.picketlink.test.idm.UserRolesRelationshipTestCase;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
@@ -53,7 +63,10 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ ApplicationRegistrationTestCase.class })
+@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
+        UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, CredentialManagementTestCase.class,
+        ApplicationRegistrationTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
