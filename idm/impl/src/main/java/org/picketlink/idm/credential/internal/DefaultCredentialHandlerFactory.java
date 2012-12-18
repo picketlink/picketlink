@@ -1,10 +1,6 @@
 package org.picketlink.idm.credential.internal;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.picketlink.idm.credential.Credentials;
@@ -34,9 +30,6 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
      */
     Set<CredentialHandler> registeredHandlers = new HashSet<CredentialHandler>();
     
-    private Map<Class<? extends CredentialHandler>, List<Class<? extends IdentityStore>>> additionalStores = new HashMap<Class<? extends CredentialHandler>, List<Class<? extends IdentityStore>>>();
-
-
     public DefaultCredentialHandlerFactory() {
         defaultHandlers.add(new JPAPlainTextPasswordCredentialHandler());
         defaultHandlers.add(new LDAPPlainTextPasswordCredentialHandler());
@@ -52,22 +45,6 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
         registeredHandlers.add(handler);
     }
     
-    /**
-     * Register the specified {@link IdentityStore} to support the given {@link CredentialHandler}. 
-     * 
-     * @param handler
-     */
-    public void registerIdentityStore(Class<? extends CredentialHandler> handler, Class<? extends IdentityStore> identityStore) {
-        List<Class<? extends IdentityStore>> supportedStores = this.additionalStores.get(handler);
-        
-        if (supportedStores == null) {
-            supportedStores = new ArrayList<Class<? extends IdentityStore>>();
-            this.additionalStores.put(handler, supportedStores);
-        }
-        
-        supportedStores.add(identityStore);
-    }
-
     @Override
     public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, Class<? extends IdentityStore> identityStoreClass) {
         for (CredentialHandler handler : registeredHandlers) {
@@ -116,16 +93,6 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
                 for (Class<? extends IdentityStore> isc : ss.value()) {
                     if (isc.equals(identityStoreClass)) {
                         return true;
-                    }
-                    
-                    if (this.additionalStores.containsKey(handler.getClass())) {
-                        List<Class<? extends IdentityStore>> stores = this.additionalStores.get(handler.getClass());
-                        
-                        for (Class<? extends IdentityStore> storeClass : stores) {
-                            if (storeClass.equals(identityStoreClass)) {
-                                return true;
-                            }
-                        }
                     }
                 }
             }

@@ -5,16 +5,9 @@
     <persistence-unit name="jpa-identity-store-tests-pu" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.ejb.HibernatePersistence</provider>
         
-        <class>org.picketlink.idm.jpa.schema.DatabaseUser</class>
-        <class>org.picketlink.idm.jpa.schema.DatabaseUserAttribute</class>
-        
-        <class>org.picketlink.idm.jpa.schema.DatabaseRole</class>
-        <class>org.picketlink.idm.jpa.schema.DatabaseRoleAttribute</class>
-
-        <class>org.picketlink.idm.jpa.schema.DatabaseGroup</class>
-        <class>org.picketlink.idm.jpa.schema.DatabaseGroupAttribute</class>
-        
-        <class>org.picketlink.idm.jpa.schema.DatabaseMembership</class>
+        <class>org.picketlink.idm.jpa.schema.IdentityObject</class>
+        <class>org.picketlink.idm.jpa.schema.MembershipObject</class>
+        <class>org.picketlink.idm.jpa.schema.IdentityObjectAttribute</class>
         
         <properties>
             <property name="hibernate.connection.url" value="jdbc:h2:mem:test"/>

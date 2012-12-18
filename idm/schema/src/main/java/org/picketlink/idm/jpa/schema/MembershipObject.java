@@ -20,13 +20,11 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm.suites;
+package org.picketlink.idm.jpa.schema;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.picketlink.idm.jpa.annotations.EntityType;
@@ -36,68 +34,58 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
+@IDMEntity(EntityType.IDENTITY_RELATIONSHIP)
 @Entity
-@IDMEntity(EntityType.IDENTITY_ATTRIBUTE)
-public class IdentityObjectAttribute {
-
+public class MembershipObject {
+    
     @Id
     @GeneratedValue
     private Integer attributeId;
-
+    
+    @IDMProperty(PropertyType.MEMBER)
     @ManyToOne
-    @JoinColumn
-    private IdentityObject identityObject;
+    private IdentityObject user;
 
-    @IDMProperty(PropertyType.NAME)
-    private String name;
+    @IDMProperty(PropertyType.ROLE)
+    @ManyToOne
+    private IdentityObject role;
 
-    @IDMProperty(PropertyType.VALUE)
-    @Column (length=1024)
-    private String value;
-
-    @IDMProperty(PropertyType.ATTRIBUTE_TYPE)
-    private String type;
+    @IDMProperty(PropertyType.GROUP)
+    @ManyToOne
+    private IdentityObject group;
 
     public Integer getAttributeId() {
-        return this.attributeId;
+        return attributeId;
     }
 
     public void setAttributeId(Integer attributeId) {
         this.attributeId = attributeId;
     }
 
-    public IdentityObject getIdentityObject() {
-        return this.identityObject;
+    public IdentityObject getUser() {
+        return user;
     }
 
-    public void setIdentityObject(IdentityObject identityObject) {
-        this.identityObject = identityObject;
+    public void setUser(IdentityObject user) {
+        this.user = user;
     }
 
-    public String getName() {
-        return this.name;
+    public IdentityObject getRole() {
+        return role;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRole(IdentityObject role) {
+        this.role = role;
     }
 
-    public String getValue() {
-        return this.value;
+    public IdentityObject getGroup() {
+        return group;
     }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getType() {
-        return this.type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setGroup(IdentityObject group) {
+        this.group = group;
     }
 
 }

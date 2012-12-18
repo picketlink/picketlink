@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm.suites;
+package org.picketlink.idm.jpa.schema;
 
 import java.util.Date;
 

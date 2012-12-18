@@ -19,8 +19,7 @@
     <modules>
         <module>api</module>
         <module>impl</module>
-        <!-- DISABLED TEMPORARILY -->
-        <!--module>schema</module-->
+        <module>schema</module>
     </modules>
 
 </project>

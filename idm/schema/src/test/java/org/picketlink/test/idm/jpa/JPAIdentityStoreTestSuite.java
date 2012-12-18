@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm.jpa.schema;
+package org.picketlink.test.idm.jpa;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -33,17 +33,14 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
-import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.internal.DefaultStoreFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
-import org.picketlink.idm.jpa.internal.JPAPlainTextPasswordCredentialHandler;
-import org.picketlink.idm.jpa.schema.internal.SimpleJPAIdentityStore;
-import org.picketlink.idm.jpa.schema.internal.SimpleJPAIdentityStoreConfiguration;
-import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.jpa.schema.IdentityObject;
+import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
+import org.picketlink.idm.jpa.schema.MembershipObject;
+import org.picketlink.test.idm.ApplicationRegistrationTestCase;
 import org.picketlink.test.idm.CredentialManagementTestCase;
 import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.GroupQueryTestCase;
@@ -68,13 +65,13 @@ import org.picketlink.test.idm.runners.TestLifecycle;
 @RunWith(IdentityManagerRunner.class)
 @SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
     UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-    RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, CredentialManagementTestCase.class })
-public class SimpleJPAIdentityStoreTestSuite implements TestLifecycle {
+    RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, CredentialManagementTestCase.class, ApplicationRegistrationTestCase.class })
+public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
 
     public static TestLifecycle init() throws Exception {
-        return new SimpleJPAIdentityStoreTestSuite();
+        return new JPAIdentityStoreTestSuite();
     }
 
     /**
@@ -114,37 +111,21 @@ public class SimpleJPAIdentityStoreTestSuite implements TestLifecycle {
         IdentityConfiguration config = new IdentityConfiguration();
 
         config.addStoreConfiguration(getConfiguration());
-        
-        DefaultCredentialHandlerFactory credentialHandlerFactory = new DefaultCredentialHandlerFactory();
-        
-        credentialHandlerFactory.registerIdentityStore(JPAPlainTextPasswordCredentialHandler.class, SimpleJPAIdentityStore.class);
-        credentialHandlerFactory.registerIdentityStore(X509CertificateCredentialHandler.class, SimpleJPAIdentityStore.class);
-        
-        DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf, credentialHandlerFactory) {
-            @Override
-            public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
-                if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
-                    ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, getEntityManager());
-                }
-            }
-        };
-        
-        icf.setEntityManager(entityManager);
-        
-        DefaultStoreFactory storeFactory = new DefaultStoreFactory();
-        
-        storeFactory.mapIdentityConfiguration(SimpleJPAIdentityStoreConfiguration.class, SimpleJPAIdentityStore.class);
-        
+
         IdentityManager identityManager = new DefaultIdentityManager();
-        
-        identityManager.setIdentityStoreFactory(storeFactory);
+        DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
+        icf.setEntityManager(entityManager);
         identityManager.bootstrap(config, icf);
 
         return identityManager;
     }
 
     private IdentityStoreConfiguration getConfiguration() {
-        SimpleJPAIdentityStoreConfiguration configuration = new SimpleJPAIdentityStoreConfiguration();
+        JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
+
+        configuration.setIdentityClass(IdentityObject.class);
+        configuration.setAttributeClass(IdentityObjectAttribute.class);
+        configuration.setMembershipClass(MembershipObject.class);
 
         return configuration;
     }
