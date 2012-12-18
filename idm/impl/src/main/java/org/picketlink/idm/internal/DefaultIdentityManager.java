@@ -238,6 +238,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
         if (User.class.isInstance(identityType)) {
             feature = Feature.updateUser;
+        } else if (Agent.class.isInstance(identityType)) {
+            feature = Feature.updateAgent;
         } else if (Group.class.isInstance(identityType)) {
             if (ctx.getRealm() != null && ctx.getTier() != null) {
                 throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the " +
@@ -267,6 +269,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
         if (User.class.isInstance(identityType)) {
             feature = Feature.deleteUser;
+        } else if (Agent.class.isInstance(identityType)) {
+            feature = Feature.deleteAgent;
         } else if (Group.class.isInstance(identityType)) {
             if (ctx.getRealm() != null && ctx.getTier() != null) {
                 throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the " +

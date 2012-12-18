@@ -24,6 +24,8 @@ package org.picketlink.test.idm;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
@@ -31,7 +33,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.SimpleAgent;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 
 /**
@@ -41,23 +43,22 @@ import org.picketlink.idm.query.IdentityQuery;
  */
 public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTestCase {
     
+    private static final String appName = "Test App";
+    private static final String appURL = "http://someurl";
+    private static final String appDesc = "This is a nice app";
+    
     @Test
     public void appRegister() throws Exception{
-
         IdentityManager identityManager = getIdentityManager();
         
-        String appName = "Test App";
-        String appURL = "http://someurl";
-        String appDesc = "This is a nice app";
+        Agent oauthApp = loadOrCreateAgent(appName, true);
         
-        Agent oauthApp = new SimpleAgent(appName);
         oauthApp.setAttribute( new Attribute<String>("appURL", appURL) );
         oauthApp.setAttribute( new Attribute<String>("appDesc", appDesc) );
         
-        identityManager.add(oauthApp);
+        identityManager.update(oauthApp);
         
-        /*//Let us query
-
+        //Let us query
         IdentityQuery<Agent> query = identityManager.createQuery(Agent.class);
 
         query.setParameter(Agent.ID, appName);
@@ -67,6 +68,35 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        assertEquals(appName, result.get(0).getId());*/
+        assertEquals(appName, result.get(0).getId());
+        
+        // let's query using only the appUrl attribute
+        query = identityManager.createQuery(Agent.class);
+
+        query.setParameter(IdentityType.ATTRIBUTE.byName("appURL"), new String[] { appURL });
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+
+        assertEquals(appName, result.get(0).getId());
+    }
+    
+    @Test
+    public void appUnregister() throws Exception{
+        IdentityManager identityManager = getIdentityManager();
+        
+        Agent oauthApp = loadOrCreateAgent(appName, true);
+        
+        oauthApp = identityManager.getAgent(appName);
+        
+        assertNotNull(oauthApp);
+        
+        identityManager.remove(oauthApp);
+        
+        oauthApp = identityManager.getAgent(appName);
+        
+        assertNull(oauthApp);
     }
 }

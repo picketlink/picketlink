@@ -55,6 +55,7 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.SimpleRole;
@@ -111,6 +112,9 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
             populateIdentityInstance(identity, identityType);
 
             em.persist(identity);
+            
+            updateAttributes(identityType, identity);
+            
             em.flush();
 
             if (isUserType(identityType.getClass())) {
@@ -191,6 +195,10 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
             UserDeletedEvent event = new UserDeletedEvent(user);
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
             getContext().getEventBridge().raiseEvent(event);
+        } else if (isAgentType(identityType.getClass())) {
+            Agent user = (Agent) identityType;
+            
+            //TODO: raise Agent deleted event
         } else if (isRoleType(identityType.getClass())) {
             Role role = (Role) identityType;
 
@@ -327,8 +335,25 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
 
     @Override
     public Agent getAgent(String id) {
-        // TODO: need to handle pure Agent instances. For now let's only consider User instances.
-        return getUser(id);
+        if (id == null) {
+            return null;
+        }
+
+        // Check the cache first
+        Agent agent = getContext().getCache().lookupAgent(context.getRealm(), id);
+
+        // If the cache doesn't have a reference to the User, we have to look up it's identity object
+        // and create a User instance based on it
+        if (agent == null) {
+            Object identity = lookupIdentityObjectById(new SimpleAgent(id));
+
+            if (identity != null) {
+                agent = (Agent) createFromIdentityInstance(identity);
+                getContext().getCache().putAgent(context.getRealm(), agent);
+            }
+        }
+
+        return agent;
     }
 
     @Override
@@ -703,7 +728,7 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
         predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
                 getIdentityDiscriminator(identityType.getClass())));
 
-        if (isUserType(identityType.getClass())) {
+        if (isUserType(identityType.getClass()) || isAgentType(identityType.getClass())) {
             predicates.add(builder.equal(root.get(getIdentityIdProperty().getName()), id));
         } else if (isGroupType(identityType.getClass()) || isRoleType(identityType.getClass())) {
             predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), id));
@@ -904,11 +929,14 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
         if (isUserType(fromIdentityType.getClass())) {
             User fromUser = (User) fromIdentityType;
 
-            // user properties
             setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
             setModelProperty(toIdentity, PROPERTY_USER_FIRST_NAME, fromUser.getFirstName());
             setModelProperty(toIdentity, PROPERTY_USER_LAST_NAME, fromUser.getLastName());
             setModelProperty(toIdentity, PROPERTY_USER_EMAIL, fromUser.getEmail());
+        } else if (isAgentType(fromIdentityType.getClass())) {
+            Agent fromUser = (Agent) fromIdentityType;
+
+            setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
         } else if (isRoleType(fromIdentityType.getClass())) {
             Role fromRole = (Role) fromIdentityType;
             setModelProperty(toIdentity, JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME, fromRole.getName());
@@ -1021,6 +1049,8 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
 
         if (isUserType(identityType.getClass())) {
             value = ((User) identityType).getId();
+        } else if (isAgentType(identityType.getClass())) {
+            value = ((Agent) identityType).getId();
         } else if (isRoleType(identityType.getClass())) {
             value = ((Role) identityType).getName();
         } else if (isGroupType(identityType.getClass())) {
@@ -1054,6 +1084,12 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
             user.setEmail(getModelProperty(String.class, identity, PROPERTY_USER_EMAIL));
 
             identityType = user;
+        } else if (discriminator.equals(getConfig().getIdentityTypeAgent())) {
+            idValue = getIdentityIdProperty().getValue(identity).toString();
+
+            Agent agent = new SimpleAgent(idValue);
+
+            identityType = agent;
         } else if (discriminator.equals(getConfig().getIdentityTypeRole())) {
             idValue = getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getValue(identity).toString();
 

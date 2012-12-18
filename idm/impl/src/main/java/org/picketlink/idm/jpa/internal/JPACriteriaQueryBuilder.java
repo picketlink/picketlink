@@ -48,6 +48,7 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
@@ -90,7 +91,7 @@ public class JPACriteriaQueryBuilder {
     public Property<Object> mapToModelProperty(QueryParameter queryParameter) {
         Property<Object> property = null;
 
-        if (queryParameter.equals(User.ID)) {
+        if (queryParameter.equals(Agent.ID)) {
             property = this.config.getModelProperty(PROPERTY_IDENTITY_ID);
         }
 

@@ -1,5 +1,6 @@
 package org.picketlink.idm;
 
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
@@ -65,6 +66,24 @@ public interface IdentityCache {
      * @param role
      */
     void putRole(Partition partition, Role role);
+
+    /**
+     * Returns the cached {@link Agent} object for the specified id, in the specified Realm.  If the {@link Agent} has
+     * not previously been cached, returns null.
+     * 
+     * @param realm
+     * @param id
+     * @return
+     */
+    Agent lookupAgent(Realm realm, String id);
+
+    /**
+     * Inserts the specified {@link Agent} into the cache, within the specified Partition.
+     * 
+     * @param partition
+     * @param role
+     */
+    void putAgent(Realm realm, Agent agent);
 
     /**
      * 

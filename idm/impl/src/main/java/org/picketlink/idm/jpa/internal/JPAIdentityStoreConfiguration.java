@@ -790,6 +790,8 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         
         if (User.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeUser();
+        } else if (Agent.class.isAssignableFrom(identityType)) {
+            discriminator = getIdentityTypeAgent();
         } else if (Role.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeRole();
         } else if (Group.class.isAssignableFrom(identityType)) {

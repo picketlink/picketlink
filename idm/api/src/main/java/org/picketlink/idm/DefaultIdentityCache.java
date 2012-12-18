@@ -22,6 +22,7 @@
 
 package org.picketlink.idm;
 
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
@@ -66,6 +67,16 @@ public class DefaultIdentityCache implements IdentityCache {
     @Override
     public void putRole(Partition partition, Role role) {
         // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public Agent lookupAgent(Realm realm, String id) {
+        return null;
+    }
+
+    @Override
+    public void putAgent(Realm realm, Agent agent) {
         
     }
 

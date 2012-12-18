@@ -159,4 +159,8 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
     protected boolean isUserType(Class<? extends IdentityType> identityType) {
         return User.class.isAssignableFrom(identityType);
     }
+
+    protected boolean isAgentType(Class<? extends IdentityType> identityType) {
+        return Agent.class.isAssignableFrom(identityType);
+    }
 }
