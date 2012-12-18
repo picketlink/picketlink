@@ -34,8 +34,6 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -59,6 +57,8 @@ import org.picketlink.idm.spi.StoreFactory;
  * @author anil saldhana
  */
 public class DefaultIdentityManager implements IdentityManager {
+
+    private static final long serialVersionUID = -2835518073812662628L;
 
     private Map<String,Map<Feature,IdentityStoreConfiguration>> realmStores = new HashMap<String,Map<Feature,IdentityStoreConfiguration>>();
 
@@ -221,8 +221,10 @@ public class DefaultIdentityManager implements IdentityManager {
             }
 
             feature = Feature.createRole;
+        } else if (Agent.class.isInstance(identityType)) {
+            feature = Feature.createAgent;
         } else {
-            throw new IllegalArgumentException("Unsupported IdentityType");
+            throw new IllegalArgumentException("Unsupported IdentityType:" + identityType.getClass().getName());
         }
 
         getContextualStoreForFeature(ctx, feature).add(identityType);

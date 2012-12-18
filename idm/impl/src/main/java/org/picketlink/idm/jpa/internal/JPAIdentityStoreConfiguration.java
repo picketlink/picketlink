@@ -20,6 +20,7 @@ import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
@@ -38,7 +39,12 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";
     private static final String DEFAULT_ROLE_IDENTITY_DISCRIMINATOR = "ROLE";
     private static final String DEFAULT_GROUP_IDENTITY_DISCRIMINATOR = "GROUP";
+    
 
+    private static final String DEFAULT_AGENT_IDENTITY_DISCRIMINATOR = "AGENT";
+
+
+    private String identityTypeAgent = DEFAULT_AGENT_IDENTITY_DISCRIMINATOR;
     private String identityTypeUser = DEFAULT_USER_IDENTITY_DISCRIMINATOR;
     private String identityTypeRole = DEFAULT_ROLE_IDENTITY_DISCRIMINATOR;
     private String identityTypeGroup = DEFAULT_GROUP_IDENTITY_DISCRIMINATOR;
@@ -770,6 +776,14 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public void setIdentityTypeRole(String identityTypeRole) {
         this.identityTypeRole = identityTypeRole;
     }
+    
+    public String getIdentityTypeAgent() {
+        return identityTypeAgent;
+    }
+
+    public void setIdentityTypeAgent(String identityTypeAgent) {
+        this.identityTypeAgent = identityTypeAgent;
+    }
 
     protected String getIdentityTypeDiscriminator(Class<? extends IdentityType> identityType) {
         String discriminator = null;
@@ -780,6 +794,8 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
             discriminator = getIdentityTypeRole();
         } else if (Group.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeGroup();
+        } else if (Agent.class.isAssignableFrom(identityType)) {
+            discriminator = getIdentityTypeAgent();
         } else {
             throw new IdentityManagementException("No discriminator could be determined for type [" + identityType.getClass() + "]");
         }
