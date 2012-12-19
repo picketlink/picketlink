@@ -427,17 +427,17 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                     for (Object name : ldapQueryParameter.getValues()) {
                         Attribute memberAttribute = null;
                         LDAPEntry ldapEntry = null;
-                        
+
                         if (queryParameter.equals(User.HAS_ROLE)) {
                             ldapEntry = (LDAPRole) getRole(name.toString());
                         } else {
                             ldapEntry = (LDAPGroup) getGroup(name.toString());
                         }
-                        
+
                         memberAttribute = ldapEntry.getLDAPAttributes().get(MEMBER);
-                        
+
                         NamingEnumeration<?> members = null;
-                        
+
                         try {
                             members = memberAttribute.getAll();
 
@@ -563,13 +563,13 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                     }
                 }
             };
-            
+
             if (ldapQuery.getParentQueryParameter() != null) {
                 String parentName = ldapQuery.getParentQueryParameter().getValues()[0].toString();
                 LDAPGroup parentGroup = (LDAPGroup) getGroup(parentName);
-                
+
                 NamingEnumeration<?> members = null;
-                
+
                 try {
                     members = parentGroup.getLDAPAttributes().get(MEMBER).getAll();
 
@@ -623,7 +623,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 if (ldapQuery.hasCustomAttributes()) {
                     LDAPCustomAttributes customAttributes = getCustomAttributes(idAttribute + "=" + uid + COMMA + dnSuffix);
 
-                    if (customAttributes != null) {
+                    if (customAttributes == null) {
+                        uid = null;
+                    } else {
                         for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getCustomParameters()) {
                             QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
                             Object[] values = ldapQueryParameter.getValues();
@@ -705,8 +707,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                                 }
                             }
                         }
-                    } else {
-                        uid = null;
                     }
                 }
 
