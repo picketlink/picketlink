@@ -41,13 +41,16 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.IdentityType.AttributeParameter;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
+ * <p>
+ * Base class that provides some common functionality for {@link IdentityType} types.
+ * </p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
@@ -59,10 +62,28 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
         this.store = store;
     }
 
+    /**
+     * <p>
+     * Logic to be executed before removing the given {@link IdentityType}. The <code>identity</code> argument refers to a
+     * specific Identity Class that maps to the given {@link IdentityType} instance.
+     * </p>
+     * 
+     * @param identity
+     * @param identityType
+     */
     void remove(Object identity, T identityType) {
 
     }
 
+    /**
+     * <p>
+     * Creates a Identity Class instance using the information from the given {@link IdentityType}.
+     * </p>
+     * 
+     * @param realm
+     * @param fromIdentityType
+     * @return
+     */
     public Object createIdentityInstance(Realm realm, T fromIdentityType) {
         Object identity = null;
 
@@ -79,6 +100,16 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
         return identity;
     }
 
+    /**
+     * <p>
+     * Creates a {@link IdentityType} instance using the information from the give Identity Class instance. This method already
+     * provides the mapping for the common properties for all {@link IdentityType} types.
+     * </p>
+     * 
+     * @param realm
+     * @param identity
+     * @return
+     */
     public T fromIdentityInstance(Realm realm, Object identity) {
         T identityType = createIdentityType(identity);
 
@@ -91,10 +122,21 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
         return identityType;
     }
 
+    /**
+     * <p>
+     * Returns a {@link List} of {@link Predicate} to be used during the query execution. This method already provides the
+     * mapping for the common properties for all {@link IdentityType} types.
+     * </p>
+     * 
+     * @param queryParameter
+     * @param parameterValues
+     * @param criteria
+     * @return
+     */
     protected List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
             JPACriteriaQueryBuilder criteria) {
         List<Predicate> predicates = new ArrayList<Predicate>();
-        
+
         if (queryParameter.equals(IdentityType.ENABLED)) {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_IDENTITY_ENABLED).getName()),
@@ -136,20 +178,21 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
                     criteria.getRoot().<Date> get(getConfig().getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
                     (Date) parameterValues[0]));
         }
-        
+
         if (queryParameter instanceof IdentityType.AttributeParameter) {
             AttributeParameter customParameter = (AttributeParameter) queryParameter;
 
             Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getAttributeClass());
             Root fromProject = subquery.from(getConfig().getAttributeClass());
-            Subquery<?> select = subquery.select(fromProject.get(getAttributeIdentityProperty().getName()));
+            Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY).getName()));
 
             Predicate conjunction = criteria.getBuilder().conjunction();
 
             conjunction.getExpressions().add(
-                    criteria.getBuilder().equal(fromProject.get(getAttributeNameProperty().getName()), customParameter.getName()));
+                    criteria.getBuilder().equal(fromProject.get(getConfig().getModelProperty(PROPERTY_ATTRIBUTE_NAME).getName()),
+                            customParameter.getName()));
             conjunction.getExpressions().add(
-                    (fromProject.get(getAttributeValueProperty().getName()).in((Object[]) parameterValues)));
+                    (fromProject.get(getConfig().getModelProperty(PROPERTY_ATTRIBUTE_VALUE).getName()).in((Object[]) parameterValues)));
 
             subquery.where(conjunction);
 
@@ -161,11 +204,27 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
 
         return predicates;
     }
-    
+
+    /**
+     * <p>Subclasses should override this method to create a specific {@link IdentityType} given the provided Identity Class instance.</p>
+     * 
+     * @param identity
+     * @return
+     */
     protected abstract T createIdentityType(Object identity);
+
+    /**
+     * <p>Subclasses should override this method to populate the given Identity Class instance with the specific information for a given {@link IdentityType}.</p>
+     * 
+     * @param toIdentity
+     * @param fromIdentityType
+     */
     protected abstract void fromIdentityType(Object toIdentity, T fromIdentityType);
+
     protected abstract AbstractBaseEvent raiseCreatedEvent(T fromIdentityType);
+
     protected abstract AbstractBaseEvent raiseUpdatedEvent(T fromIdentityType);
+
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType);
 
     /**
@@ -203,15 +262,4 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
         return this.store;
     }
 
-    private Property<Object> getAttributeIdentityProperty() {
-        return getConfig().getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY);
-    }
-
-    private Property<Object> getAttributeNameProperty() {
-        return getConfig().getModelProperty(PROPERTY_ATTRIBUTE_NAME);
-    }
-    
-    private Property<Object> getAttributeValueProperty() {
-        return getConfig().getModelProperty(PROPERTY_ATTRIBUTE_VALUE);
-    }
 }

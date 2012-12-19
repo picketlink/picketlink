@@ -340,7 +340,6 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
                 T identityType = (T) identityTypeManager.fromIdentityInstance(getContext().getRealm(), identity);
 
                 configurePartition(getContext().getRealm(), identity, identityType);
-
                 populateAttributes(identityType, identity);
 
                 result.add(identityType);
@@ -350,21 +349,6 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
         }
 
         return result;
-    }
-
-    @Override
-    public void setAttribute(IdentityType identity, Attribute<? extends Serializable> providedAttrib) {
-        throw createNotImplementedYetException();
-    }
-
-    @Override
-    public void removeAttribute(IdentityType identity, String name) {
-        throw createNotImplementedYetException();
-    }
-
-    @Override
-    public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
-        throw createNotImplementedYetException();
     }
 
     @Override
@@ -524,6 +508,21 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
 
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
+        throw createNotImplementedYetException();
+    }
+    
+    @Override
+    public void setAttribute(IdentityType identity, Attribute<? extends Serializable> providedAttrib) {
+        throw createNotImplementedYetException();
+    }
+
+    @Override
+    public void removeAttribute(IdentityType identity, String name) {
+        throw createNotImplementedYetException();
+    }
+
+    @Override
+    public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
         throw createNotImplementedYetException();
     }
 

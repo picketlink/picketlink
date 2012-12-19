@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -41,6 +42,7 @@ public class LDAPQuery {
     private List<LDAPQueryParameter> memberShipParameters = new ArrayList<LDAPQueryParameter>();
     private List<LDAPQueryParameter> customParameters = new ArrayList<LDAPQueryParameter>();
     private Boolean hasCustomAttributes = null;
+    private LDAPQueryParameter parentQueryParameter;
     
     public LDAPQuery(Map<QueryParameter, Object[]> queryParameters) {
         this.queryParameters = queryParameters;
@@ -56,7 +58,9 @@ public class LDAPQuery {
             if (parameter.isMappedToManagedAttribute()) {
                 this.managedParameters.add(parameter);
             } else {
-                if (parameter.isMembershipParameter()) {
+                if (queryParameter.equals(Group.PARENT)) {
+                    this.parentQueryParameter = parameter;
+                } else if (parameter.isMembershipParameter()) {
                     this.memberShipParameters.add(parameter);
                 } else {
                     this.customParameters.add(parameter);
@@ -101,5 +105,9 @@ public class LDAPQuery {
     
     public List<LDAPQueryParameter> getCustomParameters() {
         return this.customParameters;
+    }
+    
+    public LDAPQueryParameter getParentQueryParameter() {
+        return this.parentQueryParameter;
     }
 }
