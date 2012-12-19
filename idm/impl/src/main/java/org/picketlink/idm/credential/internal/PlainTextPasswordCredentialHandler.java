@@ -1,4 +1,4 @@
-package org.picketlink.idm.jpa.internal;
+package org.picketlink.idm.credential.internal;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -10,6 +10,7 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.spi.annotations.SupportsStores;
+import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
@@ -24,7 +25,7 @@ import org.picketlink.idm.spi.IdentityStore;
  */
 @SupportsCredentials({UsernamePasswordCredentials.class, PlainTextPassword.class})
 @SupportsStores({JPAIdentityStore.class})
-public class JPAPlainTextPasswordCredentialHandler implements CredentialHandler {
+public class PlainTextPasswordCredentialHandler implements CredentialHandler {
 
     private static final String PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt";
 

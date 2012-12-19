@@ -306,4 +306,9 @@ public abstract class AbstractDatabaseIdentityType<A extends AbstractDatabaseAtt
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
     }
+    
+    @Override
+    public void setPartition(Partition partition) {
+        
+    }
 }

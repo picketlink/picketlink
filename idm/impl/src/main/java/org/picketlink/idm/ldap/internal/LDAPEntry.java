@@ -593,4 +593,9 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
     public String getDnSuffix() {
         return this.dnSuffix;
     }
+    
+    @Override
+    public void setPartition(Partition partition) {
+        
+    }
 }

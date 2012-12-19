@@ -218,4 +218,11 @@ public interface IdentityType extends Serializable {
      * @return
      */
     Partition getPartition();
+
+    /**
+     * <p>Sets the {@link Partition} for this object.</p>
+     * 
+     * @param partition
+     */
+    void setPartition(Partition partition);
 }
