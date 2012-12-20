@@ -883,7 +883,8 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         if (identityQuery.getParameters().containsKey(User.HAS_ROLE)
                 || identityQuery.getParameters().containsKey(User.MEMBER_OF)
                 || identityQuery.getParameters().containsKey(User.HAS_GROUP_ROLE)
-                || identityQuery.getParameters().containsKey(User.ROLE_OF)) {
+                || identityQuery.getParameters().containsKey(User.ROLE_OF)
+                || identityQuery.getParameters().containsKey(User.HAS_MEMBER)) {
             List<T> fileteredUsers = new ArrayList<T>();
 
             List<QueryParameter> toSearch = new ArrayList<QueryParameter>();
@@ -892,6 +893,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             toSearch.add(IdentityType.MEMBER_OF);
             toSearch.add(IdentityType.HAS_GROUP_ROLE);
             toSearch.add(IdentityType.ROLE_OF);
+            toSearch.add(IdentityType.HAS_MEMBER);
 
             for (T fileUser : new ArrayList<T>(selectedUsers)) {
                 for (QueryParameter queryParameter : toSearch) {
@@ -940,6 +942,15 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                                 Agent agent = (Agent) member;
 
                                 if (agent.getKey().equals(membership.getMember().getKey()) && membership.getRole().getKey().equals(fileUser.getKey())) {
+                                    count--;
+                                }
+                            }
+                        } else if (queryParameter.equals(IdentityType.HAS_MEMBER) && membership.getGroup() != null) {
+                            for (Object member : values) {
+                                Agent agent = (Agent) member;
+
+                                if (agent.getKey().equals(membership.getMember().getKey())
+                                        && membership.getGroup().getKey().equals(fileUser.getKey())) {
                                     count--;
                                 }
                             }

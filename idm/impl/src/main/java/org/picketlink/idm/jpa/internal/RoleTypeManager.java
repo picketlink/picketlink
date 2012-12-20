@@ -106,7 +106,7 @@ public class RoleTypeManager extends IdentityTypeManager<Role>{
                 conjunction.getExpressions().add(
                         criteria.getBuilder().equal(fromProject.get(roleModelProperty.getName()), criteria.getRoot()));
                 conjunction.getExpressions().add(
-                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), getStore().lookupIdentityObjectById((IdentityType) parameterValues[0])));
+                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), getStore().lookupIdentityObjectById((IdentityType) object)));
 
                 subquery.where(conjunction);
                 

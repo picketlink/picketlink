@@ -22,13 +22,16 @@
 
 package org.picketlink.test.idm;
 
-import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 
 /**
  * <p>
@@ -94,5 +97,86 @@ public class UserGroupsRelationshipTestCase extends AbstractIdentityManagerTestC
         identityManager.removeFromGroup(someUser, someAnotherGroup);
 
         assertFalse(identityManager.isMember(someUser, someAnotherGroup));
+    }
+    
+    /**
+     * <p>
+     * Finds all groups for a specific user.
+     * </p>
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFindUserGroups() throws Exception {
+        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
+        Group someImportantGroup = loadOrCreateGroup("someImportantGroup", null, true);
+        
+        User user = loadOrCreateUser("someUser", true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.removeFromGroup(user, someGroup);
+        identityManager.removeFromGroup(user, someAnotherGroup);
+        identityManager.removeFromGroup(user, someImportantGroup);
+        
+        IdentityQuery<Group> query = identityManager.createQuery(Group.class);
+        
+        query.setParameter(Group.HAS_MEMBER, new Object[] {user});
+        
+        List<Group> result = query.getResultList();
+        
+        assertFalse(contains(result, "someGroup"));
+        assertFalse(contains(result, "someAnotherGroup"));
+        assertFalse(contains(result, "someImportantGroup"));
+        
+        identityManager.addToGroup(user, someGroup);
+        
+        query = identityManager.createQuery(Group.class);
+        
+        query.setParameter(Group.HAS_MEMBER, new Object[] {user});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someGroup"));
+        assertFalse(contains(result, "someAnotherGroup"));
+        assertFalse(contains(result, "someImportantGroup"));
+        
+        identityManager.addToGroup(user, someAnotherGroup);
+
+        query = identityManager.createQuery(Group.class);
+        
+        query.setParameter(Group.HAS_MEMBER, new Object[] {user});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someGroup"));
+        assertTrue(contains(result, "someAnotherGroup"));
+        assertFalse(contains(result, "someImportantGroup"));
+
+        identityManager.addToGroup(user, someImportantGroup);
+        
+        query = identityManager.createQuery(Group.class);
+        
+        query.setParameter(Group.HAS_MEMBER, new Object[] {user});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someGroup"));
+        assertTrue(contains(result, "someAnotherGroup"));
+        assertTrue(contains(result, "someImportantGroup"));
+    }
+
+    private boolean contains(List<Group> result, String roleId) {
+        for (Group resultGroup : result) {
+            if (resultGroup.getName().equals(roleId)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

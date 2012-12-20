@@ -34,12 +34,15 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.GroupCreatedEvent;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.GroupUpdatedEvent;
+import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -159,6 +162,29 @@ public class GroupTypeManager extends IdentityTypeManager<Group>{
 
             predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
                     parameterValues[0]));
+        }
+        
+        if (queryParameter.equals(IdentityType.HAS_MEMBER)) {
+            for (Object object : parameterValues) {
+                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+
+
+                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
+                Root fromProject = subquery.from(getConfig().getMembershipClass());
+                Subquery<?> select = subquery.select(fromProject.get(groupModelProperty.getName()));
+
+                Predicate conjunction = criteria.getBuilder().conjunction();
+
+                conjunction.getExpressions().add(
+                        criteria.getBuilder().equal(fromProject.get(groupModelProperty.getName()), criteria.getRoot()));
+                conjunction.getExpressions().add(
+                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), getStore().lookupIdentityObjectById((IdentityType) object)));
+
+                subquery.where(conjunction);
+                
+                predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+            }
         }
         
         return predicates;

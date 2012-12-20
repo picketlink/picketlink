@@ -24,6 +24,7 @@ package org.picketlink.idm.ldap.internal;
 
 import javax.naming.directory.Attribute;
 
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.QueryParameter;
@@ -74,7 +75,7 @@ public class LDAPQueryParameter {
 
     public boolean isMembershipParameter() {
         return queryParameter.equals(IdentityType.HAS_ROLE) || queryParameter.equals(IdentityType.MEMBER_OF)
-                || queryParameter.equals(IdentityType.HAS_GROUP_ROLE) || queryParameter.equals(Role.ROLE_OF);
+                || queryParameter.equals(IdentityType.HAS_GROUP_ROLE) || queryParameter.equals(Role.ROLE_OF) || queryParameter.equals(Group.HAS_MEMBER);
     }
 
     public String createFilter() {
