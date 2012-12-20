@@ -23,7 +23,6 @@
 package org.picketlink.idm.file.internal;
 
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Role;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -37,13 +36,24 @@ public class FileGroup extends AbstractFileIdentityType implements Group {
 
     private Group parentGroup;
 
+    private String id;
+
     public FileGroup() {
-        
+
     }
-    
+
     public FileGroup(String name, Group parent) {
         this.name = name;
         this.parentGroup = parent;
+    }
+
+    @Override
+    public String getId() {
+        if (this.id == null) {
+            this.id = parentGroup == null ? String.format("/%s", this.name) : String.format("%s/%s", parentGroup.getId(),
+                    this.name);
+        }
+        return this.id;
     }
 
     /**
@@ -52,10 +62,10 @@ public class FileGroup extends AbstractFileIdentityType implements Group {
     public String getName() {
         return name;
     }
-    
+
     @Override
     public String getKey() {
-        return getName();
+        return String.format("%s%s", KEY_PREFIX, getId());
     }
 
     /**
@@ -80,23 +90,10 @@ public class FileGroup extends AbstractFileIdentityType implements Group {
     }
 
     @Override
-    public String getId() {
-        return this.name;
-    }
-
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.internal.file.AbstractFileIdentityType#update()
-     */
-    @Override
-    protected void update() {
-        super.changeListener.updateGroups();
-    }
-
-    @Override
     public int hashCode() {
         return super.hashCode();
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

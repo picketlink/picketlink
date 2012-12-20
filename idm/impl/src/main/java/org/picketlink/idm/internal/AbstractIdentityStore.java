@@ -144,10 +144,6 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
         return storage.getName();
     }
     
-    protected IdentityManagementException createNotImplementedYetException() {
-        return new IdentityManagementException("Not implemented yet.");
-    }
-
     protected boolean isGroupType(Class<? extends IdentityType> identityType) {
         return Group.class.isAssignableFrom(identityType);
     }
@@ -163,4 +159,13 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
     protected boolean isAgentType(Class<? extends IdentityType> identityType) {
         return Agent.class.isAssignableFrom(identityType);
     }
+    
+    protected IdentityManagementException throwsNotSupportedIdentityType(IdentityType identityType) {
+        return new IdentityManagementException("Not supported IdentityType.");
+    }
+
+    protected IdentityManagementException createNotImplementedYetException() {
+        return new IdentityManagementException("Not implemented yet.");
+    }
+
 }

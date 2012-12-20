@@ -66,7 +66,6 @@ public class FileUser extends AbstractFileIdentityType implements User {
      */
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-        update();
     }
 
     /**
@@ -81,7 +80,6 @@ public class FileUser extends AbstractFileIdentityType implements User {
      */
     public void setLastName(String lastName) {
         this.lastName = lastName;
-        update();
     }
 
     /**
@@ -96,7 +94,6 @@ public class FileUser extends AbstractFileIdentityType implements User {
      */
     public void setEmail(String email) {
         this.email = email;
-        update();
     }
 
     /**
@@ -111,19 +108,8 @@ public class FileUser extends AbstractFileIdentityType implements User {
      */
     public void setFullName(String fullName) {
         this.fullName = fullName;
-        update();
     }
 
-    /* (non-Javadoc)
-     * @see org.picketlink.idm.internal.file.AbstractFileIdentityType#update()
-     */
-    @Override
-    protected void update() {
-        if (super.changeListener != null) {
-            super.changeListener.updateUsers();
-        }
-    }
-    
     @Override
     public int hashCode() {
         return super.hashCode();

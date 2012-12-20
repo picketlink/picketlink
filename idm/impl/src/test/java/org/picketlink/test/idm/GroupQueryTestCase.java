@@ -218,7 +218,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
 
-        query.setParameter(Group.EXPIRY_DATE, group.getExpirationDate());
+        query.setParameter(Group.EXPIRY_DATE, expirationDate);
 
         List<Group> result = query.getResultList();
 

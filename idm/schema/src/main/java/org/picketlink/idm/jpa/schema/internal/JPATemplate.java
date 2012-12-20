@@ -59,7 +59,7 @@ public class JPATemplate {
         this.entityManager = entityManager;
     }
     
-    protected EntityManager getEntityManager() {
+    public EntityManager getEntityManager() {
         return this.entityManager;
     }
 

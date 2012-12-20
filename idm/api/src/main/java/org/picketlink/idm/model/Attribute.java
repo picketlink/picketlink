@@ -9,7 +9,9 @@ import java.io.Serializable;
  *
  * @param <T>
  */
-public class Attribute<T extends Serializable> {
+public class Attribute<T extends Serializable> implements Serializable {
+
+    private static final long serialVersionUID = 237211288303510728L;
 
     /**
      * The name of the attribute

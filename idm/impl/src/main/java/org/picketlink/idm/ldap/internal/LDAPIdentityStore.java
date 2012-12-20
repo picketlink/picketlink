@@ -55,7 +55,6 @@ import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.IdentityType.AttributeParameter;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
@@ -621,90 +620,134 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 uid = (String) attributes.get(idAttribute).get();
 
                 if (ldapQuery.hasCustomAttributes()) {
+
                     LDAPCustomAttributes customAttributes = getCustomAttributes(idAttribute + "=" + uid + COMMA + dnSuffix);
 
-                    if (customAttributes == null) {
-                        uid = null;
-                    } else {
-                        for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getCustomParameters()) {
-                            QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
-                            Object[] values = ldapQueryParameter.getValues();
+                    if (identityQuery.getParameters().containsKey(IdentityType.ENABLED)) {
+                        Object[] values = identityQuery.getParameters().get(IdentityType.ENABLED);
+                        String enabled = String.valueOf(customAttributes.getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED));
 
-                            String parentName = values[0].toString();
+                        if (!enabled.equals(values[0].toString())) {
+                            uid = null;
+                            continue;
+                        }
+                    }
 
-                            if (!ldapQueryParameter.isMappedToManagedAttribute()) {
-                                String id = "";
-                                Object entryValue = null;
+                    if (identityQuery.getParameters().containsKey(IdentityType.CREATED_DATE)) {
+                        Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_DATE);
+                        long storedDateInMillis = Long.valueOf(customAttributes.getAttribute(
+                                LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE).toString());
+                        long providedDateInMillis = ((Date) values[0]).getTime();
 
-                                if (ldapQueryParameter.getMappedTo() != null) {
-                                    id = ldapQueryParameter.getMappedTo().getID();
-                                } else if (queryParameter instanceof IdentityType.AttributeParameter) {
-                                    id = ((IdentityType.AttributeParameter) queryParameter).getName();
-                                }
+                        if (storedDateInMillis != providedDateInMillis) {
+                            uid = null;
+                            continue;
+                        }
+                    }
 
-                                entryValue = customAttributes.getAttribute(id);
+                    if (identityQuery.getParameters().containsKey(IdentityType.CREATED_BEFORE)) {
+                        Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_BEFORE);
+                        long storedDateInMillis = Long.valueOf(customAttributes.getAttribute(
+                                LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE).toString());
+                        long providedDateInMillis = ((Date) values[0]).getTime();
 
-                                if (entryValue == null) {
-                                    uid = null;
-                                    break;
-                                }
+                        if (storedDateInMillis > providedDateInMillis) {
+                            uid = null;
+                            continue;
+                        }
+                    }
 
-                                if (id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE)
-                                        || id.equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                                    long providedTimeInMillis = ((Date) values[0]).getTime();
-                                    long storedTimeInMillis = Long.valueOf(entryValue.toString());
+                    if (identityQuery.getParameters().containsKey(IdentityType.CREATED_AFTER)) {
+                        Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_AFTER);
+                        long storedDateInMillis = Long.valueOf(customAttributes.getAttribute(
+                                LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE).toString());
+                        long providedDateInMillis = ((Date) values[0]).getTime();
 
-                                    if (queryParameter.equals(User.CREATED_DATE) || queryParameter.equals(User.EXPIRY_DATE)) {
-                                        if (providedTimeInMillis != storedTimeInMillis) {
-                                            uid = null;
-                                            break;
-                                        }
-                                    }
+                        if (storedDateInMillis < providedDateInMillis) {
+                            uid = null;
+                            continue;
+                        }
+                    }
 
-                                    if (queryParameter.equals(User.CREATED_AFTER) || queryParameter.equals(User.EXPIRY_AFTER)) {
-                                        if (storedTimeInMillis < providedTimeInMillis) {
-                                            uid = null;
-                                            break;
-                                        }
-                                    }
+                    if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_DATE)
+                            || identityQuery.getParameters().containsKey(IdentityType.EXPIRY_BEFORE)
+                            || identityQuery.getParameters().containsKey(IdentityType.EXPIRY_AFTER)) {
 
-                                    if (queryParameter.equals(User.CREATED_BEFORE) || queryParameter.equals(User.EXPIRY_BEFORE)) {
-                                        if (storedTimeInMillis > providedTimeInMillis) {
-                                            uid = null;
-                                            break;
+                        Object expiryAttribute = customAttributes.getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
+
+                        if (expiryAttribute == null) {
+                            uid = null;
+                            continue;
+                        }
+
+                        if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_DATE)) {
+                            Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_DATE);
+                            long storedDateInMillis = Long.valueOf(expiryAttribute.toString());
+                            long providedDateInMillis = ((Date) values[0]).getTime();
+
+                            if (storedDateInMillis != providedDateInMillis) {
+                                uid = null;
+                                continue;
+                            }
+                        }
+
+                        if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_BEFORE)) {
+                            Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_BEFORE);
+                            long storedDateInMillis = Long.valueOf(expiryAttribute.toString());
+                            long providedDateInMillis = ((Date) values[0]).getTime();
+
+                            if (storedDateInMillis > providedDateInMillis) {
+                                uid = null;
+                                continue;
+                            }
+                        }
+
+                        if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_AFTER)) {
+                            Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_AFTER);
+                            long storedDateInMillis = Long.valueOf(expiryAttribute.toString());
+                            long providedDateInMillis = ((Date) values[0]).getTime();
+
+                            if (storedDateInMillis < providedDateInMillis) {
+                                uid = null;
+                                continue;
+                            }
+                        }
+                    }
+
+                    for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getCustomParameters()) {
+                        QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
+
+                        if (queryParameter instanceof IdentityType.AttributeParameter) {
+                            Object[] queryParameterValues = ldapQueryParameter.getValues();
+                            IdentityType.AttributeParameter customParameter = (IdentityType.AttributeParameter) queryParameter;
+                            Object customParameterValue = customAttributes.getAttribute(customParameter.getName());
+
+                            if (customParameterValue == null) {
+                                uid = null;
+                                break;
+                            }
+
+                            int count = queryParameterValues.length;
+
+                            for (Object parameterValue : queryParameterValues) {
+                                if (customParameterValue.getClass().isArray()) {
+                                    Object[] customParameterValues = (Object[]) customParameterValue;
+
+                                    for (Object value : customParameterValues) {
+                                        if (value.equals(parameterValue)) {
+                                            count--;
                                         }
                                     }
                                 } else {
-                                    if (queryParameter instanceof IdentityType.AttributeParameter
-                                            && entryValue.getClass().isArray()) {
-                                        IdentityType.AttributeParameter attrParameter = (AttributeParameter) queryParameter;
-
-                                        if (id.equals(attrParameter.getName())) {
-                                            Object[] attributeValues = (Object[]) entryValue;
-
-                                            for (Object parameterValue : values) {
-                                                boolean matchValue = false;
-
-                                                for (Object object : attributeValues) {
-                                                    if (object.toString().equals(parameterValue.toString())) {
-                                                        matchValue = true;
-                                                        break;
-                                                    }
-                                                }
-
-                                                if (!matchValue) {
-                                                    uid = null;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        if (!parentName.equals(entryValue.toString())) {
-                                            uid = null;
-                                            break;
-                                        }
+                                    if (parameterValue.equals(customParameterValue)) {
+                                        count--;
                                     }
                                 }
+                            }
+
+                            if (count > 0) {
+                                uid = null;
+                                continue;
                             }
                         }
                     }

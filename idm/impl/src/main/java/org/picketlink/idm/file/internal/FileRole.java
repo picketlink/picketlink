@@ -47,18 +47,12 @@ public class FileRole extends AbstractFileIdentityType implements Role {
         return this.name;
     }
 
-    @Override
     public String getKey() {
-        return getName();
+        return String.format("%s%s", KEY_PREFIX, name);
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Override
-    protected void update() {
-        super.changeListener.updateRoles();
     }
 
     @Override

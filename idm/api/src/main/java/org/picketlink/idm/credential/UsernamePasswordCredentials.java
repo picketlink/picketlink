@@ -12,6 +12,15 @@ public class UsernamePasswordCredentials extends AbstractBaseCredentials impleme
 
     private PlainTextPassword password;
 
+    public UsernamePasswordCredentials() {
+        
+    }
+    
+    public UsernamePasswordCredentials(String userName, PlainTextPassword password) {
+        this.username = userName;
+        this.password = password;
+    }
+    
     public String getUsername() {
         return username;
     }
