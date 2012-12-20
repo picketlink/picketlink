@@ -25,10 +25,13 @@ package org.picketlink.test.idm;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 
+import java.util.List;
+
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 
 /**
  * <p>
@@ -97,6 +100,87 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         identityManager.revokeRole(someUser, someAnotherRole);
 
         assertFalse(identityManager.hasRole(someUser, someAnotherRole));
+    }
+    
+    /**
+     * <p>
+     * Finds all roles for a specific user.
+     * </p>
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testFindUserRoles() throws Exception {
+        Role someRole = loadOrCreateRole("someRole", true);
+        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
+        Role someImportantRole = loadOrCreateRole("someImportantRole", true);
+        
+        User user = loadOrCreateUser("someUser", true);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.revokeRole(user, someRole);
+        identityManager.revokeRole(user, someAnotherRole);
+        identityManager.revokeRole(user, someImportantRole);
+        
+        IdentityQuery<Role> query = identityManager.createQuery(Role.class);
+        
+        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        
+        List<Role> result = query.getResultList();
+        
+        assertFalse(contains(result, "someRole"));
+        assertFalse(contains(result, "someAnotherRole"));
+        assertFalse(contains(result, "someImportantRole"));
+        
+        identityManager.grantRole(user, someRole);
+        
+        query = identityManager.createQuery(Role.class);
+        
+        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someRole"));
+        assertFalse(contains(result, "someAnotherRole"));
+        assertFalse(contains(result, "someImportantRole"));
+        
+        identityManager.grantRole(user, someAnotherRole);
+
+        query = identityManager.createQuery(Role.class);
+        
+        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someRole"));
+        assertTrue(contains(result, "someAnotherRole"));
+        assertFalse(contains(result, "someImportantRole"));
+
+        identityManager.grantRole(user, someImportantRole);
+        
+        query = identityManager.createQuery(Role.class);
+        
+        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someRole"));
+        assertTrue(contains(result, "someAnotherRole"));
+        assertTrue(contains(result, "someImportantRole"));
+    }
+
+    private boolean contains(List<Role> result, String roleId) {
+        for (Role resultRole : result) {
+            if (resultRole.getName().equals(roleId)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 }

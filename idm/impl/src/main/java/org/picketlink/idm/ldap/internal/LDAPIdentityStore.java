@@ -481,7 +481,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                             additionalFilter = new StringBuffer(filterTmp);
                         }
                     }
-                } else {
+                } else if (queryParameter.equals(IdentityType.HAS_GROUP_ROLE)) {
                     String hasMemberFilter = "(|";
 
                     for (Object group : ldapQueryParameter.getValues()) {
@@ -547,6 +547,46 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                     }
                 }
             };
+
+            for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getMemberShipParameters()) {
+                QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
+                if (queryParameter.equals(Role.ROLE_OF)) {
+                    String hasMemberFilter = "";
+
+                    for (Object members : ldapQueryParameter.getValues()) {
+                        Agent agent = (Agent) members;
+                        LDAPUser ldapUser = (LDAPUser) getUser(agent.getId());
+
+                        hasMemberFilter = hasMemberFilter + "(member=" + ldapUser.getDN() + ")";
+                    }
+
+                    NamingEnumeration<SearchResult> search = null;
+
+                    try {
+                        search = getLdapManager().search(this.configuration.getRoleDNSuffix(), hasMemberFilter.toString());
+                        
+                        while (search.hasMoreElements()) {
+                            SearchResult searchResult = search.next();
+                            String roleName = searchResult.getAttributes().get(CN).get().toString();
+                            
+                            additionalFilter.append("(cn=").append(roleName).append(")");
+                        }
+                        
+                        if (additionalFilter.length() == 0 && !ldapQuery.getMemberShipParameters().isEmpty()) {
+                            return result;
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        if (search != null) {
+                            try {
+                                search.close();
+                            } catch (NamingException e) {
+                            }
+                        }
+                    }
+                }
+            }
         } else if (isGroupType(typeClass)) {
             dnSuffix = this.configuration.getGroupDNSuffix();
             idAttribute = CN;

@@ -45,10 +45,10 @@ import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration> implements IdentityStore<T> {
-    
+
     // Event context parameters
     public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
     public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
@@ -75,7 +75,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
         }
         handler.update(agent, credential, this);
     }
-    
+
     @Override
     public <T extends CredentialStorage> void storeCredential(Agent agent, T storage) {
         List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
@@ -89,11 +89,11 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             Object credential = storedProperty.getValue(storage);
 
             if (Serializable.class.isInstance(credential)) {
-                Attribute<Serializable> credentialAttribute = new Attribute<Serializable>(getCredentialAttributeName(storage.getClass()),
-                        (Serializable) credential);
+                Attribute<Serializable> credentialAttribute = new Attribute<Serializable>(
+                        getCredentialAttributeName(storage.getClass()), (Serializable) credential);
 
                 agent.setAttribute(credentialAttribute);
-                
+
                 update(agent);
             } else {
                 throw new IdentityManagementException(
@@ -114,24 +114,25 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
         } else {
             Property<Object> storedProperty = annotatedTypes.get(0);
             Attribute<Serializable> credentialAttribute = agent.getAttribute(getCredentialAttributeName(storageClass));
-            
+
             if (credentialAttribute != null) {
                 try {
                     storage = storageClass.newInstance();
                 } catch (Exception e) {
-                    throw new IdentityManagementException("Error while creating a " + storageClass.getName() + " storage instance.", e);
+                    throw new IdentityManagementException("Error while creating a " + storageClass.getName()
+                            + " storage instance.", e);
                 }
-                
+
                 storedProperty.setValue(storage, credentialAttribute.getValue());
             } else {
                 throw new IdentityManagementException(
                         "Methods annotated with @Stored should aways return a serializable object.");
             }
         }
-        
+
         return storage;
     }
-    
+
     /**
      * <p>
      * For the given {@link CredentialStorage} resolves the user attribute name where the credential is stored.
@@ -143,7 +144,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
     private <T extends CredentialStorage> String getCredentialAttributeName(Class<T> storage) {
         return storage.getName();
     }
-    
+
     protected boolean isGroupType(Class<? extends IdentityType> identityType) {
         return Group.class.isAssignableFrom(identityType);
     }
@@ -159,7 +160,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
     protected boolean isAgentType(Class<? extends IdentityType> identityType) {
         return Agent.class.isAssignableFrom(identityType);
     }
-    
+
     protected IdentityManagementException throwsNotSupportedIdentityType(IdentityType identityType) {
         return new IdentityManagementException("Not supported IdentityType.");
     }

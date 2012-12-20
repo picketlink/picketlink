@@ -72,16 +72,15 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
 
     private Map<String, IdentityTypeManager<? extends IdentityType>> identityTypeStores = new HashMap<String, IdentityTypeManager<? extends IdentityType>>();
     
-    public JPAIdentityStore() {
-        this.identityTypeStores.put(getIdentityDiscriminator(User.class), new UserTypeManager(this));
-        this.identityTypeStores.put(getIdentityDiscriminator(Agent.class), new AgentTypeManager(this));
-        this.identityTypeStores.put(getIdentityDiscriminator(Role.class), new RoleTypeManager(this));
-        this.identityTypeStores.put(getIdentityDiscriminator(Group.class), new GroupTypeManager(this));
-    }
     
     public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
         this.context = context;
+
+        this.identityTypeStores.put(getIdentityDiscriminator(User.class), new UserTypeManager(this));
+        this.identityTypeStores.put(getIdentityDiscriminator(Agent.class), new AgentTypeManager(this));
+        this.identityTypeStores.put(getIdentityDiscriminator(Role.class), new RoleTypeManager(this));
+        this.identityTypeStores.put(getIdentityDiscriminator(Group.class), new GroupTypeManager(this));
     }
 
     @Override

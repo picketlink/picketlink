@@ -337,7 +337,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
     }
-
+    
     /**
      * <p>
      * Finds roles expired between a specific date.

@@ -27,12 +27,17 @@ import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROP
 import java.util.List;
 
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
+import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -84,6 +89,29 @@ public class RoleTypeManager extends IdentityTypeManager<Role>{
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
                     parameterValues[0]));
+        }
+        
+        if (queryParameter.equals(IdentityType.ROLE_OF)) {
+            for (Object object : parameterValues) {
+                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+
+
+                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
+                Root fromProject = subquery.from(getConfig().getMembershipClass());
+                Subquery<?> select = subquery.select(fromProject.get(roleModelProperty.getName()));
+
+                Predicate conjunction = criteria.getBuilder().conjunction();
+
+                conjunction.getExpressions().add(
+                        criteria.getBuilder().equal(fromProject.get(roleModelProperty.getName()), criteria.getRoot()));
+                conjunction.getExpressions().add(
+                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), getStore().lookupIdentityObjectById((IdentityType) parameterValues[0])));
+
+                subquery.where(conjunction);
+                
+                predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+            }
         }
         
         return predicates;

@@ -11,6 +11,7 @@ import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.spi.annotations.SupportsStores;
+import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -24,7 +25,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({X509CertificateCredentials.class, X509Cert.class})
-@SupportsStores({JPAIdentityStore.class, LDAPIdentityStore.class})
+@SupportsStores({JPAIdentityStore.class, LDAPIdentityStore.class, FileBasedIdentityStore.class})
 public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override

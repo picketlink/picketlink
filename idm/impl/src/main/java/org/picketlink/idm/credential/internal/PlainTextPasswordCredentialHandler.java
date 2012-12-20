@@ -10,6 +10,7 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.credential.spi.annotations.SupportsStores;
+import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
@@ -24,7 +25,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({UsernamePasswordCredentials.class, PlainTextPassword.class})
-@SupportsStores({JPAIdentityStore.class})
+@SupportsStores({JPAIdentityStore.class, FileBasedIdentityStore.class})
 public class PlainTextPasswordCredentialHandler implements CredentialHandler {
 
     private static final String PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt";
