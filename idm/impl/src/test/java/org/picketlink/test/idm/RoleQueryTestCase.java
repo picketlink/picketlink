@@ -158,7 +158,9 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
 
         query.setParameter(Role.CREATED_DATE, role.getCreatedDate());
-
+        
+        Thread.sleep(500);
+        
         // only the previously created role
         List<Role> result = query.getResultList();
 
@@ -264,7 +266,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         // roles created after the given time
         query.setParameter(Role.CREATED_AFTER, calendar.getTime());
-
+        
         result = query.getResultList();
 
         assertFalse(result.isEmpty());

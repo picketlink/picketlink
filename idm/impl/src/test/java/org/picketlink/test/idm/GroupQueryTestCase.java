@@ -187,7 +187,9 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals("someGroup", result.get(0).getName());
 
         query = identityManager.<Group> createQuery(Group.class);
-
+        
+        Thread.sleep(500);
+        
         query.setParameter(Group.CREATED_DATE, new Date());
 
         result = query.getResultList();

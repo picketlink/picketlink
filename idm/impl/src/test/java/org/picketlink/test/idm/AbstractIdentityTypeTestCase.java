@@ -95,7 +95,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         updateIdentityType(validIdentityTypeInstance);
 
         T expiredIdentityTypeInstance = getIdentityType(false);
-
+        
+        Thread.sleep(500);
+        
         assertNotNull(expiredIdentityTypeInstance.getExpirationDate());
         assertTrue(new Date().after(expiredIdentityTypeInstance.getExpirationDate()));
         assertTrue(expirationDate.compareTo(expiredIdentityTypeInstance.getExpirationDate()) == 0);

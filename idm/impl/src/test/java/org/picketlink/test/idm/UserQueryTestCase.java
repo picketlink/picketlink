@@ -839,10 +839,12 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someAnotherFutureUser.getId()));
 
         query = identityManager.<User> createQuery(User.class);
-
+        
+        Thread.sleep(500);
+        
         // users expired after the given time. Should return an empty list.
         query.setParameter(User.EXPIRY_AFTER, new Date());
-
+        
         result = query.getResultList();
 
         assertTrue(result.isEmpty());

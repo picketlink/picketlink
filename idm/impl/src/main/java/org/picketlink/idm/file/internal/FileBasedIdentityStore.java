@@ -23,20 +23,14 @@
 package org.picketlink.idm.file.internal;
 
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -48,6 +42,10 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.IdentityType.AttributeParameter;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleGroupRole;
+import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -68,18 +66,6 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
     private static final String USER_PASSWORD_ATTRIBUTE = "userPassword";
 
-    private File usersFile;
-    private File rolesFile = new File("/tmp/pl-idm-work/pl-idm-roles.db");
-    private File groupsFile = new File("/tmp/pl-idm-work/pl-idm-groups.db");
-    private File membershipsFile = new File("/tmp/pl-idm-work/pl-idm-memberships.db");
-
-    private Map<String, FileUser> users = new HashMap<String, FileUser>();
-    private Map<String, Role> roles = new HashMap<String, Role>();
-    private Map<String, FileGroup> groups = new HashMap<String, FileGroup>();
-    private List<FileMembership> memberships = new ArrayList<FileMembership>();
-
-    private FileChangeListener changeListener = new FileChangeListener(this);
-
     private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
     
@@ -87,7 +73,6 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
         this.context = context;
-        initialize();
     }
 
     @Override
@@ -102,180 +87,14 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     /**
      * <p>
-     * Initializes the store.
-     * </p>
-     */
-    private void initialize() {
-        initDataFiles();
-
-        loadUsers();
-        loadRoles();
-        loadGroups();
-        loadMemberships();
-    }
-
-    /**
-     * <p>
-     * Initializes the files used to store the informations.
-     * </p>
-     */
-    private void initDataFiles() {
-        File workingDirectoryFile = initWorkingDirectory();
-
-        this.usersFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-users.db"));
-        this.rolesFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-roles.db"));
-        this.groupsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-groups.db"));
-        this.membershipsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-memberships.db"));
-    }
-
-    /**
-     * <p>
-     * Initializes the working directory.
-     * </p>
-     * 
-     * @return
-     */
-    private File initWorkingDirectory() {
-        String workingDir = getConfig().getWorkingDir();
-
-        File workingDirectoryFile = new File(workingDir);
-
-        if (!workingDirectoryFile.exists()) {
-            workingDirectoryFile.mkdirs();
-        }
-
-        return workingDirectoryFile;
-    }
-
-    /**
-     * <p>
-     * Check if the specified {@link File} exists. If not create it.
-     * </p>
-     * 
-     * @param file
-     * @return
-     */
-    private File checkAndCreateFile(File file) {
-        if (getConfig().isAlwaysCreateFiles() && file.exists()) {
-            file.delete();
-        }
-
-        if (!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-            }
-        }
-
-        return file;
-    }
-
-    /**
-     * <p>
-     * Load all persisted groups from the filesystem.
-     * </p>
-     */
-    private void loadGroups() {
-        ObjectInputStream ois = null;
-
-        try {
-            FileInputStream fis = new FileInputStream(groupsFile);
-            ois = new ObjectInputStream(fis);
-
-            this.groups = (Map<String, FileGroup>) ois.readObject();
-        } catch (Exception e) {
-        } finally {
-            try {
-                if (ois != null) {
-                    ois.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Load all persisted memberships from the filesystem.
-     * </p>
-     */
-    private void loadMemberships() {
-        ObjectInputStream ois = null;
-
-        try {
-            FileInputStream fis = new FileInputStream(membershipsFile);
-            ois = new ObjectInputStream(fis);
-
-            this.memberships = (List<FileMembership>) ois.readObject();
-        } catch (Exception e) {
-        } finally {
-            try {
-                if (ois != null) {
-                    ois.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Load all persisted roles from the filesystem.
-     * </p>
-     */
-    private void loadRoles() {
-        ObjectInputStream ois = null;
-
-        try {
-            FileInputStream fis = new FileInputStream(rolesFile);
-            ois = new ObjectInputStream(fis);
-
-            this.roles = (Map<String, Role>) ois.readObject();
-        } catch (Exception e) {
-        } finally {
-            try {
-                if (ois != null) {
-                    ois.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Load all persisted users from the filesystem.
-     * </p>
-     */
-    private void loadUsers() {
-        ObjectInputStream ois = null;
-
-        try {
-            FileInputStream fis = new FileInputStream(usersFile);
-            ois = new ObjectInputStream(fis);
-
-            this.users = (Map<String, FileUser>) ois.readObject();
-        } catch (Exception e) {
-        } finally {
-            try {
-                if (ois != null) {
-                    ois.close();
-                }
-            } catch (IOException e) {
-            }
-        }
-    }
-
-    /**
-     * <p>
      * Flush all changes made to users to the filesystem.
      * </p>
      */
     synchronized void flushUsers() {
         try {
-            FileOutputStream fos = new FileOutputStream(this.usersFile);
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getUsersFile());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(this.users);
+            oos.writeObject(getConfig().getUsers());
             oos.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -289,9 +108,9 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
      */
     synchronized void flushRoles() {
         try {
-            FileOutputStream fos = new FileOutputStream(this.rolesFile);
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getRolesFile());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(this.roles);
+            oos.writeObject(getConfig().getRoles());
             oos.close();
         } catch (Exception e) {
         }
@@ -304,9 +123,9 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
      */
     synchronized void flushGroups() {
         try {
-            FileOutputStream fos = new FileOutputStream(this.groupsFile);
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getGroupsFile());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(this.groups);
+            oos.writeObject(getConfig().getGroups());
             oos.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -320,9 +139,9 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
      */
     synchronized void flushMemberships() {
         try {
-            FileOutputStream fos = new FileOutputStream(this.membershipsFile);
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getMembershipsFile());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(this.memberships);
+            oos.writeObject(getConfig().getMemberships());
             oos.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -345,39 +164,37 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     private void addRole(IdentityType identityType) {
         Role role = (Role) identityType;
-        FileRole fileRole = new FileRole();
+        SimpleRole fileRole = new SimpleRole(role.getName());
 
-        fileRole.setName(role.getName());
-        
         updateCommonProperties(role, fileRole);
         
-        this.roles.put(role.getName(), fileRole);
+        getConfig().getRoles().put(role.getName(), fileRole);
         flushRoles();
     }
 
     private void addGroup(IdentityType identityType) {
         Group group = (Group) identityType;
-        FileGroup fileGroup = new FileGroup();
-
-        fileGroup.setName(group.getName());
+        SimpleGroup fileGroup = null;
 
         if (group.getParentGroup() != null) {
-            fileGroup.setParentGroup(getGroup(group.getParentGroup().getName()));
+            fileGroup = new SimpleGroup(group.getName(), getGroup(group.getParentGroup().getName()));
+        } else {
+            fileGroup = new SimpleGroup(group.getName());
         }
         
         updateCommonProperties(group, fileGroup);
 
-        this.groups.put(group.getName(), fileGroup);
+        getConfig().getGroups().put(group.getName(), fileGroup);
         flushGroups();
     }
 
     private void addUser(IdentityType identityType) {
         User user = (User) identityType;
 
-        FileUser fileUser;
+        SimpleUser fileUser;
 
-        if (!(user instanceof FileUser)) {
-            fileUser = new FileUser(user.getId());
+        if (!(user instanceof SimpleUser)) {
+            fileUser = new SimpleUser(user.getId());
 
             fileUser.setFirstName(user.getFirstName());
             fileUser.setLastName(user.getLastName());
@@ -385,10 +202,10 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             
             updateCommonProperties(user, fileUser);
         } else {
-            fileUser = (FileUser) user;
+            fileUser = (SimpleUser) user;
         }
         
-        this.users.put(user.getId(), fileUser);
+        getConfig().getUsers().put(user.getId(), fileUser);
         flushUsers();
     }
 
@@ -422,42 +239,42 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     private void updateRole(IdentityType identityType) {
         Role role = (Role) identityType;
-        FileRole fileRole = null;
+        SimpleRole fileRole = null;
 
-        if (!FileRole.class.isInstance(role)) {
-            fileRole = (FileRole) getRole(role.getName());
+        if (!SimpleRole.class.isInstance(role)) {
+            fileRole = (SimpleRole) getRole(role.getName());
             
             updateCommonProperties(role, fileRole);
         } else {
-            fileRole = (FileRole) role;
+            fileRole = (SimpleRole) role;
         }
 
-        this.roles.put(role.getName(), fileRole);
+        getConfig().getRoles().put(role.getName(), fileRole);
         flushRoles();
     }
 
     private void updateGroup(IdentityType identityType) {
         Group group = (Group) identityType;
-        FileGroup fileGroup = null;
+        SimpleGroup fileGroup = null;
 
-        if (!FileGroup.class.isInstance(group)) {
-            fileGroup = (FileGroup) getGroup(group.getName());
+        if (!SimpleGroup.class.isInstance(group)) {
+            fileGroup = (SimpleGroup) getGroup(group.getName());
             
             updateCommonProperties(group, fileGroup);
         } else {
-            fileGroup = (FileGroup) group;
+            fileGroup = (SimpleGroup) group;
         }
 
-        this.groups.put(group.getName(), fileGroup);
+        getConfig().getGroups().put(group.getName(), fileGroup);
         flushGroups();
     }
 
     private void updateUser(IdentityType identityType) {
         User user = (User) identityType;
-        FileUser fileUser = null;
+        SimpleUser fileUser = null;
 
-        if (!FileUser.class.isInstance(user)) {
-            fileUser = (FileUser) getUser(user.getId());
+        if (!SimpleUser.class.isInstance(user)) {
+            fileUser = (SimpleUser) getUser(user.getId());
 
             fileUser.setFirstName(user.getFirstName());
             fileUser.setLastName(user.getLastName());
@@ -465,10 +282,10 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             
             updateCommonProperties(user, fileUser);
         } else {
-            fileUser = (FileUser) user;
+            fileUser = (SimpleUser) user;
         }
 
-        this.users.put(user.getId(), fileUser);
+        getConfig().getUsers().put(user.getId(), fileUser);
         flushUsers();
     }
 
@@ -486,9 +303,9 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     private void removeRole(IdentityType identityType) {
         Role role = (Role) identityType;
 
-        this.roles.remove(role.getName());
+        getConfig().getRoles().remove(role.getName());
 
-        for (FileMembership membership : new ArrayList<FileMembership>(this.memberships)) {
+        for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             IdentityType member = membership.getMember();
 
             if (Group.class.isInstance(member)) {
@@ -497,7 +314,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
                 if (roleMember.getName().equals(role.getName())
                         || (roleMembership != null && roleMembership.getName().equals(role.getName()))) {
-                    this.memberships.remove(membership);
+                    getConfig().getMemberships().remove(membership);
                 }
             }
         }
@@ -509,9 +326,9 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     private void removeGroup(IdentityType identityType) {
         Group group = (Group) identityType;
 
-        this.groups.remove(group.getName());
+        getConfig().getGroups().remove(group.getName());
 
-        for (FileMembership membership : new ArrayList<FileMembership>(this.memberships)) {
+        for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             IdentityType member = membership.getMember();
 
             if (Group.class.isInstance(member)) {
@@ -520,7 +337,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
                 if (groupMember.getName().equals(group.getName())
                         || (groupMembership != null && groupMembership.getName().equals(group.getName()))) {
-                    this.memberships.remove(membership);
+                    getConfig().getMemberships().remove(membership);
                 }
             }
         }
@@ -532,16 +349,16 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     private void removeUser(IdentityType identityType) {
         User user = (User) identityType;
 
-        this.users.remove(user.getId());
+        getConfig().getUsers().remove(user.getId());
 
-        for (FileMembership membership : new ArrayList<FileMembership>(this.memberships)) {
+        for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             IdentityType member = membership.getMember();
 
             if (User.class.isInstance(member)) {
                 User userMember = (User) member;
 
                 if (userMember.getId().equals(user.getId())) {
-                    this.memberships.remove(membership);
+                    getConfig().getMemberships().remove(membership);
                 }
             }
         }
@@ -557,14 +374,14 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     @Override
     public User getUser(String id) {
-        FileUser storedUser = this.users.get(id);
+        SimpleUser storedUser = getConfig().getUsers().get(id);
 
         return storedUser;
     }
 
     @Override
     public Group getGroup(String groupId) {
-        FileGroup group = this.groups.get(groupId);
+        SimpleGroup group = getConfig().getGroups().get(groupId);
 
         return group;
     }
@@ -583,16 +400,16 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     @Override
     public Role getRole(String role) {
-        FileRole fileRole = (FileRole) this.roles.get(role);
+        SimpleRole fileRole = (SimpleRole) getConfig().getRoles().get(role);
 
         return fileRole;
     }
 
     @Override
     public GroupRole createMembership(IdentityType member, Group group, Role role) {
-        FileMembership membership = new FileMembership(member, group, role);
+        GroupRole membership = new SimpleGroupRole(member, role, group);
 
-        this.memberships.add(membership);
+        getConfig().getMemberships().add(membership);
 
         flushMemberships();
 
@@ -601,7 +418,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     @Override
     public void removeMembership(IdentityType member, Group group, Role role) {
-        for (GroupRole membership : new ArrayList<FileMembership>(this.memberships)) {
+        for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             boolean match = false;
 
             if (member != null) {
@@ -623,7 +440,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             }
 
             if (match) {
-                this.memberships.remove(membership);
+                getConfig().getMemberships().remove(membership);
             }
         }
 
@@ -632,7 +449,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     @Override
     public GroupRole getMembership(IdentityType member, Group group, Role role) {
-        for (GroupRole membership : new ArrayList<FileMembership>(this.memberships)) {
+        for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             boolean match = false;
 
             if (member != null) {
@@ -713,11 +530,11 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         Set entries = null;
         
         if (isUserType(identityTypeClass)) {
-            entries = this.users.entrySet();
+            entries = getConfig().getUsers().entrySet();
         } else if (isRoleType(identityTypeClass)) {
-            entries = this.roles.entrySet();
+            entries = getConfig().getRoles().entrySet();
         } else if (isGroupType(identityTypeClass)) {
-            entries = this.groups.entrySet();
+            entries = getConfig().getGroups().entrySet();
         }
         
         List<T> users = new ArrayList<T>();
@@ -878,7 +695,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         Collection<T> selectedUsers = users;
 
         if (users.isEmpty()) {
-            selectedUsers = (Collection<T>) this.users.values();
+            selectedUsers = (Collection<T>) getConfig().getUsers().values();
         }
 
         if (identityQuery.getParameters().containsKey(User.HAS_ROLE)
@@ -906,7 +723,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
                     int count = values.length;
 
-                    for (FileMembership membership : this.memberships) {
+                    for (GroupRole membership : getConfig().getMemberships()) {
                         if (isUserType(fileUser.getClass()) && isUserType(membership.getMember().getClass())) {
                             User selectedUser = (User) fileUser;
                             User memberUser = (User) membership.getMember();
