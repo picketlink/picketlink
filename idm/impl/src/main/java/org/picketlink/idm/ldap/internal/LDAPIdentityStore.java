@@ -564,14 +564,14 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
                     try {
                         search = getLdapManager().search(this.configuration.getRoleDNSuffix(), hasMemberFilter.toString());
-                        
+
                         while (search.hasMoreElements()) {
                             SearchResult searchResult = search.next();
                             String roleName = searchResult.getAttributes().get(CN).get().toString();
-                            
+
                             additionalFilter.append("(cn=").append(roleName).append(")");
                         }
-                        
+
                         if (additionalFilter.length() == 0 && !ldapQuery.getMemberShipParameters().isEmpty()) {
                             return result;
                         }
@@ -602,7 +602,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                     }
                 }
             };
-            
+
             for (LDAPQueryParameter ldapQueryParameter : ldapQuery.getMemberShipParameters()) {
                 QueryParameter queryParameter = ldapQueryParameter.getQueryParameter();
                 if (queryParameter.equals(Role.HAS_MEMBER)) {
@@ -619,14 +619,14 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
                     try {
                         search = getLdapManager().search(this.configuration.getGroupDNSuffix(), hasMemberFilter.toString());
-                        
+
                         while (search.hasMoreElements()) {
                             SearchResult searchResult = search.next();
                             String roleName = searchResult.getAttributes().get(CN).get().toString();
-                            
+
                             additionalFilter.append("(cn=").append(roleName).append(")");
                         }
-                        
+
                         if (additionalFilter.length() == 0 && !ldapQuery.getMemberShipParameters().isEmpty()) {
                             return result;
                         }
@@ -642,7 +642,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                     }
                 }
             }
-            
+
             if (ldapQuery.getParentQueryParameter() != null) {
                 String parentName = ldapQuery.getParentQueryParameter().getValues()[0].toString();
                 LDAPGroup parentGroup = (LDAPGroup) getGroup(parentName);
@@ -702,7 +702,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 if (ldapQuery.hasCustomAttributes()) {
 
                     LDAPCustomAttributes customAttributes = getCustomAttributes(idAttribute + "=" + uid + COMMA + dnSuffix);
-
+                    
+                    if (customAttributes == null) {
+                        uid = null;
+                        continue;
+                    }
+                    
                     if (identityQuery.getParameters().containsKey(IdentityType.ENABLED)) {
                         Object[] values = identityQuery.getParameters().get(IdentityType.ENABLED);
                         String enabled = String.valueOf(customAttributes.getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED));

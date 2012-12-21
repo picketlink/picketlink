@@ -104,9 +104,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
-
-        assertEquals("admin", result.get(0).getId());
+        assertTrue(contains(result, user.getId()));
 
         query = identityManager.<User> createQuery(User.class);
 

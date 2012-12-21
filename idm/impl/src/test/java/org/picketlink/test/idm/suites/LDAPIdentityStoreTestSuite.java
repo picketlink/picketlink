@@ -79,22 +79,22 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     @BeforeClass
     public static void onBeforeClass() {
-//        try {
-//            init();
-//            instance.setup();
-//            instance.importLDIF("ldap/users.ldif");
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try {
+            init();
+            instance.setup();
+            instance.importLDIF("ldap/users.ldif");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @AfterClass
     public static void onDestroyClass() {
-//        try {
-//            instance.tearDown();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try {
+            instance.tearDown();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

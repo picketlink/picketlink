@@ -33,7 +33,19 @@ public class DigestUtil {
 
     private static final String UTF8 = "UTF-8";
     private static final String MD5_ALGORITHM = "MD5";
+    
+    /**
+     * @param token
+     * @return
+     */
+    public static String userName(String token) {
+        if (token.startsWith("Digest")) {
+            token = token.substring(7).trim();
+        }
 
+        return extract(token, "username=");
+    }
+    
     /**
      * Determine the message digest
      *
@@ -132,5 +144,29 @@ public class DigestUtil {
             buf.append((char) c);
         }
         return buf.toString();
+    }
+    
+    /**
+     * Given a digest token, extract the value
+     *
+     * @param token
+     * @param key
+     * @return
+     */
+    public static String extract(String token, String key) {
+        String result = null;
+        if (token.startsWith(key)) {
+
+            int eq = token.indexOf("=");
+            result = token.substring(eq + 1);
+            if (result.startsWith("\"")) {
+                result = result.substring(1);
+            }
+            if (result.endsWith("\"")) {
+                int len = result.length();
+                result = result.substring(0, len - 1);
+            }
+        }
+        return result;
     }
 }

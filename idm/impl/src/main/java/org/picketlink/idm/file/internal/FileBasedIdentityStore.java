@@ -397,7 +397,8 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
 
-        for (Attribute<? extends Serializable> attribute : toIdentityType.getAttributes()) {
+        for (Object object : toIdentityType.getAttributes().toArray()) {
+            Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
             toIdentityType.removeAttribute(attribute.getName());
         }
 
@@ -941,7 +942,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                             for (Object member : values) {
                                 Agent agent = (Agent) member;
 
-                                if (agent.getKey().equals(membership.getMember().getKey()) && membership.getRole().getKey().equals(fileUser.getKey())) {
+                                if (agent != null && agent.getKey().equals(membership.getMember().getKey()) && membership.getRole().getKey().equals(fileUser.getKey())) {
                                     count--;
                                 }
                             }
@@ -949,7 +950,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                             for (Object member : values) {
                                 Agent agent = (Agent) member;
 
-                                if (agent.getKey().equals(membership.getMember().getKey())
+                                if (agent != null && agent.getKey().equals(membership.getMember().getKey())
                                         && membership.getGroup().getKey().equals(fileUser.getKey())) {
                                     count--;
                                 }

@@ -31,6 +31,7 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
     
     public DefaultCredentialHandlerFactory() {
         defaultHandlers.add(new PlainTextPasswordCredentialHandler());
+        defaultHandlers.add(new DigestCredentialHandler());
         defaultHandlers.add(new LDAPPlainTextPasswordCredentialHandler());
         defaultHandlers.add(new X509CertificateCredentialHandler());
     }

@@ -66,7 +66,7 @@ public class PlainTextPasswordCredentialHandler implements CredentialHandler {
         }
     }
 
-    private String getSalt(Agent agent, IdentityStore<?> store) {
+    protected String getSalt(Agent agent, IdentityStore<?> store) {
         Attribute<String> saltAttribute = agent.<String>getAttribute(PASSWORD_SALT_USER_ATTRIBUTE);
         String salt = null;
         

@@ -29,6 +29,18 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
 
     public static DefaultIdentityStoreInvocationContextFactory DEFAULT = new DefaultIdentityStoreInvocationContextFactory(null, new DefaultCredentialHandlerFactory());
     
+    public DefaultIdentityStoreInvocationContextFactory(){
+        this.eventBridge = new EventBridge() {
+
+            @Override
+            public void raiseEvent(Object event) {
+                // by default do nothing
+            }
+        };
+        this.credentialHandlerFactory = new DefaultCredentialHandlerFactory();
+        this.identityCache = new DefaultIdentityCache();
+    }
+    
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf){
         this.emf = emf;
         this.eventBridge = new EventBridge() {

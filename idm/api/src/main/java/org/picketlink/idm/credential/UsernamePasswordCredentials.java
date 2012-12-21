@@ -6,7 +6,7 @@ package org.picketlink.idm.credential;
  * 
  * @author Shane Bryzak
  */
-public class UsernamePasswordCredentials extends AbstractBaseCredentials implements Credentials {
+public class UsernamePasswordCredentials extends AbstractBaseCredentials {
 
     private String username;
 
