@@ -38,7 +38,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
@@ -65,7 +65,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private File groupsFile = new File("/tmp/pl-idm-work/pl-idm-groups.db");
     private File membershipsFile = new File("/tmp/pl-idm-work/pl-idm-memberships.db");
     
-    private Map<String, SimpleUser> users = new HashMap<String, SimpleUser>();
+    private Map<String, User> users = new HashMap<String, User>();
     private Map<String, Role> roles = new HashMap<String, Role>();
     private Map<String, SimpleGroup> groups = new HashMap<String, SimpleGroup>();
     private List<GroupRole> memberships = new ArrayList<GroupRole>();
@@ -233,7 +233,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
             FileInputStream fis = new FileInputStream(getUsersFile());
             ois = new ObjectInputStream(fis);
 
-            this.users = (Map<String, SimpleUser>) ois.readObject();
+            this.users = (Map<String, User>) ois.readObject();
         } catch (Exception e) {
         } finally {
             try {
@@ -282,7 +282,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return this.membershipsFile;
     }
     
-    public Map<String, SimpleUser> getUsers() {
+    public Map<String, User> getUsers() {
         return this.users;
     }
     

@@ -26,7 +26,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -54,7 +53,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * <p>
- * File based {@link IdentityStore} implementation. By default, each new instance recreate the data files. This behaviour can be
+ * File based {@link IdentityStore} implementation. By default, each new instance recreate the data files. This behavior can be
  * changed by configuring the <code>alwaysCreateFiles</code> property to false.
  * </p>
  * 
@@ -62,9 +61,6 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * 
  */
 public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration> {
-
-    private static final String USER_CERTIFICATE_ATTRIBUTE = "usercertificate";
-    private static final String USER_PASSWORD_ATTRIBUTE = "userPassword";
 
     private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
@@ -255,31 +251,33 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     private void updateUser(IdentityType identityType) {
         User user = (User) identityType;
-        SimpleUser fileUser = null;
+        User storedUser = null;
 
         if (!SimpleUser.class.isInstance(user)) {
-            fileUser = (SimpleUser) getUser(user.getId());
+            storedUser = getUser(user.getId());
 
-            fileUser.setFirstName(user.getFirstName());
-            fileUser.setLastName(user.getLastName());
-            fileUser.setEmail(user.getEmail());
+            storedUser.setFirstName(user.getFirstName());
+            storedUser.setLastName(user.getLastName());
+            storedUser.setEmail(user.getEmail());
 
-            updateCommonProperties(user, fileUser);
+            updateCommonProperties(user, storedUser);
         } else {
-            fileUser = (SimpleUser) user;
+            storedUser = (SimpleUser) user;
         }
 
-        getConfig().getUsers().put(user.getId(), fileUser);
+        getConfig().getUsers().put(user.getId(), storedUser);
         flushUsers();
     }
 
     @Override
     public void remove(IdentityType identityType) {
-        if (User.class.isInstance(identityType)) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (isUserType(identityTypeClass)) {
             removeUser(identityType);
-        } else if (Group.class.isInstance(identityType)) {
+        } else if (isGroupType(identityTypeClass)) {
             removeGroup(identityType);
-        } else if (Role.class.isInstance(identityType)) {
+        } else if (isRoleType(identityTypeClass)) {
             removeRole(identityType);
         }
     }
@@ -290,16 +288,10 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         getConfig().getRoles().remove(role.getName());
 
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
-            IdentityType member = membership.getMember();
+            Role roleMembership = membership.getRole();
 
-            if (Group.class.isInstance(member)) {
-                Role roleMember = (Role) member;
-                Role roleMembership = membership.getRole();
-
-                if (roleMember.getName().equals(role.getName())
-                        || (roleMembership != null && roleMembership.getName().equals(role.getName()))) {
-                    getConfig().getMemberships().remove(membership);
-                }
+            if (roleMembership != null && roleMembership.getName().equals(role.getName())) {
+                getConfig().getMemberships().remove(membership);
             }
         }
 
@@ -311,21 +303,15 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         Group group = (Group) identityType;
 
         getConfig().getGroups().remove(group.getName());
-
+        
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
-            IdentityType member = membership.getMember();
+            Group groupMembership = membership.getGroup();
 
-            if (Group.class.isInstance(member)) {
-                Group groupMember = (Group) member;
-                Group groupMembership = membership.getGroup();
-
-                if (groupMember.getName().equals(group.getName())
-                        || (groupMembership != null && groupMembership.getName().equals(group.getName()))) {
-                    getConfig().getMemberships().remove(membership);
-                }
+            if (groupMembership != null && groupMembership.getName().equals(group.getName())) {
+                getConfig().getMemberships().remove(membership);
             }
         }
-
+        
         flushGroups();
         flushMemberships();
     }
@@ -338,7 +324,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             IdentityType member = membership.getMember();
 
-            if (User.class.isInstance(member)) {
+            if (isUserType(member.getClass())) {
                 User userMember = (User) member;
 
                 if (userMember.getId().equals(user.getId())) {
@@ -358,23 +344,17 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     @Override
     public User getUser(String id) {
-        SimpleUser storedUser = getConfig().getUsers().get(id);
-
-        return storedUser;
+        return getConfig().getUsers().get(id);
     }
 
     @Override
     public Role getRole(String role) {
-        SimpleRole fileRole = (SimpleRole) getConfig().getRoles().get(role);
-
-        return fileRole;
+        return getConfig().getRoles().get(role);
     }
 
     @Override
     public Group getGroup(String groupId) {
-        SimpleGroup group = getConfig().getGroups().get(groupId);
-
-        return group;
+        return getConfig().getGroups().get(groupId);
     }
 
     @Override
@@ -450,7 +430,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             entries = getConfig().getGroups().entrySet();
         }
 
-        List<T> users = new ArrayList<T>();
+        List<T> result = new ArrayList<T>();
 
         for (Iterator iterator = entries.iterator(); iterator.hasNext();) {
             Entry<String, IdentityType> entry = (Entry<String, IdentityType>) iterator.next();
@@ -544,33 +524,21 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                 continue;
             }
 
-            users.add((T) storedIdentityType);
+            result.add((T) storedIdentityType);
         }
-
+        
         if (identityQuery.getParameters().containsKey(User.HAS_ROLE)
                 || identityQuery.getParameters().containsKey(User.MEMBER_OF)
                 || identityQuery.getParameters().containsKey(User.HAS_GROUP_ROLE)
                 || identityQuery.getParameters().containsKey(User.ROLE_OF)
                 || identityQuery.getParameters().containsKey(User.HAS_MEMBER)) {
-            List<T> fileteredUsers = new ArrayList<T>();
-
-            List<QueryParameter> toSearch = new ArrayList<QueryParameter>();
-
-            toSearch.add(IdentityType.HAS_ROLE);
-            toSearch.add(IdentityType.MEMBER_OF);
-            toSearch.add(IdentityType.HAS_GROUP_ROLE);
-            toSearch.add(IdentityType.ROLE_OF);
-            toSearch.add(IdentityType.HAS_MEMBER);
-
-            for (T fileUser : new ArrayList<T>(users)) {
-                for (QueryParameter queryParameter : toSearch) {
-                    Object[] values = identityQuery.getParameters().get(queryParameter);
-
-                    if (values == null) {
-                        continue;
-                    }
-
-                    int count = values.length;
+            
+            for (T fileUser : new ArrayList<T>(result)) {
+                for (Entry<QueryParameter, Object[]> parameters : identityQuery.getParameters().entrySet()) {
+                    QueryParameter queryParameter = parameters.getKey();
+                    Object[] values = parameters.getValue();
+                    
+                    int valuesMatchCount = values.length;
 
                     for (GroupRole membership : getConfig().getMemberships()) {
                         if (isUserType(fileUser.getClass()) && isUserType(membership.getMember().getClass())) {
@@ -589,19 +557,19 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
                                 if (groupRole.getGroup().getName().equals(membership.getGroup().getName())
                                         && groupRole.getRole().getName().equals(membership.getRole().getName())) {
-                                    count--;
+                                    valuesMatchCount--;
                                 }
                             }
                         } else if (queryParameter.equals(IdentityType.HAS_ROLE) && membership.getRole() != null) {
                             for (Object roleNames : values) {
                                 if (roleNames.equals(membership.getRole().getName())) {
-                                    count--;
+                                    valuesMatchCount--;
                                 }
                             }
                         } else if (queryParameter.equals(IdentityType.MEMBER_OF) && membership.getGroup() != null) {
                             for (Object groupNames : values) {
                                 if (groupNames.equals(membership.getGroup().getName())) {
-                                    count--;
+                                    valuesMatchCount--;
                                 }
                             }
                         } else if (queryParameter.equals(IdentityType.ROLE_OF) && membership.getRole() != null) {
@@ -610,7 +578,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
                                 if (agent != null && agent.getKey().equals(membership.getMember().getKey())
                                         && membership.getRole().getKey().equals(fileUser.getKey())) {
-                                    count--;
+                                    valuesMatchCount--;
                                 }
                             }
                         } else if (queryParameter.equals(IdentityType.HAS_MEMBER) && membership.getGroup() != null) {
@@ -619,26 +587,70 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
                                 if (agent != null && agent.getKey().equals(membership.getMember().getKey())
                                         && membership.getGroup().getKey().equals(fileUser.getKey())) {
-                                    count--;
+                                    valuesMatchCount--;
                                 }
                             }
                         }
                     }
 
-                    if (count <= 0) {
-                        fileteredUsers.add(fileUser);
+                    if (valuesMatchCount > 0) {
+                        result.remove(fileUser);
                     }
                 }
             }
-
-            users.retainAll(fileteredUsers);
         }
-
-        findByCustomAttributes(users, identityQuery);
-
-        return users;
+        
+        findByCustomAttributes(result, identityQuery);
+        
+        return result;
     }
+    
+    @SuppressWarnings("rawtypes")
+    private void findByCustomAttributes(List<? extends IdentityType> identityTypes, IdentityQuery identityQuery) {
+        Set<Entry<QueryParameter, Object[]>> entrySet = identityQuery.getParameters().entrySet();
 
+        for (IdentityType fileUser : new ArrayList<IdentityType>(identityTypes)) {
+            for (Entry<QueryParameter, Object[]> entry : entrySet) {
+                QueryParameter queryParameter = entry.getKey();
+                Object[] queryParameterValues = entry.getValue();
+
+                if (IdentityType.AttributeParameter.class.isInstance(queryParameter) && queryParameterValues != null) {
+                    IdentityType.AttributeParameter customParameter = (AttributeParameter) queryParameter;
+                    Attribute<Serializable> userAttribute = fileUser.getAttribute(customParameter.getName());
+                    boolean match = false;
+
+                    if (userAttribute != null && userAttribute.getValue() != null) {
+                        int count = queryParameterValues.length;
+
+                        for (Object value : queryParameterValues) {
+                            if (userAttribute.getValue().getClass().isArray()) {
+                                Object[] userValues = (Object[]) userAttribute.getValue();
+
+                                for (Object object : userValues) {
+                                    if (object.equals(value)) {
+                                        count--;
+                                    }
+                                }
+                            } else {
+                                if (value.equals(userAttribute.getValue())) {
+                                    count--;
+                                }
+                            }
+                        }
+
+                        if (count <= 0) {
+                            match = true;
+                        }
+                    }
+
+                    if (!match) {
+                        identityTypes.remove(fileUser);
+                    }
+                }
+            }
+        }
+    }
+    
     /**
      * <p>
      * Updated the common properties for a specific {@link IdentityType} instance from another instance.
@@ -685,52 +697,6 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         }
 
         return match;
-    }
-
-    @SuppressWarnings("rawtypes")
-    private void findByCustomAttributes(List<? extends IdentityType> identityTypes, IdentityQuery identityQuery) {
-        Set<Entry<QueryParameter, Object[]>> entrySet = identityQuery.getParameters().entrySet();
-
-        for (IdentityType fileUser : new ArrayList<IdentityType>(identityTypes)) {
-            for (Entry<QueryParameter, Object[]> entry : entrySet) {
-                QueryParameter queryParameter = entry.getKey();
-                Object[] queryParameterValues = entry.getValue();
-
-                if (IdentityType.AttributeParameter.class.isInstance(queryParameter) && queryParameterValues != null) {
-                    IdentityType.AttributeParameter customParameter = (AttributeParameter) queryParameter;
-                    Attribute<Serializable> userAttribute = fileUser.getAttribute(customParameter.getName());
-                    boolean match = false;
-
-                    if (userAttribute != null && userAttribute.getValue() != null) {
-                        int count = queryParameterValues.length;
-
-                        for (Object value : queryParameterValues) {
-                            if (userAttribute.getValue().getClass().isArray()) {
-                                Object[] userValues = (Object[]) userAttribute.getValue();
-
-                                for (Object object : userValues) {
-                                    if (object.equals(value)) {
-                                        count--;
-                                    }
-                                }
-                            } else {
-                                if (value.equals(userAttribute.getValue())) {
-                                    count--;
-                                }
-                            }
-                        }
-
-                        if (count <= 0) {
-                            match = true;
-                        }
-                    }
-
-                    if (!match) {
-                        identityTypes.remove(fileUser);
-                    }
-                }
-            }
-        }
     }
 
     private boolean isQueryParameterEquals(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
@@ -781,7 +747,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             Long valueToCompare) {
         return isQueryParameterGreaterOrLessThan(parameters, queryParameter, valueToCompare, false);
     }
-    
+
     private boolean isQueryParameterGreaterOrLessThan(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
             Long valueToCompare, boolean greaterThan) {
         Object[] values = parameters.get(queryParameter);
@@ -798,12 +764,12 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         } else {
             value = Long.valueOf(values[0].toString());
         }
-        
+
         if (values.length > 0 && valueToCompare != null) {
             if (greaterThan && valueToCompare >= value) {
                 return true;
-            } 
-            
+            }
+
             if (!greaterThan && valueToCompare <= value) {
                 return true;
             }
