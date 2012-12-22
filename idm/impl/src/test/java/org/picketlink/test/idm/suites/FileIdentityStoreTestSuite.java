@@ -58,7 +58,8 @@ import org.picketlink.test.idm.runners.TestLifecycle;
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
-
+    private IdentityManager identityManager;
+    
     public static TestLifecycle init() throws Exception {
         if (instance == null) {
             instance = new FileIdentityStoreTestSuite();
@@ -74,15 +75,17 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     @Override
     public IdentityManager createIdentityManager() {
-        IdentityConfiguration config = new IdentityConfiguration();
+        if (this.identityManager == null) {
+            IdentityConfiguration config = new IdentityConfiguration();
 
-        config.addStoreConfiguration(getConfiguration());
+            config.addStoreConfiguration(getConfiguration());
 
-        IdentityManager identityManager = new DefaultIdentityManager();
+            this.identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+            identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+        }
 
-        return identityManager;
+        return this.identityManager;
     }
 
     @Override

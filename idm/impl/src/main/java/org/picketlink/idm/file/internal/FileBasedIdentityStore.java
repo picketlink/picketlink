@@ -22,7 +22,6 @@
 
 package org.picketlink.idm.file.internal;
 
-
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -31,6 +30,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -68,7 +68,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
     private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
-    
+
     @Override
     public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
@@ -148,7 +148,6 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         }
     }
 
-    
     @Override
     public void add(IdentityType identityType) {
         Class<? extends IdentityType> identityTypeClass = identityType.getClass();
@@ -167,7 +166,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         SimpleRole fileRole = new SimpleRole(role.getName());
 
         updateCommonProperties(role, fileRole);
-        
+
         getConfig().getRoles().put(role.getName(), fileRole);
         flushRoles();
     }
@@ -181,7 +180,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         } else {
             fileGroup = new SimpleGroup(group.getName());
         }
-        
+
         updateCommonProperties(group, fileGroup);
 
         getConfig().getGroups().put(group.getName(), fileGroup);
@@ -199,29 +198,14 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             fileUser.setFirstName(user.getFirstName());
             fileUser.setLastName(user.getLastName());
             fileUser.setEmail(user.getEmail());
-            
+
             updateCommonProperties(user, fileUser);
         } else {
             fileUser = (SimpleUser) user;
         }
-        
+
         getConfig().getUsers().put(user.getId(), fileUser);
         flushUsers();
-    }
-
-    private void updateCommonProperties(IdentityType fromIdentityType, IdentityType toIdentityType) {
-        toIdentityType.setEnabled(fromIdentityType.isEnabled());
-        toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
-        toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
-
-        for (Object object : toIdentityType.getAttributes().toArray()) {
-            Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
-            toIdentityType.removeAttribute(attribute.getName());
-        }
-
-        for (Attribute<? extends Serializable> attrib : fromIdentityType.getAttributes()) {
-            toIdentityType.setAttribute(attrib);
-        }
     }
 
     @Override
@@ -243,7 +227,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         if (!SimpleRole.class.isInstance(role)) {
             fileRole = (SimpleRole) getRole(role.getName());
-            
+
             updateCommonProperties(role, fileRole);
         } else {
             fileRole = (SimpleRole) role;
@@ -259,7 +243,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         if (!SimpleGroup.class.isInstance(group)) {
             fileGroup = (SimpleGroup) getGroup(group.getName());
-            
+
             updateCommonProperties(group, fileGroup);
         } else {
             fileGroup = (SimpleGroup) group;
@@ -279,7 +263,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             fileUser.setFirstName(user.getFirstName());
             fileUser.setLastName(user.getLastName());
             fileUser.setEmail(user.getEmail());
-            
+
             updateCommonProperties(user, fileUser);
         } else {
             fileUser = (SimpleUser) user;
@@ -380,6 +364,13 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     }
 
     @Override
+    public Role getRole(String role) {
+        SimpleRole fileRole = (SimpleRole) getConfig().getRoles().get(role);
+
+        return fileRole;
+    }
+
+    @Override
     public Group getGroup(String groupId) {
         SimpleGroup group = getConfig().getGroups().get(groupId);
 
@@ -399,13 +390,6 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     }
 
     @Override
-    public Role getRole(String role) {
-        SimpleRole fileRole = (SimpleRole) getConfig().getRoles().get(role);
-
-        return fileRole;
-    }
-
-    @Override
     public GroupRole createMembership(IdentityType member, Group group, Role role) {
         GroupRole membership = new SimpleGroupRole(member, role, group);
 
@@ -419,27 +403,14 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     @Override
     public void removeMembership(IdentityType member, Group group, Role role) {
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
-            boolean match = false;
+            Agent providedMember = (Agent) member;
+            Agent membershipMember = (Agent) membership.getMember();
 
-            if (member != null) {
-                Agent memberAgent = (Agent) member;
-                Agent agent = (Agent) membership.getMember();
-
-                if (!(agent != null && memberAgent != null && agent.getId().equals(memberAgent.getId()))) {
-                    continue;
-                }
+            if (membershipMember == null || providedMember == null || !membershipMember.getId().equals(providedMember.getId())) {
+                continue;
             }
 
-            if (role != null && group != null) {
-                match = membership.getRole() != null && role.getName().equals(membership.getRole().getName())
-                        && membership.getGroup() != null && group.getName().equals(membership.getGroup().getName());
-            } else if (group != null) {
-                match = membership.getGroup() != null && group.getName().equals(membership.getGroup().getName());
-            } else if (role != null) {
-                match = membership.getRole() != null && role.getName().equals(membership.getRole().getName());
-            }
-
-            if (match) {
+            if (hasGroupRole(membership, group, role)) {
                 getConfig().getMemberships().remove(membership);
             }
         }
@@ -450,27 +421,14 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     @Override
     public GroupRole getMembership(IdentityType member, Group group, Role role) {
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
-            boolean match = false;
+            Agent providedMember = (Agent) member;
+            Agent membershipMember = (Agent) membership.getMember();
 
-            if (member != null) {
-                Agent memberAgent = (Agent) member;
-                Agent agent = (Agent) membership.getMember();
-
-                if (!(agent != null && memberAgent != null && agent.getId().equals(memberAgent.getId()))) {
-                    continue;
-                }
+            if (membershipMember == null || providedMember == null || !membershipMember.getId().equals(providedMember.getId())) {
+                continue;
             }
 
-            if (role != null && group != null) {
-                match = membership.getRole() != null && role.getName().equals(membership.getRole().getName())
-                        && membership.getGroup() != null && group.getName().equals(membership.getGroup().getName());
-            } else if (group != null) {
-                match = membership.getGroup() != null && group.getName().equals(membership.getGroup().getName());
-            } else if (role != null) {
-                match = membership.getRole() != null && role.getName().equals(membership.getRole().getName());
-            }
-
-            if (match) {
+            if (hasGroupRole(membership, group, role)) {
                 return membership;
             }
         }
@@ -478,57 +436,12 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         return null;
     }
 
-    private void searchForIdentityTypeAttributes(List<? extends IdentityType> users, IdentityQuery identityQuery) {
-        Set<Entry<QueryParameter, Object[]>> entrySet = identityQuery.getParameters().entrySet();
-
-        for (IdentityType fileUser : new ArrayList<IdentityType>(users)) {
-            for (Entry<QueryParameter, Object[]> entry : entrySet) {
-                QueryParameter queryParameter = entry.getKey();
-                Object[] queryParameterValues = entry.getValue();
-
-                if (IdentityType.AttributeParameter.class.isInstance(queryParameter) && queryParameterValues != null) {
-                    IdentityType.AttributeParameter customParameter = (AttributeParameter) queryParameter;
-                    Attribute<Serializable> userAttribute = fileUser.getAttribute(customParameter.getName());
-                    boolean match = false;
-
-                    if (userAttribute != null && userAttribute.getValue() != null) {
-                        int count = queryParameterValues.length;
-
-                        for (Object value : queryParameterValues) {
-                            if (userAttribute.getValue().getClass().isArray()) {
-                                Object[] userValues = (Object[]) userAttribute.getValue();
-
-                                for (Object object : userValues) {
-                                    if (object.equals(value)) {
-                                        count--;
-                                    }
-                                }
-                            } else {
-                                if (value.equals(userAttribute.getValue())) {
-                                    count--;
-                                }
-                            }
-                        }
-
-                        if (count <= 0) {
-                            match = true;
-                        }
-                    }
-
-                    if (!match) {
-                        users.remove(fileUser);
-                    }
-                }
-            }
-        }
-    }
-
     @Override
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
         Set entries = null;
-        
+
         if (isUserType(identityTypeClass)) {
             entries = getConfig().getUsers().entrySet();
         } else if (isRoleType(identityTypeClass)) {
@@ -536,166 +449,102 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         } else if (isGroupType(identityTypeClass)) {
             entries = getConfig().getGroups().entrySet();
         }
-        
+
         List<T> users = new ArrayList<T>();
-        
+
         for (Iterator iterator = entries.iterator(); iterator.hasNext();) {
             Entry<String, IdentityType> entry = (Entry<String, IdentityType>) iterator.next();
 
             IdentityType storedIdentityType = entry.getValue();
-            
+
             if (isUserType(identityTypeClass)) {
                 User user = (User) storedIdentityType;
-                
-                if (identityQuery.getParameters().containsKey(User.ID)) {
-                    Object[] values = identityQuery.getParameters().get(User.ID);
-                    
-                    if (!user.getId().equals(values[0].toString())) {
-                        continue;
-                    }
-                }
-                
-                if (identityQuery.getParameters().containsKey(User.EMAIL)) {
-                    Object[] values = identityQuery.getParameters().get(User.EMAIL);
-                    
-                    if (user.getEmail() == null || !user.getEmail().equals(values[0].toString())) {
-                        continue;
-                    }
+
+                if (!isQueryParameterEquals(identityQuery.getParameters(), User.ID, user.getId())) {
+                    continue;
                 }
 
-                if (identityQuery.getParameters().containsKey(User.FIRST_NAME)) {
-                    Object[] values = identityQuery.getParameters().get(User.FIRST_NAME);
-                    
-                    if (user.getFirstName() == null || !user.getFirstName().equals(values[0].toString())) {
-                        continue;
-                    }
+                if (!isQueryParameterEquals(identityQuery.getParameters(), User.EMAIL, user.getEmail())) {
+                    continue;
                 }
 
-                if (identityQuery.getParameters().containsKey(User.LAST_NAME)) {
-                    Object[] values = identityQuery.getParameters().get(User.LAST_NAME);
-                    
-                    if (user.getLastName() == null || !user.getLastName().equals(values[0].toString())) {
-                        continue;
-                    }
+                if (!isQueryParameterEquals(identityQuery.getParameters(), User.FIRST_NAME, user.getFirstName())) {
+                    continue;
+                }
+
+                if (!isQueryParameterEquals(identityQuery.getParameters(), User.LAST_NAME, user.getLastName())) {
+                    continue;
                 }
             }
-            
+
             if (isRoleType(identityTypeClass)) {
                 Role role = (Role) storedIdentityType;
-                
-                if (identityQuery.getParameters().containsKey(Role.NAME)) {
-                    Object[] values = identityQuery.getParameters().get(Role.NAME);
-                    
-                    if (!role.getName().equals(values[0].toString())) {
-                        continue;
-                    }
+
+                if (!isQueryParameterEquals(identityQuery.getParameters(), Role.NAME, role.getName())) {
+                    continue;
                 }
             }
-            
+
             if (isGroupType(identityTypeClass)) {
                 Group group = (Group) storedIdentityType;
-                
-                if (identityQuery.getParameters().containsKey(Group.NAME)) {
-                    Object[] values = identityQuery.getParameters().get(Group.NAME);
-                    
-                    if (!group.getName().equals(values[0].toString())) {
-                        continue;
-                    }
-                }
-                
-                if (identityQuery.getParameters().containsKey(Group.PARENT)) {
-                    Object[] values = identityQuery.getParameters().get(Group.PARENT);
-                    
-                    if (group.getParentGroup() == null || !group.getParentGroup().getName().equals(values[0].toString())) {
-                        continue;
-                    }
-                }
-            }
 
-            if (identityQuery.getParameters().containsKey(IdentityType.ENABLED)) {
-                Object[] values = identityQuery.getParameters().get(IdentityType.ENABLED);
-                String enabled = String.valueOf(storedIdentityType.isEnabled());
+                if (!isQueryParameterEquals(identityQuery.getParameters(), Group.NAME, group.getName())) {
+                    continue;
+                }
 
-                if (!enabled.equals(values[0].toString())) {
+                String parentGroupName = null;
+
+                if (group.getParentGroup() != null) {
+                    parentGroupName = group.getParentGroup().getName();
+                }
+
+                if (!isQueryParameterEquals(identityQuery.getParameters(), Group.PARENT, parentGroupName)) {
                     continue;
                 }
             }
 
-            if (identityQuery.getParameters().containsKey(IdentityType.CREATED_DATE)) {
-                Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_DATE);
-                long storedDateInMillis = storedIdentityType.getCreatedDate().getTime();
-                long providedDateInMillis = ((Date) values[0]).getTime();
+            if (!isQueryParameterEquals(identityQuery.getParameters(), IdentityType.ENABLED, storedIdentityType.isEnabled())) {
+                continue;
+            }
 
-                if (storedDateInMillis != providedDateInMillis) {
+            Date createdDate = storedIdentityType.getCreatedDate();
+
+            if (createdDate != null) {
+                if (!isQueryParameterEquals(identityQuery.getParameters(), IdentityType.CREATED_DATE, createdDate)) {
+                    continue;
+                }
+
+                if (!isQueryParameterLessThan(identityQuery.getParameters(), IdentityType.CREATED_BEFORE, createdDate.getTime())) {
+                    continue;
+                }
+
+                if (!isQueryParameterGreaterThan(identityQuery.getParameters(), IdentityType.CREATED_AFTER,
+                        createdDate.getTime())) {
                     continue;
                 }
             }
 
-            if (identityQuery.getParameters().containsKey(IdentityType.CREATED_BEFORE)) {
-                Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_BEFORE);
-                long storedDateInMillis = storedIdentityType.getCreatedDate().getTime();
-                long providedDateInMillis = ((Date) values[0]).getTime();
+            Date expiryDate = storedIdentityType.getExpirationDate();
 
-                if (storedDateInMillis > providedDateInMillis) {
-                    continue;
-                }
+            if (!isQueryParameterEquals(identityQuery.getParameters(), IdentityType.EXPIRY_DATE, expiryDate)) {
+                continue;
             }
 
-            if (identityQuery.getParameters().containsKey(IdentityType.CREATED_AFTER)) {
-                Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_AFTER);
-                long storedDateInMillis = storedIdentityType.getCreatedDate().getTime();
-                long providedDateInMillis = ((Date) values[0]).getTime();
+            Long expiryDateInMillis = null;
 
-                if (storedDateInMillis < providedDateInMillis) {
-                    continue;
-                }
+            if (expiryDate != null) {
+                expiryDateInMillis = expiryDate.getTime();
             }
 
-            if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_DATE)
-                    || identityQuery.getParameters().containsKey(IdentityType.EXPIRY_BEFORE)
-                    || identityQuery.getParameters().containsKey(IdentityType.EXPIRY_AFTER)) {
-                if (storedIdentityType.getExpirationDate() != null) {
-                    if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_DATE)) {
-                        Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_DATE);
-                        long storedDateInMillis = storedIdentityType.getExpirationDate().getTime();
-                        long providedDateInMillis = ((Date) values[0]).getTime();
+            if (!isQueryParameterLessThan(identityQuery.getParameters(), IdentityType.EXPIRY_BEFORE, expiryDateInMillis)) {
+                continue;
+            }
 
-                        if (storedDateInMillis != providedDateInMillis) {
-                            continue;
-                        }
-                    }
-
-                    if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_BEFORE)) {
-                        Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_BEFORE);
-                        long storedDateInMillis = storedIdentityType.getExpirationDate().getTime();
-                        long providedDateInMillis = ((Date) values[0]).getTime();
-
-                        if (storedDateInMillis > providedDateInMillis) {
-                            continue;
-                        }
-                    }
-
-                    if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_AFTER)) {
-                        Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_AFTER);
-                        long storedDateInMillis = storedIdentityType.getExpirationDate().getTime();
-                        long providedDateInMillis = ((Date) values[0]).getTime();
-
-                        if (storedDateInMillis < providedDateInMillis) {
-                            continue;
-                        }
-                    }
-                } else {
-                    continue;
-                }
+            if (!isQueryParameterGreaterThan(identityQuery.getParameters(), IdentityType.EXPIRY_AFTER, expiryDateInMillis)) {
+                continue;
             }
 
             users.add((T) storedIdentityType);
-        }
-
-        Collection<T> selectedUsers = users;
-
-        if (users.isEmpty()) {
-            selectedUsers = (Collection<T>) getConfig().getUsers().values();
         }
 
         if (identityQuery.getParameters().containsKey(User.HAS_ROLE)
@@ -713,7 +562,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             toSearch.add(IdentityType.ROLE_OF);
             toSearch.add(IdentityType.HAS_MEMBER);
 
-            for (T fileUser : new ArrayList<T>(selectedUsers)) {
+            for (T fileUser : new ArrayList<T>(users)) {
                 for (QueryParameter queryParameter : toSearch) {
                     Object[] values = identityQuery.getParameters().get(queryParameter);
 
@@ -759,7 +608,8 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                             for (Object member : values) {
                                 Agent agent = (Agent) member;
 
-                                if (agent != null && agent.getKey().equals(membership.getMember().getKey()) && membership.getRole().getKey().equals(fileUser.getKey())) {
+                                if (agent != null && agent.getKey().equals(membership.getMember().getKey())
+                                        && membership.getRole().getKey().equals(fileUser.getKey())) {
                                     count--;
                                 }
                             }
@@ -784,9 +634,182 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             users.retainAll(fileteredUsers);
         }
 
-        searchForIdentityTypeAttributes(users, identityQuery);
+        findByCustomAttributes(users, identityQuery);
 
         return users;
+    }
+
+    /**
+     * <p>
+     * Updated the common properties for a specific {@link IdentityType} instance from another instance.
+     * </p>
+     * 
+     * @param fromIdentityType
+     * @param toIdentityType
+     */
+    private void updateCommonProperties(IdentityType fromIdentityType, IdentityType toIdentityType) {
+        toIdentityType.setEnabled(fromIdentityType.isEnabled());
+        toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
+        toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
+
+        for (Object object : toIdentityType.getAttributes().toArray()) {
+            Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
+            toIdentityType.removeAttribute(attribute.getName());
+        }
+
+        for (Attribute<? extends Serializable> attrib : fromIdentityType.getAttributes()) {
+            toIdentityType.setAttribute(attrib);
+        }
+    }
+
+    /**
+     * <p>
+     * Checks if the given {@link GroupRole} instance has the provide {@link Group} and {@link Role} combination.
+     * </p>
+     * 
+     * @param membership
+     * @param group
+     * @param role
+     * @return
+     */
+    private boolean hasGroupRole(GroupRole membership, Group group, Role role) {
+        boolean match = false;
+
+        if (role != null && group != null) {
+            match = membership.getRole() != null && role.getName().equals(membership.getRole().getName())
+                    && membership.getGroup() != null && group.getName().equals(membership.getGroup().getName());
+        } else if (group != null) {
+            match = membership.getGroup() != null && group.getName().equals(membership.getGroup().getName());
+        } else if (role != null) {
+            match = membership.getRole() != null && role.getName().equals(membership.getRole().getName());
+        }
+
+        return match;
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void findByCustomAttributes(List<? extends IdentityType> identityTypes, IdentityQuery identityQuery) {
+        Set<Entry<QueryParameter, Object[]>> entrySet = identityQuery.getParameters().entrySet();
+
+        for (IdentityType fileUser : new ArrayList<IdentityType>(identityTypes)) {
+            for (Entry<QueryParameter, Object[]> entry : entrySet) {
+                QueryParameter queryParameter = entry.getKey();
+                Object[] queryParameterValues = entry.getValue();
+
+                if (IdentityType.AttributeParameter.class.isInstance(queryParameter) && queryParameterValues != null) {
+                    IdentityType.AttributeParameter customParameter = (AttributeParameter) queryParameter;
+                    Attribute<Serializable> userAttribute = fileUser.getAttribute(customParameter.getName());
+                    boolean match = false;
+
+                    if (userAttribute != null && userAttribute.getValue() != null) {
+                        int count = queryParameterValues.length;
+
+                        for (Object value : queryParameterValues) {
+                            if (userAttribute.getValue().getClass().isArray()) {
+                                Object[] userValues = (Object[]) userAttribute.getValue();
+
+                                for (Object object : userValues) {
+                                    if (object.equals(value)) {
+                                        count--;
+                                    }
+                                }
+                            } else {
+                                if (value.equals(userAttribute.getValue())) {
+                                    count--;
+                                }
+                            }
+                        }
+
+                        if (count <= 0) {
+                            match = true;
+                        }
+                    }
+
+                    if (!match) {
+                        identityTypes.remove(fileUser);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isQueryParameterEquals(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
+            Serializable valueToCompare) {
+        Object[] values = parameters.get(queryParameter);
+
+        if (values == null) {
+            return true;
+        }
+
+        Object value = values[0];
+
+        if (Date.class.isInstance(valueToCompare)) {
+            Date parameterDate = (Date) value;
+            value = parameterDate.getTime();
+
+            Date toCompareDate = (Date) valueToCompare;
+            valueToCompare = toCompareDate.getTime();
+        }
+
+        if (values.length > 0 && valueToCompare != null && valueToCompare.equals(value)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isQueryParameterEquals(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
+            Date valueToCompare) {
+        Object[] values = parameters.get(queryParameter);
+
+        if (values == null) {
+            return true;
+        }
+        if (values.length > 0 && valueToCompare != null && valueToCompare.equals(values[0])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isQueryParameterGreaterThan(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
+            Long valueToCompare) {
+        return isQueryParameterGreaterOrLessThan(parameters, queryParameter, valueToCompare, true);
+    }
+
+    private boolean isQueryParameterLessThan(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
+            Long valueToCompare) {
+        return isQueryParameterGreaterOrLessThan(parameters, queryParameter, valueToCompare, false);
+    }
+    
+    private boolean isQueryParameterGreaterOrLessThan(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
+            Long valueToCompare, boolean greaterThan) {
+        Object[] values = parameters.get(queryParameter);
+
+        if (values == null) {
+            return true;
+        }
+
+        long value = 0;
+
+        if (Date.class.isInstance(values[0])) {
+            Date parameterDate = (Date) values[0];
+            value = parameterDate.getTime();
+        } else {
+            value = Long.valueOf(values[0].toString());
+        }
+        
+        if (values.length > 0 && valueToCompare != null) {
+            if (greaterThan && valueToCompare >= value) {
+                return true;
+            } 
+            
+            if (!greaterThan && valueToCompare <= value) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override
