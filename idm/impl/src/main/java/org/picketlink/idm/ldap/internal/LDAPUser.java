@@ -31,6 +31,7 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.User;
 
 /**
@@ -170,5 +171,22 @@ public class LDAPUser extends LDAPEntry implements User {
     public void setEmail(String email) {
         setAttribute(new org.picketlink.idm.model.Attribute<String>(LDAPConstants.EMAIL, email));
     }
+    
+    /**
+     * <p>
+     * Returns the user CN attribute value. The CN is composed of user's first and last name.
+     * </p>
+     * 
+     * @param ldapUser
+     * @return
+     */
+    public String getUserCN() {
+        String fullName = getFirstName();
 
+        if (getLastName() != null) {
+            fullName = fullName + " " + getLastName();
+        }
+        
+        return fullName;
+    }
 }
