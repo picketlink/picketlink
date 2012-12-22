@@ -1057,31 +1057,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return ldapUser;
     }
 
-    private boolean isQueryParameterEquals(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
-            Serializable valueToCompare) {
-        Object[] values = parameters.get(queryParameter);
-
-        if (values == null) {
-            return true;
-        }
-
-        Object value = values[0];
-
-        if (Date.class.isInstance(valueToCompare)) {
-            Date parameterDate = (Date) value;
-            value = parameterDate.getTime();
-
-            Date toCompareDate = (Date) valueToCompare;
-            valueToCompare = toCompareDate.getTime();
-        }
-
-        if (values.length > 0 && valueToCompare != null && valueToCompare.equals(value)) {
-            return true;
-        }
-
-        return false;
-    }
-    
     private String getSearchFilter(IdentityQuery<IdentityType> identityQuery) {
         LDAPQuery ldapQuery = new LDAPQuery(identityQuery.getParameters());
         Class<IdentityType> typeClass = identityQuery.getIdentityType();
