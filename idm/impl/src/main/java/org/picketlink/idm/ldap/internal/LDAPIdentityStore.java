@@ -1087,11 +1087,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         Class<IdentityType> typeClass = identityQuery.getIdentityType();
 
         StringBuffer additionalFilter = new StringBuffer();
-        String idAttribute = null;
 
         if (isUserType(typeClass)) {
-            idAttribute = UID;
-
             if (identityQuery.getParameters().containsKey(User.HAS_ROLE)) {
                 Object[] roleNames = identityQuery.getParameters().get(User.HAS_ROLE);
                 LDAPEntry[] roles = new LDAPEntry[roleNames.length];
@@ -1171,8 +1168,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 }
             }
         } else if (isRoleType(typeClass)) {
-            idAttribute = CN;
-
             if (identityQuery.getParameters().containsKey(Role.ROLE_OF)) {
                 Object[] values = identityQuery.getParameters().get(Role.ROLE_OF);
                 Agent[] agents = new Agent[values.length];
@@ -1191,8 +1186,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 additionalFilter.append(filter);
             }
         } else if (isGroupType(typeClass)) {
-            idAttribute = CN;
-
             if (identityQuery.getParameters().containsKey(Group.HAS_MEMBER)) {
                 Object[] values = identityQuery.getParameters().get(Group.HAS_MEMBER);
                 Agent[] agents = new Agent[values.length];
@@ -1252,7 +1245,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         StringBuffer filter = ldapQuery.createManagedAttributesFilter();
 
         if (filter == null) {
-            filter = new StringBuffer("(&(objectClass=*)(" + idAttribute + "=*)(!(cn=custom-attributes)))");
+            filter = new StringBuffer("(&(objectClass=*)(" + getIdAttribute(typeClass) + "=*)(!(cn=custom-attributes)))");
         }
 
         filter.insert(filter.length() - 1, additionalFilter.toString());
