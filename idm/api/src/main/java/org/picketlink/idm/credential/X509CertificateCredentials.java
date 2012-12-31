@@ -41,8 +41,9 @@ public class X509CertificateCredentials extends AbstractBaseCredentials implemen
         return this.userName;
     }
 
-    public void setUserName(String userName) {
+    public X509CertificateCredentials setUserName(String userName) {
         this.userName = userName;
+        return this;
     }
     
     @Override
