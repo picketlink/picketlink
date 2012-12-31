@@ -12,6 +12,9 @@ public class PlainTextPassword {
     public PlainTextPassword(char[] value) {
         this.value = value;
     }
+    public PlainTextPassword(String str) {
+        this.value = str.toCharArray();
+    }
 
     public char[] getValue() {
         return value;
