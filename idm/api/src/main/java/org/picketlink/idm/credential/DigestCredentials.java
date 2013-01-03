@@ -23,6 +23,8 @@
 package org.picketlink.idm.credential;
 
 /**
+ * <p>Represents a DIGEST based credential.</p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
