@@ -20,8 +20,14 @@ import org.picketlink.idm.password.internal.SHASaltedPasswordHash;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
- * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword
- * credentials.
+ * <p>
+ * This particular implementation supports the validation of {@link UsernamePasswordCredentials}, and updating
+ * {@link PlainTextPassword} credentials.
+ * </p>
+ * <p>
+ * Passwords can be encoded or not. This behavior is configured by setting the <code>encodedPassword</code> property of the
+ * {@link PlainTextPassword}.
+ * </p>
  * 
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

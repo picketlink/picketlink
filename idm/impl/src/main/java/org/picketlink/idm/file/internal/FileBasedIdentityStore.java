@@ -145,30 +145,19 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     }
 
     @Override
-    public void add(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
-
-        if (isUserType(identityTypeClass)) {
-            addUser(identityType);
-        } else if (isGroupType(identityTypeClass)) {
-            addGroup(identityType);
-        } else if (isRoleType(identityTypeClass)) {
-            addRole(identityType);
-        }
-    }
-
-    private void addRole(IdentityType identityType) {
-        Role role = (Role) identityType;
+    protected Role addRole(Role role) {
         SimpleRole fileRole = new SimpleRole(role.getName());
 
         updateCommonProperties(role, fileRole);
 
-        getConfig().getRoles().put(role.getName(), fileRole);
+        getConfig().getRoles().put(fileRole.getName(), fileRole);
         flushRoles();
+
+        return fileRole;
     }
 
-    private void addGroup(IdentityType identityType) {
-        Group group = (Group) identityType;
+    @Override
+    protected Group addGroup(Group group) {
         SimpleGroup fileGroup = null;
 
         if (group.getParentGroup() != null) {
@@ -179,112 +168,70 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         updateCommonProperties(group, fileGroup);
 
-        getConfig().getGroups().put(group.getName(), fileGroup);
+        getConfig().getGroups().put(fileGroup.getName(), fileGroup);
         flushGroups();
-    }
 
-    private void addUser(IdentityType identityType) {
-        User user = (User) identityType;
-
-        SimpleUser fileUser;
-
-        if (!(user instanceof SimpleUser)) {
-            fileUser = new SimpleUser(user.getId());
-
-            fileUser.setFirstName(user.getFirstName());
-            fileUser.setLastName(user.getLastName());
-            fileUser.setEmail(user.getEmail());
-
-            updateCommonProperties(user, fileUser);
-        } else {
-            fileUser = (SimpleUser) user;
-        }
-
-        getConfig().getUsers().put(user.getId(), fileUser);
-        flushUsers();
+        return fileGroup;
     }
 
     @Override
-    public void update(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+    protected User addUser(User user) {
+        User storedUser = new SimpleUser(user.getId());
 
-        if (isUserType(identityTypeClass)) {
-            updateUser(identityType);
-        } else if (isGroupType(identityTypeClass)) {
-            updateGroup(identityType);
-        } else if (isRoleType(identityTypeClass)) {
-            updateRole(identityType);
-        }
+        storedUser.setFirstName(user.getFirstName());
+        storedUser.setLastName(user.getLastName());
+        storedUser.setEmail(user.getEmail());
+
+        updateCommonProperties(user, storedUser);
+
+        getConfig().getUsers().put(storedUser.getId(), storedUser);
+        flushUsers();
+
+        return storedUser;
     }
 
-    private void updateRole(IdentityType identityType) {
-        Role role = (Role) identityType;
-        SimpleRole fileRole = null;
-
-        if (!SimpleRole.class.isInstance(role)) {
-            fileRole = (SimpleRole) getRole(role.getName());
-
-            updateCommonProperties(role, fileRole);
-        } else {
-            fileRole = (SimpleRole) role;
+    @Override
+    protected Role updateRole(Role updatedRole, Role storedRole) {
+        if (storedRole != updatedRole) {
+            updateCommonProperties(updatedRole, storedRole);
         }
 
-        getConfig().getRoles().put(role.getName(), fileRole);
+        getConfig().getRoles().put(storedRole.getName(), storedRole);
         flushRoles();
-    }
-
-    private void updateGroup(IdentityType identityType) {
-        Group group = (Group) identityType;
-        SimpleGroup fileGroup = null;
-
-        if (!SimpleGroup.class.isInstance(group)) {
-            fileGroup = (SimpleGroup) getGroup(group.getName());
-
-            updateCommonProperties(group, fileGroup);
-        } else {
-            fileGroup = (SimpleGroup) group;
-        }
-
-        getConfig().getGroups().put(group.getName(), fileGroup);
-        flushGroups();
-    }
-
-    private void updateUser(IdentityType identityType) {
-        User user = (User) identityType;
-        User storedUser = null;
-
-        if (!SimpleUser.class.isInstance(user)) {
-            storedUser = getUser(user.getId());
-
-            storedUser.setFirstName(user.getFirstName());
-            storedUser.setLastName(user.getLastName());
-            storedUser.setEmail(user.getEmail());
-
-            updateCommonProperties(user, storedUser);
-        } else {
-            storedUser = (SimpleUser) user;
-        }
-
-        getConfig().getUsers().put(user.getId(), storedUser);
-        flushUsers();
+        
+        return storedRole;
     }
 
     @Override
-    public void remove(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
-
-        if (isUserType(identityTypeClass)) {
-            removeUser(identityType);
-        } else if (isGroupType(identityTypeClass)) {
-            removeGroup(identityType);
-        } else if (isRoleType(identityTypeClass)) {
-            removeRole(identityType);
+    protected Group updateGroup(Group updatedGroup, Group storedGroup) {
+        if (storedGroup != updatedGroup) {
+            updateCommonProperties(updatedGroup, storedGroup);
         }
+
+        getConfig().getGroups().put(storedGroup.getName(), storedGroup);
+        flushGroups();
+        
+        return storedGroup;
     }
 
-    private void removeRole(IdentityType identityType) {
-        Role role = (Role) identityType;
+    @Override
+    protected User updateUser(User updatedUser, User storedUser) {
+        if (storedUser != updatedUser) {
+            storedUser.setFirstName(updatedUser.getFirstName());
+            storedUser.setLastName(updatedUser.getLastName());
+            storedUser.setEmail(updatedUser.getEmail());
 
+            updateCommonProperties(updatedUser, storedUser);
+        }
+
+        getConfig().getUsers().put(storedUser.getId(), storedUser);
+        flushUsers();
+        
+        return updatedUser;
+    }
+
+    @Override
+    protected Role removeRole(Role role) {
         getConfig().getRoles().remove(role.getName());
 
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
@@ -297,13 +244,14 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         flushRoles();
         flushMemberships();
+        
+        return role;
     }
 
-    private void removeGroup(IdentityType identityType) {
-        Group group = (Group) identityType;
-
+    @Override
+    protected Group removeGroup(Group group) {
         getConfig().getGroups().remove(group.getName());
-        
+
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             Group groupMembership = membership.getGroup();
 
@@ -311,14 +259,14 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                 getConfig().getMemberships().remove(membership);
             }
         }
-        
+
         flushGroups();
         flushMemberships();
+        
+        return group;
     }
 
-    private void removeUser(IdentityType identityType) {
-        User user = (User) identityType;
-
+    protected User removeUser(User user) {
         getConfig().getUsers().remove(user.getId());
 
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
@@ -335,6 +283,8 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         flushUsers();
         flushMemberships();
+        
+        return user;
     }
 
     @Override
@@ -416,11 +366,12 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
-        Set entries = null;
+        Set<?> entries = null;
 
         if (isUserType(identityTypeClass)) {
             entries = getConfig().getUsers().entrySet();
@@ -432,7 +383,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         List<T> result = new ArrayList<T>();
 
-        for (Iterator iterator = entries.iterator(); iterator.hasNext();) {
+        for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
             Entry<String, IdentityType> entry = (Entry<String, IdentityType>) iterator.next();
 
             IdentityType storedIdentityType = entry.getValue();
@@ -526,18 +477,18 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
             result.add((T) storedIdentityType);
         }
-        
+
         if (identityQuery.getParameters().containsKey(User.HAS_ROLE)
                 || identityQuery.getParameters().containsKey(User.MEMBER_OF)
                 || identityQuery.getParameters().containsKey(User.HAS_GROUP_ROLE)
                 || identityQuery.getParameters().containsKey(User.ROLE_OF)
                 || identityQuery.getParameters().containsKey(User.HAS_MEMBER)) {
-            
+
             for (T fileUser : new ArrayList<T>(result)) {
                 for (Entry<QueryParameter, Object[]> parameters : identityQuery.getParameters().entrySet()) {
                     QueryParameter queryParameter = parameters.getKey();
                     Object[] values = parameters.getValue();
-                    
+
                     int valuesMatchCount = values.length;
 
                     for (GroupRole membership : getConfig().getMemberships()) {
@@ -599,12 +550,12 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                 }
             }
         }
-        
+
         findByCustomAttributes(result, identityQuery);
-        
+
         return result;
     }
-    
+
     @SuppressWarnings("rawtypes")
     private void findByCustomAttributes(List<? extends IdentityType> identityTypes, IdentityQuery identityQuery) {
         Set<Entry<QueryParameter, Object[]>> entrySet = identityQuery.getParameters().entrySet();
@@ -650,7 +601,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             }
         }
     }
-    
+
     /**
      * <p>
      * Updated the common properties for a specific {@link IdentityType} instance from another instance.

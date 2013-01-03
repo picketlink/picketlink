@@ -32,6 +32,12 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
+import org.picketlink.idm.event.GroupCreatedEvent;
+import org.picketlink.idm.event.GroupUpdatedEvent;
+import org.picketlink.idm.event.RoleCreatedEvent;
+import org.picketlink.idm.event.RoleUpdatedEvent;
+import org.picketlink.idm.event.UserCreatedEvent;
+import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
@@ -53,6 +59,177 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
     public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
     public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
     public static final String EVENT_CONTEXT_ROLE_ENTITY = "ROLE_ENTITY";
+
+    @Override
+    public void add(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (isUserType(identityTypeClass)) {
+            User storedUser = addUser((User) identityType);
+
+            UserCreatedEvent event = new UserCreatedEvent(storedUser);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (isGroupType(identityTypeClass)) {
+            Group storedGroup = addGroup((Group) identityType);
+
+            GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (isRoleType(identityTypeClass)) {
+            Role storedRole = addRole((Role) identityType);
+
+            RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
+        }
+    }
+
+    @Override
+    public void update(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (isUserType(identityTypeClass)) {
+            User updatedUser = (User) identityType;
+
+            if (updatedUser.getId() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            User storedUser = getUser(updatedUser.getId());
+
+            if (storedUser == null) {
+                throw new RuntimeException("User [" + updatedUser.getId() + "] does not exists.");
+            }
+
+            updateUser(updatedUser, storedUser);
+
+            UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (isGroupType(identityTypeClass)) {
+            Group updatedGroup = (Group) identityType;
+
+            if (updatedGroup.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Group storedGroup = getGroup(updatedGroup.getName());
+
+            if (storedGroup == null) {
+                throw new RuntimeException("No group found with the given name [" + updatedGroup.getName() + "].");
+            }
+
+            updateGroup(updatedGroup, storedGroup);
+
+            GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (isRoleType(identityTypeClass)) {
+            Role updatedRole = (Role) identityType;
+
+            if (updatedRole.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Role storedRole = getRole(updatedRole.getName());
+
+            if (storedRole == null) {
+                throw new RuntimeException("No role found with the given name [" + updatedRole.getName() + "].");
+            }
+
+            updateRole(updatedRole, storedRole);
+
+            RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
+        }
+    }
+
+    @Override
+    public void remove(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (isUserType(identityTypeClass)) {
+            User user = (User) identityType;
+
+            if (user.getId() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            User storedUser = getUser(user.getId());
+
+            if (storedUser == null) {
+                throw new RuntimeException("User [" + user.getId() + "] doest not exists.");
+            }
+
+            removeUser(storedUser);
+        } else if (isGroupType(identityTypeClass)) {
+            Group group = (Group) identityType;
+
+            if (group.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Group storedGroup = getGroup(group.getName());
+
+            if (storedGroup == null) {
+                throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
+            }
+
+            removeGroup(storedGroup);
+        } else if (isRoleType(identityTypeClass)) {
+            Role role = (Role) identityType;
+            
+            if (role.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Role storedRole = getRole(role.getName());
+
+            if (storedRole == null) {
+                throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
+            }
+
+            removeRole(storedRole);
+        }
+    }
+
+    protected Role removeRole(Role identityType) {
+        return null;
+    }
+
+    protected Group removeGroup(Group identityType) {
+        return null;
+    }
+
+    protected User removeUser(User identityType) {
+        return null;
+    }
+
+    protected Role updateRole(Role updatedRole, Role storedRole) {
+        return null;
+    }
+
+    protected Group updateGroup(Group updatedGroup, Group storedGroup) {
+        return null;
+    }
+
+    protected User updateUser(User updatedUser, User storedUser) {
+        return null;
+    }
+
+    protected Role addRole(Role updatedRole) {
+        return null;
+    }
+
+    protected Group addGroup(Group updatedGroup) {
+        return null;
+    }
+
+    protected User addUser(User updatedUser) {
+        return null;
+    }
 
     @Override
     public void validateCredentials(Credentials credentials) {

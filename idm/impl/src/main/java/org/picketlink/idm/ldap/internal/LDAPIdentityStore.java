@@ -46,10 +46,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.event.GroupUpdatedEvent;
-import org.picketlink.idm.event.RoleUpdatedEvent;
-import org.picketlink.idm.event.UserCreatedEvent;
-import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
@@ -88,95 +84,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
     @Override
     public IdentityStoreInvocationContext getContext() {
         return this.context;
-    }
-
-    @Override
-    public void add(IdentityType identityType) {
-        LDAPEntry ldapEntry = null;
-
-        try {
-            if (isUserType(identityType.getClass())) {
-                User user = (User) identityType;
-
-                ldapEntry = addUser(user);
-
-                UserCreatedEvent event = new UserCreatedEvent((User) identityType);
-                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, ldapEntry);
-                getContext().getEventBridge().raiseEvent(event);
-            } else if (isGroupType(identityType.getClass())) {
-                Group group = (Group) identityType;
-
-                ldapEntry = addGroup(group);
-            } else if (isRoleType(identityType.getClass())) {
-                Role role = (Role) identityType;
-
-                ldapEntry = addRole(role);
-            }
-
-            store(ldapEntry);
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error while adding IdentityType [" + identityType + "].", e);
-        }
-    }
-
-    @Override
-    public void update(IdentityType identityType) {
-        LDAPEntry ldapEntry = null;
-
-        try {
-            if (isUserType(identityType.getClass())) {
-                User user = (User) identityType;
-
-                ldapEntry = updateUser(user);
-
-                UserUpdatedEvent event = new UserUpdatedEvent((User) identityType);
-                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, ldapEntry);
-                getContext().getEventBridge().raiseEvent(event);
-            } else if (Role.class.isInstance(identityType)) {
-                Role role = (Role) identityType;
-
-                ldapEntry = updateRole(role);
-
-                RoleUpdatedEvent event = new RoleUpdatedEvent((Role) identityType);
-                event.getContext().setValue(EVENT_CONTEXT_ROLE_ENTITY, ldapEntry);
-                getContext().getEventBridge().raiseEvent(event);
-            } else if (Group.class.isInstance(identityType)) {
-                Group group = (Group) identityType;
-
-                ldapEntry = updateGroup(group);
-
-                GroupUpdatedEvent event = new GroupUpdatedEvent((Group) identityType);
-                event.getContext().setValue(EVENT_CONTEXT_GROUP_ENTITY, ldapEntry);
-                getContext().getEventBridge().raiseEvent(event);
-            }
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error while updating IdentityType [" + identityType + "].", e);
-        }
-    }
-
-    @Override
-    public void remove(IdentityType identityType) {
-        LDAPEntry ldapEntry = null;
-
-        try {
-            if (isUserType(identityType.getClass())) {
-                User user = (User) identityType;
-
-                ldapEntry = removeUser(user);
-            } else if (isGroupType(identityType.getClass())) {
-                Group group = (Group) identityType;
-
-                ldapEntry = removeGroup(group);
-            } else if (isRoleType(identityType.getClass())) {
-                Role role = (Role) identityType;
-
-                ldapEntry = removeRole(role);
-            }
-
-            remove(ldapEntry);
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error while removing IdentityType [" + identityType + "].", e);
-        }
     }
 
     @Override
@@ -695,7 +602,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
      * 
      * @param ldapEntry
      */
-    private void remove(LDAPEntry ldapEntry) {
+    private void removeEntry(LDAPEntry ldapEntry) {
         getLdapManager().destroySubcontext(ldapEntry.getDN());
     }
 
@@ -740,12 +647,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
     /**
      * <p>
-     * Updates the custom attributes for the given {@link LDAPEntry} instance.
+     * Updates the attributes for the given {@link LDAPEntry} instance.
      * </p>
      * 
      * @param updatedEntryEntry
      */
-    private void updateCustomAttributes(LDAPEntry updatedEntryEntry, LDAPEntry storedEntry) {
+    private void updateAttributes(LDAPEntry updatedEntryEntry, LDAPEntry storedEntry) {
         try {
             NamingEnumeration<? extends Attribute> storedAttributes = storedEntry.getLDAPAttributes().getAll();
 
@@ -877,7 +784,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return this.configuration.getLdapManager();
     }
 
-    private LDAPRole addRole(Role role) {
+    @Override
+    protected Role addRole(Role role) {
         if (role.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -885,11 +793,14 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         LDAPRole ldapRole = new LDAPRole(this.configuration.getRoleDNSuffix());
 
         ldapRole.setName(role.getName());
+        
+        store(ldapRole);
 
         return ldapRole;
     }
 
-    private LDAPGroup addGroup(Group group) {
+    @Override
+    protected Group addGroup(Group group) {
         if (group.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -912,11 +823,14 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
             getLdapManager().modifyAttribute(parentGroup.getDN(), parentGroup.getLDAPAttributes().get(MEMBER));
         }
+        
+        store(ldapGroup);
 
         return ldapGroup;
     }
 
-    private LDAPUser addUser(User user) {
+    @Override
+    protected User addUser(User user) {
         if (user.getId() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -930,98 +844,51 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         }
 
         ldapUser.setFullName(ldapUser.getUserCN());
+        
+        store(ldapUser);
 
         return ldapUser;
     }
 
-    private LDAPGroup updateGroup(Group group) {
-        if (group.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPGroup storedGroup = (LDAPGroup) getGroup(group.getName());
-
-        if (storedGroup == null) {
-            throw new RuntimeException("No group found with the given name [" + group.getName() + "].");
-        }
-
-        LDAPGroup updatedGroup = (LDAPGroup) group;
-
-        updateCustomAttributes(updatedGroup, storedGroup);
-
+    @Override
+    protected Group updateGroup(Group updatedGroup, Group storedGroup) {
+        updateAttributes((LDAPGroup) updatedGroup, (LDAPGroup) storedGroup);
+        
         return updatedGroup;
     }
 
-    private LDAPRole updateRole(Role role) {
-        if (role.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPRole storedRole = (LDAPRole) getRole(role.getName());
-
-        if (storedRole == null) {
-            throw new RuntimeException("No role found with the given name [" + role.getName() + "].");
-        }
-
-        LDAPRole updatedRole = (LDAPRole) role;
-
-        updateCustomAttributes(updatedRole, storedRole);
+    @Override
+    protected Role updateRole(Role updatedRole, Role storedRole) {
+        updateAttributes((LDAPRole) updatedRole, (LDAPRole) storedRole);
 
         return updatedRole;
     }
 
-    private LDAPUser updateUser(User user) throws NamingException {
-        if (user.getId() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPUser storedUser = (LDAPUser) getUser(user.getId());
-
-        if (storedUser == null) {
-            throw new RuntimeException("User [" + user.getId() + "] does not exists.");
-        }
-
+    @Override
+    protected User updateUser(User user, User storedUser) {
         LDAPUser updatedUser = convert(user);
 
         updatedUser.setFullName(updatedUser.getUserCN());
 
-        updateCustomAttributes(updatedUser, storedUser);
+        updateAttributes(updatedUser, (LDAPEntry) storedUser);
 
         return updatedUser;
     }
 
-    private LDAPRole removeRole(Role role) {
-        if (role.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-
-        if (ldapRole == null) {
-            throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
-        }
-
-        removeFromParent(this.configuration.getGroupDNSuffix(), ldapRole);
-
-        return ldapRole;
+    @Override
+    protected Role removeRole(Role role) {
+        removeEntry((LDAPEntry) role);
+        removeFromParent(this.configuration.getGroupDNSuffix(), (LDAPEntry) role);
+        return role;
     }
 
-    private LDAPGroup removeGroup(Group group) {
-        if (group.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
-
-        if (ldapGroup == null) {
-            throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
-        }
-
+    @Override
+    protected Group removeGroup(Group group) {
         // removes the custom grouprole entry from inside the user entries
         NamingEnumeration<SearchResult> results = null;
 
         try {
-            results = getLdapManager().search(this.configuration.getUserDNSuffix(), "(&(cn= " + ldapGroup.getName() + "*))");
+            results = getLdapManager().search(this.configuration.getUserDNSuffix(), "(&(cn= " + group.getName() + "*))");
 
             while (results.hasMoreElements()) {
                 SearchResult searchResult = (SearchResult) results.nextElement();
@@ -1036,25 +903,20 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 }
             }
         }
+        
+        removeEntry((LDAPEntry) group);
 
-        return ldapGroup;
+        return group;
     }
 
-    private LDAPUser removeUser(User user) {
-        if (user.getId() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
+    @Override
+    protected User removeUser(User user) {
+        removeFromParent(this.configuration.getRoleDNSuffix(), (LDAPEntry) user);
+        removeFromParent(this.configuration.getGroupDNSuffix(), (LDAPEntry) user);
 
-        LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
-
-        if (ldapUser == null) {
-            throw new RuntimeException("User [" + user.getId() + "] does not exists.");
-        }
-
-        removeFromParent(this.configuration.getRoleDNSuffix(), ldapUser);
-        removeFromParent(this.configuration.getGroupDNSuffix(), ldapUser);
-
-        return ldapUser;
+        removeEntry((LDAPEntry) user);
+        
+        return user;
     }
 
     private String getSearchFilter(IdentityQuery<IdentityType> identityQuery) {
