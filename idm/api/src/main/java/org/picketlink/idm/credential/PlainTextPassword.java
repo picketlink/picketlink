@@ -8,6 +8,7 @@ package org.picketlink.idm.credential;
 public class PlainTextPassword {
 
     private char[] value;
+    private boolean encodePassword = true;
 
     public PlainTextPassword(char[] value) {
         this.value = value;
@@ -15,6 +16,14 @@ public class PlainTextPassword {
 
     public char[] getValue() {
         return value;
+    }
+
+    public boolean isEncodePassword() {
+        return encodePassword;
+    }
+
+    public void setEncodePassword(boolean encodePassword) {
+        this.encodePassword = encodePassword;
     }
 
     public void clear() {
