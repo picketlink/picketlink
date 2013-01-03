@@ -33,10 +33,13 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.event.GroupCreatedEvent;
+import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.GroupUpdatedEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
+import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
+import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
@@ -164,6 +167,10 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             }
 
             removeUser(storedUser);
+            
+            UserDeletedEvent event = new UserDeletedEvent(storedUser);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
         } else if (isGroupType(identityTypeClass)) {
             Group group = (Group) identityType;
 
@@ -178,6 +185,10 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             }
 
             removeGroup(storedGroup);
+            
+            GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
         } else if (isRoleType(identityTypeClass)) {
             Role role = (Role) identityType;
             
@@ -192,6 +203,10 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             }
 
             removeRole(storedRole);
+            
+            RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
         }
     }
 

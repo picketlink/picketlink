@@ -81,69 +81,6 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         return this.context;
     }
 
-    /**
-     * <p>
-     * Flush all changes made to users to the filesystem.
-     * </p>
-     */
-    synchronized void flushUsers() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getUsersFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getUsers());
-            oos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * <p>
-     * Flush all changes made to roles to the filesystem.
-     * </p>
-     */
-    synchronized void flushRoles() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getRolesFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getRoles());
-            oos.close();
-        } catch (Exception e) {
-        }
-    }
-
-    /**
-     * <p>
-     * Flush all changes made to groups to the filesystem.
-     * </p>
-     */
-    synchronized void flushGroups() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getGroupsFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getGroups());
-            oos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * <p>
-     * Flush all changes made to memberships to the filesystem.
-     * </p>
-     */
-    synchronized void flushMemberships() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getMembershipsFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getMemberships());
-            oos.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     @Override
     protected Role addRole(Role role) {
         SimpleRole fileRole = new SimpleRole(role.getName());
@@ -749,4 +686,66 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         throw createNotImplementedYetException();
     }
 
+    /**
+     * <p>
+     * Flush all changes made to users to the filesystem.
+     * </p>
+     */
+    synchronized void flushUsers() {
+        try {
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getUsersFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(getConfig().getUsers());
+            oos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * <p>
+     * Flush all changes made to roles to the filesystem.
+     * </p>
+     */
+    synchronized void flushRoles() {
+        try {
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getRolesFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(getConfig().getRoles());
+            oos.close();
+        } catch (Exception e) {
+        }
+    }
+
+    /**
+     * <p>
+     * Flush all changes made to groups to the filesystem.
+     * </p>
+     */
+    synchronized void flushGroups() {
+        try {
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getGroupsFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(getConfig().getGroups());
+            oos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * <p>
+     * Flush all changes made to memberships to the filesystem.
+     * </p>
+     */
+    synchronized void flushMemberships() {
+        try {
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getMembershipsFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(getConfig().getMemberships());
+            oos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
