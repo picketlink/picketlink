@@ -25,16 +25,18 @@ public class UsernamePasswordCredentials extends AbstractBaseCredentials {
         return username;
     }
 
-    public void setUsername(String username) {
+    public UsernamePasswordCredentials setUsername(String username) {
         this.username = username;
+        return this;
     }
 
     public PlainTextPassword getPassword() {
         return password;
     }
 
-    public void setPassword(PlainTextPassword password) {
+    public UsernamePasswordCredentials setPassword(PlainTextPassword password) {
         this.password = password;
+        return this;
     }
 
     @Override
