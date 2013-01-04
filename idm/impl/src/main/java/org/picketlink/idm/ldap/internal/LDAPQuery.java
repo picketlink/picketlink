@@ -47,7 +47,7 @@ public class LDAPQuery {
 
             if (parameter.isMappedToManagedAttribute()) {
                 this.managedParameters.add(parameter);
-            } else {
+            } else if (!parameter.isMembershipParameter()) {
                 this.hasCustomAttributes = true;
             }
         }
