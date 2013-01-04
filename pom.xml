@@ -5,7 +5,7 @@
 
 	<groupId>org.picketlink</groupId>
 	<artifactId>picketlink-parent</artifactId>
-	<version>3.0-2013Jan04</version>
+	<version>3.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>PicketLink Parent</name>
