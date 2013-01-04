@@ -38,7 +38,7 @@ public class DigestCredentials extends AbstractBaseCredentials {
     
     @Override
     public void invalidate() {
-        
+        this.digest = null;
     }
 
     public Digest getDigest() {
