@@ -29,7 +29,7 @@ public class LDAPPlainTextPasswordCredentialHandler extends PlainTextPasswordCre
     @Override
     protected void doUpdate(Agent agent, IdentityStore<?> store, PlainTextPassword password) {
         LDAPIdentityStore ldapIdentityStore = getLDAPIdentityStore(store);
-        LDAPUser ldapuser = (LDAPUser) agent;
+        LDAPUser ldapuser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
         
         if (ldapIdentityStore.getConfig().isActiveDirectory()) {
             updateADPassword(ldapuser, new String(password.getValue()), ldapIdentityStore);
@@ -54,13 +54,13 @@ public class LDAPPlainTextPasswordCredentialHandler extends PlainTextPasswordCre
                     store.getClass() + "] not supported by this handler.");
         }
         
-        LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) store;
-        return ldapIdentityStore;
+        return (LDAPIdentityStore) store;
     }
     
     @Override
     protected void doValidate(Agent agent, UsernamePasswordCredentials usernamePassword, IdentityStore<?> identityStore) {
-        LDAPUser ldapUser = (LDAPUser) agent;
+        LDAPIdentityStore ldapIdentityStore = getLDAPIdentityStore(identityStore);
+        LDAPUser ldapUser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
         char[] password = usernamePassword.getPassword().getValue();
         
         boolean isValid = getLDAPIdentityStore(identityStore).getLdapManager().authenticate(ldapUser.getDN(), new String(password));
