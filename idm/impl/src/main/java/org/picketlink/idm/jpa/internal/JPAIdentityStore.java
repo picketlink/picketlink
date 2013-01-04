@@ -96,7 +96,11 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
     @Override
     public void add(IdentityType identityType) {
         checkInvalidIdentityType(identityType);
-
+        
+        if (lookupIdentityObjectById(identityType) != null) {
+            throw new IdentityManagementException("IdentityType already exists.");
+        }
+        
         try {
             IdentityTypeManager<IdentityType> identityTypeManager = getIdentityTypeManager(identityType.getClass());
 
