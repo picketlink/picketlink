@@ -51,7 +51,9 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
- * Implementation of IdentityStore that stores its state in a relational database.
+ * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object
+ * that is generally created once per request, and is provided references to a (heavyweight) configuration and
+ * invocation context.
  * 
  * @author Shane Bryzak
  */
@@ -71,8 +73,7 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
     private IdentityStoreInvocationContext context;
 
     private Map<String, IdentityTypeManager<? extends IdentityType>> identityTypeStores = new HashMap<String, IdentityTypeManager<? extends IdentityType>>();
-    
-    
+
     public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
         this.context = context;

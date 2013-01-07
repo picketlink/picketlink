@@ -66,4 +66,5 @@ public interface User extends Agent, Serializable {
     String getEmail();
 
     void setEmail(String email);
+
 }
