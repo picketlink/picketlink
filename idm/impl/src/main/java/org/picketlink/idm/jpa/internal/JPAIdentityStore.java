@@ -31,8 +31,12 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
@@ -48,6 +52,7 @@ import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
@@ -57,10 +62,16 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * 
  * @author Shane Bryzak
  */
-public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConfiguration> {
+@CredentialHandlers({JPAPlainTextPasswordCredentialHandler.class})
+public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration> {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
+
+    // Event context parameters
+    public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
+    public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
+    public static final String EVENT_CONTEXT_ROLE_ENTITY = "ROLE_ENTITY";
 
     /**
      * The configuration for this instance
@@ -72,7 +83,8 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
      */
     private IdentityStoreInvocationContext context;
 
-    private Map<String, IdentityTypeManager<? extends IdentityType>> identityTypeStores = new HashMap<String, IdentityTypeManager<? extends IdentityType>>();
+    private Map<String, IdentityTypeManager<? extends IdentityType>> identityTypeStores =
+            new HashMap<String, IdentityTypeManager<? extends IdentityType>>();
 
     public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
@@ -422,7 +434,8 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
 
             groupRole = new SimpleGroupRole(storedUser, storedRole, storedGroup);
         } else if (member instanceof Group) {
-            throw createNotImplementedYetException();
+            // TODO implement
+            throw new UnsupportedOperationException();
         } else {
             throw new IllegalArgumentException("The member parameter must be an instance of User or Group");
         }
@@ -514,22 +527,26 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
 
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
-        throw createNotImplementedYetException();
+     // TODO implement
+        throw new UnsupportedOperationException();
     }
     
     @Override
     public void setAttribute(IdentityType identity, Attribute<? extends Serializable> providedAttrib) {
-        throw createNotImplementedYetException();
+     // TODO implement
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void removeAttribute(IdentityType identity, String name) {
-        throw createNotImplementedYetException();
+     // TODO implement
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
-        throw createNotImplementedYetException();
+     // TODO implement
+        throw new UnsupportedOperationException();
     }
 
     protected EntityManager getEntityManager() {
@@ -630,7 +647,7 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
 
         Join<?, ?> join = root.join(attributeIdentityProperty.getName());
 
-        if (isUserType(identityType.getClass())) {
+        if (IDMUtil.isUserType(identityType.getClass())) {
             predicates.add(builder.equal(join.get(getIdentityIdProperty().getName()), idValue));
         } else {
             predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), idValue));
@@ -689,9 +706,9 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
         predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
                 getIdentityDiscriminator(identityType.getClass())));
 
-        if (isUserType(identityType.getClass()) || isAgentType(identityType.getClass())) {
+        if (IDMUtil.isUserType(identityType.getClass()) || IDMUtil.isAgentType(identityType.getClass())) {
             predicates.add(builder.equal(root.get(getIdentityIdProperty().getName()), id));
-        } else if (isGroupType(identityType.getClass()) || isRoleType(identityType.getClass())) {
+        } else if (IDMUtil.isGroupType(identityType.getClass()) || IDMUtil.isRoleType(identityType.getClass())) {
             predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), id));
         } else {
             throw new SecurityException("Could not lookup identity by id - unsupported IdentityType ["
@@ -922,13 +939,13 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
     private String getIdentifierValue(IdentityType identityType) {
         String value = null;
 
-        if (isUserType(identityType.getClass())) {
+        if (IDMUtil.isUserType(identityType.getClass())) {
             value = ((User) identityType).getId();
-        } else if (isAgentType(identityType.getClass())) {
+        } else if (IDMUtil.isAgentType(identityType.getClass())) {
             value = ((Agent) identityType).getId();
-        } else if (isRoleType(identityType.getClass())) {
+        } else if (IDMUtil.isRoleType(identityType.getClass())) {
             value = ((Role) identityType).getName();
-        } else if (isGroupType(identityType.getClass())) {
+        } else if (IDMUtil.isGroupType(identityType.getClass())) {
             value = ((Group) identityType).getName();
         }
 
@@ -979,7 +996,7 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
                 Join identityPropertyJoin = attributeClassRoot.join(getAttributeIdentityProperty().getName());
                 String propertyNameToJoin = getIdentityIdProperty().getName();
 
-                if (isRoleType(identityType.getClass()) || isGroupType(identityType.getClass())) {
+                if (IDMUtil.isRoleType(identityType.getClass()) || IDMUtil.isGroupType(identityType.getClass())) {
                     propertyNameToJoin = getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName();
                 }
 
@@ -1079,6 +1096,28 @@ public class JPAIdentityStore extends AbstractIdentityStore<JPAIdentityStoreConf
         IdentityTypeManager<IdentityType> identityTypeManager = (IdentityTypeManager<IdentityType>) this.identityTypeStores
                 .get(getIdentityDiscriminator(identityTypeClass));
         return identityTypeManager;
+    }
+
+    @Override
+    public void validateCredentials(Credentials credentials) {
+        CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
+        if (handler == null) {
+            throw new SecurityConfigurationException(
+                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
+                            + "] for IdentityStore [" + this.getClass() + "]");
+        }
+        handler.validate(credentials, this);
+    }
+
+    @Override
+    public void updateCredential(Agent agent, Object credential) {
+        CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
+        if (handler == null) {
+            throw new SecurityConfigurationException(
+                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
+                            + "] for IdentityStore [" + this.getClass() + "]");
+        }
+        handler.update(agent, credential, this);
     }
 
 }

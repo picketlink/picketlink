@@ -44,7 +44,7 @@ public class DefaultStoreFactory implements StoreFactory {
         identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
         identityConfigMap.put(LDAPConfiguration.class, LDAPIdentityStore.class);
         identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
-        partitionConfigMap.put(JPAPartitionStoreConfiguration.class,  JPAPartitionStore.class);
+        partitionConfigMap.put(JPAPartitionStoreConfiguration.class, JPAPartitionStore.class);
     }
 
     @SuppressWarnings("unchecked")

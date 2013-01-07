@@ -33,7 +33,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.idm.credential.internal.PlainTextPasswordCredentialHandler;
+import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
@@ -60,6 +63,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
+@CredentialHandlers({PlainTextPasswordCredentialHandler.class})
 public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration> {
 
     private FileIdentityStoreConfiguration config;
@@ -209,7 +213,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             IdentityType member = membership.getMember();
 
-            if (isUserType(member.getClass())) {
+            if (IDMUtil.isUserType(member.getClass())) {
                 User userMember = (User) member;
 
                 if (userMember.getId().equals(user.getId())) {
@@ -310,11 +314,11 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         Set<?> entries = null;
 
-        if (isUserType(identityTypeClass)) {
+        if (IDMUtil.isUserType(identityTypeClass)) {
             entries = getConfig().getUsers().entrySet();
-        } else if (isRoleType(identityTypeClass)) {
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
             entries = getConfig().getRoles().entrySet();
-        } else if (isGroupType(identityTypeClass)) {
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
             entries = getConfig().getGroups().entrySet();
         }
 
@@ -325,7 +329,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
             IdentityType storedIdentityType = entry.getValue();
 
-            if (isUserType(identityTypeClass)) {
+            if (IDMUtil.isUserType(identityTypeClass)) {
                 User user = (User) storedIdentityType;
 
                 if (!isQueryParameterEquals(identityQuery.getParameters(), User.ID, user.getId())) {
@@ -345,7 +349,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                 }
             }
 
-            if (isRoleType(identityTypeClass)) {
+            if (IDMUtil.isRoleType(identityTypeClass)) {
                 Role role = (Role) storedIdentityType;
 
                 if (!isQueryParameterEquals(identityQuery.getParameters(), Role.NAME, role.getName())) {
@@ -353,7 +357,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                 }
             }
 
-            if (isGroupType(identityTypeClass)) {
+            if (IDMUtil.isGroupType(identityTypeClass)) {
                 Group group = (Group) storedIdentityType;
 
                 if (!isQueryParameterEquals(identityQuery.getParameters(), Group.NAME, group.getName())) {
@@ -429,7 +433,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                     int valuesMatchCount = values.length;
 
                     for (GroupRole membership : getConfig().getMemberships()) {
-                        if (isUserType(fileUser.getClass()) && isUserType(membership.getMember().getClass())) {
+                        if (IDMUtil.isUserType(fileUser.getClass()) && IDMUtil.isUserType(membership.getMember().getClass())) {
                             User selectedUser = (User) fileUser;
                             User memberUser = (User) membership.getMember();
 

@@ -8,11 +8,10 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 
 /**
- * This annotation is used to declare which identity store types are supported
- * by a particular CredentialHandler implementation.
+ * This annotation is used to declare which CredentialHandlers are supported by an IdentityStore implementation.
  *
  * @author Shane Bryzak
  */
@@ -20,6 +19,6 @@ import org.picketlink.idm.spi.IdentityStore;
 @Documented
 @Retention(RUNTIME)
 @Inherited
-public @interface SupportsStores {
-    Class<? extends IdentityStore>[] value();
+public @interface CredentialHandlers {
+    Class<? extends CredentialHandler>[] value();
 }

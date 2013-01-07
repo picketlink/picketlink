@@ -41,6 +41,7 @@ import org.picketlink.idm.event.RoleUpdatedEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.event.UserUpdatedEvent;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
@@ -58,32 +59,27 @@ import org.picketlink.idm.spi.IdentityStore;
  */
 public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration> implements IdentityStore<T> {
 
-    // Event context parameters
-    public static final String EVENT_CONTEXT_USER_ENTITY = "USER_ENTITY";
-    public static final String EVENT_CONTEXT_GROUP_ENTITY = "GROUP_ENTITY";
-    public static final String EVENT_CONTEXT_ROLE_ENTITY = "ROLE_ENTITY";
-
     @Override
     public void add(IdentityType identityType) {
         Class<? extends IdentityType> identityTypeClass = identityType.getClass();
 
-        if (isUserType(identityTypeClass)) {
+        if (IDMUtil.isUserType(identityTypeClass)) {
             User storedUser = addUser((User) identityType);
 
             UserCreatedEvent event = new UserCreatedEvent(storedUser);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
             getContext().getEventBridge().raiseEvent(event);
-        } else if (isGroupType(identityTypeClass)) {
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
             Group storedGroup = addGroup((Group) identityType);
 
             GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
             getContext().getEventBridge().raiseEvent(event);
-        } else if (isRoleType(identityTypeClass)) {
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
             Role storedRole = addRole((Role) identityType);
 
             RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
             getContext().getEventBridge().raiseEvent(event);
         }
     }
@@ -92,7 +88,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
     public void update(IdentityType identityType) {
         Class<? extends IdentityType> identityTypeClass = identityType.getClass();
 
-        if (isUserType(identityTypeClass)) {
+        if (IDMUtil.isUserType(identityTypeClass)) {
             User updatedUser = (User) identityType;
 
             if (updatedUser.getId() == null) {
@@ -108,9 +104,9 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             updateUser(updatedUser, storedUser);
 
             UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
             getContext().getEventBridge().raiseEvent(event);
-        } else if (isGroupType(identityTypeClass)) {
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
             Group updatedGroup = (Group) identityType;
 
             if (updatedGroup.getName() == null) {
@@ -126,9 +122,9 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             updateGroup(updatedGroup, storedGroup);
 
             GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
             getContext().getEventBridge().raiseEvent(event);
-        } else if (isRoleType(identityTypeClass)) {
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
             Role updatedRole = (Role) identityType;
 
             if (updatedRole.getName() == null) {
@@ -144,7 +140,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             updateRole(updatedRole, storedRole);
 
             RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
             getContext().getEventBridge().raiseEvent(event);
         }
     }
@@ -153,7 +149,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
     public void remove(IdentityType identityType) {
         Class<? extends IdentityType> identityTypeClass = identityType.getClass();
 
-        if (isUserType(identityTypeClass)) {
+        if (IDMUtil.isUserType(identityTypeClass)) {
             User user = (User) identityType;
 
             if (user.getId() == null) {
@@ -169,9 +165,9 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             removeUser(storedUser);
             
             UserDeletedEvent event = new UserDeletedEvent(storedUser);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
             getContext().getEventBridge().raiseEvent(event);
-        } else if (isGroupType(identityTypeClass)) {
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
             Group group = (Group) identityType;
 
             if (group.getName() == null) {
@@ -187,9 +183,9 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             removeGroup(storedGroup);
             
             GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
             getContext().getEventBridge().raiseEvent(event);
-        } else if (isRoleType(identityTypeClass)) {
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
             Role role = (Role) identityType;
             
             if (role.getName() == null) {
@@ -205,7 +201,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
             removeRole(storedRole);
             
             RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
             getContext().getEventBridge().raiseEvent(event);
         }
     }
@@ -268,7 +264,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
         handler.update(agent, credential, this);
     }
 
-    @Override
+    //@Override
     public <T extends CredentialStorage> void storeCredential(Agent agent, T storage) {
         List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
@@ -294,7 +290,7 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
         }
     }
 
-    @Override
+    //@Override
     public <C extends CredentialStorage> C retrieveCredential(Agent agent, Class<C> storageClass) {
         C storage = null;
         List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storageClass)
@@ -335,22 +331,6 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
      */
     private <T extends CredentialStorage> String getCredentialAttributeName(Class<T> storage) {
         return storage.getName();
-    }
-
-    protected boolean isGroupType(Class<? extends IdentityType> identityType) {
-        return Group.class.isAssignableFrom(identityType);
-    }
-
-    protected boolean isRoleType(Class<? extends IdentityType> identityType) {
-        return Role.class.isAssignableFrom(identityType);
-    }
-
-    protected boolean isUserType(Class<? extends IdentityType> identityType) {
-        return User.class.isAssignableFrom(identityType);
-    }
-
-    protected boolean isAgentType(Class<? extends IdentityType> identityType) {
-        return Agent.class.isAssignableFrom(identityType);
     }
 
     protected IdentityManagementException throwsNotSupportedIdentityType(IdentityType identityType) {

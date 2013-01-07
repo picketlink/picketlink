@@ -12,10 +12,20 @@ import org.picketlink.idm.credential.spi.annotations.Stored;
  */
 public class SHASaltedPasswordHash implements CredentialStorage {
 
+    private Date effectiveDate;
     private Date expiryDate;
     private String encodedHash;
 
-    @Override
+    @Override @Stored
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(Date effectiveDate) {
+        this.effectiveDate = effectiveDate;
+    }
+
+    @Override @Stored
     public Date getExpiryDate() {
         return expiryDate;
     }

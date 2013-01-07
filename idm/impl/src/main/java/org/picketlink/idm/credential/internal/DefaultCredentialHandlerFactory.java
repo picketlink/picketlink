@@ -1,14 +1,14 @@
 package org.picketlink.idm.credential.internal;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
+import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.credential.spi.annotations.SupportsStores;
-import org.picketlink.idm.ldap.internal.LDAPPlainTextPasswordCredentialHandler;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -19,86 +19,70 @@ import org.picketlink.idm.spi.IdentityStore;
  */
 public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory {
 
-    /**
-     * 
-     */
-    Set<CredentialHandler> defaultHandlers = new HashSet<CredentialHandler>();
-
-    /**
-     * 
-     */
-    Set<CredentialHandler> registeredHandlers = new HashSet<CredentialHandler>();
-    
-    public DefaultCredentialHandlerFactory() {
-        defaultHandlers.add(new PlainTextPasswordCredentialHandler());
-        defaultHandlers.add(new DigestCredentialHandler());
-        defaultHandlers.add(new LDAPPlainTextPasswordCredentialHandler());
-        defaultHandlers.add(new X509CertificateCredentialHandler());
-    }
-
-    /**
-     * Register the specified credential handler
-     * 
-     * @param handler
-     */
-    public void registerHandler(CredentialHandler handler) {
-        registeredHandlers.add(handler);
-    }
-    
-    @Override
-    public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, Class<? extends IdentityStore> identityStoreClass) {
-        for (CredentialHandler handler : registeredHandlers) {
-            if (handlerSupports(handler, credentialsClass, identityStoreClass)) {
-                return handler;
-            }
-        }
-
-        for (CredentialHandler handler : defaultHandlers) {
-            if (handlerSupports(handler, credentialsClass, identityStoreClass)) {
-                return handler;
-            }
-        }
-        
-        return null;
-    }
+    Map<Class<? extends CredentialHandler>, CredentialHandler> handlerInstances = 
+            new HashMap<Class<? extends CredentialHandler>, CredentialHandler>();
 
     @Override
-    public CredentialHandler getCredentialUpdater(Class<?> credentialClass, Class<? extends IdentityStore> identityStoreClass) {
-        for (CredentialHandler handler : registeredHandlers) {
-            if (handlerSupports(handler, credentialClass, identityStoreClass)) {
-                return handler;
-            }
-        }
-
-        for (CredentialHandler handler : defaultHandlers) {
-            if (handlerSupports(handler, credentialClass, identityStoreClass)) {
-                return handler;
-            }
-        }
-
-        return null;
-    }
-
-    private boolean handlerSupports(CredentialHandler handler, Class<?> credentialClass, 
+    public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, 
             Class<? extends IdentityStore> identityStoreClass) {
-        SupportsCredentials sc = handler.getClass().getAnnotation(SupportsCredentials.class);
-        SupportsStores ss = handler.getClass().getAnnotation(SupportsStores.class);
-        
-        if (sc == null || ss == null) {
-            return false;
+
+        CredentialHandlers handlers = identityStoreClass.getAnnotation(CredentialHandlers.class);
+
+        for (Class<? extends CredentialHandler> handlerClass : handlers.value()) {
+            if (handlerSupports(handlerClass, credentialsClass)) {
+                return handlerInstances.get(handlerClass);
+            }
         }
-        
+
+        return null;
+    }
+
+    @Override
+    public CredentialHandler getCredentialUpdater(Class<?> credentialClass, 
+            Class<? extends IdentityStore> identityStoreClass) {
+
+        CredentialHandlers handlers = identityStoreClass.getAnnotation(CredentialHandlers.class);
+
+        for (Class<? extends CredentialHandler> handlerClass : handlers.value()) {
+            if (handlerSupports(handlerClass, credentialClass)) {
+                if (!handlerInstances.containsKey(handlerClass)) {
+                    return createHandlerInstance(handlerClass);
+                } else {
+                    return handlerInstances.get(handlerClass);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private synchronized CredentialHandler createHandlerInstance(Class<? extends CredentialHandler> handlerClass) {
+        CredentialHandler handler = null;
+        if (!handlerInstances.containsKey(handlerClass)) {
+            try {
+                handler = handlerClass.newInstance();
+                handlerInstances.put(handlerClass, handler);
+            } catch (Exception ex) {
+                throw new SecurityConfigurationException(
+                        "Error creating instance for CredentialHandler [" + handlerClass.getName() + "]",
+                        ex);
+            }
+        } else {
+            handler = handlerInstances.get(handlerClass);
+        }
+
+        return handler;
+    }
+
+    private boolean handlerSupports(Class<? extends CredentialHandler> handlerClass, Class<?> credentialClass) {
+        SupportsCredentials sc = handlerClass.getAnnotation(SupportsCredentials.class);
+
         for (Class<?> cls : sc.value()) {
             if (cls.equals(credentialClass)) {
-                for (Class<? extends IdentityStore> isc : ss.value()) {
-                    if (isc.equals(identityStoreClass)) {
-                        return true;
-                    }
-                }
+                return true;
             }
         }
 
         return false;
     }
-
 }

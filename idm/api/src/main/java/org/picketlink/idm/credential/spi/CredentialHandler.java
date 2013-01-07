@@ -1,9 +1,7 @@
 package org.picketlink.idm.credential.spi;
 
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**

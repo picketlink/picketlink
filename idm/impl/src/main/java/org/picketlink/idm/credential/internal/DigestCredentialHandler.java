@@ -8,7 +8,6 @@ import org.picketlink.idm.credential.DigestUtil;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.credential.spi.annotations.SupportsStores;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -29,7 +28,6 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({ DigestCredentials.class, Digest.class })
-@SupportsStores({ JPAIdentityStore.class, FileBasedIdentityStore.class, LDAPIdentityStore.class })
 public class DigestCredentialHandler implements CredentialHandler {
 
     @Override
@@ -37,7 +35,7 @@ public class DigestCredentialHandler implements CredentialHandler {
         DigestCredentials digestCredential = (DigestCredentials) credentials;
 
         Agent agent = identityStore.getAgent(digestCredential.getDigest().getUsername());
-        PlainTextPasswordStorage storedPassword = identityStore.retrieveCredential(agent, PlainTextPasswordStorage.class);
+        PlainTextPasswordStorage storedPassword = null; // FIXME identityStore.retrieveCredential(agent, PlainTextPasswordStorage.class);
 
         if (storedPassword != null) {
             if (DigestUtil.matchCredential(digestCredential.getDigest(), storedPassword.getPassword().toCharArray())) {

@@ -238,22 +238,5 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param credential
      */
     void updateCredential(Agent agent, Object credential);
-    
-    /**
-     * <p>Stores a credential using the given {@link CredentialStorage}.</p>
-     * 
-     * @param agent
-     * @param storage
-     */
-    <C extends CredentialStorage> void storeCredential(Agent agent, C storage);
-    
-    /**
-     * <p>Retrieves a credential for the given {@link Agent} and {@link CredentialStorage} type.
-     * 
-     * @param agent
-     * @param storageClass
-     * @return
-     */
-    <C extends CredentialStorage> C retrieveCredential(Agent agent, Class<C> storageClass);
 
 }

@@ -11,11 +11,7 @@ import org.picketlink.idm.credential.X509Cert;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.credential.spi.annotations.SupportsStores;
-import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.util.Base64;
-import org.picketlink.idm.jpa.internal.JPAIdentityStore;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -26,7 +22,6 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({X509CertificateCredentials.class, X509Cert.class})
-@SupportsStores({JPAIdentityStore.class, LDAPIdentityStore.class, FileBasedIdentityStore.class})
 public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override
@@ -44,7 +39,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            X509CertificateStorage storage = identityStore.retrieveCredential(agent, X509CertificateStorage.class);
+            X509CertificateStorage storage = null; // FIXME identityStore.retrieveCredential(agent, X509CertificateStorage.class);
 
             if (storage != null) {
                 String base64Cert = storage.getBase64Cert();
@@ -77,7 +72,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         X509Cert certificate = (X509Cert) credential;
         X509CertificateStorage storage = new X509CertificateStorage((X509Cert) certificate);
         
-        store.<X509CertificateStorage>storeCredential(agent, storage);
+        // FIXME store.<X509CertificateStorage>storeCredential(agent, storage);
     }
 
 }

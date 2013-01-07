@@ -24,11 +24,12 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory;
     private IdentityCache identityCache;
-    
+
+    // FIXME Bad!! we can't do this, this class is multi-threaded!
     private EntityManager entityManager;
 
     public static DefaultIdentityStoreInvocationContextFactory DEFAULT = new DefaultIdentityStoreInvocationContextFactory(null, new DefaultCredentialHandlerFactory());
-    
+
     public DefaultIdentityStoreInvocationContextFactory(){
         this.eventBridge = new EventBridge() {
 
@@ -40,7 +41,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
         this.credentialHandlerFactory = new DefaultCredentialHandlerFactory();
         this.identityCache = new DefaultIdentityCache();
     }
-    
+
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf){
         this.emf = emf;
         this.eventBridge = new EventBridge() {
@@ -77,14 +78,14 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
             }
         }
     }
-    
+
     public EntityManager getEntityManager(){
         if(entityManager == null){
             entityManager = emf.createEntityManager();
         }
         return entityManager;
     }
-    
+
     public void setEntityManager(EntityManager em){
         this.entityManager = em;
     }

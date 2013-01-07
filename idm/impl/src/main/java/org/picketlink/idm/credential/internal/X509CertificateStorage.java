@@ -39,11 +39,12 @@ import org.picketlink.idm.internal.util.Base64;
  *
  */
 public class X509CertificateStorage implements CredentialStorage {
-    
+
+    private Date effectiveDate;
+    private Date expiryDate;
     private String base64Cert;
 
-    public X509CertificateStorage() {
-    }
+    public X509CertificateStorage() { }
 
     public X509CertificateStorage(X509Cert credential) {
         try {
@@ -53,9 +54,22 @@ public class X509CertificateStorage implements CredentialStorage {
         }
     }
 
-    @Override
+    @Override @Stored
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(Date effectiveDate) {
+        this.effectiveDate = effectiveDate;
+    }
+
+    @Override @Stored
     public Date getExpiryDate() {
-        return null;
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
     @Stored
@@ -66,5 +80,4 @@ public class X509CertificateStorage implements CredentialStorage {
     public void setBase64Cert(String base64Cert) {
         this.base64Cert = base64Cert;
     }
-    
 }

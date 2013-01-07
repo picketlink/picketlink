@@ -21,6 +21,12 @@
  */
 package org.picketlink.idm.internal.util;
 
+import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
+
 /**
  * General purpose Util
  *
@@ -29,6 +35,22 @@ package org.picketlink.idm.internal.util;
  *
  */
 public class IDMUtil {
+
+    public static boolean isGroupType(Class<? extends IdentityType> identityType) {
+        return Group.class.isAssignableFrom(identityType);
+    }
+
+    public static  boolean isRoleType(Class<? extends IdentityType> identityType) {
+        return Role.class.isAssignableFrom(identityType);
+    }
+
+    public static  boolean isUserType(Class<? extends IdentityType> identityType) {
+        return User.class.isAssignableFrom(identityType);
+    }
+
+    public static  boolean isAgentType(Class<? extends IdentityType> identityType) {
+        return Agent.class.isAssignableFrom(identityType);
+    }
 
     /**
      * Match two arrays for equality

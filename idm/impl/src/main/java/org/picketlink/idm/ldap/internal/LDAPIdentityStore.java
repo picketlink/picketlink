@@ -46,7 +46,10 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
+import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
@@ -65,6 +68,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author Anil Saldhana
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
+@CredentialHandlers({LDAPPlainTextPasswordCredentialHandler.class, X509CertificateCredentialHandler.class})
 public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> {
 
     private LDAPConfiguration configuration;
@@ -451,11 +455,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 }
 
                 if (match) {
-                    if (isUserType(typeClass)) {
+                    if (IDMUtil.isUserType(typeClass)) {
                         result.add((T) getUser(uid));
-                    } else if (isRoleType(typeClass)) {
+                    } else if (IDMUtil.isRoleType(typeClass)) {
                         result.add((T) getRole(uid));
-                    } else if (isGroupType(typeClass)) {
+                    } else if (IDMUtil.isGroupType(typeClass)) {
                         result.add((T) getGroup(uid));
                     }
                 }
@@ -934,7 +938,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
         StringBuffer additionalFilter = new StringBuffer();
 
-        if (isUserType(typeClass)) {
+        if (IDMUtil.isUserType(typeClass)) {
             // add to the filter only the users that have the specified roles
             if (identityQuery.getParameters().containsKey(User.HAS_ROLE)) {
                 Object[] roleNames = identityQuery.getParameters().get(User.HAS_ROLE);
@@ -1016,7 +1020,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                     }
                 }
             }
-        } else if (isRoleType(typeClass)) {
+        } else if (IDMUtil.isRoleType(typeClass)) {
             // add to the filter only the roles where the specified agents are member of
             if (identityQuery.getParameters().containsKey(Role.ROLE_OF)) {
                 Object[] values = identityQuery.getParameters().get(Role.ROLE_OF);
@@ -1035,7 +1039,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
                 additionalFilter.append(filter);
             }
-        } else if (isGroupType(typeClass)) {
+        } else if (IDMUtil.isGroupType(typeClass)) {
             // add to the filter only the groups where the specified agents are member of
             if (identityQuery.getParameters().containsKey(Group.HAS_MEMBER)) {
                 Object[] values = identityQuery.getParameters().get(Group.HAS_MEMBER);
@@ -1110,11 +1114,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
     private String getIdAttribute(Class<? extends IdentityType> identityTypeClass) {
         String idAttribute = null;
 
-        if (isUserType(identityTypeClass)) {
+        if (IDMUtil.isUserType(identityTypeClass)) {
             idAttribute = UID;
-        } else if (isRoleType(identityTypeClass)) {
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
             idAttribute = CN;
-        } else if (isGroupType(identityTypeClass)) {
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
             idAttribute = CN;
         }
 
@@ -1124,11 +1128,11 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
     private String getBaseDN(Class<? extends IdentityType> identityTypeClass) {
         String baseDN = null;
 
-        if (isUserType(identityTypeClass)) {
+        if (IDMUtil.isUserType(identityTypeClass)) {
             baseDN = this.configuration.getUserDNSuffix();
-        } else if (isRoleType(identityTypeClass)) {
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
             baseDN = this.configuration.getRoleDNSuffix();
-        } else if (isGroupType(identityTypeClass)) {
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
             baseDN = this.configuration.getGroupDNSuffix();
         }
 

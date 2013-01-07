@@ -11,18 +11,28 @@ import org.picketlink.idm.credential.spi.annotations.Stored;
  */
 public class PlainTextPasswordStorage implements CredentialStorage {
 
+    private Date effectiveDate;
     private Date expiryDate;
     private String password;
 
     public PlainTextPasswordStorage() {
-        
+
     }
-    
+
     public PlainTextPasswordStorage(String password) {
         setPassword(password);
     }
 
-    @Override
+    @Override @Stored
+    public Date getEffectiveDate() {
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(Date effectiveDate) {
+        this.effectiveDate = effectiveDate;
+    }
+
+    @Override @Stored
     public Date getExpiryDate() {
         return this.expiryDate;
     }
@@ -39,5 +49,4 @@ public class PlainTextPasswordStorage implements CredentialStorage {
     public void setPassword(String password) {
         this.password = password;
     }
-
 }

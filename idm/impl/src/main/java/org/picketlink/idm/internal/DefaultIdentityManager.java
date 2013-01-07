@@ -41,7 +41,6 @@ import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.password.PasswordEncoder;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
@@ -64,14 +63,11 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private PartitionStoreConfiguration partitionStoreConfig;
 
-    private PasswordEncoder passwordEncoder;
-
     private StoreFactory storeFactory = new DefaultStoreFactory();
 
     private IdentityStoreInvocationContextFactory contextFactory;
 
     private static Method METHOD_CREATE_CONTEXT;
-
     { 
         try {
             METHOD_CREATE_CONTEXT = DefaultIdentityManager.class.getDeclaredMethod("createContext");
