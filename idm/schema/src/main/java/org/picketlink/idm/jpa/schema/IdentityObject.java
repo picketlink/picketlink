@@ -24,6 +24,7 @@ package org.picketlink.idm.jpa.schema;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -53,7 +54,9 @@ public class IdentityObject {
     @IDMProperty(PropertyType.ID)
     private String id;
 
+    @SuppressWarnings("unused")
     @IDMProperty(PropertyType.KEY)
+    @Column (name="_key")
     private String key;
 
     @IDMProperty(PropertyType.NAME)
