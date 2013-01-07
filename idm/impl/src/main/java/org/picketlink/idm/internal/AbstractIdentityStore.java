@@ -285,7 +285,8 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
                 update(agent);
             } else {
                 throw new IdentityManagementException(
-                        "Methods annotated with @Stored should aways return a serializable object.");
+                        "Credential storage property [" + storedProperty.getName() + "] in class [" + 
+                        storage.getClass().getName() + "] must implement Serializable");
             }
         }
     }

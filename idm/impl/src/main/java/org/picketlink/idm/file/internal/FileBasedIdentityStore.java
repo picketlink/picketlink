@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.picketlink.idm.credential.internal.PlainTextPasswordCredentialHandler;
+import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.internal.util.IDMUtil;
@@ -63,7 +63,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@CredentialHandlers({PlainTextPasswordCredentialHandler.class})
+@CredentialHandlers({FilePlainTextPasswordCredentialHandler.class, X509CertificateCredentialHandler.class})
 public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration> {
 
     private FileIdentityStoreConfiguration config;
