@@ -46,10 +46,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.event.GroupUpdatedEvent;
-import org.picketlink.idm.event.RoleUpdatedEvent;
-import org.picketlink.idm.event.UserCreatedEvent;
-import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
@@ -88,95 +84,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
     @Override
     public IdentityStoreInvocationContext getContext() {
         return this.context;
-    }
-
-    @Override
-    public void add(IdentityType identityType) {
-        LDAPEntry ldapEntry = null;
-
-        try {
-            if (isUserType(identityType.getClass())) {
-                User user = (User) identityType;
-
-                ldapEntry = addUser(user);
-
-                UserCreatedEvent event = new UserCreatedEvent((User) identityType);
-                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, ldapEntry);
-                getContext().getEventBridge().raiseEvent(event);
-            } else if (isGroupType(identityType.getClass())) {
-                Group group = (Group) identityType;
-
-                ldapEntry = addGroup(group);
-            } else if (isRoleType(identityType.getClass())) {
-                Role role = (Role) identityType;
-
-                ldapEntry = addRole(role);
-            }
-
-            store(ldapEntry);
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error while adding IdentityType [" + identityType + "].", e);
-        }
-    }
-
-    @Override
-    public void update(IdentityType identityType) {
-        LDAPEntry ldapEntry = null;
-
-        try {
-            if (isUserType(identityType.getClass())) {
-                User user = (User) identityType;
-
-                ldapEntry = updateUser(user);
-
-                UserUpdatedEvent event = new UserUpdatedEvent((User) identityType);
-                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, ldapEntry);
-                getContext().getEventBridge().raiseEvent(event);
-            } else if (Role.class.isInstance(identityType)) {
-                Role role = (Role) identityType;
-
-                ldapEntry = updateRole(role);
-
-                RoleUpdatedEvent event = new RoleUpdatedEvent((Role) identityType);
-                event.getContext().setValue(EVENT_CONTEXT_ROLE_ENTITY, ldapEntry);
-                getContext().getEventBridge().raiseEvent(event);
-            } else if (Group.class.isInstance(identityType)) {
-                Group group = (Group) identityType;
-
-                ldapEntry = updateGroup(group);
-
-                GroupUpdatedEvent event = new GroupUpdatedEvent((Group) identityType);
-                event.getContext().setValue(EVENT_CONTEXT_GROUP_ENTITY, ldapEntry);
-                getContext().getEventBridge().raiseEvent(event);
-            }
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error while updating IdentityType [" + identityType + "].", e);
-        }
-    }
-
-    @Override
-    public void remove(IdentityType identityType) {
-        LDAPEntry ldapEntry = null;
-
-        try {
-            if (isUserType(identityType.getClass())) {
-                User user = (User) identityType;
-
-                ldapEntry = removeUser(user);
-            } else if (isGroupType(identityType.getClass())) {
-                Group group = (Group) identityType;
-
-                ldapEntry = removeGroup(group);
-            } else if (isRoleType(identityType.getClass())) {
-                Role role = (Role) identityType;
-
-                ldapEntry = removeRole(role);
-            }
-
-            remove(ldapEntry);
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error while removing IdentityType [" + identityType + "].", e);
-        }
     }
 
     @Override
@@ -354,8 +261,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
 
         if (group != null && role != null) {
-            LDAPRole ldapRole = (LDAPRole) getRole(((Role) role).getName());
-            LDAPGroup ldapGroup = (LDAPGroup) getGroup(((Group) group).getName());
+            LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
+            LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
 
             String dn = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole).getDN();
 
@@ -396,30 +303,30 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         Class<T> typeClass = identityQuery.getIdentityType();
 
         NamingEnumeration<SearchResult> answer = null;
-        
+
         if (filter == null) {
             return result;
         }
-        
+
         LDAPQuery ldapQuery = new LDAPQuery(identityQuery.getParameters());
         String idAttribute = getIdAttribute(typeClass);
         String dnSuffix = getBaseDN(typeClass);
-        
+
         try {
-            
+
             answer = getLdapManager().search(dnSuffix, filter);
 
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.nextElement();
                 Attributes attributes = sr.getAttributes();
                 String uid = (String) attributes.get(idAttribute).get();
-                
+
                 LDAPCustomAttributes customAttributes = getCustomAttributes(idAttribute + "=" + uid + COMMA + dnSuffix);
-                
+
                 if (ldapQuery.hasCustomAttributes() && customAttributes == null) {
                     continue;
                 }
-                
+
                 if (identityQuery.getParameters().containsKey(IdentityType.ENABLED)) {
                     Object[] values = identityQuery.getParameters().get(IdentityType.ENABLED);
                     String enabled = String.valueOf(customAttributes.getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED));
@@ -502,16 +409,17 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                         }
                     }
                 }
-                
+
+                // let's restrict the result by looking the provided custom attributes.
                 boolean match = true;
-                
+
                 for (Entry<QueryParameter, Object[]> ldapQueryParameter : identityQuery.getParameters().entrySet()) {
                     QueryParameter queryParameter = ldapQueryParameter.getKey();
                     Object[] values = ldapQueryParameter.getValue();
 
                     if (queryParameter instanceof IdentityType.AttributeParameter) {
                         match = false;
-                        
+
                         Object[] queryParameterValues = values;
                         IdentityType.AttributeParameter customParameter = (IdentityType.AttributeParameter) queryParameter;
                         Object customParameterValue = customAttributes.getAttribute(customParameter.getName());
@@ -661,7 +569,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
      * @return
      */
     private String getCustomAttributesDN(String parentDN) {
-        return "cn=custom-attributes" + COMMA + parentDN;
+        return CN + "=custom-attributes" + COMMA + parentDN;
     }
 
     /**
@@ -695,7 +603,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
      * 
      * @param ldapEntry
      */
-    private void remove(LDAPEntry ldapEntry) {
+    private void removeEntry(LDAPEntry ldapEntry) {
         getLdapManager().destroySubcontext(ldapEntry.getDN());
     }
 
@@ -740,12 +648,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
     /**
      * <p>
-     * Updates the custom attributes for the given {@link LDAPEntry} instance.
+     * Updates the attributes for the given {@link LDAPEntry} instance.
      * </p>
      * 
      * @param updatedEntryEntry
      */
-    private void updateCustomAttributes(LDAPEntry updatedEntryEntry, LDAPEntry storedEntry) {
+    private void updateAttributes(LDAPEntry updatedEntryEntry, LDAPEntry storedEntry) {
         try {
             NamingEnumeration<? extends Attribute> storedAttributes = storedEntry.getLDAPAttributes().getAll();
 
@@ -825,7 +733,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 }
             }
         } catch (NamingException ne) {
-            throw new RuntimeException(ne);
+            throw new IdentityManagementException(ne);
         } finally {
             if (results != null) {
                 try {
@@ -877,7 +785,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return this.configuration.getLdapManager();
     }
 
-    private LDAPRole addRole(Role role) {
+    @Override
+    protected Role addRole(Role role) {
         if (role.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -886,10 +795,13 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
         ldapRole.setName(role.getName());
 
+        store(ldapRole);
+
         return ldapRole;
     }
 
-    private LDAPGroup addGroup(Group group) {
+    @Override
+    protected Group addGroup(Group group) {
         if (group.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -913,10 +825,13 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
             getLdapManager().modifyAttribute(parentGroup.getDN(), parentGroup.getLDAPAttributes().get(MEMBER));
         }
 
+        store(ldapGroup);
+
         return ldapGroup;
     }
 
-    private LDAPUser addUser(User user) {
+    @Override
+    protected User addUser(User user) {
         if (user.getId() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -931,97 +846,50 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
         ldapUser.setFullName(ldapUser.getUserCN());
 
+        store(ldapUser);
+
         return ldapUser;
     }
 
-    private LDAPGroup updateGroup(Group group) {
-        if (group.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPGroup storedGroup = (LDAPGroup) getGroup(group.getName());
-
-        if (storedGroup == null) {
-            throw new RuntimeException("No group found with the given name [" + group.getName() + "].");
-        }
-
-        LDAPGroup updatedGroup = (LDAPGroup) group;
-
-        updateCustomAttributes(updatedGroup, storedGroup);
+    @Override
+    protected Group updateGroup(Group updatedGroup, Group storedGroup) {
+        updateAttributes((LDAPGroup) updatedGroup, (LDAPGroup) storedGroup);
 
         return updatedGroup;
     }
 
-    private LDAPRole updateRole(Role role) {
-        if (role.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPRole storedRole = (LDAPRole) getRole(role.getName());
-
-        if (storedRole == null) {
-            throw new RuntimeException("No role found with the given name [" + role.getName() + "].");
-        }
-
-        LDAPRole updatedRole = (LDAPRole) role;
-
-        updateCustomAttributes(updatedRole, storedRole);
+    @Override
+    protected Role updateRole(Role updatedRole, Role storedRole) {
+        updateAttributes((LDAPRole) updatedRole, (LDAPRole) storedRole);
 
         return updatedRole;
     }
 
-    private LDAPUser updateUser(User user) throws NamingException {
-        if (user.getId() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPUser storedUser = (LDAPUser) getUser(user.getId());
-
-        if (storedUser == null) {
-            throw new RuntimeException("User [" + user.getId() + "] does not exists.");
-        }
-
+    @Override
+    protected User updateUser(User user, User storedUser) {
         LDAPUser updatedUser = convert(user);
 
         updatedUser.setFullName(updatedUser.getUserCN());
 
-        updateCustomAttributes(updatedUser, storedUser);
+        updateAttributes(updatedUser, (LDAPEntry) storedUser);
 
         return updatedUser;
     }
 
-    private LDAPRole removeRole(Role role) {
-        if (role.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-
-        if (ldapRole == null) {
-            throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
-        }
-
-        removeFromParent(this.configuration.getGroupDNSuffix(), ldapRole);
-
-        return ldapRole;
+    @Override
+    protected Role removeRole(Role role) {
+        removeEntry((LDAPEntry) role);
+        removeFromParent(this.configuration.getGroupDNSuffix(), (LDAPEntry) role);
+        return role;
     }
 
-    private LDAPGroup removeGroup(Group group) {
-        if (group.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
-
-        LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
-
-        if (ldapGroup == null) {
-            throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
-        }
-
+    @Override
+    protected Group removeGroup(Group group) {
         // removes the custom grouprole entry from inside the user entries
         NamingEnumeration<SearchResult> results = null;
 
         try {
-            results = getLdapManager().search(this.configuration.getUserDNSuffix(), "(&(cn= " + ldapGroup.getName() + "*))");
+            results = getLdapManager().search(this.configuration.getUserDNSuffix(), "(&(cn= " + group.getName() + "*))");
 
             while (results.hasMoreElements()) {
                 SearchResult searchResult = (SearchResult) results.nextElement();
@@ -1037,33 +905,37 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
             }
         }
 
-        return ldapGroup;
+        removeEntry((LDAPEntry) group);
+
+        return group;
     }
 
-    private LDAPUser removeUser(User user) {
-        if (user.getId() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
-        }
+    @Override
+    protected User removeUser(User user) {
+        removeFromParent(this.configuration.getRoleDNSuffix(), (LDAPEntry) user);
+        removeFromParent(this.configuration.getGroupDNSuffix(), (LDAPEntry) user);
 
-        LDAPUser ldapUser = (LDAPUser) getUser(user.getId());
+        removeEntry((LDAPEntry) user);
 
-        if (ldapUser == null) {
-            throw new RuntimeException("User [" + user.getId() + "] does not exists.");
-        }
-
-        removeFromParent(this.configuration.getRoleDNSuffix(), ldapUser);
-        removeFromParent(this.configuration.getGroupDNSuffix(), ldapUser);
-
-        return ldapUser;
+        return user;
     }
 
+    /**
+     * <p>
+     * Returns a LDAP search filter that restricts the results to only those that match one of the membership query parameters,
+     * if provided.
+     * </p>
+     * 
+     * @param identityQuery
+     * @return
+     */
     private String getSearchFilter(IdentityQuery<IdentityType> identityQuery) {
-        LDAPQuery ldapQuery = new LDAPQuery(identityQuery.getParameters());
         Class<IdentityType> typeClass = identityQuery.getIdentityType();
 
         StringBuffer additionalFilter = new StringBuffer();
 
         if (isUserType(typeClass)) {
+            // add to the filter only the users that have the specified roles
             if (identityQuery.getParameters().containsKey(User.HAS_ROLE)) {
                 Object[] roleNames = identityQuery.getParameters().get(User.HAS_ROLE);
                 LDAPEntry[] roles = new LDAPEntry[roleNames.length];
@@ -1082,6 +954,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 additionalFilter.append(usersFilterMemberOf);
             }
 
+            // add to the filter only the users member of the specified groups
             if (identityQuery.getParameters().containsKey(User.MEMBER_OF)) {
                 Object[] groupNames = identityQuery.getParameters().get(User.MEMBER_OF);
                 LDAPEntry[] groups = new LDAPEntry[groupNames.length];
@@ -1100,6 +973,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 additionalFilter.append(usersFilterMemberOf);
             }
 
+            // add to the filter only users with the specified group and role combination
             if (identityQuery.getParameters().containsKey(IdentityType.HAS_GROUP_ROLE)) {
                 Object[] groupRoles = identityQuery.getParameters().get(User.HAS_GROUP_ROLE);
 
@@ -1110,7 +984,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                         GroupRole groupRole = (GroupRole) group;
 
                         search = getLdapManager().search(this.configuration.getUserDNSuffix(),
-                                "(cn=" + groupRole.getGroup().getName() + ")");
+                                "(" + CN + "=" + groupRole.getGroup().getName() + ")");
 
                         if (search.hasMoreElements()) {
                             while (search.hasMoreElements()) {
@@ -1120,7 +994,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
                                 Attribute member = searchResult.getAttributes().get(MEMBER);
 
-                                if (member.contains("cn=" + groupRole.getRole().getName() + COMMA
+                                if (member.contains(CN + "=" + groupRole.getRole().getName() + COMMA
                                         + this.configuration.getRoleDNSuffix())) {
                                     additionalFilter.append("(").append(userId).append(")");
                                 }
@@ -1132,7 +1006,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                         return null;
                     }
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    throw new IdentityManagementException(e);
                 } finally {
                     if (search != null) {
                         try {
@@ -1143,6 +1017,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 }
             }
         } else if (isRoleType(typeClass)) {
+            // add to the filter only the roles where the specified agents are member of
             if (identityQuery.getParameters().containsKey(Role.ROLE_OF)) {
                 Object[] values = identityQuery.getParameters().get(Role.ROLE_OF);
                 Agent[] agents = new Agent[values.length];
@@ -1161,6 +1036,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 additionalFilter.append(filter);
             }
         } else if (isGroupType(typeClass)) {
+            // add to the filter only the groups where the specified agents are member of
             if (identityQuery.getParameters().containsKey(Group.HAS_MEMBER)) {
                 Object[] values = identityQuery.getParameters().get(Group.HAS_MEMBER);
                 Agent[] agents = new Agent[values.length];
@@ -1179,6 +1055,7 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 additionalFilter.append(filter);
             }
 
+            // add to the filter only the groups with the specified parent
             if (identityQuery.getParameters().containsKey(Group.PARENT)) {
                 String parentName = identityQuery.getParameters().get(Group.PARENT)[0].toString();
                 LDAPGroup parentGroup = (LDAPGroup) getGroup(parentName);
@@ -1195,9 +1072,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                             continue;
                         }
 
-                        String userId = groupDN.split(",")[0];
+                        String groupName = groupDN.split(",")[0];
 
-                        additionalFilter.append("(").append(userId).append(")");
+                        additionalFilter.append("(").append(groupName).append(")");
                     }
                 } catch (NamingException e) {
                     throw new IdentityManagementException(e);
@@ -1217,6 +1094,8 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
             additionalFilter.insert(additionalFilter.length() - 1, ")");
         }
 
+        LDAPQuery ldapQuery = new LDAPQuery(identityQuery.getParameters());
+
         StringBuffer filter = ldapQuery.createManagedAttributesFilter();
 
         if (filter == null) {
@@ -1227,10 +1106,10 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
         return filter.toString();
     }
-    
+
     private String getIdAttribute(Class<? extends IdentityType> identityTypeClass) {
         String idAttribute = null;
-        
+
         if (isUserType(identityTypeClass)) {
             idAttribute = UID;
         } else if (isRoleType(identityTypeClass)) {
@@ -1238,13 +1117,13 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         } else if (isGroupType(identityTypeClass)) {
             idAttribute = CN;
         }
-        
+
         return idAttribute;
     }
-    
+
     private String getBaseDN(Class<? extends IdentityType> identityTypeClass) {
         String baseDN = null;
-        
+
         if (isUserType(identityTypeClass)) {
             baseDN = this.configuration.getUserDNSuffix();
         } else if (isRoleType(identityTypeClass)) {
@@ -1252,10 +1131,19 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         } else if (isGroupType(identityTypeClass)) {
             baseDN = this.configuration.getGroupDNSuffix();
         }
-        
+
         return baseDN;
     }
 
+    /**
+     * <p>
+     * Returns a filter where only the specified {@link Agent} are member of.
+     * </p>
+     * 
+     * @param members
+     * @param baseDN
+     * @return
+     */
     private String getEntryFilterForMembers(Agent[] members, String baseDN) {
         StringBuffer additionalFilter = new StringBuffer();
         String hasMemberFilter = "";
@@ -1273,12 +1161,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
             while (search.hasMoreElements()) {
                 SearchResult searchResult = search.next();
-                String roleName = searchResult.getAttributes().get(CN).get().toString();
+                String entryCN = searchResult.getAttributes().get(CN).get().toString();
 
-                additionalFilter.append("(cn=").append(roleName).append(")");
+                additionalFilter.append("(").append(CN).append("=").append(entryCN).append(")");
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IdentityManagementException(e);
         } finally {
             if (search != null) {
                 try {
@@ -1306,22 +1194,20 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
                 members = memberAttribute.getAll();
 
                 while (members.hasMoreElements()) {
-                    String userDN = (String) members.nextElement();
+                    String memberDN = (String) members.nextElement();
 
-                    if (userDN.toString().trim().isEmpty()) {
-                        continue;
+                    if (!memberDN.trim().isEmpty()) {
+                        String userId = memberDN.split(",")[0];
+
+                        if (!userCount.containsKey(userId)) {
+                            userCount.put(userId, 1);
+                        } else {
+                            Integer count = userCount.get(userId);
+                            userCount.put(userId, count + 1);
+                        }
+
+                        additionalFilter.append("(").append(userId).append(")");
                     }
-
-                    String userId = userDN.split(",")[0];
-
-                    if (!userCount.containsKey(userId)) {
-                        userCount.put(userId, 1);
-                    } else {
-                        Integer count = userCount.get(userId);
-                        userCount.put(userId, count + 1);
-                    }
-
-                    additionalFilter.append("(").append(userId).append(")");
                 }
             } catch (NamingException e) {
                 throw new IdentityManagementException(e);

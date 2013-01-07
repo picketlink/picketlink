@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509Cert;
@@ -45,7 +46,6 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         if (agent != null) {
             X509CertificateStorage storage = identityStore.retrieveCredential(agent, X509CertificateStorage.class);
 
-            // If the stored hash is null we automatically fail validation
             if (storage != null) {
                 String base64Cert = storage.getBase64Cert();
                 
@@ -61,7 +61,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
                         certCredentials.setStatus(Status.VALID); 
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    throw new IdentityManagementException("Error while checking user's certificate.", e);
                 }
             }
         }

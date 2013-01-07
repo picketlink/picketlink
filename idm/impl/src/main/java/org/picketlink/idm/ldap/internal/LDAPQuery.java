@@ -31,75 +31,50 @@ import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 public class LDAPQuery {
 
-    private Map<QueryParameter, Object[]> queryParameters;
-    private List<LDAPQueryParameter> queryParametersList = new ArrayList<LDAPQueryParameter>();
     private List<LDAPQueryParameter> managedParameters = new ArrayList<LDAPQueryParameter>();
-    private List<LDAPQueryParameter> memberShipParameters = new ArrayList<LDAPQueryParameter>();
-    private List<LDAPQueryParameter> customParameters = new ArrayList<LDAPQueryParameter>();
     private Boolean hasCustomAttributes = null;
-    
+
     public LDAPQuery(Map<QueryParameter, Object[]> queryParameters) {
-        this.queryParameters = queryParameters;
-        
-        for (Entry<QueryParameter, Object[]> entry : this.queryParameters.entrySet()) {
+        for (Entry<QueryParameter, Object[]> entry : queryParameters.entrySet()) {
             QueryParameter queryParameter = entry.getKey();
             Object[] values = entry.getValue();
 
             LDAPQueryParameter parameter = new LDAPQueryParameter(queryParameter, values);
 
-            this.queryParametersList.add(parameter);
-
             if (parameter.isMappedToManagedAttribute()) {
                 this.managedParameters.add(parameter);
-            } else {
-                if (parameter.isMembershipParameter()) {
-                    this.memberShipParameters.add(parameter);
-                } else {
-                    this.customParameters.add(parameter);
-                }
-                
+            } else if (!parameter.isMembershipParameter()) {
                 this.hasCustomAttributes = true;
             }
         }
     }
-    
+
     public StringBuffer createManagedAttributesFilter() {
         if (getManagedParameters().isEmpty()) {
             return null;
         }
-        
+
         StringBuffer filter = new StringBuffer("(&(objectClass=*)");
-        
+
         for (LDAPQueryParameter ldapQueryParameter : getManagedParameters()) {
             filter.append(ldapQueryParameter.createFilter());
         }
-        
+
         filter.append(")");
-        
+
         return filter;
     }
-    
+
     public boolean hasCustomAttributes() {
         return this.hasCustomAttributes != null && this.hasCustomAttributes;
     }
-    
-    public List<LDAPQueryParameter> getQueryParametersList() {
-        return this.queryParametersList;
-    }
-    
+
     public List<LDAPQueryParameter> getManagedParameters() {
         return this.managedParameters;
     }
-    
-    public List<LDAPQueryParameter> getMemberShipParameters() {
-        return this.memberShipParameters;
-    }
-    
-    public List<LDAPQueryParameter> getCustomParameters() {
-        return this.customParameters;
-    }
+
 }

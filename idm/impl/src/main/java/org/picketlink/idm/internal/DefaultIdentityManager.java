@@ -293,7 +293,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     public Agent getAgent(String id) {
-        return getContextualStoreForFeature(createContext(), Feature.readUser).getAgent(id);
+        return getContextualStoreForFeature(createContext(), Feature.readAgent).getAgent(id);
     }
 
     @Override
@@ -321,18 +321,19 @@ public class DefaultIdentityManager implements IdentityManager {
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(groupName, parent);
     }
 
+    @Override
     public boolean isMember(IdentityType identityType, Group group) {
-        return getContextualStoreForFeature(createContext(), Feature.createMembership).getMembership(identityType, group, null) != null;
+        return getContextualStoreForFeature(createContext(), Feature.readMembership).getMembership(identityType, group, null) != null;
     }
 
     @Override
     public void addToGroup(IdentityType identityType, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.readRole).createMembership(identityType, group, null);
+        getContextualStoreForFeature(createContext(), Feature.createMembership).createMembership(identityType, group, null);
     }
 
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.readRole).removeMembership(identityType, group, null);
+        getContextualStoreForFeature(createContext(), Feature.deleteMembership).removeMembership(identityType, group, null);
     }
 
     @Override
@@ -347,7 +348,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
-        return getContextualStoreForFeature(createContext(), Feature.createMembership)
+        return getContextualStoreForFeature(createContext(), Feature.readMembership)
                 .getMembership(identityType, group, role) != null;
     }
 
@@ -365,7 +366,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
-        return getContextualStoreForFeature(createContext(), Feature.createMembership)
+        return getContextualStoreForFeature(createContext(), Feature.readMembership)
                 .getMembership(identityType, null, role) != null;
     }
 

@@ -35,9 +35,9 @@ import java.util.Set;
 
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 
@@ -48,7 +48,6 @@ import org.picketlink.idm.spi.IdentityStore.Feature;
 public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
     private String workingDir;
-    
     
     /**
      * <p> Indicates that the files must be always recreated during the initialization. </p> 
@@ -67,7 +66,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     
     private Map<String, User> users = new HashMap<String, User>();
     private Map<String, Role> roles = new HashMap<String, Role>();
-    private Map<String, SimpleGroup> groups = new HashMap<String, SimpleGroup>();
+    private Map<String, Group> groups = new HashMap<String, Group>();
     private List<GroupRole> memberships = new ArrayList<GroupRole>();
 
     @Override
@@ -161,7 +160,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
             FileInputStream fis = new FileInputStream(getGroupsFile());
             ois = new ObjectInputStream(fis);
 
-            this.groups = (Map<String, SimpleGroup>) ois.readObject();
+            this.groups = (Map<String, Group>) ois.readObject();
         } catch (Exception e) {
         } finally {
             try {
@@ -294,7 +293,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return this.memberships;
     }
     
-    public Map<String, SimpleGroup> getGroups() {
+    public Map<String, Group> getGroups() {
         return this.groups;
     }
 }

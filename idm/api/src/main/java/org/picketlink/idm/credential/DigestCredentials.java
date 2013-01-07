@@ -23,6 +23,8 @@
 package org.picketlink.idm.credential;
 
 /**
+ * <p>Represents a DIGEST based credential.</p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
@@ -36,7 +38,7 @@ public class DigestCredentials extends AbstractBaseCredentials {
     
     @Override
     public void invalidate() {
-        
+        this.digest = null;
     }
 
     public Digest getDigest() {
