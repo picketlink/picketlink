@@ -38,6 +38,7 @@ import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
@@ -218,6 +219,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
             feature = Feature.createRole;
         } else if (Agent.class.isInstance(identityType)) {
+            feature = Feature.createAgent;
+        } else if (Relationship.class.isInstance(identityType)) {
             feature = Feature.createAgent;
         } else {
             throw new IllegalArgumentException("Unsupported IdentityType:" + identityType.getClass().getName());

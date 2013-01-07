@@ -76,12 +76,12 @@ public class SimpleRelationship extends AbstractIdentityType implements Relation
     public IdentityType to() {
         return this.to;
     }
-    public SimpleRelationship setTo(IdentityType to) {
+    
+    public void setTo(IdentityType to) {
         this.to = to;
-        return this;
     }
-    public SimpleRelationship setFrom(IdentityType from) {
+    
+    public void setFrom(IdentityType from) {
         this.from = from;
-        return this;
     }
 }

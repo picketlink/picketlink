@@ -24,6 +24,7 @@ package org.picketlink.idm.internal.util;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
@@ -50,6 +51,10 @@ public class IDMUtil {
 
     public static  boolean isAgentType(Class<? extends IdentityType> identityType) {
         return Agent.class.isAssignableFrom(identityType);
+    }
+    
+    public static boolean isRelationshipType(Class<? extends IdentityType> identityType) {
+        return Relationship.class.isAssignableFrom(identityType);
     }
 
     /**

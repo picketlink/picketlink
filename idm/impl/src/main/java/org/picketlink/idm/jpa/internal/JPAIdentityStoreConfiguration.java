@@ -23,6 +23,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.spi.IdentityStore.Feature;
@@ -39,15 +40,14 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";
     private static final String DEFAULT_ROLE_IDENTITY_DISCRIMINATOR = "ROLE";
     private static final String DEFAULT_GROUP_IDENTITY_DISCRIMINATOR = "GROUP";
-    
-
     private static final String DEFAULT_AGENT_IDENTITY_DISCRIMINATOR = "AGENT";
-
+    private static final String DEFAULT_RELATIONSHIP_IDENTITY_DISCRIMINATOR = "RELATIONSHIP";
 
     private String identityTypeAgent = DEFAULT_AGENT_IDENTITY_DISCRIMINATOR;
     private String identityTypeUser = DEFAULT_USER_IDENTITY_DISCRIMINATOR;
     private String identityTypeRole = DEFAULT_ROLE_IDENTITY_DISCRIMINATOR;
     private String identityTypeGroup = DEFAULT_GROUP_IDENTITY_DISCRIMINATOR;
+    private String identityTypeRelationship = DEFAULT_RELATIONSHIP_IDENTITY_DISCRIMINATOR;
 
     // Property keys
 
@@ -58,6 +58,8 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public static final String PROPERTY_IDENTITY_CREATED = "IDENTITY_CREATED";
     public static final String PROPERTY_IDENTITY_EXPIRES = "IDENTITY_EXPIRES";
     public static final String PROPERTY_IDENTITY_PARTITION = "IDENTITY_PARTITION";
+    public static final String PROPERTY_IDENTITY_RELATES_TO = "IDENTITY_RELATES_TO";
+    public static final String PROPERTY_IDENTITY_RELATED_TO = "IDENTITY_RELATED_TO";
 
     // Properties specific to Partitions
     public static final String PROPERTY_PARTITION_NAME = "PARTITION_NAME";
@@ -252,6 +254,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         configureIdentityId();
         configureIdentityName();
         configureIdentityParentGroup();
+        configureIdentityRelatesTo();
         configureIdentityEnabled();
         configureIdentityCreationDate();
         configureIdentityExpiryDate();
@@ -370,6 +373,28 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
                         "Error initializing JPAIdentityStore - no parent group property found in identity class "
                                 + identityClass.getName());
             }
+        }
+    }
+
+    protected void configureIdentityRelatesTo() throws SecurityConfigurationException {
+        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
+                .addCriteria(new PropertyTypeCriteria(PropertyType.RELATES_TO)).getResultList();
+
+        if (props.size() == 1) {
+            modelProperties.put(PROPERTY_IDENTITY_RELATES_TO, props.get(0));
+        } else if (props.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous relates to property in identity class "
+                    + identityClass.getName());
+        }
+        
+        props = PropertyQueries.createQuery(identityClass)
+                .addCriteria(new PropertyTypeCriteria(PropertyType.RELATED_TO)).getResultList();
+        
+        if (props.size() == 1) {
+            modelProperties.put(PROPERTY_IDENTITY_RELATED_TO, props.get(0));
+        } else if (props.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous related to property in identity class "
+                    + identityClass.getName());
         }
     }
 
@@ -780,6 +805,10 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public String getIdentityTypeAgent() {
         return identityTypeAgent;
     }
+    
+    public String getIdentityTypeRelationship() {
+        return this.identityTypeRelationship;
+    }
 
     public void setIdentityTypeAgent(String identityTypeAgent) {
         this.identityTypeAgent = identityTypeAgent;
@@ -798,6 +827,8 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
             discriminator = getIdentityTypeGroup();
         } else if (Agent.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeAgent();
+        } else if (Relationship.class.isAssignableFrom(identityType)) {
+            discriminator = getIdentityTypeRelationship();
         } else {
             throw new IdentityManagementException("No discriminator could be determined for type [" + identityType.getClass() + "]");
         }

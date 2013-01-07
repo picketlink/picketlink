@@ -41,6 +41,16 @@ public interface Relationship extends IdentityType, Serializable {
      */
     QueryParameter NAME = new QueryParameter() {};
 
+    /**
+     * A query parameter used to set the owner side of the relationship.
+     */
+    QueryParameter TO = new QueryParameter() {};
+
+    /**
+     * A query parameter used to set the other side of the relationship.
+     */
+    QueryParameter FROM = new QueryParameter() {};
+
     String KEY_PREFIX = "REL://";
 
     /**
@@ -67,4 +77,16 @@ public interface Relationship extends IdentityType, Serializable {
      * @return
      */
     IdentityType to();
+    
+    /**
+     * Sets the {@link IdentityType} from where the relationship originates
+     * @return
+     */
+    void setFrom(IdentityType from);
+    
+    /**
+     * Sets the {@link IdentityType} to where the relationship ends
+     * @return
+     */
+    void setTo(IdentityType to);
 }
