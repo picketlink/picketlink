@@ -22,6 +22,7 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -54,6 +55,7 @@ public class MembershipObject {
 
     @IDMProperty(PropertyType.GROUP)
     @ManyToOne
+    @Column (name="_group")
     private IdentityObject group;
 
     public Integer getAttributeId() {
