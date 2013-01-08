@@ -107,7 +107,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         Date actualDate = new Date();
 
         if (credentialStorage.getEffectiveDate() != null && actualDate.before(credentialStorage.getEffectiveDate())) {
-            status = Status.NOT_EFFECTIVE;
+            status = Status.INVALID;
         }
 
         if (credentialStorage.getExpiryDate() != null && actualDate.after(credentialStorage.getExpiryDate())) {
