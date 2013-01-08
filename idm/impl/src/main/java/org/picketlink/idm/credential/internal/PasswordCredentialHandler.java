@@ -96,20 +96,22 @@ public class PasswordCredentialHandler implements CredentialHandler {
     }
 
     private boolean isCredentialExpired(CredentialStorage credentialStorage) {
-        return credentialStorage.getExpiryDate() == null || new Date().after(credentialStorage.getExpiryDate());
+        return credentialStorage != null && credentialStorage.getExpiryDate() == null || new Date().after(credentialStorage.getExpiryDate());
     }
 
     @SuppressWarnings("unchecked")
     private boolean isLastCredentialExpired(Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
         List<CredentialStorage> credentials = (List<CredentialStorage>) store.retrieveCredentials(agent, storageClass);
         CredentialStorage lastCredential = null;
-
+        Date actualDate = new Date();
+        
         for (CredentialStorage storedCredential : credentials) {
-            if (lastCredential == null || lastCredential.getEffectiveDate().before(storedCredential.getEffectiveDate())) {
-                lastCredential = storedCredential;
+            if (storedCredential.getEffectiveDate().before(actualDate)) {
+                if (lastCredential == null || lastCredential.getEffectiveDate().before(storedCredential.getEffectiveDate())) {
+                    lastCredential = storedCredential;
+                }
             }
         }
-
 
         return isCredentialExpired(lastCredential);
     }
