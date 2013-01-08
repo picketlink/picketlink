@@ -1135,4 +1135,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
     }
 
+    @Override
+    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }
