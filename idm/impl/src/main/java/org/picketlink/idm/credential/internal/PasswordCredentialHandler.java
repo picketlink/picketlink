@@ -52,7 +52,24 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            doValidate(agent, usernamePassword, identityStore);
+            CredentialStore store = (CredentialStore) identityStore;
+
+            Class<SHASaltedPasswordHash> storageClass = SHASaltedPasswordHash.class;
+
+            SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, storageClass);
+
+            // If the stored hash is null we automatically fail validation
+            if (hash != null) {
+                SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
+                String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword().getValue()));
+
+                if (hash.getEncodedHash().equals(encoded)) {
+                    usernamePassword.setStatus(Status.VALID);
+                    usernamePassword.setValidatedAgent(agent);
+                }
+            } else if (isLastCredentialExpired(agent, store, storageClass)) {
+                usernamePassword.setStatus(Status.EXPIRED);
+            }
         }
     }
 
@@ -67,37 +84,6 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         PlainTextPassword password = (PlainTextPassword) credential;
 
-        doUpdate(agent, password, identityStore, effectiveDate, expiryDate);
-    }
-
-    protected void doValidate(Agent agent, UsernamePasswordCredentials usernamePassword, IdentityStore<?> identityStore) {
-        CredentialStore store = (CredentialStore) identityStore;
-
-        Class<SHASaltedPasswordHash> storageClass = SHASaltedPasswordHash.class;
-
-        SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, storageClass);
-
-        // If the stored hash is null we automatically fail validation
-        if (hash != null) {
-            SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
-            String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword().getValue()));
-
-            if (hash.getEncodedHash().equals(encoded)) {
-                usernamePassword.setStatus(Status.VALID);
-                usernamePassword.setValidatedAgent(agent);
-            }
-        } else if (isLastCredentialExpired(agent, store, storageClass)) {
-            usernamePassword.setStatus(Status.EXPIRED);
-        }
-
-    }
-
-    private boolean isCredentialExpired(CredentialStorage credentialStorage) {
-        return credentialStorage.getExpiryDate() == null || new Date().after(credentialStorage.getExpiryDate());
-    }
-
-    protected void doUpdate(Agent agent, PlainTextPassword password, IdentityStore<?> identityStore, Date effectiveDate,
-            Date expiryDate) {
         CredentialStore store = (CredentialStore) identityStore;
 
         SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
@@ -111,6 +97,10 @@ public class PasswordCredentialHandler implements CredentialHandler {
         hash.setSalt(salt);
 
         store.storeCredential(agent, hash);
+    }
+
+    private boolean isCredentialExpired(CredentialStorage credentialStorage) {
+        return credentialStorage.getExpiryDate() == null || new Date().after(credentialStorage.getExpiryDate());
     }
 
     @SuppressWarnings("unchecked")
