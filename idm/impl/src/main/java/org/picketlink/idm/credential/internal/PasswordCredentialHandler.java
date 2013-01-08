@@ -54,9 +54,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         if (agent != null) {
             CredentialStore store = (CredentialStore) identityStore;
 
-            Class<SHASaltedPasswordHash> storageClass = SHASaltedPasswordHash.class;
-
-            SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, storageClass);
+            SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, SHASaltedPasswordHash.class);
 
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
@@ -67,7 +65,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
                     usernamePassword.setStatus(Status.VALID);
                     usernamePassword.setValidatedAgent(agent);
                 }
-            } else if (isLastCredentialExpired(agent, store, storageClass)) {
+            } else if (isLastCredentialExpired(agent, store, SHASaltedPasswordHash.class)) {
                 usernamePassword.setStatus(Status.EXPIRED);
             }
         }
@@ -88,13 +86,11 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
         SHASaltedPasswordHash hash = new SHASaltedPasswordHash();
-
-        String salt = generateSalt();
-
-        hash.setEncodedHash(encoder.encodePassword(salt, new String(password.getValue())));
+        
+        hash.setSalt(generateSalt());
+        hash.setEncodedHash(encoder.encodePassword(hash.getSalt(), new String(password.getValue())));
         hash.setEffectiveDate(effectiveDate);
         hash.setExpiryDate(expiryDate);
-        hash.setSalt(salt);
 
         store.storeCredential(agent, hash);
     }
@@ -114,11 +110,8 @@ public class PasswordCredentialHandler implements CredentialHandler {
             }
         }
 
-        if (isCredentialExpired(lastCredential)) {
-            return true;
-        }
 
-        return false;
+        return isCredentialExpired(lastCredential);
     }
     
     private String generateSalt() {
