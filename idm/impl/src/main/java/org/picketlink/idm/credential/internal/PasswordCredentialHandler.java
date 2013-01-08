@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.PlainTextPassword;
@@ -12,7 +13,6 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.password.internal.PlainTextPasswordStorage;
 import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
 import org.picketlink.idm.password.internal.SHASaltedPasswordHash;
@@ -39,6 +39,11 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
     @Override
     public void validate(Credentials credentials, IdentityStore<?> identityStore) {
+        if (!CredentialStore.class.isInstance(identityStore)) {
+            throw new IdentityManagementException("Provided IdentityStore [" + identityStore
+                    + "] is not an instance of CredentialStore.");
+        }
+
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
             throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
                     + "] not supported by this handler.");
@@ -59,19 +64,17 @@ public class PasswordCredentialHandler implements CredentialHandler {
     protected void doValidate(Agent agent, UsernamePasswordCredentials usernamePassword, IdentityStore<?> identityStore) {
         PlainTextPassword password = usernamePassword.getPassword();
         CredentialStore store = (CredentialStore) identityStore;
-        
+
         if (password.isEncodePassword()) {
             SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, SHASaltedPasswordHash.class);
 
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
                 Status status = validateDate(hash);
-                
-                if (status == null) {
-                    String salt = getSalt(agent, identityStore);
 
+                if (status == null) {
                     SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
-                    String encoded = encoder.encodePassword(salt, new String(usernamePassword.getPassword().getValue()));
+                    String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword().getValue()));
 
                     if (hash.getEncodedHash().equals(encoded)) {
                         usernamePassword.setStatus(Status.VALID);
@@ -79,14 +82,14 @@ public class PasswordCredentialHandler implements CredentialHandler {
                     }
                 } else {
                     usernamePassword.setStatus(status);
-                } 
+                }
             }
         } else {
             PlainTextPasswordStorage storedPassword = store.retrieveCurrentCredential(agent, PlainTextPasswordStorage.class);
 
             if (storedPassword != null) {
                 Status status = validateDate(storedPassword);
-                
+
                 if (status == null) {
                     if (storedPassword.getPassword().equals(String.valueOf(password.getValue()))) {
                         usernamePassword.setStatus(Status.VALID);
@@ -94,7 +97,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
                     }
                 } else {
                     usernamePassword.setStatus(status);
-                } 
+                }
             }
         }
     }
@@ -102,7 +105,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
     private Status validateDate(CredentialStorage credentialStorage) {
         Status status = null;
         Date actualDate = new Date();
-        
+
         if (credentialStorage.getEffectiveDate() != null && actualDate.before(credentialStorage.getEffectiveDate())) {
             status = Status.NOT_EFFECTIVE;
         }
@@ -110,42 +113,35 @@ public class PasswordCredentialHandler implements CredentialHandler {
         if (credentialStorage.getExpiryDate() != null && actualDate.after(credentialStorage.getExpiryDate())) {
             status = Status.EXPIRED;
         }
-        
+
         return status;
     }
 
-    protected String getSalt(Agent agent, IdentityStore<?> store) {
-        Attribute<String> saltAttribute = agent.<String> getAttribute(PASSWORD_SALT_USER_ATTRIBUTE);
+    protected String getSalt() {
         String salt = null;
 
-        if (saltAttribute != null) {
-            salt = saltAttribute.getValue();
+        SecureRandom psuedoRng = null;
+        String algorithm = "SHA1PRNG";
+
+        try {
+            psuedoRng = SecureRandom.getInstance(algorithm);
+            psuedoRng.setSeed(1024);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
         }
 
-        // Agent does not have a salt. let's generate a fresh one.
-        if (salt == null) {
-            SecureRandom psuedoRng = null;
-            String algorithm = "SHA1PRNG";
-
-            try {
-                psuedoRng = SecureRandom.getInstance(algorithm);
-                psuedoRng.setSeed(1024);
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
-            }
-
-            salt = String.valueOf(psuedoRng.nextLong());
-
-            agent.setAttribute(new Attribute<String>(PASSWORD_SALT_USER_ATTRIBUTE, salt));
-            store.update(agent);
-        }
+        salt = String.valueOf(psuedoRng.nextLong());
 
         return salt;
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> identityStore,
-            Date effectiveDate, Date expiryDate) {
+    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+        if (!CredentialStore.class.isInstance(identityStore)) {
+            throw new IdentityManagementException("Provided IdentityStore [" + identityStore
+                    + "] is not an instance of CredentialStore.");
+        }
+
         if (!PlainTextPassword.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
                     + "] not supported by this handler.");
@@ -163,9 +159,12 @@ public class PasswordCredentialHandler implements CredentialHandler {
             SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
             SHASaltedPasswordHash hash = new SHASaltedPasswordHash();
             
-            hash.setEncodedHash(encoder.encodePassword(getSalt(agent, identityStore), new String(password.getValue())));
+            String salt = getSalt();
+            
+            hash.setEncodedHash(encoder.encodePassword(salt, new String(password.getValue())));
             hash.setEffectiveDate(effectiveDate);
             hash.setExpiryDate(expiryDate);
+            hash.setSalt(salt);
 
             store.storeCredential(agent, hash);
         } else {
@@ -177,5 +176,4 @@ public class PasswordCredentialHandler implements CredentialHandler {
             store.storeCredential(agent, storage);
         }
     }
-
 }

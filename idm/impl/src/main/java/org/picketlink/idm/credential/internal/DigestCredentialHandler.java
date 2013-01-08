@@ -2,6 +2,7 @@ package org.picketlink.idm.credential.internal;
 
 import java.util.Date;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
@@ -32,6 +33,10 @@ public class DigestCredentialHandler implements CredentialHandler {
 
     @Override
     public void validate(Credentials credentials, IdentityStore<?> identityStore) {
+        if (!CredentialStore.class.isInstance(identityStore)) {
+            throw new IdentityManagementException("Provided IdentityStore [" + identityStore + "] is not an instance of CredentialStore.");
+        }
+        
         DigestCredentials digestCredential = (DigestCredentials) credentials;
 
         Agent agent = identityStore.getAgent(digestCredential.getDigest().getUsername());

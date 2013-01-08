@@ -292,6 +292,8 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Role> createQuery(Role.class);
 
+        Thread.sleep(1000);
+        
         // roles created after the given time. Should return an empty list.
         query.setParameter(Role.CREATED_AFTER, new Date());
 

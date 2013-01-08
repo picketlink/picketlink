@@ -28,6 +28,10 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override
     public void validate(Credentials credentials, IdentityStore<?> identityStore) {
+        if (!CredentialStore.class.isInstance(identityStore)) {
+            throw new IdentityManagementException("Provided IdentityStore [" + identityStore + "] is not an instance of CredentialStore.");
+        }
+
         if (!X509CertificateCredentials.class.isInstance(credentials)) {
             throw new IllegalArgumentException("Credentials class [" + 
                     credentials.getClass().getName() + "] not supported by this handler.");
@@ -68,6 +72,10 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+        if (!CredentialStore.class.isInstance(identityStore)) {
+            throw new IdentityManagementException("Provided IdentityStore [" + identityStore + "] is not an instance of CredentialStore.");
+        }
+
         if (!X509Cert.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + 
                     credential.getClass().getName() + "] not supported by this handler.");

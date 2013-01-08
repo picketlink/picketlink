@@ -682,6 +682,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<User> createQuery(User.class);
 
+        Thread.sleep(1000);
+        
         // users created after the given time. Should return an empty list.
         query.setParameter(User.CREATED_AFTER, new Date());
 

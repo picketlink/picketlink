@@ -15,6 +15,7 @@ public class SHASaltedPasswordHash implements CredentialStorage {
     private Date effectiveDate;
     private Date expiryDate;
     private String encodedHash;
+    private String salt;
 
     @Override @Stored
     public Date getEffectiveDate() {
@@ -42,5 +43,13 @@ public class SHASaltedPasswordHash implements CredentialStorage {
     public void setEncodedHash(String encodedHash) {
         this.encodedHash = encodedHash;
     }
-
+    
+    @Stored
+    public String getSalt() {
+        return this.salt;
+    }
+    
+    public void setSalt(String salt) {
+        this.salt = salt;
+    }
 }
