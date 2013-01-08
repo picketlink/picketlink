@@ -50,6 +50,7 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
@@ -98,6 +99,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         this.identityTypeStores.put(getIdentityDiscriminator(Agent.class), new AgentTypeManager(this));
         this.identityTypeStores.put(getIdentityDiscriminator(Role.class), new RoleTypeManager(this));
         this.identityTypeStores.put(getIdentityDiscriminator(Group.class), new GroupTypeManager(this));
+        this.identityTypeStores.put(getIdentityDiscriminator(Relationship.class), new RelationshipTypeManager(this));
     }
 
     @Override
@@ -123,13 +125,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             Object identity = identityTypeManager.createIdentityInstance(getContext().getRealm(), identityType);
 
-            updateAttributes(identityType, identity);
-
             EntityManager em = getEntityManager();
 
             em.persist(identity);
             em.flush();
-
+            
+            updateAttributes(identityType, identity);
+            
             AbstractBaseEvent event = identityTypeManager.raiseCreatedEvent(identityType);
 
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
@@ -712,7 +714,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         if (IDMUtil.isUserType(identityType.getClass()) || IDMUtil.isAgentType(identityType.getClass())) {
             predicates.add(builder.equal(root.get(getIdentityIdProperty().getName()), id));
-        } else if (IDMUtil.isGroupType(identityType.getClass()) || IDMUtil.isRoleType(identityType.getClass())) {
+        } else if (IDMUtil.isGroupType(identityType.getClass()) || IDMUtil.isRoleType(identityType.getClass()) || IDMUtil.isRelationshipType(identityType.getClass())) {
             predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), id));
         } else {
             throw new SecurityException("Could not lookup identity by id - unsupported IdentityType ["
@@ -951,6 +953,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             value = ((Role) identityType).getName();
         } else if (IDMUtil.isGroupType(identityType.getClass())) {
             value = ((Group) identityType).getName();
+        } else if (IDMUtil.isRelationshipType(identityType.getClass())) {
+            value = ((Relationship) identityType).getName();
         }
 
         return value;
@@ -1000,7 +1004,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 Join identityPropertyJoin = attributeClassRoot.join(getAttributeIdentityProperty().getName());
                 String propertyNameToJoin = getIdentityIdProperty().getName();
 
-                if (IDMUtil.isRoleType(identityType.getClass()) || IDMUtil.isGroupType(identityType.getClass())) {
+                if (IDMUtil.isRoleType(identityType.getClass()) || IDMUtil.isGroupType(identityType.getClass()) || IDMUtil.isRelationshipType(identityType.getClass())) {
                     propertyNameToJoin = getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName();
                 }
 
@@ -1101,6 +1105,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 .get(getIdentityDiscriminator(identityTypeClass));
         return identityTypeManager;
     }
+    
+    IdentityTypeManager<IdentityType> getIdentityTypeManager(String discriminator) {
+        return (IdentityTypeManager<IdentityType>) this.identityTypeStores.get(discriminator);
+    }
+    
 
     @Override
     public void validateCredentials(Credentials credentials) {

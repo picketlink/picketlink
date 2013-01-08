@@ -87,6 +87,14 @@ public class IdentityObject {
     @IDMProperty(PropertyType.PARENT_GROUP)
     private IdentityObject parent;
 
+    @ManyToOne
+    @IDMProperty(PropertyType.RELATES_TO)
+    private IdentityObject relatesTo;
+
+    @ManyToOne
+    @IDMProperty(PropertyType.RELATED_TO)
+    private IdentityObject relatedTo;
+
     public long getInternalId() {
         return this.internalId;
     }
@@ -190,4 +198,21 @@ public class IdentityObject {
     public void setOneValued(String oneValued) {
         this.oneValued = oneValued;
     }
+
+    public IdentityObject getRelatesTo() {
+        return this.relatesTo;
+    }
+
+    public void setRelatesTo(IdentityObject relatesTo) {
+        this.relatesTo = relatesTo;
+    }
+
+    public IdentityObject getRelatedTo() {
+        return relatedTo;
+    }
+
+    public void setRelatedTo(IdentityObject relatedTo) {
+        this.relatedTo = relatedTo;
+    }
+    
 }
