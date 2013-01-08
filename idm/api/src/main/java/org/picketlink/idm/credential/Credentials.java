@@ -12,7 +12,7 @@ import org.picketlink.idm.model.Agent;
  * @author Shane Bryzak
  */
 public interface Credentials {
-    public enum Status {UNVALIDATED, IN_PROGRESS, INVALID, VALID, EXPIRED, NOT_EFFECTIVE};
+    public enum Status {UNVALIDATED, IN_PROGRESS, INVALID, VALID, EXPIRED};
 
     Agent getValidatedAgent();
 
