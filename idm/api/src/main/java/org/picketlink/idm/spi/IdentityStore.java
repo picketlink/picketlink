@@ -22,6 +22,7 @@
 package org.picketlink.idm.spi;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
@@ -237,6 +238,6 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param agent
      * @param credential
      */
-    void updateCredential(Agent agent, Object credential);
+    void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate);
 
 }

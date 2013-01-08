@@ -24,6 +24,7 @@ package org.picketlink.idm.internal;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -386,10 +387,10 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void updateCredential(Agent agent, Object credential) {
+    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), 
                 Feature.manageCredentials);
-        store.updateCredential(agent, credential);
+        store.updateCredential(agent, credential, effectiveDate, expiryDate);
     }
 
     public IdentityStoreInvocationContextFactory getContextFactory() {

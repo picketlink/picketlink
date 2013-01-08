@@ -23,6 +23,7 @@
 package org.picketlink.idm.internal;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 import org.picketlink.idm.IdentityManagementException;
@@ -254,14 +255,14 @@ public abstract class AbstractIdentityStore<T extends IdentityStoreConfiguration
     }
 
     @Override
-    public void updateCredential(Agent agent, Object credential) {
+    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
         if (handler == null) {
             throw new SecurityConfigurationException(
                     "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
                             + "] for IdentityStore [" + this.getClass() + "]");
         }
-        handler.update(agent, credential, this);
+        handler.update(agent, credential, this, effectiveDate, expiryDate);
     }
 
     //@Override

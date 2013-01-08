@@ -1,5 +1,7 @@
 package org.picketlink.idm.credential.internal;
 
+import java.util.Date;
+
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
@@ -45,7 +47,7 @@ public class DigestCredentialHandler implements CredentialHandler {
         }
     }
 
-    public void update(Agent agent, Object credential, IdentityStore<?> store) {
+    public void update(Agent agent, Object credential, IdentityStore<?> store, Date effectiveDate, Date expiryDate) {
         // this handler only supports validation
     }
 }

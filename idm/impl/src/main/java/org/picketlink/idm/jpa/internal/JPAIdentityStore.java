@@ -19,6 +19,7 @@ import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,9 @@ import javax.persistence.criteria.Root;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.internal.util.IDMUtil;
@@ -52,6 +55,7 @@ import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
+import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
@@ -62,8 +66,8 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * 
  * @author Shane Bryzak
  */
-@CredentialHandlers({JPAPlainTextPasswordCredentialHandler.class})
-public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration> {
+@CredentialHandlers({PasswordCredentialHandler.class})
+public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -1110,14 +1114,26 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void updateCredential(Agent agent, Object credential) {
+    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
         if (handler == null) {
             throw new SecurityConfigurationException(
                     "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
                             + "] for IdentityStore [" + this.getClass() + "]");
         }
-        handler.update(agent, credential, this);
+        handler.update(agent, credential, this, effectiveDate, expiryDate);
+    }
+
+    @Override
+    public void storeCredential(CredentialStorage storage) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public CredentialStorage retrieveCurrentCredential(Class<? extends CredentialStorage> storageClass) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

@@ -2,6 +2,7 @@ package org.picketlink.idm.credential.internal;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Date;
 
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -30,7 +31,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({ UsernamePasswordCredentials.class, PlainTextPassword.class })
-public class PlainTextPasswordCredentialHandler implements CredentialHandler {
+public class PasswordCredentialHandler implements CredentialHandler {
 
     private static final String PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt";
 
@@ -113,7 +114,7 @@ public class PlainTextPasswordCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> store) {
+    public void update(Agent agent, Object credential, IdentityStore<?> store, Date effectiveDate, Date expiryDate) {
         if (!PlainTextPassword.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
                     + "] not supported by this handler.");

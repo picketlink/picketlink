@@ -33,7 +33,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.internal.AbstractIdentityStore;
 import org.picketlink.idm.internal.util.IDMUtil;
@@ -51,6 +53,7 @@ import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
@@ -63,8 +66,8 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@CredentialHandlers({FilePlainTextPasswordCredentialHandler.class, X509CertificateCredentialHandler.class})
-public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration> {
+@CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class})
+public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration> implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore {
 
     private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
@@ -751,5 +754,18 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+
+    @Override
+    public void storeCredential(CredentialStorage storage) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public CredentialStorage retrieveCurrentCredential(Class<? extends CredentialStorage> storageClass) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

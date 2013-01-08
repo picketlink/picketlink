@@ -8,7 +8,7 @@ import javax.naming.directory.ModificationItem;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.internal.PlainTextPasswordCredentialHandler;
+import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.IdentityStore;
@@ -20,7 +20,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({UsernamePasswordCredentials.class, PlainTextPassword.class})
-public class LDAPPlainTextPasswordCredentialHandler extends PlainTextPasswordCredentialHandler {
+public class LDAPPlainTextPasswordCredentialHandler extends PasswordCredentialHandler {
     
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 

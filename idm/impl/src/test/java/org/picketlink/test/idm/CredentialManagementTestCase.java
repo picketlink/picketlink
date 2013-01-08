@@ -60,7 +60,7 @@ public class CredentialManagementTestCase extends AbstractIdentityManagerTestCas
         User user = loadOrCreateUser("someUser", true);
         PlainTextPassword plainTextPassword = new PlainTextPassword("updated_password".toCharArray());
         
-        identityManager.updateCredential(user, plainTextPassword);
+        identityManager.updateCredential(user, plainTextPassword, null, null);
         
         UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
         
@@ -107,7 +107,7 @@ public class CredentialManagementTestCase extends AbstractIdentityManagerTestCas
         
         User user = loadOrCreateUser(credential.getUsername(), true);
         
-        identityManager.updateCredential(user, certCredential);
+        identityManager.updateCredential(user, certCredential, null, null);
         
         identityManager.validateCredentials(credential);
         

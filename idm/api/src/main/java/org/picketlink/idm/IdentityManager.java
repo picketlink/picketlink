@@ -22,6 +22,7 @@
 package org.picketlink.idm;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credentials;
@@ -110,7 +111,7 @@ public interface IdentityManager extends Serializable{
 
     void validateCredentials(Credentials credentials);
 
-    void updateCredential(Agent agent, Object value);
+    void updateCredential(Agent agent, Object value, Date effectiveDate, Date expiryDate);
 
     // User / Role / Group enablement / expiry
 

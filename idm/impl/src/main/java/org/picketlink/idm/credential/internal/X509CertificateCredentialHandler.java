@@ -3,6 +3,7 @@ package org.picketlink.idm.credential.internal;
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Date;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
@@ -63,7 +64,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> store) {
+    public void update(Agent agent, Object credential, IdentityStore<?> store, Date effectiveDate, Date expiryDate) {
         if (!X509Cert.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + 
                     credential.getClass().getName() + "] not supported by this handler.");
