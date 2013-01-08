@@ -37,7 +37,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
     @Override
     public void validate(Credentials credentials, IdentityStore<?> identityStore) {
-        checkIdentityStoreInstance(identityStore);
+        CredentialStore store = validateCredentialStore(identityStore);
 
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
             throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
@@ -52,8 +52,6 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            CredentialStore store = (CredentialStore) identityStore;
-
             SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, SHASaltedPasswordHash.class);
 
             // If the stored hash is null we automatically fail validation
@@ -73,7 +71,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
     @Override
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
-        checkIdentityStoreInstance(identityStore);
+        CredentialStore store = validateCredentialStore(identityStore);
 
         if (!PlainTextPassword.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
@@ -82,11 +80,9 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         PlainTextPassword password = (PlainTextPassword) credential;
 
-        CredentialStore store = (CredentialStore) identityStore;
-
         SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
         SHASaltedPasswordHash hash = new SHASaltedPasswordHash();
-        
+
         hash.setSalt(generateSalt());
         hash.setEncodedHash(encoder.encodePassword(hash.getSalt(), new String(password.getValue())));
         hash.setEffectiveDate(effectiveDate);
@@ -104,7 +100,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         List<CredentialStorage> credentials = (List<CredentialStorage>) store.retrieveCredentials(agent, storageClass);
         CredentialStorage lastCredential = null;
         Date actualDate = new Date();
-        
+
         for (CredentialStorage storedCredential : credentials) {
             if (storedCredential.getEffectiveDate().before(actualDate)) {
                 if (lastCredential == null || lastCredential.getEffectiveDate().before(storedCredential.getEffectiveDate())) {
@@ -115,7 +111,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         return isCredentialExpired(lastCredential);
     }
-    
+
     private String generateSalt() {
         String salt = null;
 
@@ -133,11 +129,13 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         return salt;
     }
-    
-    private void checkIdentityStoreInstance(IdentityStore<?> identityStore) {
+
+    private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
         if (!CredentialStore.class.isInstance(identityStore)) {
-            throw new IdentityManagementException("Provided IdentityStore [" + identityStore
+            throw new IdentityManagementException("Provided IdentityStore [" + identityStore.getClass().getName()
                     + "] is not an instance of CredentialStore.");
+        } else {
+            return (CredentialStore) identityStore;
         }
     }
 }
