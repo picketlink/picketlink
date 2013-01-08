@@ -427,9 +427,13 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someAnotherFutureRole.getName()));
 
         query = identityManager.<Role> createQuery(Role.class);
-
+        
+        Calendar futureExpiryDate = Calendar.getInstance();
+        
+        futureExpiryDate.add(Calendar.MINUTE, 1);
+        
         // roles expired after the given time. Should return an empty list.
-        query.setParameter(Role.EXPIRY_AFTER, new Date());
+        query.setParameter(Role.EXPIRY_AFTER, futureExpiryDate.getTime());
 
         result = query.getResultList();
 

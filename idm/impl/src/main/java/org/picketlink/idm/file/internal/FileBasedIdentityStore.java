@@ -181,7 +181,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateAgent(updatedAgent, storedAgent);
 
             AgentUpdatedEvent event = new AgentUpdatedEvent(storedAgent);
-//             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
             getContext().getEventBridge().raiseEvent(event);
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
             Group updatedGroup = (Group) identityType;
@@ -489,11 +489,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public User getUser(String id) {
         Agent agent = getAgent(id);
-        
+
         if (!User.class.isInstance(agent)) {
             return null;
         }
-        
+
         return (User) agent;
     }
 
@@ -581,7 +581,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             entries = getConfig().getGroups().entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
             entries = getConfig().getUsers().entrySet();
-        } 
+        }
 
         List<T> result = new ArrayList<T>();
 
@@ -593,7 +593,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!identityTypeClass.isAssignableFrom(storedIdentityType.getClass())) {
                 continue;
             }
-            
+
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User user = (User) storedIdentityType;
 
@@ -613,7 +613,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     continue;
                 }
             }
-            
+
             if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent agent = (Agent) storedIdentityType;
 
@@ -967,26 +967,39 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public void storeCredential(Agent agent, CredentialStorage storage) {
-        Map<String, FileCredentialStorage> agentCredentials = getConfig().getCredentials().get(agent.getId());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getId());
 
         if (agentCredentials == null) {
-            agentCredentials = new HashMap<String, FileCredentialStorage>();
+            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
         }
 
-        FileCredentialStorage serializableStorage = agentCredentials.get(storage.getClass().getName());
+        List<FileCredentialStorage> credentials = agentCredentials.get(storage.getClass().getName());
 
-        if (serializableStorage == null) {
-            serializableStorage = new FileCredentialStorage();
+        if (credentials == null) {
+            credentials = new ArrayList<FileCredentialStorage>();
+        }
+
+        for (FileCredentialStorage fileCredentialStorage : credentials) {
+            if (isCurrentCredential(fileCredentialStorage)) {
+                fileCredentialStorage.setExpiryDate(new Date());
+            }
         }
 
         List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
 
+        FileCredentialStorage credential = new FileCredentialStorage();
+
         for (Property<Object> property : annotatedTypes) {
-            serializableStorage.getStoredFields().put(property.getName(), (Serializable) property.getValue(storage));
+            credential.getStoredFields().put(property.getName(), (Serializable) property.getValue(storage));
         }
 
-        agentCredentials.put(storage.getClass().getName(), serializableStorage);
+        if (credential.getEffectiveDate() == null) {
+            credential.setEffectiveDate(new Date());
+        }
+
+        credentials.add(credential);
+        agentCredentials.put(storage.getClass().getName(), credentials);
         getConfig().getCredentials().put(agent.getId(), agentCredentials);
 
         flushCredentials();
@@ -994,46 +1007,93 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        Map<String, FileCredentialStorage> agentCredentials = getConfig().getCredentials().get(agent.getId());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getId());
 
         if (agentCredentials == null) {
-            agentCredentials = new HashMap<String, FileCredentialStorage>();
+            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
         }
 
-        T storage = null;
-        FileCredentialStorage serializableStorage = agentCredentials.get(storageClass.getName());
+        List<FileCredentialStorage> credentials = agentCredentials.get(storageClass.getName());
 
-        if (serializableStorage != null) {
-            try {
-                storage = storageClass.newInstance();
-            } catch (Exception e) {
-                throw new IdentityManagementException("Could not create CredentialStorage instance for class ["
-                        + storageClass.getName() + "].", e);
-            }
-            
-            Set<Entry<String, Serializable>> storedFieldsEntrySet = serializableStorage.getStoredFields().entrySet();
-            
-            for (Entry<String, Serializable> storedFieldEntry : storedFieldsEntrySet) {
-                List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storageClass)
-                        .addCriteria(new NamedPropertyCriteria(storedFieldEntry.getKey())).getResultList();
-                
-                if (annotatedTypes.isEmpty()) {
-                    throw new IdentityManagementException("Could not find property [" + storedFieldEntry.getKey() + "] on CredentialStorage [" + storageClass.getName() + "].");
-                } else if (annotatedTypes.size() > 1) {
-                    throw new IdentityManagementException("Ambiguos property [" + storedFieldEntry.getKey() + "] on CredentialStorage [" + storageClass.getName() + "].");
+        if (credentials != null) {
+            for (FileCredentialStorage fileCredentialStorage : credentials) {
+                if (isCurrentCredential(fileCredentialStorage)) {
+                    return convertToCredentialStorage(storageClass, fileCredentialStorage);
                 }
-                
-                Property<Object> property = annotatedTypes.get(0);
-                
-                property.setValue(storage, storedFieldEntry.getValue());
-            }
-            
-            if (storage.getEffectiveDate() != null && storage.getEffectiveDate().after(new Date())) {
-                storage = null;
             }
         }
-        
+
+        return null;
+    }
+
+    private boolean isCurrentCredential(FileCredentialStorage fileCredentialStorage) {
+        boolean isCurrent = true;
+
+        if (fileCredentialStorage.getEffectiveDate() != null) {
+            if (fileCredentialStorage.getEffectiveDate().after(new Date())) {
+                isCurrent = false;
+            }
+        }
+
+        if (fileCredentialStorage.getExpiryDate() != null) {
+            if (fileCredentialStorage.getExpiryDate().before(new Date())) {
+                isCurrent = false;
+            }
+        }
+
+        return isCurrent;
+    }
+
+    private <T> T convertToCredentialStorage(Class<T> storageClass, FileCredentialStorage fileCredentialStorage) {
+        T storage = null;
+
+        try {
+            storage = storageClass.newInstance();
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not create CredentialStorage instance for class ["
+                    + storageClass.getName() + "].", e);
+        }
+
+        Set<Entry<String, Serializable>> storedFieldsEntrySet = fileCredentialStorage.getStoredFields().entrySet();
+
+        for (Entry<String, Serializable> storedFieldEntry : storedFieldsEntrySet) {
+            List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storageClass)
+                    .addCriteria(new NamedPropertyCriteria(storedFieldEntry.getKey())).getResultList();
+
+            if (annotatedTypes.isEmpty()) {
+                throw new IdentityManagementException("Could not find property [" + storedFieldEntry.getKey()
+                        + "] on CredentialStorage [" + storageClass.getName() + "].");
+            } else if (annotatedTypes.size() > 1) {
+                throw new IdentityManagementException("Ambiguos property [" + storedFieldEntry.getKey()
+                        + "] on CredentialStorage [" + storageClass.getName() + "].");
+            }
+
+            Property<Object> property = annotatedTypes.get(0);
+
+            property.setValue(storage, storedFieldEntry.getValue());
+        }
         return storage;
+    }
+
+    @Override
+    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
+        ArrayList<T> storedCredentials = new ArrayList<T>();
+
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getId());
+
+        if (agentCredentials == null) {
+            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
+        }
+
+        List<FileCredentialStorage> credentials = agentCredentials.get(storageClass.getName());
+
+        if (credentials != null) {
+            for (FileCredentialStorage fileCredentialStorage : credentials) {
+                storedCredentials.add(convertToCredentialStorage(storageClass, fileCredentialStorage));
+            }
+        }
+
+        return storedCredentials;
     }
 
     @Override
@@ -1137,12 +1197,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }

@@ -23,17 +23,20 @@
 package org.picketlink.idm.file.internal;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.picketlink.idm.credential.spi.CredentialStorage;
+
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
-public class FileCredentialStorage implements Serializable {
-    
+public class FileCredentialStorage implements CredentialStorage, Serializable {
+
     private static final long serialVersionUID = -349640861496483678L;
-    
+
     private Map<String, Serializable> storedFields = new HashMap<String, Serializable>();
 
     public Map<String, Serializable> getStoredFields() {
@@ -44,4 +47,25 @@ public class FileCredentialStorage implements Serializable {
         this.storedFields = storedFields;
     }
 
+    @Override
+    public Date getEffectiveDate() {
+        Date effectiveDate = (Date) getStoredFields().get("effectiveDate");
+
+        return effectiveDate;
+    }
+
+    public void setEffectiveDate(Date effectiveDate) {
+        getStoredFields().put("effectiveDate", effectiveDate);
+    }
+
+    @Override
+    public Date getExpiryDate() {
+        Date expiryDate = (Date) getStoredFields().get("expiryDate");
+
+        return expiryDate;
+    }
+    
+    public void setExpiryDate(Date expiryDate) {
+        getStoredFields().put("expiryDate", expiryDate);
+    }
 }

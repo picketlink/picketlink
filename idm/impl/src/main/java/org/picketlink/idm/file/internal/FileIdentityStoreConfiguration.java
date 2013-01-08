@@ -70,7 +70,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private Map<String, Role> roles = new HashMap<String, Role>();
     private Map<String, Group> groups = new HashMap<String, Group>();
     private List<GroupRole> memberships = new ArrayList<GroupRole>();
-    private Map<String, Map<String, FileCredentialStorage>> credentials = new HashMap<String, Map<String, FileCredentialStorage>>();
+    private Map<String, Map<String, List<FileCredentialStorage>>> credentials = new HashMap<String, Map<String, List<FileCredentialStorage>>>();
 
     @Override
     public void init() throws SecurityConfigurationException {
@@ -301,7 +301,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return this.memberships;
     }
     
-    public Map<String, Map<String, FileCredentialStorage>> getCredentials() {
+    public Map<String, Map<String, List<FileCredentialStorage>>> getCredentials() {
         return this.credentials;
     }
     

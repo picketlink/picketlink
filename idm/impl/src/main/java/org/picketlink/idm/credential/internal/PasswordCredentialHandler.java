@@ -3,6 +3,7 @@ package org.picketlink.idm.credential.internal;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
+import java.util.List;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
@@ -13,7 +14,6 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.password.internal.PlainTextPasswordStorage;
 import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
 import org.picketlink.idm.password.internal.SHASaltedPasswordHash;
 import org.picketlink.idm.spi.CredentialStore;
@@ -35,14 +35,9 @@ import org.picketlink.idm.spi.IdentityStore;
 @SupportsCredentials({ UsernamePasswordCredentials.class, PlainTextPassword.class })
 public class PasswordCredentialHandler implements CredentialHandler {
 
-    private static final String PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt";
-
     @Override
     public void validate(Credentials credentials, IdentityStore<?> identityStore) {
-        if (!CredentialStore.class.isInstance(identityStore)) {
-            throw new IdentityManagementException("Provided IdentityStore [" + identityStore
-                    + "] is not an instance of CredentialStore.");
-        }
+        checkIdentityStoreInstance(identityStore);
 
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
             throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
@@ -61,48 +56,82 @@ public class PasswordCredentialHandler implements CredentialHandler {
         }
     }
 
+    @Override
+    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+        checkIdentityStoreInstance(identityStore);
+
+        if (!PlainTextPassword.class.isInstance(credential)) {
+            throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
+                    + "] not supported by this handler.");
+        }
+
+        PlainTextPassword password = (PlainTextPassword) credential;
+
+        doUpdate(agent, password, identityStore, effectiveDate, expiryDate);
+    }
+
     protected void doValidate(Agent agent, UsernamePasswordCredentials usernamePassword, IdentityStore<?> identityStore) {
-        PlainTextPassword password = usernamePassword.getPassword();
         CredentialStore store = (CredentialStore) identityStore;
 
-        if (password.isEncodePassword()) {
-            SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, SHASaltedPasswordHash.class);
+        Class<SHASaltedPasswordHash> storageClass = SHASaltedPasswordHash.class;
 
-            // If the stored hash is null we automatically fail validation
-            if (hash != null) {
-                if (isNotCredentialExpired(hash)) {
-                    SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
-                    String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword().getValue()));
+        SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, storageClass);
 
-                    if (hash.getEncodedHash().equals(encoded)) {
-                        usernamePassword.setStatus(Status.VALID);
-                        usernamePassword.setValidatedAgent(agent);
-                    }
-                } else {
-                    usernamePassword.setStatus(Status.EXPIRED);
-                }
+        // If the stored hash is null we automatically fail validation
+        if (hash != null) {
+            SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
+            String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword().getValue()));
+
+            if (hash.getEncodedHash().equals(encoded)) {
+                usernamePassword.setStatus(Status.VALID);
+                usernamePassword.setValidatedAgent(agent);
             }
-        } else {
-            PlainTextPasswordStorage storedPassword = store.retrieveCurrentCredential(agent, PlainTextPasswordStorage.class);
+        } else if (isLastCredentialExpired(agent, store, storageClass)) {
+            usernamePassword.setStatus(Status.EXPIRED);
+        }
 
-            if (storedPassword != null) {
-                if (isNotCredentialExpired(storedPassword)) {
-                    if (storedPassword.getPassword().equals(String.valueOf(password.getValue()))) {
-                        usernamePassword.setStatus(Status.VALID);
-                        usernamePassword.setValidatedAgent(agent);
-                    }
-                } else {
-                    usernamePassword.setStatus(Status.EXPIRED);
-                }
+    }
+
+    private boolean isCredentialExpired(CredentialStorage credentialStorage) {
+        return credentialStorage.getExpiryDate() == null || new Date().after(credentialStorage.getExpiryDate());
+    }
+
+    protected void doUpdate(Agent agent, PlainTextPassword password, IdentityStore<?> identityStore, Date effectiveDate,
+            Date expiryDate) {
+        CredentialStore store = (CredentialStore) identityStore;
+
+        SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
+        SHASaltedPasswordHash hash = new SHASaltedPasswordHash();
+
+        String salt = generateSalt();
+
+        hash.setEncodedHash(encoder.encodePassword(salt, new String(password.getValue())));
+        hash.setEffectiveDate(effectiveDate);
+        hash.setExpiryDate(expiryDate);
+        hash.setSalt(salt);
+
+        store.storeCredential(agent, hash);
+    }
+
+    @SuppressWarnings("unchecked")
+    private boolean isLastCredentialExpired(Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
+        List<CredentialStorage> credentials = (List<CredentialStorage>) store.retrieveCredentials(agent, storageClass);
+        CredentialStorage lastCredential = null;
+
+        for (CredentialStorage storedCredential : credentials) {
+            if (lastCredential == null || lastCredential.getEffectiveDate().before(storedCredential.getEffectiveDate())) {
+                lastCredential = storedCredential;
             }
         }
-    }
 
-    private boolean isNotCredentialExpired(CredentialStorage credentialStorage) {
-        return credentialStorage.getExpiryDate() == null || new Date().before(credentialStorage.getExpiryDate());
-    }
+        if (isCredentialExpired(lastCredential)) {
+            return true;
+        }
 
-    protected String getSalt() {
+        return false;
+    }
+    
+    private String generateSalt() {
         String salt = null;
 
         SecureRandom psuedoRng = null;
@@ -119,46 +148,11 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         return salt;
     }
-
-    @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+    
+    private void checkIdentityStoreInstance(IdentityStore<?> identityStore) {
         if (!CredentialStore.class.isInstance(identityStore)) {
             throw new IdentityManagementException("Provided IdentityStore [" + identityStore
                     + "] is not an instance of CredentialStore.");
-        }
-
-        if (!PlainTextPassword.class.isInstance(credential)) {
-            throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
-                    + "] not supported by this handler.");
-        }
-
-        PlainTextPassword password = (PlainTextPassword) credential;
-
-        doUpdate(agent, password, identityStore, effectiveDate, expiryDate);
-    }
-
-    protected void doUpdate(Agent agent, PlainTextPassword password, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
-        CredentialStore store = (CredentialStore) identityStore;
-        
-        if (password.isEncodePassword()) {
-            SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
-            SHASaltedPasswordHash hash = new SHASaltedPasswordHash();
-            
-            String salt = getSalt();
-            
-            hash.setEncodedHash(encoder.encodePassword(salt, new String(password.getValue())));
-            hash.setEffectiveDate(effectiveDate);
-            hash.setExpiryDate(expiryDate);
-            hash.setSalt(salt);
-
-            store.storeCredential(agent, hash);
-        } else {
-            PlainTextPasswordStorage storage = new PlainTextPasswordStorage(String.valueOf(password.getValue()));
-            
-            storage.setEffectiveDate(effectiveDate);
-            storage.setExpiryDate(expiryDate);
-            
-            store.storeCredential(agent, storage);
         }
     }
 }

@@ -7,10 +7,11 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.IdentityStore;
@@ -22,13 +23,51 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @SupportsCredentials({UsernamePasswordCredentials.class, PlainTextPassword.class})
-public class LDAPPlainTextPasswordCredentialHandler extends PasswordCredentialHandler {
+public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler {
     
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
+    
+    @Override
+    public void validate(Credentials credentials, IdentityStore<?> identityStore) {
+        checkIdentityStoreInstance(identityStore);
+        
+        if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
+            throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
+                    + "] not supported by this handler.");
+        }
+
+        UsernamePasswordCredentials usernamePassword = (UsernamePasswordCredentials) credentials;
+
+        usernamePassword.setStatus(Status.INVALID);
+
+        Agent agent = identityStore.getAgent(usernamePassword.getUsername());
+
+        // If the user for the provided username cannot be found we fail validation
+        if (agent != null) {
+            LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
+            LDAPUser ldapUser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
+            char[] password = usernamePassword.getPassword().getValue();
+            
+            boolean isValid = ldapIdentityStore.getLdapManager().authenticate(ldapUser.getDN(), new String(password));
+            
+            if (isValid) {
+                usernamePassword.setStatus(Status.VALID);
+            }
+        }
+    }
 
     @Override
-    protected void doUpdate(Agent agent, PlainTextPassword password, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
-        LDAPIdentityStore ldapIdentityStore = getLDAPIdentityStore(identityStore);
+    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+        checkIdentityStoreInstance(identityStore);
+        
+        if (!PlainTextPassword.class.isInstance(credential)) {
+            throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
+                    + "] not supported by this handler.");
+        }
+
+        PlainTextPassword password = (PlainTextPassword) credential;
+
+        LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
         LDAPUser ldapuser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
         
         if (ldapIdentityStore.getConfig().isActiveDirectory()) {
@@ -48,25 +87,10 @@ public class LDAPPlainTextPasswordCredentialHandler extends PasswordCredentialHa
         }
     }
 
-    private LDAPIdentityStore getLDAPIdentityStore(IdentityStore<?> store) {
+    private void checkIdentityStoreInstance(IdentityStore<?> store) {
         if (!LDAPIdentityStore.class.isInstance(store)) {
             throw new IllegalArgumentException("IdentityStore class [" + 
                     store.getClass() + "] not supported by this handler.");
-        }
-        
-        return (LDAPIdentityStore) store;
-    }
-    
-    @Override
-    protected void doValidate(Agent agent, UsernamePasswordCredentials usernamePassword, IdentityStore<?> identityStore) {
-        LDAPIdentityStore ldapIdentityStore = getLDAPIdentityStore(identityStore);
-        LDAPUser ldapUser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
-        char[] password = usernamePassword.getPassword().getValue();
-        
-        boolean isValid = getLDAPIdentityStore(identityStore).getLdapManager().authenticate(ldapUser.getDN(), new String(password));
-        
-        if (isValid) {
-            usernamePassword.setStatus(Status.VALID);
         }
     }
     
