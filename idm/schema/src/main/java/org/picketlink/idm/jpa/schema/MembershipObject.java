@@ -22,10 +22,10 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 import org.picketlink.idm.jpa.annotations.EntityType;
@@ -55,7 +55,7 @@ public class MembershipObject {
 
     @IDMProperty(PropertyType.GROUP)
     @ManyToOne
-    @Column (name="_group")
+    @JoinColumn (name="_group")
     private IdentityObject group;
 
     public Integer getAttributeId() {
