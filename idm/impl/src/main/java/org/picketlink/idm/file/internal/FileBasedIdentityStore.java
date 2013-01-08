@@ -1027,8 +1027,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 
                 property.setValue(storage, storedFieldEntry.getValue());
             }
+            
+            if (storage.getEffectiveDate() != null && storage.getEffectiveDate().after(new Date())) {
+                storage = null;
+            }
         }
-
+        
         return storage;
     }
 

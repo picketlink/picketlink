@@ -66,25 +66,6 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(credential);
 
         Assert.assertEquals(Status.VALID, credential.getStatus());
-
-        UsernamePasswordCredentials badUserName = new UsernamePasswordCredentials();
-
-        badUserName.setUsername("Bad" + user.getId());
-        badUserName.setPassword(plainTextPassword);
-
-        identityManager.validateCredentials(badUserName);
-
-        Assert.assertEquals(Status.INVALID, badUserName.getStatus());
-
-        UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
-
-        badPassword.setUsername("Bad" + user.getId());
-        badPassword.setPassword(plainTextPassword);
-
-        identityManager.validateCredentials(badPassword);
-
-        Assert.assertEquals(Status.INVALID, badPassword.getStatus());
-
     }
 
     /**
@@ -138,19 +119,17 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         Calendar expirationDate = Calendar.getInstance();
         
-        expirationDate.add(Calendar.MINUTE, 1);
+        expirationDate.add(Calendar.MINUTE, -1);
         
         identityManager.updateCredential(user, plainTextPassword, new Date(), expirationDate.getTime());
-        UsernamePasswordCredentials badUserName = new UsernamePasswordCredentials();
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
 
-        badUserName.setUsername(user.getId());
-        badUserName.setPassword(plainTextPassword);
+        credential.setUsername(user.getId());
+        credential.setPassword(plainTextPassword);
 
-        Thread.sleep(60500);
-        
-        identityManager.validateCredentials(badUserName);
+        identityManager.validateCredentials(credential);
 
-        Assert.assertEquals(Status.EXPIRED, badUserName.getStatus());
+        Assert.assertEquals(Status.EXPIRED, credential.getStatus());
     }
 
 }

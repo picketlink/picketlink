@@ -70,9 +70,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
-                Status status = validateDate(hash);
-
-                if (status == null) {
+                if (isNotCredentialExpired(hash)) {
                     SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
                     String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword().getValue()));
 
@@ -81,40 +79,27 @@ public class PasswordCredentialHandler implements CredentialHandler {
                         usernamePassword.setValidatedAgent(agent);
                     }
                 } else {
-                    usernamePassword.setStatus(status);
+                    usernamePassword.setStatus(Status.EXPIRED);
                 }
             }
         } else {
             PlainTextPasswordStorage storedPassword = store.retrieveCurrentCredential(agent, PlainTextPasswordStorage.class);
 
             if (storedPassword != null) {
-                Status status = validateDate(storedPassword);
-
-                if (status == null) {
+                if (isNotCredentialExpired(storedPassword)) {
                     if (storedPassword.getPassword().equals(String.valueOf(password.getValue()))) {
                         usernamePassword.setStatus(Status.VALID);
                         usernamePassword.setValidatedAgent(agent);
                     }
                 } else {
-                    usernamePassword.setStatus(status);
+                    usernamePassword.setStatus(Status.EXPIRED);
                 }
             }
         }
     }
 
-    private Status validateDate(CredentialStorage credentialStorage) {
-        Status status = null;
-        Date actualDate = new Date();
-
-        if (credentialStorage.getEffectiveDate() != null && actualDate.before(credentialStorage.getEffectiveDate())) {
-            status = Status.INVALID;
-        }
-
-        if (credentialStorage.getExpiryDate() != null && actualDate.after(credentialStorage.getExpiryDate())) {
-            status = Status.EXPIRED;
-        }
-
-        return status;
+    private boolean isNotCredentialExpired(CredentialStorage credentialStorage) {
+        return credentialStorage.getExpiryDate() == null || new Date().before(credentialStorage.getExpiryDate());
     }
 
     protected String getSalt() {
