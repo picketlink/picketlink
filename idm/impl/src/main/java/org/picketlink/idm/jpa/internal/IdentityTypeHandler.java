@@ -40,6 +40,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.IdentityType.AttributeParameter;
@@ -54,27 +55,30 @@ import org.picketlink.idm.query.QueryParameter;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public abstract class IdentityTypeManager<T extends IdentityType> {
-
-    private JPAIdentityStore store;
-
-    public IdentityTypeManager(JPAIdentityStore store) {
-        this.store = store;
-    }
+public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     /**
      * <p>
-     * Logic to be executed before removing the given {@link IdentityType}. The <code>identity</code> argument refers to a
-     * specific Identity Class that maps to the given {@link IdentityType} instance.
+     * Creates a {@link IdentityType} instance using the information from the given Identity Class instance. This method already
+     * provides the mapping for the common properties for all {@link IdentityType} types.
      * </p>
      * 
+     * @param realm
      * @param identity
-     * @param identityType
+     * @return
      */
-    void remove(Object identity, T identityType) {
+    public T createIdentityType(Realm realm, Object identity, JPAIdentityStore store) {
+        T identityType = doCreateIdentityType(identity, store);
 
+        identityType.setEnabled(store.getModelProperty(Boolean.class, identity, PROPERTY_IDENTITY_ENABLED));
+        identityType.setExpirationDate(store.getModelProperty(Date.class, identity,
+                JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES));
+        identityType.setCreatedDate(store.getModelProperty(Date.class, identity,
+                JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_CREATED));
+
+        return identityType;
     }
-
+    
     /**
      * <p>
      * Creates a Identity Class instance using the information from the given {@link IdentityType}.
@@ -84,42 +88,57 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
      * @param fromIdentityType
      * @return
      */
-    public Object createIdentityInstance(Realm realm, T fromIdentityType) {
+    public Object createIdentityInstance(Realm realm, T fromIdentityType, JPAIdentityStore store) {
         Object identity = null;
 
         try {
-            identity = getConfig().getIdentityClass().newInstance();
-
-            populateIdentityInstance(realm, identity, (T) fromIdentityType);
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            identity = store.getConfig().getIdentityClass().newInstance();
+            populateIdentityInstance(realm, identity, fromIdentityType, store);
+        } catch (Exception e) {
+            throw new IdentityManagementException("Error creating/populating Identity instance from IdentityType.", e);
         }
 
         return identity;
     }
-
+    
     /**
      * <p>
-     * Creates a {@link IdentityType} instance using the information from the give Identity Class instance. This method already
-     * provides the mapping for the common properties for all {@link IdentityType} types.
+     * Populates the given {@link Object} argument representing a Identity Class (from the config) with the information from the
+     * specified {@link IdentityType}.
      * </p>
      * 
-     * @param realm
-     * @param identity
-     * @return
+     * @param toIdentity
+     * @param fromIdentityType
      */
-    public T fromIdentityInstance(Realm realm, Object identity) {
-        T identityType = createIdentityType(identity);
+    protected void populateIdentityInstance(Realm realm, Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
+        // populate the common properties from IdentityType
+        String identityDiscriminator = store.getConfig().getIdentityDiscriminator(fromIdentityType.getClass());
 
-        identityType.setEnabled(getStore().getModelProperty(Boolean.class, identity, PROPERTY_IDENTITY_ENABLED));
-        identityType.setExpirationDate(getStore().getModelProperty(Date.class, identity,
-                JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES));
-        identityType.setCreatedDate(getStore().getModelProperty(Date.class, identity,
-                JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_CREATED));
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
 
-        return identityType;
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_KEY, fromIdentityType.getKey(), true);
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_CREATED, fromIdentityType.getCreatedDate(), true);
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_EXPIRES, fromIdentityType.getExpirationDate());
+
+        if (realm != null) {
+            store.setModelProperty(toIdentity, PROPERTY_IDENTITY_PARTITION, store.lookupPartitionObject(realm));
+        }
+
+        doPopulateIdentityInstance(toIdentity, fromIdentityType, store);
+    }
+    
+    /**
+     * <p>
+     * Logic to be executed before removing the given {@link IdentityType}. The <code>identity</code> argument refers to a
+     * specific Identity Class that maps to the given {@link IdentityType} instance.
+     * </p>
+     * 
+     * @param identity
+     * @param identityType
+     */
+    void remove(Object identity, T identityType, JPAIdentityStore store) {
+
     }
 
     /**
@@ -133,66 +152,67 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
      * @param criteria
      * @return
      */
-    protected List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
-            JPACriteriaQueryBuilder criteria) {
+    public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
+            JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        JPAIdentityStoreConfiguration storeConfig = store.getConfig();
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         if (queryParameter.equals(IdentityType.ENABLED)) {
             predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_IDENTITY_ENABLED).getName()),
+                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_ENABLED).getName()),
                     parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.CREATED_DATE)) {
             predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
+                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
                     parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.EXPIRY_DATE)) {
             predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
+                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
                     parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.CREATED_AFTER)) {
             predicates.add(criteria.getBuilder().greaterThan(
-                    criteria.getRoot().<Date> get(getConfig().getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
+                    criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.EXPIRY_AFTER)) {
             predicates.add(criteria.getBuilder().greaterThan(
-                    criteria.getRoot().<Date> get(getConfig().getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
+                    criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.CREATED_BEFORE)) {
             predicates.add(criteria.getBuilder().lessThan(
-                    criteria.getRoot().<Date> get(getConfig().getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
+                    criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.EXPIRY_BEFORE)) {
             predicates.add(criteria.getBuilder().lessThan(
-                    criteria.getRoot().<Date> get(getConfig().getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
+                    criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter instanceof IdentityType.AttributeParameter) {
             AttributeParameter customParameter = (AttributeParameter) queryParameter;
 
-            Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getAttributeClass());
-            Root fromProject = subquery.from(getConfig().getAttributeClass());
-            Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY).getName()));
+            Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getAttributeClass());
+            Root fromProject = subquery.from(storeConfig.getAttributeClass());
+            Subquery<?> select = subquery.select(fromProject.get(storeConfig.getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY).getName()));
 
             Predicate conjunction = criteria.getBuilder().conjunction();
 
             conjunction.getExpressions().add(
-                    criteria.getBuilder().equal(fromProject.get(getConfig().getModelProperty(PROPERTY_ATTRIBUTE_NAME).getName()),
+                    criteria.getBuilder().equal(fromProject.get(storeConfig.getModelProperty(PROPERTY_ATTRIBUTE_NAME).getName()),
                             customParameter.getName()));
             conjunction.getExpressions().add(
-                    (fromProject.get(getConfig().getModelProperty(PROPERTY_ATTRIBUTE_VALUE).getName()).in((Object[]) parameterValues)));
+                    (fromProject.get(storeConfig.getModelProperty(PROPERTY_ATTRIBUTE_VALUE).getName()).in((Object[]) parameterValues)));
 
             subquery.where(conjunction);
 
@@ -211,7 +231,7 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
      * @param identity
      * @return
      */
-    protected abstract T createIdentityType(Object identity);
+    protected abstract T doCreateIdentityType(Object identity, JPAIdentityStore store);
 
     /**
      * <p>Subclasses should override this method to populate the given Identity Class instance with the specific information for a given {@link IdentityType}.</p>
@@ -219,47 +239,12 @@ public abstract class IdentityTypeManager<T extends IdentityType> {
      * @param toIdentity
      * @param fromIdentityType
      */
-    protected abstract void fromIdentityType(Object toIdentity, T fromIdentityType);
+    protected abstract void doPopulateIdentityInstance(Object toIdentity, T fromIdentityType, JPAIdentityStore store);
 
-    protected abstract AbstractBaseEvent raiseCreatedEvent(T fromIdentityType);
+    protected abstract AbstractBaseEvent raiseCreatedEvent(T fromIdentityType, JPAIdentityStore store);
 
-    protected abstract AbstractBaseEvent raiseUpdatedEvent(T fromIdentityType);
+    protected abstract AbstractBaseEvent raiseUpdatedEvent(T fromIdentityType, JPAIdentityStore store);
 
-    protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType);
-
-    /**
-     * <p>
-     * Populates the given {@link Object} argument representing a Identity Class (from the config) with the information from the
-     * specified {@link IdentityType}.
-     * </p>
-     * 
-     * @param toIdentity
-     * @param fromIdentityType
-     */
-    void populateIdentityInstance(Realm realm, Object toIdentity, T fromIdentityType) {
-        // populate the common properties from IdentityType
-        String identityDiscriminator = this.store.getIdentityDiscriminator(fromIdentityType.getClass());
-
-        this.store.setModelProperty(toIdentity, PROPERTY_IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
-
-        this.store.setModelProperty(toIdentity, PROPERTY_IDENTITY_KEY, fromIdentityType.getKey(), true);
-        this.store.setModelProperty(toIdentity, PROPERTY_IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
-        this.store.setModelProperty(toIdentity, PROPERTY_IDENTITY_CREATED, fromIdentityType.getCreatedDate(), true);
-        this.store.setModelProperty(toIdentity, PROPERTY_IDENTITY_EXPIRES, fromIdentityType.getExpirationDate());
-
-        if (realm != null) {
-            this.store.setModelProperty(toIdentity, PROPERTY_IDENTITY_PARTITION, this.store.lookupPartitionObject(realm));
-        }
-
-        fromIdentityType(toIdentity, fromIdentityType);
-    }
-
-    protected JPAIdentityStoreConfiguration getConfig() {
-        return this.store.getConfig();
-    }
-
-    protected JPAIdentityStore getStore() {
-        return this.store;
-    }
+    protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType, JPAIdentityStore store);
 
 }

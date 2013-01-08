@@ -51,63 +51,61 @@ import org.picketlink.idm.query.QueryParameter;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class UserTypeManager extends IdentityTypeManager<User>{
+public class UserTypeHandler extends IdentityTypeHandler<User>{
 
-    public UserTypeManager(JPAIdentityStore store) {
-        super(store);
+    @Override
+    protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
+        store.setModelProperty(toIdentity, PROPERTY_USER_FIRST_NAME, fromUser.getFirstName());
+        store.setModelProperty(toIdentity, PROPERTY_USER_LAST_NAME, fromUser.getLastName());
+        store.setModelProperty(toIdentity, PROPERTY_USER_EMAIL, fromUser.getEmail());
     }
 
     @Override
-    protected void fromIdentityType(Object toIdentity, User fromUser) {
-        getStore().setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
-        getStore().setModelProperty(toIdentity, PROPERTY_USER_FIRST_NAME, fromUser.getFirstName());
-        getStore().setModelProperty(toIdentity, PROPERTY_USER_LAST_NAME, fromUser.getLastName());
-        getStore().setModelProperty(toIdentity, PROPERTY_USER_EMAIL, fromUser.getEmail());
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseCreatedEvent(User fromIdentityType) {
+    protected AbstractBaseEvent raiseCreatedEvent(User fromIdentityType, JPAIdentityStore store) {
         return new UserCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(User fromIdentityType) {
+    protected AbstractBaseEvent raiseUpdatedEvent(User fromIdentityType, JPAIdentityStore store) {
         return new UserUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType) {
+    protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType, JPAIdentityStore store) {
         return new UserDeletedEvent(fromIdentityType);
     }
     
     @Override
-    protected List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
-            JPACriteriaQueryBuilder criteria) {
-        List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria);
+    public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
+            JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        JPAIdentityStoreConfiguration storeConfig = store.getConfig();
+        List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
         
+        
         if (queryParameter.equals(User.ID)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getName()),
+                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_ID).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(User.FIRST_NAME)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_USER_FIRST_NAME).getName()),
+                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_FIRST_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(User.LAST_NAME)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_USER_LAST_NAME).getName()),
+                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_LAST_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(User.EMAIL)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_USER_EMAIL).getName()),
+                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_EMAIL).getName()),
                     parameterValues[0]));
         }
         
@@ -115,13 +113,13 @@ public class UserTypeManager extends IdentityTypeManager<User>{
             for (Object object : parameterValues) {
                 GroupRole groupRole = (GroupRole) object;
 
-                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-                Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+                Property<Object> memberModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> roleModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+                Property<Object> groupModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
 
 
-                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
-                Root fromProject = subquery.from(getConfig().getMembershipClass());
+                Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getMembershipClass());
+                Root fromProject = subquery.from(storeConfig.getMembershipClass());
                 Subquery<?> select = subquery.select(fromProject.get(memberModelProperty.getName()));
 
                 Predicate conjunction = builder.conjunction();
@@ -131,18 +129,18 @@ public class UserTypeManager extends IdentityTypeManager<User>{
                 
                 if (groupRole.getMember() != null) {
                     conjunction.getExpressions().add(
-                            builder.equal(fromProject.get(memberModelProperty.getName()), getStore().lookupIdentityObjectById(groupRole.getMember())));
+                            builder.equal(fromProject.get(memberModelProperty.getName()), store.lookupIdentityObjectById(groupRole.getMember())));
                 }
                 
                 if (groupRole.getRole() != null) {
                     conjunction.getExpressions().add(
-                            builder.equal(fromProject.get(roleModelProperty.getName()), getStore().lookupIdentityObjectById(groupRole.getRole())));
+                            builder.equal(fromProject.get(roleModelProperty.getName()), store.lookupIdentityObjectById(groupRole.getRole())));
                     
                 }
                 
                 if (groupRole.getGroup() != null) {
                     conjunction.getExpressions().add(
-                            builder.equal(fromProject.get(groupModelProperty.getName()), getStore().lookupIdentityObjectById(groupRole.getGroup())));
+                            builder.equal(fromProject.get(groupModelProperty.getName()), store.lookupIdentityObjectById(groupRole.getGroup())));
                 }
 
                 subquery.where(conjunction);
@@ -153,12 +151,12 @@ public class UserTypeManager extends IdentityTypeManager<User>{
         
         if (queryParameter.equals(IdentityType.MEMBER_OF)) {
             for (Object object : parameterValues) {
-                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+                Property<Object> memberModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> groupModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
 
 
-                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
-                Root fromProject = subquery.from(getConfig().getMembershipClass());
+                Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getMembershipClass());
+                Root fromProject = subquery.from(storeConfig.getMembershipClass());
                 Subquery<?> select = subquery.select(fromProject.get(memberModelProperty.getName()));
 
                 Predicate conjunction = builder.conjunction();
@@ -166,7 +164,7 @@ public class UserTypeManager extends IdentityTypeManager<User>{
                 conjunction.getExpressions().add(
                         builder.equal(fromProject.get(memberModelProperty.getName()), root));
                 conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(groupModelProperty.getName()), getStore().lookupIdentityObjectById(new SimpleGroup(object.toString()))));
+                        builder.equal(fromProject.get(groupModelProperty.getName()), store.lookupIdentityObjectById(new SimpleGroup(object.toString()))));
 
                 subquery.where(conjunction);
                 
@@ -178,12 +176,12 @@ public class UserTypeManager extends IdentityTypeManager<User>{
             for (Object object : parameterValues) {
                 String roleName = (String) parameterValues[0];
 
-                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+                Property<Object> memberModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> roleModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
 
 
-                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
-                Root fromProject = subquery.from(getConfig().getMembershipClass());
+                Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getMembershipClass());
+                Root fromProject = subquery.from(storeConfig.getMembershipClass());
                 Subquery<?> select = subquery.select(fromProject.get(memberModelProperty.getName()));
 
                 Predicate conjunction = builder.conjunction();
@@ -191,7 +189,7 @@ public class UserTypeManager extends IdentityTypeManager<User>{
                 conjunction.getExpressions().add(
                         builder.equal(fromProject.get(memberModelProperty.getName()), root));
                 conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(roleModelProperty.getName()), getStore().lookupIdentityObjectById(new SimpleRole(object.toString()))));
+                        builder.equal(fromProject.get(roleModelProperty.getName()), store.lookupIdentityObjectById(new SimpleRole(object.toString()))));
 
                 subquery.where(conjunction);
 
@@ -203,14 +201,15 @@ public class UserTypeManager extends IdentityTypeManager<User>{
     }
 
     @Override
-    protected User createIdentityType(Object identity) {
-        String idValue = getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getValue(identity).toString();
+    protected User doCreateIdentityType(Object identity, JPAIdentityStore store) {
+        JPAIdentityStoreConfiguration storeConfig = store.getConfig();
+        String idValue = storeConfig.getModelProperty(PROPERTY_IDENTITY_ID).getValue(identity).toString();
         
         User user = new SimpleUser(idValue);
 
-        user.setFirstName(getStore().getModelProperty(String.class, identity, PROPERTY_USER_FIRST_NAME));
-        user.setLastName(getStore().getModelProperty(String.class, identity, PROPERTY_USER_LAST_NAME));
-        user.setEmail(getStore().getModelProperty(String.class, identity, PROPERTY_USER_EMAIL));
+        user.setFirstName(store.getModelProperty(String.class, identity, PROPERTY_USER_FIRST_NAME));
+        user.setLastName(store.getModelProperty(String.class, identity, PROPERTY_USER_LAST_NAME));
+        user.setEmail(store.getModelProperty(String.class, identity, PROPERTY_USER_EMAIL));
         
         return user;
     }

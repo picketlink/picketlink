@@ -1,5 +1,7 @@
 package org.picketlink.idm.jpa.internal;
 
+import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_DISCRIMINATOR;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -104,6 +106,12 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private static final String ATTRIBUTE_TYPE_LONG = "long";
     private static final String ATTRIBUTE_TYPE_FLOAT = "float";
     private static final String ATTRIBUTE_TYPE_DOUBLE = "double";
+    
+    /**
+     * <p>Defines a map with all {@link IdentityTypeHandler} with the specific logic to handle the different {@link IdentityType} types.</p>
+     */
+    private Map<String, IdentityTypeHandler<? extends IdentityType>> identityTypeStores =
+            new HashMap<String, IdentityTypeHandler<? extends IdentityType>>();
 
     /**
      * Defines the feature set for this IdentityStore
@@ -270,7 +278,17 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
         // configureCredentials();
         
+        configureIdentityTypeHandlers();
+        
         this.featureSet.add(Feature.all);
+    }
+
+    private void configureIdentityTypeHandlers() {
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(User.class), new UserTypeHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Agent.class), new AgentTypeHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Role.class), new RoleTypeHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Group.class), new GroupTypeHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Relationship.class), new RelationshipTypeHandler());
     }
 
     protected void configureIdentityDiscriminator() throws SecurityConfigurationException {
@@ -834,5 +852,47 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         }
         
         return discriminator;
+    }
+    
+    public Map<String, IdentityTypeHandler<? extends IdentityType>> getIdentityTypeStores() {
+        return identityTypeStores;
+    }
+    
+    @SuppressWarnings("unchecked")
+    IdentityTypeHandler<IdentityType> getIdentityTypeManager(Class<? extends IdentityType> identityTypeClass) {
+        IdentityTypeHandler<IdentityType> identityTypeManager = (IdentityTypeHandler<IdentityType>) getIdentityTypeStores().get(getIdentityDiscriminator(identityTypeClass));
+        return identityTypeManager;
+    }
+
+    IdentityTypeHandler<IdentityType> getIdentityTypeManager(String discriminator) {
+        return (IdentityTypeHandler<IdentityType>) getIdentityTypeStores().get(discriminator);
+    }
+    
+    String getIdentityDiscriminator(Class<? extends IdentityType> identityType) {
+        return getIdentityTypeDiscriminator(identityType);
+    }
+    
+    public Property<Object> getIdentityIdProperty() {
+        return getModelProperty(PROPERTY_IDENTITY_ID);
+    }
+    
+    public Property<Object> getIdentityNameProperty() {
+        return getModelProperty(PROPERTY_IDENTITY_NAME);
+    }
+
+    public Property<Object> getAttributeIdentityProperty() {
+        return getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY);
+    }
+
+    public Property<Object> getAttributeNameProperty() {
+        return getModelProperty(PROPERTY_ATTRIBUTE_NAME);
+    }
+
+    public Property<Object> getAttributeValueProperty() {
+        return getModelProperty(PROPERTY_ATTRIBUTE_VALUE);
+    }
+    
+    public Property<Object> getDiscriminatorProperty() {
+        return getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR);
     }
 }

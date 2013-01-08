@@ -35,35 +35,31 @@ import org.picketlink.idm.model.SimpleAgent;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class AgentTypeManager extends IdentityTypeManager<Agent>{
+public class AgentTypeHandler extends IdentityTypeHandler<Agent>{
 
-    public AgentTypeManager(JPAIdentityStore store) {
-        super(store);
+    @Override
+    protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
     }
 
     @Override
-    protected void fromIdentityType(Object toIdentity, Agent fromUser) {
-        getStore().setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Agent fromIdentityType) {
+    protected AbstractBaseEvent raiseCreatedEvent(Agent fromIdentityType, JPAIdentityStore store) {
         return new AgentCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Agent fromIdentityType) {
+    protected AbstractBaseEvent raiseUpdatedEvent(Agent fromIdentityType, JPAIdentityStore store) {
         return new AgentUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Agent fromIdentityType) {
+    protected AbstractBaseEvent raiseDeletedEvent(Agent fromIdentityType, JPAIdentityStore store) {
         return new AgentDeletedEvent(fromIdentityType);
     }
 
     @Override
-    protected Agent createIdentityType(Object identity) {
-        String idValue = getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getValue(identity).toString();
+    protected Agent doCreateIdentityType(Object identity, JPAIdentityStore store) {
+        String idValue = store.getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getValue(identity).toString();
 
         Agent agent = new SimpleAgent(idValue);
         

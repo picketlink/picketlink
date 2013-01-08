@@ -50,45 +50,41 @@ import org.picketlink.idm.query.QueryParameter;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class GroupTypeManager extends IdentityTypeManager<Group>{
-
-    public GroupTypeManager(JPAIdentityStore store) {
-        super(store);
-    }
+public class GroupTypeHandler extends IdentityTypeHandler<Group>{
 
     @Override
-    protected void fromIdentityType(Object toIdentity, Group fromGroup) {
-        getStore().setModelProperty(toIdentity, PROPERTY_IDENTITY_NAME, fromGroup.getName(), true);
+    protected void doPopulateIdentityInstance(Object toIdentity, Group fromGroup, JPAIdentityStore store) {
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_NAME, fromGroup.getName(), true);
 
         if (fromGroup.getParentGroup() != null) {
-            Object parentIdentity = getStore().lookupIdentityObjectById(fromGroup.getParentGroup());
+            Object parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup());
 
             if (parentIdentity == null) {
-                getStore().add(fromGroup.getParentGroup());
-                parentIdentity = getStore().lookupIdentityObjectById(fromGroup.getParentGroup());
+                store.add(fromGroup.getParentGroup());
+                parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup());
             }
 
-            getStore().setModelProperty(toIdentity, PROPERTY_PARENT_GROUP, parentIdentity, true);
+            store.setModelProperty(toIdentity, PROPERTY_PARENT_GROUP, parentIdentity, true);
         }
     }
     
     @Override
-    void remove(Object identity, Group identityType) {
-        disassociateChilds(identityType);
+    void remove(Object identity, Group identityType, JPAIdentityStore store) {
+        disassociateChilds(identityType,store);
     }
 
     @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Group fromIdentityType) {
+    protected AbstractBaseEvent raiseCreatedEvent(Group fromIdentityType, JPAIdentityStore store) {
         return new GroupCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Group fromIdentityType) {
+    protected AbstractBaseEvent raiseUpdatedEvent(Group fromIdentityType, JPAIdentityStore store) {
         return new GroupUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Group fromIdentityType) {
+    protected AbstractBaseEvent raiseDeletedEvent(Group fromIdentityType, JPAIdentityStore store) {
         return new GroupDeletedEvent(fromIdentityType);
     }
     
@@ -99,19 +95,19 @@ public class GroupTypeManager extends IdentityTypeManager<Group>{
      * 
      * @param group
      */
-    private void disassociateChilds(Group group) {
-        EntityManager em = getStore().getEntityManager();
+    private void disassociateChilds(Group group, JPAIdentityStore store) {
+        EntityManager em = store.getEntityManager();
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getIdentityClass());
-        Root<?> root = criteria.from(getConfig().getIdentityClass());
+        CriteriaQuery<?> criteria = builder.createQuery(store.getConfig().getIdentityClass());
+        Root<?> root = criteria.from(store.getConfig().getIdentityClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         Join<?, ?> join = root
-                .join(getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP).getName());
+                .join(store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP).getName());
 
         predicates.add(builder.equal(
-                join.get(getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME).getName()),
+                join.get(store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME).getName()),
                 group.getName()));
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
@@ -119,23 +115,23 @@ public class GroupTypeManager extends IdentityTypeManager<Group>{
         List<?> resultList = em.createQuery(criteria).getResultList();
 
         for (Object object : resultList) {
-            getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP).setValue(object, null);
+            store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP).setValue(object, null);
             em.merge(object);
         }
     }
 
     @Override
-    protected Group createIdentityType(Object identity) {
-        String name = getStore().getModelProperty(String.class, identity, PROPERTY_IDENTITY_NAME);
+    protected Group doCreateIdentityType(Object identity, JPAIdentityStore store) {
+        String name = store.getModelProperty(String.class, identity, PROPERTY_IDENTITY_NAME);
 
-        Object parentInstance = getStore().getModelProperty(Object.class, identity, PROPERTY_PARENT_GROUP);
+        Object parentInstance = store.getModelProperty(Object.class, identity, PROPERTY_PARENT_GROUP);
 
         SimpleGroup group = null;
 
         if (parentInstance != null) {
-            String parentId = getStore().getModelProperty(String.class, parentInstance, PROPERTY_IDENTITY_NAME);
+            String parentId = store.getModelProperty(String.class, parentInstance, PROPERTY_IDENTITY_NAME);
 
-            Group parent = getStore().getGroup(parentId);
+            Group parent = store.getGroup(parentId);
 
             group = new SimpleGroup(name, parent);
         } else {
@@ -146,32 +142,32 @@ public class GroupTypeManager extends IdentityTypeManager<Group>{
     }
     
     @Override
-    protected List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
-            JPACriteriaQueryBuilder criteria) {
-        List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria);
+    public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
+            JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria,store);
         CriteriaBuilder builder = criteria.getBuilder();
         
         if (queryParameter.equals(Group.NAME)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
+                    criteria.getRoot().get(store.getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(Group.PARENT)) {
-            Join<Object, Object> join = criteria.getRoot().join(getConfig().getModelProperty(PROPERTY_PARENT_GROUP).getName());
+            Join<Object, Object> join = criteria.getRoot().join(store.getConfig().getModelProperty(PROPERTY_PARENT_GROUP).getName());
 
-            predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
+            predicates.add(builder.equal(join.get(store.getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(IdentityType.HAS_MEMBER)) {
             for (Object object : parameterValues) {
-                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+                Property<Object> memberModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> groupModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
 
 
-                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
-                Root fromProject = subquery.from(getConfig().getMembershipClass());
+                Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getMembershipClass());
+                Root fromProject = subquery.from(store.getConfig().getMembershipClass());
                 Subquery<?> select = subquery.select(fromProject.get(groupModelProperty.getName()));
 
                 Predicate conjunction = criteria.getBuilder().conjunction();
@@ -179,7 +175,7 @@ public class GroupTypeManager extends IdentityTypeManager<Group>{
                 conjunction.getExpressions().add(
                         criteria.getBuilder().equal(fromProject.get(groupModelProperty.getName()), criteria.getRoot()));
                 conjunction.getExpressions().add(
-                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), getStore().lookupIdentityObjectById((IdentityType) object)));
+                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), store.lookupIdentityObjectById((IdentityType) object)));
 
                 subquery.where(conjunction);
                 

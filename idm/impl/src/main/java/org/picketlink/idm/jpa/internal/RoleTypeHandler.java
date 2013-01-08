@@ -37,7 +37,6 @@ import org.picketlink.idm.event.RoleUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -45,35 +44,31 @@ import org.picketlink.idm.query.QueryParameter;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class RoleTypeManager extends IdentityTypeManager<Role>{
+public class RoleTypeHandler extends IdentityTypeHandler<Role>{
 
-    public RoleTypeManager(JPAIdentityStore store) {
-        super(store);
+    @Override
+    protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {
+        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_NAME, fromRole.getName(), true);
     }
 
     @Override
-    protected void fromIdentityType(Object toIdentity, Role fromRole) {
-        getStore().setModelProperty(toIdentity, PROPERTY_IDENTITY_NAME, fromRole.getName(), true);
-    }
-
-    @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Role fromIdentityType) {
+    protected AbstractBaseEvent raiseCreatedEvent(Role fromIdentityType, JPAIdentityStore store) {
         return new RoleCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Role fromIdentityType) {
+    protected AbstractBaseEvent raiseUpdatedEvent(Role fromIdentityType, JPAIdentityStore store) {
         return new RoleUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Role fromIdentityType) {
+    protected AbstractBaseEvent raiseDeletedEvent(Role fromIdentityType, JPAIdentityStore store) {
         return new RoleDeletedEvent(fromIdentityType);
     }
 
     @Override
-    protected Role createIdentityType(Object identity) {
-        String name = getStore().getModelProperty(String.class, identity, PROPERTY_IDENTITY_NAME);
+    protected Role doCreateIdentityType(Object identity, JPAIdentityStore store) {
+        String name = store.getModelProperty(String.class, identity, PROPERTY_IDENTITY_NAME);
 
         SimpleRole role = new SimpleRole(name);
         
@@ -81,24 +76,24 @@ public class RoleTypeManager extends IdentityTypeManager<Role>{
     }
     
     @Override
-    protected List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
-            JPACriteriaQueryBuilder criteria) {
-        List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria);
+    public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
+            JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
         
         if (queryParameter.equals(Role.NAME)) {
             predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
+                    criteria.getRoot().get(store.getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(IdentityType.ROLE_OF)) {
             for (Object object : parameterValues) {
-                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+                Property<Object> memberModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> roleModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
 
 
-                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
-                Root fromProject = subquery.from(getConfig().getMembershipClass());
+                Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getMembershipClass());
+                Root fromProject = subquery.from(store.getConfig().getMembershipClass());
                 Subquery<?> select = subquery.select(fromProject.get(roleModelProperty.getName()));
 
                 Predicate conjunction = criteria.getBuilder().conjunction();
@@ -106,7 +101,7 @@ public class RoleTypeManager extends IdentityTypeManager<Role>{
                 conjunction.getExpressions().add(
                         criteria.getBuilder().equal(fromProject.get(roleModelProperty.getName()), criteria.getRoot()));
                 conjunction.getExpressions().add(
-                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), getStore().lookupIdentityObjectById((IdentityType) object)));
+                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), store.lookupIdentityObjectById((IdentityType) object)));
 
                 subquery.where(conjunction);
                 

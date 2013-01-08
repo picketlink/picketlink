@@ -34,7 +34,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
-import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -50,15 +49,12 @@ public class JPACriteriaQueryBuilder {
     private CriteriaBuilder builder;
     private Root<?> root;
     private CriteriaQuery<?> criteria;
-    private List<Predicate> predicates = new ArrayList<Predicate>();
     private JPAIdentityStore identityStore;
-    private IdentityTypeManager identityTypeManager;
 
     public JPACriteriaQueryBuilder(JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
         this.identityStore = identityStore;
         this.identityQuery = identityQuery;
         this.config = identityStore.getConfig();
-        this.identityTypeManager = this.identityStore.getIdentityTypeManager(identityQuery.getIdentityType());
         this.entityManager = identityStore.getEntityManager();
         this.builder = this.entityManager.getCriteriaBuilder();
         
@@ -69,21 +65,25 @@ public class JPACriteriaQueryBuilder {
     }
 
     public List<Predicate> getPredicates() {
+        List<Predicate> predicates = new ArrayList<Predicate>();
+        
         this.builder = this.entityManager.getCriteriaBuilder();
 
         String discriminator = this.config.getIdentityTypeDiscriminator(identityQuery.getIdentityType());
 
-        this.predicates.add(builder.equal(root.get(this.config.getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
+        predicates.add(builder.equal(root.get(this.config.getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
                 discriminator));
-
+        
+        IdentityTypeHandler identityTypeManager = this.config.getIdentityTypeManager(this.identityQuery.getIdentityType());
+        
         for (Entry<QueryParameter, Object[]> entry : this.identityQuery.getParameters().entrySet()) {
             QueryParameter queryParameter = entry.getKey();
             Object[] parameterValues = entry.getValue();
             
-            this.predicates.addAll(this.identityTypeManager.getPredicate(queryParameter, parameterValues, this));
+            predicates.addAll(identityTypeManager.getPredicate(queryParameter, parameterValues, this, identityStore));
         }
 
-        return this.predicates;
+        return predicates;
     }
 
     public CriteriaQuery<?> getCriteria() {
