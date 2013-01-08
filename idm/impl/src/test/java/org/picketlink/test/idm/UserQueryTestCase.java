@@ -557,8 +557,12 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals("someUser", result.get(0).getId());
 
         query = identityManager.<User> createQuery(User.class);
+        
+        Calendar futureDate = Calendar.getInstance();
 
-        query.setParameter(User.CREATED_DATE, new Date());
+        futureDate.add(Calendar.MINUTE, 1);
+        
+        query.setParameter(User.CREATED_DATE, futureDate.getTime());
 
         // no users
         result = query.getResultList();
@@ -637,8 +641,6 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         // users between the given time period
         query.setParameter(User.CREATED_AFTER, calendar.getTime());
         query.setParameter(User.CREATED_BEFORE, new Date());
-
-        Thread.sleep(1000);
 
         List<User> result = query.getResultList();
 

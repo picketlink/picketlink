@@ -31,66 +31,20 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.PlainTextPassword;
-import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.X509Cert;
 import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.model.User;
 
 /**
  * <p>
- * Test case for credential management. Tests the different {@link Credential} types implementations and usage.
+ * Test case for {@link X509CertificateCredentials} type.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class CredentialManagementTestCase extends AbstractIdentityManagerTestCase {
+public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCase {
 
-    /**
-     * <p>
-     * Tests the {@link PlainTextPassword} usage.
-     * </p>
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testUsernameAndPassword() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        User user = loadOrCreateUser("someUser", true);
-        PlainTextPassword plainTextPassword = new PlainTextPassword("updated_password".toCharArray());
-        
-        identityManager.updateCredential(user, plainTextPassword, null, null);
-        
-        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
-        
-        credential.setUsername(user.getId());
-        credential.setPassword(plainTextPassword);
-        
-        identityManager.validateCredentials(credential);
-        
-        Assert.assertEquals(Status.VALID, credential.getStatus());
-        
-        UsernamePasswordCredentials badUserName = new UsernamePasswordCredentials();
-        
-        badUserName.setUsername("Bad" + user.getId());
-        badUserName.setPassword(plainTextPassword);
-        
-        identityManager.validateCredentials(badUserName);
-        
-        Assert.assertEquals(Status.INVALID, badUserName.getStatus());
-        
-        UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
-        
-        badPassword.setUsername("Bad" + user.getId());
-        badPassword.setPassword(plainTextPassword);
-        
-        identityManager.validateCredentials(badPassword);
-        
-        Assert.assertEquals(Status.INVALID, badPassword.getStatus());
-
-    }
-    
     /**
      * <p>
      * Tests the {@link X509Cert} usage.

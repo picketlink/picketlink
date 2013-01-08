@@ -10,11 +10,9 @@ import org.picketlink.idm.credential.DigestUtil;
 import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.file.internal.FileBasedIdentityStore;
-import org.picketlink.idm.jpa.internal.JPAIdentityStore;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.password.internal.PlainTextPasswordStorage;
+import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -37,7 +35,10 @@ public class DigestCredentialHandler implements CredentialHandler {
         DigestCredentials digestCredential = (DigestCredentials) credentials;
 
         Agent agent = identityStore.getAgent(digestCredential.getDigest().getUsername());
-        PlainTextPasswordStorage storedPassword = null; // FIXME identityStore.retrieveCredential(agent, PlainTextPasswordStorage.class);
+        
+        CredentialStore credentialStore = (CredentialStore) identityStore;
+        
+        PlainTextPasswordStorage storedPassword = credentialStore.retrieveCurrentCredential(agent, PlainTextPasswordStorage.class);
 
         if (storedPassword != null) {
             if (DigestUtil.matchCredential(digestCredential.getDigest(), storedPassword.getPassword().toCharArray())) {
@@ -47,6 +48,7 @@ public class DigestCredentialHandler implements CredentialHandler {
         }
     }
 
+    @Override
     public void update(Agent agent, Object credential, IdentityStore<?> store, Date effectiveDate, Date expiryDate) {
         // this handler only supports validation
     }

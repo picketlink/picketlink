@@ -30,9 +30,14 @@ import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.test.idm.CredentialManagementTestCase;
+import org.picketlink.test.idm.AgentGroupRoleRelationshipTestCase;
+import org.picketlink.test.idm.AgentGroupsRelationshipTestCase;
+import org.picketlink.test.idm.AgentManagementTestCase;
+import org.picketlink.test.idm.AgentQueryTestCase;
+import org.picketlink.test.idm.AgentRolesRelationshipTestCase;
 import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.GroupQueryTestCase;
+import org.picketlink.test.idm.PasswordCredentialTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.RoleQueryTestCase;
 import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
@@ -47,19 +52,21 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * <p>
  * Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.
  * </p>
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
-    UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-    RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, CredentialManagementTestCase.class})
+@SuiteClasses({ UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
+        GroupManagementTestCase.class, UserGroupsRelationshipTestCase.class, AgentGroupsRelationshipTestCase.class,
+        UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
+        AgentQueryTestCase.class, PasswordCredentialTestCase.class })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
     private IdentityManager identityManager;
-    
+
     public static TestLifecycle init() throws Exception {
         if (instance == null) {
             instance = new FileIdentityStoreTestSuite();

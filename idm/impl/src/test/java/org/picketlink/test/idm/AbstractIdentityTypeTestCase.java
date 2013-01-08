@@ -146,9 +146,8 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         Attribute<String[]> multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNotNull(multiValuedAttribute);
-        assertEquals("1", multiValuedAttribute.getValue()[0]);
-        assertEquals("2", multiValuedAttribute.getValue()[1]);
-        assertEquals("3", multiValuedAttribute.getValue()[2]);
+        assertNotNull(multiValuedAttribute.getValue());
+        assertEquals(3, multiValuedAttribute.getValue().length);
     }
 
     /**

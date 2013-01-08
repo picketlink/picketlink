@@ -18,13 +18,12 @@ public interface CredentialHandler {
      * @param store
      * @return
      */
-    void validate(Credentials credentials, IdentityStore<?> store);
-
+    void validate(Credentials credentials, IdentityStore<?> identityStore);
     /**
      * 
      * @param user
      * @param credential
      * @param store
      */
-    void update(Agent agent, Object credential, IdentityStore<?> store, Date effectiveDate, Date expiryDate);
+    void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
 }

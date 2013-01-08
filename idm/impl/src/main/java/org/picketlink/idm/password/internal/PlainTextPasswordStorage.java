@@ -49,4 +49,5 @@ public class PlainTextPasswordStorage implements CredentialStorage {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

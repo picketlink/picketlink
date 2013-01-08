@@ -1,5 +1,7 @@
 package org.picketlink.idm.ldap.internal;
 
+import java.util.Date;
+
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
@@ -25,8 +27,8 @@ public class LDAPPlainTextPasswordCredentialHandler extends PasswordCredentialHa
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
     @Override
-    protected void doUpdate(Agent agent, IdentityStore<?> store, PlainTextPassword password) {
-        LDAPIdentityStore ldapIdentityStore = getLDAPIdentityStore(store);
+    protected void doUpdate(Agent agent, PlainTextPassword password, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+        LDAPIdentityStore ldapIdentityStore = getLDAPIdentityStore(identityStore);
         LDAPUser ldapuser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
         
         if (ldapIdentityStore.getConfig().isActiveDirectory()) {

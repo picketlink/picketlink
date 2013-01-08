@@ -14,6 +14,7 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -40,7 +41,9 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            X509CertificateStorage storage = null; // FIXME identityStore.retrieveCredential(agent, X509CertificateStorage.class);
+            CredentialStore store = (CredentialStore) identityStore;
+            
+            X509CertificateStorage storage = store.retrieveCurrentCredential(agent, X509CertificateStorage.class);
 
             if (storage != null) {
                 String base64Cert = storage.getBase64Cert();
@@ -64,7 +67,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> store, Date effectiveDate, Date expiryDate) {
+    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         if (!X509Cert.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + 
                     credential.getClass().getName() + "] not supported by this handler.");
@@ -73,7 +76,9 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         X509Cert certificate = (X509Cert) credential;
         X509CertificateStorage storage = new X509CertificateStorage((X509Cert) certificate);
         
-        // FIXME store.<X509CertificateStorage>storeCredential(agent, storage);
+        CredentialStore store = (CredentialStore) identityStore;
+        
+        store.storeCredential(agent, storage);
     }
 
 }

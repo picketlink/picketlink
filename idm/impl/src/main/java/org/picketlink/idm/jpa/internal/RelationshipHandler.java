@@ -42,7 +42,7 @@ import org.picketlink.idm.query.QueryParameter;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class RelationshipTypeHandler extends IdentityTypeHandler<Relationship> {
+public class RelationshipHandler extends IdentityTypeHandler<Relationship> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Relationship fromRelationship, JPAIdentityStore store) {

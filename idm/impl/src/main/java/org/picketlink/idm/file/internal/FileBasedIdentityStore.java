@@ -27,18 +27,39 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
-import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.credential.spi.annotations.Stored;
+import org.picketlink.idm.event.AgentCreatedEvent;
+import org.picketlink.idm.event.AgentDeletedEvent;
+import org.picketlink.idm.event.AgentUpdatedEvent;
+import org.picketlink.idm.event.GroupCreatedEvent;
+import org.picketlink.idm.event.GroupDeletedEvent;
+import org.picketlink.idm.event.GroupUpdatedEvent;
+import org.picketlink.idm.event.RoleCreatedEvent;
+import org.picketlink.idm.event.RoleDeletedEvent;
+import org.picketlink.idm.event.RoleUpdatedEvent;
+import org.picketlink.idm.event.UserCreatedEvent;
+import org.picketlink.idm.event.UserDeletedEvent;
+import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.util.IDMUtil;
+import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
+import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
@@ -46,6 +67,7 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.IdentityType.AttributeParameter;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.SimpleRole;
@@ -66,8 +88,8 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@CredentialHandlers({PasswordCredentialHandler.class, X509CertificateCredentialHandler.class})
-public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentityStoreConfiguration> implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore {
+@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class })
+public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore {
 
     private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
@@ -89,7 +111,199 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     }
 
     @Override
-    protected Role addRole(Role role) {
+    public void add(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (IDMUtil.isUserType(identityTypeClass)) {
+            User storedUser = addUser((User) identityType);
+
+            UserCreatedEvent event = new UserCreatedEvent(storedUser);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isAgentType(identityTypeClass)) {
+            Agent storedAgent = addAgent((Agent) identityType);
+
+            AgentCreatedEvent event = new AgentCreatedEvent(storedAgent);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
+            Group storedGroup = addGroup((Group) identityType);
+
+            GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
+            Role storedRole = addRole((Role) identityType);
+
+            RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
+        } else {
+            throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
+        }
+    }
+
+    @Override
+    public void update(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (IDMUtil.isUserType(identityTypeClass)) {
+            User updatedUser = (User) identityType;
+
+            if (updatedUser.getId() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            User storedUser = getUser(updatedUser.getId());
+
+            if (storedUser == null) {
+                throw new RuntimeException("User [" + updatedUser.getId() + "] does not exists.");
+            }
+
+            updateUser(updatedUser, storedUser);
+
+            UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isAgentType(identityTypeClass)) {
+            Agent updatedAgent = (Agent) identityType;
+
+            if (updatedAgent.getId() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Agent storedAgent = getAgent(updatedAgent.getId());
+
+            if (storedAgent == null) {
+                throw new RuntimeException("Agent [" + updatedAgent.getId() + "] does not exists.");
+            }
+
+            updateAgent(updatedAgent, storedAgent);
+
+            AgentUpdatedEvent event = new AgentUpdatedEvent(storedAgent);
+//             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
+            Group updatedGroup = (Group) identityType;
+
+            if (updatedGroup.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Group storedGroup = getGroup(updatedGroup.getName());
+
+            if (storedGroup == null) {
+                throw new RuntimeException("No group found with the given name [" + updatedGroup.getName() + "].");
+            }
+
+            updateGroup(updatedGroup, storedGroup);
+
+            GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
+            Role updatedRole = (Role) identityType;
+
+            if (updatedRole.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Role storedRole = getRole(updatedRole.getName());
+
+            if (storedRole == null) {
+                throw new RuntimeException("No role found with the given name [" + updatedRole.getName() + "].");
+            }
+
+            updateRole(updatedRole, storedRole);
+
+            RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
+        } else {
+            throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
+        }
+    }
+
+    @Override
+    public void remove(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (IDMUtil.isUserType(identityTypeClass)) {
+            User user = (User) identityType;
+
+            if (user.getId() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            User storedUser = getUser(user.getId());
+
+            if (storedUser == null) {
+                throw new RuntimeException("User [" + user.getId() + "] doest not exists.");
+            }
+
+            removeUser(storedUser);
+
+            UserDeletedEvent event = new UserDeletedEvent(storedUser);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isAgentType(identityTypeClass)) {
+            Agent agent = (Agent) identityType;
+
+            if (agent.getId() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Agent storedAgent = getAgent(agent.getId());
+
+            if (storedAgent == null) {
+                throw new RuntimeException("Agent [" + agent.getId() + "] doest not exists.");
+            }
+
+            removeAgent(storedAgent);
+
+            AgentDeletedEvent event = new AgentDeletedEvent(storedAgent);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
+            Group group = (Group) identityType;
+
+            if (group.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Group storedGroup = getGroup(group.getName());
+
+            if (storedGroup == null) {
+                throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
+            }
+
+            removeGroup(storedGroup);
+
+            GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
+            Role role = (Role) identityType;
+
+            if (role.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Role storedRole = getRole(role.getName());
+
+            if (storedRole == null) {
+                throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
+            }
+
+            removeRole(storedRole);
+
+            RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
+            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
+        }
+    }
+
+    private Role addRole(Role role) {
         SimpleRole fileRole = new SimpleRole(role.getName());
 
         updateCommonProperties(role, fileRole);
@@ -100,8 +314,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         return fileRole;
     }
 
-    @Override
-    protected Group addGroup(Group group) {
+    private Group addGroup(Group group) {
         SimpleGroup fileGroup = null;
 
         if (group.getParentGroup() != null) {
@@ -118,8 +331,7 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         return fileGroup;
     }
 
-    @Override
-    protected User addUser(User user) {
+    private User addUser(User user) {
         User storedUser = new SimpleUser(user.getId());
 
         storedUser.setFirstName(user.getFirstName());
@@ -134,32 +346,40 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
         return storedUser;
     }
 
-    @Override
-    protected Role updateRole(Role updatedRole, Role storedRole) {
+    private Agent addAgent(Agent user) {
+        Agent storedAgent = new SimpleAgent(user.getId());
+
+        updateCommonProperties(user, storedAgent);
+
+        getConfig().getUsers().put(storedAgent.getId(), storedAgent);
+        flushUsers();
+
+        return storedAgent;
+    }
+
+    private Role updateRole(Role updatedRole, Role storedRole) {
         if (storedRole != updatedRole) {
             updateCommonProperties(updatedRole, storedRole);
         }
 
         getConfig().getRoles().put(storedRole.getName(), storedRole);
         flushRoles();
-        
+
         return storedRole;
     }
 
-    @Override
-    protected Group updateGroup(Group updatedGroup, Group storedGroup) {
+    private Group updateGroup(Group updatedGroup, Group storedGroup) {
         if (storedGroup != updatedGroup) {
             updateCommonProperties(updatedGroup, storedGroup);
         }
 
         getConfig().getGroups().put(storedGroup.getName(), storedGroup);
         flushGroups();
-        
+
         return storedGroup;
     }
 
-    @Override
-    protected User updateUser(User updatedUser, User storedUser) {
+    private User updateUser(User updatedUser, User storedUser) {
         if (storedUser != updatedUser) {
             storedUser.setFirstName(updatedUser.getFirstName());
             storedUser.setLastName(updatedUser.getLastName());
@@ -170,12 +390,22 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         getConfig().getUsers().put(storedUser.getId(), storedUser);
         flushUsers();
-        
+
         return updatedUser;
     }
 
-    @Override
-    protected Role removeRole(Role role) {
+    private Agent updateAgent(Agent updatedAgent, Agent storedAgent) {
+        if (storedAgent != updatedAgent) {
+            updateCommonProperties(updatedAgent, storedAgent);
+        }
+
+        getConfig().getUsers().put(storedAgent.getId(), storedAgent);
+        flushUsers();
+
+        return updatedAgent;
+    }
+
+    private Role removeRole(Role role) {
         getConfig().getRoles().remove(role.getName());
 
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
@@ -188,12 +418,11 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         flushRoles();
         flushMemberships();
-        
+
         return role;
     }
 
-    @Override
-    protected Group removeGroup(Group group) {
+    private Group removeGroup(Group group) {
         getConfig().getGroups().remove(group.getName());
 
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
@@ -206,11 +435,11 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         flushGroups();
         flushMemberships();
-        
+
         return group;
     }
 
-    protected User removeUser(User user) {
+    private User removeUser(User user) {
         getConfig().getUsers().remove(user.getId());
 
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
@@ -227,18 +456,45 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
         flushUsers();
         flushMemberships();
-        
+
+        return user;
+    }
+
+    private Agent removeAgent(Agent user) {
+        getConfig().getUsers().remove(user.getId());
+
+        for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
+            IdentityType member = membership.getMember();
+
+            if (IDMUtil.isAgentType(member.getClass())) {
+                Agent userMember = (Agent) member;
+
+                if (userMember.getId().equals(user.getId())) {
+                    getConfig().getMemberships().remove(membership);
+                }
+            }
+        }
+
+        flushUsers();
+        flushMemberships();
+
         return user;
     }
 
     @Override
     public Agent getAgent(String id) {
-        return getUser(id);
+        return getConfig().getUsers().get(id);
     }
 
     @Override
     public User getUser(String id) {
-        return getConfig().getUsers().get(id);
+        Agent agent = getAgent(id);
+        
+        if (!User.class.isInstance(agent)) {
+            return null;
+        }
+        
+        return (User) agent;
     }
 
     @Override
@@ -323,7 +579,9 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             entries = getConfig().getRoles().entrySet();
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
             entries = getConfig().getGroups().entrySet();
-        }
+        } else if (IDMUtil.isAgentType(identityTypeClass)) {
+            entries = getConfig().getUsers().entrySet();
+        } 
 
         List<T> result = new ArrayList<T>();
 
@@ -332,6 +590,10 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
 
             IdentityType storedIdentityType = entry.getValue();
 
+            if (!identityTypeClass.isAssignableFrom(storedIdentityType.getClass())) {
+                continue;
+            }
+            
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User user = (User) storedIdentityType;
 
@@ -348,6 +610,14 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                 }
 
                 if (!isQueryParameterEquals(identityQuery.getParameters(), User.LAST_NAME, user.getLastName())) {
+                    continue;
+                }
+            }
+            
+            if (IDMUtil.isAgentType(identityTypeClass)) {
+                Agent agent = (Agent) storedIdentityType;
+
+                if (!isQueryParameterEquals(identityQuery.getParameters(), Agent.ID, agent.getId())) {
                     continue;
                 }
             }
@@ -422,11 +692,11 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             result.add((T) storedIdentityType);
         }
 
-        if (identityQuery.getParameters().containsKey(User.HAS_ROLE)
-                || identityQuery.getParameters().containsKey(User.MEMBER_OF)
-                || identityQuery.getParameters().containsKey(User.HAS_GROUP_ROLE)
-                || identityQuery.getParameters().containsKey(User.ROLE_OF)
-                || identityQuery.getParameters().containsKey(User.HAS_MEMBER)) {
+        if (identityQuery.getParameters().containsKey(IdentityType.HAS_ROLE)
+                || identityQuery.getParameters().containsKey(IdentityType.MEMBER_OF)
+                || identityQuery.getParameters().containsKey(IdentityType.HAS_GROUP_ROLE)
+                || identityQuery.getParameters().containsKey(IdentityType.ROLE_OF)
+                || identityQuery.getParameters().containsKey(IdentityType.HAS_MEMBER)) {
 
             for (T fileUser : new ArrayList<T>(result)) {
                 for (Entry<QueryParameter, Object[]> parameters : identityQuery.getParameters().entrySet()) {
@@ -436,11 +706,11 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
                     int valuesMatchCount = values.length;
 
                     for (GroupRole membership : getConfig().getMemberships()) {
-                        if (IDMUtil.isUserType(fileUser.getClass()) && IDMUtil.isUserType(membership.getMember().getClass())) {
-                            User selectedUser = (User) fileUser;
-                            User memberUser = (User) membership.getMember();
+                        if (IDMUtil.isAgentType(fileUser.getClass()) && IDMUtil.isAgentType(membership.getMember().getClass())) {
+                            Agent selectedAgent = (Agent) fileUser;
+                            Agent memberAgent = (Agent) membership.getMember();
 
-                            if (!selectedUser.getId().equals(memberUser.getId())) {
+                            if (!selectedAgent.getId().equals(memberAgent.getId())) {
                                 continue;
                             }
                         }
@@ -674,6 +944,95 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     }
 
     @Override
+    public void validateCredentials(Credentials credentials) {
+        CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
+        if (handler == null) {
+            throw new SecurityConfigurationException(
+                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
+                            + "] for IdentityStore [" + this.getClass() + "]");
+        }
+        handler.validate(credentials, this);
+    }
+
+    @Override
+    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+        CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
+        if (handler == null) {
+            throw new SecurityConfigurationException(
+                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
+                            + "] for IdentityStore [" + this.getClass() + "]");
+        }
+        handler.update(agent, credential, this, effectiveDate, expiryDate);
+    }
+
+    @Override
+    public void storeCredential(Agent agent, CredentialStorage storage) {
+        Map<String, FileCredentialStorage> agentCredentials = getConfig().getCredentials().get(agent.getId());
+
+        if (agentCredentials == null) {
+            agentCredentials = new HashMap<String, FileCredentialStorage>();
+        }
+
+        FileCredentialStorage serializableStorage = agentCredentials.get(storage.getClass().getName());
+
+        if (serializableStorage == null) {
+            serializableStorage = new FileCredentialStorage();
+        }
+
+        List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
+
+        for (Property<Object> property : annotatedTypes) {
+            serializableStorage.getStoredFields().put(property.getName(), (Serializable) property.getValue(storage));
+        }
+
+        agentCredentials.put(storage.getClass().getName(), serializableStorage);
+        getConfig().getCredentials().put(agent.getId(), agentCredentials);
+
+        flushCredentials();
+    }
+
+    @Override
+    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
+        Map<String, FileCredentialStorage> agentCredentials = getConfig().getCredentials().get(agent.getId());
+
+        if (agentCredentials == null) {
+            agentCredentials = new HashMap<String, FileCredentialStorage>();
+        }
+
+        T storage = null;
+        FileCredentialStorage serializableStorage = agentCredentials.get(storageClass.getName());
+
+        if (serializableStorage != null) {
+            try {
+                storage = storageClass.newInstance();
+            } catch (Exception e) {
+                throw new IdentityManagementException("Could not create CredentialStorage instance for class ["
+                        + storageClass.getName() + "].", e);
+            }
+            
+            Set<Entry<String, Serializable>> storedFieldsEntrySet = serializableStorage.getStoredFields().entrySet();
+            
+            for (Entry<String, Serializable> storedFieldEntry : storedFieldsEntrySet) {
+                List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storageClass)
+                        .addCriteria(new NamedPropertyCriteria(storedFieldEntry.getKey())).getResultList();
+                
+                if (annotatedTypes.isEmpty()) {
+                    throw new IdentityManagementException("Could not find property [" + storedFieldEntry.getKey() + "] on CredentialStorage [" + storageClass.getName() + "].");
+                } else if (annotatedTypes.size() > 1) {
+                    throw new IdentityManagementException("Ambiguos property [" + storedFieldEntry.getKey() + "] on CredentialStorage [" + storageClass.getName() + "].");
+                }
+                
+                Property<Object> property = annotatedTypes.get(0);
+                
+                property.setValue(storage, storedFieldEntry.getValue());
+            }
+        }
+
+        return storage;
+    }
+
+    @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
         throw createNotImplementedYetException();
     }
@@ -691,6 +1050,10 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
     @Override
     public void removeAttribute(IdentityType identityType, String attributeName) {
         throw createNotImplementedYetException();
+    }
+
+    private IdentityManagementException createNotImplementedYetException() {
+        return new IdentityManagementException("Not implemented yet.");
     }
 
     /**
@@ -755,17 +1118,21 @@ public class FileBasedIdentityStore extends AbstractIdentityStore<FileIdentitySt
             e.printStackTrace();
         }
     }
-    
 
-    @Override
-    public void storeCredential(CredentialStorage storage) {
-        // TODO Auto-generated method stub
-        
+    /**
+     * <p>
+     * Flush all changes made to credentials to the filesystem.
+     * </p>
+     */
+    synchronized void flushCredentials() {
+        try {
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getCredentialsFile());
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(getConfig().getCredentials());
+            oos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    @Override
-    public CredentialStorage retrieveCurrentCredential(Class<? extends CredentialStorage> storageClass) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 }

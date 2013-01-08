@@ -284,11 +284,11 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     private void configureIdentityTypeHandlers() {
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(User.class), new UserTypeHandler());
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Agent.class), new AgentTypeHandler());
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Role.class), new RoleTypeHandler());
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Group.class), new GroupTypeHandler());
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Relationship.class), new RelationshipTypeHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(User.class), new UserHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Agent.class), new AgentHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Role.class), new RoleHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Group.class), new GroupHandler());
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Relationship.class), new RelationshipHandler());
     }
 
     protected void configureIdentityDiscriminator() throws SecurityConfigurationException {

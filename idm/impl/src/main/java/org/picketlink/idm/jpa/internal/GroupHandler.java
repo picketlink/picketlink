@@ -50,7 +50,7 @@ import org.picketlink.idm.query.QueryParameter;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class GroupTypeHandler extends IdentityTypeHandler<Group>{
+public class GroupHandler extends IdentityTypeHandler<Group>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Group fromGroup, JPAIdentityStore store) {

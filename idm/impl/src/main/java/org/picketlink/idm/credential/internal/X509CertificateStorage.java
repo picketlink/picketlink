@@ -80,4 +80,5 @@ public class X509CertificateStorage implements CredentialStorage {
     public void setBase64Cert(String base64Cert) {
         this.base64Cert = base64Cert;
     }
+
 }

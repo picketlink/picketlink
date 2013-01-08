@@ -23,9 +23,6 @@
 package org.picketlink.idm.jpa.internal;
 
 import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_ID;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_EMAIL;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_FIRST_NAME;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_LAST_NAME;
 
 import java.util.List;
 
@@ -35,45 +32,51 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.event.UserCreatedEvent;
-import org.picketlink.idm.event.UserDeletedEvent;
-import org.picketlink.idm.event.UserUpdatedEvent;
+import org.picketlink.idm.event.AgentCreatedEvent;
+import org.picketlink.idm.event.AgentDeletedEvent;
+import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class UserTypeHandler extends IdentityTypeHandler<User>{
+public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     @Override
-    protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
+    protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
         store.setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
-        store.setModelProperty(toIdentity, PROPERTY_USER_FIRST_NAME, fromUser.getFirstName());
-        store.setModelProperty(toIdentity, PROPERTY_USER_LAST_NAME, fromUser.getLastName());
-        store.setModelProperty(toIdentity, PROPERTY_USER_EMAIL, fromUser.getEmail());
     }
 
     @Override
-    protected AbstractBaseEvent raiseCreatedEvent(User fromIdentityType, JPAIdentityStore store) {
-        return new UserCreatedEvent(fromIdentityType);
+    protected AbstractBaseEvent raiseCreatedEvent(Agent fromIdentityType, JPAIdentityStore store) {
+        return new AgentCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(User fromIdentityType, JPAIdentityStore store) {
-        return new UserUpdatedEvent(fromIdentityType);
+    protected AbstractBaseEvent raiseUpdatedEvent(Agent fromIdentityType, JPAIdentityStore store) {
+        return new AgentUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType, JPAIdentityStore store) {
-        return new UserDeletedEvent(fromIdentityType);
+    protected AbstractBaseEvent raiseDeletedEvent(Agent fromIdentityType, JPAIdentityStore store) {
+        return new AgentDeletedEvent(fromIdentityType);
+    }
+
+    @Override
+    protected Agent doCreateIdentityType(Object identity, JPAIdentityStore store) {
+        String idValue = store.getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getValue(identity).toString();
+
+        Agent agent = new SimpleAgent(idValue);
+        
+        return agent;
     }
     
     @Override
@@ -85,27 +88,9 @@ public class UserTypeHandler extends IdentityTypeHandler<User>{
         Root<?> root = criteria.getRoot();
         
         
-        if (queryParameter.equals(User.ID)) {
+        if (queryParameter.equals(Agent.ID)) {
             predicates.add(builder.equal(
                     criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_ID).getName()),
-                    parameterValues[0]));
-        }
-        
-        if (queryParameter.equals(User.FIRST_NAME)) {
-            predicates.add(builder.equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_FIRST_NAME).getName()),
-                    parameterValues[0]));
-        }
-        
-        if (queryParameter.equals(User.LAST_NAME)) {
-            predicates.add(builder.equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_LAST_NAME).getName()),
-                    parameterValues[0]));
-        }
-        
-        if (queryParameter.equals(User.EMAIL)) {
-            predicates.add(builder.equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_EMAIL).getName()),
                     parameterValues[0]));
         }
         
@@ -199,19 +184,5 @@ public class UserTypeHandler extends IdentityTypeHandler<User>{
         
         return predicates;
     }
-
-    @Override
-    protected User doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration storeConfig = store.getConfig();
-        String idValue = storeConfig.getModelProperty(PROPERTY_IDENTITY_ID).getValue(identity).toString();
-        
-        User user = new SimpleUser(idValue);
-
-        user.setFirstName(store.getModelProperty(String.class, identity, PROPERTY_USER_FIRST_NAME));
-        user.setLastName(store.getModelProperty(String.class, identity, PROPERTY_USER_LAST_NAME));
-        user.setEmail(store.getModelProperty(String.class, identity, PROPERTY_USER_EMAIL));
-        
-        return user;
-    }
-
+    
 }

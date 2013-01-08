@@ -46,10 +46,26 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialHandler;
+import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
-import org.picketlink.idm.internal.AbstractIdentityStore;
+import org.picketlink.idm.credential.spi.annotations.Stored;
+import org.picketlink.idm.event.GroupCreatedEvent;
+import org.picketlink.idm.event.GroupDeletedEvent;
+import org.picketlink.idm.event.GroupUpdatedEvent;
+import org.picketlink.idm.event.RoleCreatedEvent;
+import org.picketlink.idm.event.RoleDeletedEvent;
+import org.picketlink.idm.event.RoleUpdatedEvent;
+import org.picketlink.idm.event.UserCreatedEvent;
+import org.picketlink.idm.event.UserDeletedEvent;
+import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.util.IDMUtil;
+import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
@@ -59,6 +75,8 @@ import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.spi.CredentialStore;
+import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
@@ -69,7 +87,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @CredentialHandlers({LDAPPlainTextPasswordCredentialHandler.class, X509CertificateCredentialHandler.class})
-public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> {
+public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, CredentialStore {
 
     private LDAPConfiguration configuration;
     private IdentityStoreInvocationContext context;
@@ -88,6 +106,153 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
     @Override
     public IdentityStoreInvocationContext getContext() {
         return this.context;
+    }
+    
+    @Override
+    public void add(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (IDMUtil.isUserType(identityTypeClass)) {
+            User storedUser = addUser((User) identityType);
+
+            UserCreatedEvent event = new UserCreatedEvent(storedUser);
+           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
+            Group storedGroup = addGroup((Group) identityType);
+
+            GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
+            Role storedRole = addRole((Role) identityType);
+
+            RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
+           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
+        }
+    }
+
+    @Override
+    public void update(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (IDMUtil.isUserType(identityTypeClass)) {
+            User updatedUser = (User) identityType;
+
+            if (updatedUser.getId() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            User storedUser = getUser(updatedUser.getId());
+
+            if (storedUser == null) {
+                throw new RuntimeException("User [" + updatedUser.getId() + "] does not exists.");
+            }
+
+            updateUser(updatedUser, storedUser);
+
+            UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
+           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
+            Group updatedGroup = (Group) identityType;
+
+            if (updatedGroup.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Group storedGroup = getGroup(updatedGroup.getName());
+
+            if (storedGroup == null) {
+                throw new RuntimeException("No group found with the given name [" + updatedGroup.getName() + "].");
+            }
+
+            updateGroup(updatedGroup, storedGroup);
+
+            GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
+            Role updatedRole = (Role) identityType;
+
+            if (updatedRole.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Role storedRole = getRole(updatedRole.getName());
+
+            if (storedRole == null) {
+                throw new RuntimeException("No role found with the given name [" + updatedRole.getName() + "].");
+            }
+
+            updateRole(updatedRole, storedRole);
+
+            RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
+        }
+    }
+
+    @Override
+    public void remove(IdentityType identityType) {
+        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+        if (IDMUtil.isUserType(identityTypeClass)) {
+            User user = (User) identityType;
+
+            if (user.getId() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            User storedUser = getUser(user.getId());
+
+            if (storedUser == null) {
+                throw new RuntimeException("User [" + user.getId() + "] doest not exists.");
+            }
+
+            removeUser(storedUser);
+            
+            UserDeletedEvent event = new UserDeletedEvent(storedUser);
+           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isGroupType(identityTypeClass)) {
+            Group group = (Group) identityType;
+
+            if (group.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Group storedGroup = getGroup(group.getName());
+
+            if (storedGroup == null) {
+                throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
+            }
+
+            removeGroup(storedGroup);
+            
+            GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+            getContext().getEventBridge().raiseEvent(event);
+        } else if (IDMUtil.isRoleType(identityTypeClass)) {
+            Role role = (Role) identityType;
+            
+            if (role.getName() == null) {
+                throw new IdentityManagementException("No identifier was provided.");
+            }
+
+            Role storedRole = getRole(role.getName());
+
+            if (storedRole == null) {
+                throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
+            }
+
+            removeRole(storedRole);
+            
+            RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
+            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+            getContext().getEventBridge().raiseEvent(event);
+        }
     }
 
     @Override
@@ -477,6 +642,86 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
 
         return result;
     }
+    
+    @Override
+    public void validateCredentials(Credentials credentials) {
+        CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
+        if (handler == null) {
+            throw new SecurityConfigurationException(
+                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
+                            + "] for IdentityStore [" + this.getClass() + "]");
+        }
+        handler.validate(credentials, this);
+    }
+
+    @Override
+    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+        CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
+        if (handler == null) {
+            throw new SecurityConfigurationException(
+                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
+                            + "] for IdentityStore [" + this.getClass() + "]");
+        }
+        handler.update(agent, credential, this, effectiveDate, expiryDate);
+    }
+
+    @Override
+    public void storeCredential(Agent agent, CredentialStorage storage) {
+        List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
+
+        if (annotatedTypes.isEmpty()) {
+            throw new IdentityManagementException("Could not find any @Stored annotated method for CredentialStorage type ["
+                    + storage.getClass().getName() + "].");
+        } else {
+            Property<Object> storedProperty = annotatedTypes.get(0);
+            Object credential = storedProperty.getValue(storage);
+
+            if (Serializable.class.isInstance(credential)) {
+                org.picketlink.idm.model.Attribute<Serializable> credentialAttribute = new org.picketlink.idm.model.Attribute<Serializable>(
+                        storage.getClass().getName(), (Serializable) credential);
+
+                agent.setAttribute(credentialAttribute);
+
+                update(agent);
+            } else {
+                throw new IdentityManagementException(
+                        "Credential storage property [" + storedProperty.getName() + "] in class [" + 
+                        storage.getClass().getName() + "] must implement Serializable");
+            }
+        }
+    }
+
+    @Override
+    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
+        T storage = null;
+        List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storageClass)
+                .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
+
+        if (annotatedTypes.isEmpty()) {
+            throw new IdentityManagementException("Could not find any @Stored annotated method for CredentialStorage type ["
+                    + storageClass.getName() + "].");
+        } else {
+            Property<Object> storedProperty = annotatedTypes.get(0);
+            org.picketlink.idm.model.Attribute<Serializable> credentialAttribute = agent.getAttribute(storageClass.getName());
+
+            if (credentialAttribute != null) {
+                try {
+                    storage = storageClass.newInstance();
+                } catch (Exception e) {
+                    throw new IdentityManagementException("Error while creating a " + storageClass.getName()
+                            + " storage instance.", e);
+                }
+
+                storedProperty.setValue(storage, credentialAttribute.getValue());
+            } else {
+                throw new IdentityManagementException(
+                        "Methods annotated with @Stored should aways return a serializable object.");
+            }
+        }
+
+        return storage;
+    }
 
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
@@ -789,7 +1034,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return this.configuration.getLdapManager();
     }
 
-    @Override
     protected Role addRole(Role role) {
         if (role.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
@@ -804,7 +1048,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return ldapRole;
     }
 
-    @Override
     protected Group addGroup(Group group) {
         if (group.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
@@ -834,7 +1077,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return ldapGroup;
     }
 
-    @Override
     protected User addUser(User user) {
         if (user.getId() == null) {
             throw new IdentityManagementException("No identifier was provided.");
@@ -855,21 +1097,18 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return ldapUser;
     }
 
-    @Override
     protected Group updateGroup(Group updatedGroup, Group storedGroup) {
         updateAttributes((LDAPGroup) updatedGroup, (LDAPGroup) storedGroup);
 
         return updatedGroup;
     }
 
-    @Override
     protected Role updateRole(Role updatedRole, Role storedRole) {
         updateAttributes((LDAPRole) updatedRole, (LDAPRole) storedRole);
 
         return updatedRole;
     }
 
-    @Override
     protected User updateUser(User user, User storedUser) {
         LDAPUser updatedUser = convert(user);
 
@@ -880,14 +1119,12 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return updatedUser;
     }
 
-    @Override
     protected Role removeRole(Role role) {
         removeEntry((LDAPEntry) role);
         removeFromParent(this.configuration.getGroupDNSuffix(), (LDAPEntry) role);
         return role;
     }
 
-    @Override
     protected Group removeGroup(Group group) {
         // removes the custom grouprole entry from inside the user entries
         NamingEnumeration<SearchResult> results = null;
@@ -914,7 +1151,6 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         return group;
     }
 
-    @Override
     protected User removeUser(User user) {
         removeFromParent(this.configuration.getRoleDNSuffix(), (LDAPEntry) user);
         removeFromParent(this.configuration.getGroupDNSuffix(), (LDAPEntry) user);
@@ -1238,5 +1474,9 @@ public class LDAPIdentityStore extends AbstractIdentityStore<LDAPConfiguration> 
         }
 
         return additionalFilter.toString();
+    }
+    
+    private IdentityManagementException createNotImplementedYetException() {
+        return new IdentityManagementException("Not implemented yet.");
     }
 }

@@ -366,7 +366,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
         SimpleGroupRole groupRole = null;
 
-        if (member instanceof User) {
+        if (member instanceof Agent) {
             Role storedRole = null;
             Object identityRole = null;
 
@@ -375,12 +375,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 identityRole = lookupIdentityObjectById(storedRole);
             }
 
-            User storedUser = null;
+            Agent storedAgent = null;
             Object identityUser = null;
 
             if (member != null) {
-                storedUser = getUser(((User) member).getId());
-                identityUser = lookupIdentityObjectById(storedUser);
+                storedAgent = getAgent(((Agent) member).getId());
+                identityUser = lookupIdentityObjectById(storedAgent);
             }
 
             Group storedGroup = null;
@@ -419,7 +419,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             getEntityManager().persist(membership);
             getEntityManager().flush();
 
-            groupRole = new SimpleGroupRole(storedUser, storedRole, storedGroup);
+            groupRole = new SimpleGroupRole(storedAgent, storedRole, storedGroup);
         } else if (member instanceof Group) {
             // TODO implement
             throw new UnsupportedOperationException();
@@ -494,7 +494,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         resultList = defaultIdentityQuery.getResultList();
 
         if (!resultList.isEmpty()) {
-            User storedUser = getUser(((User) member).getId());
+            Agent storedAgent = getAgent(((Agent) member).getId());
             Role storedRole = null;
             Group storedGroup = null;
 
@@ -506,7 +506,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 storedGroup = getGroup(group.getName());
             }
 
-            groupRole = new SimpleGroupRole(storedUser, storedRole, storedGroup);
+            groupRole = new SimpleGroupRole(storedAgent, storedRole, storedGroup);
         }
 
         return groupRole;
@@ -634,7 +634,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         Join<?, ?> join = root.join(attributeIdentityProperty.getName());
 
-        if (IDMUtil.isUserType(identityType.getClass())) {
+        if (IDMUtil.isAgentType(identityType.getClass())) {
             predicates.add(builder.equal(join.get(getConfig().getIdentityIdProperty().getName()), idValue));
         } else {
             predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), idValue));
@@ -996,7 +996,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * exception will be thrown.
      * </p>
      * 
-     * @param identityType
+     * @param identityTremoype
      * @return
      * @throws IdentityManagementException
      */
@@ -1033,13 +1033,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void storeCredential(CredentialStorage storage) {
+    public void storeCredential(Agent agent, CredentialStorage storage) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public CredentialStorage retrieveCurrentCredential(Class<? extends CredentialStorage> storageClass) {
+    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
         // TODO Auto-generated method stub
         return null;
     }

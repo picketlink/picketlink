@@ -44,7 +44,7 @@ import org.picketlink.idm.query.QueryParameter;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class RoleTypeHandler extends IdentityTypeHandler<Role>{
+public class RoleHandler extends IdentityTypeHandler<Role>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {

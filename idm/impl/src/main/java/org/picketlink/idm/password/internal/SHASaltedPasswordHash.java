@@ -42,4 +42,5 @@ public class SHASaltedPasswordHash implements CredentialStorage {
     public void setEncodedHash(String encodedHash) {
         this.encodedHash = encodedHash;
     }
+
 }
