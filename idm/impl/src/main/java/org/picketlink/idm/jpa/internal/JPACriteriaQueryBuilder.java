@@ -56,7 +56,15 @@ public class JPACriteriaQueryBuilder {
         this.identityQuery = identityQuery;
         this.config = identityStore.getConfig();
         this.entityManager = identityStore.getEntityManager();
+
+        if(entityManager == null){
+            throw new IllegalStateException("Entity Manager is null");
+        }
         this.builder = this.entityManager.getCriteriaBuilder();
+        
+        if(builder == null){
+            throw new IllegalStateException("Criteria Builder is null");
+        }
         
         Class<?> identityClass = this.config.getIdentityClass();
         
