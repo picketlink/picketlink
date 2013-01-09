@@ -9,17 +9,17 @@ import org.picketlink.idm.credential.spi.annotations.Stored;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class PlainTextPasswordStorage implements CredentialStorage {
+public class EncodedPasswordStorage implements CredentialStorage {
 
     private Date effectiveDate;
     private Date expiryDate;
     private String password;
 
-    public PlainTextPasswordStorage() {
+    public EncodedPasswordStorage() {
 
     }
 
-    public PlainTextPasswordStorage(String password) {
+    public EncodedPasswordStorage(String password) {
         setPassword(password);
     }
 

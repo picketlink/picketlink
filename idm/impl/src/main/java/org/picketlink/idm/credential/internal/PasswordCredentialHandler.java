@@ -8,7 +8,7 @@ import java.util.List;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.EncodedPassword;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
@@ -22,17 +22,17 @@ import org.picketlink.idm.spi.IdentityStore;
 /**
  * <p>
  * This particular implementation supports the validation of {@link UsernamePasswordCredentials}, and updating
- * {@link PlainTextPassword} credentials.
+ * {@link org.picketlink.idm.credential.EncodedPassword} credentials.
  * </p>
  * <p>
  * Passwords can be encoded or not. This behavior is configured by setting the <code>encodedPassword</code> property of the
- * {@link PlainTextPassword}.
+ * {@link org.picketlink.idm.credential.EncodedPassword}.
  * </p>
  * 
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({ UsernamePasswordCredentials.class, PlainTextPassword.class })
+@SupportsCredentials({ UsernamePasswordCredentials.class, EncodedPassword.class })
 public class PasswordCredentialHandler implements CredentialHandler {
 
     @Override
@@ -73,12 +73,12 @@ public class PasswordCredentialHandler implements CredentialHandler {
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         CredentialStore store = validateCredentialStore(identityStore);
 
-        if (!PlainTextPassword.class.isInstance(credential)) {
+        if (!EncodedPassword.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
                     + "] not supported by this handler.");
         }
 
-        PlainTextPassword password = (PlainTextPassword) credential;
+        EncodedPassword password = (EncodedPassword) credential;
 
         SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
         SHASaltedPasswordHash hash = new SHASaltedPasswordHash();

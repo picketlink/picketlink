@@ -8,11 +8,10 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.DigestUtil;
-import org.picketlink.idm.credential.PlainTextPassword;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.password.internal.PlainTextPasswordStorage;
+import org.picketlink.idm.password.internal.EncodedPasswordStorage;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -21,8 +20,8 @@ import org.picketlink.idm.spi.IdentityStore;
  * This particular implementation supports the validation of {@link DigestCredentials}.
  * </p>
  * <p>
- * Digest validation requires that the password was previously stored as a {@link PlainTextPassword} without encoding using the
- * {@link PlainTextPasswordStorage}.
+ * Digest validation requires that the password was previously stored as a {@link org.picketlink.idm.credential.EncodedPassword} without encoding using the
+ * {@link org.picketlink.idm.password.internal.EncodedPasswordStorage}.
  * </p>
  * 
  * @author Shane Bryzak
@@ -43,7 +42,7 @@ public class DigestCredentialHandler implements CredentialHandler {
         
         CredentialStore credentialStore = (CredentialStore) identityStore;
         
-        PlainTextPasswordStorage storedPassword = credentialStore.retrieveCurrentCredential(agent, PlainTextPasswordStorage.class);
+        EncodedPasswordStorage storedPassword = credentialStore.retrieveCurrentCredential(agent, EncodedPasswordStorage.class);
 
         if (storedPassword != null) {
             if (DigestUtil.matchCredential(digestCredential.getDigest(), storedPassword.getPassword().toCharArray())) {
