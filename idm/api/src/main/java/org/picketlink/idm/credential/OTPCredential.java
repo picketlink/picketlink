@@ -26,7 +26,7 @@ package org.picketlink.idm.credential;
  * @author anil saldhana
  * @since Dec 31, 2012
  */
-public class OTPCredential extends PlainTextPassword {
+public class OTPCredential extends EncodedPassword {
     public OTPCredential(char[] value) {
         super(value);
     }

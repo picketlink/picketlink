@@ -10,13 +10,13 @@ public class UsernamePasswordCredentials extends AbstractBaseCredentials {
 
     private String username;
 
-    private PlainTextPassword password;
+    private EncodedPassword password;
 
     public UsernamePasswordCredentials() {
         
     }
     
-    public UsernamePasswordCredentials(String userName, PlainTextPassword password) {
+    public UsernamePasswordCredentials(String userName, EncodedPassword password) {
         this.username = userName;
         this.password = password;
     }
@@ -30,11 +30,11 @@ public class UsernamePasswordCredentials extends AbstractBaseCredentials {
         return this;
     }
 
-    public PlainTextPassword getPassword() {
+    public EncodedPassword getPassword() {
         return password;
     }
 
-    public UsernamePasswordCredentials setPassword(PlainTextPassword password) {
+    public UsernamePasswordCredentials setPassword(EncodedPassword password) {
         this.password = password;
         return this;
     }

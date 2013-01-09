@@ -5,14 +5,14 @@ package org.picketlink.idm.credential;
  * 
  * @author Shane Bryzak
  */
-public class PlainTextPassword {
+public class EncodedPassword {
 
     private char[] value;
 
-    public PlainTextPassword(char[] value) {
+    public EncodedPassword(char[] value) {
         this.value = value;
     }
-    public PlainTextPassword(String str) {
+    public EncodedPassword(String str) {
         this.value = str.toCharArray();
     }
 
