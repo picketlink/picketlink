@@ -29,7 +29,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.User;
 
@@ -54,7 +54,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     public void testSuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = loadOrCreateUser("someUser", true);
-        PlainTextPassword plainTextPassword = new PlainTextPassword("updated_password".toCharArray());
+        Password plainTextPassword = new Password("updated_password".toCharArray());
 
         identityManager.updateCredential(user, plainTextPassword, new Date(), null);
 
@@ -79,7 +79,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     public void testUnsuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = loadOrCreateUser("someUser", true);
-        PlainTextPassword plainTextPassword = new PlainTextPassword("updated_password".toCharArray());
+        Password plainTextPassword = new Password("updated_password".toCharArray());
 
         identityManager.updateCredential(user, plainTextPassword, new Date(), null);
         UsernamePasswordCredentials badUserName = new UsernamePasswordCredentials();
@@ -93,7 +93,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
 
-        plainTextPassword = new PlainTextPassword("bad_password".toCharArray());
+        plainTextPassword = new Password("bad_password".toCharArray());
         
         badPassword.setUsername(user.getId());
         badPassword.setPassword(plainTextPassword);
@@ -115,7 +115,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = loadOrCreateUser("someUser", true);
-        PlainTextPassword plainTextPassword = new PlainTextPassword("updated_password".toCharArray());
+        Password plainTextPassword = new Password("updated_password".toCharArray());
 
         Calendar expirationDate = Calendar.getInstance();
         

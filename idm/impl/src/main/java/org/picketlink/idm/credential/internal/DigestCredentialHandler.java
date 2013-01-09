@@ -8,7 +8,7 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.DigestUtil;
-import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
@@ -21,7 +21,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * This particular implementation supports the validation of {@link DigestCredentials}.
  * </p>
  * <p>
- * Digest validation requires that the password was previously stored as a {@link PlainTextPassword} without encoding using the
+ * Digest validation requires that the password was previously stored as a {@link Password} without encoding using the
  * {@link PlainTextPasswordStorage}.
  * </p>
  * 

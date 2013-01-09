@@ -7,7 +7,7 @@ import javax.inject.Named;
 import org.picketlink.authentication.event.LoginFailedEvent;
 import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Agent;
 
 /**
@@ -46,8 +46,8 @@ public class DefaultLoginCredentials implements Credentials
     
     public String getPassword()
     {  
-        if(credential != null && credential instanceof PlainTextPassword){
-            PlainTextPassword ptp = (PlainTextPassword) credential;
+        if(credential != null && credential instanceof Password){
+            Password ptp = (Password) credential;
             return new String(ptp.getValue());
         }
         return null;
@@ -58,7 +58,7 @@ public class DefaultLoginCredentials implements Credentials
      */
     public void setPassword(final String password)
     {
-        this.credential = new PlainTextPassword(password.toCharArray());
+        this.credential = new Password(password.toCharArray());
     }
 
     public void invalidate()

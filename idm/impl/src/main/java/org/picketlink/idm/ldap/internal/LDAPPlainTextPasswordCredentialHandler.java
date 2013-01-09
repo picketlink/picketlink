@@ -9,7 +9,7 @@ import javax.naming.directory.ModificationItem;
 
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
@@ -22,7 +22,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@SupportsCredentials({UsernamePasswordCredentials.class, PlainTextPassword.class})
+@SupportsCredentials({UsernamePasswordCredentials.class, Password.class})
 public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler {
     
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
@@ -60,12 +60,12 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         checkIdentityStoreInstance(identityStore);
         
-        if (!PlainTextPassword.class.isInstance(credential)) {
+        if (!Password.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
                     + "] not supported by this handler.");
         }
 
-        PlainTextPassword password = (PlainTextPassword) credential;
+        Password password = (Password) credential;
 
         LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
         LDAPUser ldapuser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
