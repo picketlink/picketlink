@@ -131,5 +131,40 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         Assert.assertEquals(Status.EXPIRED, credential.getStatus());
     }
+    
+    /**
+     * <p>
+     * Tests password updation.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testUpdatePassword() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = loadOrCreateUser("someUser", true);
+        Password firstPassword = new Password("password1".toCharArray());
 
+        identityManager.updateCredential(user, firstPassword, new Date(), null);
+
+        UsernamePasswordCredentials firstCredential = new UsernamePasswordCredentials(user.getId(), firstPassword);
+
+        identityManager.validateCredentials(firstCredential);
+
+        Assert.assertEquals(Status.VALID, firstCredential.getStatus());
+        
+        Password secondPassword = new Password("password2".toCharArray());
+        
+        identityManager.updateCredential(user, secondPassword, null, null);
+        
+        UsernamePasswordCredentials secondCredential = new UsernamePasswordCredentials(user.getId(), secondPassword);
+        
+        identityManager.validateCredentials(secondCredential);
+
+        Assert.assertEquals(Status.VALID, secondCredential.getStatus());
+        
+        identityManager.validateCredentials(firstCredential);
+
+        Assert.assertEquals(Status.INVALID, firstCredential.getStatus());
+    }
 }

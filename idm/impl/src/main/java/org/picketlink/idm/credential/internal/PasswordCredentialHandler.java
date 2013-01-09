@@ -15,7 +15,7 @@ import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
-import org.picketlink.idm.password.internal.SHASaltedPasswordHash;
+import org.picketlink.idm.password.internal.SHASaltedPasswordStorage;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 
@@ -52,7 +52,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            SHASaltedPasswordHash hash = store.retrieveCurrentCredential(agent, SHASaltedPasswordHash.class);
+            SHASaltedPasswordStorage hash = store.retrieveCurrentCredential(agent, SHASaltedPasswordStorage.class);
 
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
@@ -63,7 +63,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
                     usernamePassword.setStatus(Status.VALID);
                     usernamePassword.setValidatedAgent(agent);
                 }
-            } else if (isLastCredentialExpired(agent, store, SHASaltedPasswordHash.class)) {
+            } else if (isLastCredentialExpired(agent, store, SHASaltedPasswordStorage.class)) {
                 usernamePassword.setStatus(Status.EXPIRED);
             }
         }
@@ -81,7 +81,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         Password password = (Password) credential;
 
         SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
-        SHASaltedPasswordHash hash = new SHASaltedPasswordHash();
+        SHASaltedPasswordStorage hash = new SHASaltedPasswordStorage();
 
         hash.setSalt(generateSalt());
         hash.setEncodedHash(encoder.encodePassword(hash.getSalt(), new String(password.getValue())));
