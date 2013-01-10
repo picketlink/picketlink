@@ -27,6 +27,7 @@ import java.util.Date;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
@@ -63,17 +64,11 @@ public interface IdentityManager extends Serializable{
 
     // General
 
-    void add(IdentityType identityType);
+    void add(AttributedType value);
 
-    void add(Relationship relationship);
+    void update(AttributedType value);
 
-    void update(IdentityType identityType);
-
-    void update(Relationship relationship);
-
-    void remove(IdentityType identityType);
-
-    void remove(Relationship relationship);
+    void remove(AttributedType value);
 
     // Agent
 
@@ -110,10 +105,6 @@ public interface IdentityManager extends Serializable{
     void grantRole(IdentityType identityType, Role role);
 
     void revokeRole(IdentityType identityType, Role role);
-
-    // Relationships
-
-    Relationship getRelationship(String id);
 
     // Query API
 
