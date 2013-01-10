@@ -86,6 +86,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         hash.setSalt(generateSalt());
         hash.setEncodedHash(encoder.encodePassword(hash.getSalt(), new String(password.getValue())));
         hash.setEffectiveDate(effectiveDate);
+        
         if(expiryDate != null){
             hash.setExpiryDate(expiryDate);
         }
