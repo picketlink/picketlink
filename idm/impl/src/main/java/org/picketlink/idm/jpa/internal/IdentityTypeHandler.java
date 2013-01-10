@@ -176,25 +176,25 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         }
 
         if (queryParameter.equals(IdentityType.CREATED_AFTER)) {
-            predicates.add(criteria.getBuilder().greaterThan(
+            predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
                     criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.EXPIRY_AFTER)) {
-            predicates.add(criteria.getBuilder().greaterThan(
+            predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
                     criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.CREATED_BEFORE)) {
-            predicates.add(criteria.getBuilder().lessThan(
+            predicates.add(criteria.getBuilder().lessThanOrEqualTo(
                     criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.EXPIRY_BEFORE)) {
-            predicates.add(criteria.getBuilder().lessThan(
+            predicates.add(criteria.getBuilder().lessThanOrEqualTo(
                     criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
                     (Date) parameterValues[0]));
         }
