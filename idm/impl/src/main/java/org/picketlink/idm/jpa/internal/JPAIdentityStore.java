@@ -39,6 +39,7 @@ import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.event.AbstractBaseEvent;
+import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
@@ -1135,7 +1136,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 }
 
                 attributeName.setValue(newCredentialAttribute, property.getName());
-                attributeValue.setValue(newCredentialAttribute, property.getValue(storage));
+                attributeValue.setValue(newCredentialAttribute, Base64.encodeObject((Serializable) property.getValue(storage)));
                 attributeType.setValue(newCredentialAttribute, property.getJavaClass().getName());
                 attributeCredential.setValue(newCredentialAttribute, newCredential);
 
@@ -1260,7 +1261,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 Property<Object> property = annotatedTypes.get(0);
 
-                property.setValue(storage, value);
+                property.setValue(storage, Base64.decodeToObject(value));
             }
         }
 
