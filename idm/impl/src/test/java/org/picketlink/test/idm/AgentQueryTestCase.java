@@ -662,7 +662,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
     public void testFindBetweenExpirationDate() throws Exception {
         Agent someAgent = loadOrCreateAgent("someAgent", true);
 
-        someAgent.setExpirationDate(new Date());
+        Date currentDate = new Date();
+        
+        someAgent.setExpirationDate(currentDate);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -670,7 +672,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         Agent someAnotherAgent = loadOrCreateAgent("someAnotherAgent", true);
 
-        someAnotherAgent.setExpirationDate(new Date());
+        someAnotherAgent.setExpirationDate(currentDate);
 
         identityManager.update(someAnotherAgent);
 
@@ -684,7 +686,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         // users between the given time period
         query.setParameter(Agent.EXPIRY_AFTER, expiryDate);
-        query.setParameter(Agent.EXPIRY_BEFORE, new Date());
+        query.setParameter(Agent.EXPIRY_BEFORE, currentDate);
 
         Agent someFutureAgent = loadOrCreateAgent("someFutureAgent", true);
 
