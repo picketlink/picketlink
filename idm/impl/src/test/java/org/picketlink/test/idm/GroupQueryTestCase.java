@@ -35,6 +35,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 
 /**
@@ -306,7 +307,12 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Group> createQuery(Group.class);
 
-        query.setParameter(Group.CREATED_AFTER, new Date());
+        Calendar futureDate = Calendar.getInstance();
+        
+        futureDate.add(Calendar.MINUTE, 1);
+        
+        // Should return an empty list.
+        query.setParameter(User.CREATED_AFTER, futureDate.getTime());
 
         result = query.getResultList();
 

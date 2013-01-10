@@ -541,8 +541,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(Agent.CREATED_AFTER, calendar.getTime());
         query.setParameter(Agent.CREATED_BEFORE, new Date());
 
-        Thread.sleep(1000);
-
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
@@ -583,8 +581,11 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
-        // users created after the given time. Should return an empty list.
-        query.setParameter(Agent.CREATED_AFTER, new Date());
+        calendar = Calendar.getInstance();
+
+        calendar.add(Calendar.HOUR, 1);
+
+        query.setParameter(Agent.EXPIRY_DATE, calendar.getTime());
 
         result = query.getResultList();
 

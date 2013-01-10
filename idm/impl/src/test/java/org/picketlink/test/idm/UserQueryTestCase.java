@@ -682,10 +682,12 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<User> createQuery(User.class);
 
-        Thread.sleep(1000);
+        Calendar futureDate = Calendar.getInstance();
         
-        // users created after the given time. Should return an empty list.
-        query.setParameter(User.CREATED_AFTER, new Date());
+        futureDate.add(Calendar.MINUTE, 1);
+        
+        // Should return an empty list.
+        query.setParameter(User.CREATED_AFTER, futureDate.getTime());
 
         result = query.getResultList();
 
