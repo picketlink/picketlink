@@ -70,12 +70,11 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-//@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
-//        UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-//        RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentManagementTestCase.class,
-//        AgentQueryTestCase.class, AgentGroupsRelationshipTestCase.class, AgentRolesRelationshipTestCase.class,
-//        AgentGroupRoleRelationshipTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class })
-@SuiteClasses({ CertificateCredentialTestCase.class })
+@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
+        UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentManagementTestCase.class,
+        AgentQueryTestCase.class, AgentGroupsRelationshipTestCase.class, AgentRolesRelationshipTestCase.class,
+        AgentGroupRoleRelationshipTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;
