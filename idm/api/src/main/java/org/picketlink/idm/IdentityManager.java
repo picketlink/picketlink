@@ -64,11 +64,19 @@ public interface IdentityManager extends Serializable{
 
     // General
 
-    void add(AttributedType value);
+    void add(IdentityType value);
 
-    void update(AttributedType value);
+    void update(IdentityType value);
 
-    void remove(AttributedType value);
+    void remove(IdentityType value);
+
+    // Relationships
+
+    void add(Relationship value);
+
+    void update(Relationship value);
+
+    void remove(Relationship value);
 
     // Agent
 

@@ -48,6 +48,7 @@ import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
@@ -106,60 +107,78 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void add(IdentityType identityType) {
-        checkInvalidIdentityType(identityType);
-
-        if (lookupIdentityObjectById(identityType) != null) {
-            throw new IdentityManagementException("IdentityType already exists.");
+    public void add(AttributedType value) {
+        if (value == null) {
+            throw new IllegalArgumentException("value passed to IdentityStore.add() may not be null");
         }
 
-        try {
+        if (value instanceof IdentityType) {
+            IdentityType identityType = (IdentityType) value;
+
+            if (lookupIdentityObjectById(identityType) != null) {
+                throw new IdentityManagementException("IdentityType already exists.");
+            }
+
+            try {
+                IdentityTypeHandler<IdentityType> identityTypeManager = getConfig().getIdentityTypeManager(identityType.getClass());
+
+                Object identity = identityTypeManager.createIdentityInstance(getContext().getRealm(), identityType, this);
+
+                EntityManager em = getEntityManager();
+
+                em.persist(identity);
+                em.flush();
+
+                updateAttributes(identityType, identity);
+
+                AbstractBaseEvent event = identityTypeManager.raiseCreatedEvent(identityType, this);
+
+                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+                getContext().getEventBridge().raiseEvent(event);
+            } catch (Exception ex) {
+                throw new IdentityManagementException("Exception while creating IdentityType [" + identityType + "].", ex);
+            }
+        }
+        else if (value instanceof Relationship) {
+            // TODO Implement
+        }
+    }
+
+    @Override
+    public void update(AttributedType value) {
+        if (value == null) {
+            throw new IllegalArgumentException("value passed to IdentityStore.update() may not be null");
+        }
+
+        if (value instanceof IdentityType) {
+            IdentityType identityType = (IdentityType) value;
+
             IdentityTypeHandler<IdentityType> identityTypeManager = getConfig().getIdentityTypeManager(identityType.getClass());
 
-            Object identity = identityTypeManager.createIdentityInstance(getContext().getRealm(), identityType, this);
+            Object identity = getIdentityObject(identityType);
 
-            EntityManager em = getEntityManager();
-
-            em.persist(identity);
-            em.flush();
+            identityTypeManager.populateIdentityInstance(getContext().getRealm(), identity, identityType, this);
 
             updateAttributes(identityType, identity);
 
-            AbstractBaseEvent event = identityTypeManager.raiseCreatedEvent(identityType, this);
+            EntityManager em = getEntityManager();
+
+            em.merge(identity);
+            em.flush();
+
+            AbstractBaseEvent event = identityTypeManager.raiseUpdatedEvent(identityType, this);
 
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
             getContext().getEventBridge().raiseEvent(event);
-        } catch (Exception ex) {
-            throw new IdentityManagementException("Exception while creating IdentityType [" + identityType + "].", ex);
+        } else if (value instanceof Relationship) {
+            // TODO implement
         }
+
     }
 
     @Override
-    public void update(IdentityType identityType) {
-        checkInvalidIdentityType(identityType);
-
-        IdentityTypeHandler<IdentityType> identityTypeManager = getConfig().getIdentityTypeManager(identityType.getClass());
-
-        Object identity = getIdentityObject(identityType);
-
-        identityTypeManager.populateIdentityInstance(getContext().getRealm(), identity, identityType, this);
-
-        updateAttributes(identityType, identity);
-
-        EntityManager em = getEntityManager();
-
-        em.merge(identity);
-        em.flush();
-
-        AbstractBaseEvent event = identityTypeManager.raiseUpdatedEvent(identityType, this);
-
-        event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
-        getContext().getEventBridge().raiseEvent(event);
-    }
-
-    @Override
-    public void remove(IdentityType identityType) {
-        checkInvalidIdentityType(identityType);
+    public void remove(AttributedType value) {
+        checkInvalidIdentityType(value);
 
         EntityManager em = getEntityManager();
         
@@ -1000,21 +1019,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     Object lookupPartitionObject(Partition partition) {
         // TODO implement realm lookup
         return null;
-    }
-
-    /**
-     * <p>
-     * Checks if the provided {@link IdentityType} instance is valid or not null. An exception will be thrown when the
-     * validation fails.
-     * </p>
-     * 
-     * @param identityType
-     * @throws IdentityManagementException
-     */
-    private void checkInvalidIdentityType(IdentityType identityType) throws IdentityManagementException {
-        if (identityType == null) {
-            throw new IdentityManagementException("The provided IdentityType instance is invalid or was null.");
-        }
     }
 
     /**
