@@ -24,6 +24,7 @@ package org.picketlink.idm.internal;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -394,7 +395,11 @@ public class DefaultIdentityManager implements IdentityManager {
     public void updateCredential(Agent agent, Object value) {
         Date currentDate = new Date();  
         
-        updateCredential(agent, value, currentDate,null);
+        Calendar futureDate = Calendar.getInstance();
+        futureDate.setTime(currentDate);
+        futureDate.add(Calendar.YEAR,1500); //1500 years 
+        
+        updateCredential(agent, value, currentDate,futureDate.getTime());
     }
     @Override
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
