@@ -30,7 +30,11 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
 
         for (Class<? extends CredentialHandler> handlerClass : handlers.value()) {
             if (handlerSupports(handlerClass, credentialsClass)) {
-                return handlerInstances.get(handlerClass);
+                if (!handlerInstances.containsKey(handlerClass)) {
+                    return createHandlerInstance(handlerClass);
+                } else {
+                    return handlerInstances.get(handlerClass);    
+                }
             }
         }
 
