@@ -81,6 +81,15 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
         assertTrue(result.size() == 1);
 
         assertEquals(appName, result.get(0).getId());
+        
+        //Query with a wrong agent id
+        
+        query = identityManager.createQuery(Agent.class);
+        query.setParameter(Agent.ID, "bogus");
+
+        result = query.getResultList();
+
+        assertTrue(result.isEmpty());
     }
     
     @Test
