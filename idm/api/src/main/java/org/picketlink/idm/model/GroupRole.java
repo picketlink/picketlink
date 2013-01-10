@@ -30,9 +30,21 @@ import org.picketlink.idm.query.QueryParameter;
  * @author Boleslaw Dawidowicz
  * @author Shane Bryzak
  */
-public interface GroupRole extends GroupMembership {
+public class GroupRole extends GroupMembership implements Relationship {
+
+    private static final long serialVersionUID = 2844617870858266637L;
+
     QueryParameter ROLE = new QueryParameter() {};
 
+    private Role role;
+
+    public GroupRole(IdentityType member, Group group, Role role) {
+        super(member, group);
+        this.role = role;
+    }
+
     @RelationshipIdentity
-    Role getRole();
+    public Role getRole() {
+        return role;
+    }
 }

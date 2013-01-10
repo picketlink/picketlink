@@ -7,21 +7,48 @@ import org.picketlink.idm.model.annotation.RelationshipIdentity;
  * Models an oAuth authorization
  * 
  * @author Shane Bryzak
- *
+ * 
  */
-public interface Authorization extends Relationship {
+public class Authorization extends AbstractAttributedType implements Relationship {
+
+    private static final long serialVersionUID = -8044173562668371515L;
+
+    private User user;
+    private Agent application;
+    private String authorizationCode;
+    private String accessToken;
+    private String refreshToken;
+
+    public Authorization(User user, Agent application, String authorizationCode, String accessToken, String refreshToken) {
+        this.user = user;
+        this.application = application;
+        this.authorizationCode = authorizationCode;
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+    }
+
     @RelationshipIdentity
-    User getUser();
-    
+    public User getUser() {
+        return user;
+    }
+
     @RelationshipIdentity
-    Agent getApplication();
-    
+    public Agent getApplication() {
+        return application;
+    }
+
     @RelationshipAttribute
-    String getAuthorizationCode();
-    
+    public String getAuthorizationCode() {
+        return authorizationCode;
+    }
+
     @RelationshipAttribute
-    String getAccessToken();
-    
+    public String getAccessToken() {
+        return accessToken;
+    }
+
     @RelationshipAttribute
-    String getRefreshToken();
+    public String getRefreshToken() {
+        return refreshToken;
+    }
 }

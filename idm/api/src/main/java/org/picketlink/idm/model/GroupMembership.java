@@ -8,14 +8,28 @@ import org.picketlink.idm.query.QueryParameter;
  * 
  * @author Shane Bryzak
  */
-public interface GroupMembership extends Relationship {
+public class GroupMembership extends AbstractAttributedType implements Relationship {
     QueryParameter MEMBER = new QueryParameter() {};
 
     QueryParameter GROUP = new QueryParameter() {};
 
-    @RelationshipIdentity
-    IdentityType getMember();
+    private static final long serialVersionUID = 6851576454138812116L;
+
+    private IdentityType member;
+    private Group group;
+
+    public GroupMembership(IdentityType member, Group group) {
+        this.member = member;
+        this.group = group;
+    }
 
     @RelationshipIdentity
-    Group getGroup();
+    public IdentityType getMember() {
+        return member;
+    }
+
+    @RelationshipIdentity
+    public Group getGroup() {
+        return group;
+    }
 }
