@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.SimpleIdentityStoreInvocationContextFactory;
@@ -249,7 +249,7 @@ public class OAuthServerUtil {
             // Validate client secret
             UsernamePasswordCredentials upc = new UsernamePasswordCredentials();
             upc.setUsername(clientApp.getId());
-            upc.setPassword(new PlainTextPassword(passedClientSecret.toCharArray()));
+            upc.setPassword(new Password(passedClientSecret.toCharArray()));
 
             try {
                 identityManager.validateCredentials(upc);
@@ -269,7 +269,7 @@ public class OAuthServerUtil {
             } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) {
                 UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials();
                 usernamePasswordCredentials.setUsername(username);
-                usernamePasswordCredentials.setPassword(new PlainTextPassword(password.toCharArray()));
+                usernamePasswordCredentials.setPassword(new Password(password.toCharArray()));
                 try{
                     identityManager.validateCredentials(usernamePasswordCredentials);
                 }catch(Exception e){

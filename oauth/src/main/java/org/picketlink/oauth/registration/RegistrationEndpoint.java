@@ -35,7 +35,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.picketlink.idm.credential.PlainTextPassword;
+import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
@@ -90,7 +90,7 @@ public class RegistrationEndpoint extends BaseEndpoint {
 
                 identityManager.add(user);
 
-                identityManager.updateCredential(user, new PlainTextPassword(generatedSecret.toCharArray()));
+                identityManager.updateCredential(user, new Password(generatedSecret.toCharArray()));
 
                 OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
                         .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
