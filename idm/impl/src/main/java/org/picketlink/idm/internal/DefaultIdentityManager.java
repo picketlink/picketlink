@@ -41,9 +41,13 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGrant;
+import org.picketlink.idm.model.SimpleGroupMembership;
+import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStore.Feature;
@@ -231,6 +235,15 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
+    public void add(Relationship relationship) {
+        Feature feature = Feature.createRelationship;
+
+        IdentityStoreInvocationContext ctx = createContext();
+
+        getContextualStoreForFeature(ctx, feature).add(relationship);
+    }
+
+    @Override
     public void update(IdentityType identityType) {
         Feature feature;
 
@@ -259,6 +272,15 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         getContextualStoreForFeature(createContext(), feature).update(identityType);
+    }
+
+    @Override
+    public void update(Relationship relationship) {
+        Feature feature = Feature.updateRelationship;
+
+        IdentityStoreInvocationContext ctx = createContext();
+
+        getContextualStoreForFeature(ctx, feature).update(relationship);
     }
 
     @Override
@@ -292,6 +314,15 @@ public class DefaultIdentityManager implements IdentityManager {
         getContextualStoreForFeature(ctx, feature).remove(identityType);
     }
 
+    @Override
+    public void remove(Relationship relationship) {
+        Feature feature = Feature.deleteRelationship;
+
+        IdentityStoreInvocationContext ctx = createContext();
+
+        getContextualStoreForFeature(ctx, feature).update(relationship);
+    }
+
     public Agent getAgent(String id) {
         return getContextualStoreForFeature(createContext(), Feature.readAgent).getAgent(id);
     }
@@ -323,17 +354,20 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean isMember(IdentityType identityType, Group group) {
-        return getContextualStoreForFeature(createContext(), Feature.readMembership).getMembership(identityType, group, null) != null;
+        // TODO rewrite using a Relationship Query
+        return false;
+        //return getContextualStoreForFeature(createContext(), Feature.readRelationship).getMembership(identityType, group, null) != null;
     }
 
     @Override
-    public void addToGroup(IdentityType identityType, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership).createMembership(identityType, group, null);
+    public void addToGroup(IdentityType member, Group group) {
+        add(new SimpleGroupMembership(member, group));
     }
 
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.deleteMembership).removeMembership(identityType, group, null);
+        // TODO rewrite using a Relationship Query
+        //getContextualStoreForFeature(createContext(), Feature.deleteMembership).removeMembership(identityType, group, null);
     }
 
     @Override
@@ -348,38 +382,42 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
-        return getContextualStoreForFeature(createContext(), Feature.readMembership)
-                .getMembership(identityType, group, role) != null;
+        // TODO rewrite using a Relationship Query
+        return false;
+        //return getContextualStoreForFeature(createContext(), Feature.readMembership)
+        //        .getMembership(identityType, group, role) != null;
     }
 
     @Override
-    public void grantGroupRole(IdentityType identityType, Role role, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership)
-        .createMembership(identityType, group, role);
+    public void grantGroupRole(IdentityType member, Role role, Group group) {
+        add(new SimpleGroupRole(member, group, role));
     }
 
     @Override
     public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership)
-            .removeMembership(identityType, group, role);
+        // TODO rewrite using a Relationship Query
+        //getContextualStoreForFeature(createContext(), Feature.createMembership)
+        //    .removeMembership(identityType, group, role);
     }
 
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
-        return getContextualStoreForFeature(createContext(), Feature.readMembership)
-                .getMembership(identityType, null, role) != null;
+        // TODO rewrite using a Relationship Query
+        return false;
+        //return getContextualStoreForFeature(createContext(), Feature.readMembership)
+                //.getMembership(identityType, null, role) != null;
     }
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
-        getContextualStoreForFeature(createContext(), Feature.createMembership)
-            .createMembership(identityType, null, role);
+        add(new SimpleGrant(identityType, role));
     }
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        getContextualStoreForFeature(createContext(), Feature.deleteMembership)
-            .removeMembership(identityType, null, role);
+        // TODO rewrite using a Relationship Query
+        //getContextualStoreForFeature(createContext(), Feature.deleteMembership)
+            //.removeMembership(identityType, null, role);
     }
 
     @Override
@@ -449,5 +487,11 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void loadAttribute(IdentityType identityType, String attributeName) {
         
+    }
+
+    @Override
+    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
+        // TODO Auto-generated method stub
+        return null;
     }
 }
