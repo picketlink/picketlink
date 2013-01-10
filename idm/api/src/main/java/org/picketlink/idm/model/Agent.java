@@ -1,7 +1,5 @@
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -10,7 +8,7 @@ import org.picketlink.idm.query.QueryParameter;
  *  
  * @author Shane Bryzak
  */
-public interface Agent extends IdentityType, Serializable {
+public interface Agent extends IdentityType {
 
     /**
      * A query parameter used to set the id value.

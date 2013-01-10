@@ -73,7 +73,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         CredentialStore store = validateCredentialStore(identityStore);
 
-        if (!Password.class.isInstance(credential)) {
+        if (!Password.class.isInstance(credential)) { 
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
                     + "] not supported by this handler.");
         }

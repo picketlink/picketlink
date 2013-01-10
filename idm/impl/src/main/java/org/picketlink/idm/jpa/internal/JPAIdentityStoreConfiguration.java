@@ -139,11 +139,13 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
      * Entity classes
      */
     private Class<?> identityClass;
-    private Class<?> membershipClass;
     private Class<?> credentialClass;
     private Class<?> attributeClass;
     private Class<?> partitionClass;
     private Class<?> credentialAttributeClass;
+    private Class<?> relationshipClass;
+    private Class<?> relationshipIdentityClass;
+    private Class<?> relationshipAttributeClass;
 
     public Class<?> getIdentityClass() {
         return identityClass;
@@ -169,12 +171,28 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         this.credentialAttributeClass = credentialAttributeClass;
     }
 
-    public Class<?> getMembershipClass() {
-        return membershipClass;
+    public Class<?> getRelationshipClass() {
+        return relationshipClass;
     }
 
-    public void setMembershipClass(Class<?> membershipClass) {
-        this.membershipClass = membershipClass;
+    public void setRelationshipClass(Class<?> relationshipClass) {
+        this.relationshipClass = relationshipClass;
+    }
+
+    public Class<?> getRelationshipIdentityClass() {
+        return relationshipIdentityClass;
+    }
+
+    public void setRelationshipIdentityClass(Class<?> relationshipIdentityClass) {
+        this.relationshipIdentityClass = relationshipIdentityClass;
+    }
+
+    public Class<?> getRelationshipAttributeClass() {
+        return relationshipAttributeClass;
+    }
+
+    public void setRelationshipAttributeClass(Class<?> relationshipAttributeClass) {
+        this.relationshipAttributeClass = relationshipAttributeClass;
     }
 
     public Class<?> getAttributeClass() {
@@ -738,6 +756,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
      * Configures properties for reading and writing identity memberships. As this is an optional feature, the specified
      * membershipClass property may be left as null in which case no configuration will occur.
      */
+    /*
     protected void configureMemberships() throws SecurityConfigurationException {
         if (membershipClass == null) {
             return;
@@ -805,7 +824,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
                                 + membershipClass.getName());
             }
         }
-    }
+    }*/
 
     /**
      * Configures the identity store for reading and writing attribute values

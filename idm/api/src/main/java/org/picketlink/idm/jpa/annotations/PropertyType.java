@@ -7,7 +7,108 @@ package org.picketlink.idm.jpa.annotations;
  * @author Shane Bryzak
  */
 public enum PropertyType {
-    DISCRIMINATOR, KEY, ENABLED, CREATION_DATE, EXPIRY_DATE, ID, NAME, VALUE, MEMBER,  
-    GROUP, ROLE, CREDENTIAL, CREDENTIAL_TYPE, ATTRIBUTE_TYPE, PARENT_GROUP, FIRST_NAME,
-    LAST_NAME, EMAIL, PARTITION, PARTITION_TYPE, PARENT_PARTITION, RELATES_TO, RELATED_TO, CREDENTIAL_EFFECTIVE_DATE, CREDENTIAL_EXPIRY_DATE, IDENTITY_TYPE
+    /**
+     * The discriminator identifies the particular identity type (such as user, role, group, etc) of the Identity
+     */
+    DISCRIMINATOR,
+    /**
+     * 
+     */
+    KEY,
+    /**
+     * Indicates whether the identity type is enabled
+     */
+    ENABLED,
+    /**
+     * Creation date
+     */
+    CREATION_DATE,
+    /**
+     * Expiry date
+     */
+    EXPIRY_DATE,
+    /**
+     * 
+     */
+    ID,
+    /**
+     * 
+     */
+    NAME,
+    /**
+     * 
+     */
+    VALUE,
+    /**
+     * Credential value
+     */
+    CREDENTIAL,
+    /**
+     * Credential type
+     */
+    CREDENTIAL_TYPE,
+    /**
+     * 
+     */
+    ATTRIBUTE_TYPE,
+    /**
+     * 
+     */
+    PARENT_GROUP,
+    /**
+     * 
+     */
+    FIRST_NAME,
+    /**
+     * 
+     */
+    LAST_NAME,
+    /**
+     * 
+     */
+    EMAIL,
+    /**
+     * 
+     */
+    PARTITION,
+    /**
+     * 
+     */
+    PARTITION_TYPE,
+    /**
+     * 
+     */
+    PARENT_PARTITION,
+    /**
+     * 
+     */
+    CREDENTIAL_EFFECTIVE_DATE,
+    /**
+     * 
+     */
+    CREDENTIAL_EXPIRY_DATE,
+    /**
+     * 
+     */
+    IDENTITY_TYPE,
+    /**
+     * 
+     */
+    RELATIONSHIP_CLASS,
+    /**
+     * 
+     */
+    RELATIONSHIP_IDENTITY,
+    /**
+     * 
+     */
+    RELATIONSHIP_DESCRIPTOR,
+    /**
+     * 
+     */
+    RELATIONSHIP_ATTRIBUTE_NAME,
+    /**
+     * 
+     */
+    RELATIONSHIP_ATTRIBUTE_VALUE
 }

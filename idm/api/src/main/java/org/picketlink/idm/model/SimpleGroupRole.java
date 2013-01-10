@@ -28,15 +28,13 @@ package org.picketlink.idm.model;
  * @author anil saldhana
  * @since Sep 4, 2012
  */
-public class SimpleGroupRole implements GroupRole {
+public class SimpleGroupRole extends SimpleGroupMembership implements GroupRole {
 
     private static final long serialVersionUID = 2844617870858266637L;
 
-    private IdentityType member;
     private Role role;
-    private Group group;
 
-    public SimpleGroupRole(IdentityType member, Role role, Group group) {
+    public SimpleGroupRole(IdentityType member, Group group, Role role) {
 //        if (member == null) {
 //            throw new IllegalStateException("Member may not be null.");
 //        }
@@ -49,19 +47,8 @@ public class SimpleGroupRole implements GroupRole {
 //            throw new IllegalStateException("Group may not be null.");
 //        }
 
-        this.member = member;
+        super(member, group);
         this.role = role;
-        this.group = group;
-    }
-
-    @Override
-    public IdentityType getMember() {
-        return member;
-    }
-
-    @Override
-    public Group getGroup() {
-        return group;
     }
 
     @Override

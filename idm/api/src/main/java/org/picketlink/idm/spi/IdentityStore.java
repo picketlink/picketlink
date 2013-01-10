@@ -54,7 +54,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
     public enum Feature { createUser, readUser, updateUser, deleteUser, 
                           createGroup, readGroup, updateGroup, deleteGroup,
                           createRole, readRole, updateRole, deleteRole,
-                          createMembership, readMembership, updateMembership, deleteMembership,
+                          createRelationship, readRelationship, updateRelationship, deleteRelationship,
                           readAttribute, updateAttribute, deleteAttribute,
                           manageCredentials,
                           supportsTiers, supportsRealms, disableRole, disableGroup, disableUser,

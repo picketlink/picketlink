@@ -11,7 +11,6 @@ import org.picketlink.idm.model.IdentityType;
  * @author Shane Bryzak
  */
 public interface IdentityQuery<T extends IdentityType> {
-//    public enum Operator { equals, notEquals, greaterThan, lessThan };
 
     IdentityQuery<T> setOffset(int offset);
 
@@ -26,8 +25,6 @@ public interface IdentityQuery<T extends IdentityType> {
     int getOffset();
 
     int getLimit();
-
-//    IdentityQuery<T> setParameter(QueryParameter param, Operator operator, Object... value);
 
     List<T> getResultList();
 
