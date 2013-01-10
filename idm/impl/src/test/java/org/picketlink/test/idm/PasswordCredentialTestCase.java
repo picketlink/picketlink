@@ -130,6 +130,16 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(credential);
 
         Assert.assertEquals(Status.EXPIRED, credential.getStatus());
+        
+        Password newPassword = new Password("new_password".toCharArray());
+        
+        identityManager.updateCredential(user, newPassword);
+        
+        credential = new UsernamePasswordCredentials(user.getId(), newPassword);
+        
+        identityManager.validateCredentials(credential);
+
+        Assert.assertEquals(Status.VALID, credential.getStatus());
     }
     
     /**

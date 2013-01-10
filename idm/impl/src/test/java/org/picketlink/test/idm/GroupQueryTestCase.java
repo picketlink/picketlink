@@ -442,7 +442,12 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Group> createQuery(Group.class);
 
-        query.setParameter(Group.EXPIRY_AFTER, new Date());
+        Calendar futureDate = Calendar.getInstance();
+        
+        futureDate.add(Calendar.MINUTE, 1);
+        
+        // Should return an empty list.
+        query.setParameter(User.EXPIRY_AFTER, futureDate.getTime());
 
         result = query.getResultList();
 

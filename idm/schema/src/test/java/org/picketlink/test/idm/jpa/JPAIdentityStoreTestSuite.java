@@ -47,6 +47,7 @@ import org.picketlink.test.idm.AgentGroupsRelationshipTestCase;
 import org.picketlink.test.idm.AgentManagementTestCase;
 import org.picketlink.test.idm.AgentQueryTestCase;
 import org.picketlink.test.idm.AgentRolesRelationshipTestCase;
+import org.picketlink.test.idm.ApplicationUserRelationshipTestCase;
 import org.picketlink.test.idm.CertificateCredentialTestCase;
 import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.GroupQueryTestCase;
@@ -74,7 +75,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
         UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
         RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentManagementTestCase.class,
         AgentQueryTestCase.class, AgentGroupsRelationshipTestCase.class, AgentRolesRelationshipTestCase.class,
-        AgentGroupRoleRelationshipTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class })
+        AgentGroupRoleRelationshipTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class, ApplicationUserRelationshipTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;

@@ -1030,14 +1030,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private boolean isCurrentCredential(FileCredentialStorage fileCredentialStorage) {
         boolean isCurrent = true;
 
+        Date actualDate = new Date();
+
         if (fileCredentialStorage.getEffectiveDate() != null) {
-            if (fileCredentialStorage.getEffectiveDate().after(new Date())) {
+            if (fileCredentialStorage.getEffectiveDate().after(actualDate)
+                    && fileCredentialStorage.getEffectiveDate().compareTo(actualDate) != 0) {
                 isCurrent = false;
             }
         }
 
         if (fileCredentialStorage.getExpiryDate() != null) {
-            if (fileCredentialStorage.getExpiryDate().before(new Date())) {
+            if (fileCredentialStorage.getExpiryDate().before(actualDate)
+                    && fileCredentialStorage.getExpiryDate().compareTo(actualDate) != 0) {
                 isCurrent = false;
             }
         }

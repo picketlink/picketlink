@@ -62,7 +62,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
         GroupManagementTestCase.class, UserGroupsRelationshipTestCase.class, AgentGroupsRelationshipTestCase.class,
         UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
         AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
-        AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class })
+        AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class})
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
