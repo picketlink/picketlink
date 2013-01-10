@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -32,6 +33,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
+import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
@@ -67,7 +69,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * 
  * @author Shane Bryzak
  */
-@CredentialHandlers({ PasswordCredentialHandler.class })
+@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class })
 public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore {
 
     // Invocation context parameters
@@ -117,6 +119,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             Object identity = identityTypeManager.createIdentityInstance(getContext().getRealm(), identityType, this);
 
             EntityManager em = getEntityManager();
+            EntityTransaction transaction = em.getTransaction();
+            if(transaction.isActive() == false){
+                throw new IllegalStateException("Transaction has not been started");
+            }
 
             em.persist(identity);
             em.flush();
@@ -145,6 +151,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         updateAttributes(identityType, identity);
 
         EntityManager em = getEntityManager();
+        
+        EntityTransaction transaction = em.getTransaction();
+        if(transaction.isActive() == false){
+            throw new IllegalStateException("Transaction has not been started");
+        }
 
         em.merge(identity);
         em.flush();
@@ -160,6 +171,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         checkInvalidIdentityType(identityType);
 
         EntityManager em = getEntityManager();
+        EntityTransaction transaction = em.getTransaction();
+        if(transaction.isActive() == false){
+            throw new IllegalStateException("Transaction has not been started");
+        }
         IdentityTypeHandler<IdentityType> identityTypeManager = getConfig().getIdentityTypeManager(identityType.getClass());
 
         Object identity = getIdentityObject(identityType);
