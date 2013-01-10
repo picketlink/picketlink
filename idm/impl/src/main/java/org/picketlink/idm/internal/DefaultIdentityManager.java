@@ -389,6 +389,13 @@ public class DefaultIdentityManager implements IdentityManager {
         store.validateCredentials(credentials);
     }
 
+
+    @Override
+    public void updateCredential(Agent agent, Object value) {
+        Date currentDate = new Date();  
+        
+        updateCredential(agent, value, currentDate,null);
+    }
     @Override
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), 
@@ -445,5 +452,4 @@ public class DefaultIdentityManager implements IdentityManager {
     public void loadAttribute(IdentityType identityType, String attributeName) {
         
     }
-
 }

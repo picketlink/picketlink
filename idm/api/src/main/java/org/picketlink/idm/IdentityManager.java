@@ -111,6 +111,7 @@ public interface IdentityManager extends Serializable{
 
     void validateCredentials(Credentials credentials);
 
+    void updateCredential(Agent agent, Object value);
     void updateCredential(Agent agent, Object value, Date effectiveDate, Date expiryDate);
 
     // User / Role / Group enablement / expiry
