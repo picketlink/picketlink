@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -120,10 +119,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             Object identity = identityTypeManager.createIdentityInstance(getContext().getRealm(), identityType, this);
 
             EntityManager em = getEntityManager();
-            EntityTransaction transaction = em.getTransaction();
-            if(transaction.isActive() == false){
-                throw new IllegalStateException("Transaction has not been started");
-            }
 
             em.persist(identity);
             em.flush();
@@ -152,11 +147,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         updateAttributes(identityType, identity);
 
         EntityManager em = getEntityManager();
-        
-        EntityTransaction transaction = em.getTransaction();
-        if(transaction.isActive() == false){
-            throw new IllegalStateException("Transaction has not been started");
-        }
 
         em.merge(identity);
         em.flush();
@@ -172,10 +162,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         checkInvalidIdentityType(identityType);
 
         EntityManager em = getEntityManager();
-        EntityTransaction transaction = em.getTransaction();
-        if(transaction.isActive() == false){
-            throw new IllegalStateException("Transaction has not been started");
-        }
+        
         IdentityTypeHandler<IdentityType> identityTypeManager = getConfig().getIdentityTypeManager(identityType.getClass());
 
         Object identity = getIdentityObject(identityType);
