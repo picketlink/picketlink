@@ -37,6 +37,7 @@ import java.util.Set;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -88,7 +89,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class })
+@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
 public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore {
 
     private FileIdentityStoreConfiguration config;
@@ -1029,14 +1030,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private boolean isCurrentCredential(FileCredentialStorage fileCredentialStorage) {
         boolean isCurrent = true;
 
+        Date actualDate = new Date();
+
         if (fileCredentialStorage.getEffectiveDate() != null) {
-            if (fileCredentialStorage.getEffectiveDate().after(new Date())) {
+            if (fileCredentialStorage.getEffectiveDate().after(actualDate)
+                    && fileCredentialStorage.getEffectiveDate().compareTo(actualDate) != 0) {
                 isCurrent = false;
             }
         }
 
         if (fileCredentialStorage.getExpiryDate() != null) {
-            if (fileCredentialStorage.getExpiryDate().before(new Date())) {
+            if (fileCredentialStorage.getExpiryDate().before(actualDate)
+                    && fileCredentialStorage.getExpiryDate().compareTo(actualDate) != 0) {
                 isCurrent = false;
             }
         }

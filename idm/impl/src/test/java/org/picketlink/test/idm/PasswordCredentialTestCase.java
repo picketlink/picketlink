@@ -130,6 +130,16 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(credential);
 
         Assert.assertEquals(Status.EXPIRED, credential.getStatus());
+        
+        Password newPassword = new Password("new_password".toCharArray());
+        
+        identityManager.updateCredential(user, newPassword);
+        
+        credential = new UsernamePasswordCredentials(user.getId(), newPassword);
+        
+        identityManager.validateCredentials(credential);
+
+        Assert.assertEquals(Status.VALID, credential.getStatus());
     }
     
     /**
@@ -145,7 +155,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         User user = loadOrCreateUser("someUser", true);
         Password firstPassword = new Password("password1".toCharArray());
 
-        identityManager.updateCredential(user, firstPassword, new Date(), null);
+        identityManager.updateCredential(user, firstPassword);
 
         UsernamePasswordCredentials firstCredential = new UsernamePasswordCredentials(user.getId(), firstPassword);
 
@@ -155,7 +165,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         
         Password secondPassword = new Password("password2".toCharArray());
         
-        identityManager.updateCredential(user, secondPassword, null, null);
+        identityManager.updateCredential(user, secondPassword);
         
         UsernamePasswordCredentials secondCredential = new UsernamePasswordCredentials(user.getId(), secondPassword);
         

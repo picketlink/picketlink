@@ -541,8 +541,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(Agent.CREATED_AFTER, calendar.getTime());
         query.setParameter(Agent.CREATED_BEFORE, new Date());
 
-        Thread.sleep(1000);
-
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
@@ -583,8 +581,11 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
-        // users created after the given time. Should return an empty list.
-        query.setParameter(Agent.CREATED_AFTER, new Date());
+        calendar = Calendar.getInstance();
+
+        calendar.add(Calendar.HOUR, 1);
+
+        query.setParameter(Agent.EXPIRY_DATE, calendar.getTime());
 
         result = query.getResultList();
 
@@ -661,7 +662,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
     public void testFindBetweenExpirationDate() throws Exception {
         Agent someAgent = loadOrCreateAgent("someAgent", true);
 
-        someAgent.setExpirationDate(new Date());
+        Date currentDate = new Date();
+        
+        someAgent.setExpirationDate(currentDate);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -669,7 +672,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         Agent someAnotherAgent = loadOrCreateAgent("someAnotherAgent", true);
 
-        someAnotherAgent.setExpirationDate(new Date());
+        someAnotherAgent.setExpirationDate(currentDate);
 
         identityManager.update(someAnotherAgent);
 
@@ -683,7 +686,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         // users between the given time period
         query.setParameter(Agent.EXPIRY_AFTER, expiryDate);
-        query.setParameter(Agent.EXPIRY_BEFORE, new Date());
+        query.setParameter(Agent.EXPIRY_BEFORE, currentDate);
 
         Agent someFutureAgent = loadOrCreateAgent("someFutureAgent", true);
 

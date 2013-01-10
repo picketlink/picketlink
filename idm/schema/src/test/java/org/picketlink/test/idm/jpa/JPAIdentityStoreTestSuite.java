@@ -42,7 +42,23 @@ import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.MembershipObject;
+import org.picketlink.test.idm.AgentGroupRoleRelationshipTestCase;
+import org.picketlink.test.idm.AgentGroupsRelationshipTestCase;
+import org.picketlink.test.idm.AgentManagementTestCase;
+import org.picketlink.test.idm.AgentQueryTestCase;
+import org.picketlink.test.idm.AgentRolesRelationshipTestCase;
+import org.picketlink.test.idm.ApplicationUserRelationshipTestCase;
+import org.picketlink.test.idm.CertificateCredentialTestCase;
+import org.picketlink.test.idm.GroupManagementTestCase;
+import org.picketlink.test.idm.GroupQueryTestCase;
 import org.picketlink.test.idm.PasswordCredentialTestCase;
+import org.picketlink.test.idm.RoleManagementTestCase;
+import org.picketlink.test.idm.RoleQueryTestCase;
+import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
+import org.picketlink.test.idm.UserGroupsRelationshipTestCase;
+import org.picketlink.test.idm.UserManagementTestCase;
+import org.picketlink.test.idm.UserQueryTestCase;
+import org.picketlink.test.idm.UserRolesRelationshipTestCase;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
@@ -55,12 +71,11 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-//@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
-//        UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-//        RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentManagementTestCase.class,
-//        AgentQueryTestCase.class, AgentGroupsRelationshipTestCase.class, AgentRolesRelationshipTestCase.class,
-//        AgentGroupRoleRelationshipTestCase.class })
-@SuiteClasses({ PasswordCredentialTestCase.class })
+@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
+        UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentManagementTestCase.class,
+        AgentQueryTestCase.class, AgentGroupsRelationshipTestCase.class, AgentRolesRelationshipTestCase.class,
+        AgentGroupRoleRelationshipTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class, ApplicationUserRelationshipTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     protected static EntityManagerFactory emf;

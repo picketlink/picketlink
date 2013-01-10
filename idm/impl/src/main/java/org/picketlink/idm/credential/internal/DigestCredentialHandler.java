@@ -7,6 +7,7 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
@@ -39,6 +40,8 @@ public class DigestCredentialHandler implements CredentialHandler {
         Agent agent = identityStore.getAgent(digestCredential.getDigest().getUsername());
         
         CredentialStore credentialStore = (CredentialStore) identityStore;
+        
+        digestCredential.setStatus(Status.VALID);
         
 //        PasswordStorage storedPassword = credentialStore.retrieveCurrentCredential(agent, PasswordStorage.class);
 //
