@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
@@ -244,6 +245,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void update(IdentityType identityType) {
+        if (identityType.getId() == null) {
+            throw new IdentityManagementException("No identifier was specified.");
+        }
+        
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();
@@ -284,6 +289,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void remove(IdentityType identityType) {
+        if (identityType.getId() == null) {
+            throw new IdentityManagementException("No identifier was specified.");
+        }
+
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();
