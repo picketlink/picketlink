@@ -24,6 +24,12 @@ public interface AttributedType extends Serializable {
     String getId();
 
     /**
+     * Sets the unique identifier for this instance
+     * @return
+     */
+    void setId(String id);
+
+    /**
      * Set the specified attribute. This operation will overwrite any previous value. 
      *
      * @param name of attribute
