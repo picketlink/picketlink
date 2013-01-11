@@ -52,6 +52,8 @@ import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.event.GroupCreatedEvent;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.GroupUpdatedEvent;
+import org.picketlink.idm.event.RelationshipCreatedEvent;
+import org.picketlink.idm.event.RelationshipDeletedEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
@@ -121,230 +123,214 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public void add(AttributedType attributedType) {
+        attributedType.setId(generateUUID());
+        
+        Object eventToFire = null;
+        
         if (IdentityType.class.isInstance(attributedType)) {
             Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User storedUser = addUser((User) attributedType);
 
-                UserCreatedEvent event = new UserCreatedEvent(storedUser);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new UserCreatedEvent(storedUser);
             } else if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent storedAgent = addAgent((Agent) attributedType);
 
-                AgentCreatedEvent event = new AgentCreatedEvent(storedAgent);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new AgentCreatedEvent(storedAgent);
             } else if (IDMUtil.isGroupType(identityTypeClass)) {
                 Group storedGroup = addGroup((Group) attributedType);
 
-                GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new GroupCreatedEvent(storedGroup);
             } else if (IDMUtil.isRoleType(identityTypeClass)) {
                 Role storedRole = addRole((Role) attributedType);
 
-                RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new RoleCreatedEvent(storedRole);
             } else {
                 throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
             }
         } else if (Relationship.class.isInstance(attributedType)) {
-            List<Property<IdentityType>> annotatedTypes = PropertyQueries.<IdentityType> createQuery(attributedType.getClass())
-                    .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
-
-            FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
-
-            fileRelationship.setId(generateUUID());
-            fileRelationship.setType(attributedType.getClass().getName());
-
-            for (Property<IdentityType> property : annotatedTypes) {
-                fileRelationship.getIdentityTypes().put(property.getName(), property.getValue(attributedType));
-            }
-
-            Collection<Attribute<? extends Serializable>> attributes = attributedType.getAttributes();
-
-            for (Attribute<? extends Serializable> attribute : attributes) {
-                fileRelationship.getAttributes().put(attribute.getName(), attribute.getValue().toString());
-            }
-
-            List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(
-                    attributedType.getClass().getName());
-
-            if (!getConfig().getRelationships().containsKey(attributedType.getClass().getName())) {
-                relationships = new ArrayList<FileRelationshipStorage>();
-                getConfig().getRelationships().put(attributedType.getClass().getName(), relationships);
-            }
-
-            relationships.add(fileRelationship);
-            flushRelationships();
+            Relationship relationship = (Relationship) attributedType;
+            
+            addRelationship(relationship);
+            
+            eventToFire = new RelationshipCreatedEvent(relationship);
         } else {
             throw new IdentityManagementException("Unsupported AttributedType [" + attributedType.getClass().getName() + "].");
         }
+        
+        getContext().getEventBridge().raiseEvent(eventToFire);
+    }
+
+    private void addRelationship(Relationship relationship) {
+        List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries.<IdentityType> createQuery(relationship.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
+
+        FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
+
+        fileRelationship.setId(generateUUID());
+        fileRelationship.setType(relationship.getClass().getName());
+
+        for (Property<IdentityType> property : relationshipIdentityTypes) {
+            fileRelationship.getIdentityTypes().put(property.getName(), property.getValue(relationship));
+        }
+
+        Collection<Attribute<? extends Serializable>> attributes = relationship.getAttributes();
+
+        for (Attribute<? extends Serializable> attribute : attributes) {
+            fileRelationship.getAttributes().put(attribute.getName(), attribute.getValue().toString());
+        }
+
+        List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(relationship.getClass().getName());
+
+        if (!getConfig().getRelationships().containsKey(relationship.getClass().getName())) {
+            relationships = new ArrayList<FileRelationshipStorage>();
+            getConfig().getRelationships().put(relationship.getClass().getName(), relationships);
+        }
+
+        relationships.add(fileRelationship);
+        flushRelationships();
     }
 
     @Override
     public void update(AttributedType identityType) {
+        Object eventToFire = null;
+        
         if (IdentityType.class.isInstance(identityType)) {
             Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
 
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User updatedUser = (User) identityType;
 
-                if (updatedUser.getLoginName() == null) {
-                    throw new IdentityManagementException("No identifier was provided.");
-                }
-
-                User storedUser = getUser(updatedUser.getLoginName());
-
-                if (storedUser == null) {
-                    throw new RuntimeException("User [" + updatedUser.getLoginName() + "] does not exists.");
-                }
+                User storedUser = getStoredUser(updatedUser);
 
                 updateUser(updatedUser, storedUser);
 
-                UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new UserUpdatedEvent(storedUser);
             } else if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent updatedAgent = (Agent) identityType;
 
-                if (updatedAgent.getLoginName() == null) {
-                    throw new IdentityManagementException("No identifier was provided.");
-                }
-
-                Agent storedAgent = getAgent(updatedAgent.getLoginName());
-
-                if (storedAgent == null) {
-                    throw new RuntimeException("Agent [" + updatedAgent.getLoginName() + "] does not exists.");
-                }
+                Agent storedAgent = getStoredAgent(updatedAgent);
 
                 updateAgent(updatedAgent, storedAgent);
 
-                AgentUpdatedEvent event = new AgentUpdatedEvent(storedAgent);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new AgentUpdatedEvent(storedAgent);
             } else if (IDMUtil.isGroupType(identityTypeClass)) {
                 Group updatedGroup = (Group) identityType;
 
-                if (updatedGroup.getName() == null) {
-                    throw new IdentityManagementException("No identifier was provided.");
-                }
-
-                Group storedGroup = getGroup(updatedGroup.getName());
-
-                if (storedGroup == null) {
-                    throw new RuntimeException("No group found with the given name [" + updatedGroup.getName() + "].");
-                }
+                Group storedGroup = getStoredGroup(updatedGroup);
 
                 updateGroup(updatedGroup, storedGroup);
 
-                GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new GroupUpdatedEvent(storedGroup);
             } else if (IDMUtil.isRoleType(identityTypeClass)) {
                 Role updatedRole = (Role) identityType;
 
-                if (updatedRole.getName() == null) {
-                    throw new IdentityManagementException("No identifier was provided.");
-                }
-
-                Role storedRole = getRole(updatedRole.getName());
-
-                if (storedRole == null) {
-                    throw new RuntimeException("No role found with the given name [" + updatedRole.getName() + "].");
-                }
+                Role storedRole = getStoredRole(updatedRole);
 
                 updateRole(updatedRole, storedRole);
 
-                RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new RoleUpdatedEvent(storedRole);
             } else {
                 throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
             }
         }
+        
+        getContext().getEventBridge().raiseEvent(eventToFire);
+    }
+
+    private Role getStoredRole(Role role) {
+        if (role.getName() == null) {
+            throw new IdentityManagementException("No identifier was provided.");
+        }
+
+        Role storedRole = getRole(role.getName());
+
+        if (storedRole == null) {
+            throw new RuntimeException("No role found with the given name [" + role.getName() + "].");
+        }
+        return storedRole;
+    }
+
+    private Group getStoredGroup(Group group) {
+        if (group.getName() == null) {
+            throw new IdentityManagementException("No identifier was provided.");
+        }
+
+        Group storedGroup = getGroup(group.getName());
+
+        if (storedGroup == null) {
+            throw new RuntimeException("No group found with the given name [" + group.getName() + "].");
+        }
+        return storedGroup;
+    }
+
+    private Agent getStoredAgent(Agent agent) {
+        if (agent.getLoginName() == null) {
+            throw new IdentityManagementException("No identifier was provided.");
+        }
+
+        Agent storedAgent = getAgent(agent.getLoginName());
+
+        if (storedAgent == null) {
+            throw new RuntimeException("Agent [" + agent.getLoginName() + "] does not exists.");
+        }
+        return storedAgent;
+    }
+
+    private User getStoredUser(User user) {
+        if (user.getLoginName() == null) {
+            throw new IdentityManagementException("No identifier was provided.");
+        }
+
+        User storedUser = getUser(user.getLoginName());
+
+        if (storedUser == null) {
+            throw new RuntimeException("User [" + user.getLoginName() + "] does not exists.");
+        }
+        
+        return storedUser;
     }
 
     @Override
     public void remove(AttributedType attributedType) {
         Class<? extends IdentityType> attributedTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
-
+        
+        Object eventToFire = null;
+        
         if (IdentityType.class.isInstance(attributedType)) {
             if (IDMUtil.isUserType(attributedTypeClass)) {
                 User user = (User) attributedType;
 
-                if (user.getLoginName() == null) {
-                    throw new IdentityManagementException("No identifier was provided.");
-                }
-
-                User storedUser = getUser(user.getLoginName());
-
-                if (storedUser == null) {
-                    throw new RuntimeException("User [" + user.getLoginName() + "] doest not exists.");
-                }
+                User storedUser = getStoredUser(user);
 
                 removeUser(storedUser);
 
-                UserDeletedEvent event = new UserDeletedEvent(storedUser);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new UserDeletedEvent(storedUser);
             } else if (IDMUtil.isAgentType(attributedTypeClass)) {
                 Agent agent = (Agent) attributedType;
 
-                if (agent.getLoginName() == null) {
-                    throw new IdentityManagementException("No identifier was provided.");
-                }
-
-                Agent storedAgent = getAgent(agent.getLoginName());
-
-                if (storedAgent == null) {
-                    throw new RuntimeException("Agent [" + agent.getLoginName() + "] doest not exists.");
-                }
+                Agent storedAgent = getStoredAgent(agent);
 
                 removeAgent(storedAgent);
 
-                AgentDeletedEvent event = new AgentDeletedEvent(storedAgent);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new AgentDeletedEvent(storedAgent);
             } else if (IDMUtil.isGroupType(attributedTypeClass)) {
                 Group group = (Group) attributedType;
 
-                if (group.getName() == null) {
-                    throw new IdentityManagementException("No identifier was provided.");
-                }
-
-                Group storedGroup = getGroup(group.getName());
-
-                if (storedGroup == null) {
-                    throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
-                }
+                Group storedGroup = getStoredGroup(group);
 
                 removeGroup(storedGroup);
 
-                GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new GroupDeletedEvent(storedGroup);
             } else if (IDMUtil.isRoleType(attributedTypeClass)) {
                 Role role = (Role) attributedType;
 
-                if (role.getName() == null) {
-                    throw new IdentityManagementException("No identifier was provided.");
-                }
-
-                Role storedRole = getRole(role.getName());
-
-                if (storedRole == null) {
-                    throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
-                }
+                Role storedRole = getStoredRole(role);
 
                 removeRole(storedRole);
 
-                RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
-                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-                getContext().getEventBridge().raiseEvent(event);
+                eventToFire = new RoleDeletedEvent(storedRole);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
@@ -358,13 +344,19 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             }
 
             flushRelationships();
+            
+            eventToFire = new RelationshipDeletedEvent(relationship);
+        } else {
+            throw new IdentityManagementException("Unsupported AttributedType [" + attributedType.getClass().getName() + "].");
         }
+        
+        getContext().getEventBridge().raiseEvent(eventToFire);
     }
 
     private Role addRole(Role role) {
         SimpleRole fileRole = new SimpleRole(role.getName());
 
-        updateIdentityType(role, fileRole, true);
+        updateIdentityType(role, fileRole);
 
         getConfig().getRoles().put(fileRole.getName(), fileRole);
         flushRoles();
@@ -381,7 +373,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             fileGroup = new SimpleGroup(group.getName());
         }
 
-        updateIdentityType(group, fileGroup, true);
+        updateIdentityType(group, fileGroup);
 
         getConfig().getGroups().put(fileGroup.getName(), fileGroup);
         flushGroups();
@@ -396,10 +388,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         storedUser.setLastName(user.getLastName());
         storedUser.setEmail(user.getEmail());
 
-        updateIdentityType(user, storedUser, true);
+        updateIdentityType(user, storedUser);
 
-        getConfig().getUsers().put(storedUser.getLoginName(), storedUser);
-        flushUsers();
+        getConfig().getAgents().put(storedUser.getLoginName(), storedUser);
+        flushAgents();
 
         return storedUser;
     }
@@ -407,17 +399,17 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private Agent addAgent(Agent user) {
         Agent storedAgent = new SimpleAgent(user.getLoginName());
 
-        updateIdentityType(user, storedAgent, true);
+        updateIdentityType(user, storedAgent);
 
-        getConfig().getUsers().put(storedAgent.getLoginName(), storedAgent);
-        flushUsers();
+        getConfig().getAgents().put(storedAgent.getLoginName(), storedAgent);
+        flushAgents();
 
         return storedAgent;
     }
 
     private Role updateRole(Role updatedRole, Role storedRole) {
         if (storedRole != updatedRole) {
-            updateIdentityType(updatedRole, storedRole, false);
+            updateIdentityType(updatedRole, storedRole);
         }
 
         getConfig().getRoles().put(storedRole.getName(), storedRole);
@@ -428,7 +420,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private Group updateGroup(Group updatedGroup, Group storedGroup) {
         if (storedGroup != updatedGroup) {
-            updateIdentityType(updatedGroup, storedGroup, false);
+            updateIdentityType(updatedGroup, storedGroup);
         }
 
         getConfig().getGroups().put(storedGroup.getName(), storedGroup);
@@ -443,22 +435,22 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             storedUser.setLastName(updatedUser.getLastName());
             storedUser.setEmail(updatedUser.getEmail());
 
-            updateIdentityType(updatedUser, storedUser, false);
+            updateIdentityType(updatedUser, storedUser);
         }
 
-        getConfig().getUsers().put(storedUser.getLoginName(), storedUser);
-        flushUsers();
+        getConfig().getAgents().put(storedUser.getLoginName(), storedUser);
+        flushAgents();
 
         return updatedUser;
     }
 
     private Agent updateAgent(Agent updatedAgent, Agent storedAgent) {
         if (storedAgent != updatedAgent) {
-            updateIdentityType(updatedAgent, storedAgent, false);
+            updateIdentityType(updatedAgent, storedAgent);
         }
 
-        getConfig().getUsers().put(storedAgent.getLoginName(), storedAgent);
-        flushUsers();
+        getConfig().getAgents().put(storedAgent.getLoginName(), storedAgent);
+        flushAgents();
 
         return updatedAgent;
     }
@@ -476,7 +468,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private void removeRelationships(AttributedType role) {
         Set<Entry<String, List<FileRelationshipStorage>>> entrySet = getConfig().getRelationships().entrySet();
-        
+
         for (Entry<String, List<FileRelationshipStorage>> entry : entrySet) {
             List<FileRelationshipStorage> relationships = entry.getValue();
 
@@ -506,22 +498,22 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private User removeUser(User user) {
-        getConfig().getUsers().remove(user.getLoginName());
+        getConfig().getAgents().remove(user.getLoginName());
 
         removeRelationships(user);
 
-        flushUsers();
+        flushAgents();
         flushRelationships();
 
         return user;
     }
 
     private Agent removeAgent(Agent agent) {
-        getConfig().getUsers().remove(agent.getLoginName());
+        getConfig().getAgents().remove(agent.getLoginName());
 
         removeRelationships(agent);
 
-        flushUsers();
+        flushAgents();
         flushRelationships();
 
         return agent;
@@ -529,7 +521,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Agent getAgent(String loginName) {
-        return getConfig().getUsers().get(loginName);
+        return getConfig().getAgents().get(loginName);
     }
 
     @Override
@@ -573,13 +565,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Set<?> entries = null;
 
         if (IDMUtil.isUserType(identityTypeClass)) {
-            entries = getConfig().getUsers().entrySet();
+            entries = getConfig().getAgents().entrySet();
         } else if (IDMUtil.isRoleType(identityTypeClass)) {
             entries = getConfig().getRoles().entrySet();
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
             entries = getConfig().getGroups().entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
-            entries = getConfig().getUsers().entrySet();
+            entries = getConfig().getAgents().entrySet();
         }
 
         List<T> result = new ArrayList<T>();
@@ -898,18 +890,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param fromIdentityType
      * @param toIdentityType
      */
-    private void updateIdentityType(IdentityType fromIdentityType, IdentityType toIdentityType, boolean generateId) {
+    private void updateIdentityType(IdentityType fromIdentityType, IdentityType toIdentityType) {
         toIdentityType.setEnabled(fromIdentityType.isEnabled());
         toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
 
-        updateAttributedType(fromIdentityType, toIdentityType, generateId);
+        updateAttributedType(fromIdentityType, toIdentityType);
     }
 
-    private void updateAttributedType(IdentityType fromIdentityType, IdentityType toIdentityType, boolean generateId) {
-        if (generateId) {
-            toIdentityType.setId(generateUUID());
-        }
+    private void updateAttributedType(IdentityType fromIdentityType, IdentityType toIdentityType) {
+        toIdentityType.setId(fromIdentityType.getId());
 
         for (Object object : toIdentityType.getAttributes().toArray()) {
             Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
@@ -1094,9 +1084,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             }
         }
 
-        if (fileCredentialStorage.getExpiryDate() != null) {
-            if (fileCredentialStorage.getExpiryDate().compareTo(actualDate) < 0) {
-                isCurrent = false;
+        if (isCurrent) {
+            if (fileCredentialStorage.getExpiryDate() != null) {
+                if (fileCredentialStorage.getExpiryDate().compareTo(actualDate) <= 0) {
+                    isCurrent = false;
+                }
             }
         }
 
@@ -1181,17 +1173,17 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     /**
      * <p>
-     * Flush all changes made to users to the filesystem.
+     * Flush all changes made to agents to the filesystem.
      * </p>
      */
-    synchronized void flushUsers() {
+    synchronized void flushAgents() {
         try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getUsersFile());
+            FileOutputStream fos = new FileOutputStream(this.getConfig().getAgentsFile());
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getUsers());
+            oos.writeObject(getConfig().getAgents());
             oos.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
         }
     }
 
@@ -1207,6 +1199,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             oos.writeObject(getConfig().getRoles());
             oos.close();
         } catch (Exception e) {
+            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
         }
     }
 
@@ -1222,7 +1215,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             oos.writeObject(getConfig().getGroups());
             oos.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
         }
     }
 
@@ -1238,7 +1231,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             oos.writeObject(getConfig().getRelationships());
             oos.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
         }
     }
 
@@ -1254,7 +1247,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             oos.writeObject(getConfig().getCredentials());
             oos.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
         }
     }
 

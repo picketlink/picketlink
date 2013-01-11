@@ -57,14 +57,14 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
      */
     private Set<Feature> featureSet = new HashSet<Feature>();
     
-    private File usersFile;
+    private File agentsFile;
     private File rolesFile;
 
     private File groupsFile;
     private File relationshipsFile;
     private File credentialsFile;
     
-    private Map<String, Agent> users = new HashMap<String, Agent>();
+    private Map<String, Agent> agents = new HashMap<String, Agent>();
     private Map<String, Role> roles = new HashMap<String, Role>();
     private Map<String, Group> groups = new HashMap<String, Group>();
     private Map<String, Map<String, List<FileCredentialStorage>>> credentials = new HashMap<String, Map<String, List<FileCredentialStorage>>>();
@@ -89,7 +89,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private void initDataFiles() {
         File workingDirectoryFile = initWorkingDirectory();
 
-        this.usersFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-users.db"));
+        this.agentsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-agents.db"));
         this.rolesFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-roles.db"));
         this.groupsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-groups.db"));
         this.relationshipsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-memberships.db"));
@@ -231,10 +231,10 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         ObjectInputStream ois = null;
 
         try {
-            FileInputStream fis = new FileInputStream(getUsersFile());
+            FileInputStream fis = new FileInputStream(getAgentsFile());
             ois = new ObjectInputStream(fis);
 
-            this.users = (Map<String, Agent>) ois.readObject();
+            this.agents = (Map<String, Agent>) ois.readObject();
         } catch (Exception e) {
         } finally {
             try {
@@ -267,8 +267,8 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         this.alwaysCreateFiles = alwaysCreateFiles;
     }
     
-    public File getUsersFile() {
-        return this.usersFile;
+    public File getAgentsFile() {
+        return this.agentsFile;
     }
     
     public File getRolesFile() {
@@ -287,8 +287,8 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return this.credentialsFile;
     }
     
-    public Map<String, Agent> getUsers() {
-        return this.users;
+    public Map<String, Agent> getAgents() {
+        return this.agents;
     }
     
     public Map<String, Role> getRoles() {
