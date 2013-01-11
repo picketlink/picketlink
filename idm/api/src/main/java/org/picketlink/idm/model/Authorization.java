@@ -1,6 +1,6 @@
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.model.annotation.RelationshipAttribute;
+import org.picketlink.idm.model.Relationship.IdentityTypeQueryParameter;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 
 /**
@@ -13,18 +13,32 @@ public class Authorization extends AbstractAttributedType implements Relationshi
 
     private static final long serialVersionUID = -8044173562668371515L;
 
+    public static final IdentityTypeQueryParameter USER = new IdentityTypeQueryParameter() {
+
+        @Override
+        public String getName() {
+            return "user";
+        }
+    };;
+
+    public static final IdentityTypeQueryParameter APPLICATION = new IdentityTypeQueryParameter() {
+        
+        @Override
+        public String getName() {
+            return "application";
+        }
+    };;
+    
     private User user;
     private Agent application;
-    private String authorizationCode;
-    private String accessToken;
-    private String refreshToken;
 
-    public Authorization(User user, Agent application, String authorizationCode, String accessToken, String refreshToken) {
+    public Authorization() {
+        super();
+    }
+
+    public Authorization(User user, Agent application) {
         this.user = user;
         this.application = application;
-        this.authorizationCode = authorizationCode;
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
     }
 
     @RelationshipIdentity
@@ -32,27 +46,17 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         return user;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @RelationshipIdentity
     public Agent getApplication() {
         return application;
     }
 
-    @RelationshipAttribute
-    public String getAuthorizationCode() {
-        return authorizationCode;
+    public void setApplication(Agent application) {
+        this.application = application;
     }
 
-    @RelationshipAttribute
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    @RelationshipAttribute
-    public String getRefreshToken() {
-        return refreshToken;
-    }
 }
