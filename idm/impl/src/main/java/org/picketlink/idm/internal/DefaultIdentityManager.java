@@ -36,14 +36,14 @@ import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGrant;
-import org.picketlink.idm.model.SimpleGroupMembership;
-import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
@@ -361,7 +361,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void addToGroup(IdentityType member, Group group) {
-        add(new SimpleGroupMembership(member, group));
+        add(new GroupMembership(member, group));
     }
 
     @Override
@@ -390,7 +390,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantGroupRole(IdentityType member, Role role, Group group) {
-        add(new SimpleGroupRole(member, group, role));
+        add(new GroupRole(member, group, role));
     }
 
     @Override
@@ -410,7 +410,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
-        add(new SimpleGrant(identityType, role));
+        add(new Grant(identityType, role));
     }
 
     @Override
