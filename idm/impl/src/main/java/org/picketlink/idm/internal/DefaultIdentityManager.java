@@ -328,7 +328,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
         IdentityStoreInvocationContext ctx = createContext();
 
-        getContextualStoreForFeature(ctx, feature).update(relationship);
+        getContextualStoreForFeature(ctx, feature).remove(relationship);
     }
 
     public Agent getAgent(String id) {
