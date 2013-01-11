@@ -75,6 +75,7 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.IdentityType.AttributeParameter;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.Relationship.IdentityTypeQueryParameter;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
@@ -124,9 +125,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public void add(AttributedType attributedType) {
         attributedType.setId(generateUUID());
-        
+
         Object eventToFire = null;
-        
+
         if (IdentityType.class.isInstance(attributedType)) {
             Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
@@ -151,19 +152,20 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
-            
+
             addRelationship(relationship);
-            
+
             eventToFire = new RelationshipCreatedEvent(relationship);
         } else {
             throw new IdentityManagementException("Unsupported AttributedType [" + attributedType.getClass().getName() + "].");
         }
-        
+
         getContext().getEventBridge().raiseEvent(eventToFire);
     }
 
     private void addRelationship(Relationship relationship) {
-        List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries.<IdentityType> createQuery(relationship.getClass())
+        List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
+                .<IdentityType> createQuery(relationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
 
         FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
@@ -195,7 +197,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public void update(AttributedType identityType) {
         Object eventToFire = null;
-        
+
         if (IdentityType.class.isInstance(identityType)) {
             Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
 
@@ -235,7 +237,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
             }
         }
-        
+
         getContext().getEventBridge().raiseEvent(eventToFire);
     }
 
@@ -288,16 +290,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         if (storedUser == null) {
             throw new RuntimeException("User [" + user.getLoginName() + "] does not exists.");
         }
-        
+
         return storedUser;
     }
 
     @Override
     public void remove(AttributedType attributedType) {
         Class<? extends IdentityType> attributedTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
-        
+
         Object eventToFire = null;
-        
+
         if (IdentityType.class.isInstance(attributedType)) {
             if (IDMUtil.isUserType(attributedTypeClass)) {
                 User user = (User) attributedType;
@@ -344,12 +346,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             }
 
             flushRelationships();
-            
+
             eventToFire = new RelationshipDeletedEvent(relationship);
         } else {
             throw new IdentityManagementException("Unsupported AttributedType [" + attributedType.getClass().getName() + "].");
         }
-        
+
         getContext().getEventBridge().raiseEvent(eventToFire);
     }
 
@@ -1263,65 +1265,39 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
 
         for (FileRelationshipStorage storedRelationship : relationships) {
-            if (GroupRole.class.isAssignableFrom(relationshipType)) {
-                Agent member = (Agent) query.getParameter(GroupRole.MEMBER)[0];
-                Role role = (Role) query.getParameter(GroupRole.ROLE)[0];
-                Group group = (Group) query.getParameter(GroupRole.GROUP)[0];
+            boolean match = false;
+            
+            if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
+                Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
 
-                Agent memberRel = (Agent) storedRelationship.getIdentityTypes().get(GroupRole.MEMBER.getName());
+                for (Entry<QueryParameter, Object[]> entry : parameters) {
+                    IdentityTypeQueryParameter queryParameter = (IdentityTypeQueryParameter) entry.getKey();
+                    Object[] values = entry.getValue();
+                    int valuesMathCount = values.length;
 
-                if (memberRel == null || member == null || !member.getId().equals(memberRel.getId())) {
-                    continue;
-                }
+                    IdentityType identityTypeRel = storedRelationship.getIdentityTypes().get(queryParameter.getName());
 
-                Role roleRel = (Role) storedRelationship.getIdentityTypes().get(GroupRole.ROLE.getName());
-
-                if (roleRel == null || role == null || !role.getId().equals(roleRel.getId())) {
-                    continue;
-                }
-
-                Group groupRel = (Group) storedRelationship.getIdentityTypes().get(GroupRole.GROUP.getName());
-
-                if (groupRel == null || group == null || !group.getId().equals(groupRel.getId())) {
-                    continue;
-                }
-            }
-
-            if (GroupMembership.class.isAssignableFrom(relationshipType)) {
-                Agent member = (Agent) query.getParameter(GroupMembership.MEMBER)[0];
-                Group group = (Group) query.getParameter(GroupMembership.GROUP)[0];
-
-                Agent memberRel = (Agent) storedRelationship.getIdentityTypes().get(GroupMembership.MEMBER.getName());
-
-                if (memberRel == null || member == null || !member.getId().equals(memberRel.getId())) {
-                    continue;
-                }
-
-                Group groupRel = (Group) storedRelationship.getIdentityTypes().get(GroupMembership.GROUP.getName());
-
-                if (groupRel == null || group == null || !group.getId().equals(groupRel.getId())) {
-                    continue;
+                    if (IdentityTypeQueryParameter.class.isInstance(queryParameter) && identityTypeRel != null) {
+                        for (Object object : values) {
+                            IdentityType identityType = (IdentityType) object;
+                            
+                            if (identityTypeRel.getClass().isInstance(identityType) && identityTypeRel.getId().equals(identityType.getId())) {
+                                valuesMathCount--;
+                            }
+                        }
+                    }
+                    
+                    match = valuesMathCount <= 0;
+                    
+                    if (!match) {
+                        break;
+                    }
                 }
             }
-
-            if (Grant.class.isAssignableFrom(relationshipType)) {
-                Agent assignee = (Agent) query.getParameter(Grant.ASSIGNEE)[0];
-                Role role = (Role) query.getParameter(Grant.ROLE)[0];
-
-                Agent assigneeRel = (Agent) storedRelationship.getIdentityTypes().get(Grant.ASSIGNEE.getName());
-
-                if (assigneeRel == null || assignee == null || !assignee.getId().equals(assigneeRel.getId())) {
-                    continue;
-                }
-
-                Role roleRel = (Role) storedRelationship.getIdentityTypes().get(Grant.ROLE.getName());
-
-                if (roleRel == null || role == null || !role.getId().equals(roleRel.getId())) {
-                    continue;
-                }
+            
+            if (match) {
+                result.add((T) convertToRelationship(storedRelationship));
             }
-
-            result.add((T) convertToRelationship(storedRelationship));
         }
 
         return result;
