@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +36,6 @@ import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.spi.IdentityStore.Feature;
 
@@ -60,17 +58,17 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private Set<Feature> featureSet = new HashSet<Feature>();
     
     private File usersFile;
-    private File rolesFile = new File(getDefaultTmpDir() + "/pl-idm-work/pl-idm-roles.db");
+    private File rolesFile;
 
-    private File groupsFile = new File(getDefaultTmpDir() + "/pl-idm-work/pl-idm-groups.db");
-    private File membershipsFile = new File(getDefaultTmpDir() + "/pl-idm-work/pl-idm-memberships.db");
-    private File credentialsFile = new File(getDefaultTmpDir() + "/pl-idm-work/pl-idm-credentials.db");
+    private File groupsFile;
+    private File relationshipsFile;
+    private File credentialsFile;
     
     private Map<String, Agent> users = new HashMap<String, Agent>();
     private Map<String, Role> roles = new HashMap<String, Role>();
     private Map<String, Group> groups = new HashMap<String, Group>();
-    private List<GroupRole> memberships = new ArrayList<GroupRole>();
     private Map<String, Map<String, List<FileCredentialStorage>>> credentials = new HashMap<String, Map<String, List<FileCredentialStorage>>>();
+    private Map<String, List<FileRelationshipStorage>> relationships = new HashMap<String, List<FileRelationshipStorage>>();
 
     @Override
     public void init() throws SecurityConfigurationException {
@@ -94,7 +92,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         this.usersFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-users.db"));
         this.rolesFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-roles.db"));
         this.groupsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-groups.db"));
-        this.membershipsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-memberships.db"));
+        this.relationshipsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-memberships.db"));
         this.credentialsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-credentials.db"));
     }
     
@@ -188,7 +186,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
             FileInputStream fis = new FileInputStream(getMembershipsFile());
             ois = new ObjectInputStream(fis);
 
-            this.memberships = (List<GroupRole>) ois.readObject();
+            this.relationships = (Map<String, List<FileRelationshipStorage>>) ois.readObject();
         } catch (Exception e) {
         } finally {
             try {
@@ -282,7 +280,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
     
     public File getMembershipsFile() {
-        return this.membershipsFile;
+        return this.relationshipsFile;
     }
     
     public File getCredentialsFile() {
@@ -297,8 +295,8 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return this.roles;
     }
     
-    public List<GroupRole> getMemberships() {
-        return this.memberships;
+    public Map<String, List<FileRelationshipStorage>> getRelationships() {
+        return this.relationships;
     }
     
     public Map<String, Map<String, List<FileCredentialStorage>>> getCredentials() {

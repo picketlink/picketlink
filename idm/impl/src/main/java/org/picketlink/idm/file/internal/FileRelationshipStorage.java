@@ -19,38 +19,42 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.model;
 
-import org.picketlink.idm.model.annotation.RelationshipIdentity;
+package org.picketlink.idm.file.internal;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.picketlink.idm.model.IdentityType;
 
 /**
- * GroupRole is a Relationship type that assigns a role within a group to an identity (either a User or Group).
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
- * @author Boleslaw Dawidowicz
- * @author Shane Bryzak
  */
-public class GroupRole extends GroupMembership implements Relationship {
+public class FileRelationshipStorage implements Serializable {
 
-    private static final long serialVersionUID = 2844617870858266637L;
+    private static final long serialVersionUID = -349640861496483678L;
 
-    public static final IdentityTypeQueryParameter ROLE = new IdentityTypeQueryParameter() {
-        
-        @Override
-        public String getName() {
-            return "role";
-        }
-    };;
+    private Map<String, IdentityType> identityTypes = new HashMap<String, IdentityType>();
+    private Map<String, String> attributes = new HashMap<String, String>();
 
+    private String id;
 
-    private Role role;
-
-    public GroupRole(IdentityType member, Group group, Role role) {
-        super(member, group);
-        this.role = role;
+    public Map<String, IdentityType> getIdentityTypes() {
+        return this.identityTypes;
+    }
+    
+    public Map<String, String> getAttributes() {
+        return this.attributes;
     }
 
-    @RelationshipIdentity
-    public Role getRole() {
-        return role;
+    public String getId() {
+        return this.id;
     }
+    
+    public void setId(String id) {
+        this.id = id;
+    }
+
 }

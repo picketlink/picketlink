@@ -9,9 +9,22 @@ import org.picketlink.idm.query.QueryParameter;
  * @author Shane Bryzak
  */
 public class GroupMembership extends AbstractAttributedType implements Relationship {
-    QueryParameter MEMBER = new QueryParameter() {};
+    
+    public static final IdentityTypeQueryParameter MEMBER = new IdentityTypeQueryParameter() {
+        
+        @Override
+        public String getName() {
+            return "member";
+        }
+    };;
 
-    QueryParameter GROUP = new QueryParameter() {};
+    public static final IdentityTypeQueryParameter GROUP = new IdentityTypeQueryParameter() {
+        
+        @Override
+        public String getName() {
+            return "group";
+        }
+    };;
 
     private static final long serialVersionUID = 6851576454138812116L;
 

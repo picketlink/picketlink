@@ -21,6 +21,9 @@
  */
 package org.picketlink.idm.model;
 
+import org.picketlink.idm.query.QueryParameter;
+
+
 
 /**
  * Represents a relationship between two or more {@link IdentityType}, which is also
@@ -32,4 +35,8 @@ package org.picketlink.idm.model;
  */
 public interface Relationship extends AttributedType {
 
+    public interface IdentityTypeQueryParameter extends QueryParameter {
+        public String getName();
+    }
+    
 }

@@ -44,6 +44,11 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     public Map<QueryParameter, Object[]> getParameters() {
         return parameters;
     }
+    
+    @Override
+    public Object[] getParameter(QueryParameter queryParameter) {
+        return this.parameters.get(queryParameter);
+    }
 
     @Override
     public int getLimit() {
