@@ -19,6 +19,8 @@ public interface RelationshipQuery<T extends Relationship> {
 
     Map<QueryParameter, Object[]> getParameters();
 
+    Class<T> getRelationshipType();
+    
     int getOffset();
 
     int getLimit();
