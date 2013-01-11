@@ -56,7 +56,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         User user = loadOrCreateUser("someUser", true);
         Password plainTextPassword = new Password("updated_password".toCharArray());
 
-        identityManager.updateCredential(user, plainTextPassword, new Date(), null);
+        identityManager.updateCredential(user, plainTextPassword);
 
         UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
 
