@@ -38,7 +38,6 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.query.IdentityQuery;
 
 /**
@@ -65,7 +64,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<Agent> query = identityManager.<Agent> createQuery(Agent.class);
 
-        query.setParameter(Agent.ID, "someAgent");
+        query.setParameter(Agent.LOGIN_NAME, "someAgent");
 
         List<Agent> result = query.getResultList();
 
@@ -92,7 +91,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<Agent> query = identityManager.createQuery(Agent.class);
 
-        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole[] { new SimpleGroupRole(user, managerRole, salesGroup) });
+        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
 
         List<Agent> result = query.getResultList();
 
@@ -102,7 +101,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createQuery(Agent.class);
 
-        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole[] { new SimpleGroupRole(user, managerRole, salesGroup) });
+        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
 
         result = query.getResultList();
 
@@ -623,7 +622,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
-        query.setParameter(Agent.ID, "admin");
+        query.setParameter(Agent.LOGIN_NAME, "admin");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
 
         result = query.getResultList();
@@ -633,7 +632,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         query = identityManager.<Agent> createQuery(Agent.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-        query.setParameter(Agent.ID, "admin");
+        query.setParameter(Agent.LOGIN_NAME, "admin");
 
         result = query.getResultList();
 
@@ -644,7 +643,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         query = identityManager.<Agent> createQuery(Agent.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-        query.setParameter(Agent.ID, "Bad ID");
+        query.setParameter(Agent.LOGIN_NAME, "Bad ID");
 
         result = query.getResultList();
 

@@ -61,11 +61,11 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         identityManager.update(newAgent);
 
         // let's retrieve the user information and see if they are properly stored
-        Agent storedAgent = identityManager.getAgent(newAgent.getId());
+        Agent storedAgent = identityManager.getAgent(newAgent.getLoginName());
 
         assertNotNull(storedAgent);
 
-        assertEquals(newAgent.getId(), storedAgent.getId());
+        assertEquals(newAgent.getLoginName(), storedAgent.getLoginName());
         assertTrue(storedAgent.isEnabled());
         assertTrue(new Date().compareTo(storedAgent.getCreatedDate()) > 0);
     }
@@ -83,11 +83,11 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
         IdentityManager identityManager = getIdentityManager();
 
-        storedAgent = identityManager.getAgent(storedAgent.getId());
+        storedAgent = identityManager.getAgent(storedAgent.getLoginName());
 
         assertNotNull(storedAgent);
 
-        assertEquals("someAgent", storedAgent.getId());
+        assertEquals("someAgent", storedAgent.getLoginName());
     }
 
     /**
@@ -103,7 +103,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
         assertNotNull(storedAgent);
 
-        assertEquals("someAgent", storedAgent.getId());
+        assertEquals("someAgent", storedAgent.getLoginName());
         
         IdentityManager identityManager = getIdentityManager();
 
@@ -112,7 +112,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         identityManager.update(storedAgent);
 
         // let's load again the user from the store and check for the updated information
-        Agent updatedUser = identityManager.getAgent(storedAgent.getId());
+        Agent updatedUser = identityManager.getAgent(storedAgent.getLoginName());
 
         assertNotNull(updatedUser.getAttribute("someAttribute"));
         assertEquals("1", updatedUser.getAttribute("someAttribute").getValue());
@@ -137,11 +137,11 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
         identityManager.remove(someAgent);
 
-        Agent removedUserInstance = getIdentityManager().getAgent(someAgent.getId());
+        Agent removedUserInstance = getIdentityManager().getAgent(someAgent.getLoginName());
 
         assertNull(removedUserInstance);
         
-        anotherAgent = identityManager.getAgent(anotherAgent.getId());
+        anotherAgent = identityManager.getAgent(anotherAgent.getLoginName());
         
         assertNotNull(anotherAgent);
     }

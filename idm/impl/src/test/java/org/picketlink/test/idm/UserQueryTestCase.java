@@ -38,7 +38,6 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 
@@ -66,14 +65,14 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
 
-        query.setParameter(User.ID, "admin");
+        query.setParameter(User.LOGIN_NAME, "admin");
 
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        assertEquals("admin", result.get(0).getId());
+        assertEquals("admin", result.get(0).getLoginName());
     }
 
     /**
@@ -104,7 +103,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, user.getId()));
+        assertTrue(contains(result, user.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -127,7 +126,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        assertEquals("admin", result.get(0).getId());
+        assertEquals("admin", result.get(0).getLoginName());
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -166,7 +165,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        assertEquals("admin", result.get(0).getId());
+        assertEquals("admin", result.get(0).getLoginName());
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -194,7 +193,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.createQuery(User.class);
 
-        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] { new SimpleGroupRole(user, managerRole, salesGroup) });
+        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
 
         List<User> result = query.getResultList();
 
@@ -204,12 +203,12 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createQuery(User.class);
 
-        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] { new SimpleGroupRole(user, managerRole, salesGroup) });
+        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -243,7 +242,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -277,7 +276,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -305,7 +304,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
 
         identityManager.removeFromGroup(user, someGroup);
 
@@ -324,7 +323,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -352,7 +351,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
 
         identityManager.revokeRole(user, someRole);
 
@@ -371,7 +370,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -401,8 +400,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, adminUser.getId()));
-        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, adminUser.getLoginName()));
+        assertTrue(contains(result, someUser.getLoginName()));
 
         identityManager.addToGroup(adminUser, someGroup);
 
@@ -413,9 +412,9 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, adminUser.getId()));
+        assertTrue(contains(result, adminUser.getLoginName()));
 
-        assertFalse(contains(result, someUser.getId()));
+        assertFalse(contains(result, someUser.getLoginName()));
     }
 
     /**
@@ -445,8 +444,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, adminUser.getId()));
-        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, adminUser.getLoginName()));
+        assertTrue(contains(result, someUser.getLoginName()));
 
         identityManager.grantRole(adminUser, someRole);
 
@@ -457,8 +456,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, adminUser.getId()));
-        assertFalse(contains(result, someUser.getId()));
+        assertTrue(contains(result, adminUser.getLoginName()));
+        assertFalse(contains(result, someUser.getLoginName()));
     }
 
     /**
@@ -489,8 +488,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someUser.getId()));
-        assertTrue(contains(result, someAnotherUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
+        assertTrue(contains(result, someAnotherUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -514,8 +513,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someUser.getId()));
-        assertFalse(contains(result, someAnotherUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
+        assertFalse(contains(result, someAnotherUser.getLoginName()));
 
         someAnotherUser.setEnabled(false);
 
@@ -528,8 +527,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someUser.getId()));
-        assertFalse(contains(result, someAnotherUser.getId()));
+        assertFalse(contains(result, someUser.getLoginName()));
+        assertFalse(contains(result, someAnotherUser.getLoginName()));
     }
 
     /**
@@ -554,7 +553,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
-        assertEquals("someUser", result.get(0).getId());
+        assertEquals("someUser", result.get(0).getLoginName());
 
         query = identityManager.<User> createQuery(User.class);
         
@@ -600,9 +599,9 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, user.getId()));
+        assertTrue(contains(result, user.getLoginName()));
 
-        assertEquals("someUser", result.get(0).getId());
+        assertEquals("someUser", result.get(0).getLoginName());
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -646,8 +645,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someUser.getId()));
-        assertTrue(contains(result, someAnotherUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
+        assertTrue(contains(result, someAnotherUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -661,10 +660,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someUser.getId()));
-        assertTrue(contains(result, someAnotherUser.getId()));
-        assertTrue(contains(result, someFutureUser.getId()));
-        assertTrue(contains(result, someAnotherFutureUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
+        assertTrue(contains(result, someAnotherUser.getLoginName()));
+        assertTrue(contains(result, someFutureUser.getLoginName()));
+        assertTrue(contains(result, someAnotherFutureUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -675,10 +674,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someUser.getId()));
-        assertTrue(contains(result, someAnotherUser.getId()));
-        assertTrue(contains(result, someFutureUser.getId()));
-        assertTrue(contains(result, someAnotherFutureUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
+        assertTrue(contains(result, someAnotherUser.getLoginName()));
+        assertTrue(contains(result, someFutureUser.getLoginName()));
+        assertTrue(contains(result, someAnotherFutureUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -725,7 +724,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, user.getId()));
+        assertTrue(contains(result, user.getLoginName()));
         assertEquals(1, result.size());
 
         query = identityManager.<User> createQuery(User.class);
@@ -746,7 +745,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, user.getId()));
+        assertTrue(contains(result, user.getLoginName()));
         assertEquals(1, result.size());
 
         query = identityManager.<User> createQuery(User.class);
@@ -813,8 +812,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someUser.getId()));
-        assertTrue(contains(result, someAnotherUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
+        assertTrue(contains(result, someAnotherUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -825,10 +824,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someUser.getId()));
-        assertTrue(contains(result, someAnotherUser.getId()));
-        assertTrue(contains(result, someFutureUser.getId()));
-        assertTrue(contains(result, someAnotherFutureUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
+        assertTrue(contains(result, someAnotherUser.getLoginName()));
+        assertTrue(contains(result, someFutureUser.getLoginName()));
+        assertTrue(contains(result, someAnotherFutureUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -839,10 +838,10 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someUser.getId()));
-        assertTrue(contains(result, someAnotherUser.getId()));
-        assertTrue(contains(result, someFutureUser.getId()));
-        assertTrue(contains(result, someAnotherFutureUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
+        assertTrue(contains(result, someAnotherUser.getLoginName()));
+        assertTrue(contains(result, someFutureUser.getLoginName()));
+        assertTrue(contains(result, someAnotherFutureUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
         
@@ -880,7 +879,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
 
         someUser.setAttribute(new Attribute<String>("someAttribute", "someAttributeValueChanged"));
 
@@ -892,7 +891,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someUser.getId()));
+        assertFalse(contains(result, someUser.getLoginName()));
 
         someUser.setAttribute(new Attribute<String>("someAttribute2", "someAttributeValue2"));
 
@@ -906,7 +905,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
     }
 
     /**
@@ -935,7 +934,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -961,7 +960,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someUser.getId()));
+        assertFalse(contains(result, someUser.getLoginName()));
 
         someUser.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
                 "someAttributeValueChanged" }));
@@ -980,7 +979,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someUser.getId()));
+        assertTrue(contains(result, someUser.getLoginName()));
 
         query = identityManager.<User> createQuery(User.class);
 
@@ -996,7 +995,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
     private boolean contains(List<User> result, String userId) {
         for (User resultUser : result) {
-            if (resultUser.getId().equals(userId)) {
+            if (resultUser.getLoginName().equals(userId)) {
                 return true;
             }
         }
