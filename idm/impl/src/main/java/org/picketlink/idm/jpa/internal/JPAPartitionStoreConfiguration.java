@@ -23,12 +23,9 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 public class JPAPartitionStoreConfiguration extends PartitionStoreConfiguration {
 
-    public static final String PROPERTY_PARTITION_ID = "PARTITION_ID";
-    public static final String PROPERTY_PARTITION_NAME = "PARTITION_NAME";
-
     private Class<?> partitionClass;
 
-    private Map<String, Property<Object>> partitionProperties = new HashMap<String, Property<Object>>();
+    private Map<PropertyType, Property<Object>> partitionProperties = new HashMap<PropertyType, Property<Object>>();
 
     public Class<?> getPartitionClass() {
         return partitionClass;
@@ -80,10 +77,10 @@ public class JPAPartitionStoreConfiguration extends PartitionStoreConfiguration 
 
     protected void configurePartitions() throws SecurityConfigurationException {
         List<Property<Object>> props = PropertyQueries.createQuery(partitionClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.ID)).getResultList();
+                .addCriteria(new PropertyTypeCriteria(PropertyType.PARTITION_ID)).getResultList();
 
         if (props.size() == 1) {
-            partitionProperties.put(PROPERTY_PARTITION_ID, props.get(0));
+            partitionProperties.put(PropertyType.PARTITION_ID, props.get(0));
         } else if (props.size() > 1) {
             throw new SecurityConfigurationException("Ambiguous partition id property in partition class "
                     + partitionClass.getName());
@@ -91,7 +88,7 @@ public class JPAPartitionStoreConfiguration extends PartitionStoreConfiguration 
             Property<Object> p = findNamedProperty(partitionClass, "id", "identity");
 
             if (p != null) {
-                partitionProperties.put(PROPERTY_PARTITION_ID, p);
+                partitionProperties.put(PropertyType.PARTITION_ID, p);
             }
         }
     }

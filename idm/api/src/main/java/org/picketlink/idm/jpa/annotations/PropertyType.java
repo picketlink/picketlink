@@ -81,6 +81,10 @@ public enum PropertyType {
      */
     IDENTITY_PARTITION,
     /**
+     * The id value of a partition
+     */
+    PARTITION_ID,
+    /**
      * The type of partition
      */
     PARTITION_TYPE,
