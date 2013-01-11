@@ -83,6 +83,7 @@ import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -269,7 +270,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public void remove(AttributedType attributedType) {
         Class<? extends IdentityType> attributedTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
-        
+
         if (IdentityType.class.isInstance(attributedType)) {
             if (IDMUtil.isUserType(attributedTypeClass)) {
                 User user = (User) attributedType;
@@ -354,7 +355,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     relationships.remove(storedRelationship);
                 }
             }
-            
+
             flushRelationships();
         }
     }
@@ -701,18 +702,165 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             result.add((T) storedIdentityType);
         }
 
+        for (T storedEntry : new ArrayList<T>(result)) {
+            Object[] values = identityQuery.getParameter(IdentityType.HAS_ROLE);
+
+            if (values != null) {
+                int valuesMatchCount = values.length;
+                
+                for (Object roleName : values) {
+                    Role role = getRole(roleName.toString());
+
+                    RelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
+
+                    query.setParameter(Grant.ASSIGNEE, storedEntry);
+                    query.setParameter(Grant.ROLE, role);
+
+                    List<Grant> relationships = query.getResultList();
+
+                    if (!relationships.isEmpty()) {
+                        valuesMatchCount--;
+                    }
+                }
+                
+                if (valuesMatchCount > 0) {
+                    result.remove(storedEntry);
+                }
+            }
+
+            values = identityQuery.getParameter(IdentityType.MEMBER_OF);
+
+            if (values != null) {
+                int valuesMatchCount = values.length;
+                
+                for (Object groupName : values) {
+                    Group group = getGroup(groupName.toString());
+
+                    RelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, this);
+
+                    query.setParameter(GroupMembership.MEMBER, storedEntry);
+                    query.setParameter(GroupMembership.GROUP, group);
+
+                    List<GroupMembership> relationships = query.getResultList();
+                    
+                    if (!relationships.isEmpty()) {
+                        valuesMatchCount--;
+                    }
+                }
+                
+                if (valuesMatchCount > 0) {
+                    result.remove(storedEntry);
+                }
+            }
+            
+            values = identityQuery.getParameter(IdentityType.HAS_GROUP_ROLE);
+
+            if (values != null) {
+                int valuesMatchCount = values.length;
+                
+                for (Object object : values) {
+                    GroupRole groupRole = (GroupRole) object;
+
+                    RelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
+
+                    query.setParameter(GroupRole.MEMBER, storedEntry);
+                    query.setParameter(GroupRole.GROUP, groupRole.getGroup());
+                    query.setParameter(GroupRole.ROLE, groupRole.getRole());
+
+                    List<GroupRole> relationships = query.getResultList();
+
+                    if (!relationships.isEmpty()) {
+                        valuesMatchCount--;
+                    }
+                }
+                
+                if (valuesMatchCount > 0) {
+                    result.remove(storedEntry);
+                }
+            }
+            
+            values = identityQuery.getParameter(IdentityType.ROLE_OF);
+
+            if (values != null) {
+                Role currentRole = (Role) storedEntry;
+
+                List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(Grant.class.getName());
+                
+                if (relationships == null) {
+                    result.remove(storedEntry);
+                } else {
+                    int valuesMatchCount = values.length;
+                    
+                    for (Object object : values) {
+                        Agent agent = (Agent) object;
+                        
+                        for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                            Grant grant = convertToRelationship(Grant.class, storedRelationship);
+                            
+                            if (!grant.getRole().getId().equals(currentRole.getId())) {
+                                continue;
+                            }
+                            
+                            if (grant.getAssignee().getId().equals(agent.getId())) {
+                                valuesMatchCount--;
+                            }
+                        }
+                    }
+                    
+                    if (valuesMatchCount > 0) {
+                        result.remove(storedEntry);
+                    }
+                }
+            }
+            
+            values = identityQuery.getParameter(IdentityType.HAS_MEMBER);
+
+            if (values != null) {
+                Group currentGroup = (Group) storedEntry;
+
+                List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(GroupMembership.class.getName());
+                
+                if (relationships == null) {
+                    result.remove(storedEntry);
+                } else {
+                    int valuesMatchCount = values.length;
+                    
+                    for (Object object : values) {
+                        Agent agent = (Agent) object;
+                        
+                        for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                            GroupMembership grant = convertToRelationship(GroupMembership.class, storedRelationship);
+                            
+                            if (!grant.getGroup().getId().equals(currentGroup.getId())) {
+                                continue;
+                            }
+                            
+                            if (grant.getMember().getId().equals(agent.getId())) {
+                                valuesMatchCount--;
+                            }
+                        }
+                    }
+                    
+                    if (valuesMatchCount > 0) {
+                        result.remove(storedEntry);
+                    }
+                }
+            }
+
+        }
+
         if (identityQuery.getParameters().containsKey(IdentityType.HAS_ROLE)
                 || identityQuery.getParameters().containsKey(IdentityType.MEMBER_OF)
                 || identityQuery.getParameters().containsKey(IdentityType.HAS_GROUP_ROLE)
                 || identityQuery.getParameters().containsKey(IdentityType.ROLE_OF)
                 || identityQuery.getParameters().containsKey(IdentityType.HAS_MEMBER)) {
 
-            for (T fileUser : new ArrayList<T>(result)) {
-                for (Entry<QueryParameter, Object[]> parameters : identityQuery.getParameters().entrySet()) {
-                    QueryParameter queryParameter = parameters.getKey();
-                    Object[] values = parameters.getValue();
-
-                    int valuesMatchCount = values.length;
+//            for (T fileUser : new ArrayList<T>(result)) {
+//                for (Entry<QueryParameter, Object[]> parameters : identityQuery.getParameters().entrySet()) {
+//                    QueryParameter queryParameter = parameters.getKey();
+//                    Object[] values = parameters.getValue();
+//
+//                    int valuesMatchCount = values.length;
 
                     // for (GroupRole membership : getConfig().getRelationships()) {
                     // if (IDMUtil.isAgentType(fileUser.getClass()) && IDMUtil.isAgentType(membership.getMember().getClass())) {
@@ -767,11 +915,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     // }
                     // }
 
-                    if (valuesMatchCount > 0) {
-                        result.remove(fileUser);
-                    }
-                }
-            }
+//                    if (valuesMatchCount > 0) {
+//                        result.remove(fileUser);
+//                    }
+//                }
+//            }
         }
 
         findByCustomAttributes(result, identityQuery);
@@ -1049,15 +1197,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Date actualDate = new Date();
 
         if (fileCredentialStorage.getEffectiveDate() != null) {
-            if (fileCredentialStorage.getEffectiveDate().after(actualDate)
-                    && fileCredentialStorage.getEffectiveDate().compareTo(actualDate) != 0) {
+            if (fileCredentialStorage.getEffectiveDate().compareTo(actualDate) > 0) {
                 isCurrent = false;
             }
         }
 
         if (fileCredentialStorage.getExpiryDate() != null) {
-            if (fileCredentialStorage.getExpiryDate().before(actualDate)
-                    && fileCredentialStorage.getExpiryDate().compareTo(actualDate) != 0) {
+            if (fileCredentialStorage.getExpiryDate().compareTo(actualDate) < 0) {
                 isCurrent = false;
             }
         }
@@ -1224,103 +1370,107 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
         List<T> result = new ArrayList<T>();
 
-        List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(query.getRelationshipType().getName());
-        
+        Class<T> relationshipType = query.getRelationshipType();
+        List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(relationshipType.getName());
+
         if (relationships == null) {
             return result;
         }
-        
+
         for (FileRelationshipStorage storedRelationship : relationships) {
-            if (GroupRole.class.isAssignableFrom(query.getRelationshipType())) {
+            if (GroupRole.class.isAssignableFrom(relationshipType)) {
                 Agent member = (Agent) query.getParameter(GroupRole.MEMBER)[0];
                 Role role = (Role) query.getParameter(GroupRole.ROLE)[0];
                 Group group = (Group) query.getParameter(GroupRole.GROUP)[0];
 
                 Agent memberRel = (Agent) storedRelationship.getIdentityTypes().get(GroupRole.MEMBER.getName());
 
-                if (memberRel == null || member == null || !member.getLoginName().equals(memberRel.getLoginName())) {
+                if (memberRel == null || member == null || !member.getId().equals(memberRel.getId())) {
                     continue;
                 }
 
                 Role roleRel = (Role) storedRelationship.getIdentityTypes().get(GroupRole.ROLE.getName());
 
-                if (roleRel == null || role == null || !role.getName().equals(roleRel.getName())) {
+                if (roleRel == null || role == null || !role.getId().equals(roleRel.getId())) {
                     continue;
                 }
 
                 Group groupRel = (Group) storedRelationship.getIdentityTypes().get(GroupRole.GROUP.getName());
 
-                if (groupRel == null || group == null || !group.getName().equals(groupRel.getName())) {
+                if (groupRel == null || group == null || !group.getId().equals(groupRel.getId())) {
                     continue;
                 }
             }
 
-            if (GroupMembership.class.isAssignableFrom(query.getRelationshipType())) {
+            if (GroupMembership.class.isAssignableFrom(relationshipType)) {
                 Agent member = (Agent) query.getParameter(GroupMembership.MEMBER)[0];
                 Group group = (Group) query.getParameter(GroupMembership.GROUP)[0];
 
                 Agent memberRel = (Agent) storedRelationship.getIdentityTypes().get(GroupMembership.MEMBER.getName());
 
-                if (memberRel == null || member == null || !member.getLoginName().equals(memberRel.getLoginName())) {
+                if (memberRel == null || member == null || !member.getId().equals(memberRel.getId())) {
                     continue;
                 }
 
                 Group groupRel = (Group) storedRelationship.getIdentityTypes().get(GroupMembership.GROUP.getName());
 
-                if (groupRel == null || group == null || !group.getName().equals(groupRel.getName())) {
+                if (groupRel == null || group == null || !group.getId().equals(groupRel.getId())) {
                     continue;
                 }
             }
 
-            if (Grant.class.isAssignableFrom(query.getRelationshipType())) {
+            if (Grant.class.isAssignableFrom(relationshipType)) {
                 Agent assignee = (Agent) query.getParameter(Grant.ASSIGNEE)[0];
                 Role role = (Role) query.getParameter(Grant.ROLE)[0];
 
                 Agent assigneeRel = (Agent) storedRelationship.getIdentityTypes().get(Grant.ASSIGNEE.getName());
 
-                if (assigneeRel == null || assignee == null || !assignee.getLoginName().equals(assigneeRel.getLoginName())) {
+                if (assigneeRel == null || assignee == null || !assignee.getId().equals(assigneeRel.getId())) {
                     continue;
                 }
 
                 Role roleRel = (Role) storedRelationship.getIdentityTypes().get(Grant.ROLE.getName());
 
-                if (roleRel == null || role == null || !role.getName().equals(roleRel.getName())) {
+                if (roleRel == null || role == null || !role.getId().equals(roleRel.getId())) {
                     continue;
                 }
             }
 
-            T relationship = null;
-
-            try {
-                relationship = query.getRelationshipType().newInstance();
-
-                relationship.setId(storedRelationship.getId());
-                
-                Set<Entry<String, IdentityType>> identityTypes = storedRelationship.getIdentityTypes().entrySet();
-
-                for (Entry<String, IdentityType> entry : identityTypes) {
-                    List<Property<IdentityType>> annotatedTypes = PropertyQueries
-                            .<IdentityType> createQuery(query.getRelationshipType())
-                            .addCriteria(new NamedPropertyCriteria(entry.getKey())).getResultList();
-
-                    Property<IdentityType> property = annotatedTypes.get(0);
-
-                    property.setValue(relationship, entry.getValue());
-                }
-
-                Set<Entry<String, String>> attributes = storedRelationship.getAttributes().entrySet();
-
-                for (Entry<String, String> entry : attributes) {
-                    relationship.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            result.add(relationship);
+            result.add(convertToRelationship(relationshipType, storedRelationship));
         }
 
         return result;
+    }
+
+    private <T extends Relationship> T convertToRelationship(Class<T> relationshipType, FileRelationshipStorage storedRelationship) {
+        T relationship = null;
+
+        try {
+            relationship = relationshipType.newInstance();
+
+            relationship.setId(storedRelationship.getId());
+
+            Set<Entry<String, IdentityType>> identityTypes = storedRelationship.getIdentityTypes().entrySet();
+
+            for (Entry<String, IdentityType> entry : identityTypes) {
+                List<Property<IdentityType>> annotatedTypes = PropertyQueries
+                        .<IdentityType> createQuery(relationshipType)
+                        .addCriteria(new NamedPropertyCriteria(entry.getKey())).getResultList();
+
+                Property<IdentityType> property = annotatedTypes.get(0);
+
+                property.setValue(relationship, entry.getValue());
+            }
+
+            Set<Entry<String, String>> attributes = storedRelationship.getAttributes().entrySet();
+
+            for (Entry<String, String> entry : attributes) {
+                relationship.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return relationship;
     }
 
     @Override

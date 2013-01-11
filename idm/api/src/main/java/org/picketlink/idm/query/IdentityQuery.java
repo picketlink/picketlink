@@ -21,6 +21,8 @@ public interface IdentityQuery<T extends IdentityType> {
     Class<T> getIdentityType();
 
     Map<QueryParameter, Object[]> getParameters();
+    
+    Object[] getParameter(QueryParameter queryParameter);
 
     int getOffset();
 
