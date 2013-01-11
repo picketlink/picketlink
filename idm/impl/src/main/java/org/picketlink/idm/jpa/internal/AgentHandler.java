@@ -22,8 +22,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_ID;
-
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -36,6 +34,7 @@ import org.picketlink.idm.event.AgentCreatedEvent;
 import org.picketlink.idm.event.AgentDeletedEvent;
 import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
@@ -50,9 +49,13 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public class AgentHandler extends IdentityTypeHandler<Agent>{
 
+    public AgentHandler(JPAIdentityStoreConfiguration config) {
+        super(config);
+    }
+
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
     }
 
     @Override
@@ -72,7 +75,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     @Override
     protected Agent doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        String idValue = store.getConfig().getModelProperty(PROPERTY_IDENTITY_ID).getValue(identity).toString();
+        String idValue = getConfig().getModelProperty(PropertyType.IDENTITY_ID).getValue(identity).toString();
 
         Agent agent = new SimpleAgent(idValue);
         
@@ -82,7 +85,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     @Override
     public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
             JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration storeConfig = store.getConfig();
+
         List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
@@ -90,7 +93,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
         
         if (queryParameter.equals(Agent.ID)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_ID).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
                     parameterValues[0]));
         }
         
@@ -98,13 +101,15 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
             for (Object object : parameterValues) {
                 GroupRole groupRole = (GroupRole) object;
 
-                Property<Object> memberModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> roleModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-                Property<Object> groupModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+                // TODO rewrite this to work with relationships instead
+                /**
+                Property<Object> memberModelProperty = getConfig().getModelProperty(getConfigJPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+                Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
 
 
-                Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getMembershipClass());
-                Root fromProject = subquery.from(storeConfig.getMembershipClass());
+                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
+                Root fromProject = subquery.from(getConfig().getMembershipClass());
                 Subquery<?> select = subquery.select(fromProject.get(memberModelProperty.getName()));
 
                 Predicate conjunction = builder.conjunction();
@@ -130,13 +135,15 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
                 subquery.where(conjunction);
 
-                predicates.add(builder.in(root).value(subquery));
+                predicates.add(builder.in(root).value(subquery));*/
             }
         }
         
         if (queryParameter.equals(IdentityType.MEMBER_OF)) {
             for (Object object : parameterValues) {
-                Property<Object> memberModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                // TODO rewrite this to use relationships
+                /*
+                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
                 Property<Object> groupModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
 
 
@@ -153,14 +160,15 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
                 subquery.where(conjunction);
                 
-                predicates.add(builder.in(root).value(subquery));
+                predicates.add(builder.in(root).value(subquery));*/
             }
         }
         
         if (queryParameter.equals(IdentityType.HAS_ROLE)) {
             for (Object object : parameterValues) {
                 String roleName = (String) parameterValues[0];
-
+                // TODO rewrite this to use relationships
+                /*
                 Property<Object> memberModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
                 Property<Object> roleModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
 
@@ -178,7 +186,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
                 subquery.where(conjunction);
 
-                predicates.add(builder.in(root).value(subquery));
+                predicates.add(builder.in(root).value(subquery));*/
             }
         }
         

@@ -3,12 +3,26 @@ package org.picketlink.idm.model;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.picketlink.idm.query.QueryParameter;
+
 /**
  * 
  * @author Shane Bryzak
  *
  */
 public interface AttributedType extends Serializable {
+
+    /**
+     * A query parameter used to set the id value.
+     */
+    QueryParameter ID = new QueryParameter() {};
+
+    /**
+     * Returns the unique identifier for this instance
+     * @return
+     */
+    String getId();
+
     /**
      * Set the specified attribute. This operation will overwrite any previous value. 
      *

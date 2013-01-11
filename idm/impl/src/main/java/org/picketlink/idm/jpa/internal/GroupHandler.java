@@ -22,9 +22,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +38,7 @@ import org.picketlink.idm.event.GroupCreatedEvent;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.GroupUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleGroup;
@@ -52,25 +50,29 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public class GroupHandler extends IdentityTypeHandler<Group>{
 
+    public GroupHandler(JPAIdentityStoreConfiguration config) {
+        super(config);
+    }
+
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Group fromGroup, JPAIdentityStore store) {
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_NAME, fromGroup.getName(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
 
         if (fromGroup.getParentGroup() != null) {
-            Object parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup());
+            Object parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
 
             if (parentIdentity == null) {
                 store.add(fromGroup.getParentGroup());
-                parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup());
+                parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
             }
 
-            store.setModelProperty(toIdentity, PROPERTY_PARENT_GROUP, parentIdentity, true);
+            setModelPropertyValue(toIdentity, PropertyType.GROUP_PARENT, parentIdentity, true);
         }
     }
     
     @Override
     void remove(Object identity, Group identityType, JPAIdentityStore store) {
-        disassociateChilds(identityType,store);
+        disassociateChildren(identityType,store);
     }
 
     @Override
@@ -90,12 +92,12 @@ public class GroupHandler extends IdentityTypeHandler<Group>{
     
     /**
      * <p>
-     * Disassociates the given {@link Group} from its childs.
+     * Disassociates the given {@link Group} from its children.
      * </p>
      * 
      * @param group
      */
-    private void disassociateChilds(Group group, JPAIdentityStore store) {
+    private void disassociateChildren(Group group, JPAIdentityStore store) {
         EntityManager em = store.getEntityManager();
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -104,10 +106,10 @@ public class GroupHandler extends IdentityTypeHandler<Group>{
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         Join<?, ?> join = root
-                .join(store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP).getName());
+                .join(getConfig().getModelProperty(PropertyType.GROUP_PARENT).getName());
 
         predicates.add(builder.equal(
-                join.get(store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME).getName()),
+                join.get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
                 group.getName()));
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
@@ -115,21 +117,21 @@ public class GroupHandler extends IdentityTypeHandler<Group>{
         List<?> resultList = em.createQuery(criteria).getResultList();
 
         for (Object object : resultList) {
-            store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_PARENT_GROUP).setValue(object, null);
+            getConfig().getModelProperty(PropertyType.GROUP_PARENT).setValue(object, null);
             em.merge(object);
         }
     }
 
     @Override
     protected Group doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        String name = store.getModelProperty(String.class, identity, PROPERTY_IDENTITY_NAME);
+        String name = getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
 
-        Object parentInstance = store.getModelProperty(Object.class, identity, PROPERTY_PARENT_GROUP);
+        Object parentInstance = getModelPropertyValue(Object.class, identity, PropertyType.GROUP_PARENT);
 
         SimpleGroup group = null;
 
         if (parentInstance != null) {
-            String parentId = store.getModelProperty(String.class, parentInstance, PROPERTY_IDENTITY_NAME);
+            String parentId = getModelPropertyValue(String.class, parentInstance, PropertyType.IDENTITY_NAME);
 
             Group parent = store.getGroup(parentId);
 
@@ -149,20 +151,24 @@ public class GroupHandler extends IdentityTypeHandler<Group>{
         
         if (queryParameter.equals(Group.NAME)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(store.getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(Group.PARENT)) {
-            Join<Object, Object> join = criteria.getRoot().join(store.getConfig().getModelProperty(PROPERTY_PARENT_GROUP).getName());
+            Join<Object, Object> join = criteria.getRoot().join(getConfig().getModelProperty(
+                    PropertyType.GROUP_PARENT).getName());
 
-            predicates.add(builder.equal(join.get(store.getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
+            predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(IdentityType.HAS_MEMBER)) {
+            
+            // TODO rewrite using relationships
+            /*
             for (Object object : parameterValues) {
-                Property<Object> memberModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> memberModelProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
                 Property<Object> groupModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
 
 
@@ -180,7 +186,7 @@ public class GroupHandler extends IdentityTypeHandler<Group>{
                 subquery.where(conjunction);
                 
                 predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
-            }
+            }*/
         }
         
         return predicates;

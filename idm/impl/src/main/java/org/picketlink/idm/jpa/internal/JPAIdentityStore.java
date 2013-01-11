@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -45,6 +47,7 @@ import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriter
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
+import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
@@ -536,7 +539,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 storedGroup = getGroup(group.getName());
             }
 
-            groupRole = new SimpleGroupRole(storedAgent, storedRole, storedGroup);
+            groupRole = new SimpleGroupRole(storedAgent, storedGroup, storedRole);
         }
 
         return groupRole;
@@ -653,7 +656,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     private List<?> findAttributes(IdentityType identityType, String idValue, Attribute<? extends Serializable> userAttribute) {
-        Property<Object> attributeIdentityProperty = getConfig().getAttributeIdentityProperty();
+        Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY);
 
         EntityManager em = getEntityManager();
 
@@ -665,12 +668,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Join<?, ?> join = root.join(attributeIdentityProperty.getName());
 
         if (IDMUtil.isAgentType(identityType.getClass())) {
-            predicates.add(builder.equal(join.get(getConfig().getIdentityIdProperty().getName()), idValue));
+            predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), idValue));
         } else {
-            predicates.add(builder.equal(join.get(getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()), idValue));
+            predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()), idValue));
         }
 
-        predicates.add(builder.equal(root.get(getConfig().getAttributeNameProperty().getName()), userAttribute.getName()));
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getName()), userAttribute.getName()));
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
@@ -679,7 +682,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     private List<?> findAttributes(Object object) {
         Class<?> attributeClass = getConfig().getAttributeClass();
-        String identityProperty = getConfig().getAttributeIdentityProperty().getName();
+        String identityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY).getName();
 
         EntityManager em = getEntityManager();
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -695,9 +698,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return em.createQuery(criteria).getResultList();
     }
 
-    protected Object lookupIdentityObjectById(IdentityType identityType) {
-        String id = getIdentifierValue(identityType);
-
+    protected Object lookupIdentityObjectById(String id) {
         if (id == null) {
             return null;
         }
@@ -709,18 +710,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Root<?> root = criteria.from(getConfig().getIdentityClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
 
-        predicates.add(builder.equal(root.get(getConfig().getDiscriminatorProperty().getName()), getConfig()
-                .getIdentityDiscriminator(identityType.getClass())));
-
-        if (IDMUtil.isUserType(identityType.getClass()) || IDMUtil.isAgentType(identityType.getClass())) {
-            predicates.add(builder.equal(root.get(getConfig().getIdentityIdProperty().getName()), id));
-        } else if (IDMUtil.isGroupType(identityType.getClass()) || IDMUtil.isRoleType(identityType.getClass())
-                || IDMUtil.isRelationshipType(identityType.getClass())) {
-            predicates.add(builder.equal(root.get(getConfig().getIdentityNameProperty().getName()), id));
-        } else {
-            throw new SecurityException("Could not lookup identity by id - unsupported IdentityType ["
-                    + identityType.getClass().getName() + "]");
-        }
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), id));
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
@@ -728,54 +718,64 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         if (results.isEmpty()) {
             return null;
-        }
-
-        if (results.size() == 1) {
-            return results.get(0);
         } else {
-            throw new SecurityException("Error looking up identity by id - ambiguous identities found for id: [" + id + "]");
+            return results.get(0);
         }
-
     }
 
-    private void removeMemberships(Object object) {
+    private void removeRelationships(Object identity) {
         EntityManager em = getEntityManager();
 
-        if (getConfig().getMembershipClass() != null) {
+        // First we build a list of all the relationships that the specified identity
+        // is participating in
+        if (getConfig().getRelationshipClass() != null) {
             CriteriaBuilder builder = em.getCriteriaBuilder();
-            CriteriaQuery<?> criteria = builder.createQuery(getConfig().getMembershipClass());
-            Root<?> root = criteria.from(getConfig().getMembershipClass());
+            CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipClass());
+            Root<?> root = criteria.from(getConfig().getRelationshipClass());
             List<Predicate> predicates = new ArrayList<Predicate>();
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_MEMBER).getName()), object));
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()), identity));
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
             List<?> results = em.createQuery(criteria).getResultList();
+
+            Set<Object> relationshipsToRemove = new HashSet<Object>();
+
             for (Object result : results) {
-                em.remove(result);
+                relationshipsToRemove.add(getConfig().getModelProperty(
+                        PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getValue(result));
             }
 
-            criteria = builder.createQuery(getConfig().getMembershipClass());
-            root = criteria.from(getConfig().getMembershipClass());
-            predicates.clear();
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_GROUP).getName()), object));
-            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+            // Now that we have the list, we can iterate through and remove the records
+            for (Object relationship : relationshipsToRemove) {
+                // First we delete the attributes
+                criteria = builder.createQuery(getConfig().getRelationshipAttributeClass());
+                root = criteria.from(getConfig().getRelationshipAttributeClass());
+                predicates = new ArrayList<Predicate>();
+                predicates.add(builder.equal(root.get(getConfig().getModelProperty(
+                        PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName()), relationship));
+                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+                results = em.createQuery(criteria).getResultList();
 
-            results = em.createQuery(criteria).getResultList();
-            for (Object result : results) {
-                em.remove(result);
+                for (Object attribute : results) {
+                    em.remove(attribute);
+                }
+
+                // Next we delete the relationship identities
+                criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
+                root = criteria.from(getConfig().getRelationshipIdentityClass());
+                predicates = new ArrayList<Predicate>();
+                predicates.add(builder.equal(root.get(getConfig().getModelProperty(
+                        PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName()), relationship));
+                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+                results = em.createQuery(criteria).getResultList();
+
+                for (Object identityType : results) {
+                    em.remove(identityType);
+                }
+
+                // Finally we delete the relationship itself
+                em.remove(relationship);
             }
-
-            criteria = builder.createQuery(getConfig().getMembershipClass());
-            root = criteria.from(getConfig().getMembershipClass());
-            predicates.clear();
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_MEMBERSHIP_ROLE).getName()), object));
-            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-            results = em.createQuery(criteria).getResultList();
-            for (Object result : results) {
-                em.remove(result);
-            }
-
         }
     }
 
@@ -798,48 +798,30 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             CriteriaQuery<?> criteria = builder.createQuery(getConfig().getCredentialClass());
             Root<?> root = criteria.from(getConfig().getCredentialClass());
             List<Predicate> predicates = new ArrayList<Predicate>();
-            predicates
-                    .add(builder.equal(root.get(getConfig().getModelProperty(PROPERTY_CREDENTIAL_IDENTITY).getName()), object));
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(
+                    PropertyType.CREDENTIAL_IDENTITY).getName()), object));
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
             List<?> results = em.createQuery(criteria).getResultList();
-            
+
             for (Object credential : results) {
                 CriteriaQuery<?> attributeCriteria = builder.createQuery(getConfig().getCredentialAttributeClass());
                 Root<?> attributeRoot = attributeCriteria.from(getConfig().getCredentialAttributeClass());
                 List<Predicate> attributePredicates = new ArrayList<Predicate>();
 
                 Property<Object> attributeCredential = getConfig().getModelProperty(
-                        JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_ATTRIBUTE);
+                        PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL);
 
                 attributePredicates.add(builder.equal(attributeRoot.get(attributeCredential.getName()), credential));
 
                 List<?> attributes = em.createQuery(attributeCriteria).getResultList();
-                
+
                 for (Object attribute : attributes) {
                     em.remove(attribute);
                 }
-                
+
                 em.remove(credential);
             }
-        }
-    }
-
-    <P> P getModelProperty(Class<P> propertyType, Object instance, String propertyName) {
-        @SuppressWarnings("unchecked")
-        Property<P> property = (Property<P>) getConfig().getModelProperty(propertyName);
-        return property == null ? null : property.getValue(instance);
-    }
-
-    void setModelProperty(Object instance, String propertyName, Object value) {
-        setModelProperty(instance, propertyName, value, false);
-    }
-
-    void setModelProperty(Object instance, String propertyName, Object value, boolean required) {
-        if (getConfig().isModelPropertySet(propertyName)) {
-            getConfig().getModelProperty(propertyName).setValue(instance, value);
-        } else if (required) {
-            throw new IdentityManagementException("Model property [" + propertyName + "] has not been configured.");
         }
     }
 
@@ -891,32 +873,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     /**
      * <p>
-     * Resolves the value of the identifier for the given {@link IdentityType}.
-     * </p>
-     * 
-     * @param identityType
-     * @return
-     */
-    private String getIdentifierValue(IdentityType identityType) {
-        String value = null;
-
-        if (IDMUtil.isUserType(identityType.getClass())) {
-            value = ((User) identityType).getId();
-        } else if (IDMUtil.isAgentType(identityType.getClass())) {
-            value = ((Agent) identityType).getId();
-        } else if (IDMUtil.isRoleType(identityType.getClass())) {
-            value = ((Role) identityType).getName();
-        } else if (IDMUtil.isGroupType(identityType.getClass())) {
-            value = ((Group) identityType).getName();
-        } else if (IDMUtil.isRelationshipType(identityType.getClass())) {
-            value = ((Relationship) identityType).getName();
-        }
-
-        return value;
-    }
-
-    /**
-     * <p>
      * Populates the given {@link IdentityType} instance with the attributes associated with the given <code>identity</code>
      * argument.
      * </p>
@@ -956,12 +912,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 Root<?> attributeClassRoot = criteria.from(getConfig().getAttributeClass());
                 List<Predicate> predicates = new ArrayList<Predicate>();
 
-                Join identityPropertyJoin = attributeClassRoot.join(getConfig().getAttributeIdentityProperty().getName());
-                String propertyNameToJoin = getConfig().getIdentityIdProperty().getName();
+                Join identityPropertyJoin = attributeClassRoot.join(getConfig().getModelProperty(
+                        PropertyType.ATTRIBUTE_IDENTITY).getName());
+                String propertyNameToJoin = getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName();
 
-                if (IDMUtil.isRoleType(identityType.getClass()) || IDMUtil.isGroupType(identityType.getClass())
-                        || IDMUtil.isRelationshipType(identityType.getClass())) {
-                    propertyNameToJoin = getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName();
+                if (IDMUtil.isRoleType(identityType.getClass()) || IDMUtil.isGroupType(identityType.getClass())) {
+                    propertyNameToJoin = getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName();
                 }
 
                 predicates.add(builder.equal(identityPropertyJoin.get(propertyNameToJoin), getIdentifierValue(identityType)));
@@ -972,8 +928,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 if (!results.isEmpty()) {
                     for (Object object : results) {
-                        Property<Object> attributeNameProperty = getConfig().getAttributeNameProperty();
-                        Property<Object> attributeValueProperty = getConfig().getAttributeValueProperty();
+                        Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
+                        Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
 
                         String attribName = (String) attributeNameProperty.getValue(object);
                         Serializable attribValue = (Serializable) attributeValueProperty.getValue(object);
@@ -1032,7 +988,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @throws IdentityManagementException
      */
     private Object getIdentityObject(IdentityType identityType) throws IdentityManagementException {
-        Object identity = lookupIdentityObjectById(identityType);
+        Object identity = lookupIdentityObjectById(identityType.getId());
 
         if (identity == null) {
             throw new IdentityManagementException("The provided IdentityType instance does not exists.");
@@ -1065,10 +1021,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public void storeCredential(Agent agent, CredentialStorage storage) {
-        Property<Object> identityTypeProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_IDENTITY);
-        Property<Object> typeProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_TYPE);
-        Property<Object> effectiveProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_EFFECTIVE_DATE);
-        Property<Object> expiryProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_EXPIRY_DATE);
+        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
+        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
+        Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
+        Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
         
         Object lastCredential = retrieveCurrentCredentialEntity(agent, storage.getClass());
 
@@ -1094,8 +1050,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             effectiveDate = new Date();
         }
 
-        Object agentInstance = lookupIdentityObjectById(agent);
-        
+        Object agentInstance = lookupIdentityObjectById(agent.getId());
+
         identityTypeProperty.setValue(newCredential, agentInstance);
         typeProperty.setValue(newCredential, storage.getClass().getName());
         effectiveProperty.setValue(newCredential, effectiveDate);
@@ -1106,14 +1062,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
 
-        Property<Object> attributeName = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_ATTRIBUTE_NAME);
-        Property<Object> attributeValue = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_ATTRIBUTE_VALUE);
-        Property<Object> attributeType = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_ATTRIBUTE_TYPE);
-        Property<Object> attributeCredential = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_ATTRIBUTE);
+        Property<Object> attributeName = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME);
+        Property<Object> attributeValue = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE);
+        Property<Object> attributeCredential = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL);
 
         for (Property<Object> property : annotatedTypes) {
             if (property.getJavaClass().equals(String.class)) {
@@ -1128,7 +1079,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 attributeName.setValue(newCredentialAttribute, property.getName());
                 attributeValue.setValue(newCredentialAttribute, Base64.encodeObject((Serializable) property.getValue(storage)));
-                attributeType.setValue(newCredentialAttribute, property.getJavaClass().getName());
                 attributeCredential.setValue(newCredentialAttribute, newCredential);
 
                 em.persist(newCredentialAttribute);
@@ -1146,10 +1096,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     private <T> Object retrieveCurrentCredentialEntity(Agent agent, Class<T> storageClass) {
-        Property<Object> identityTypeProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_IDENTITY);
-        Property<Object> typeProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_TYPE);
-        Property<Object> effectiveProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_EFFECTIVE_DATE);
-        Property<Object> expiryProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_EXPIRY_DATE);
+        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
+        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
+        Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
+        Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
 
         EntityManager em = getEntityManager();
 
@@ -1200,18 +1150,18 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 throw new IdentityManagementException("Could not instantiate storage class [" + storageClass.getName() + "].",
                         e);
             }
-            
-            Property<Object> effectiveProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_EFFECTIVE_DATE);
-            Property<Object> expiryProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_EXPIRY_DATE);
-            
+
+            Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
+            Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
+
             List<Property<Object>> effectiveDateProperty = PropertyQueries.createQuery(storageClass)
                     .addCriteria(new NamedPropertyCriteria("effectiveDate")).getResultList();
-            
+
             effectiveDateProperty.get(0).setValue(storage, effectiveProperty.getValue(instance));
 
             List<Property<Object>> expiryDateProperty = PropertyQueries.createQuery(storageClass)
                     .addCriteria(new NamedPropertyCriteria("expiryDate")).getResultList();
-            
+
             expiryDateProperty.get(0).setValue(storage, expiryProperty.getValue(instance));
 
             EntityManager em = getEntityManager();
@@ -1221,19 +1171,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             Root<?> attributeRoot = attributeCriteria.from(getConfig().getCredentialAttributeClass());
             List<Predicate> attributePredicates = new ArrayList<Predicate>();
 
-            Property<Object> attributeCredential = getConfig().getModelProperty(
-                    JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_ATTRIBUTE);
+            Property<Object> attributeCredential = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL);
 
             attributePredicates.add(builder.equal(attributeRoot.get(attributeCredential.getName()), instance));
 
             attributeCriteria.where(attributePredicates.toArray(new Predicate[attributePredicates.size()]));
-            
+
             List<?> attributes = em.createQuery(attributeCriteria).getResultList();
 
-            Property<Object> attributeName = getConfig().getModelProperty(
-                    JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_ATTRIBUTE_NAME);
-            Property<Object> attributeValue = getConfig().getModelProperty(
-                    JPAIdentityStoreConfiguration.PROPERTY_CREDENTIAL_ATTRIBUTE_VALUE);
+            Property<Object> attributeName = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME);
+            Property<Object> attributeValue = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE);
 
             for (Object attribute : attributes) {
                 String name = attributeName.getValue(attribute).toString();
@@ -1261,8 +1208,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
-        Property<Object> identityTypeProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_IDENTITY);
-        Property<Object> typeProperty = getConfig().getModelProperty(PROPERTY_CREDENTIAL_TYPE);
+        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
+        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
 
         EntityManager em = getEntityManager();
 

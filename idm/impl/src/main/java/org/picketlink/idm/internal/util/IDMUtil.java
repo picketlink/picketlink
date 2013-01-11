@@ -52,10 +52,6 @@ public class IDMUtil {
     public static  boolean isAgentType(Class<? extends IdentityType> identityType) {
         return Agent.class.isAssignableFrom(identityType);
     }
-    
-    public static boolean isRelationshipType(Class<? extends IdentityType> identityType) {
-        return Relationship.class.isAssignableFrom(identityType);
-    }
 
     /**
      * Match two arrays for equality

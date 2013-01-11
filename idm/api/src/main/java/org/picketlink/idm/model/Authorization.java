@@ -47,6 +47,10 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         return accessToken;
     }
 
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
     @RelationshipAttribute
     public String getRefreshToken() {
         return refreshToken;

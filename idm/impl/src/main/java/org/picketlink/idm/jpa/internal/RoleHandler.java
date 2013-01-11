@@ -22,8 +22,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_NAME;
-
 import java.util.List;
 
 import javax.persistence.criteria.Predicate;
@@ -35,6 +33,7 @@ import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
@@ -46,9 +45,13 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public class RoleHandler extends IdentityTypeHandler<Role>{
 
+    public RoleHandler(JPAIdentityStoreConfiguration config) {
+        super(config);
+    }
+
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_NAME, fromRole.getName(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 
     @Override
@@ -68,7 +71,7 @@ public class RoleHandler extends IdentityTypeHandler<Role>{
 
     @Override
     protected Role doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        String name = store.getModelProperty(String.class, identity, PROPERTY_IDENTITY_NAME);
+        String name = getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
 
         SimpleRole role = new SimpleRole(name);
         
@@ -82,13 +85,16 @@ public class RoleHandler extends IdentityTypeHandler<Role>{
         
         if (queryParameter.equals(Role.NAME)) {
             predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(store.getConfig().getModelProperty(PROPERTY_IDENTITY_NAME).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(IdentityType.ROLE_OF)) {
             for (Object object : parameterValues) {
-                Property<Object> memberModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+
+                // TODO rewrite using relationships
+                /*
+                Property<Object> memberModelProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
                 Property<Object> roleModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
 
 
@@ -105,7 +111,7 @@ public class RoleHandler extends IdentityTypeHandler<Role>{
 
                 subquery.where(conjunction);
                 
-                predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));*/
             }
         }
         

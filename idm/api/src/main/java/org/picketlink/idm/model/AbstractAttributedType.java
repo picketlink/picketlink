@@ -14,8 +14,18 @@ import java.util.Map;
 public abstract class AbstractAttributedType implements AttributedType {
     private static final long serialVersionUID = -6118293036241099199L;
 
+    private String id;
+
     private Map<String, Attribute<? extends Serializable>> attributes = 
             new HashMap<String, Attribute<? extends Serializable>>();
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public void setAttribute(Attribute<? extends Serializable> attribute) {
         attributes.put(attribute.getName(), attribute);

@@ -22,11 +22,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_ID;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_EMAIL;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_FIRST_NAME;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_USER_LAST_NAME;
-
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -39,6 +34,7 @@ import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleGroup;
@@ -53,12 +49,16 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public class UserHandler extends IdentityTypeHandler<User>{
 
+    public UserHandler(JPAIdentityStoreConfiguration config) {
+        super(config);
+    }
+
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_ID, fromUser.getId(), true);
-        store.setModelProperty(toIdentity, PROPERTY_USER_FIRST_NAME, fromUser.getFirstName());
-        store.setModelProperty(toIdentity, PROPERTY_USER_LAST_NAME, fromUser.getLastName());
-        store.setModelProperty(toIdentity, PROPERTY_USER_EMAIL, fromUser.getEmail());
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
+        setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
+        setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
+        setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
     }
 
     @Override
