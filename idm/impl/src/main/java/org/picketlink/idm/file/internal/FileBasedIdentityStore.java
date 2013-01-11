@@ -65,7 +65,9 @@ import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.IdentityType.AttributeParameter;
@@ -1202,8 +1204,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(query.getRelationshipType().getName());
 
         for (FileRelationshipStorage storedRelationship : relationships) {
-            boolean match = false;
-
             if (GroupRole.class.isAssignableFrom(query.getRelationshipType())) {
                 Agent member = (Agent) query.getParameter(GroupRole.MEMBER)[0];
                 Role role = (Role) query.getParameter(GroupRole.ROLE)[0];
@@ -1228,7 +1228,66 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
             
-            result.add(null);
+            if (GroupMembership.class.isAssignableFrom(query.getRelationshipType())) {
+                Agent member = (Agent) query.getParameter(GroupMembership.MEMBER)[0];
+                Group group = (Group) query.getParameter(GroupMembership.GROUP)[0];
+
+                Agent memberRel = (Agent) storedRelationship.getIdentityTypes().get(GroupMembership.MEMBER.getName());
+
+                if (memberRel == null || member == null || !member.getLoginName().equals(memberRel.getLoginName())) {
+                    continue;
+                }
+
+                Group groupRel = (Group) storedRelationship.getIdentityTypes().get(GroupMembership.GROUP.getName());
+                
+                if (groupRel == null || group == null || !group.getName().equals(groupRel.getName())) {
+                    continue;
+                }
+            }
+            
+            if (Grant.class.isAssignableFrom(query.getRelationshipType())) {
+                Agent assignee = (Agent) query.getParameter(Grant.ASSIGNEE)[0];
+                Role role = (Role) query.getParameter(Grant.ROLE)[0];
+
+                Agent assigneeRel = (Agent) storedRelationship.getIdentityTypes().get(Grant.ASSIGNEE.getName());
+
+                if (assigneeRel == null || assignee == null || !assignee.getLoginName().equals(assigneeRel.getLoginName())) {
+                    continue;
+                }
+
+                Role roleRel = (Role) storedRelationship.getIdentityTypes().get(Grant.ROLE.getName());
+
+                if (roleRel == null || role == null || !role.getName().equals(roleRel.getName())) {
+                    continue;
+                }
+            }
+            
+            T relationship = null;
+            
+            try {
+                relationship = query.getRelationshipType().newInstance();
+
+                Set<Entry<String, IdentityType>> identityTypes = storedRelationship.getIdentityTypes().entrySet();
+                
+                for (Entry<String, IdentityType> entry : identityTypes) {
+                    List<Property<IdentityType>> annotatedTypes = PropertyQueries.<IdentityType> createQuery(query.getRelationshipType())
+                            .addCriteria(new NamedPropertyCriteria(entry.getKey())).getResultList();
+                    
+                    Property<IdentityType> property = annotatedTypes.get(0);
+                    
+                    property.setValue(relationship, entry.getValue());
+                }
+                
+                Map<String, String> attributes = storedRelationship.getAttributes();
+                
+                for (Entry<String, IdentityType> entry : identityTypes) {
+                    relationship.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            result.add(relationship);
         }
 
         return result;

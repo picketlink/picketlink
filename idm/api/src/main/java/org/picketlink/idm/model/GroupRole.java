@@ -44,6 +44,10 @@ public class GroupRole extends GroupMembership implements Relationship {
 
     private Role role;
 
+    public GroupRole() {
+        super();
+    }
+    
     public GroupRole(IdentityType member, Group group, Role role) {
         super(member, group);
         this.role = role;
@@ -52,5 +56,9 @@ public class GroupRole extends GroupMembership implements Relationship {
     @RelationshipIdentity
     public Role getRole() {
         return role;
+    }
+    
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

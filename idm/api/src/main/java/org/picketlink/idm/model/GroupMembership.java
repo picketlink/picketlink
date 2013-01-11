@@ -31,6 +31,10 @@ public class GroupMembership extends AbstractAttributedType implements Relations
     private IdentityType member;
     private Group group;
 
+    public GroupMembership() {
+        
+    }
+    
     public GroupMembership(IdentityType member, Group group) {
         this.member = member;
         this.group = group;
@@ -40,9 +44,17 @@ public class GroupMembership extends AbstractAttributedType implements Relations
     public IdentityType getMember() {
         return member;
     }
+    
+    public void setMember(IdentityType member) {
+        this.member = member;
+    }
 
     @RelationshipIdentity
     public Group getGroup() {
         return group;
+    }
+    
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

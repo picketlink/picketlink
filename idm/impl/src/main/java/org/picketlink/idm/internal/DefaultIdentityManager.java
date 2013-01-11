@@ -353,10 +353,15 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean isMember(IdentityType identityType, Group group) {
-        // TODO rewrite using a Relationship Query
-        return false;
-        // return getContextualStoreForFeature(createContext(), Feature.readRelationship).getMembership(identityType, group,
-        // null) != null;
+        RelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class,
+                getContextualStoreForFeature(createContext(), Feature.readRelationship));
+
+        query.setParameter(GroupMembership.MEMBER, identityType);
+        query.setParameter(GroupMembership.GROUP, group);
+        
+        List<GroupMembership> result = query.getResultList();
+        
+        return !result.isEmpty();
     }
 
     @Override
@@ -366,8 +371,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
-        // TODO rewrite using a Relationship Query
-        // getContextualStoreForFeature(createContext(), Feature.deleteMembership).removeMembership(identityType, group, null);
+        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new GroupMembership(identityType, group));
     }
 
     @Override
@@ -401,17 +405,20 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
-        // TODO rewrite using a Relationship Query
-        // getContextualStoreForFeature(createContext(), Feature.createMembership)
-        // .removeMembership(identityType, group, role);
+        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new GroupRole(identityType, group, role));
     }
 
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
-        // TODO rewrite using a Relationship Query
-        return false;
-        // return getContextualStoreForFeature(createContext(), Feature.readMembership)
-        // .getMembership(identityType, null, role) != null;
+        RelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class,
+                getContextualStoreForFeature(createContext(), Feature.readRelationship));
+
+        query.setParameter(Grant.ASSIGNEE, identityType);
+        query.setParameter(Grant.ROLE, role);
+        
+        List<Grant> result = query.getResultList();
+        
+        return !result.isEmpty();
     }
 
     @Override
@@ -421,9 +428,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        // TODO rewrite using a Relationship Query
-        // getContextualStoreForFeature(createContext(), Feature.deleteMembership)
-        // .removeMembership(identityType, null, role);
+        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new Grant(identityType, role));
     }
 
     @Override
