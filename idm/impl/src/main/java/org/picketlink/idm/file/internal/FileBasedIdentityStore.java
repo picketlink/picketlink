@@ -54,6 +54,7 @@ import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.GroupUpdatedEvent;
 import org.picketlink.idm.event.RelationshipCreatedEvent;
 import org.picketlink.idm.event.RelationshipDeletedEvent;
+import org.picketlink.idm.event.RelationshipUpdatedEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
@@ -73,7 +74,6 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.IdentityType.AttributeParameter;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Relationship.IdentityTypeQueryParameter;
 import org.picketlink.idm.model.Role;
@@ -169,19 +169,15 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
 
         FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
-
-        fileRelationship.setId(generateUUID());
+        
+        fileRelationship.setId(relationship.getId());
         fileRelationship.setType(relationship.getClass().getName());
 
         for (Property<IdentityType> property : relationshipIdentityTypes) {
             fileRelationship.getIdentityTypes().put(property.getName(), property.getValue(relationship));
         }
 
-        Collection<Attribute<? extends Serializable>> attributes = relationship.getAttributes();
-
-        for (Attribute<? extends Serializable> attribute : attributes) {
-            fileRelationship.getAttributes().put(attribute.getName(), attribute.getValue().toString());
-        }
+        updateRelationshipAttributes(relationship, fileRelationship);
 
         List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(relationship.getClass().getName());
 
@@ -194,15 +190,25 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         flushRelationships();
     }
 
+    private void updateRelationshipAttributes(Relationship relationship, FileRelationshipStorage fileRelationship) {
+        fileRelationship.getAttributes().clear();
+
+        Collection<Attribute<? extends Serializable>> attributes = relationship.getAttributes();
+
+        for (Attribute<? extends Serializable> attribute : attributes) {
+            fileRelationship.getAttributes().put(attribute.getName(), attribute.getValue());
+        }
+    }
+
     @Override
-    public void update(AttributedType identityType) {
+    public void update(AttributedType attributedType) {
         Object eventToFire = null;
 
-        if (IdentityType.class.isInstance(identityType)) {
-            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
+        if (IdentityType.class.isInstance(attributedType)) {
+            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
             if (IDMUtil.isUserType(identityTypeClass)) {
-                User updatedUser = (User) identityType;
+                User updatedUser = (User) attributedType;
 
                 User storedUser = getStoredUser(updatedUser);
 
@@ -210,7 +216,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
                 eventToFire = new UserUpdatedEvent(storedUser);
             } else if (IDMUtil.isAgentType(identityTypeClass)) {
-                Agent updatedAgent = (Agent) identityType;
+                Agent updatedAgent = (Agent) attributedType;
 
                 Agent storedAgent = getStoredAgent(updatedAgent);
 
@@ -218,7 +224,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
                 eventToFire = new AgentUpdatedEvent(storedAgent);
             } else if (IDMUtil.isGroupType(identityTypeClass)) {
-                Group updatedGroup = (Group) identityType;
+                Group updatedGroup = (Group) attributedType;
 
                 Group storedGroup = getStoredGroup(updatedGroup);
 
@@ -226,7 +232,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
                 eventToFire = new GroupUpdatedEvent(storedGroup);
             } else if (IDMUtil.isRoleType(identityTypeClass)) {
-                Role updatedRole = (Role) identityType;
+                Role updatedRole = (Role) attributedType;
 
                 Role storedRole = getStoredRole(updatedRole);
 
@@ -236,6 +242,24 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else {
                 throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
             }
+        } else if (Relationship.class.isInstance(attributedType)) {
+            Relationship relationship = (Relationship) attributedType;
+
+            List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(
+                    attributedType.getClass().getName());
+
+            for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                if (storedRelationship.getId().equals(relationship.getId())) {
+                    updateAttributedType(relationship, convertToRelationship(storedRelationship));
+                    updateRelationshipAttributes(relationship, storedRelationship);
+                }
+            }
+
+            flushRelationships();
+
+            eventToFire = new RelationshipUpdatedEvent(relationship);
+        } else {
+            throw new IdentityManagementException("Unsupported AttributedType [" + attributedType.getClass().getName() + "].");
         }
 
         getContext().getEventBridge().raiseEvent(eventToFire);
@@ -839,16 +863,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return result;
     }
 
-    private void findByCustomAttributes(List<? extends IdentityType> identityTypes, IdentityQuery<?> identityQuery) {
+    private void findByCustomAttributes(List<? extends AttributedType> identityTypes, IdentityQuery<?> identityQuery) {
         Set<Entry<QueryParameter, Object[]>> entrySet = identityQuery.getParameters().entrySet();
 
-        for (IdentityType fileUser : new ArrayList<IdentityType>(identityTypes)) {
+        for (AttributedType fileUser : new ArrayList<AttributedType>(identityTypes)) {
             for (Entry<QueryParameter, Object[]> entry : entrySet) {
                 QueryParameter queryParameter = entry.getKey();
                 Object[] queryParameterValues = entry.getValue();
 
-                if (IdentityType.AttributeParameter.class.isInstance(queryParameter) && queryParameterValues != null) {
-                    IdentityType.AttributeParameter customParameter = (AttributeParameter) queryParameter;
+                if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && queryParameterValues != null) {
+                    AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
                     Attribute<Serializable> userAttribute = fileUser.getAttribute(customParameter.getName());
                     boolean match = false;
 
@@ -900,7 +924,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         updateAttributedType(fromIdentityType, toIdentityType);
     }
 
-    private void updateAttributedType(IdentityType fromIdentityType, IdentityType toIdentityType) {
+    private void updateAttributedType(AttributedType fromIdentityType, AttributedType toIdentityType) {
         toIdentityType.setId(fromIdentityType.getId());
 
         for (Object object : toIdentityType.getAttributes().toArray()) {
@@ -1266,35 +1290,68 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         for (FileRelationshipStorage storedRelationship : relationships) {
             boolean match = false;
-            
+
             if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
                 Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
 
                 for (Entry<QueryParameter, Object[]> entry : parameters) {
-                    IdentityTypeQueryParameter queryParameter = (IdentityTypeQueryParameter) entry.getKey();
+                    QueryParameter queryParameter = entry.getKey();
                     Object[] values = entry.getValue();
-                    int valuesMathCount = values.length;
 
-                    IdentityType identityTypeRel = storedRelationship.getIdentityTypes().get(queryParameter.getName());
+                    if (entry.getKey() instanceof IdentityTypeQueryParameter) {
+                        IdentityTypeQueryParameter identityTypeParameter = (IdentityTypeQueryParameter) entry.getKey();
+                        int valuesMathCount = values.length;
 
-                    if (IdentityTypeQueryParameter.class.isInstance(queryParameter) && identityTypeRel != null) {
-                        for (Object object : values) {
-                            IdentityType identityType = (IdentityType) object;
-                            
-                            if (identityTypeRel.getClass().isInstance(identityType) && identityTypeRel.getId().equals(identityType.getId())) {
-                                valuesMathCount--;
+                        IdentityType identityTypeRel = storedRelationship.getIdentityTypes().get(
+                                identityTypeParameter.getName());
+
+                        if (IdentityTypeQueryParameter.class.isInstance(identityTypeParameter) && identityTypeRel != null) {
+                            for (Object object : values) {
+                                IdentityType identityType = (IdentityType) object;
+
+                                if (identityTypeRel.getClass().isInstance(identityType)
+                                        && identityTypeRel.getId().equals(identityType.getId())) {
+                                    valuesMathCount--;
+                                }
                             }
                         }
+
+                        match = valuesMathCount <= 0;
                     }
-                    
-                    match = valuesMathCount <= 0;
-                    
+
+                    if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && values != null) {
+                        AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
+                        Serializable userAttributeValue = storedRelationship.getAttributes().get(customParameter.getName());
+
+                        if (userAttributeValue != null) {
+                            int count = values.length;
+
+                            for (Object value : values) {
+                                if (userAttributeValue.getClass().isArray()) {
+                                    Object[] userValues = (Object[]) userAttributeValue;
+
+                                    for (Object object : userValues) {
+                                        if (object.equals(value)) {
+                                            count--;
+                                        }
+                                    }
+                                } else {
+                                    if (value.equals(userAttributeValue)) {
+                                        count--;
+                                    }
+                                }
+                            }
+
+                            match = count <= 0;
+                        }
+                    }
+
                     if (!match) {
                         break;
                     }
                 }
             }
-            
+
             if (match) {
                 result.add((T) convertToRelationship(storedRelationship));
             }
@@ -1329,9 +1386,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 property.setValue(relationship, entry.getValue());
             }
 
-            Set<Entry<String, String>> attributes = storedRelationship.getAttributes().entrySet();
+            Set<Entry<String, Serializable>> attributes = storedRelationship.getAttributes().entrySet();
 
-            for (Entry<String, String> entry : attributes) {
+            for (Entry<String, Serializable> entry : attributes) {
                 relationship.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
             }
         } catch (Exception e) {

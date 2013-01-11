@@ -37,7 +37,7 @@ public class FileRelationshipStorage implements Serializable {
     private static final long serialVersionUID = -349640861496483678L;
 
     private Map<String, IdentityType> identityTypes = new HashMap<String, IdentityType>();
-    private Map<String, String> attributes = new HashMap<String, String>();
+    private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
 
     private String id;
 
@@ -47,7 +47,7 @@ public class FileRelationshipStorage implements Serializable {
         return this.identityTypes;
     }
     
-    public Map<String, String> getAttributes() {
+    public Map<String, Serializable> getAttributes() {
         return this.attributes;
     }
 
