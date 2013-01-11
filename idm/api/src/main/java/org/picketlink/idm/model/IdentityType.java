@@ -110,23 +110,6 @@ public interface IdentityType extends AttributedType {
      */
     QueryParameter HAS_MEMBER = new QueryParameter() {};
 
-    public class AttributeParameter implements QueryParameter {
-        private String name;
-        public AttributeParameter(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    public final class ATTRIBUTE {
-        public static AttributeParameter byName(String name) {
-            return new AttributeParameter(name);
-        }
-    }
-
     /**
      * Returns a key value for this IdentityType.  The key may be used to perform a 
      * lookup operation to retrieve the exact IdentityType instance, and so must be unique.
