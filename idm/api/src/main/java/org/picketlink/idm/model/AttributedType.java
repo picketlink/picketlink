@@ -59,4 +59,21 @@ public interface AttributedType extends Serializable {
      * @return map of attribute names and their values
      */
     Collection<Attribute<? extends Serializable>> getAttributes();
+    
+    public class AttributeParameter implements QueryParameter {
+        private String name;
+        public AttributeParameter(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+    }
+
+    public final class ATTRIBUTE {
+        public static AttributeParameter byName(String name) {
+            return new AttributeParameter(name);
+        }
+    }
 }
