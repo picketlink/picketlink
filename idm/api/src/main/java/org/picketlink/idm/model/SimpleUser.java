@@ -32,8 +32,8 @@ public class SimpleUser extends SimpleAgent implements User {
     private String lastName;
     private String email;
 
-    public SimpleUser(String id) {
-        super(id);
+    public SimpleUser(String loginName) {
+        super(loginName);
     }
 
     public String getFirstName() {
