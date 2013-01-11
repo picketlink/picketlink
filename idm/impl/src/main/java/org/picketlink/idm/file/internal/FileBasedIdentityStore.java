@@ -63,19 +63,21 @@ import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.IdentityType.AttributeParameter;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -112,195 +114,201 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public void add(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+    public void add(AttributedType identityType) {
+        if (IdentityType.class.isInstance(identityType)) {
+            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
 
-        if (IDMUtil.isUserType(identityTypeClass)) {
-            User storedUser = addUser((User) identityType);
+            if (IDMUtil.isUserType(identityTypeClass)) {
+                User storedUser = addUser((User) identityType);
 
-            UserCreatedEvent event = new UserCreatedEvent(storedUser);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isAgentType(identityTypeClass)) {
-            Agent storedAgent = addAgent((Agent) identityType);
+                UserCreatedEvent event = new UserCreatedEvent(storedUser);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isAgentType(identityTypeClass)) {
+                Agent storedAgent = addAgent((Agent) identityType);
 
-            AgentCreatedEvent event = new AgentCreatedEvent(storedAgent);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            Group storedGroup = addGroup((Group) identityType);
+                AgentCreatedEvent event = new AgentCreatedEvent(storedAgent);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                Group storedGroup = addGroup((Group) identityType);
 
-            GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            Role storedRole = addRole((Role) identityType);
+                GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                Role storedRole = addRole((Role) identityType);
 
-            RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-            getContext().getEventBridge().raiseEvent(event);
-        } else {
-            throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
+                RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+                getContext().getEventBridge().raiseEvent(event);
+            } else {
+                throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
+            }
         }
     }
 
     @Override
-    public void update(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+    public void update(AttributedType identityType) {
+        if (IdentityType.class.isInstance(identityType)) {
+            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
 
-        if (IDMUtil.isUserType(identityTypeClass)) {
-            User updatedUser = (User) identityType;
+            if (IDMUtil.isUserType(identityTypeClass)) {
+                User updatedUser = (User) identityType;
 
-            if (updatedUser.getId() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
+                if (updatedUser.getId() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                User storedUser = getUser(updatedUser.getId());
+
+                if (storedUser == null) {
+                    throw new RuntimeException("User [" + updatedUser.getId() + "] does not exists.");
+                }
+
+                updateUser(updatedUser, storedUser);
+
+                UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isAgentType(identityTypeClass)) {
+                Agent updatedAgent = (Agent) identityType;
+
+                if (updatedAgent.getId() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Agent storedAgent = getAgent(updatedAgent.getId());
+
+                if (storedAgent == null) {
+                    throw new RuntimeException("Agent [" + updatedAgent.getId() + "] does not exists.");
+                }
+
+                updateAgent(updatedAgent, storedAgent);
+
+                AgentUpdatedEvent event = new AgentUpdatedEvent(storedAgent);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                Group updatedGroup = (Group) identityType;
+
+                if (updatedGroup.getName() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Group storedGroup = getGroup(updatedGroup.getName());
+
+                if (storedGroup == null) {
+                    throw new RuntimeException("No group found with the given name [" + updatedGroup.getName() + "].");
+                }
+
+                updateGroup(updatedGroup, storedGroup);
+
+                GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                Role updatedRole = (Role) identityType;
+
+                if (updatedRole.getName() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Role storedRole = getRole(updatedRole.getName());
+
+                if (storedRole == null) {
+                    throw new RuntimeException("No role found with the given name [" + updatedRole.getName() + "].");
+                }
+
+                updateRole(updatedRole, storedRole);
+
+                RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+                getContext().getEventBridge().raiseEvent(event);
+            } else {
+                throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
             }
-
-            User storedUser = getUser(updatedUser.getId());
-
-            if (storedUser == null) {
-                throw new RuntimeException("User [" + updatedUser.getId() + "] does not exists.");
-            }
-
-            updateUser(updatedUser, storedUser);
-
-            UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isAgentType(identityTypeClass)) {
-            Agent updatedAgent = (Agent) identityType;
-
-            if (updatedAgent.getId() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Agent storedAgent = getAgent(updatedAgent.getId());
-
-            if (storedAgent == null) {
-                throw new RuntimeException("Agent [" + updatedAgent.getId() + "] does not exists.");
-            }
-
-            updateAgent(updatedAgent, storedAgent);
-
-            AgentUpdatedEvent event = new AgentUpdatedEvent(storedAgent);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            Group updatedGroup = (Group) identityType;
-
-            if (updatedGroup.getName() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Group storedGroup = getGroup(updatedGroup.getName());
-
-            if (storedGroup == null) {
-                throw new RuntimeException("No group found with the given name [" + updatedGroup.getName() + "].");
-            }
-
-            updateGroup(updatedGroup, storedGroup);
-
-            GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            Role updatedRole = (Role) identityType;
-
-            if (updatedRole.getName() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Role storedRole = getRole(updatedRole.getName());
-
-            if (storedRole == null) {
-                throw new RuntimeException("No role found with the given name [" + updatedRole.getName() + "].");
-            }
-
-            updateRole(updatedRole, storedRole);
-
-            RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-            getContext().getEventBridge().raiseEvent(event);
-        } else {
-            throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
         }
     }
 
     @Override
-    public void remove(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+    public void remove(AttributedType identityType) {
+        if (IdentityType.class.isInstance(identityType)) {
+            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
 
-        if (IDMUtil.isUserType(identityTypeClass)) {
-            User user = (User) identityType;
+            if (IDMUtil.isUserType(identityTypeClass)) {
+                User user = (User) identityType;
 
-            if (user.getId() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
+                if (user.getId() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                User storedUser = getUser(user.getId());
+
+                if (storedUser == null) {
+                    throw new RuntimeException("User [" + user.getId() + "] doest not exists.");
+                }
+
+                removeUser(storedUser);
+
+                UserDeletedEvent event = new UserDeletedEvent(storedUser);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isAgentType(identityTypeClass)) {
+                Agent agent = (Agent) identityType;
+
+                if (agent.getId() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Agent storedAgent = getAgent(agent.getId());
+
+                if (storedAgent == null) {
+                    throw new RuntimeException("Agent [" + agent.getId() + "] doest not exists.");
+                }
+
+                removeAgent(storedAgent);
+
+                AgentDeletedEvent event = new AgentDeletedEvent(storedAgent);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                Group group = (Group) identityType;
+
+                if (group.getName() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Group storedGroup = getGroup(group.getName());
+
+                if (storedGroup == null) {
+                    throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
+                }
+
+                removeGroup(storedGroup);
+
+                GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                Role role = (Role) identityType;
+
+                if (role.getName() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Role storedRole = getRole(role.getName());
+
+                if (storedRole == null) {
+                    throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
+                }
+
+                removeRole(storedRole);
+
+                RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
+                getContext().getEventBridge().raiseEvent(event);
             }
-
-            User storedUser = getUser(user.getId());
-
-            if (storedUser == null) {
-                throw new RuntimeException("User [" + user.getId() + "] doest not exists.");
-            }
-
-            removeUser(storedUser);
-
-            UserDeletedEvent event = new UserDeletedEvent(storedUser);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isAgentType(identityTypeClass)) {
-            Agent agent = (Agent) identityType;
-
-            if (agent.getId() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Agent storedAgent = getAgent(agent.getId());
-
-            if (storedAgent == null) {
-                throw new RuntimeException("Agent [" + agent.getId() + "] doest not exists.");
-            }
-
-            removeAgent(storedAgent);
-
-            AgentDeletedEvent event = new AgentDeletedEvent(storedAgent);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            Group group = (Group) identityType;
-
-            if (group.getName() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Group storedGroup = getGroup(group.getName());
-
-            if (storedGroup == null) {
-                throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
-            }
-
-            removeGroup(storedGroup);
-
-            GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            Role role = (Role) identityType;
-
-            if (role.getName() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Role storedRole = getRole(role.getName());
-
-            if (storedRole == null) {
-                throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
-            }
-
-            removeRole(storedRole);
-
-            RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
-            // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-            getContext().getEventBridge().raiseEvent(event);
         }
     }
 
@@ -518,53 +526,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
 
         return group;
-    }
-
-    @Override
-    public GroupRole createMembership(IdentityType member, Group group, Role role) {
-        GroupRole membership = new SimpleGroupRole(member, role, group);
-
-        getConfig().getMemberships().add(membership);
-
-        flushMemberships();
-
-        return membership;
-    }
-
-    @Override
-    public void removeMembership(IdentityType member, Group group, Role role) {
-        for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
-            Agent providedMember = (Agent) member;
-            Agent membershipMember = (Agent) membership.getMember();
-
-            if (membershipMember == null || providedMember == null || !membershipMember.getId().equals(providedMember.getId())) {
-                continue;
-            }
-
-            if (hasGroupRole(membership, group, role)) {
-                getConfig().getMemberships().remove(membership);
-            }
-        }
-
-        flushMemberships();
-    }
-
-    @Override
-    public GroupRole getMembership(IdentityType member, Group group, Role role) {
-        for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
-            Agent providedMember = (Agent) member;
-            Agent membershipMember = (Agent) membership.getMember();
-
-            if (membershipMember == null || providedMember == null || !membershipMember.getId().equals(providedMember.getId())) {
-                continue;
-            }
-
-            if (hasGroupRole(membership, group, role)) {
-                return membership;
-            }
-        }
-
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -1202,6 +1163,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
+        return null;
+    }
+
+    @Override
+    public <T extends Relationship> int countQueryResults(RelationshipQuery<T> query) {
+        return 0;
     }
 
 }
