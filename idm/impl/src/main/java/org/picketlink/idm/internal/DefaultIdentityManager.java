@@ -353,6 +353,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean isMember(IdentityType identityType, Group group) {
+        return getGroupMembership(identityType, group) != null;
+    }
+
+    private GroupMembership getGroupMembership(IdentityType identityType, Group group) {
         RelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class,
                 getContextualStoreForFeature(createContext(), Feature.readRelationship));
 
@@ -361,17 +365,29 @@ public class DefaultIdentityManager implements IdentityManager {
         
         List<GroupMembership> result = query.getResultList();
         
-        return !result.isEmpty();
+        GroupMembership groupMembership = null;
+        
+        if (!result.isEmpty()) {
+            groupMembership = result.get(0);
+        }
+        
+        return groupMembership;
     }
 
     @Override
     public void addToGroup(IdentityType member, Group group) {
-        add(new GroupMembership(member, group));
+        if (getGroupMembership(member, group) == null) {
+            add(new GroupMembership(member, group));
+        }
     }
 
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new GroupMembership(identityType, group));
+        GroupMembership groupMembership = getGroupMembership(identityType, group);
+        
+        if (groupMembership != null) {
+            getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(groupMembership);
+        }
     }
 
     @Override
@@ -386,6 +402,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
+        return getGroupRole(identityType, role, group) != null;
+    }
+
+    private GroupRole getGroupRole(IdentityType identityType, Role role, Group group) {
         RelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class,
                 getContextualStoreForFeature(createContext(), Feature.readRelationship));
 
@@ -395,21 +415,36 @@ public class DefaultIdentityManager implements IdentityManager {
         
         List<GroupRole> result = query.getResultList();
         
-        return !result.isEmpty();
+        GroupRole groupRole = null;
+        
+        if (!result.isEmpty()) {
+            groupRole = result.get(0);
+        }
+        return groupRole;
     }
 
     @Override
     public void grantGroupRole(IdentityType member, Role role, Group group) {
-        add(new GroupRole(member, group, role));
+        if (getGroupRole(member, role, group) == null) {
+            add(new GroupRole(member, group, role));            
+        }
     }
 
     @Override
     public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
-        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new GroupRole(identityType, group, role));
+        GroupRole groupRole = getGroupRole(identityType, role, group);
+        
+        if (groupRole != null) {
+            getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(groupRole);
+        }
     }
 
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
+        return getGrant(identityType, role) != null;
+    }
+
+    private Grant getGrant(IdentityType identityType, Role role) {
         RelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class,
                 getContextualStoreForFeature(createContext(), Feature.readRelationship));
 
@@ -418,17 +453,28 @@ public class DefaultIdentityManager implements IdentityManager {
         
         List<Grant> result = query.getResultList();
         
-        return !result.isEmpty();
+        Grant grant = null;
+        
+        if (!result.isEmpty()) {
+            grant = result.get(0);
+        }
+        return grant;
     }
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
-        add(new Grant(identityType, role));
+        if (getGrant(identityType, role) == null) {
+            add(new Grant(identityType, role));    
+        }
     }
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new Grant(identityType, role));
+        Grant grant = getGrant(identityType, role);
+        
+        if (grant != null) {
+            getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(grant);
+        }
     }
 
     @Override
