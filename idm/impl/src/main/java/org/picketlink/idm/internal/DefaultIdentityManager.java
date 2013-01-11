@@ -366,8 +366,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private GroupMembership getGroupMembership(IdentityType identityType, Group group) {
-        RelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class,
-                getContextualStoreForFeature(createContext(), Feature.readRelationship));
+        RelationshipQuery<GroupMembership> query = createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.MEMBER, identityType);
         query.setParameter(GroupMembership.GROUP, group);
@@ -415,8 +414,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private GroupRole getGroupRole(IdentityType identityType, Role role, Group group) {
-        RelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class,
-                getContextualStoreForFeature(createContext(), Feature.readRelationship));
+        RelationshipQuery<GroupRole> query = createRelationshipQuery(GroupRole.class);
 
         query.setParameter(GroupRole.MEMBER, identityType);
         query.setParameter(GroupRole.ROLE, role);
@@ -454,8 +452,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private Grant getGrant(IdentityType identityType, Role role) {
-        RelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class,
-                getContextualStoreForFeature(createContext(), Feature.readRelationship));
+        RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
 
         query.setParameter(Grant.ASSIGNEE, identityType);
         query.setParameter(Grant.ROLE, role);
@@ -555,7 +552,6 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
-        // TODO Auto-generated method stub
-        return null;
+        return new DefaultRelationshipQuery<T>(relationshipType, getContextualStoreForFeature(createContext(), Feature.readRelationship));
     }
 }
