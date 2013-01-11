@@ -1,5 +1,7 @@
 package org.picketlink.idm.model;
 
+import org.picketlink.idm.query.QueryParameter;
+
 
 /**
  * Represents an external entity that interacts with the application, such as a user
@@ -8,6 +10,11 @@ package org.picketlink.idm.model;
  * @author Shane Bryzak
  */
 public interface Agent extends IdentityType {
+    
+    /**
+     *  A query parameter used to set the key value.
+     */
+    QueryParameter LOGIN_NAME = new QueryParameter() {};
 
     /**
      * This String prefixes all values returned by the getKey() method.

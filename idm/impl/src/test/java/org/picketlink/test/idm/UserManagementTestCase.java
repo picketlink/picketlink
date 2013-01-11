@@ -64,11 +64,11 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         identityManager.update(newUserInstance);
 
         // let's retrieve the user information and see if they are properly stored
-        User storedUserInstance = identityManager.getUser(newUserInstance.getId());
+        User storedUserInstance = identityManager.getUser(newUserInstance.getLoginName());
 
         assertNotNull(storedUserInstance);
 
-        assertEquals(newUserInstance.getId(), storedUserInstance.getId());
+        assertEquals(newUserInstance.getLoginName(), storedUserInstance.getLoginName());
         assertEquals(newUserInstance.getFirstName(), storedUserInstance.getFirstName());
         assertEquals(newUserInstance.getLastName(), storedUserInstance.getLastName());
         assertEquals(newUserInstance.getEmail(), storedUserInstance.getEmail());
@@ -89,11 +89,11 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         IdentityManager identityManager = getIdentityManager();
 
-        storedUserInstance = identityManager.getUser(storedUserInstance.getId());
+        storedUserInstance = identityManager.getUser(storedUserInstance.getLoginName());
 
         assertNotNull(storedUserInstance);
 
-        assertEquals("admin", storedUserInstance.getId());
+        assertEquals("admin", storedUserInstance.getLoginName());
         assertEquals("The", storedUserInstance.getFirstName());
         assertEquals("Administrator", storedUserInstance.getLastName());
         assertEquals("admin@jboss.org", storedUserInstance.getEmail());
@@ -112,7 +112,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         assertNotNull(storedUserInstance);
 
-        assertEquals("admin", storedUserInstance.getId());
+        assertEquals("admin", storedUserInstance.getLoginName());
         assertEquals("The", storedUserInstance.getFirstName());
         assertEquals("Administrator", storedUserInstance.getLastName());
         assertEquals("admin@jboss.org", storedUserInstance.getEmail());
@@ -127,7 +127,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         identityManager.update(storedUserInstance);
 
         // let's load again the user from the store and check for the updated information
-        User updatedUser = identityManager.getUser(storedUserInstance.getId());
+        User updatedUser = identityManager.getUser(storedUserInstance.getLoginName());
 
         assertEquals("Updated The", updatedUser.getFirstName());
         assertEquals("Updated Administrator", updatedUser.getLastName());
@@ -154,11 +154,11 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         identityManager.remove(someUser);
 
-        User removedUserInstance = getIdentityManager().getUser(someUser.getId());
+        User removedUserInstance = getIdentityManager().getUser(someUser.getLoginName());
 
         assertNull(removedUserInstance);
         
-        anotherUser = identityManager.getUser(anotherUser.getId());
+        anotherUser = identityManager.getUser(anotherUser.getLoginName());
         
         assertNotNull(anotherUser);
     }

@@ -38,7 +38,6 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.query.IdentityQuery;
 
 /**
@@ -58,21 +57,21 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      * @throws Exception
      */
     @Test
-    public void testFindById() throws Exception {
+    public void testFindByLoginName() throws Exception {
         loadOrCreateAgent("someAgent", true);
 
         IdentityManager identityManager = getIdentityManager();
 
         IdentityQuery<Agent> query = identityManager.<Agent> createQuery(Agent.class);
 
-        query.setParameter(Agent.ID, "someAgent");
+        query.setParameter(Agent.LOGIN_NAME, "someAgent");
 
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        assertEquals("someAgent", result.get(0).getId());
+        assertEquals("someAgent", result.get(0).getLoginName());
     }
 
     /**
@@ -92,7 +91,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<Agent> query = identityManager.createQuery(Agent.class);
 
-        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole[] { new SimpleGroupRole(user, managerRole, salesGroup) });
+        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
 
         List<Agent> result = query.getResultList();
 
@@ -102,12 +101,12 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createQuery(Agent.class);
 
-        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole[] { new SimpleGroupRole(user, managerRole, salesGroup) });
+        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -141,7 +140,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -175,7 +174,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -203,7 +202,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
 
         identityManager.removeFromGroup(user, someGroup);
 
@@ -222,7 +221,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -250,7 +249,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
 
         identityManager.revokeRole(user, someRole);
 
@@ -269,7 +268,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(user.getId(), result.get(0).getId());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
     /**
@@ -299,8 +298,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, adminAgent.getId()));
-        assertTrue(contains(result, someAgent.getId()));
+        assertTrue(contains(result, adminAgent.getLoginName()));
+        assertTrue(contains(result, someAgent.getLoginName()));
 
         identityManager.addToGroup(adminAgent, someGroup);
 
@@ -311,9 +310,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, adminAgent.getId()));
+        assertTrue(contains(result, adminAgent.getLoginName()));
 
-        assertFalse(contains(result, someAgent.getId()));
+        assertFalse(contains(result, someAgent.getLoginName()));
     }
 
     /**
@@ -343,8 +342,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, adminAgent.getId()));
-        assertTrue(contains(result, someAgent.getId()));
+        assertTrue(contains(result, adminAgent.getLoginName()));
+        assertTrue(contains(result, someAgent.getLoginName()));
 
         identityManager.grantRole(adminAgent, someRole);
 
@@ -355,8 +354,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, adminAgent.getId()));
-        assertFalse(contains(result, someAgent.getId()));
+        assertTrue(contains(result, adminAgent.getLoginName()));
+        assertFalse(contains(result, someAgent.getLoginName()));
     }
 
     /**
@@ -387,8 +386,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someAgent.getId()));
-        assertTrue(contains(result, someAnotherAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -397,8 +396,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         // only disabled users. No users are disabled.
         result = query.getResultList();
 
-        assertFalse(contains(result, someAgent.getId()));
-        assertFalse(contains(result, someAnotherAgent.getId()));
+        assertFalse(contains(result, someAgent.getLoginName()));
+        assertFalse(contains(result, someAnotherAgent.getLoginName()));
 
         someAgent.setEnabled(false);
 
@@ -413,8 +412,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someAgent.getId()));
-        assertFalse(contains(result, someAnotherAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
+        assertFalse(contains(result, someAnotherAgent.getLoginName()));
 
         someAnotherAgent.setEnabled(false);
 
@@ -427,8 +426,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someAgent.getId()));
-        assertFalse(contains(result, someAnotherAgent.getId()));
+        assertFalse(contains(result, someAgent.getLoginName()));
+        assertFalse(contains(result, someAnotherAgent.getLoginName()));
     }
 
     /**
@@ -453,7 +452,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
-        assertEquals("someAgent", result.get(0).getId());
+        assertEquals("someAgent", result.get(0).getLoginName());
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -499,9 +498,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, user.getId()));
+        assertTrue(contains(result, user.getLoginName()));
 
-        assertEquals("someAgent", result.get(0).getId());
+        assertEquals("someAgent", result.get(0).getLoginName());
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -545,8 +544,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someAgent.getId()));
-        assertTrue(contains(result, someAnotherAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -560,10 +559,10 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someAgent.getId()));
-        assertTrue(contains(result, someAnotherAgent.getId()));
-        assertTrue(contains(result, someFutureAgent.getId()));
-        assertTrue(contains(result, someAnotherFutureAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherAgent.getLoginName()));
+        assertTrue(contains(result, someFutureAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherFutureAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -574,10 +573,10 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someAgent.getId()));
-        assertTrue(contains(result, someAnotherAgent.getId()));
-        assertTrue(contains(result, someFutureAgent.getId()));
-        assertTrue(contains(result, someAnotherFutureAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherAgent.getLoginName()));
+        assertTrue(contains(result, someFutureAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherFutureAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -618,12 +617,12 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, user.getId()));
+        assertTrue(contains(result, user.getLoginName()));
         assertEquals(1, result.size());
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
-        query.setParameter(Agent.ID, "admin");
+        query.setParameter(Agent.LOGIN_NAME, "admin");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
 
         result = query.getResultList();
@@ -633,18 +632,18 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         query = identityManager.<Agent> createQuery(Agent.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-        query.setParameter(Agent.ID, "admin");
+        query.setParameter(Agent.LOGIN_NAME, "admin");
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, user.getId()));
+        assertTrue(contains(result, user.getLoginName()));
         assertEquals(1, result.size());
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-        query.setParameter(Agent.ID, "Bad ID");
+        query.setParameter(Agent.LOGIN_NAME, "Bad ID");
 
         result = query.getResultList();
 
@@ -704,9 +703,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someAgent.getId()));
-        assertTrue(contains(result, someAnotherAgent.getId()));
-        assertFalse(contains(result, someFutureAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherAgent.getLoginName()));
+        assertFalse(contains(result, someFutureAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -717,10 +716,10 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someAgent.getId()));
-        assertTrue(contains(result, someAnotherAgent.getId()));
-        assertTrue(contains(result, someFutureAgent.getId()));
-        assertTrue(contains(result, someAnotherFutureAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherAgent.getLoginName()));
+        assertTrue(contains(result, someFutureAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherFutureAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -731,10 +730,10 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
 
-        assertTrue(contains(result, someAgent.getId()));
-        assertTrue(contains(result, someAnotherAgent.getId()));
-        assertTrue(contains(result, someFutureAgent.getId()));
-        assertTrue(contains(result, someAnotherFutureAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherAgent.getLoginName()));
+        assertTrue(contains(result, someFutureAgent.getLoginName()));
+        assertTrue(contains(result, someAnotherFutureAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -774,7 +773,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
 
         someAgent.setAttribute(new Attribute<String>("someAttribute", "someAttributeValueChanged"));
 
@@ -786,7 +785,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someAgent.getId()));
+        assertFalse(contains(result, someAgent.getLoginName()));
 
         someAgent.setAttribute(new Attribute<String>("someAttribute2", "someAttributeValue2"));
 
@@ -800,7 +799,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
     }
 
     /**
@@ -829,7 +828,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -855,7 +854,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someAgent.getId()));
+        assertFalse(contains(result, someAgent.getLoginName()));
 
         someAgent.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
                 "someAttributeValueChanged" }));
@@ -874,7 +873,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someAgent.getId()));
+        assertTrue(contains(result, someAgent.getLoginName()));
 
         query = identityManager.<Agent> createQuery(Agent.class);
 
@@ -890,7 +889,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
     private boolean contains(List<Agent> result, String userId) {
         for (Agent resultAgent : result) {
-            if (resultAgent.getId().equals(userId)) {
+            if (resultAgent.getLoginName().equals(userId)) {
                 return true;
             }
         }

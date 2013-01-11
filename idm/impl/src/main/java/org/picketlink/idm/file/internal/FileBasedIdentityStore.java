@@ -64,7 +64,9 @@ import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.IdentityType.AttributeParameter;
@@ -114,30 +116,30 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public void add(AttributedType identityType) {
-        if (IdentityType.class.isInstance(identityType)) {
-            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
+    public void add(AttributedType attributedType) {
+        if (IdentityType.class.isInstance(attributedType)) {
+            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
             if (IDMUtil.isUserType(identityTypeClass)) {
-                User storedUser = addUser((User) identityType);
+                User storedUser = addUser((User) attributedType);
 
                 UserCreatedEvent event = new UserCreatedEvent(storedUser);
                 // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
                 getContext().getEventBridge().raiseEvent(event);
             } else if (IDMUtil.isAgentType(identityTypeClass)) {
-                Agent storedAgent = addAgent((Agent) identityType);
+                Agent storedAgent = addAgent((Agent) attributedType);
 
                 AgentCreatedEvent event = new AgentCreatedEvent(storedAgent);
                 // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
                 getContext().getEventBridge().raiseEvent(event);
             } else if (IDMUtil.isGroupType(identityTypeClass)) {
-                Group storedGroup = addGroup((Group) identityType);
+                Group storedGroup = addGroup((Group) attributedType);
 
                 GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
                 // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
                 getContext().getEventBridge().raiseEvent(event);
             } else if (IDMUtil.isRoleType(identityTypeClass)) {
-                Role storedRole = addRole((Role) identityType);
+                Role storedRole = addRole((Role) attributedType);
 
                 RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
                 // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
@@ -145,6 +147,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else {
                 throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
             }
+        } else if (Relationship.class.isInstance(attributedType)) {
+            if (Grant.class.isInstance(attributedType)) {
+                
+            } else if (GroupMembership.class.isInstance(attributedType)) {
+                
+            } else if (GroupRole.class.isInstance(attributedType)) {
+                
+            } else {
+                throw new IdentityManagementException("Unsupported Relationship [" + attributedType.getClass().getName() + "].");
+            }
+        } else {
+            throw new IdentityManagementException("Unsupported AttributedType [" + attributedType.getClass().getName() + "].");
         }
     }
 
@@ -156,14 +170,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User updatedUser = (User) identityType;
 
-                if (updatedUser.getId() == null) {
+                if (updatedUser.getLoginName() == null) {
                     throw new IdentityManagementException("No identifier was provided.");
                 }
 
-                User storedUser = getUser(updatedUser.getId());
+                User storedUser = getUser(updatedUser.getLoginName());
 
                 if (storedUser == null) {
-                    throw new RuntimeException("User [" + updatedUser.getId() + "] does not exists.");
+                    throw new RuntimeException("User [" + updatedUser.getLoginName() + "] does not exists.");
                 }
 
                 updateUser(updatedUser, storedUser);
@@ -174,14 +188,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent updatedAgent = (Agent) identityType;
 
-                if (updatedAgent.getId() == null) {
+                if (updatedAgent.getLoginName() == null) {
                     throw new IdentityManagementException("No identifier was provided.");
                 }
 
-                Agent storedAgent = getAgent(updatedAgent.getId());
+                Agent storedAgent = getAgent(updatedAgent.getLoginName());
 
                 if (storedAgent == null) {
-                    throw new RuntimeException("Agent [" + updatedAgent.getId() + "] does not exists.");
+                    throw new RuntimeException("Agent [" + updatedAgent.getLoginName() + "] does not exists.");
                 }
 
                 updateAgent(updatedAgent, storedAgent);
@@ -239,14 +253,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User user = (User) identityType;
 
-                if (user.getId() == null) {
+                if (user.getLoginName() == null) {
                     throw new IdentityManagementException("No identifier was provided.");
                 }
 
-                User storedUser = getUser(user.getId());
+                User storedUser = getUser(user.getLoginName());
 
                 if (storedUser == null) {
-                    throw new RuntimeException("User [" + user.getId() + "] doest not exists.");
+                    throw new RuntimeException("User [" + user.getLoginName() + "] doest not exists.");
                 }
 
                 removeUser(storedUser);
@@ -257,14 +271,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent agent = (Agent) identityType;
 
-                if (agent.getId() == null) {
+                if (agent.getLoginName() == null) {
                     throw new IdentityManagementException("No identifier was provided.");
                 }
 
-                Agent storedAgent = getAgent(agent.getId());
+                Agent storedAgent = getAgent(agent.getLoginName());
 
                 if (storedAgent == null) {
-                    throw new RuntimeException("Agent [" + agent.getId() + "] doest not exists.");
+                    throw new RuntimeException("Agent [" + agent.getLoginName() + "] doest not exists.");
                 }
 
                 removeAgent(storedAgent);
@@ -314,7 +328,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private Role addRole(Role role) {
         SimpleRole fileRole = new SimpleRole(role.getName());
-
+        
         updateCommonProperties(role, fileRole);
 
         getConfig().getRoles().put(fileRole.getName(), fileRole);
@@ -341,7 +355,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private User addUser(User user) {
-        User storedUser = new SimpleUser(user.getId());
+        User storedUser = new SimpleUser(user.getLoginName());
 
         storedUser.setFirstName(user.getFirstName());
         storedUser.setLastName(user.getLastName());
@@ -349,18 +363,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateCommonProperties(user, storedUser);
 
-        getConfig().getUsers().put(storedUser.getId(), storedUser);
+        getConfig().getUsers().put(storedUser.getLoginName(), storedUser);
         flushUsers();
 
         return storedUser;
     }
 
     private Agent addAgent(Agent user) {
-        Agent storedAgent = new SimpleAgent(user.getId());
+        Agent storedAgent = new SimpleAgent(user.getLoginName());
 
         updateCommonProperties(user, storedAgent);
 
-        getConfig().getUsers().put(storedAgent.getId(), storedAgent);
+        getConfig().getUsers().put(storedAgent.getLoginName(), storedAgent);
         flushUsers();
 
         return storedAgent;
@@ -397,7 +411,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateCommonProperties(updatedUser, storedUser);
         }
 
-        getConfig().getUsers().put(storedUser.getId(), storedUser);
+        getConfig().getUsers().put(storedUser.getLoginName(), storedUser);
         flushUsers();
 
         return updatedUser;
@@ -408,7 +422,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateCommonProperties(updatedAgent, storedAgent);
         }
 
-        getConfig().getUsers().put(storedAgent.getId(), storedAgent);
+        getConfig().getUsers().put(storedAgent.getLoginName(), storedAgent);
         flushUsers();
 
         return updatedAgent;
@@ -449,7 +463,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private User removeUser(User user) {
-        getConfig().getUsers().remove(user.getId());
+        getConfig().getUsers().remove(user.getLoginName());
 
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             IdentityType member = membership.getMember();
@@ -457,7 +471,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (IDMUtil.isUserType(member.getClass())) {
                 User userMember = (User) member;
 
-                if (userMember.getId().equals(user.getId())) {
+                if (userMember.getLoginName().equals(user.getLoginName())) {
                     getConfig().getMemberships().remove(membership);
                 }
             }
@@ -470,7 +484,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Agent removeAgent(Agent user) {
-        getConfig().getUsers().remove(user.getId());
+        getConfig().getUsers().remove(user.getLoginName());
 
         for (GroupRole membership : new ArrayList<GroupRole>(getConfig().getMemberships())) {
             IdentityType member = membership.getMember();
@@ -478,7 +492,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (IDMUtil.isAgentType(member.getClass())) {
                 Agent userMember = (Agent) member;
 
-                if (userMember.getId().equals(user.getId())) {
+                if (userMember.getLoginName().equals(user.getLoginName())) {
                     getConfig().getMemberships().remove(membership);
                 }
             }
@@ -491,13 +505,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public Agent getAgent(String id) {
-        return getConfig().getUsers().get(id);
+    public Agent getAgent(String loginName) {
+        return getConfig().getUsers().get(loginName);
     }
 
     @Override
-    public User getUser(String id) {
-        Agent agent = getAgent(id);
+    public User getUser(String loginName) {
+        Agent agent = getAgent(loginName);
 
         if (!User.class.isInstance(agent)) {
             return null;
@@ -559,7 +573,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User user = (User) storedIdentityType;
 
-                if (!isQueryParameterEquals(identityQuery.getParameters(), User.ID, user.getId())) {
+                if (!isQueryParameterEquals(identityQuery.getParameters(), User.LOGIN_NAME, user.getLoginName())) {
                     continue;
                 }
 
@@ -579,7 +593,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent agent = (Agent) storedIdentityType;
 
-                if (!isQueryParameterEquals(identityQuery.getParameters(), Agent.ID, agent.getId())) {
+                if (!isQueryParameterEquals(identityQuery.getParameters(), Agent.LOGIN_NAME, agent.getLoginName())) {
                     continue;
                 }
             }
@@ -672,7 +686,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                             Agent selectedAgent = (Agent) fileUser;
                             Agent memberAgent = (Agent) membership.getMember();
 
-                            if (!selectedAgent.getId().equals(memberAgent.getId())) {
+                            if (!selectedAgent.getLoginName().equals(memberAgent.getLoginName())) {
                                 continue;
                             }
                         }
@@ -929,7 +943,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public void storeCredential(Agent agent, CredentialStorage storage) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getId());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -962,14 +976,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         credentials.add(credential);
         agentCredentials.put(storage.getClass().getName(), credentials);
-        getConfig().getCredentials().put(agent.getId(), agentCredentials);
+        getConfig().getCredentials().put(agent.getLoginName(), agentCredentials);
 
         flushCredentials();
     }
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getId());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -1045,7 +1059,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
         ArrayList<T> storedCredentials = new ArrayList<T>();
 
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getId());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -1174,5 +1188,5 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends Relationship> int countQueryResults(RelationshipQuery<T> query) {
         return 0;
     }
-
+    
 }
