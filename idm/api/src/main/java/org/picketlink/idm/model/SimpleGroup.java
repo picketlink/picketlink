@@ -23,17 +23,15 @@ package org.picketlink.idm.model;
 
 /**
  * Simple implementation of the Group interface
- *
+ * 
  */
 public class SimpleGroup extends AbstractIdentityType implements Group {
 
     private static final long serialVersionUID = -3553832607918448916L;
 
-    private String id = null;
-
     private String name;
     private Group parentGroup;
-    
+
     public SimpleGroup(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
@@ -41,7 +39,7 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
 
         this.name = name;
     }
-    
+
     public SimpleGroup(String name, Group parentGroup) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
@@ -49,14 +47,6 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
 
         this.name = name;
         this.parentGroup = parentGroup;
-    }
-
-    public String getId() {
-        if (id == null) {
-            id = parentGroup == null ? String.format("/%s", this.name) : 
-                String.format("%s/%s", parentGroup.getId(), this.name);
-        }
-        return id;
     }
 
     public String getName() {
@@ -68,7 +58,11 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
     }
 
     public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, getId());
+        String id = null;
+
+        id = parentGroup == null ? String.format("%s", this.name) : String.format("%s/%s", parentGroup.getName(), this.name);
+
+        return String.format("%s%s", KEY_PREFIX, id);
     }
 
     @Override

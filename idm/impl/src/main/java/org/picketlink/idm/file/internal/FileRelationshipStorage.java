@@ -19,24 +19,52 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.idm.model;
 
-import org.picketlink.idm.query.QueryParameter;
+package org.picketlink.idm.file.internal;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.picketlink.idm.model.IdentityType;
 
 /**
- * Represents a relationship between two or more {@link IdentityType}, which is also
- * capable of supporting multiple attribute values.
+ * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
- * @author anil saldhana
- * @author Shane Bryzak
- * @since Dec 18, 2012
  */
-public interface Relationship extends AttributedType {
+public class FileRelationshipStorage implements Serializable {
 
-    public interface IdentityTypeQueryParameter extends QueryParameter {
-        public String getName();
+    private static final long serialVersionUID = -349640861496483678L;
+
+    private Map<String, IdentityType> identityTypes = new HashMap<String, IdentityType>();
+    private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
+
+    private String id;
+
+    private String type;
+
+    public Map<String, IdentityType> getIdentityTypes() {
+        return this.identityTypes;
     }
     
+    public Map<String, Serializable> getAttributes() {
+        return this.attributes;
+    }
+
+    public String getId() {
+        return this.id;
+    }
+    
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getType() {
+        return this.type;
+    }
+    
+    public void setType(String type) {
+        this.type = type;
+    }
+
 }

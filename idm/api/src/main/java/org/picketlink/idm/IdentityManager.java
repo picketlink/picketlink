@@ -117,7 +117,7 @@ public interface IdentityManager extends Serializable{
 
     <T extends IdentityType> IdentityQuery<T> createQuery(Class<T> identityType);
 
-    <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType);
+    <T extends Relationship> RelationshipQuery<T> createQuery(Class<T> relationshipType);
 
     // Credential management
 

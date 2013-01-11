@@ -4,9 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -16,28 +16,28 @@ import org.picketlink.idm.spi.IdentityStore;
  *
  * @param <T>
  */
-public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
+public class DefaultRelationshipQuery<T extends Relationship> implements RelationshipQuery<T> {
 
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
     private IdentityStore<?> identityStore;
-    private Class<T> identityType;
+    private Class<T> relationshipType;
     private int offset;
     private int limit;
     
-    public DefaultIdentityQuery(Class<T> identityType, IdentityStore<?> identityStore) {
+    public DefaultRelationshipQuery(Class<T> relationshipType, IdentityStore<?> identityStore) {
         this.identityStore = identityStore;
-        this.identityType = identityType;
+        this.relationshipType = relationshipType;
     }
     
     @Override
-    public IdentityQuery<T> setParameter(QueryParameter param, Object... value) {
+    public RelationshipQuery<T> setParameter(QueryParameter param, Object... value) {
         parameters.put(param, value);
         return this;
     }
-
+    
     @Override
-    public Class<T> getIdentityType() {
-        return identityType;
+    public Class<T> getRelationshipType() {
+        return relationshipType;
     }
 
     @Override
@@ -60,12 +60,6 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         return offset;
     }
 
-    /*@Override
-    public IdentityQuery<T> setParameter(QueryParameter param, Operator operator, Object value) {
-        // TODO Auto-generated method stub
-        return null;
-    }*/
-
     @Override
     public List<T> getResultList() {
         return this.identityStore.fetchQueryResults(this);
@@ -78,13 +72,13 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     }
 
     @Override
-    public IdentityQuery<T> setOffset(int offset) {
+    public RelationshipQuery<T> setOffset(int offset) {
         this.offset = offset;
         return this;
     }
 
     @Override
-    public IdentityQuery<T> setLimit(int limit) {
+    public RelationshipQuery<T> setLimit(int limit) {
         this.limit = limit;
         return this;
     }
