@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.UUID;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
@@ -155,6 +156,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
             FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
 
+            fileRelationship.setId(generateUUID());
+
             for (Property<IdentityType> property : annotatedTypes) {
                 fileRelationship.getIdentityTypes().put(property.getName(), property.getValue(attributedType));
             }
@@ -264,12 +267,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public void remove(AttributedType identityType) {
-        if (IdentityType.class.isInstance(identityType)) {
-            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
-
-            if (IDMUtil.isUserType(identityTypeClass)) {
-                User user = (User) identityType;
+    public void remove(AttributedType attributedType) {
+        Class<? extends IdentityType> attributedTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
+        
+        if (IdentityType.class.isInstance(attributedType)) {
+            if (IDMUtil.isUserType(attributedTypeClass)) {
+                User user = (User) attributedType;
 
                 if (user.getLoginName() == null) {
                     throw new IdentityManagementException("No identifier was provided.");
@@ -286,8 +289,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 UserDeletedEvent event = new UserDeletedEvent(storedUser);
                 // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
                 getContext().getEventBridge().raiseEvent(event);
-            } else if (IDMUtil.isAgentType(identityTypeClass)) {
-                Agent agent = (Agent) identityType;
+            } else if (IDMUtil.isAgentType(attributedTypeClass)) {
+                Agent agent = (Agent) attributedType;
 
                 if (agent.getLoginName() == null) {
                     throw new IdentityManagementException("No identifier was provided.");
@@ -304,8 +307,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 AgentDeletedEvent event = new AgentDeletedEvent(storedAgent);
                 // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
                 getContext().getEventBridge().raiseEvent(event);
-            } else if (IDMUtil.isGroupType(identityTypeClass)) {
-                Group group = (Group) identityType;
+            } else if (IDMUtil.isGroupType(attributedTypeClass)) {
+                Group group = (Group) attributedType;
 
                 if (group.getName() == null) {
                     throw new IdentityManagementException("No identifier was provided.");
@@ -322,8 +325,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
                 // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
                 getContext().getEventBridge().raiseEvent(event);
-            } else if (IDMUtil.isRoleType(identityTypeClass)) {
-                Role role = (Role) identityType;
+            } else if (IDMUtil.isRoleType(attributedTypeClass)) {
+                Role role = (Role) attributedType;
 
                 if (role.getName() == null) {
                     throw new IdentityManagementException("No identifier was provided.");
@@ -341,13 +344,25 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
                 getContext().getEventBridge().raiseEvent(event);
             }
+        } else if (Relationship.class.isInstance(attributedType)) {
+            Relationship relationship = (Relationship) attributedType;
+
+            List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(attributedTypeClass.getName());
+
+            for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                if (storedRelationship.getId().equals(relationship.getId())) {
+                    relationships.remove(storedRelationship);
+                }
+            }
+            
+            flushRelationships();
         }
     }
 
     private Role addRole(Role role) {
         SimpleRole fileRole = new SimpleRole(role.getName());
 
-        updateCommonProperties(role, fileRole);
+        updateIdentityType(role, fileRole, true);
 
         getConfig().getRoles().put(fileRole.getName(), fileRole);
         flushRoles();
@@ -364,7 +379,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             fileGroup = new SimpleGroup(group.getName());
         }
 
-        updateCommonProperties(group, fileGroup);
+        updateIdentityType(group, fileGroup, true);
 
         getConfig().getGroups().put(fileGroup.getName(), fileGroup);
         flushGroups();
@@ -379,7 +394,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         storedUser.setLastName(user.getLastName());
         storedUser.setEmail(user.getEmail());
 
-        updateCommonProperties(user, storedUser);
+        updateIdentityType(user, storedUser, true);
 
         getConfig().getUsers().put(storedUser.getLoginName(), storedUser);
         flushUsers();
@@ -390,7 +405,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private Agent addAgent(Agent user) {
         Agent storedAgent = new SimpleAgent(user.getLoginName());
 
-        updateCommonProperties(user, storedAgent);
+        updateIdentityType(user, storedAgent, true);
 
         getConfig().getUsers().put(storedAgent.getLoginName(), storedAgent);
         flushUsers();
@@ -400,7 +415,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private Role updateRole(Role updatedRole, Role storedRole) {
         if (storedRole != updatedRole) {
-            updateCommonProperties(updatedRole, storedRole);
+            updateIdentityType(updatedRole, storedRole, false);
         }
 
         getConfig().getRoles().put(storedRole.getName(), storedRole);
@@ -411,7 +426,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private Group updateGroup(Group updatedGroup, Group storedGroup) {
         if (storedGroup != updatedGroup) {
-            updateCommonProperties(updatedGroup, storedGroup);
+            updateIdentityType(updatedGroup, storedGroup, false);
         }
 
         getConfig().getGroups().put(storedGroup.getName(), storedGroup);
@@ -426,7 +441,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             storedUser.setLastName(updatedUser.getLastName());
             storedUser.setEmail(updatedUser.getEmail());
 
-            updateCommonProperties(updatedUser, storedUser);
+            updateIdentityType(updatedUser, storedUser, false);
         }
 
         getConfig().getUsers().put(storedUser.getLoginName(), storedUser);
@@ -437,7 +452,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private Agent updateAgent(Agent updatedAgent, Agent storedAgent) {
         if (storedAgent != updatedAgent) {
-            updateCommonProperties(updatedAgent, storedAgent);
+            updateIdentityType(updatedAgent, storedAgent, false);
         }
 
         getConfig().getUsers().put(storedAgent.getLoginName(), storedAgent);
@@ -818,10 +833,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param fromIdentityType
      * @param toIdentityType
      */
-    private void updateCommonProperties(IdentityType fromIdentityType, IdentityType toIdentityType) {
+    private void updateIdentityType(IdentityType fromIdentityType, IdentityType toIdentityType, boolean generateId) {
         toIdentityType.setEnabled(fromIdentityType.isEnabled());
         toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
+
+        updateAttributedType(fromIdentityType, toIdentityType, generateId);
+    }
+
+    private void updateAttributedType(IdentityType fromIdentityType, IdentityType toIdentityType, boolean generateId) {
+        if (generateId) {
+            toIdentityType.setId(generateUUID());
+        }
 
         for (Object object : toIdentityType.getAttributes().toArray()) {
             Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
@@ -1200,9 +1223,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
         List<T> result = new ArrayList<T>();
-        
-        List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(query.getRelationshipType().getName());
 
+        List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(query.getRelationshipType().getName());
+        
+        if (relationships == null) {
+            return result;
+        }
+        
         for (FileRelationshipStorage storedRelationship : relationships) {
             if (GroupRole.class.isAssignableFrom(query.getRelationshipType())) {
                 Agent member = (Agent) query.getParameter(GroupRole.MEMBER)[0];
@@ -1220,14 +1247,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 if (roleRel == null || role == null || !role.getName().equals(roleRel.getName())) {
                     continue;
                 }
-                
+
                 Group groupRel = (Group) storedRelationship.getIdentityTypes().get(GroupRole.GROUP.getName());
-                
+
                 if (groupRel == null || group == null || !group.getName().equals(groupRel.getName())) {
                     continue;
                 }
             }
-            
+
             if (GroupMembership.class.isAssignableFrom(query.getRelationshipType())) {
                 Agent member = (Agent) query.getParameter(GroupMembership.MEMBER)[0];
                 Group group = (Group) query.getParameter(GroupMembership.GROUP)[0];
@@ -1239,12 +1266,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
 
                 Group groupRel = (Group) storedRelationship.getIdentityTypes().get(GroupMembership.GROUP.getName());
-                
+
                 if (groupRel == null || group == null || !group.getName().equals(groupRel.getName())) {
                     continue;
                 }
             }
-            
+
             if (Grant.class.isAssignableFrom(query.getRelationshipType())) {
                 Agent assignee = (Agent) query.getParameter(Grant.ASSIGNEE)[0];
                 Role role = (Role) query.getParameter(Grant.ROLE)[0];
@@ -1261,32 +1288,35 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     continue;
                 }
             }
-            
+
             T relationship = null;
-            
+
             try {
                 relationship = query.getRelationshipType().newInstance();
 
-                Set<Entry<String, IdentityType>> identityTypes = storedRelationship.getIdentityTypes().entrySet();
+                relationship.setId(storedRelationship.getId());
                 
+                Set<Entry<String, IdentityType>> identityTypes = storedRelationship.getIdentityTypes().entrySet();
+
                 for (Entry<String, IdentityType> entry : identityTypes) {
-                    List<Property<IdentityType>> annotatedTypes = PropertyQueries.<IdentityType> createQuery(query.getRelationshipType())
+                    List<Property<IdentityType>> annotatedTypes = PropertyQueries
+                            .<IdentityType> createQuery(query.getRelationshipType())
                             .addCriteria(new NamedPropertyCriteria(entry.getKey())).getResultList();
-                    
+
                     Property<IdentityType> property = annotatedTypes.get(0);
-                    
+
                     property.setValue(relationship, entry.getValue());
                 }
-                
-                Map<String, String> attributes = storedRelationship.getAttributes();
-                
-                for (Entry<String, IdentityType> entry : identityTypes) {
+
+                Set<Entry<String, String>> attributes = storedRelationship.getAttributes().entrySet();
+
+                for (Entry<String, String> entry : attributes) {
                     relationship.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            
+
             result.add(relationship);
         }
 
@@ -1298,4 +1328,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return 0;
     }
 
+    private String generateUUID() {
+        return UUID.randomUUID().toString();
+    }
 }
