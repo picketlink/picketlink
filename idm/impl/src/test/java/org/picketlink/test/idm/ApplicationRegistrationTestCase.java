@@ -59,7 +59,7 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
         identityManager.update(oauthApp);
         
         //Let us query
-        IdentityQuery<Agent> query = identityManager.createQuery(Agent.class);
+        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
 
         query.setParameter(Agent.ID, appName);
 
@@ -71,7 +71,7 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
         assertEquals(appName, result.get(0).getId());
         
         // let's query using only the appUrl attribute
-        query = identityManager.createQuery(Agent.class);
+        query = identityManager.createIdentityQuery(Agent.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("appURL"), new String[] { appURL });
 
@@ -84,7 +84,7 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
         
         //Query with a wrong agent id
         
-        query = identityManager.createQuery(Agent.class);
+        query = identityManager.createIdentityQuery(Agent.class);
         query.setParameter(Agent.ID, "bogus");
 
         result = query.getResultList();

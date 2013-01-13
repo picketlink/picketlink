@@ -120,7 +120,7 @@ public class AgentGroupsRelationshipTestCase extends AbstractIdentityManagerTest
         identityManager.removeFromGroup(user, someAnotherGroup);
         identityManager.removeFromGroup(user, someImportantGroup);
         
-        IdentityQuery<Group> query = identityManager.createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
         
         query.setParameter(Group.HAS_MEMBER, new Object[] {user});
         
@@ -132,7 +132,7 @@ public class AgentGroupsRelationshipTestCase extends AbstractIdentityManagerTest
         
         identityManager.addToGroup(user, someGroup);
         
-        query = identityManager.createQuery(Group.class);
+        query = identityManager.createIdentityQuery(Group.class);
         
         query.setParameter(Group.HAS_MEMBER, new Object[] {user});
         
@@ -145,7 +145,7 @@ public class AgentGroupsRelationshipTestCase extends AbstractIdentityManagerTest
         
         identityManager.addToGroup(user, someAnotherGroup);
 
-        query = identityManager.createQuery(Group.class);
+        query = identityManager.createIdentityQuery(Group.class);
         
         query.setParameter(Group.HAS_MEMBER, new Object[] {user});
         
@@ -158,7 +158,7 @@ public class AgentGroupsRelationshipTestCase extends AbstractIdentityManagerTest
 
         identityManager.addToGroup(user, someImportantGroup);
         
-        query = identityManager.createQuery(Group.class);
+        query = identityManager.createIdentityQuery(Group.class);
         
         query.setParameter(Group.HAS_MEMBER, new Object[] {user});
         

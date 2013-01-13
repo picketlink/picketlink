@@ -198,7 +198,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.add(groupMembership);
 
-        RelationshipQuery<GroupMembership> query = identityManager.createQuery(GroupMembership.class);
+        RelationshipQuery<GroupMembership> query = identityManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute1"), "1");
 
@@ -220,7 +220,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Assert.assertEquals(someUser.getId(), groupMembership.getMember().getId());
         Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
 
-        query = identityManager.createQuery(GroupMembership.class);
+        query = identityManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute1"), "2");
 
@@ -228,7 +228,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         Assert.assertTrue(result.isEmpty());
         
-        query = identityManager.createQuery(GroupMembership.class);
+        query = identityManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute3"), "2");
 
@@ -236,7 +236,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         Assert.assertTrue(result.isEmpty());
         
-        query = identityManager.createQuery(GroupMembership.class);
+        query = identityManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute2"), new String[] {"1", "2", "3"});
 
@@ -266,7 +266,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         identityManager.removeFromGroup(user, someAnotherGroup);
         identityManager.removeFromGroup(user, someImportantGroup);
 
-        IdentityQuery<Group> query = identityManager.createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
 
         query.setParameter(Group.HAS_MEMBER, new Object[] { user });
 
@@ -278,7 +278,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.addToGroup(user, someGroup);
 
-        query = identityManager.createQuery(Group.class);
+        query = identityManager.createIdentityQuery(Group.class);
 
         query.setParameter(Group.HAS_MEMBER, new Object[] { user });
 
@@ -291,7 +291,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.addToGroup(user, someAnotherGroup);
 
-        query = identityManager.createQuery(Group.class);
+        query = identityManager.createIdentityQuery(Group.class);
 
         query.setParameter(Group.HAS_MEMBER, new Object[] { user });
 
@@ -304,7 +304,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.addToGroup(user, someImportantGroup);
 
-        query = identityManager.createQuery(Group.class);
+        query = identityManager.createIdentityQuery(Group.class);
 
         query.setParameter(Group.HAS_MEMBER, new Object[] { user });
 
@@ -327,7 +327,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
     private List<GroupMembership> getGroupMembership(User someUser, Group someGroup) {
         IdentityManager identityManager = getIdentityManager();
 
-        RelationshipQuery<GroupMembership> query = identityManager.createQuery(GroupMembership.class);
+        RelationshipQuery<GroupMembership> query = identityManager.createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.MEMBER, someUser);
         query.setParameter(GroupMembership.GROUP, someGroup);

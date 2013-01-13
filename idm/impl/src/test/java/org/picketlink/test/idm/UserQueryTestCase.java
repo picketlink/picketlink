@@ -63,7 +63,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.LOGIN_NAME, "admin");
 
@@ -95,7 +95,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertNotNull(user);
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.FIRST_NAME, "The");
 
@@ -105,7 +105,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(contains(result, user.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.LAST_NAME, "Administrator");
 
@@ -115,7 +115,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.FIRST_NAME, "The");
         query.setParameter(User.LAST_NAME, "Administrator");
@@ -128,7 +128,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertEquals("admin", result.get(0).getLoginName());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.FIRST_NAME, "The");
         query.setParameter(User.LAST_NAME, "Bad Administrator");
@@ -156,7 +156,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(user);
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.EMAIL, "admin@jboss.org");
 
@@ -167,7 +167,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertEquals("admin", result.get(0).getLoginName());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.EMAIL, "badadmin@jboss.org");
 
@@ -191,7 +191,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
 
@@ -201,7 +201,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.grantGroupRole(user, managerRole, salesGroup);
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
 
@@ -225,7 +225,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.MEMBER_OF, new String[] { "Administrators" });
 
@@ -235,7 +235,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.addToGroup(user, administratorGroup);
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.MEMBER_OF, new String[] { "Administrators" });
 
@@ -259,7 +259,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_ROLE, new String[] { "Administrators" });
 
@@ -269,7 +269,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.grantRole(user, administratorRole);
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_ROLE, new String[] { "Administrators" });
 
@@ -297,7 +297,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         identityManager.addToGroup(user, administratorGroup);
         identityManager.addToGroup(user, someGroup);
 
-        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName(), someGroup.getName() });
 
@@ -308,7 +308,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.removeFromGroup(user, someGroup);
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName(), someGroup.getName() });
 
@@ -316,7 +316,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName() });
 
@@ -344,7 +344,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         identityManager.grantRole(user, administratorRole);
         identityManager.grantRole(user, someRole);
 
-        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName(), someRole.getName() });
 
@@ -355,7 +355,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.revokeRole(user, someRole);
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName(), someRole.getName() });
 
@@ -363,7 +363,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName() });
 
@@ -393,7 +393,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         identityManager.addToGroup(adminUser, administratorGroup);
         identityManager.addToGroup(someUser, administratorGroup);
 
-        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName() });
 
@@ -405,7 +405,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.addToGroup(adminUser, someGroup);
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName(), someGroup.getName() });
 
@@ -437,7 +437,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         identityManager.grantRole(adminUser, administratorRole);
         identityManager.grantRole(someUser, administratorRole);
 
-        IdentityQuery<User> query = identityManager.createQuery(User.class);
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName() });
 
@@ -449,7 +449,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.grantRole(adminUser, someRole);
 
-        query = identityManager.createQuery(User.class);
+        query = identityManager.createIdentityQuery(User.class);
 
         query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName(), someRole.getName() });
 
@@ -480,7 +480,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         identityManager.update(someUser);
         identityManager.update(someAnotherUser);
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.ENABLED, true);
 
@@ -491,7 +491,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someUser.getLoginName()));
         assertTrue(contains(result, someAnotherUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.ENABLED, false);
 
@@ -505,7 +505,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         // let's disabled the user and try to find him
         identityManager.update(someUser);
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.ENABLED, false);
 
@@ -521,7 +521,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         // let's disabled the user and try to find him
         identityManager.update(someAnotherUser);
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.ENABLED, true);
 
@@ -544,7 +544,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.CREATED_DATE, user.getCreatedDate());
 
@@ -555,7 +555,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.size() == 1);
         assertEquals("someUser", result.get(0).getLoginName());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
         
         Calendar futureDate = Calendar.getInstance();
 
@@ -590,7 +590,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(user);
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.EXPIRY_DATE, user.getExpirationDate());
 
@@ -603,7 +603,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertEquals("someUser", result.get(0).getLoginName());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -631,7 +631,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -648,7 +648,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someUser.getLoginName()));
         assertTrue(contains(result, someAnotherUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         User someFutureUser = loadOrCreateUser("someFutureUser", true);
         User someAnotherFutureUser = loadOrCreateUser("someAnotherFutureUser", true);
@@ -665,7 +665,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureUser.getLoginName()));
         assertTrue(contains(result, someAnotherFutureUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         // users created before the given time
         query.setParameter(User.CREATED_BEFORE, new Date());
@@ -679,7 +679,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureUser.getLoginName()));
         assertTrue(contains(result, someAnotherFutureUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         Calendar futureDate = Calendar.getInstance();
         
@@ -716,7 +716,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(user);
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.EMAIL, "admin@jboss.org");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
@@ -727,7 +727,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, user.getLoginName()));
         assertEquals(1, result.size());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.EMAIL, "admin@jboss.org");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
@@ -736,7 +736,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.EMAIL, "admin@jboss.org");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
@@ -748,7 +748,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, user.getLoginName()));
         assertEquals(1, result.size());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(User.EMAIL, "admin@jboss.org");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
@@ -782,7 +782,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someAnotherUser);
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -815,7 +815,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someUser.getLoginName()));
         assertTrue(contains(result, someAnotherUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         // users expired after the given time
         query.setParameter(User.EXPIRY_AFTER, expiryDate);
@@ -829,7 +829,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureUser.getLoginName()));
         assertTrue(contains(result, someAnotherFutureUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         // users expired before the given time
         query.setParameter(User.EXPIRY_BEFORE, new Date());
@@ -843,7 +843,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureUser.getLoginName()));
         assertTrue(contains(result, someAnotherFutureUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
         
         Thread.sleep(500);
         
@@ -872,7 +872,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someUser);
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -885,7 +885,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someUser);
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -897,7 +897,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someUser);
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValueChanged");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), "someAttributeValue2");
@@ -926,7 +926,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someUser);
 
-        IdentityQuery<User> query = identityManager.<User> createQuery(User.class);
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValue2" });
@@ -936,7 +936,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttributeValue1",
                 "someAttributeValue2" });
@@ -945,7 +945,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValueChanged",
                 "someAttributeValue2" });
@@ -954,7 +954,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue" });
 
@@ -969,7 +969,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someUser);
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValueChanged" });
@@ -981,7 +981,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someUser.getLoginName()));
 
-        query = identityManager.<User> createQuery(User.class);
+        query = identityManager.<User> createIdentityQuery(User.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValueChanged" });
