@@ -22,6 +22,7 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.query.IdentityTypeQueryParameter;
 
 /**
  * GroupRole is a Relationship type that assigns a role within a group to an identity (either a User or Group).

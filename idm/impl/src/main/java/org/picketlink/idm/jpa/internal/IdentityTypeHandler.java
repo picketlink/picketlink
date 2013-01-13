@@ -35,7 +35,7 @@ import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.IdentityType.AttributeParameter;
+import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.QueryParameter;
 

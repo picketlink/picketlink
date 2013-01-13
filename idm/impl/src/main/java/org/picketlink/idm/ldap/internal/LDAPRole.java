@@ -38,7 +38,7 @@ import org.picketlink.idm.model.Role;
  *
  * @author anil saldhana
  * @since Aug 31, 2012
- */
+ */ // FIXME
 public class LDAPRole extends LDAPEntry implements Role {
 
     private static final long serialVersionUID = 1L;
@@ -81,7 +81,7 @@ public class LDAPRole extends LDAPEntry implements Role {
         getLDAPAttributes().put(MEMBER, SPACE_STRING);
     }
 
-    @Override
+    //@Override
     public String getName() {
         if (roleName == null) {
             Attribute cnAttribute = getLDAPAttributes().get(CN);
@@ -97,6 +97,18 @@ public class LDAPRole extends LDAPEntry implements Role {
 
     @Override
     public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, getName());
+        return String.format("%s%s", Role.KEY_PREFIX, getName());
+    }
+
+    @Override
+    public String getId() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setId(String id) {
+        // TODO Auto-generated method stub
+        
     }
 }

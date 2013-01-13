@@ -189,4 +189,10 @@ public class LDAPUser extends LDAPEntry implements User {
         
         return fullName;
     }
+
+    @Override
+    public String getLoginName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

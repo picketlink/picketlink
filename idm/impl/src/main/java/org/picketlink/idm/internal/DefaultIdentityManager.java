@@ -366,7 +366,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private GroupMembership getGroupMembership(IdentityType identityType, Group group) {
-        RelationshipQuery<GroupMembership> query = createQuery(GroupMembership.class);
+        RelationshipQuery<GroupMembership> query = createRelationshipQuery(GroupMembership.class);
 
         query.setParameter(GroupMembership.MEMBER, identityType);
         query.setParameter(GroupMembership.GROUP, group);
@@ -414,7 +414,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private GroupRole getGroupRole(IdentityType identityType, Role role, Group group) {
-        RelationshipQuery<GroupRole> query = createQuery(GroupRole.class);
+        RelationshipQuery<GroupRole> query = createRelationshipQuery(GroupRole.class);
 
         query.setParameter(GroupRole.MEMBER, identityType);
         query.setParameter(GroupRole.ROLE, role);
@@ -452,7 +452,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private Grant getGrant(IdentityType identityType, Role role) {
-        RelationshipQuery<Grant> query = createQuery(Grant.class);
+        RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
 
         query.setParameter(Grant.ASSIGNEE, identityType);
         query.setParameter(Grant.ROLE, role);
@@ -511,10 +511,15 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public <T extends IdentityType> IdentityQuery<T> createQuery(Class<T> identityType) {
+    public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
         return new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), Feature.readUser));
     }
-
+    
+    @Override
+    public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
+        return new DefaultRelationshipQuery<T>(relationshipType, getContextualStoreForFeature(createContext(), Feature.readRelationship));
+    }
+    
     @Override
     public void createRealm(Realm realm) {
         storeFactory.createPartitionStore(partitionStoreConfig).createPartition(realm);
@@ -550,8 +555,5 @@ public class DefaultIdentityManager implements IdentityManager {
 
     }
 
-    @Override
-    public <T extends Relationship> RelationshipQuery<T> createQuery(Class<T> relationshipType) {
-        return new DefaultRelationshipQuery<T>(relationshipType, getContextualStoreForFeature(createContext(), Feature.readRelationship));
-    }
+
 }
