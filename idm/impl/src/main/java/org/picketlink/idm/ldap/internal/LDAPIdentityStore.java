@@ -67,14 +67,16 @@ import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroupRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -109,8 +111,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
     }
     
     @Override
-    public void add(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+    public void add(AttributedType identityType) {
+        Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
 
         if (IDMUtil.isUserType(identityTypeClass)) {
             User storedUser = addUser((User) identityType);
@@ -134,8 +136,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
     }
 
     @Override
-    public void update(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+    public void update(AttributedType identityType) {
+        Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
 
         if (IDMUtil.isUserType(identityTypeClass)) {
             User updatedUser = (User) identityType;
@@ -195,8 +197,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
     }
 
     @Override
-    public void remove(IdentityType identityType) {
-        Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+    public void remove(AttributedType identityType) {
+        Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
 
         if (IDMUtil.isUserType(identityTypeClass)) {
             User user = (User) identityType;
@@ -340,128 +342,128 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
         return null;
     }
 
-    @Override
-    public GroupRole createMembership(IdentityType member, Group group, Role role) {
-        if (member instanceof User) {
-            User user = getUser(((User) member).getId());
-
-            LDAPRole ldapRole = null;
-
-            if (role != null) {
-                ldapRole = (LDAPRole) getRole(role.getName());
-            }
-
-            LDAPUser ldapUser = null;
-
-            if (user != null) {
-                ldapUser = (LDAPUser) getUser(user.getId());
-            }
-
-            LDAPGroup ldapGroup = null;
-
-            if (group != null) {
-                ldapGroup = (LDAPGroup) getGroup(group.getName());
-            }
-
-            if (ldapRole != null && ldapGroup != null) {
-                LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
-                storeMembershipEntry(groupRole, ldapRole);
-            } else {
-                if (ldapUser != null && ldapRole != null) {
-                    addMember(ldapRole, ldapUser);
-                }
-
-                if (ldapGroup != null && ldapRole != null) {
-                    addMember(ldapGroup, ldapRole);
-                }
-
-                if (ldapGroup != null && ldapUser != null) {
-                    addMember(ldapGroup, ldapUser);
-                }
-            }
-
-            return new SimpleGroupRole(ldapUser, ldapRole, ldapGroup);
-        } else if (member instanceof Group) {
-            // FIXME implement Group membership, or return null
-            return null;
-        } else {
-            throw new IllegalArgumentException("The member parameter must be an instance of User or Group");
-        }
-    }
-
-    @Override
-    public void removeMembership(IdentityType member, Group group, Role role) {
-        if (member instanceof User) {
-            LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
-
-            LDAPRole ldapRole = null;
-
-            if (role != null) {
-                ldapRole = (LDAPRole) getRole(role.getName());
-            }
-
-            LDAPGroup ldapGroup = null;
-
-            if (group != null) {
-                ldapGroup = (LDAPGroup) getGroup(group.getName());
-            }
-
-            if (group != null && role != null) {
-                LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
-                removeMemberShipEntry(groupRole, ldapRole);
-            } else {
-                if (ldapRole != null) {
-                    removeMember(ldapRole, ldapUser);
-                }
-
-                if (ldapGroup != null) {
-                    removeMember(ldapGroup, ldapUser);
-                }
-            }
-        } else if (member instanceof Group) {
-            // FIXME implement Group membership if supported
-        }
-    }
-
-    @Override
-    public GroupRole getMembership(IdentityType member, Group group, Role role) {
-        GroupRole groupRole = null;
-
-        LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
-
-        if (group != null && role != null) {
-            LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-            LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
-
-            String dn = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole).getDN();
-
-            groupRole = getLdapManager().lookup(dn);
-
-            LDAPGroupRole ldapGroupRole = (LDAPGroupRole) groupRole;
-
-            if (groupRole == null || !ldapGroupRole.isMember(ldapRole)) {
-                groupRole = null;
-            }
-        } else {
-            if (role != null) {
-                LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-
-                if (ldapRole.isMember(ldapUser)) {
-                    groupRole = new SimpleGroupRole(ldapUser, getRole(role.getName()), null);
-                }
-            }
-
-            if (group != null) {
-                LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
-
-                if (ldapGroup.isMember(ldapUser)) {
-                    groupRole = new SimpleGroupRole(ldapUser, null, group);
-                }
-            }
-        }
-
-        return groupRole;
-    }
+//    @Override
+//    public GroupRole createMembership(IdentityType member, Group group, Role role) {
+//        if (member instanceof User) {
+//            User user = getUser(((User) member).getId());
+//
+//            LDAPRole ldapRole = null;
+//
+//            if (role != null) {
+//                ldapRole = (LDAPRole) getRole(role.getName());
+//            }
+//
+//            LDAPUser ldapUser = null;
+//
+//            if (user != null) {
+//                ldapUser = (LDAPUser) getUser(user.getId());
+//            }
+//
+//            LDAPGroup ldapGroup = null;
+//
+//            if (group != null) {
+//                ldapGroup = (LDAPGroup) getGroup(group.getName());
+//            }
+//
+//            if (ldapRole != null && ldapGroup != null) {
+//                LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
+//                storeMembershipEntry(groupRole, ldapRole);
+//            } else {
+//                if (ldapUser != null && ldapRole != null) {
+//                    addMember(ldapRole, ldapUser);
+//                }
+//
+//                if (ldapGroup != null && ldapRole != null) {
+//                    addMember(ldapGroup, ldapRole);
+//                }
+//
+//                if (ldapGroup != null && ldapUser != null) {
+//                    addMember(ldapGroup, ldapUser);
+//                }
+//            }
+//
+//            return new SimpleGroupRole(ldapUser, ldapRole, ldapGroup);
+//        } else if (member instanceof Group) {
+//            // FIXME implement Group membership, or return null
+//            return null;
+//        } else {
+//            throw new IllegalArgumentException("The member parameter must be an instance of User or Group");
+//        }
+//    }
+//
+//    @Override
+//    public void removeMembership(IdentityType member, Group group, Role role) {
+//        if (member instanceof User) {
+//            LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
+//
+//            LDAPRole ldapRole = null;
+//
+//            if (role != null) {
+//                ldapRole = (LDAPRole) getRole(role.getName());
+//            }
+//
+//            LDAPGroup ldapGroup = null;
+//
+//            if (group != null) {
+//                ldapGroup = (LDAPGroup) getGroup(group.getName());
+//            }
+//
+//            if (group != null && role != null) {
+//                LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
+//                removeMemberShipEntry(groupRole, ldapRole);
+//            } else {
+//                if (ldapRole != null) {
+//                    removeMember(ldapRole, ldapUser);
+//                }
+//
+//                if (ldapGroup != null) {
+//                    removeMember(ldapGroup, ldapUser);
+//                }
+//            }
+//        } else if (member instanceof Group) {
+//            // FIXME implement Group membership if supported
+//        }
+//    }
+//
+//    @Override
+//    public GroupRole getMembership(IdentityType member, Group group, Role role) {
+//        GroupRole groupRole = null;
+//
+//        LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
+//
+//        if (group != null && role != null) {
+//            LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
+//            LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
+//
+//            String dn = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole).getDN();
+//
+//            groupRole = getLdapManager().lookup(dn);
+//
+//            LDAPGroupRole ldapGroupRole = (LDAPGroupRole) groupRole;
+//
+//            if (groupRole == null || !ldapGroupRole.isMember(ldapRole)) {
+//                groupRole = null;
+//            }
+//        } else {
+//            if (role != null) {
+//                LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
+//
+//                if (ldapRole.isMember(ldapUser)) {
+//                    groupRole = new SimpleGroupRole(ldapUser, getRole(role.getName()), null);
+//                }
+//            }
+//
+//            if (group != null) {
+//                LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
+//
+//                if (ldapGroup.isMember(ldapUser)) {
+//                    groupRole = new SimpleGroupRole(ldapUser, null, group);
+//                }
+//            }
+//        }
+//
+//        return groupRole;
+//    }
 
     @Override
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
@@ -1484,5 +1486,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public <T extends Relationship> int countQueryResults(RelationshipQuery<T> query) {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

@@ -99,4 +99,5 @@ public class LDAPRole extends LDAPEntry implements Role {
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, getName());
     }
+    
 }

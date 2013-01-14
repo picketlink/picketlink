@@ -37,7 +37,8 @@ import org.picketlink.idm.model.Role;
  * @author anil saldhana
  * @since Sep 7, 2012
  */
-public class LDAPGroupRole extends LDAPEntry implements GroupRole {
+//TODO: FIX public class LDAPGroupRole extends LDAPEntry implements GroupRole {
+public class LDAPGroupRole extends LDAPEntry {
 
     private static final long serialVersionUID = 1L;
     
@@ -73,17 +74,17 @@ public class LDAPGroupRole extends LDAPEntry implements GroupRole {
         return "cn=" + this.group.getName() + LDAPConstants.COMMA + this.user.getDN(); 
     }
     
-    @Override
+//    @Override
     public IdentityType getMember() {
         return this.user;
     }
 
-    @Override
+//    @Override
     public Group getGroup() {
         return this.group;
     }
 
-    @Override
+//    @Override
     public Role getRole() {
         return this.role;
     }
@@ -91,6 +92,18 @@ public class LDAPGroupRole extends LDAPEntry implements GroupRole {
     @Override
     public String getKey() {
         return null;
+    }
+
+    @Override
+    public String getId() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setId(String id) {
+        // TODO Auto-generated method stub
+        
     }
     
 }

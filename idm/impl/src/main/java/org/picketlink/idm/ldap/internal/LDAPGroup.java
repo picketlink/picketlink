@@ -47,8 +47,6 @@ public class LDAPGroup extends LDAPEntry implements Group {
     private Group parent;
     private String groupName;
 
-    private String id;
-
     public LDAPGroup() {
         this(null);
     }
@@ -66,16 +64,6 @@ public class LDAPGroup extends LDAPEntry implements Group {
         setLDAPAttributes(attributes);
     }
 
-    @Override
-    public String getId() {
-        if (this.id == null) {
-            this.id = getParentGroup() == null ? String.format("/%s", getName()) : 
-                String.format("%s/%s", getParentGroup().getId(), getName());
-        }
-        
-        return this.id;
-    }
-    
     @Override
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, getId());

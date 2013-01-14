@@ -31,7 +31,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 
-import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.User;
 
 /**
@@ -78,6 +77,11 @@ public class LDAPUser extends LDAPEntry implements User {
         return UID;
     }
 
+    @Override
+    public String getLoginName() {
+        return getId();
+    }
+    
     public void setId(String id) {
         Attribute theAttribute = getLDAPAttributes().get(UID);
         if (theAttribute == null) {

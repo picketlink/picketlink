@@ -78,11 +78,23 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
     private boolean enabled = true;
     private Date expirationDate;
     private Date createDate = new Date();
+
+    private String id;
     
     public LDAPEntry(String dnSuffix) {
         this.dnSuffix = dnSuffix;
     }
 
+    @Override
+    public String getId() {
+        return this.id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+    
     public String getDN() {
         try {
             return getDN(getLDAPAttributes().get(doGetAttributeForBinding()).get().toString());
