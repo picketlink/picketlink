@@ -86,15 +86,6 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         // initDataFiles();
     }
 
-    // private void initDataFiles() {
-    // File workingDirectoryFile = initWorkingDirectory();
-    // this.agentsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-agents.db"));
-    // this.rolesFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-roles.db"));
-    // this.groupsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-groups.db"));
-    // this.relationshipsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-memberships.db"));
-    // this.credentialsFile = checkAndCreateFile(new File(workingDirectoryFile.getPath() + "/pl-idm-credentials.db"));
-    // }
-
     /**
      * <p>
      * Initializes the working directory.
@@ -107,12 +98,18 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
         File workingDirectoryFile = new File(workingDir);
 
-        if (!workingDirectoryFile.exists()) {
-            workingDirectoryFile.mkdirs();
+        if (workingDirectoryFile.exists()) {
+            if (isAlwaysCreateFiles()) {
+                FileUtils.delete(workingDirectoryFile);
+            }
         }
+        
+        workingDirectoryFile.mkdirs();
 
         return workingDirectoryFile;
     }
+
+
 
     /**
      * <p>
@@ -123,10 +120,6 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
      * @return
      */
     private File checkAndCreateFile(File file) {
-        if (isAlwaysCreateFiles() && file.exists()) {
-            file.delete();
-        }
-
         if (!file.exists()) {
             try {
                 file.getParentFile().mkdirs();
@@ -316,19 +309,19 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
         flushData(realm, "pl-idm-roles.db", this.partitions.get(realmId).getRoles());
     }
-    
+
     synchronized void flushGroups(Realm realm) {
         String realmId = getRealmId(realm);
 
         flushData(realm, "pl-idm-groups.db", this.partitions.get(realmId).getGroups());
     }
-    
+
     synchronized void flushCredentials(Realm realm) {
         String realmId = getRealmId(realm);
 
         flushData(realm, "pl-idm-credentials.db", this.partitions.get(realmId).getCredentials());
     }
-    
+
     synchronized void flushRelationships(Realm realm) {
         String realmId = getRealmId(realm);
 
@@ -339,8 +332,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         String realmId = getRealmId(realm);
 
         try {
-            FileOutputStream fos = new FileOutputStream(getWorkingDir() + File.separator + realmId + File.separator
-                    + fileName);
+            FileOutputStream fos = new FileOutputStream(getWorkingDir() + File.separator + realmId + File.separator + fileName);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(object);
             oos.close();

@@ -96,6 +96,8 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         testingUser = identityManager.getUser(testingUser.getLoginName());
         
         Assert.assertNull(testingUser);
+        
+        identityManager.removeRealm(realm);
     }
     
     @Test

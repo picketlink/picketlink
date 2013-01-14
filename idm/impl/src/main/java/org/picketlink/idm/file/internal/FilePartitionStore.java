@@ -22,6 +22,7 @@
 
 package org.picketlink.idm.file.internal;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.util.Collection;
@@ -51,14 +52,15 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
 
     @Override
     public void removePartition(Partition partition) {
-        String id = partition.getName();
+        String id = partition.getId();
         
         if (id == null) {
             throw new IdentityManagementException("No identifier provided.");
         }
         
-        if (getConfig().getPartitions().containsKey(id)) {
-            getConfig().getPartitions().remove(id);
+        if (getConfig().getPartitions().containsKey(partition.getName())) {
+            FileUtils.delete(new File(getConfig().getWorkingDir() + File.separator + partition.getId()));
+            getConfig().getPartitions().remove(partition.getName());
             flushPartitions();
         } else {
             throw new IdentityManagementException("No Partition found with the given id [" + id + "].");
