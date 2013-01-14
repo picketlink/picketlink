@@ -47,22 +47,6 @@ import org.picketlink.idm.query.RelationshipQuery;
 public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
-     * This enum defines the individual features that an IdentityStore implementation or
-     * instance may support.
-     * 
-     *  // TODO document each enum here 
-     */
-    public enum Feature { createUser, readUser, updateUser, deleteUser, 
-                          createGroup, readGroup, updateGroup, deleteGroup,
-                          createRole, readRole, updateRole, deleteRole,
-                          createRelationship, readRelationship, updateRelationship, deleteRelationship,
-                          readAttribute, updateAttribute, deleteAttribute,
-                          manageCredentials,
-                          supportsTiers, supportsRealms, disableRole, disableGroup, disableUser,
-                          createAgent,
-                          all, updateAgent, deleteAgent, readAgent }
-
-    /**
      * Sets the configuration and context in which the IdentityStore will execute its operations
      * 
      * @param config

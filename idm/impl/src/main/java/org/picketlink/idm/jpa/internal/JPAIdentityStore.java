@@ -434,163 +434,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return result;
     }
 
-    /*
-    @Override
-    public GroupRole createMembership(IdentityType member, Group group, Role role) {
-        Property<Object> memberModelProperty = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-        Property<Object> roleModelProperty = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-        Property<Object> groupModelProperty = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
-        SimpleGroupRole groupRole = null;
-
-        if (member instanceof Agent) {
-            Role storedRole = null;
-            Object identityRole = null;
-
-            if (role != null) {
-                storedRole = getRole(role.getName());
-                identityRole = lookupIdentityObjectById(storedRole);
-            }
-
-            Agent storedAgent = null;
-            Object identityUser = null;
-
-            if (member != null) {
-                storedAgent = getAgent(((Agent) member).getId());
-                identityUser = lookupIdentityObjectById(storedAgent);
-            }
-
-            Group storedGroup = null;
-            Object identityGroup = null;
-
-            if (group != null) {
-                storedGroup = getGroup(group.getName());
-                identityGroup = lookupIdentityObjectById(storedGroup);
-            }
-
-            Object membership = null;
-
-            try {
-                membership = getConfig().getMembershipClass().newInstance();
-            } catch (Exception e) {
-                throw new IdentityManagementException("Could not create membership type instance.", e);
-            }
-
-            if (storedRole != null && storedGroup != null) {
-                try {
-                    memberModelProperty.setValue(membership, identityUser);
-                    roleModelProperty.setValue(membership, identityRole);
-                    groupModelProperty.setValue(membership, identityGroup);
-                } catch (Exception e) {
-                }
-            } else {
-                if (storedRole != null) {
-                    memberModelProperty.setValue(membership, identityUser);
-                    roleModelProperty.setValue(membership, identityRole);
-                } else {
-                    memberModelProperty.setValue(membership, identityUser);
-                    groupModelProperty.setValue(membership, identityGroup);
-                }
-            }
-
-            getEntityManager().persist(membership);
-            getEntityManager().flush();
-
-            groupRole = new SimpleGroupRole(storedAgent, storedRole, storedGroup);
-        } else if (member instanceof Group) {
-            // TODO implement
-            throw new UnsupportedOperationException();
-        } else {
-            throw new IllegalArgumentException("The member parameter must be an instance of User or Group");
-        }
-
-        return groupRole;
-    }
-
-    @Override
-    public void removeMembership(IdentityType member, Group group, Role role) {
-        Property<Object> memberModelProperty = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-        Property<Object> roleModelProperty = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-        Property<Object> groupModelProperty = getConfig().getModelProperty(
-                JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
-
-        EntityManager em = getEntityManager();
-
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getMembershipClass());
-        Root<?> root = criteria.from(getConfig().getMembershipClass());
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        Object identityUser = lookupIdentityObjectById(member);
-
-        predicates.add(builder.equal(root.get(memberModelProperty.getName()), identityUser));
-
-        if (group != null && role != null) {
-            Object identityRole = lookupIdentityObjectById(role);
-            Object identityGroup = lookupIdentityObjectById(group);
-
-            predicates.add(builder.equal(root.get(roleModelProperty.getName()), identityRole));
-            predicates.add(builder.equal(root.get(groupModelProperty.getName()), identityGroup));
-        } else {
-            if (role != null) {
-                Object identityRole = lookupIdentityObjectById(role);
-
-                predicates.add(builder.equal(root.get(roleModelProperty.getName()), identityRole));
-            }
-
-            if (group != null) {
-                Object identityGroup = lookupIdentityObjectById(group);
-
-                predicates.add(builder.equal(root.get(groupModelProperty.getName()), identityGroup));
-            }
-        }
-
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-        List<?> resultList = em.createQuery(criteria).getResultList();
-
-        for (Object object : resultList) {
-            em.remove(object);
-        }
-
-        em.flush();
-    }
-
-    @Override
-    public GroupRole getMembership(IdentityType member, Group group, Role role) {
-        GroupRole groupRole = null;
-
-        List<?> resultList = Collections.emptyList();
-
-        DefaultIdentityQuery<IdentityType> defaultIdentityQuery = new DefaultIdentityQuery(member.getClass(), this);
-
-        defaultIdentityQuery.setParameter(IdentityType.HAS_GROUP_ROLE, new SimpleGroupRole(member, role, group));
-
-        resultList = defaultIdentityQuery.getResultList();
-
-        if (!resultList.isEmpty()) {
-            Agent storedAgent = getAgent(((Agent) member).getId());
-            Role storedRole = null;
-            Group storedGroup = null;
-
-            if (role != null) {
-                storedRole = getRole(role.getName());
-            }
-
-            if (group != null) {
-                storedGroup = getGroup(group.getName());
-            }
-
-            groupRole = new SimpleGroupRole(storedAgent, storedGroup, storedRole);
-        }
-
-        return groupRole;
-    }*/
-
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
         // TODO implement
@@ -1051,11 +894,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
         Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
         Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
-        
+
         Object lastCredential = retrieveCurrentCredentialEntity(agent, storage.getClass());
 
         EntityManager em = getEntityManager();
-        
+
         if (lastCredential != null) {
             expiryProperty.setValue(lastCredential, new Date());
             em.merge(lastCredential);
