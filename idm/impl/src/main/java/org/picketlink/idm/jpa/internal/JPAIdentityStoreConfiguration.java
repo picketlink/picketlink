@@ -3,10 +3,8 @@ package org.picketlink.idm.jpa.internal;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
@@ -27,7 +25,6 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * This interface defines the configuration parameters for a JPA based IdentityStore implementation.
@@ -68,7 +65,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     /**
      * Defines the feature set for this IdentityStore
      */
-    private Set<Feature> featureSet = new HashSet<Feature>();
+    private FeatureSet featureSet = new FeatureSet();
 
     /**
      * Model properties
@@ -265,7 +262,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     @Override
-    public Set<Feature> getFeatureSet() {
+    public FeatureSet getFeatureSet() {
         return featureSet;
     }
 
@@ -283,7 +280,9 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         configureAttributes();
         configureCredentials();
 
-        this.featureSet.add(Feature.all);
+        this.featureSet.addSupportedFeature(Feature.all);
+        // Support all relationship types
+        this.featureSet.addSupportedRelationship(Relationship.class); 
     }
 
     private void configureIdentityTypeHandlers() {
@@ -490,13 +489,13 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     @SuppressWarnings("unchecked")
-    IdentityTypeHandler<IdentityType> getIdentityTypeManager(Class<? extends IdentityType> identityTypeClass) {
+    IdentityTypeHandler<IdentityType> getHandler(Class<? extends IdentityType> identityTypeClass) {
         IdentityTypeHandler<IdentityType> identityTypeManager = (IdentityTypeHandler<IdentityType>) getIdentityTypeStores()
                 .get(getIdentityDiscriminator(identityTypeClass));
         return identityTypeManager;
     }
 
-    IdentityTypeHandler<IdentityType> getIdentityTypeManager(String discriminator) {
+    IdentityTypeHandler<IdentityType> getHandler(String discriminator) {
         return (IdentityTypeHandler<IdentityType>) getIdentityTypeStores().get(discriminator);
     }
 

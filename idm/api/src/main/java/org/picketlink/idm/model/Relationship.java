@@ -35,8 +35,4 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public interface Relationship extends AttributedType {
 
-    public interface IdentityTypeQueryParameter extends QueryParameter {
-        public String getName();
-    }
-    
 }

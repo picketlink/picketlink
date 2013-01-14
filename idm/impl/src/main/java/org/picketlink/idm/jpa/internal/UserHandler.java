@@ -79,7 +79,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
     @Override
     public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
             JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration storeConfig = store.getConfig();
+
         List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
@@ -87,35 +87,39 @@ public class UserHandler extends IdentityTypeHandler<User>{
         
         if (queryParameter.equals(User.ID)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_ID).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(User.FIRST_NAME)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_FIRST_NAME).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.USER_FIRST_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(User.LAST_NAME)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_LAST_NAME).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.USER_LAST_NAME).getName()),
                     parameterValues[0]));
         }
         
         if (queryParameter.equals(User.EMAIL)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_USER_EMAIL).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.USER_EMAIL).getName()),
                     parameterValues[0]));
         }
         
+        // TODO rewrite using relationships
+        
+        /*
+         
         if (queryParameter.equals(IdentityType.HAS_GROUP_ROLE)) {
             for (Object object : parameterValues) {
                 GroupRole groupRole = (GroupRole) object;
 
-                Property<Object> memberModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> roleModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-                Property<Object> groupModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
+                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
+                Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+                Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
 
 
                 Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getMembershipClass());
@@ -195,21 +199,20 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
                 predicates.add(builder.in(root).value(subquery));
             }
-        }
+        }*/
         
         return predicates;
     }
 
     @Override
     protected User doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration storeConfig = store.getConfig();
-        String idValue = storeConfig.getModelProperty(PROPERTY_IDENTITY_ID).getValue(identity).toString();
+        String idValue = getConfig().getModelProperty(PropertyType.IDENTITY_ID).getValue(identity).toString();
         
         User user = new SimpleUser(idValue);
 
-        user.setFirstName(store.getModelProperty(String.class, identity, PROPERTY_USER_FIRST_NAME));
-        user.setLastName(store.getModelProperty(String.class, identity, PROPERTY_USER_LAST_NAME));
-        user.setEmail(store.getModelProperty(String.class, identity, PROPERTY_USER_EMAIL));
+        user.setFirstName(getModelPropertyValue(String.class, identity, PropertyType.USER_FIRST_NAME));
+        user.setLastName(getModelPropertyValue(String.class, identity, PropertyType.USER_LAST_NAME));
+        user.setEmail(getModelPropertyValue(String.class, identity, PropertyType.USER_EMAIL));
         
         return user;
     }

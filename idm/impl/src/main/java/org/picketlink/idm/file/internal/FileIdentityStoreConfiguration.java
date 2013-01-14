@@ -37,7 +37,6 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -55,7 +54,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     /**
      * Defines the feature set for this IdentityStore
      */
-    private Set<Feature> featureSet = new HashSet<Feature>();
+    private FeatureSet featureSet = new FeatureSet();
     
     private File agentsFile;
     private File rolesFile;
@@ -72,7 +71,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
     @Override
     public void init() throws SecurityConfigurationException {
-        this.featureSet.add(Feature.all);
+        this.featureSet.addSupportedFeature(Feature.all);
 
         if (getWorkingDir() == null) {
             setWorkingDir(System.getProperty("java.io.tmpdir"));
@@ -247,7 +246,7 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
     
     @Override
-    public Set<Feature> getFeatureSet() {
+    public FeatureSet getFeatureSet() {
         return this.featureSet;
     }
 

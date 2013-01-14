@@ -3,6 +3,7 @@ package org.picketlink.idm.spi;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -47,13 +48,19 @@ public class IdentityStoreInvocationContext {
     /**
      * 
      */
+    private IdGenerator idGenerator;
+
+    /**
+     * 
+     */
     private Map<String,Object> parameters = new HashMap<String,Object>();
 
     public IdentityStoreInvocationContext(IdentityCache cache, EventBridge eventBridge, 
-            CredentialHandlerFactory factory) {
+            CredentialHandlerFactory factory, IdGenerator idGenerator) {
         this.cache = cache;
         this.eventBridge = eventBridge;
         this.credentialHandlerFactory = factory;
+        this.idGenerator = idGenerator;
     }
 
     /**
@@ -126,6 +133,14 @@ public class IdentityStoreInvocationContext {
      */
     public EventBridge getEventBridge() {
         return eventBridge;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    public IdGenerator getIdGenerator() {
+        return idGenerator;
     }
 
     /**

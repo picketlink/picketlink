@@ -21,7 +21,6 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
@@ -30,8 +29,8 @@ import javax.naming.NamingException;
 
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStore.Feature;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.GroupMembership;
 
 /**
  * A {@link IdentityStoreConfiguration} for LDAP
@@ -40,8 +39,7 @@ import org.picketlink.idm.spi.IdentityStore.Feature;
  * @since Sep 6, 2012
  */
 
-// TODO suggest renaming this to LDAPIdentityStoreConfiguration and moving to org.picketlink.idm.config 
-// package within API module
+// TODO suggest renaming this to LDAPIdentityStoreConfiguration 
 public class LDAPConfiguration extends IdentityStoreConfiguration {
 
     private String ldapURL;
@@ -56,7 +54,7 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     private String standardAttributesFileName = "standardattributes.txt";
     private boolean isActiveDirectory = false;
     private Properties additionalProperties = new Properties();
-    private Set<Feature> featureSet = new HashSet<IdentityStore.Feature>();
+    private FeatureSet featureSet = new FeatureSet();
     private LDAPOperationManager ldapManager;
 
     public String getStandardAttributesFileName() {
@@ -168,15 +166,17 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     @Override
     public void init() throws SecurityConfigurationException {
         constructContext();
-        this.featureSet.add(Feature.all);
+        this.featureSet.addSupportedFeature(Feature.all);
+        this.featureSet.addSupportedRelationship(Grant.class);
+        this.featureSet.addSupportedRelationship(GroupMembership.class);
         getSupportedCredentialHandlers().add(LDAPPlainTextPasswordCredentialHandler.class);
     }
 
     @Override
-    public Set<Feature> getFeatureSet() {
+    public FeatureSet getFeatureSet() {
         return this.featureSet ;
     }
-    
+
     private void constructContext() {
         Properties env = new Properties();
         env.setProperty(Context.INITIAL_CONTEXT_FACTORY, getFactoryName());

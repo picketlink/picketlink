@@ -88,7 +88,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author Anil Saldhana
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
-@CredentialHandlers({LDAPPlainTextPasswordCredentialHandler.class, X509CertificateCredentialHandler.class})
+@CredentialHandlers({ LDAPPlainTextPasswordCredentialHandler.class, X509CertificateCredentialHandler.class })
 public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, CredentialStore {
 
     private LDAPConfiguration configuration;
@@ -109,157 +109,181 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
     public IdentityStoreInvocationContext getContext() {
         return this.context;
     }
-    
+
     @Override
-    public void add(AttributedType identityType) {
-        Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
+    public void add(AttributedType value) {
+        if (value instanceof IdentityType) {
+            IdentityType identityType = (IdentityType) value;
 
-        if (IDMUtil.isUserType(identityTypeClass)) {
-            User storedUser = addUser((User) identityType);
+            Class<? extends IdentityType> identityTypeClass = identityType.getClass();
 
-            UserCreatedEvent event = new UserCreatedEvent(storedUser);
-           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            Group storedGroup = addGroup((Group) identityType);
+            if (IDMUtil.isUserType(identityTypeClass)) {
+                User storedUser = addUser((User) identityType);
 
-            GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
-            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            Role storedRole = addRole((Role) identityType);
+                UserCreatedEvent event = new UserCreatedEvent(storedUser);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                Group storedGroup = addGroup((Group) identityType);
 
-            RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
-           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-            getContext().getEventBridge().raiseEvent(event);
+                GroupCreatedEvent event = new GroupCreatedEvent(storedGroup);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedGroup);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                Role storedRole = addRole((Role) identityType);
+
+                RoleCreatedEvent event = new RoleCreatedEvent(storedRole);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedRole);
+                getContext().getEventBridge().raiseEvent(event);
+            }
         }
+
+    }
+
+    public void update(AttributedType value) {
+        if (value instanceof IdentityType) {
+            IdentityType identityType = (IdentityType) value;
+
+            Class<? extends IdentityType> identityTypeClass = identityType.getClass();
+
+            if (IDMUtil.isUserType(identityTypeClass)) {
+                User updatedUser = (User) identityType;
+
+                if (updatedUser.getId() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                User storedUser = getUser(updatedUser.getId());
+
+                if (storedUser == null) {
+                    throw new RuntimeException("User [" + updatedUser.getId() + "] does not exists.");
+                }
+
+                updateUser(updatedUser, storedUser);
+
+                UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                Group updatedGroup = (Group) identityType;
+
+                if (updatedGroup.getName() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Group storedGroup = getGroup(updatedGroup.getName());
+
+                if (storedGroup == null) {
+                    throw new RuntimeException("No group found with the given name [" + updatedGroup.getName() + "].");
+                }
+
+                updateGroup(updatedGroup, storedGroup);
+
+                GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedGroup);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                Role updatedRole = (Role) identityType;
+
+                if (updatedRole.getName() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Role storedRole = getRole(updatedRole.getName());
+
+                if (storedRole == null) {
+                    throw new RuntimeException("No role found with the given name [" + updatedRole.getName() + "].");
+                }
+
+                updateRole(updatedRole, storedRole);
+
+                RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedRole);
+                getContext().getEventBridge().raiseEvent(event);
+            }
+        }
+
     }
 
     @Override
-    public void update(AttributedType identityType) {
-        Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
+    public void remove(AttributedType value) {
+        if (value instanceof IdentityType) {
+            IdentityType identityType = (IdentityType) value;
 
-        if (IDMUtil.isUserType(identityTypeClass)) {
-            User updatedUser = (User) identityType;
+            Class<? extends IdentityType> identityTypeClass = identityType.getClass();
 
-            if (updatedUser.getId() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
+            if (IDMUtil.isUserType(identityTypeClass)) {
+                User user = (User) identityType;
+
+                if (user.getId() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                User storedUser = getUser(user.getId());
+
+                if (storedUser == null) {
+                    throw new RuntimeException("User [" + user.getId() + "] doest not exists.");
+                }
+
+                removeUser(storedUser);
+
+                UserDeletedEvent event = new UserDeletedEvent(storedUser);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedUser);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                Group group = (Group) identityType;
+
+                if (group.getName() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Group storedGroup = getGroup(group.getName());
+
+                if (storedGroup == null) {
+                    throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
+                }
+
+                removeGroup(storedGroup);
+
+                GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedGroup);
+                getContext().getEventBridge().raiseEvent(event);
+            } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                Role role = (Role) identityType;
+
+                if (role.getName() == null) {
+                    throw new IdentityManagementException("No identifier was provided.");
+                }
+
+                Role storedRole = getRole(role.getName());
+
+                if (storedRole == null) {
+                    throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
+                }
+
+                removeRole(storedRole);
+
+                RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
+                // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY,
+                // storedRole);
+                getContext().getEventBridge().raiseEvent(event);
             }
-
-            User storedUser = getUser(updatedUser.getId());
-
-            if (storedUser == null) {
-                throw new RuntimeException("User [" + updatedUser.getId() + "] does not exists.");
-            }
-
-            updateUser(updatedUser, storedUser);
-
-            UserUpdatedEvent event = new UserUpdatedEvent(storedUser);
-           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            Group updatedGroup = (Group) identityType;
-
-            if (updatedGroup.getName() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Group storedGroup = getGroup(updatedGroup.getName());
-
-            if (storedGroup == null) {
-                throw new RuntimeException("No group found with the given name [" + updatedGroup.getName() + "].");
-            }
-
-            updateGroup(updatedGroup, storedGroup);
-
-            GroupUpdatedEvent event = new GroupUpdatedEvent(storedGroup);
-            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            Role updatedRole = (Role) identityType;
-
-            if (updatedRole.getName() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Role storedRole = getRole(updatedRole.getName());
-
-            if (storedRole == null) {
-                throw new RuntimeException("No role found with the given name [" + updatedRole.getName() + "].");
-            }
-
-            updateRole(updatedRole, storedRole);
-
-            RoleUpdatedEvent event = new RoleUpdatedEvent(storedRole);
-            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-            getContext().getEventBridge().raiseEvent(event);
         }
-    }
 
-    @Override
-    public void remove(AttributedType identityType) {
-        Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) identityType.getClass();
-
-        if (IDMUtil.isUserType(identityTypeClass)) {
-            User user = (User) identityType;
-
-            if (user.getId() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            User storedUser = getUser(user.getId());
-
-            if (storedUser == null) {
-                throw new RuntimeException("User [" + user.getId() + "] doest not exists.");
-            }
-
-            removeUser(storedUser);
-            
-            UserDeletedEvent event = new UserDeletedEvent(storedUser);
-           // event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedUser);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            Group group = (Group) identityType;
-
-            if (group.getName() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Group storedGroup = getGroup(group.getName());
-
-            if (storedGroup == null) {
-                throw new RuntimeException("Group [" + group.getName() + "] doest not exists.");
-            }
-
-            removeGroup(storedGroup);
-            
-            GroupDeletedEvent event = new GroupDeletedEvent(storedGroup);
-            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedGroup);
-            getContext().getEventBridge().raiseEvent(event);
-        } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            Role role = (Role) identityType;
-            
-            if (role.getName() == null) {
-                throw new IdentityManagementException("No identifier was provided.");
-            }
-
-            Role storedRole = getRole(role.getName());
-
-            if (storedRole == null) {
-                throw new RuntimeException("Role [" + role.getName() + "] doest not exists.");
-            }
-
-            removeRole(storedRole);
-            
-            RoleDeletedEvent event = new RoleDeletedEvent(storedRole);
-            //event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, storedRole);
-            getContext().getEventBridge().raiseEvent(event);
-        }
     }
 
     @Override
     public Agent getAgent(String id) {
-        // TODO: need to handle pure Agent instances. For now let's only consider User instances.
+        // TODO: need to handle pure Agent instances. For now let's only
+        // consider User instances.
         return getUser(id);
     }
 
@@ -500,7 +524,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
                 if (identityQuery.getParameters().containsKey(IdentityType.ENABLED)) {
                     Object[] values = identityQuery.getParameters().get(IdentityType.ENABLED);
-                    String enabled = String.valueOf(customAttributes.getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED));
+                    String enabled = String.valueOf(customAttributes
+                            .getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED));
 
                     if (!enabled.equals(values[0].toString())) {
                         continue;
@@ -581,7 +606,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                     }
                 }
 
-                // let's restrict the result by looking the provided custom attributes.
+                // let's restrict the result by looking the provided custom
+                // attributes.
                 boolean match = true;
 
                 for (Entry<QueryParameter, Object[]> ldapQueryParameter : identityQuery.getParameters().entrySet()) {
@@ -644,14 +670,14 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
         return result;
     }
-    
+
     @Override
     public void validateCredentials(Credentials credentials) {
         CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
         if (handler == null) {
             throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
+                    "No suitable CredentialHandler available for validating Credentials of type ["
+                            + credentials.getClass() + "] for IdentityStore [" + this.getClass() + "]");
         }
         handler.validate(credentials, this);
     }
@@ -661,8 +687,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
         CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
         if (handler == null) {
             throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
+                    "No suitable CredentialHandler available for updating Credentials of type ["
+                            + credential.getClass() + "] for IdentityStore [" + this.getClass() + "]");
         }
         handler.update(agent, credential, this, effectiveDate, expiryDate);
     }
@@ -673,8 +699,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                 .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
 
         if (annotatedTypes.isEmpty()) {
-            throw new IdentityManagementException("Could not find any @Stored annotated method for CredentialStorage type ["
-                    + storage.getClass().getName() + "].");
+            throw new IdentityManagementException(
+                    "Could not find any @Stored annotated method for CredentialStorage type ["
+                            + storage.getClass().getName() + "].");
         } else {
             Property<Object> storedProperty = annotatedTypes.get(0);
             Object credential = storedProperty.getValue(storage);
@@ -687,9 +714,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
                 update(agent);
             } else {
-                throw new IdentityManagementException(
-                        "Credential storage property [" + storedProperty.getName() + "] in class [" + 
-                        storage.getClass().getName() + "] must implement Serializable");
+                throw new IdentityManagementException("Credential storage property [" + storedProperty.getName()
+                        + "] in class [" + storage.getClass().getName() + "] must implement Serializable");
             }
         }
     }
@@ -701,11 +727,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                 .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
 
         if (annotatedTypes.isEmpty()) {
-            throw new IdentityManagementException("Could not find any @Stored annotated method for CredentialStorage type ["
-                    + storageClass.getName() + "].");
+            throw new IdentityManagementException(
+                    "Could not find any @Stored annotated method for CredentialStorage type [" + storageClass.getName()
+                            + "].");
         } else {
             Property<Object> storedProperty = annotatedTypes.get(0);
-            org.picketlink.idm.model.Attribute<Serializable> credentialAttribute = agent.getAttribute(storageClass.getName());
+            org.picketlink.idm.model.Attribute<Serializable> credentialAttribute = agent.getAttribute(storageClass
+                    .getName());
 
             if (credentialAttribute != null) {
                 try {
@@ -825,8 +853,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
     /**
      * <p>
-     * Stores the given {@link LDAPEntry} instance in the LDAP tree. This method performs a bind for both {@link LDAPEntry}
-     * instance and its {@link LDAPCustomAttributes}.
+     * Stores the given {@link LDAPEntry} instance in the LDAP tree. This method
+     * performs a bind for both {@link LDAPEntry} instance and its
+     * {@link LDAPCustomAttributes}.
      * </p>
      * 
      * @param ldapEntry
@@ -848,8 +877,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
     /**
      * <p>
-     * Removes the given {@link LDAPEntry} entry from the LDAP tree. This method also remove the custom attribute entry for the
-     * given parent instance.
+     * Removes the given {@link LDAPEntry} entry from the LDAP tree. This method
+     * also remove the custom attribute entry for the given parent instance.
      * </p>
      * 
      * @param ldapEntry
@@ -913,7 +942,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                 Attribute storedAttribute = storedAttributes.next();
                 Attribute updatedAttribute = updatedEntryEntry.getLDAPAttributes().get(storedAttribute.getID());
 
-                // if the stored attribute exists in the updated attributes list, replace it. Otherwise remove it from the
+                // if the stored attribute exists in the updated attributes
+                // list, replace it. Otherwise remove it from the
                 // store.
                 if (updatedAttribute != null) {
                     getLdapManager().modifyAttribute(storedEntry.getDN(), updatedAttribute);
@@ -922,14 +952,16 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                 }
             }
 
-            NamingEnumeration<? extends Attribute> enumUpdatedAttributes = updatedEntryEntry.getLDAPAttributes().getAll();
+            NamingEnumeration<? extends Attribute> enumUpdatedAttributes = updatedEntryEntry.getLDAPAttributes()
+                    .getAll();
 
             // check for attributes to add
             while (enumUpdatedAttributes.hasMore()) {
                 Attribute updatedAttribute = enumUpdatedAttributes.next();
                 Attribute storedAttribute = storedEntry.getLDAPAttributes().get(updatedAttribute.getID());
 
-                // if the attribute is not stored and is a managed attribute add it to the store.
+                // if the attribute is not stored and is a managed attribute add
+                // it to the store.
                 if (storedAttribute == null && getLdapManager().isManagedAttribute(updatedAttribute.getID())) {
                     getLdapManager().addAttribute(storedEntry.getDN(), updatedAttribute);
                 }
@@ -939,13 +971,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
             getLdapManager().rebind(getCustomAttributesDN(updatedEntryEntry.getDN()), attributes);
         } catch (NamingException e) {
-            throw new IdentityManagementException("Error updating custom attributes for IdentityType [" + storedEntry + "].", e);
+            throw new IdentityManagementException("Error updating custom attributes for IdentityType [" + storedEntry
+                    + "].", e);
         }
     }
 
     /**
      * <p>
-     * Finds all parent entries where the specified {@link LDAPEntry} is configured as a member.
+     * Finds all parent entries where the specified {@link LDAPEntry} is
+     * configured as a member.
      * </p>
      * 
      * @param ldapUser
@@ -959,7 +993,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
     /**
      * <p>
-     * Remove from parent entries inside the given <code>dnSuffix</code> the specified {@link LDAPEntry}.
+     * Remove from parent entries inside the given <code>dnSuffix</code> the
+     * specified {@link LDAPEntry}.
      * </p>
      * 
      * @param dnSuffix
@@ -1132,7 +1167,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
         NamingEnumeration<SearchResult> results = null;
 
         try {
-            results = getLdapManager().search(this.configuration.getUserDNSuffix(), "(&(cn= " + group.getName() + "*))");
+            results = getLdapManager()
+                    .search(this.configuration.getUserDNSuffix(), "(&(cn= " + group.getName() + "*))");
 
             while (results.hasMoreElements()) {
                 SearchResult searchResult = (SearchResult) results.nextElement();
@@ -1164,8 +1200,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
     /**
      * <p>
-     * Returns a LDAP search filter that restricts the results to only those that match one of the membership query parameters,
-     * if provided.
+     * Returns a LDAP search filter that restricts the results to only those
+     * that match one of the membership query parameters, if provided.
      * </p>
      * 
      * @param identityQuery
@@ -1215,7 +1251,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                 additionalFilter.append(usersFilterMemberOf);
             }
 
-            // add to the filter only users with the specified group and role combination
+            // add to the filter only users with the specified group and role
+            // combination
             if (identityQuery.getParameters().containsKey(IdentityType.HAS_GROUP_ROLE)) {
                 Object[] groupRoles = identityQuery.getParameters().get(User.HAS_GROUP_ROLE);
 
@@ -1259,7 +1296,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                 }
             }
         } else if (IDMUtil.isRoleType(typeClass)) {
-            // add to the filter only the roles where the specified agents are member of
+            // add to the filter only the roles where the specified agents are
+            // member of
             if (identityQuery.getParameters().containsKey(Role.ROLE_OF)) {
                 Object[] values = identityQuery.getParameters().get(Role.ROLE_OF);
                 Agent[] agents = new Agent[values.length];
@@ -1278,7 +1316,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                 additionalFilter.append(filter);
             }
         } else if (IDMUtil.isGroupType(typeClass)) {
-            // add to the filter only the groups where the specified agents are member of
+            // add to the filter only the groups where the specified agents are
+            // member of
             if (identityQuery.getParameters().containsKey(Group.HAS_MEMBER)) {
                 Object[] values = identityQuery.getParameters().get(Group.HAS_MEMBER);
                 Agent[] agents = new Agent[values.length];
@@ -1341,7 +1380,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
         StringBuffer filter = ldapQuery.createManagedAttributesFilter();
 
         if (filter == null) {
-            filter = new StringBuffer("(&(objectClass=*)(" + getIdAttribute(typeClass) + "=*)(!(cn=custom-attributes)))");
+            filter = new StringBuffer("(&(objectClass=*)(" + getIdAttribute(typeClass)
+                    + "=*)(!(cn=custom-attributes)))");
         }
 
         filter.insert(filter.length() - 1, additionalFilter.toString());
@@ -1477,7 +1517,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
         return additionalFilter.toString();
     }
-    
+
     private IdentityManagementException createNotImplementedYetException() {
         return new IdentityManagementException("Not implemented yet.");
     }

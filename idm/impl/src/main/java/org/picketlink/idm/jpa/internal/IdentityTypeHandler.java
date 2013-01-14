@@ -35,7 +35,7 @@ import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.IdentityType.AttributeParameter;
+import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -111,6 +111,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         try {
             identity = getConfig().getIdentityClass().newInstance();
+            String id = store.getContext().getIdGenerator().generate();
+            getConfig().getModelProperty(PropertyType.IDENTITY_ID).setValue(identity, id);
+            fromIdentityType.setId(id);
             populateIdentityInstance(realm, identity, fromIdentityType, store);
         } catch (Exception e) {
             throw new IdentityManagementException("Error creating/populating Identity instance from IdentityType.", e);

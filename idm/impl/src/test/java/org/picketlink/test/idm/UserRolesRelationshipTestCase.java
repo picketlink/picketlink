@@ -123,7 +123,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         identityManager.revokeRole(user, someAnotherRole);
         identityManager.revokeRole(user, someImportantRole);
         
-        IdentityQuery<Role> query = identityManager.createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
         
         query.setParameter(Role.ROLE_OF, new Object[] {user});
         
@@ -135,7 +135,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         
         identityManager.grantRole(user, someRole);
         
-        query = identityManager.createQuery(Role.class);
+        query = identityManager.createIdentityQuery(Role.class);
         
         query.setParameter(Role.ROLE_OF, new Object[] {user});
         
@@ -148,7 +148,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         
         identityManager.grantRole(user, someAnotherRole);
 
-        query = identityManager.createQuery(Role.class);
+        query = identityManager.createIdentityQuery(Role.class);
         
         query.setParameter(Role.ROLE_OF, new Object[] {user});
         
@@ -161,7 +161,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
 
         identityManager.grantRole(user, someImportantRole);
         
-        query = identityManager.createQuery(Role.class);
+        query = identityManager.createIdentityQuery(Role.class);
         
         query.setParameter(Role.ROLE_OF, new Object[] {user});
         

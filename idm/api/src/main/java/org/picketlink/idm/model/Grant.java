@@ -1,6 +1,7 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.query.IdentityTypeQueryParameter;
 
 /**
  * Represents the grant of a Role to an Assignee 

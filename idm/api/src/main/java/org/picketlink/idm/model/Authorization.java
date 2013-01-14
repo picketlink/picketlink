@@ -1,7 +1,7 @@
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.model.Relationship.IdentityTypeQueryParameter;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.query.IdentityTypeQueryParameter;
 
 /**
  * Models an oAuth authorization

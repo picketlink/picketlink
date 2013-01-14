@@ -193,4 +193,5 @@ public class LDAPUser extends LDAPEntry implements User {
         
         return fullName;
     }
+
 }

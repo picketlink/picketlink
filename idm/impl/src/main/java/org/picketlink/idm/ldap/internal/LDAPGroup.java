@@ -114,4 +114,10 @@ public class LDAPGroup extends LDAPEntry implements Group {
         memberAttribute.add(getDN(childGroup.getName()));
     }
 
+    @Override
+    public void setId(String id) {
+        // TODO Auto-generated method stub
+        
+    }
+
 }

@@ -74,7 +74,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         identityManager.add(authorized);
         
         //Query the relationship
-        RelationshipQuery<Authorization> query = identityManager.createQuery(Authorization.class);
+        RelationshipQuery<Authorization> query = identityManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.USER, robert);
         query.setParameter(Authorization.APPLICATION, myOauthApp);
@@ -90,7 +90,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         assertNotNull(authorized.getApplication());
         assertNotNull(authorized.getAttribute("authorizationCode"));
         
-        query = identityManager.createQuery(Authorization.class);
+        query = identityManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.APPLICATION, myOauthApp);
         
@@ -101,7 +101,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         assertNotNull(authorized.getUser());
         assertNotNull(authorized.getApplication());
         
-        query = identityManager.createQuery(Authorization.class);
+        query = identityManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.USER, robert);
         
@@ -114,7 +114,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         
         User someUser = loadOrCreateUser("someUser", true);
         
-        query = identityManager.createQuery(Authorization.class);
+        query = identityManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.USER, someUser);
         query.setParameter(Authorization.APPLICATION, myOauthApp);
@@ -127,7 +127,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         // remove the relationship
         identityManager.remove(authorized);
         
-        query = identityManager.createQuery(Authorization.class);
+        query = identityManager.createRelationshipQuery(Authorization.class);
         
         query.setParameter(Authorization.USER, robert);
         query.setParameter(Authorization.APPLICATION, myOauthApp);
