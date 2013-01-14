@@ -9,5 +9,12 @@ import java.io.Serializable;
  * @author Shane Bryzak
  */
 public interface Partition extends Serializable {
+    
+    String getName();
+    
     String getKey();
+
+    String getId();
+    
+    void setId(String id);
 }

@@ -10,26 +10,38 @@ public class Tier implements Partition {
 
     private static final long serialVersionUID = 7797059334915537276L;
 
-    private static final String KEY_PREFIX = "TIER://";
+    public static final String KEY_PREFIX = "TIER://";
 
     private String id;
+    private String name;
     private String description;
     private Tier parent;
 
-    public Tier(String id, String description, Tier parent) {
-        if (id == null) {
-            throw new InstantiationError("Tier id must not be null");
+    public Tier(String name, String description, Tier parent) {
+        if (name == null) {
+            throw new InstantiationError("Tier name must not be null");
         }
 
-        this.id = id;
+        this.name = name;
         this.description = description;
         this.parent = parent;
     }
 
+    @Override
     public String getId() {
         return id;
     }
 
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getName() {
+        return this.name;
+    }
+    
     public String getDescription() {
         return description;
     }
@@ -40,7 +52,7 @@ public class Tier implements Partition {
 
     @Override
     public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, id);
+        return String.format("%s%s", KEY_PREFIX, name);
     }
 
     // TODO implement hashCode() and equals() methods

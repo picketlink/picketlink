@@ -27,6 +27,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
+import org.picketlink.idm.file.internal.FilePartitionStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -41,6 +42,7 @@ import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.GroupMembershipTestCase;
 import org.picketlink.test.idm.GroupQueryTestCase;
 import org.picketlink.test.idm.PasswordCredentialTestCase;
+import org.picketlink.test.idm.RealmManagementTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.RoleQueryTestCase;
 import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
@@ -59,7 +61,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ GroupMembershipTestCase.class, ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
+@SuiteClasses({ RealmManagementTestCase.class, GroupMembershipTestCase.class, ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
         GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
         UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
         AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
@@ -88,6 +90,8 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
             IdentityConfiguration config = new IdentityConfiguration();
 
             config.addStoreConfiguration(getConfiguration());
+            config.addStoreConfiguration(getConfiguration2());
+            config.addStoreConfiguration(new FilePartitionStoreConfiguration());
 
             this.identityManager = new DefaultIdentityManager();
 
@@ -104,6 +108,14 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     public static FileIdentityStoreConfiguration getConfiguration() {
         return new FileIdentityStoreConfiguration();
+    }
+    
+    public static FileIdentityStoreConfiguration getConfiguration2() {
+        FileIdentityStoreConfiguration config = new FileIdentityStoreConfiguration();
+        
+        config.setRealm("Testing");
+        
+        return config;
     }
 
 }

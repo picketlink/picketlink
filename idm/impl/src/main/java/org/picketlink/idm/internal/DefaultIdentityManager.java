@@ -77,6 +77,8 @@ public class DefaultIdentityManager implements IdentityManager {
     private StoreFactory storeFactory = new DefaultStoreFactory();
 
     private IdentityStoreInvocationContextFactory contextFactory;
+    
+    private ThreadLocal<Realm> currentRealm = new ThreadLocal<Realm>();
 
     private static Method METHOD_CREATE_CONTEXT;
     {
@@ -96,13 +98,16 @@ public class DefaultIdentityManager implements IdentityManager {
 
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        if (method.equals(METHOD_CREATE_CONTEXT)) {
-                            IdentityStoreInvocationContext ctx = proxied.createContext();
-                            ctx.setRealm(realm);
-                            return ctx;
-                        } else {
-                            return method.invoke(proxied, args);
-                        }
+//                        if (method.equals(METHOD_CREATE_CONTEXT)) {
+//                            IdentityStoreInvocationContext ctx = proxied.createContext();
+//                            ctx.setRealm(realm);
+//                            return ctx;
+//                        } else {
+                            currentRealm.set(realm);
+                            Object result = method.invoke(proxied, args);
+                            currentRealm.remove();
+                            return result;
+//                        }
                     }
                 });
     }
@@ -237,13 +242,17 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private IdentityStoreInvocationContext createContext() {
-        return getContextFactory().createContext();
+        IdentityStoreInvocationContext context = getContextFactory().createContext();
+        
+        context.setRealm(currentRealm.get());
+        
+        return context;
     }
 
     @Override
     public void add(IdentityType identityType) {
         Feature feature;
-
+        
         IdentityStoreInvocationContext ctx = createContext();
 
         if (User.class.isInstance(identityType)) {
@@ -561,32 +570,32 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void createRealm(Realm realm) {
-        storeFactory.createPartitionStore(partitionStoreConfig).createPartition(realm);
+        storeFactory.createPartitionStore(partitionStoreConfig, createContext()).createPartition(realm);
     }
 
     @Override
     public void removeRealm(Realm realm) {
-        storeFactory.createPartitionStore(partitionStoreConfig).removePartition(realm);
+        storeFactory.createPartitionStore(partitionStoreConfig, createContext()).removePartition(realm);
     }
 
     @Override
     public Realm getRealm(String name) {
-        return storeFactory.createPartitionStore(partitionStoreConfig).getRealm(name);
+        return storeFactory.createPartitionStore(partitionStoreConfig, createContext()).getRealm(name);
     }
 
     @Override
     public void createTier(Tier tier) {
-        storeFactory.createPartitionStore(partitionStoreConfig).createPartition(tier);
+        storeFactory.createPartitionStore(partitionStoreConfig, createContext()).createPartition(tier);
     }
 
     @Override
     public void removeTier(Tier tier) {
-        storeFactory.createPartitionStore(partitionStoreConfig).removePartition(tier);
+        storeFactory.createPartitionStore(partitionStoreConfig, createContext()).removePartition(tier);
     }
 
     @Override
     public Tier getTier(String id) {
-        return storeFactory.createPartitionStore(partitionStoreConfig).getTier(id);
+        return storeFactory.createPartitionStore(partitionStoreConfig, createContext()).getTier(id);
     }
 
     @Override

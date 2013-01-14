@@ -13,7 +13,8 @@ public class Realm implements Partition {
     public static final String DEFAULT_REALM = "default";
 
     public static final String KEY_PREFIX = "REALM://";
-
+    
+    private String id;
     private String name;
 
     public Realm(String name) {
@@ -23,6 +24,17 @@ public class Realm implements Partition {
         this.name = name;
     }
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
     public String getName() {
         return name;
     }

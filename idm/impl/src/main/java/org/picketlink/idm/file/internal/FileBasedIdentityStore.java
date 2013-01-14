@@ -22,8 +22,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -178,11 +176,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateRelationshipAttributes(relationship, fileRelationship);
 
-        List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(relationship.getClass().getName());
+        Map<String, List<FileRelationshipStorage>> relationshipsMap = getConfig().getRelationships(getContext());
+        List<FileRelationshipStorage> relationships = relationshipsMap.get(relationship.getClass().getName());
 
-        if (!getConfig().getRelationships().containsKey(relationship.getClass().getName())) {
+        if (!relationshipsMap.containsKey(relationship.getClass().getName())) {
             relationships = new ArrayList<FileRelationshipStorage>();
-            getConfig().getRelationships().put(relationship.getClass().getName(), relationships);
+            relationshipsMap.put(relationship.getClass().getName(), relationships);
         }
 
         relationships.add(fileRelationship);
@@ -244,7 +243,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(
+            List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(
                     attributedType.getClass().getName());
 
             for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
@@ -360,7 +359,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(attributedTypeClass.getName());
+            List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(attributedTypeClass.getName());
 
             for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
                 if (storedRelationship.getId().equals(relationship.getId())) {
@@ -383,7 +382,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(role, fileRole);
 
-        getConfig().getRoles().put(fileRole.getName(), fileRole);
+        getConfig().getRoles(getContext()).put(fileRole.getName(), fileRole);
         flushRoles();
 
         return fileRole;
@@ -400,7 +399,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(group, fileGroup);
 
-        getConfig().getGroups().put(fileGroup.getName(), fileGroup);
+        getConfig().getGroups(getContext()).put(fileGroup.getName(), fileGroup);
         flushGroups();
 
         return fileGroup;
@@ -415,7 +414,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(user, storedUser);
 
-        getConfig().getAgents().put(storedUser.getLoginName(), storedUser);
+        getConfig().getAgents(getContext()).put(storedUser.getLoginName(), storedUser);
         flushAgents();
 
         return storedUser;
@@ -426,7 +425,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(user, storedAgent);
 
-        getConfig().getAgents().put(storedAgent.getLoginName(), storedAgent);
+        getConfig().getAgents(getContext()).put(storedAgent.getLoginName(), storedAgent);
         flushAgents();
 
         return storedAgent;
@@ -437,7 +436,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedRole, storedRole);
         }
 
-        getConfig().getRoles().put(storedRole.getName(), storedRole);
+        getConfig().getRoles(getContext()).put(storedRole.getName(), storedRole);
         flushRoles();
 
         return storedRole;
@@ -448,7 +447,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedGroup, storedGroup);
         }
 
-        getConfig().getGroups().put(storedGroup.getName(), storedGroup);
+        getConfig().getGroups(getContext()).put(storedGroup.getName(), storedGroup);
         flushGroups();
 
         return storedGroup;
@@ -463,7 +462,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedUser, storedUser);
         }
 
-        getConfig().getAgents().put(storedUser.getLoginName(), storedUser);
+        getConfig().getAgents(getContext()).put(storedUser.getLoginName(), storedUser);
         flushAgents();
 
         return updatedUser;
@@ -474,14 +473,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedAgent, storedAgent);
         }
 
-        getConfig().getAgents().put(storedAgent.getLoginName(), storedAgent);
+        getConfig().getAgents(getContext()).put(storedAgent.getLoginName(), storedAgent);
         flushAgents();
 
         return updatedAgent;
     }
 
     private Role removeRole(Role role) {
-        getConfig().getRoles().remove(role.getName());
+        getConfig().getRoles(getContext()).remove(role.getName());
 
         removeRelationships(role);
 
@@ -492,7 +491,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private void removeRelationships(AttributedType role) {
-        Set<Entry<String, List<FileRelationshipStorage>>> entrySet = getConfig().getRelationships().entrySet();
+        Set<Entry<String, List<FileRelationshipStorage>>> entrySet = getConfig().getRelationships(getContext()).entrySet();
 
         for (Entry<String, List<FileRelationshipStorage>> entry : entrySet) {
             List<FileRelationshipStorage> relationships = entry.getValue();
@@ -512,7 +511,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Group removeGroup(Group group) {
-        getConfig().getGroups().remove(group.getName());
+        getConfig().getGroups(getContext()).remove(group.getName());
 
         removeRelationships(group);
 
@@ -523,7 +522,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private User removeUser(User user) {
-        getConfig().getAgents().remove(user.getLoginName());
+        getConfig().getAgents(getContext()).remove(user.getLoginName());
 
         removeRelationships(user);
 
@@ -534,7 +533,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Agent removeAgent(Agent agent) {
-        getConfig().getAgents().remove(agent.getLoginName());
+        getConfig().getAgents(getContext()).remove(agent.getLoginName());
 
         removeRelationships(agent);
 
@@ -546,7 +545,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Agent getAgent(String loginName) {
-        return getConfig().getAgents().get(loginName);
+        return getConfig().getAgents(getContext()).get(loginName);
     }
 
     @Override
@@ -562,12 +561,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Role getRole(String role) {
-        return getConfig().getRoles().get(role);
+        return getConfig().getRoles(getContext()).get(role);
     }
 
     @Override
     public Group getGroup(String groupId) {
-        return getConfig().getGroups().get(groupId);
+        return getConfig().getGroups(getContext()).get(groupId);
     }
 
     @Override
@@ -590,13 +589,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Set<?> entries = null;
 
         if (IDMUtil.isUserType(identityTypeClass)) {
-            entries = getConfig().getAgents().entrySet();
+            entries = getConfig().getAgents(getContext()).entrySet();
         } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            entries = getConfig().getRoles().entrySet();
+            entries = getConfig().getRoles(getContext()).entrySet();
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            entries = getConfig().getGroups().entrySet();
+            entries = getConfig().getGroups(getContext()).entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
-            entries = getConfig().getAgents().entrySet();
+            entries = getConfig().getAgents(getContext()).entrySet();
         }
 
         List<T> result = new ArrayList<T>();
@@ -791,7 +790,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (values != null) {
                 Role currentRole = (Role) storedEntry;
 
-                List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(Grant.class.getName());
+                List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(Grant.class.getName());
 
                 if (relationships == null) {
                     result.remove(storedEntry);
@@ -825,7 +824,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (values != null) {
                 Group currentGroup = (Group) storedEntry;
 
-                List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(
+                List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(
                         GroupMembership.class.getName());
 
                 if (relationships == null) {
@@ -1039,7 +1038,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public void storeCredential(Agent agent, CredentialStorage storage) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getLoginName());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -1072,14 +1071,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         credentials.add(credential);
         agentCredentials.put(storage.getClass().getName(), credentials);
-        getConfig().getCredentials().put(agent.getLoginName(), agentCredentials);
+        getConfig().getCredentials(getContext()).put(agent.getLoginName(), agentCredentials);
 
         flushCredentials();
     }
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getLoginName());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -1155,7 +1154,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
         ArrayList<T> storedCredentials = new ArrayList<T>();
 
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials().get(agent.getLoginName());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -1195,21 +1194,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private IdentityManagementException createNotImplementedYetException() {
         return new IdentityManagementException("Not implemented yet.");
     }
-
+    
     /**
      * <p>
      * Flush all changes made to agents to the filesystem.
      * </p>
      */
     synchronized void flushAgents() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getAgentsFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getAgents());
-            oos.close();
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
-        }
+        getConfig().flushAgents(getContext().getRealm());
     }
 
     /**
@@ -1218,14 +1210,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     synchronized void flushRoles() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getRolesFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getRoles());
-            oos.close();
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
-        }
+        getConfig().flushRoles(getContext().getRealm());
     }
 
     /**
@@ -1234,14 +1219,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     synchronized void flushGroups() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getGroupsFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getGroups());
-            oos.close();
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
-        }
+        getConfig().flushGroups(getContext().getRealm());
     }
 
     /**
@@ -1250,14 +1228,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     synchronized void flushRelationships() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getMembershipsFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getRelationships());
-            oos.close();
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
-        }
+        getConfig().flushRelationships(getContext().getRealm());
     }
 
     /**
@@ -1266,14 +1237,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     synchronized void flushCredentials() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getCredentialsFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getCredentials());
-            oos.close();
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error flushing agent changes to file system.", e);
-        }
+        getConfig().flushCredentials(getContext().getRealm());
     }
 
     @Override
@@ -1281,7 +1245,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<T> result = new ArrayList<T>();
 
         Class<T> relationshipType = query.getRelationshipType();
-        List<FileRelationshipStorage> relationships = getConfig().getRelationships().get(relationshipType.getName());
+        List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(relationshipType.getName());
 
         if (relationships == null) {
             return result;
@@ -1404,4 +1368,5 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private String generateUUID() {
         return getContext().getIdGenerator().generate();
     }
+
 }
