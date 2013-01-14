@@ -56,7 +56,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByName() throws Exception {
-        loadOrCreateRole("admin", true);
+        createRole("admin");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -81,8 +81,8 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindEnabledAndDisabledRoles() throws Exception {
-        Role someRole = loadOrCreateRole("someRole", true);
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
+        Role someRole = createRole("someRole");
+        Role someAnotherRole = createRole("someAnotherRole");
 
         someRole.setEnabled(true);
         someAnotherRole.setEnabled(true);
@@ -152,7 +152,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindCreationDate() throws Exception {
-        Role role = loadOrCreateRole("someRole", false);
+        Role role = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -188,7 +188,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindExpiryDate() throws Exception {
-        Role role = loadOrCreateRole("someRole", true);
+        Role role = createRole("someRole");
 
         Date expirationDate = new Date();
 
@@ -236,8 +236,8 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenCreationDate() throws Exception {
-        Role someRole = loadOrCreateRole("someRole", true);
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
+        Role someRole = createRole("someRole");
+        Role someAnotherRole = createRole("someAnotherRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -262,8 +262,8 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Role> createIdentityQuery(Role.class);
 
-        Role someFutureRole = loadOrCreateRole("someFutureRole", true);
-        Role someAnotherFutureRole = loadOrCreateRole("someAnotherFutureRole", true);
+        Role someFutureRole = createRole("someFutureRole");
+        Role someAnotherFutureRole = createRole("someAnotherFutureRole");
 
         // roles created after the given time
         query.setParameter(Role.CREATED_AFTER, calendar.getTime());
@@ -317,7 +317,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindUsingMultipleParameters() throws Exception {
-        Role role = loadOrCreateRole("admin", true);
+        Role role = createRole("admin");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -357,7 +357,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenExpirationDate() throws Exception {
-        Role someRole = loadOrCreateRole("someRole", true);
+        Role someRole = createRole("someRole");
 
         someRole.setExpirationDate(new Date());
 
@@ -365,7 +365,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someRole);
 
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
+        Role someAnotherRole = createRole("someAnotherRole");
 
         someAnotherRole.setExpirationDate(new Date());
 
@@ -385,13 +385,13 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         Thread.sleep(1000);
 
-        Role someFutureRole = loadOrCreateRole("someFutureRole", true);
+        Role someFutureRole = createRole("someFutureRole");
 
         someFutureRole.setExpirationDate(new Date());
 
         identityManager.update(someFutureRole);
 
-        Role someAnotherFutureRole = loadOrCreateRole("someAnotherFutureRole", true);
+        Role someAnotherFutureRole = createRole("someAnotherFutureRole");
 
         someAnotherFutureRole.setExpirationDate(new Date());
 
@@ -455,7 +455,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByRoleDefinedAttributes() throws Exception {
-        Role someRole = loadOrCreateRole("someRole", true);
+        Role someRole = createRole("someRole");
 
         someRole.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
 
@@ -508,7 +508,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByRoleDefinedMultiValuedAttributes() throws Exception {
-        Role someRole = loadOrCreateRole("someRole", true);
+        Role someRole = createRole("someRole");
 
         someRole.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
                 "someAttributeValue2" }));

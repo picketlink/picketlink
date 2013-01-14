@@ -35,9 +35,9 @@ import org.picketlink.idm.model.User;
  * <p>
  * Base class for test cases using a specific {@link IdentityManager} instance.
  * </p>
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 public class AbstractIdentityManagerTestCase {
 
@@ -51,102 +51,64 @@ public class AbstractIdentityManagerTestCase {
         this.identityManager = identityManager;
     }
 
-    /**
-     * <p>
-     * Loads or creates a new {@link Group} instance depending on the <code>alwaysCreate</code> argument value. If this argument
-     * is true and the provided {@link User} exists it will be re-created (remove/add). Otherwise the stored instance is always
-     * returned.
-     * </p>
-     *
-     * @param userName
-     * @param alwaysCreate
-     * @return
-     */
-    protected User loadOrCreateUser(String userName, boolean alwaysCreate) {
+    protected User createUser(String userName) {
         User user = getIdentityManager().getUser(userName);
 
-        if (user != null && alwaysCreate) {
+        if (user != null) {
             getIdentityManager().remove(user);
-            user = null;
         }
 
-        if (user == null) {
-            user = new SimpleUser(userName);
-            getIdentityManager().add(user);
-        }
+        user = new SimpleUser(userName);
+        getIdentityManager().add(user);
 
+        return user;
+    }
+
+    protected User getUser(String userName) {
         return getIdentityManager().getUser(userName);
     }
-    
-    /**
-     * <p>
-     * Loads or creates a new {@link Group} instance depending on the <code>alwaysCreate</code> argument value. If this argument
-     * is true and the provided {@link User} exists it will be re-created (remove/add). Otherwise the stored instance is always
-     * returned.
-     * </p>
-     *
-     * @param id
-     * @param alwaysCreate
-     * @return
-     */
-    protected Agent loadOrCreateAgent(String id, boolean alwaysCreate) {
-        Agent agent = getIdentityManager().getAgent(id);
 
-        if (agent != null && alwaysCreate) {
+    protected Agent createAgent(String loginName) {
+        Agent agent = getIdentityManager().getAgent(loginName);
+
+        if (agent != null) {
             getIdentityManager().remove(agent);
             agent = null;
         }
 
-        if (agent == null) {
-            agent = new SimpleAgent(id);
-            getIdentityManager().add(agent);
-        }
+        agent = new SimpleAgent(loginName);
 
-        return getIdentityManager().getAgent(id);
+        getIdentityManager().add(agent);
+
+        return agent;
     }
 
-    /**
-     * <p>
-     * Loads or creates a new {@link Role} instance depending on the <code>alwaysCreate</code> argument value. If this argument
-     * is true and the provided {@link Role} exists it will be re-created (remove/add). Otherwise the stored instance is always
-     * returned.
-     * </p>
-     *
-     * @param userName
-     * @param alwaysCreate
-     * @return
-     */
-    protected Role loadOrCreateRole(String name, boolean alwaysCreate) {
+    protected Agent getAgent(String loginName) {
+        return getIdentityManager().getAgent(loginName);
+    }
+
+    protected Role createRole(String name) {
         Role role = getIdentityManager().getRole(name);
 
-        if (role != null && alwaysCreate) {
+        if (role != null) {
             getIdentityManager().remove(role);
             role = null;
         }
 
-        if (role == null) {
-            role = new SimpleRole(name);
-            getIdentityManager().add(role);
-        }
+        role = new SimpleRole(name);
+        getIdentityManager().add(role);
 
+        return role;
+    }
+    
+    protected Role getRole(String name) {
         return getIdentityManager().getRole(name);
     }
 
-    /**
-     * <p>
-     * Loads or creates a new {@link Group} instance depending on the <code>alwaysCreate</code> argument value. If this argument
-     * is true and the provided {@link Group} exists it will be re-created (remove/add). Otherwise the stored instance is always
-     * returned.
-     * </p>
-     *
-     * @param userName
-     * @param alwaysCreate
-     * @return
-     */
-    protected Group loadOrCreateGroup(String name, String parentGroupName, boolean alwaysCreate) {
+    protected Group createGroup(String name, String parentGroupName) {
         Group parentGroup = getIdentityManager().getGroup(parentGroupName);
 
-        if (parentGroup != null && parentGroupName != null && alwaysCreate) {
+        if (parentGroup != null && parentGroupName != null) {
             getIdentityManager().remove(parentGroup);
             parentGroup = null;
         }
@@ -158,7 +120,7 @@ public class AbstractIdentityManagerTestCase {
 
         Group group = getIdentityManager().getGroup(name);
 
-        if (group != null && alwaysCreate) {
+        if (group != null) {
             getIdentityManager().remove(group);
             group = null;
         }
@@ -172,7 +134,11 @@ public class AbstractIdentityManagerTestCase {
 
             getIdentityManager().add(group);
         }
-
+        
+        return group;
+    }
+    
+    protected Group getGroup(String name) {
         return getIdentityManager().getGroup(name);
     }
 

@@ -50,15 +50,15 @@ public class AgentGroupRoleRelationshipTestCase extends AbstractIdentityManagerT
      */
     @Test
     public void testGrantGroupRole() throws Exception {
-        Agent developerAgent = loadOrCreateAgent("developerAgent", true);
-        Agent projectManagerAgent = loadOrCreateAgent("projectManagerAgent", true);
+        Agent developerAgent = createAgent("developerAgent");
+        Agent projectManagerAgent = createAgent("projectManagerAgent");
 
-        Role managerRole = loadOrCreateRole("Manager", true);
-        Role developerRole = loadOrCreateRole("Developer", true);
-        Role employeeRole = loadOrCreateRole("Employee", true);
+        Role managerRole = createRole("Manager");
+        Role developerRole = createRole("Developer");
+        Role employeeRole = createRole("Employee");
 
-        Group companyGroup = loadOrCreateGroup("Company Group", null, true);
-        Group projectGroup = loadOrCreateGroup("Project Group", null, true);
+        Group companyGroup = createGroup("Company Group", null);
+        Group projectGroup = createGroup("Project Group", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -93,13 +93,13 @@ public class AgentGroupRoleRelationshipTestCase extends AbstractIdentityManagerT
      */
     @Test
     public void testRevokeGroupRole() throws Exception {
-        Agent developerAgent = loadOrCreateAgent("developerAgent", true);
+        Agent developerAgent = createAgent("developerAgent");
 
-        Role developerRole = loadOrCreateRole("Developer", true);
-        Role employeeRole = loadOrCreateRole("Employee", true);
+        Role developerRole = createRole("Developer");
+        Role employeeRole = createRole("Employee");
 
-        Group companyGroup = loadOrCreateGroup("Company Group", null, true);
-        Group projectGroup = loadOrCreateGroup("Project Group", null, true);
+        Group companyGroup = createGroup("Company Group", null);
+        Group projectGroup = createGroup("Project Group", null);
 
         IdentityManager identityManager = getIdentityManager();
 

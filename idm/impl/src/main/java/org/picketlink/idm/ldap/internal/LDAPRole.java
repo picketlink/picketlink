@@ -111,4 +111,5 @@ public class LDAPRole extends LDAPEntry implements Role {
         // TODO Auto-generated method stub
         
     }
+    
 }

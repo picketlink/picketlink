@@ -25,7 +25,7 @@ public interface StoreFactory {
      * @param config
      * @return
      */
-    PartitionStore createPartitionStore(PartitionStoreConfiguration config);
+    PartitionStore createPartitionStore(PartitionStoreConfiguration config, IdentityStoreInvocationContext context);
 
     /**
      * Maps specific implementations of IdentityStoreConfiguration to a corresponding

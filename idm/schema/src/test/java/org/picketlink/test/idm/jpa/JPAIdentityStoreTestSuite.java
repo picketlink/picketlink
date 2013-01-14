@@ -55,7 +55,6 @@ import org.picketlink.test.idm.PasswordCredentialTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.RoleQueryTestCase;
 import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.UserGroupsRelationshipTestCase;
 import org.picketlink.test.idm.UserManagementTestCase;
 import org.picketlink.test.idm.UserQueryTestCase;
 import org.picketlink.test.idm.UserRolesRelationshipTestCase;
@@ -72,7 +71,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  */
 @RunWith(IdentityManagerRunner.class)
 @SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
-        UserGroupsRelationshipTestCase.class, UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
         RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class, AgentManagementTestCase.class,
         AgentQueryTestCase.class, AgentGroupsRelationshipTestCase.class, AgentRolesRelationshipTestCase.class,
         AgentGroupRoleRelationshipTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class, ApplicationUserRelationshipTestCase.class })

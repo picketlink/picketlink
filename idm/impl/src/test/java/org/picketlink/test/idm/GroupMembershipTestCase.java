@@ -131,8 +131,8 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testAddUserToGroup() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        User someUser = createUser("someUser");
+        Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -140,7 +140,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(identityManager.isMember(someUser, someGroup));
 
-        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
+        Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
         assertFalse(identityManager.isMember(someUser, someAnotherGroup));
 
@@ -158,9 +158,9 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testRemoveUserFromGroup() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
-        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
+        User someUser = createUser("someUser");
+        Group someGroup = createGroup("someGroup", null);
+        Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -254,11 +254,11 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindUserGroups() throws Exception {
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
-        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
-        Group someImportantGroup = loadOrCreateGroup("someImportantGroup", null, true);
+        Group someGroup = createGroup("someGroup", null);
+        Group someAnotherGroup = createGroup("someAnotherGroup", null);
+        Group someImportantGroup = createGroup("someImportantGroup", null);
 
-        User user = loadOrCreateUser("someUser", true);
+        User user = createUser("someUser");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -317,11 +317,11 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
     }
 
     private Group getGroup() {
-        return loadOrCreateGroup("someGroup", null, true);
+        return createGroup("someGroup", null);
     }
 
     private User getUser() {
-        return loadOrCreateUser("someUser", true);
+        return createUser("someUser");
     }
 
     private List<GroupMembership> getGroupMembership(User someUser, Group someGroup) {

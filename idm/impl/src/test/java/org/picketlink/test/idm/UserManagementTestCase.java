@@ -53,7 +53,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      */
     @Test
     public void testCreate() throws Exception {
-        User newUserInstance = loadOrCreateUser("jduke", true);
+        User newUserInstance = createUser("jduke");
 
         newUserInstance.setEmail("jduke@jboss.org");
         newUserInstance.setFirstName("Java");
@@ -85,9 +85,15 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      */
     @Test
     public void testGet() throws Exception {
-        User storedUserInstance = getIdentityType(true);
-
         IdentityManager identityManager = getIdentityManager();
+        
+        User storedUserInstance = createUser("admin");
+        
+        storedUserInstance.setEmail("admin@jboss.org");
+        storedUserInstance.setFirstName("The");
+        storedUserInstance.setLastName("Administrator");
+
+        identityManager.update(storedUserInstance);
 
         storedUserInstance = identityManager.getUser(storedUserInstance.getLoginName());
 
@@ -108,10 +114,18 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      */
     @Test
     public void testUpdate() throws Exception {
-        User storedUserInstance = getIdentityType(true);
+        IdentityManager identityManager = getIdentityManager();
+        
+        User storedUserInstance = createUser("admin");
+        
+        storedUserInstance.setEmail("admin@jboss.org");
+        storedUserInstance.setFirstName("The");
+        storedUserInstance.setLastName("Administrator");
 
-        assertNotNull(storedUserInstance);
-
+        identityManager.update(storedUserInstance);
+        
+        storedUserInstance = identityManager.getUser(storedUserInstance.getLoginName());
+        
         assertEquals("admin", storedUserInstance.getLoginName());
         assertEquals("The", storedUserInstance.getFirstName());
         assertEquals("Administrator", storedUserInstance.getLastName());
@@ -121,8 +135,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         storedUserInstance.setFirstName("Updated " + storedUserInstance.getFirstName());
         storedUserInstance.setLastName("Updated " + storedUserInstance.getLastName());
         storedUserInstance.setEmail("Updated " + storedUserInstance.getEmail());
-
-        IdentityManager identityManager = getIdentityManager();
 
         identityManager.update(storedUserInstance);
 
@@ -146,8 +158,8 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        User someUser = getIdentityType(true);
-        User anotherUser = loadOrCreateUser("someAnotherUser", true);
+        User someUser = createUser("admin");
+        User anotherUser = createUser("someAnotherUser");
 
         assertNotNull(someUser);
         assertNotNull(anotherUser);
@@ -164,21 +176,13 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
 
     @Override
-    protected void updateIdentityType(User identityTypeInstance) {
-        getIdentityManager().update(identityTypeInstance);
+    protected User createIdentityType() {
+        return createUser("admin");
     }
 
     @Override
-    protected User getIdentityType(boolean alwaysCreate) {
-        User user = loadOrCreateUser("admin", alwaysCreate);
-
-        user.setEmail("admin@jboss.org");
-        user.setFirstName("The");
-        user.setLastName("Administrator");
-
-        getIdentityManager().update(user);
-
-        return user;
+    protected User getIdentityType() {
+        return getIdentityManager().getUser("admin");
     }
 
 }

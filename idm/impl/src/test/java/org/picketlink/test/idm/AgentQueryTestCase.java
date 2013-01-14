@@ -58,7 +58,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByLoginName() throws Exception {
-        loadOrCreateAgent("someAgent", true);
+        createAgent("someAgent");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -83,9 +83,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBySingleGroupRole() throws Exception {
-        Agent user = loadOrCreateAgent("someAgent", true);
-        Group salesGroup = loadOrCreateGroup("Sales", null, true);
-        Role managerRole = loadOrCreateRole("Manager", true);
+        Agent user = createAgent("someAgent");
+        Group salesGroup = createGroup("Sales", null);
+        Role managerRole = createRole("Manager");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -118,8 +118,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBySingleGroup() throws Exception {
-        Agent user = loadOrCreateAgent("admin", true);
-        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
+        Agent user = createAgent("admin");
+        Group administratorGroup = createGroup("Administrators", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -152,8 +152,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBySingleRole() throws Exception {
-        Agent user = loadOrCreateAgent("admin", true);
-        Role administratorRole = loadOrCreateRole("Administrators", true);
+        Agent user = createAgent("admin");
+        Role administratorRole = createRole("Administrators");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -186,9 +186,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByMultipleGroups() throws Exception {
-        Agent user = loadOrCreateAgent("admin", true);
-        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        Agent user = createAgent("admin");
+        Group administratorGroup = createGroup("Administrators", null);
+        Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -233,9 +233,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByMultipleRoles() throws Exception {
-        Agent user = loadOrCreateAgent("admin", true);
-        Role administratorRole = loadOrCreateRole("Administrators", true);
-        Role someRole = loadOrCreateRole("someRole", true);
+        Agent user = createAgent("admin");
+        Role administratorRole = createRole("Administrators");
+        Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -280,11 +280,11 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByMultipleAgentWithGroups() throws Exception {
-        Agent adminAgent = loadOrCreateAgent("admin", true);
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
+        Agent adminAgent = createAgent("admin");
+        Agent someAgent = createAgent("someAgent");
 
-        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        Group administratorGroup = createGroup("Administrators", null);
+        Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -324,11 +324,11 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByMultipleAgentWithRoles() throws Exception {
-        Agent adminAgent = loadOrCreateAgent("admin", true);
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
+        Agent adminAgent = createAgent("admin");
+        Agent someAgent = createAgent("someAgent");
 
-        Role administratorRole = loadOrCreateRole("Administrators", true);
-        Role someRole = loadOrCreateRole("someRole", true);
+        Role administratorRole = createRole("Administrators");
+        Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -367,8 +367,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindEnabledAndDisabledAgents() throws Exception {
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
-        Agent someAnotherAgent = loadOrCreateAgent("someAnotherAgent", true);
+        Agent someAgent = createAgent("someAgent");
+        Agent someAnotherAgent = createAgent("someAnotherAgent");
 
         someAgent.setEnabled(true);
         someAnotherAgent.setEnabled(true);
@@ -439,7 +439,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindCreationDate() throws Exception {
-        Agent user = loadOrCreateAgent("someAgent", true);
+        Agent user = createAgent("someAgent");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -477,7 +477,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindExpiryDate() throws Exception {
-        Agent user = loadOrCreateAgent("someAgent", true);
+        Agent user = createAgent("someAgent");
 
         Date expirationDate = new Date();
 
@@ -525,8 +525,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenCreationDate() throws Exception {
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
-        Agent someAnotherAgent = loadOrCreateAgent("someAnotherAgent", true);
+        Agent someAgent = createAgent("someAgent");
+        Agent someAnotherAgent = createAgent("someAnotherAgent");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -549,8 +549,8 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Agent> createIdentityQuery(Agent.class);
 
-        Agent someFutureAgent = loadOrCreateAgent("someFutureAgent", true);
-        Agent someAnotherFutureAgent = loadOrCreateAgent("someAnotherFutureAgent", true);
+        Agent someFutureAgent = createAgent("someFutureAgent");
+        Agent someAnotherFutureAgent = createAgent("someAnotherFutureAgent");
 
         // users created after the given time
         query.setParameter(Agent.CREATED_AFTER, calendar.getTime());
@@ -600,7 +600,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindUsingMultipleParameters() throws Exception {
-        Agent user = loadOrCreateAgent("admin", true);
+        Agent user = createAgent("admin");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -659,7 +659,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenExpirationDate() throws Exception {
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
+        Agent someAgent = createAgent("someAgent");
 
         Date currentDate = new Date();
         
@@ -669,7 +669,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someAgent);
 
-        Agent someAnotherAgent = loadOrCreateAgent("someAnotherAgent", true);
+        Agent someAnotherAgent = createAgent("someAnotherAgent");
 
         someAnotherAgent.setExpirationDate(currentDate);
 
@@ -687,13 +687,13 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(Agent.EXPIRY_AFTER, expiryDate);
         query.setParameter(Agent.EXPIRY_BEFORE, currentDate);
 
-        Agent someFutureAgent = loadOrCreateAgent("someFutureAgent", true);
+        Agent someFutureAgent = createAgent("someFutureAgent");
 
         someFutureAgent.setExpirationDate(new Date());
 
         identityManager.update(someFutureAgent);
 
-        Agent someAnotherFutureAgent = loadOrCreateAgent("someAnotherFutureAgent", true);
+        Agent someAnotherFutureAgent = createAgent("someAnotherFutureAgent");
 
         someAnotherFutureAgent.setExpirationDate(new Date());
 
@@ -758,7 +758,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByAgentDefinedAttributes() throws Exception {
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
+        Agent someAgent = createAgent("someAgent");
 
         someAgent.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
 
@@ -811,7 +811,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByAgentDefinedMultiValuedAttributes() throws Exception {
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
+        Agent someAgent = createAgent("someAgent");
 
         someAgent.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
                 "someAttributeValue2" }));

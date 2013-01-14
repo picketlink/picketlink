@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.junit.Test;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 
@@ -52,30 +53,32 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      */
     @Test
     public void testDisable() throws Exception {
-        T enabledIdentityTypeInstance = getIdentityType(true);
+        T enabledIdentityTypeInstance = createIdentityType();
 
         assertTrue(enabledIdentityTypeInstance.isEnabled());
 
         enabledIdentityTypeInstance.setEnabled(false);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(enabledIdentityTypeInstance);
 
-        updateIdentityType(enabledIdentityTypeInstance);
-
-        T disabledIdentityTypeInstance = getIdentityType(false);
+        T disabledIdentityTypeInstance = getIdentityType();
 
         assertFalse(disabledIdentityTypeInstance.isEnabled());
 
         disabledIdentityTypeInstance.setEnabled(true);
 
-        updateIdentityType(disabledIdentityTypeInstance);
+        identityManager.update(disabledIdentityTypeInstance);
 
-        enabledIdentityTypeInstance = getIdentityType(false);
+        enabledIdentityTypeInstance = getIdentityType();
 
         assertTrue(enabledIdentityTypeInstance.isEnabled());
     }
-
-    protected abstract void updateIdentityType(T identityTypeInstance);
-
-    protected abstract T getIdentityType(boolean alwaysCreate);
+    
+    protected abstract T createIdentityType();
+    
+    protected abstract T getIdentityType();
 
     /**
      * <p>
@@ -86,15 +89,17 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      */
     @Test
     public void testExpiration() throws Exception {
-        T validIdentityTypeInstance = getIdentityType(true);
+        T validIdentityTypeInstance = createIdentityType();
 
         Date expirationDate = new Date();
 
         validIdentityTypeInstance.setExpirationDate(expirationDate);
 
-        updateIdentityType(validIdentityTypeInstance);
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(validIdentityTypeInstance);
 
-        T expiredIdentityTypeInstance = getIdentityType(false);
+        T expiredIdentityTypeInstance = getIdentityType();
         
         Thread.sleep(500);
         
@@ -112,13 +117,15 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      */
     @Test
     public void testSetOneValuedAttribute() throws Exception {
-        T storedIdentityTypeInstance = getIdentityType(true);
+        T storedIdentityTypeInstance = createIdentityType();
 
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("one-valued", "1"));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(storedIdentityTypeInstance);
 
-        updateIdentityType(storedIdentityTypeInstance);
-
-        T updatedIdentityTypeInstance = getIdentityType(false);
+        T updatedIdentityTypeInstance = getIdentityType();
 
         Attribute<String> oneValuedAttribute = updatedIdentityTypeInstance.getAttribute("one-valued");
 
@@ -135,13 +142,15 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      */
     @Test
     public void testSetMultiValuedAttribute() throws Exception {
-        T storedIdentityTypeInstance = getIdentityType(true);
+        T storedIdentityTypeInstance = createIdentityType();
 
         storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(storedIdentityTypeInstance);
 
-        updateIdentityType(storedIdentityTypeInstance);
-
-        T updatedIdentityTypeInstance = getIdentityType(false);
+        T updatedIdentityTypeInstance = getIdentityType();
 
         Attribute<String[]> multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
@@ -159,7 +168,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      */
     @Test
     public void testSetMultipleAttributes() throws Exception {
-        T storedIdentityTypeInstance = getIdentityType(true);
+        T storedIdentityTypeInstance = createIdentityType();
 
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("QuestionTotal", "2"));
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
@@ -167,10 +176,12 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
 
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(storedIdentityTypeInstance);
 
-        updateIdentityType(storedIdentityTypeInstance);
-
-        T updatedIdentityTypeInstance = getIdentityType(false);
+        T updatedIdentityTypeInstance = getIdentityType();
 
         assertEquals("2", updatedIdentityTypeInstance.<String> getAttribute("QuestionTotal").getValue());
         assertEquals("What is favorite toy?", updatedIdentityTypeInstance.<String> getAttribute("Question1").getValue());
@@ -188,7 +199,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      */
     @Test
     public void testGetAllAttributes() throws Exception {
-        T storedIdentityTypeInstance = getIdentityType(true);
+        T storedIdentityTypeInstance = createIdentityType();
 
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("QuestionTotal", "2"));
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question1", "What is favorite toy?"));
@@ -197,9 +208,11 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question2", "What is favorite word?"));
         storedIdentityTypeInstance.setAttribute(new Attribute<String>("Question2Answer", "Hi"));
 
-        updateIdentityType(storedIdentityTypeInstance);
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(storedIdentityTypeInstance);
 
-        T updatedIdentityTypeInstance = getIdentityType(false);
+        T updatedIdentityTypeInstance = getIdentityType();
 
         Collection<Attribute<? extends Serializable>> allAttributes = updatedIdentityTypeInstance.getAttributes();
 
@@ -245,13 +258,15 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      */
     @Test
     public void testUpdateAttribute() throws Exception {
-        T storedIdentityTypeInstance = getIdentityType(true);
+        T storedIdentityTypeInstance = createIdentityType();
 
         storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(storedIdentityTypeInstance);
 
-        updateIdentityType(storedIdentityTypeInstance);
-
-        T updatedIdentityTypeInstance = getIdentityType(false);
+        T updatedIdentityTypeInstance = getIdentityType();
 
         Attribute<String[]> multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
@@ -261,9 +276,9 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
 
         updatedIdentityTypeInstance.setAttribute(multiValuedAttribute);
 
-        updateIdentityType(updatedIdentityTypeInstance);
+        identityManager.update(updatedIdentityTypeInstance);
 
-        updatedIdentityTypeInstance = getIdentityType(false);
+        updatedIdentityTypeInstance = getIdentityType();
 
         multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
@@ -285,23 +300,25 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
      */
     @Test
     public void testRemoveAttribute() throws Exception {
-        T storedIdentityTypeInstance = getIdentityType(true);
+        T storedIdentityTypeInstance = createIdentityType();
 
         storedIdentityTypeInstance.setAttribute(new Attribute<String[]>("multi-valued", new String[] { "1", "2", "3" }));
 
-        updateIdentityType(storedIdentityTypeInstance);
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.update(storedIdentityTypeInstance);
 
-        T updatedIdentityTypeInstance = getIdentityType(false);
+        T updatedIdentityTypeInstance = getIdentityType();
 
         Attribute<String[]> multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 
         assertNotNull(multiValuedAttribute);
 
         updatedIdentityTypeInstance.removeAttribute("multi-valued");
+        
+        identityManager.update(updatedIdentityTypeInstance);
 
-        updateIdentityType(updatedIdentityTypeInstance);
-
-        updatedIdentityTypeInstance = getIdentityType(false);
+        updatedIdentityTypeInstance = getIdentityType();
 
         multiValuedAttribute = updatedIdentityTypeInstance.getAttribute("multi-valued");
 

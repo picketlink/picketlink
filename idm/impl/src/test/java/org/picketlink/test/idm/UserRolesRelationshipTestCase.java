@@ -51,8 +51,8 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
      */
     @Test
     public void testGrantRoleToUser() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
-        Role someRole = loadOrCreateRole("someRole", true);
+        User someUser = createUser("someUser");
+        Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -60,7 +60,7 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
 
         assertTrue(identityManager.hasRole(someUser, someRole));
 
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
+        Role someAnotherRole = createRole("someAnotherRole");
 
         assertFalse(identityManager.hasRole(someUser, someAnotherRole));
 
@@ -79,10 +79,10 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
      */
     @Test
     public void testRevokeRoleFromUser() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
+        User someUser = createUser("someUser");
 
-        Role someRole = loadOrCreateRole("someRole", true);
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
+        Role someRole = createRole("someRole");
+        Role someAnotherRole = createRole("someAnotherRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -111,11 +111,11 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
      */
     @Test
     public void testFindUserRoles() throws Exception {
-        Role someRole = loadOrCreateRole("someRole", true);
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
-        Role someImportantRole = loadOrCreateRole("someImportantRole", true);
+        Role someRole = createRole("someRole");
+        Role someAnotherRole = createRole("someAnotherRole");
+        Role someImportantRole = createRole("someImportantRole");
         
-        User user = loadOrCreateUser("someUser", true);
+        User user = createUser("someUser");
         
         IdentityManager identityManager = getIdentityManager();
         

@@ -59,7 +59,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindById() throws Exception {
-        loadOrCreateUser("admin", true);
+        createUser("admin");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -84,7 +84,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByFirstNameAndLastName() throws Exception {
-        User user = loadOrCreateUser("admin", true);
+        User user = createUser("admin");
 
         user.setFirstName("The");
         user.setLastName("Administrator");
@@ -148,7 +148,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByEmail() throws Exception {
-        User user = loadOrCreateUser("admin", true);
+        User user = createUser("admin");
 
         user.setEmail("admin@jboss.org");
 
@@ -185,9 +185,9 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBySingleGroupRole() throws Exception {
-        User user = loadOrCreateUser("someUser", true);
-        Group salesGroup = loadOrCreateGroup("Sales", null, true);
-        Role managerRole = loadOrCreateRole("Manager", true);
+        User user = createUser("someUser");
+        Group salesGroup = createGroup("Sales", null);
+        Role managerRole = createRole("Manager");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -220,8 +220,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBySingleGroup() throws Exception {
-        User user = loadOrCreateUser("admin", true);
-        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
+        User user = createUser("admin");
+        Group administratorGroup = createGroup("Administrators", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -254,8 +254,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBySingleRole() throws Exception {
-        User user = loadOrCreateUser("admin", true);
-        Role administratorRole = loadOrCreateRole("Administrators", true);
+        User user = createUser("admin");
+        Role administratorRole = createRole("Administrators");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -288,9 +288,9 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByMultipleGroups() throws Exception {
-        User user = loadOrCreateUser("admin", true);
-        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        User user = createUser("admin");
+        Group administratorGroup = createGroup("Administrators", null);
+        Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -335,9 +335,9 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByMultipleRoles() throws Exception {
-        User user = loadOrCreateUser("admin", true);
-        Role administratorRole = loadOrCreateRole("Administrators", true);
-        Role someRole = loadOrCreateRole("someRole", true);
+        User user = createUser("admin");
+        Role administratorRole = createRole("Administrators");
+        Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -382,11 +382,11 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByMultipleUserWithGroups() throws Exception {
-        User adminUser = loadOrCreateUser("admin", true);
-        User someUser = loadOrCreateUser("someUser", true);
+        User adminUser = createUser("admin");
+        User someUser = createUser("someUser");
 
-        Group administratorGroup = loadOrCreateGroup("Administrators", null, true);
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        Group administratorGroup = createGroup("Administrators", null);
+        Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -426,11 +426,11 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByMultipleUserWithRoles() throws Exception {
-        User adminUser = loadOrCreateUser("admin", true);
-        User someUser = loadOrCreateUser("someUser", true);
+        User adminUser = createUser("admin");
+        User someUser = createUser("someUser");
 
-        Role administratorRole = loadOrCreateRole("Administrators", true);
-        Role someRole = loadOrCreateRole("someRole", true);
+        Role administratorRole = createRole("Administrators");
+        Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -469,8 +469,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindEnabledAndDisabledUsers() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
-        User someAnotherUser = loadOrCreateUser("someAnotherUser", true);
+        User someUser = createUser("someUser");
+        User someAnotherUser = createUser("someAnotherUser");
 
         someUser.setEnabled(true);
         someAnotherUser.setEnabled(true);
@@ -540,7 +540,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindCreationDate() throws Exception {
-        User user = loadOrCreateUser("someUser", true);
+        User user = createUser("someUser");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -578,7 +578,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindExpiryDate() throws Exception {
-        User user = loadOrCreateUser("someUser", true);
+        User user = createUser("someUser");
 
         Date expirationDate = new Date();
 
@@ -626,8 +626,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenCreationDate() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
-        User someAnotherUser = loadOrCreateUser("someAnotherUser", true);
+        User someUser = createUser("someUser");
+        User someAnotherUser = createUser("someAnotherUser");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -650,8 +650,8 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<User> createIdentityQuery(User.class);
 
-        User someFutureUser = loadOrCreateUser("someFutureUser", true);
-        User someAnotherFutureUser = loadOrCreateUser("someAnotherFutureUser", true);
+        User someFutureUser = createUser("someFutureUser");
+        User someAnotherFutureUser = createUser("someAnotherFutureUser");
 
         // users created after the given time
         query.setParameter(User.CREATED_AFTER, calendar.getTime());
@@ -702,7 +702,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindUsingMultipleParameters() throws Exception {
-        User user = loadOrCreateUser("admin", true);
+        User user = createUser("admin");
 
         user.setEmail("admin@jboss.org");
         user.setFirstName("The");
@@ -768,7 +768,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenExpirationDate() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
+        User someUser = createUser("someUser");
 
         someUser.setExpirationDate(new Date());
 
@@ -776,7 +776,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someUser);
 
-        User someAnotherUser = loadOrCreateUser("someAnotherUser", true);
+        User someAnotherUser = createUser("someAnotherUser");
 
         someAnotherUser.setExpirationDate(new Date());
 
@@ -796,13 +796,13 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         Thread.sleep(1000);
 
-        User someFutureUser = loadOrCreateUser("someFutureUser", true);
+        User someFutureUser = createUser("someFutureUser");
 
         someFutureUser.setExpirationDate(new Date());
 
         identityManager.update(someFutureUser);
 
-        User someAnotherFutureUser = loadOrCreateUser("someAnotherFutureUser", true);
+        User someAnotherFutureUser = createUser("someAnotherFutureUser");
 
         someAnotherFutureUser.setExpirationDate(new Date());
 
@@ -864,7 +864,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByUserDefinedAttributes() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
+        User someUser = createUser("someUser");
 
         someUser.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
 
@@ -917,7 +917,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByUserDefinedMultiValuedAttributes() throws Exception {
-        User someUser = loadOrCreateUser("someUser", true);
+        User someUser = createUser("someUser");
 
         someUser.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
                 "someAttributeValue2" }));

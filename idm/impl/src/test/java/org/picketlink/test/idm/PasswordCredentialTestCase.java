@@ -53,7 +53,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     @Test
     public void testSuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
-        User user = loadOrCreateUser("someUser", true);
+        User user = createUser("someUser");
         Password plainTextPassword = new Password("updated_password".toCharArray());
 
         identityManager.updateCredential(user, plainTextPassword);
@@ -78,7 +78,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     @Test
     public void testUnsuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
-        User user = loadOrCreateUser("someUser", true);
+        User user = createUser("someUser");
         Password plainTextPassword = new Password("updated_password".toCharArray());
 
         identityManager.updateCredential(user, plainTextPassword, new Date(), null);
@@ -114,7 +114,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     @Test
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
-        User user = loadOrCreateUser("someUser", true);
+        User user = createUser("someUser");
         Password plainTextPassword = new Password("updated_password".toCharArray());
 
         Calendar expirationDate = Calendar.getInstance();
@@ -152,7 +152,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     @Test
     public void testUpdatePassword() throws Exception {
         IdentityManager identityManager = getIdentityManager();
-        User user = loadOrCreateUser("someUser", true);
+        User user = createUser("someUser");
         Password firstPassword = new Password("password1".toCharArray());
 
         identityManager.updateCredential(user, firstPassword);

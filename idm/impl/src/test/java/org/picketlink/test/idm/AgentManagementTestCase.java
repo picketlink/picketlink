@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.SimpleAgent;
 
 /**
  * <p>
@@ -54,7 +55,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
      */
     @Test
     public void testCreate() throws Exception {
-        Agent newAgent = loadOrCreateAgent("someAgent", true);
+        Agent newAgent = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -79,7 +80,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
      */
     @Test
     public void testGet() throws Exception {
-        Agent storedAgent = getIdentityType(true);
+        Agent storedAgent = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -87,7 +88,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
         assertNotNull(storedAgent);
 
-        assertEquals("someAgent", storedAgent.getLoginName());
+        assertEquals(storedAgent.getLoginName(), storedAgent.getLoginName());
     }
 
     /**
@@ -99,12 +100,8 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
      */
     @Test
     public void testUpdate() throws Exception {
-        Agent storedAgent = getIdentityType(true);
+        Agent storedAgent = createIdentityType();
 
-        assertNotNull(storedAgent);
-
-        assertEquals("someAgent", storedAgent.getLoginName());
-        
         IdentityManager identityManager = getIdentityManager();
 
         storedAgent.setAttribute(new Attribute<String>("someAttribute", "1"));
@@ -129,8 +126,8 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
-        Agent someAgent = getIdentityType(true);
-        Agent anotherAgent = loadOrCreateAgent("someAnotherUser", true);
+        Agent someAgent = createIdentityType();
+        Agent anotherAgent = createAgent("someAnotherAgent");
 
         assertNotNull(someAgent);
         assertNotNull(anotherAgent);
@@ -147,17 +144,17 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     }
 
     @Override
-    protected void updateIdentityType(Agent identityTypeInstance) {
-        getIdentityManager().update(identityTypeInstance);
+    protected Agent getIdentityType() {
+        return getIdentityManager().getAgent("someAgent");
     }
 
     @Override
-    protected Agent getIdentityType(boolean alwaysCreate) {
-        Agent user = loadOrCreateAgent("someAgent", alwaysCreate);
-
-        getIdentityManager().update(user);
-
-        return user;
+    protected Agent createIdentityType() {
+        Agent agent = new SimpleAgent("someAgent");
+        
+        getIdentityManager().add(agent);
+        
+        return agent;
     }
 
 }
