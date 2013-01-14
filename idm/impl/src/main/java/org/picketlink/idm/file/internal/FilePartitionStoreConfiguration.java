@@ -37,7 +37,7 @@ import org.picketlink.idm.model.Partition;
  */
 public class FilePartitionStoreConfiguration extends PartitionStoreConfiguration {
     
-    private String workingDir;
+    private String workingDir = getDefaultTmpDir();
     
     private File partitionsFile;
     private Map<String, Partition> partitions = new HashMap<String, Partition>();
@@ -76,9 +76,13 @@ public class FilePartitionStoreConfiguration extends PartitionStoreConfiguration
 
         File workingDirectoryFile = new File(workingDir);
 
-        if (!workingDirectoryFile.exists()) {
-            workingDirectoryFile.mkdirs();
+        if (workingDirectoryFile.exists()) {
+            if (isAlwaysCreateFiles()) {
+                FileUtils.delete(workingDirectoryFile);
+            }
         }
+        
+        workingDirectoryFile.mkdirs();
 
         return workingDirectoryFile;
     }
@@ -124,5 +128,9 @@ public class FilePartitionStoreConfiguration extends PartitionStoreConfiguration
     
     public File getPartitionsFile() {
         return this.partitionsFile;
+    }
+    
+    private String getDefaultTmpDir() {
+        return System.getProperty("java.io.tmpdir", File.separator + "tmp") + File.separator + "pl-idm";
     }
 }
