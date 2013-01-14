@@ -35,7 +35,6 @@ import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
-import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
@@ -140,6 +139,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 Object relationshipObject = getConfig().getRelationshipClass().newInstance();
                 Class<? extends Relationship> relationshipClass = relationship.getClass();
 
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).setValue(relationshipObject, getContext().getIdGenerator().generate());
                 getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).setValue(relationshipObject,
                         relationshipClass.getName());
 
