@@ -490,13 +490,13 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     @SuppressWarnings("unchecked")
-    IdentityTypeHandler<IdentityType> getIdentityTypeManager(Class<? extends IdentityType> identityTypeClass) {
+    IdentityTypeHandler<IdentityType> getHandler(Class<? extends IdentityType> identityTypeClass) {
         IdentityTypeHandler<IdentityType> identityTypeManager = (IdentityTypeHandler<IdentityType>) getIdentityTypeStores()
                 .get(getIdentityDiscriminator(identityTypeClass));
         return identityTypeManager;
     }
 
-    IdentityTypeHandler<IdentityType> getIdentityTypeManager(String discriminator) {
+    IdentityTypeHandler<IdentityType> getHandler(String discriminator) {
         return (IdentityTypeHandler<IdentityType>) getIdentityTypeStores().get(discriminator);
     }
 

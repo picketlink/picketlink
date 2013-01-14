@@ -35,6 +35,7 @@ import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
+import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
@@ -48,6 +49,8 @@ import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.annotation.RelationshipAttribute;
+import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
@@ -111,9 +114,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
 
             try {
-                IdentityTypeHandler<IdentityType> identityTypeManager = getConfig().getIdentityTypeManager(identityType.getClass());
+                IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
 
-                Object identity = identityTypeManager.createIdentityInstance(getContext().getRealm(), identityType, this);
+                Object identity = handler.createIdentityInstance(getContext().getRealm(), identityType, this);
 
                 EntityManager em = getEntityManager();
 
@@ -122,16 +125,61 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 updateAttributes(identityType, identity);
 
-                AbstractBaseEvent event = identityTypeManager.raiseCreatedEvent(identityType, this);
+                AbstractBaseEvent event = handler.raiseCreatedEvent(identityType, this);
 
                 event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
                 getContext().getEventBridge().raiseEvent(event);
             } catch (Exception ex) {
-                throw new IdentityManagementException("Exception while creating IdentityType [" + identityType + "].", ex);
+                throw new IdentityManagementException("Exception while creating IdentityType [" + identityType + "].",
+                        ex);
             }
-        }
-        else if (value instanceof Relationship) {
-            // TODO Implement
+        } else if (value instanceof Relationship) {
+            Relationship relationship = (Relationship) value;
+
+            try {
+                Object relationshipObject = getConfig().getRelationshipClass().newInstance();
+                Class<? extends Relationship> relationshipClass = relationship.getClass();
+
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).setValue(relationshipObject,
+                        relationshipClass.getName());
+
+                EntityManager em = getEntityManager();
+                em.persist(relationshipObject);
+
+                List<Property<Object>> props = PropertyQueries.createQuery(relationshipClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
+
+                for (Property prop : props) {
+                    Object relationshipIdentity = getConfig().getRelationshipIdentityClass().newInstance();
+
+                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).setValue(relationshipIdentity,
+                            prop.getValue(relationship));
+                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).setValue(relationshipIdentity,
+                            prop.getName());
+                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).setValue(
+                            relationshipIdentity, relationshipObject);
+                    em.persist(relationshipIdentity);
+                }
+
+                props = PropertyQueries.createQuery(relationshipClass)
+                        .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+
+                for (Property prop : props) {
+                    Object relationshipAttribute = getConfig().getRelationshipAttributeClass().newInstance();
+
+                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).setValue(
+                            relationshipAttribute, prop.getName());
+                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE).setValue(
+                            relationshipAttribute, Base64.encodeObject((Serializable) prop.getValue(relationship)));
+                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).setValue(
+                            relationshipAttribute, relationshipObject);
+
+                    em.persist(relationshipAttribute);
+                }
+
+            } catch (Exception ex) {
+                throw new IdentityManagementException("Exception while creating Relationship [" + relationship + "].", ex);
+            }
         }
     }
 
@@ -144,11 +192,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (value instanceof IdentityType) {
             IdentityType identityType = (IdentityType) value;
 
-            IdentityTypeHandler<IdentityType> identityTypeManager = getConfig().getIdentityTypeManager(identityType.getClass());
+            IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
 
             Object identity = getIdentityObject(identityType);
 
-            identityTypeManager.populateIdentityInstance(getContext().getRealm(), identity, identityType, this);
+            handler.populateIdentityInstance(getContext().getRealm(), identity, identityType, this);
 
             updateAttributes(identityType, identity);
 
@@ -157,7 +205,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             em.merge(identity);
             em.flush();
 
-            AbstractBaseEvent event = identityTypeManager.raiseUpdatedEvent(identityType, this);
+            AbstractBaseEvent event = handler.raiseUpdatedEvent(identityType, this);
 
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
             getContext().getEventBridge().raiseEvent(event);
@@ -174,12 +222,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             EntityManager em = getEntityManager();
 
-            IdentityTypeHandler<IdentityType> identityTypeManager = getConfig().getIdentityTypeManager(
+            IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(
                     identityType.getClass());
 
             Object identity = getIdentityObject(identityType);
 
-            identityTypeManager.remove(identity, identityType, this);
+            handler.remove(identity, identityType, this);
 
             // Remove credentials
             removeCredentials(identity);
@@ -193,7 +241,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             em.remove(identity);
             em.flush();
 
-            AbstractBaseEvent event = identityTypeManager.raiseDeletedEvent(identityType, this);
+            AbstractBaseEvent event = handler.raiseDeletedEvent(identityType, this);
 
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
             getContext().getEventBridge().raiseEvent(event);
@@ -212,7 +260,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // If the cache doesn't have a reference to the User, we have to look up it's identity object
         // and create a User instance based on it
         if (user == null) {
-            DefaultIdentityQuery<User> defaultIdentityQuery = new DefaultIdentityQuery(User.class, this);
+            DefaultIdentityQuery<User> defaultIdentityQuery = new DefaultIdentityQuery<User>(User.class, this);
 
             defaultIdentityQuery.setParameter(User.ID, id);
 

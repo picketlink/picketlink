@@ -81,7 +81,7 @@ public class JPACriteriaQueryBuilder {
         predicates.add(builder.equal(root.get(this.config.getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
                 discriminator));
         
-        IdentityTypeHandler identityTypeManager = this.config.getIdentityTypeManager(this.identityQuery.getIdentityType());
+        IdentityTypeHandler identityTypeManager = this.config.getHandler(this.identityQuery.getIdentityType());
         
         for (Entry<QueryParameter, Object[]> entry : this.identityQuery.getParameters().entrySet()) {
             QueryParameter queryParameter = entry.getKey();
