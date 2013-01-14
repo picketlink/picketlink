@@ -50,7 +50,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
      */
     @Test
     public void testCreate() throws Exception {
-        Role newRoleInstance = loadOrCreateRole("someRole", true);
+        Role newRoleInstance = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -71,7 +71,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
      */
     @Test
     public void testGet() throws Exception {
-        Role storedRoleInstance = getIdentityType(true);
+        Role storedRoleInstance = createIdentityType();
 
         assertNotNull(storedRoleInstance);
 
@@ -93,7 +93,7 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
      */
     @Test
     public void testRemove() throws Exception {
-        Role storedRoleInstance = getIdentityType(true);
+        Role storedRoleInstance = createIdentityType();
 
         assertNotNull(storedRoleInstance);
 
@@ -107,13 +107,13 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
     }
 
     @Override
-    protected void updateIdentityType(Role identityTypeInstance) {
-        getIdentityManager().update(identityTypeInstance);
+    protected Role createIdentityType() {
+        return createRole("Administrator");
     }
 
     @Override
-    protected Role getIdentityType(boolean alwaysCreate) {
-        return loadOrCreateRole("Administrator", alwaysCreate);
+    protected Role getIdentityType() {
+        return getIdentityManager().getRole("Administrator");
     }
 
 }

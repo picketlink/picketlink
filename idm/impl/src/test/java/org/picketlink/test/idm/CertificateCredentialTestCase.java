@@ -59,7 +59,7 @@ public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCa
         X509Cert certCredential = new X509Cert(clientCert);
         X509CertificateCredentials credential = new X509CertificateCredentials(certCredential);
         
-        User user = loadOrCreateUser(credential.getUsername(), true);
+        User user = createUser(credential.getUsername());
         
         identityManager.updateCredential(user, certCredential, null, null);
         

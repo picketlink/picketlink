@@ -58,7 +58,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         IdentityManager identityManager = getIdentityManager();
         
         //Create an User robert
-        User robert = loadOrCreateUser("robert", true);
+        User robert = createUser("robert");
         
         //Create an OAuth application called "My OAuth App"
         Agent myOauthApp = new SimpleAgent("My OAuth App");
@@ -112,7 +112,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         assertNotNull(authorized.getUser());
         assertNotNull(authorized.getApplication());
         
-        User someUser = loadOrCreateUser("someUser", true);
+        User someUser = createUser("someUser");
         
         query = identityManager.createRelationshipQuery(Authorization.class);
         

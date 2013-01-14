@@ -51,8 +51,8 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
      */
     @Test
     public void testGrantRoleToAgent() throws Exception {
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
-        Role someRole = loadOrCreateRole("someRole", true);
+        Agent someAgent = createAgent("someAgent");
+        Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -60,7 +60,7 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
 
         assertTrue(identityManager.hasRole(someAgent, someRole));
 
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
+        Role someAnotherRole = createRole("someAnotherRole");
 
         assertFalse(identityManager.hasRole(someAgent, someAnotherRole));
 
@@ -79,10 +79,10 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
      */
     @Test
     public void testRevokeRoleFromAgent() throws Exception {
-        Agent someAgent = loadOrCreateAgent("someAgent", true);
+        Agent someAgent = createAgent("someAgent");
 
-        Role someRole = loadOrCreateRole("someRole", true);
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
+        Role someRole = createRole("someRole");
+        Role someAnotherRole = createRole("someAnotherRole");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -111,11 +111,11 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
      */
     @Test
     public void testFindAgentRoles() throws Exception {
-        Role someRole = loadOrCreateRole("someRole", true);
-        Role someAnotherRole = loadOrCreateRole("someAnotherRole", true);
-        Role someImportantRole = loadOrCreateRole("someImportantRole", true);
+        Role someRole = createRole("someRole");
+        Role someAnotherRole = createRole("someAnotherRole");
+        Role someImportantRole = createRole("someImportantRole");
         
-        Agent user = loadOrCreateAgent("someAgent", true);
+        Agent user = createAgent("someAgent");
         
         IdentityManager identityManager = getIdentityManager();
         

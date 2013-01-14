@@ -51,7 +51,7 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
     public void appRegister() throws Exception{
         IdentityManager identityManager = getIdentityManager();
         
-        Agent oauthApp = loadOrCreateAgent(appName, true);
+        Agent oauthApp = createAgent(appName);
         
         oauthApp.setAttribute( new Attribute<String>("appURL", appURL) );
         oauthApp.setAttribute( new Attribute<String>("appDesc", appDesc) );
@@ -96,7 +96,7 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
     public void appUnregister() throws Exception{
         IdentityManager identityManager = getIdentityManager();
         
-        Agent oauthApp = loadOrCreateAgent(appName, true);
+        Agent oauthApp = createAgent(appName);
         
         oauthApp = identityManager.getAgent(appName);
         

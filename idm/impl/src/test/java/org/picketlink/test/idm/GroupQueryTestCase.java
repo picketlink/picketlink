@@ -56,7 +56,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByName() throws Exception {
-        loadOrCreateGroup("admin", null, true);
+        createGroup("admin", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -81,8 +81,8 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindEnabledAndDisabledGroups() throws Exception {
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
-        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
+        Group someGroup = createGroup("someGroup", null);
+        Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
         someGroup.setEnabled(true);
         someAnotherGroup.setEnabled(true);
@@ -148,7 +148,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindWithParent() throws Exception {
-        Group group = loadOrCreateGroup("someGroup", "Parent Group", true);
+        Group group = createGroup("someGroup", "Parent Group");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -173,7 +173,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindCreationDate() throws Exception {
-        Group group = loadOrCreateGroup("someGroup", null, true);
+        Group group = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -207,7 +207,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindExpiryDate() throws Exception {
-        Group group = loadOrCreateGroup("someGroup", null, true);
+        Group group = createGroup("someGroup", null);
 
         Date expirationDate = new Date();
 
@@ -253,8 +253,8 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenCreationDate() throws Exception {
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
-        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
+        Group someGroup = createGroup("someGroup", null);
+        Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -278,8 +278,8 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Group> createIdentityQuery(Group.class);
 
-        Group someFutureGroup = loadOrCreateGroup("someFutureGroup", null, true);
-        Group someAnotherFutureGroup = loadOrCreateGroup("someAnotherFutureGroup", null, true);
+        Group someFutureGroup = createGroup("someFutureGroup", null);
+        Group someAnotherFutureGroup = createGroup("someAnotherFutureGroup", null);
 
         query.setParameter(Group.CREATED_AFTER, calendar.getTime());
 
@@ -328,7 +328,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindUsingMultipleParameters() throws Exception {
-        Group group = loadOrCreateGroup("admin", null, true);
+        Group group = createGroup("admin", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -368,7 +368,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindBetweenExpirationDate() throws Exception {
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        Group someGroup = createGroup("someGroup", null);
 
         someGroup.setExpirationDate(new Date());
 
@@ -376,7 +376,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someGroup);
 
-        Group someAnotherGroup = loadOrCreateGroup("someAnotherGroup", null, true);
+        Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
         someAnotherGroup.setExpirationDate(new Date());
 
@@ -395,13 +395,13 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         Thread.sleep(1000);
 
-        Group someFutureGroup = loadOrCreateGroup("someFutureGroup", null, true);
+        Group someFutureGroup = createGroup("someFutureGroup", null);
 
         someFutureGroup.setExpirationDate(new Date());
 
         identityManager.update(someFutureGroup);
 
-        Group someAnotherFutureGroup = loadOrCreateGroup("someAnotherFutureGroup", null, true);
+        Group someAnotherFutureGroup = createGroup("someAnotherFutureGroup", null);
 
         someAnotherFutureGroup.setExpirationDate(new Date());
 
@@ -463,7 +463,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByGroupDefinedAttributes() throws Exception {
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        Group someGroup = createGroup("someGroup", null);
 
         someGroup.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
 
@@ -516,7 +516,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
      */
     @Test
     public void testFindByGroupDefinedMultiValuedAttributes() throws Exception {
-        Group someGroup = loadOrCreateGroup("someGroup", null, true);
+        Group someGroup = createGroup("someGroup", null);
 
         someGroup.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
                 "someAttributeValue2" }));

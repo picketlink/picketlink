@@ -51,7 +51,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testCreate() throws Exception {
-        Group newGroupInstance = loadOrCreateGroup("someGroup", null, true);
+        Group newGroupInstance = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -72,7 +72,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testCreateWithParentGroup() throws Exception {
-        Group childGroup = loadOrCreateGroup("childGroup", "parentGroup", true);
+        Group childGroup = createGroup("childGroup", "parentGroup");
 
         // let's retrieve the group information and see if it was properly stored
         IdentityManager identityManager = getIdentityManager();
@@ -95,7 +95,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testGet() throws Exception {
-        Group storedGroupInstance = getIdentityType(true);
+        Group storedGroupInstance = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -116,7 +116,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testGetWithParent() throws Exception {
-        Group storedGroupInstance = getIdentityType(true);
+        Group storedGroupInstance = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -141,7 +141,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
      */
     @Test
     public void testRemove() throws Exception {
-        Group storedGroupInstance = getIdentityType(true);
+        Group storedGroupInstance = createIdentityType();
 
         assertNotNull(storedGroupInstance);
 
@@ -155,13 +155,13 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     }
 
     @Override
-    protected void updateIdentityType(Group identityTypeInstance) {
-        getIdentityManager().update(identityTypeInstance);
+    protected Group createIdentityType() {
+        return createGroup("Test Group", "Test Parent Group");
     }
 
     @Override
-    protected Group getIdentityType(boolean alwaysCreate) {
-        return loadOrCreateGroup("Test Group", "Test Parent Group", alwaysCreate);
+    protected Group getIdentityType() {
+        return getGroup("Test Group");
     }
 
 }
