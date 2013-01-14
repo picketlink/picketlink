@@ -196,20 +196,23 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
 
-            Object identity = getIdentityObject(identityType);
+            Object identityObject = lookupIdentityObjectById(identityType.getId());
+            if (identityObject == null) {
+                throw new IdentityManagementException("The specified identity object [" + identityType.getId() + "] does not exist.");
+            }
 
-            handler.populateIdentityInstance(getContext().getRealm(), identity, identityType, this);
+            handler.populateIdentityInstance(getContext().getRealm(), identityObject, identityType, this);
 
-            updateAttributes(identityType, identity);
+            updateAttributes(identityType, identityObject);
 
             EntityManager em = getEntityManager();
 
-            em.merge(identity);
+            em.merge(identityObject);
             em.flush();
 
             AbstractBaseEvent event = handler.raiseUpdatedEvent(identityType, this);
 
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identityObject);
             getContext().getEventBridge().raiseEvent(event);
         } else if (value instanceof Relationship) {
             // TODO implement
@@ -227,25 +230,28 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(
                     identityType.getClass());
 
-            Object identity = getIdentityObject(identityType);
+            Object identityObject = lookupIdentityObjectById(identityType.getId());
+            if (identityObject == null) {
+                throw new IdentityManagementException("The specified identity object [" + identityType.getId() + "] does not exist.");
+            }
 
-            handler.remove(identity, identityType, this);
+            handler.remove(identityObject, identityType, this);
 
             // Remove credentials
-            removeCredentials(identity);
+            removeCredentials(identityObject);
 
             // Remove attributes
-            removeAttributes(identity);
+            removeAttributes(identityObject);
 
-            removeRelationships(identity);
+            removeRelationships(identityObject);
 
             // Remove the identity object itself
-            em.remove(identity);
+            em.remove(identityObject);
             em.flush();
 
             AbstractBaseEvent event = handler.raiseDeletedEvent(identityType, this);
 
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identityObject);
             getContext().getEventBridge().raiseEvent(event);
         }
     }
@@ -1015,26 +1021,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     Object lookupPartitionObject(Partition partition) {
         // TODO implement realm lookup
         return null;
-    }
-
-    /**
-     * <p>
-     * Returns a {@link Object} for the Identity Class used to store {@link IdentityType} instances. If no instance was found an
-     * exception will be thrown.
-     * </p>
-     * 
-     * @param identityTremoype
-     * @return
-     * @throws IdentityManagementException
-     */
-    private Object getIdentityObject(IdentityType identityType) throws IdentityManagementException {
-        Object identity = lookupIdentityObjectById(identityType.getId());
-
-        if (identity == null) {
-            throw new IdentityManagementException("The provided IdentityType instance does not exists.");
-        }
-
-        return identity;
     }
 
     @Override
