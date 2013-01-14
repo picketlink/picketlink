@@ -3,10 +3,8 @@ package org.picketlink.idm.jpa.internal;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
@@ -16,6 +14,7 @@ import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriter
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
+import org.picketlink.idm.internal.util.properties.query.PropertyQuery;
 import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
@@ -26,7 +25,6 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.spi.IdentityStore.Feature;
 
 /**
  * This interface defines the configuration parameters for a JPA based IdentityStore implementation.
@@ -41,69 +39,13 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private static final String DEFAULT_ROLE_IDENTITY_DISCRIMINATOR = "ROLE";
     private static final String DEFAULT_GROUP_IDENTITY_DISCRIMINATOR = "GROUP";
     private static final String DEFAULT_AGENT_IDENTITY_DISCRIMINATOR = "AGENT";
-    private static final String DEFAULT_RELATIONSHIP_IDENTITY_DISCRIMINATOR = "RELATIONSHIP";
 
     private String identityTypeAgent = DEFAULT_AGENT_IDENTITY_DISCRIMINATOR;
     private String identityTypeUser = DEFAULT_USER_IDENTITY_DISCRIMINATOR;
     private String identityTypeRole = DEFAULT_ROLE_IDENTITY_DISCRIMINATOR;
     private String identityTypeGroup = DEFAULT_GROUP_IDENTITY_DISCRIMINATOR;
-    private String identityTypeRelationship = DEFAULT_RELATIONSHIP_IDENTITY_DISCRIMINATOR;
 
-    // Property keys
-
-    // Properties common to all IdentityTypes
-    public static final String PROPERTY_IDENTITY_DISCRIMINATOR = "IDENTITY_DISCRIMINATOR";
-    public static final String PROPERTY_IDENTITY_KEY = "IDENTITY_KEY";
-    public static final String PROPERTY_IDENTITY_ENABLED = "IDENTITY_ENABLED";
-    public static final String PROPERTY_IDENTITY_CREATED = "IDENTITY_CREATED";
-    public static final String PROPERTY_IDENTITY_EXPIRES = "IDENTITY_EXPIRES";
-    public static final String PROPERTY_IDENTITY_PARTITION = "IDENTITY_PARTITION";
-    public static final String PROPERTY_IDENTITY_RELATES_TO = "IDENTITY_RELATES_TO";
-    public static final String PROPERTY_IDENTITY_RELATED_TO = "IDENTITY_RELATED_TO";
-
-    // Properties specific to Partitions
-    public static final String PROPERTY_PARTITION_NAME = "PARTITION_NAME";
-    public static final String PROPERTY_PARTITION_TYPE = "PARTITION_TYPE";
-    public static final String PROPERTY_PARTITION_PARENT = "PARTITION_PARENT";
-
-    // Properties specific to Users
-    public static final String PROPERTY_USER_FIRST_NAME = "USER_FIRST_NAME";
-    public static final String PROPERTY_USER_LAST_NAME = "USER_LAST_NAME";
-    public static final String PROPERTY_USER_EMAIL = "USER_EMAIL";
-
-    // Properties common to Users and Groups
-    public static final String PROPERTY_IDENTITY_ID = "IDENTITY_ID";
-
-    // Properties common to Groups and Roles
-    public static final String PROPERTY_IDENTITY_NAME = "IDENTITY_NAME";
-
-    // Properties for Groups only
-    public static final String PROPERTY_PARENT_GROUP = "PARENT_GROUP";
-
-    // Identity membership properties
-    public static final String PROPERTY_MEMBERSHIP_MEMBER = "MEMBERSHIP_MEMBER";
-    public static final String PROPERTY_MEMBERSHIP_ROLE = "MEMBERSHIP_ROLE";
-    public static final String PROPERTY_MEMBERSHIP_GROUP = "MEMBERSHIP_GROUP";
-
-    // Credential properties
-    public static final String PROPERTY_CREDENTIAL_VALUE = "CREDENTIAL_VALUE";
-    public static final String PROPERTY_CREDENTIAL_TYPE = "CREDENTIAL_TYPE";
-    public static final String PROPERTY_CREDENTIAL_TYPE_NAME = "CREDENTIAL_TYPE_NAME";
-    public static final String PROPERTY_CREDENTIAL_EFFECTIVE_DATE = "CREDENTIAL_EFFECTIVE_DATE";
-    public static final String PROPERTY_CREDENTIAL_EXPIRY_DATE = "CREDENTIAL_EXPIRY_DATE";
-    public static final String PROPERTY_CREDENTIAL_IDENTITY = "CREDENTIAL_IDENTITY";
-    
-    public static final String PROPERTY_CREDENTIAL_ATTRIBUTE_NAME = "CREDENTIAL_ATTRIBUTE_NAME";
-    public static final String PROPERTY_CREDENTIAL_ATTRIBUTE_VALUE = "CREDENTIAL_ATTRIBUTE_VALUE";
-    public static final String PROPERTY_CREDENTIAL_ATTRIBUTE = "CREDENTIAL_ATTRIBUTE";
-    public static final String PROPERTY_CREDENTIAL_ATTRIBUTE_TYPE = "CREDENTIAL_ATTRIBUTE_TYPE";
-    
-    // Attribute properties
-    public static final String PROPERTY_ATTRIBUTE_NAME = "ATTRIBUTE_NAME";
-    public static final String PROPERTY_ATTRIBUTE_VALUE = "ATTRIBUTE_VALUE";
-    public static final String PROPERTY_ATTRIBUTE_IDENTITY = "ATTRIBUTE_IDENTITY";
-    public static final String PROPERTY_ATTRIBUTE_TYPE = "ATTRIBUTE_TYPE";
-
+    // Supported Attribute types
     private static final String ATTRIBUTE_TYPE_TEXT = "text";
     private static final String ATTRIBUTE_TYPE_BOOLEAN = "boolean";
     private static final String ATTRIBUTE_TYPE_DATE = "date";
@@ -123,12 +65,12 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     /**
      * Defines the feature set for this IdentityStore
      */
-    private Set<Feature> featureSet = new HashSet<Feature>();
+    private FeatureSet featureSet = new FeatureSet();
 
     /**
      * Model properties
      */
-    private Map<String, Property<Object>> modelProperties = new HashMap<String, Property<Object>>();
+    private Map<PropertyType, Property<Object>> modelProperties = new HashMap<PropertyType, Property<Object>>();
 
     /*
      * Attribute properties
@@ -139,11 +81,13 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
      * Entity classes
      */
     private Class<?> identityClass;
-    private Class<?> membershipClass;
-    private Class<?> credentialClass;
     private Class<?> attributeClass;
-    private Class<?> partitionClass;
+    private Class<?> credentialClass;
     private Class<?> credentialAttributeClass;
+    private Class<?> relationshipClass;
+    private Class<?> relationshipIdentityClass;
+    private Class<?> relationshipAttributeClass;
+    private Class<?> partitionClass;
 
     public Class<?> getIdentityClass() {
         return identityClass;
@@ -169,12 +113,28 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         this.credentialAttributeClass = credentialAttributeClass;
     }
 
-    public Class<?> getMembershipClass() {
-        return membershipClass;
+    public Class<?> getRelationshipClass() {
+        return relationshipClass;
     }
 
-    public void setMembershipClass(Class<?> membershipClass) {
-        this.membershipClass = membershipClass;
+    public void setRelationshipClass(Class<?> relationshipClass) {
+        this.relationshipClass = relationshipClass;
+    }
+
+    public Class<?> getRelationshipIdentityClass() {
+        return relationshipIdentityClass;
+    }
+
+    public void setRelationshipIdentityClass(Class<?> relationshipIdentityClass) {
+        this.relationshipIdentityClass = relationshipIdentityClass;
+    }
+
+    public Class<?> getRelationshipAttributeClass() {
+        return relationshipAttributeClass;
+    }
+
+    public void setRelationshipAttributeClass(Class<?> relationshipAttributeClass) {
+        this.relationshipAttributeClass = relationshipAttributeClass;
     }
 
     public Class<?> getAttributeClass() {
@@ -202,6 +162,46 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
         public boolean methodMatches(Method m) {
             return m.isAnnotationPresent(IDMProperty.class) && m.getAnnotation(IDMProperty.class).value().equals(pt);
+        }
+    }
+
+    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass, 
+            String... possibleNames) {
+        configureModelProperty(propertyType, targetClass, propertyClass, false, possibleNames);
+    }
+
+    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass, 
+            boolean optional, String... possibleNames) {
+        PropertyQuery<Object> query = PropertyQueries.createQuery(targetClass);
+
+        if (propertyType != null) {
+            query.addCriteria(new PropertyTypeCriteria(propertyType));
+        }
+
+        if (propertyClass != null) {
+            query.addCriteria(new TypedPropertyCriteria(propertyClass));
+        }
+
+        List<Property<Object>> props = query.getResultList();
+
+        if (props.size() == 1) {
+            modelProperties.put(propertyType,  props.get(0));
+        } else if (props.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous " + propertyType.name() + " property in identity class [" +
+                targetClass.getName() + "]");
+        } else {
+            if (possibleNames != null && possibleNames.length > 0) {
+                Property<Object> p = findNamedProperty(targetClass, possibleNames);
+
+                if (p != null) {
+                    modelProperties.put(propertyType, p);
+                }
+            }
+
+            if (!optional) {
+                throw new SecurityConfigurationException("Error configuring JPAIdentityStore - no " + 
+                    propertyType.name() + " property found in identity class [" + targetClass.getName() + "]");
+            }
         }
     }
 
@@ -249,12 +249,12 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         }
     }
 
-    public Property<Object> getModelProperty(String propertyKey) {
-        return modelProperties.get(propertyKey);
+    public Property<Object> getModelProperty(PropertyType propertyType) {
+        return modelProperties.get(propertyType);
     }
 
-    public boolean isModelPropertySet(String propertyKey) {
-        return modelProperties.containsKey(propertyKey);
+    public boolean isModelPropertySet(PropertyType propertyType) {
+        return modelProperties.containsKey(propertyType);
     }
 
     public Map<String, MappedAttribute> getAttributeProperties() {
@@ -262,7 +262,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     @Override
-    public Set<Feature> getFeatureSet() {
+    public FeatureSet getFeatureSet() {
         return featureSet;
     }
 
@@ -272,384 +272,54 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
             throw new SecurityConfigurationException("Error initializing JpaIdentityStore - identityClass not set");
         }
 
-        configureIdentityDiscriminator();
-        configureIdentityKey();
-        configureIdentityId();
-        configureIdentityName();
-        configureIdentityParentGroup();
-        configureIdentityRelatesTo();
-        configureIdentityEnabled();
-        configureIdentityCreationDate();
-        configureIdentityExpiryDate();
-        configureIdentityPartition();
-
+        configureIdentityTypeHandlers();
+        configureIdentity();
         configurePartitions();
-
         configureUserProperties();
-
-        configureMemberships();
-
+        configureRelationships();
         configureAttributes();
-
         configureCredentials();
 
-        configureIdentityTypeHandlers();
+        this.featureSet.addSupportedFeature(Feature.all);
+        // Support all relationship types
+        this.featureSet.addSupportedRelationship(Relationship.class); 
+    }
 
-        this.featureSet.add(Feature.all);
+    private void configureIdentityTypeHandlers() {
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(User.class), new UserHandler(this));
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Agent.class), new AgentHandler(this));
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Role.class), new RoleHandler(this));
+        this.identityTypeStores.put(getIdentityTypeDiscriminator(Group.class), new GroupHandler(this));
     }
 
     private void configureCredentials() {
         if (this.credentialClass != null) {
-            List<Property<Object>> props = PropertyQueries.createQuery(this.credentialClass)
-                    .addCriteria(new PropertyTypeCriteria(PropertyType.CREDENTIAL_TYPE)).getResultList();
-
-            if (props.size() == 1) {
-                this.modelProperties.put(PROPERTY_CREDENTIAL_TYPE, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous credential type property in credential class "
-                        + this.credentialClass.getName());
-            } else {
-                throw new SecurityConfigurationException("No credential type property found in credential class "
-                        + this.credentialClass.getName());
-            }
-
-            props = PropertyQueries.createQuery(this.credentialClass)
-                    .addCriteria(new PropertyTypeCriteria(PropertyType.CREDENTIAL)).getResultList();
-
-            if (props.size() == 1) {
-                this.modelProperties.put(PROPERTY_CREDENTIAL_VALUE, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous credential property in credential class "
-                        + this.credentialClass.getName());
-            } else {
-                throw new SecurityConfigurationException("No credential property found in credential class "
-                        + this.credentialClass.getName());
-            }
-
-            props = PropertyQueries.createQuery(this.credentialClass)
-                    .addCriteria(new PropertyTypeCriteria(PropertyType.IDENTITY_TYPE)).getResultList();
-
-            if (props.size() == 1) {
-                this.modelProperties.put(PROPERTY_CREDENTIAL_IDENTITY, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous identity type property in credential class "
-                        + this.credentialClass.getName());
-            } else {
-                throw new SecurityConfigurationException("No identity type property found in credential class "
-                        + this.credentialClass.getName());
-            }
-
-            props = PropertyQueries.createQuery(this.credentialClass)
-                    .addCriteria(new PropertyTypeCriteria(PropertyType.CREDENTIAL_EFFECTIVE_DATE)).getResultList();
-
-            if (props.size() == 1) {
-                this.modelProperties.put(PROPERTY_CREDENTIAL_EFFECTIVE_DATE, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous effective date property in credential class "
-                        + this.credentialClass.getName());
-            } else {
-                throw new SecurityConfigurationException("No effective date property found in credential class "
-                        + this.credentialClass.getName());
-            }
-
-            props = PropertyQueries.createQuery(this.credentialClass)
-                    .addCriteria(new PropertyTypeCriteria(PropertyType.CREDENTIAL_EXPIRY_DATE)).getResultList();
-
-            if (props.size() == 1) {
-                this.modelProperties.put(PROPERTY_CREDENTIAL_EXPIRY_DATE, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous expiry date property in credential class "
-                        + this.credentialClass.getName());
-            } else {
-                throw new SecurityConfigurationException("No expiry date property found in credential class "
-                        + this.credentialClass.getName());
-            }
+            configureModelProperty(PropertyType.CREDENTIAL_TYPE, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_VALUE, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_IDENTITY, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE, credentialClass, null);
 
             if (this.credentialAttributeClass != null) {
-                props = PropertyQueries.createQuery(this.credentialAttributeClass)
-                        .addCriteria(new PropertyTypeCriteria(PropertyType.NAME))
-                        .addCriteria(new TypedPropertyCriteria(String.class)).getResultList();
-
-                if (props.size() == 1) {
-                    modelProperties.put(PROPERTY_CREDENTIAL_ATTRIBUTE_NAME, props.get(0));
-                } else if (props.size() > 1) {
-                    throw new SecurityConfigurationException("Ambiguous attribute name property in attribute class "
-                            + attributeClass.getName());
-                } else {
-                    throw new SecurityConfigurationException(
-                            "Error initializing JPAIdentityStore - no name property found in attribute class "
-                                    + attributeClass.getName());
-                }
-
-                props = PropertyQueries.createQuery(this.credentialAttributeClass)
-                        .addCriteria(new PropertyTypeCriteria(PropertyType.VALUE)).getResultList();
-
-                if (props.size() == 1) {
-                    modelProperties.put(PROPERTY_CREDENTIAL_ATTRIBUTE_VALUE, props.get(0));
-                } else if (props.size() > 1) {
-                    throw new SecurityConfigurationException("Ambiguous attribute value property in class "
-                            + attributeClass.getName());
-                } else {
-                    throw new SecurityConfigurationException(
-                            "Error initializing JPAIdentityStore - no value property found in attribute class "
-                                    + attributeClass.getName());
-                }
-
-                props = PropertyQueries.createQuery(this.credentialAttributeClass)
-                        .addCriteria(new TypedPropertyCriteria(this.credentialClass)).getResultList();
-
-                if (props.size() == 1) {
-                    modelProperties.put(PROPERTY_CREDENTIAL_ATTRIBUTE, props.get(0));
-                } else if (props.size() > 1) {
-                    throw new SecurityConfigurationException("Ambiguous identity property in attribute class "
-                            + attributeClass.getName());
-                } else {
-                    throw new SecurityConfigurationException("Error initializing JPAIdentityStore - "
-                            + "no attribute identity property found.");
-                }
-
-                props = PropertyQueries.createQuery(this.credentialAttributeClass)
-                        .addCriteria(new PropertyTypeCriteria(PropertyType.ATTRIBUTE_TYPE)).getResultList();
-
-                if (props.size() == 1) {
-                    modelProperties.put(PROPERTY_CREDENTIAL_ATTRIBUTE_TYPE, props.get(0));
-                } else if (props.size() > 1) {
-                    throw new SecurityConfigurationException("Ambiguous attribute type property in class "
-                            + attributeClass.getName());
-                } else {
-                    throw new SecurityConfigurationException(
-                            "Error initializing JPAIdentityStore - no attribute type property found in attribute class "
-                                    + attributeClass.getName());
-                }
+                configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME, credentialAttributeClass, String.class);
+                configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, credentialAttributeClass, null);
+                configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, credentialAttributeClass, credentialClass);
             }
         }
     }
 
-    private void configureCredentialProperty(Property<Object> property, String modelPropertyName) {
-        if (this.modelProperties.containsKey(modelPropertyName)) {
-            throw new SecurityConfigurationException("Ambiguous property ["
-                    + property.getAnnotatedElement().getAnnotation(IDMProperty.class).value() + "] in credential class "
-                    + this.credentialClass.getName());
-        }
-
-        this.modelProperties.put(modelPropertyName, property);
-    }
-
-    private void configureIdentityTypeHandlers() {
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(User.class), new UserHandler());
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Agent.class), new AgentHandler());
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Role.class), new RoleHandler());
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Group.class), new GroupHandler());
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Relationship.class), new RelationshipHandler());
-    }
-
-    protected void configureIdentityDiscriminator() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.DISCRIMINATOR)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_DISCRIMINATOR, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity discriminator property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> p = findNamedProperty(identityClass, "discriminator", "identityType", "identityTypeName",
-                    "typeName", "type");
-
-            if (p != null) {
-                modelProperties.put(PROPERTY_IDENTITY_DISCRIMINATOR, p);
-            }
-        }
-    }
-
-    protected void configureIdentityKey() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.KEY)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_KEY, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity key property in identity class "
-                    + identityClass.getName());
-        } else {
-            props = PropertyQueries.createQuery(identityClass).addCriteria(new NamedPropertyCriteria("key")).getResultList();
-
-            if (!props.isEmpty()) {
-                modelProperties.put(PROPERTY_IDENTITY_KEY, props.get(0));
-            } else {
-                throw new SecurityConfigurationException(
-                        "Error initializing JPAIdentityStore - no key property found in identity class "
-                                + identityClass.getName());
-            }
-        }
-    }
-
-    protected void configureIdentityId() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.ID)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_ID, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity id property in identity class "
-                    + identityClass.getName());
-        } else {
-            throw new SecurityConfigurationException(
-                    "Error initializing JPAIdentityStore - no id property found in identity class " + identityClass.getName());
-        }
-    }
-
-    protected void configureIdentityName() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.NAME)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_NAME, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity name property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "name");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_IDENTITY_NAME, prop);
-            } else {
-                throw new SecurityConfigurationException(
-                        "Error initializing JPAIdentityStore - no name property found in identity class "
-                                + identityClass.getName());
-            }
-        }
-    }
-
-    protected void configureIdentityParentGroup() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.PARENT_GROUP)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_PARENT_GROUP, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity parent group property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "parentGroup", "parent");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_PARENT_GROUP, prop);
-            } else {
-                throw new SecurityConfigurationException(
-                        "Error initializing JPAIdentityStore - no parent group property found in identity class "
-                                + identityClass.getName());
-            }
-        }
-    }
-
-    protected void configureIdentityRelatesTo() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.RELATES_TO)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_RELATES_TO, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous relates to property in identity class "
-                    + identityClass.getName());
-        }
-
-        props = PropertyQueries.createQuery(identityClass).addCriteria(new PropertyTypeCriteria(PropertyType.RELATED_TO))
-                .getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_RELATED_TO, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous related to property in identity class "
-                    + identityClass.getName());
-        }
-    }
-
-    /**
-     * This is an optional property, we don't throw an exception if it's not present.
-     * 
-     * @throws SecurityConfigurationException
-     */
-    protected void configureIdentityEnabled() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.ENABLED)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_ENABLED, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity enabled property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "enabled", "active");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_IDENTITY_ENABLED, props.get(0));
-            }
-        }
-    }
-
-    /**
-     * This is an optional property, we don't throw an exception if it's not present.
-     * 
-     * @throws SecurityConfigurationException
-     */
-    protected void configureIdentityCreationDate() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.CREATION_DATE)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_CREATED, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity creation date property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "created", "creationDate");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_IDENTITY_CREATED, prop);
-            }
-        }
-    }
-
-    /**
-     * This is an optional property, we don't throw an exception if it's not present.
-     * 
-     * @throws SecurityConfigurationException
-     */
-    protected void configureIdentityExpiryDate() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.EXPIRY_DATE)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_EXPIRES, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity expiry date property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "expires", "expiryDate");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_IDENTITY_EXPIRES, prop);
-            }
-        }
-    }
-
-    protected void configureIdentityPartition() {
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.PARTITION)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_IDENTITY_PARTITION, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous identity partition property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "partition");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_IDENTITY_PARTITION, prop);
-            }
-        }
+    protected void configureIdentity() throws SecurityConfigurationException {
+        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, identityClass, null, 
+                "discriminator", "identityType", "identityTypeName", "typeName", "type");
+        configureModelProperty(PropertyType.IDENTITY_KEY, identityClass, null, "key");
+        configureModelProperty(PropertyType.IDENTITY_ID, identityClass, null, "id", "identifier");
+        configureModelProperty(PropertyType.IDENTITY_NAME, identityClass, null, "name");
+        configureModelProperty(PropertyType.GROUP_PARENT, identityClass, null, "parentGroup", "parent");
+        configureModelProperty(PropertyType.IDENTITY_ENABLED, identityClass, null, "enabled", "active");
+        configureModelProperty(PropertyType.IDENTITY_CREATION_DATE, identityClass, null, false, "created", "creationDate");
+        configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, identityClass, null, false, "expires", "expiryDate");
+        configureModelProperty(PropertyType.IDENTITY_PARTITION, identityClass, null, false, "partition");
+        configureModelProperty(PropertyType.AGENT_LOGIN_NAME, identityClass, null, "loginName", "login");
     }
 
     protected void configurePartitions() {
@@ -657,24 +327,9 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
             return;
         }
 
-        List<Property<Object>> props = PropertyQueries.createQuery(partitionClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.NAME)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_PARTITION_NAME, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous name property in partition class " + partitionClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(partitionClass, "name", "id");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_PARTITION_NAME, prop);
-            }
-        }
-
-        props = PropertyQueries.createQuery(partitionClass).addCriteria(new PropertyTypeCriteria(PropertyType.PARTITION_TYPE))
-                .getResultList();
-
+        configureModelProperty(PropertyType.PARTITION_TYPE, partitionClass, null, "type", "partitionType");
+        configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
+        configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");
     }
 
     /**
@@ -683,128 +338,34 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
      * @throws SecurityConfigurationException
      */
     protected void configureUserProperties() throws SecurityConfigurationException {
-        // Determine the first name property
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.FIRST_NAME)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_USER_FIRST_NAME, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous first name property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "firstName");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_USER_FIRST_NAME, prop);
-            }
-        }
-
-        // Determine the last name property
-        props = PropertyQueries.createQuery(identityClass).addCriteria(new PropertyTypeCriteria(PropertyType.LAST_NAME))
-                .getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_USER_LAST_NAME, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous last name property in identity class "
-                    + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "lastName");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_USER_LAST_NAME, prop);
-            }
-        }
-
-        // Determine the e-mail address property
-        props = PropertyQueries.createQuery(identityClass).addCriteria(new PropertyTypeCriteria(PropertyType.EMAIL))
-                .getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_USER_EMAIL, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous e-mail property in identity class " + identityClass.getName());
-        } else {
-            Property<Object> prop = findNamedProperty(identityClass, "email");
-
-            if (prop != null) {
-                modelProperties.put(PROPERTY_USER_EMAIL, prop);
-            }
-        }
+        configureModelProperty(PropertyType.USER_FIRST_NAME, identityClass, null, false, "firstName");
+        configureModelProperty(PropertyType.USER_LAST_NAME, identityClass, null, false, "lastName");
+        configureModelProperty(PropertyType.USER_EMAIL, identityClass, null, false, "email");
     }
 
     /*
-     * Configures properties for reading and writing identity memberships. As this is an optional feature, the specified
-     * membershipClass property may be left as null in which case no configuration will occur.
+     * Configures properties for reading and writing identity relationships. As this is an optional feature, the specified
+     * relationshipClass property may be left as null in which case no configuration will occur.
      */
-    protected void configureMemberships() throws SecurityConfigurationException {
-        if (membershipClass == null) {
+    protected void configureRelationships() throws SecurityConfigurationException {
+        if (relationshipClass == null) {
             return;
+        } else if (relationshipIdentityClass == null || relationshipAttributeClass == null) {
+                throw new SecurityConfigurationException("Invalid JPAIdentityStoreConfiguration - " +
+                        "Both relationshipIdentityClass and relationshipAttributeClass properties must be set " +
+                        "if relationships are configured");
         }
 
-        // First determine the member property
-        List<Property<Object>> props = PropertyQueries.createQuery(membershipClass)
-                .addCriteria(new TypedPropertyCriteria(identityClass))
-                .addCriteria(new PropertyTypeCriteria(PropertyType.MEMBER)).getResultList();
+        configureModelProperty(PropertyType.RELATIONSHIP_ID, relationshipClass, null, "id");
+        configureModelProperty(PropertyType.RELATIONSHIP_CLASS, relationshipClass, null, "relationshipClass");
 
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_MEMBERSHIP_MEMBER, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous member property in membership class "
-                    + membershipClass.getName());
-        } else {
-            Property<Object> p = findNamedProperty(membershipClass, "member");
+        configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, relationshipIdentityClass, null, "identity");
+        configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, relationshipIdentityClass, null, "descriptor");
+        configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, relationshipIdentityClass, relationshipClass);
 
-            if (p != null) {
-                modelProperties.put(PROPERTY_MEMBERSHIP_MEMBER, p);
-            } else {
-                throw new SecurityConfigurationException(
-                        "Error initializing JPAIdentityStore - no member property found in membership class "
-                                + membershipClass.getName());
-            }
-        }
-
-        // Determine the group property
-        props = PropertyQueries.createQuery(membershipClass).addCriteria(new TypedPropertyCriteria(identityClass))
-                .addCriteria(new PropertyTypeCriteria(PropertyType.GROUP)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_MEMBERSHIP_GROUP, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous group property in membership class "
-                    + membershipClass.getName());
-        } else {
-            Property<Object> p = findNamedProperty(membershipClass, "group");
-
-            if (p != null) {
-                modelProperties.put(PROPERTY_MEMBERSHIP_GROUP, p);
-            } else {
-                throw new SecurityConfigurationException(
-                        "Error initializing JPAIdentityStore - no group property found in membership class "
-                                + membershipClass.getName());
-            }
-        }
-
-        // Determine the role property
-        props = PropertyQueries.createQuery(membershipClass).addCriteria(new TypedPropertyCriteria(identityClass))
-                .addCriteria(new PropertyTypeCriteria(PropertyType.ROLE)).getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(PROPERTY_MEMBERSHIP_ROLE, props.get(0));
-        } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous role property in membership class " + membershipClass.getName());
-        } else {
-            Property<Object> p = findNamedProperty(membershipClass, "role");
-
-            if (p != null) {
-                modelProperties.put(PROPERTY_MEMBERSHIP_ROLE, p);
-            } else {
-                throw new SecurityConfigurationException(
-                        "Error initializing JPAIdentityStore - no role property found in membership class "
-                                + membershipClass.getName());
-            }
-        }
+        configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME, relationshipAttributeClass, null, "attributeName", "name");
+        configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE, relationshipAttributeClass, null, "attributeValue", "value");
+        configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, relationshipAttributeClass, null);
     }
 
     /**
@@ -813,80 +374,15 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
      * @throws SecurityConfigurationException
      */
     protected void configureAttributes() throws SecurityConfigurationException {
-        // If an attribute class has been configured, scan it for attribute
-        // properties
-        if (attributeClass != null) {
-            List<Property<Object>> props = PropertyQueries.createQuery(attributeClass)
-                    .addCriteria(new PropertyTypeCriteria(PropertyType.NAME))
-                    .addCriteria(new TypedPropertyCriteria(String.class)).getResultList();
-
-            if (props.size() == 1) {
-                modelProperties.put(PROPERTY_ATTRIBUTE_NAME, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous attribute name property in attribute class "
-                        + attributeClass.getName());
-            } else {
-                Property<Object> prop = findNamedProperty(attributeClass, "attributeName", "name");
-                if (prop != null) {
-                    modelProperties.put(PROPERTY_ATTRIBUTE_NAME, prop);
-                } else {
-                    throw new SecurityConfigurationException(
-                            "Error initializing JPAIdentityStore - no name property found in attribute class "
-                                    + attributeClass.getName());
-                }
-            }
-
-            props = PropertyQueries.createQuery(attributeClass).addCriteria(new PropertyTypeCriteria(PropertyType.VALUE))
-                    .getResultList();
-
-            if (props.size() == 1) {
-                modelProperties.put(PROPERTY_ATTRIBUTE_VALUE, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous attribute value property in class "
-                        + attributeClass.getName());
-            } else {
-                Property<Object> prop = findNamedProperty(attributeClass, "attributeValue", "value");
-                if (prop != null) {
-                    modelProperties.put(PROPERTY_ATTRIBUTE_VALUE, prop);
-                } else {
-                    throw new SecurityConfigurationException(
-                            "Error initializing JPAIdentityStore - no value property found in attribute class "
-                                    + attributeClass.getName());
-                }
-            }
-
-            props = PropertyQueries.createQuery(attributeClass).addCriteria(new TypedPropertyCriteria(identityClass))
-                    .getResultList();
-
-            if (props.size() == 1) {
-                modelProperties.put(PROPERTY_ATTRIBUTE_IDENTITY, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous identity property in attribute class "
-                        + attributeClass.getName());
-            } else {
-                throw new SecurityConfigurationException("Error initializing JPAIdentityStore - "
-                        + "no attribute identity property found.");
-            }
-
-            props = PropertyQueries.createQuery(attributeClass)
-                    .addCriteria(new PropertyTypeCriteria(PropertyType.ATTRIBUTE_TYPE)).getResultList();
-
-            if (props.size() == 1) {
-                modelProperties.put(PROPERTY_ATTRIBUTE_TYPE, props.get(0));
-            } else if (props.size() > 1) {
-                throw new SecurityConfigurationException("Ambiguous attribute type property in class "
-                        + attributeClass.getName());
-            } else {
-                Property<Object> prop = findNamedProperty(attributeClass, "attributeType", "type");
-                if (prop != null) {
-                    modelProperties.put(PROPERTY_ATTRIBUTE_TYPE, prop);
-                } else {
-                    throw new SecurityConfigurationException(
-                            "Error initializing JPAIdentityStore - no attribute type property found in attribute class "
-                                    + attributeClass.getName());
-                }
-            }
+        // If an attribute class has been configured, scan it for attribute properties
+        if (attributeClass == null) {
+            return;
         }
+
+        configureModelProperty(PropertyType.ATTRIBUTE_IDENTITY, attributeClass, identityClass);
+        configureModelProperty(PropertyType.ATTRIBUTE_NAME, attributeClass, null, "attributeName", "name");
+        configureModelProperty(PropertyType.ATTRIBUTE_TYPE, attributeClass, null, "attributeType", "type");
+        configureModelProperty(PropertyType.ATTRIBUTE_VALUE, attributeClass, null, "attributeValue", "value");
 
         // Scan for attribute properties in the identity class
         List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
@@ -963,10 +459,6 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return identityTypeAgent;
     }
 
-    public String getIdentityTypeRelationship() {
-        return this.identityTypeRelationship;
-    }
-
     public void setIdentityTypeAgent(String identityTypeAgent) {
         this.identityTypeAgent = identityTypeAgent;
     }
@@ -984,8 +476,6 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
             discriminator = getIdentityTypeGroup();
         } else if (Agent.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeAgent();
-        } else if (Relationship.class.isAssignableFrom(identityType)) {
-            discriminator = getIdentityTypeRelationship();
         } else {
             throw new IdentityManagementException("No discriminator could be determined for type [" + identityType.getClass()
                     + "]");
@@ -999,41 +489,17 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     @SuppressWarnings("unchecked")
-    IdentityTypeHandler<IdentityType> getIdentityTypeManager(Class<? extends IdentityType> identityTypeClass) {
+    IdentityTypeHandler<IdentityType> getHandler(Class<? extends IdentityType> identityTypeClass) {
         IdentityTypeHandler<IdentityType> identityTypeManager = (IdentityTypeHandler<IdentityType>) getIdentityTypeStores()
                 .get(getIdentityDiscriminator(identityTypeClass));
         return identityTypeManager;
     }
 
-    IdentityTypeHandler<IdentityType> getIdentityTypeManager(String discriminator) {
+    IdentityTypeHandler<IdentityType> getHandler(String discriminator) {
         return (IdentityTypeHandler<IdentityType>) getIdentityTypeStores().get(discriminator);
     }
 
     String getIdentityDiscriminator(Class<? extends IdentityType> identityType) {
         return getIdentityTypeDiscriminator(identityType);
-    }
-
-    public Property<Object> getIdentityIdProperty() {
-        return getModelProperty(PROPERTY_IDENTITY_ID);
-    }
-
-    public Property<Object> getIdentityNameProperty() {
-        return getModelProperty(PROPERTY_IDENTITY_NAME);
-    }
-
-    public Property<Object> getAttributeIdentityProperty() {
-        return getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY);
-    }
-
-    public Property<Object> getAttributeNameProperty() {
-        return getModelProperty(PROPERTY_ATTRIBUTE_NAME);
-    }
-
-    public Property<Object> getAttributeValueProperty() {
-        return getModelProperty(PROPERTY_ATTRIBUTE_VALUE);
-    }
-
-    public Property<Object> getDiscriminatorProperty() {
-        return getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR);
     }
 }

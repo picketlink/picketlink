@@ -22,7 +22,6 @@
 package org.picketlink.idm.model;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,21 +31,20 @@ import java.util.Map;
  * 
  * @author Shane Bryzak
  */
-public abstract class AbstractIdentityType implements IdentityType {
+public abstract class AbstractIdentityType extends AbstractAttributedType implements IdentityType {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2843998332737143820L;
 
     private boolean enabled = true;
     private Date createdDate = new Date();
     private Date expirationDate = null;
-    private Map<String, Attribute<? extends Serializable>> attributes = 
-            new HashMap<String, Attribute<? extends Serializable>>();
+
     private Partition partition;
 
     public boolean isEnabled() {
         return this.enabled;
     }
-    
+
     @Override
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -56,7 +54,7 @@ public abstract class AbstractIdentityType implements IdentityType {
     public Date getExpirationDate() {
         return this.expirationDate;
     }
-    
+
     @Override
     public void setExpirationDate(Date expirationDate) {
         this.expirationDate = expirationDate;
@@ -66,27 +64,10 @@ public abstract class AbstractIdentityType implements IdentityType {
     public Date getCreatedDate() {
         return this.createdDate;
     }
-    
+
     @Override
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
-    }
-    
-    public void setAttribute(Attribute<? extends Serializable> attribute) {
-        attributes.put(attribute.getName(), attribute);
-    }
-
-    public void removeAttribute(String name) {
-        attributes.remove(name);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Serializable> Attribute<T> getAttribute(String name) {
-        return (Attribute<T>) attributes.get(name);
-    }
-
-    public Collection<Attribute<? extends Serializable>> getAttributes() {
-        return java.util.Collections.unmodifiableCollection(attributes.values());
     }
 
     public Partition getPartition() {

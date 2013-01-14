@@ -21,72 +21,18 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-
 import org.picketlink.idm.query.QueryParameter;
 
+
+
 /**
- * Represents a relationship between two or more {@link IdentityType}
+ * Represents a relationship between two or more {@link IdentityType}, which is also
+ * capable of supporting multiple attribute values.
+ * 
  * @author anil saldhana
+ * @author Shane Bryzak
  * @since Dec 18, 2012
  */
-public interface Relationship extends IdentityType, Serializable {
-    /**
-     * A query parameter used to set the id value.
-     */
-    QueryParameter ID = new QueryParameter() {};
+public interface Relationship extends AttributedType {
 
-    /**
-     * A query parameter used to set the name value.
-     */
-    QueryParameter NAME = new QueryParameter() {};
-
-    /**
-     * A query parameter used to set the owner side of the relationship.
-     */
-    QueryParameter TO = new QueryParameter() {};
-
-    /**
-     * A query parameter used to set the other side of the relationship.
-     */
-    QueryParameter FROM = new QueryParameter() {};
-
-    String KEY_PREFIX = "REL://";
-
-    /**
-     * @return Relationship Id in String representation.
-     */
-    String getId();
-
-    /**
-     * Relationship name is unique identifier in specific group tree branch. For example group with id "/acme/departments/marketing"
-     * will have name "marketing" and parent group of id "/acme/departments"
-     *
-     * @return name
-     */
-    String getName();
-    
-    /**
-     * Get the {@link IdentityType} from where the relationship originates
-     * @return
-     */
-    IdentityType from();
-    
-    /**
-     * Get the {@link IdentityType} to where the relationship ends
-     * @return
-     */
-    IdentityType to();
-    
-    /**
-     * Sets the {@link IdentityType} from where the relationship originates
-     * @return
-     */
-    void setFrom(IdentityType from);
-    
-    /**
-     * Sets the {@link IdentityType} to where the relationship ends
-     * @return
-     */
-    void setTo(IdentityType to);
 }

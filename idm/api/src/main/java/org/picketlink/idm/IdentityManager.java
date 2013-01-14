@@ -30,10 +30,12 @@ import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 
@@ -61,11 +63,19 @@ public interface IdentityManager extends Serializable{
 
     // General
 
-    void add(IdentityType identityType);
+    void add(IdentityType value);
 
-    void update(IdentityType identityType);
+    void update(IdentityType value);
 
-    void remove(IdentityType identityType);
+    void remove(IdentityType value);
+
+    // Relationships
+
+    void add(Relationship value);
+
+    void update(Relationship value);
+
+    void remove(Relationship value);
 
     // Agent
 
@@ -105,7 +115,9 @@ public interface IdentityManager extends Serializable{
 
     // Query API
 
-    <T extends IdentityType> IdentityQuery<T> createQuery(Class<T> identityType);
+    <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType);
+
+    <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType);
 
     // Credential management
 

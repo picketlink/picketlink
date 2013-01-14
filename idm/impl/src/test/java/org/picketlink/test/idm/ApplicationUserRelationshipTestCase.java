@@ -21,7 +21,6 @@
  */
 package org.picketlink.test.idm;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
@@ -32,11 +31,10 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.idm.model.SimpleRelationship;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 
 /**
  * OAuth Use Case of an User X authorizing an OAuth application APP to have access 
@@ -67,10 +65,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
 
         identityManager.add(myOauthApp);
         
-        Relationship authorized = new SimpleRelationship("authorized");
-        
-        authorized.setFrom(robert);
-        authorized.setTo(myOauthApp);
+        Authorization authorized = new Authorization(robert, myOauthApp);
         
         authorized.setAttribute(new Attribute<String>("authorizationCode", authorizationCode));
         authorized.setAttribute(new Attribute<String>("accessToken", accessToken));
@@ -79,50 +74,63 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         identityManager.add(authorized);
         
         //Query the relationship
+        RelationshipQuery<Authorization> query = identityManager.createRelationshipQuery(Authorization.class);
         
-        IdentityQuery<Relationship> query = identityManager.createQuery(Relationship.class);
+        query.setParameter(Authorization.USER, robert);
+        query.setParameter(Authorization.APPLICATION, myOauthApp);
         
-        query.setParameter(Relationship.NAME, authorized.getName());
-        
-        List<Relationship> result = query.getResultList();
+        List<Authorization> result = query.getResultList();
         
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
         
         authorized = result.get(0);
         
-        assertEquals(authorized.getName(), result.get(0).getName());
-        assertNotNull(authorized.to());
-        assertNotNull(authorized.from());
+        assertNotNull(authorized.getUser());
+        assertNotNull(authorized.getApplication());
         assertNotNull(authorized.getAttribute("authorizationCode"));
         
-        query = identityManager.createQuery(Relationship.class);
+        query = identityManager.createRelationshipQuery(Authorization.class);
         
-        query.setParameter(Relationship.TO, myOauthApp);
-        
-        result = query.getResultList();
-        
-        assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
-        assertEquals(authorized.getName(), result.get(0).getName());
-        assertNotNull(authorized.to());
-        assertNotNull(authorized.from());
-        
-        query = identityManager.createQuery(Relationship.class);
-        
-        query.setParameter(Relationship.FROM, robert);
+        query.setParameter(Authorization.APPLICATION, myOauthApp);
         
         result = query.getResultList();
         
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
-        assertEquals(authorized.getName(), result.get(0).getName());
-        assertNotNull(authorized.to());
-        assertNotNull(authorized.from());
+        assertNotNull(authorized.getUser());
+        assertNotNull(authorized.getApplication());
         
-        query = identityManager.createQuery(Relationship.class);
+        query = identityManager.createRelationshipQuery(Authorization.class);
         
-        query.setParameter(Relationship.FROM, myOauthApp);
+        query.setParameter(Authorization.USER, robert);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertNotNull(authorized.getUser());
+        assertNotNull(authorized.getApplication());
+        
+        User someUser = loadOrCreateUser("someUser", true);
+        
+        query = identityManager.createRelationshipQuery(Authorization.class);
+        
+        query.setParameter(Authorization.USER, someUser);
+        query.setParameter(Authorization.APPLICATION, myOauthApp);
+        
+        result = query.getResultList();
+        
+        // user is not authorized to the application
+        assertTrue(result.isEmpty());
+        
+        // remove the relationship
+        identityManager.remove(authorized);
+        
+        query = identityManager.createRelationshipQuery(Authorization.class);
+        
+        query.setParameter(Authorization.USER, robert);
+        query.setParameter(Authorization.APPLICATION, myOauthApp);
         
         result = query.getResultList();
         

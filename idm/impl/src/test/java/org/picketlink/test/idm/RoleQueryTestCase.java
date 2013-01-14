@@ -60,7 +60,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.NAME, "admin");
 
@@ -92,7 +92,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         identityManager.update(someRole);
         identityManager.update(someAnotherRole);
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.ENABLED, true);
 
@@ -103,7 +103,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someRole.getName()));
         assertTrue(contains(result, someAnotherRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.ENABLED, false);
 
@@ -117,7 +117,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         // let's disabled the role and try to find him
         identityManager.update(someRole);
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.ENABLED, false);
 
@@ -133,7 +133,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         // let's disabled the role and try to find him
         identityManager.update(someAnotherRole);
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.ENABLED, true);
 
@@ -156,7 +156,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.CREATED_DATE, role.getCreatedDate());
         
@@ -169,7 +169,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.size() == 1);
         assertEquals("someRole", result.get(0).getName());
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.CREATED_DATE, new Date());
 
@@ -200,7 +200,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(role);
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.EXPIRY_DATE, role.getExpirationDate());
 
@@ -213,7 +213,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertEquals("someRole", result.get(0).getName());
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -241,7 +241,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -260,7 +260,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someRole.getName()));
         assertTrue(contains(result, someAnotherRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         Role someFutureRole = loadOrCreateRole("someFutureRole", true);
         Role someAnotherFutureRole = loadOrCreateRole("someAnotherFutureRole", true);
@@ -277,7 +277,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureRole.getName()));
         assertTrue(contains(result, someAnotherFutureRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         // roles created before the given time
         query.setParameter(Role.CREATED_BEFORE, new Date());
@@ -291,7 +291,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureRole.getName()));
         assertTrue(contains(result, someAnotherFutureRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         Thread.sleep(1000);
         
@@ -327,7 +327,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(role);
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.NAME, "admin");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
@@ -338,7 +338,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, role.getName()));
         assertEquals(1, result.size());
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(Role.NAME, "admin");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
@@ -371,7 +371,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someAnotherRole);
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -404,7 +404,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someRole.getName()));
         assertTrue(contains(result, someAnotherRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         // roles expired after the given time
         query.setParameter(Role.EXPIRY_AFTER, expiryDate);
@@ -418,7 +418,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureRole.getName()));
         assertTrue(contains(result, someAnotherFutureRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         // roles expired before the given time
         query.setParameter(Role.EXPIRY_BEFORE, new Date());
@@ -432,7 +432,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureRole.getName()));
         assertTrue(contains(result, someAnotherFutureRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
         
         Calendar futureExpiryDate = Calendar.getInstance();
         
@@ -463,7 +463,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someRole);
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -476,7 +476,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someRole);
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -488,7 +488,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someRole);
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValueChanged");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), "someAttributeValue2");
@@ -517,7 +517,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someRole);
 
-        IdentityQuery<Role> query = identityManager.<Role> createQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValue2" });
@@ -527,7 +527,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttributeValue1",
                 "someAttributeValue2" });
@@ -536,7 +536,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValueChanged",
                 "someAttributeValue2" });
@@ -545,7 +545,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue" });
 
@@ -560,7 +560,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someRole);
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValueChanged" });
@@ -572,7 +572,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someRole.getName()));
 
-        query = identityManager.<Role> createQuery(Role.class);
+        query = identityManager.<Role> createIdentityQuery(Role.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValueChanged" });

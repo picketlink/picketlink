@@ -8,17 +8,18 @@ package org.picketlink.idm.model;
 public class SimpleAgent extends AbstractIdentityType implements Agent {
     private static final long serialVersionUID = -7418037050013416323L;
 
-    private String id;
+    private String loginName;
 
-    public SimpleAgent(String id) {
-        this.id = id;
-    }
-
-    public String getId() {
-        return id;
+    public SimpleAgent(String loginName) {
+        this.loginName = loginName;
     }
 
     public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, id);
+        return String.format("%s%s", KEY_PREFIX, loginName);
+    }
+
+    @Override
+    public String getLoginName() {
+        return loginName;
     }
 }

@@ -21,8 +21,6 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
-import java.util.Collection;
 import java.util.Date;
 
 import org.picketlink.idm.query.QueryParameter;
@@ -34,7 +32,7 @@ import org.picketlink.idm.query.QueryParameter;
  *
  * @author Shane Bryzak
  */
-public interface IdentityType extends Serializable {
+public interface IdentityType extends AttributedType {
     /**
      *  A query parameter used to set the key value.
      */
@@ -54,7 +52,7 @@ public interface IdentityType extends Serializable {
      * A query parameter used to set the created after date
      */
     QueryParameter CREATED_AFTER = new QueryParameter() {};
-    
+
     /**
      * A query parameter used to set the created before date
      */
@@ -112,23 +110,6 @@ public interface IdentityType extends Serializable {
      */
     QueryParameter HAS_MEMBER = new QueryParameter() {};
 
-    public class AttributeParameter implements QueryParameter {
-        private String name;
-        public AttributeParameter(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-    }
-
-    public final class ATTRIBUTE {
-        public static AttributeParameter byName(String name) {
-            return new AttributeParameter(name);
-        }
-    }
-
     /**
      * Returns a key value for this IdentityType.  The key may be used to perform a 
      * lookup operation to retrieve the exact IdentityType instance, and so must be unique.
@@ -143,74 +124,41 @@ public interface IdentityType extends Serializable {
      * @return A boolean value indicating whether this IdentityType is enabled.
      */
     boolean isEnabled();
-    
+
     /**
      * <p>Sets the current enabled status of this {@link IdentityType}.</p>
      * 
      * @param enabled
      */
     void setEnabled(boolean enabled);
-    
+
     /**
      * Returns the date that this IdentityType instance was created.
      * 
      * @return Date value representing the creation date
      */
     Date getCreatedDate();
-    
+
     /**
      * <p>Sets the date that this {@link IdentityType} was created.</p>
      * 
      * @param expirationDate
      */
     void setCreatedDate(Date createdDate);
-    
+
     /**
      * Returns the date that this IdentityType expires, or null if there is no expiry date.
      * 
      * @return
      */
     Date getExpirationDate();
-    
+
     /**
      * <p>Sets the date that this {@link IdentityType} expires.</p>
      * 
      * @param expirationDate
      */
     void setExpirationDate(Date expirationDate);
-    
-    // Attributes
-
-    /**
-     * Set the specified attribute. This operation will overwrite any previous value. 
-     *
-     * @param name of attribute
-     * @param value to be set
-     */
-    void setAttribute(Attribute<? extends Serializable> attribute);
-
-    /**
-     * Remove the attribute with given name
-     *
-     * @param name of attribute
-     */
-    void removeAttribute(String name);
-
-    /**
-     * Return the attribute value with the specified name
-     * 
-     * @param name of attribute
-     * @return attribute value or null if attribute with given name doesn't exist. If given attribute has many values method
-     *         will return first one
-     */
-    <T extends Serializable> Attribute<T> getAttribute(String name);
-
-    /**
-     * Returns a Map containing all attribute values for this IdentityType instance.
-     * 
-     * @return map of attribute names and their values
-     */
-    Collection<Attribute<? extends Serializable>> getAttributes();
 
     /**
      * Returns the owning Partition for this identity object.

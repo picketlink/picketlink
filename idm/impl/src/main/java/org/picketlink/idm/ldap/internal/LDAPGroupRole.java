@@ -27,7 +27,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 
@@ -36,8 +35,10 @@ import org.picketlink.idm.model.Role;
  *
  * @author anil saldhana
  * @since Sep 7, 2012
+<<<<<<< HEAD
  */
-public class LDAPGroupRole extends LDAPEntry implements GroupRole {
+ // TODO fix hierarchy
+public class LDAPGroupRole extends LDAPEntry /*implements GroupRole*/ {
 
     private static final long serialVersionUID = 1L;
     
@@ -73,17 +74,17 @@ public class LDAPGroupRole extends LDAPEntry implements GroupRole {
         return "cn=" + this.group.getName() + LDAPConstants.COMMA + this.user.getDN(); 
     }
     
-    @Override
+    //@Override
     public IdentityType getMember() {
         return this.user;
     }
 
-    @Override
+    //@Override
     public Group getGroup() {
         return this.group;
     }
 
-    @Override
+    //@Override
     public Role getRole() {
         return this.role;
     }

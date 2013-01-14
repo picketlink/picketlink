@@ -60,7 +60,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.NAME, "admin");
 
@@ -92,7 +92,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         identityManager.update(someGroup);
         identityManager.update(someAnotherGroup);
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.ENABLED, true);
 
@@ -103,7 +103,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.ENABLED, false);
 
@@ -115,7 +115,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someGroup);
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.ENABLED, false);
 
@@ -129,7 +129,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someAnotherGroup);
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.ENABLED, true);
 
@@ -152,7 +152,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.PARENT, group.getParentGroup().getName());
 
@@ -177,7 +177,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.CREATED_DATE, group.getCreatedDate());
 
@@ -187,7 +187,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.size() == 1);
         assertEquals("someGroup", result.get(0).getName());
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
         
         Thread.sleep(500);
         
@@ -219,7 +219,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(group);
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.EXPIRY_DATE, expirationDate);
 
@@ -231,7 +231,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertEquals("someGroup", result.get(0).getName());
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -258,7 +258,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -276,7 +276,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         Group someFutureGroup = loadOrCreateGroup("someFutureGroup", null, true);
         Group someAnotherFutureGroup = loadOrCreateGroup("someAnotherFutureGroup", null, true);
@@ -292,7 +292,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureGroup.getName()));
         assertTrue(contains(result, someAnotherFutureGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.CREATED_BEFORE, new Date());
 
@@ -305,7 +305,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureGroup.getName()));
         assertTrue(contains(result, someAnotherFutureGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         Calendar futureDate = Calendar.getInstance();
         
@@ -338,7 +338,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(group);
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.NAME, "admin");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
@@ -349,7 +349,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, group.getName()));
         assertEquals(1, result.size());
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.NAME, "admin");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
@@ -382,7 +382,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someAnotherGroup);
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         Calendar calendar = Calendar.getInstance();
 
@@ -414,7 +414,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.EXPIRY_AFTER, expiryDate);
 
@@ -427,7 +427,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureGroup.getName()));
         assertTrue(contains(result, someAnotherFutureGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(Group.EXPIRY_BEFORE, new Date());
 
@@ -440,7 +440,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someFutureGroup.getName()));
         assertTrue(contains(result, someAnotherFutureGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         Calendar futureDate = Calendar.getInstance();
         
@@ -471,7 +471,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someGroup);
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -484,7 +484,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someGroup);
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
 
@@ -496,7 +496,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someGroup);
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValueChanged");
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), "someAttributeValue2");
@@ -525,7 +525,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someGroup);
 
-        IdentityQuery<Group> query = identityManager.<Group> createQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValue2" });
@@ -535,7 +535,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttributeValue1",
                 "someAttributeValue2" });
@@ -544,7 +544,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValueChanged",
                 "someAttributeValue2" });
@@ -553,7 +553,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue" });
 
@@ -568,7 +568,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         identityManager.update(someGroup);
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValueChanged" });
@@ -580,7 +580,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someGroup.getName()));
 
-        query = identityManager.<Group> createQuery(Group.class);
+        query = identityManager.<Group> createIdentityQuery(Group.class);
 
         query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
                 "someAttributeValueChanged" });

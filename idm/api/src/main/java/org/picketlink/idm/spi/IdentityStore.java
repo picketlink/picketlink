@@ -27,15 +27,16 @@ import java.util.List;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.RelationshipQuery;
 
 /**
  * IdentityStore representation providing minimal SPI
@@ -44,22 +45,6 @@ import org.picketlink.idm.query.IdentityQuery;
  * @author Shane Bryzak
  */
 public interface IdentityStore<T extends IdentityStoreConfiguration> {
-
-    /**
-     * This enum defines the individual features that an IdentityStore implementation or
-     * instance may support.
-     * 
-     *  // TODO document each enum here 
-     */
-    public enum Feature { createUser, readUser, updateUser, deleteUser, 
-                          createGroup, readGroup, updateGroup, deleteGroup,
-                          createRole, readRole, updateRole, deleteRole,
-                          createMembership, readMembership, updateMembership, deleteMembership,
-                          readAttribute, updateAttribute, deleteAttribute,
-                          manageCredentials,
-                          supportsTiers, supportsRealms, disableRole, disableGroup, disableUser,
-                          createAgent,
-                          all, updateAgent, deleteAgent, readAgent }
 
     /**
      * Sets the configuration and context in which the IdentityStore will execute its operations
@@ -90,21 +75,21 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * 
      * @param identityType
      */
-    void add(IdentityType identityType);
+    void add(AttributedType value);
 
     /**
      * Updates the specified IdentityType
      * 
      * @param identityType
      */
-    void update(IdentityType identityType);
+    void update(AttributedType value);
 
     /**
      * Removes the specified IdentityType
      * 
      * @param identityType
      */
-    void remove(IdentityType identityType);
+    void remove(AttributedType value);
 
     // Agent
 
@@ -152,45 +137,18 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      */
     Role getRole(String name);
 
-    // Memberships
-
-    /**
-     * Creates a new persistent Membership. The member parameter may be an instance of a User or a Role.
-     * 
-     * @param ctx
-     * @param member The User or Group to become a member
-     * @param group The Group instance that the User or Group will become a member of
-     * @param role The Role instance that the User or Group will become a member of
-     * @return A Membership instance representing the new membership.
-     */
-    GroupRole createMembership(IdentityType member, Group group, Role role);
-
-    /**
-     * Removes a Membership from persistent storage 
-     * 
-     * @param ctx
-     * @param member The member to remove
-     * @param group The Group of the membership
-     * @param role The Role of the membership
-     */
-    void removeMembership(IdentityType member, Group group, Role role);
-
-    /**
-     * Returns the specified Membership
-     * 
-     * @param ctx
-     * @param member
-     * @param group
-     * @param role
-     * @return
-     */
-    GroupRole getMembership(IdentityType member, Group group, Role role);
-
     // Identity query
 
     <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery);
 
     <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery);
+
+    // Relationship query
+
+    <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query);
+
+    <T extends Relationship> int countQueryResults(RelationshipQuery<T> query);
+
     // Attributes
 
     /**

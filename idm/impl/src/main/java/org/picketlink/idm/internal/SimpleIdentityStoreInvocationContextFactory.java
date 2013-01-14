@@ -22,6 +22,7 @@
 package org.picketlink.idm.internal;
 
 import org.picketlink.idm.DefaultIdentityCache;
+import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
@@ -39,10 +40,11 @@ public class SimpleIdentityStoreInvocationContextFactory implements IdentityStor
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory = new DefaultCredentialHandlerFactory();
     private IdentityCache identityCache = new DefaultIdentityCache();
+    private IdGenerator idGenerator = new DefaultIdGenerator();
     
     @Override
     public IdentityStoreInvocationContext createContext() {
-        return new IdentityStoreInvocationContext(this.identityCache, eventBridge, credentialHandlerFactory);
+        return new IdentityStoreInvocationContext(this.identityCache, eventBridge, credentialHandlerFactory, idGenerator);
     }
 
     @SuppressWarnings("rawtypes")

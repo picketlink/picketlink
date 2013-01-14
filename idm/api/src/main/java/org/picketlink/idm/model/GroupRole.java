@@ -21,19 +21,45 @@
  */
 package org.picketlink.idm.model;
 
-import java.io.Serializable;
+import org.picketlink.idm.model.annotation.RelationshipIdentity;
+import org.picketlink.idm.query.IdentityTypeQueryParameter;
 
 /**
- * GroupRole links a member (either a User or Group) to a group role.
+ * GroupRole is a Relationship type that assigns a role within a group to an identity (either a User or Group).
  * 
  * @author Boleslaw Dawidowicz
  * @author Shane Bryzak
  */
-public interface GroupRole extends Serializable {
+public class GroupRole extends GroupMembership implements Relationship {
 
-    IdentityType getMember();
+    private static final long serialVersionUID = 2844617870858266637L;
 
-    Group getGroup();
+    public static final IdentityTypeQueryParameter ROLE = new IdentityTypeQueryParameter() {
+        
+        @Override
+        public String getName() {
+            return "role";
+        }
+    };;
 
-    Role getRole();
+
+    private Role role;
+
+    public GroupRole() {
+        super();
+    }
+    
+    public GroupRole(IdentityType member, Group group, Role role) {
+        super(member, group);
+        this.role = role;
+    }
+
+    @RelationshipIdentity
+    public Role getRole() {
+        return role;
+    }
+    
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

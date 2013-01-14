@@ -73,7 +73,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         CredentialStore store = validateCredentialStore(identityStore);
 
-        if (!Password.class.isInstance(credential)) {
+        if (!Password.class.isInstance(credential)) { 
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
                     + "] not supported by this handler.");
         }
@@ -95,7 +95,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
     }
 
     private boolean isCredentialExpired(CredentialStorage credentialStorage) {
-        return credentialStorage != null && credentialStorage.getExpiryDate() == null || new Date().after(credentialStorage.getExpiryDate());
+        return credentialStorage != null && credentialStorage.getExpiryDate() == null || new Date().compareTo(credentialStorage.getExpiryDate()) > 0;
     }
 
     @SuppressWarnings("unchecked")
@@ -105,8 +105,8 @@ public class PasswordCredentialHandler implements CredentialHandler {
         Date actualDate = new Date();
 
         for (CredentialStorage storedCredential : credentials) {
-            if (storedCredential.getEffectiveDate().before(actualDate)) {
-                if (lastCredential == null || lastCredential.getEffectiveDate().before(storedCredential.getEffectiveDate())) {
+            if (storedCredential.getEffectiveDate().compareTo(actualDate) <= 0) {
+                if (lastCredential == null || lastCredential.getEffectiveDate().compareTo(storedCredential.getEffectiveDate()) <= 0) {
                     lastCredential = storedCredential;
                 }
             }

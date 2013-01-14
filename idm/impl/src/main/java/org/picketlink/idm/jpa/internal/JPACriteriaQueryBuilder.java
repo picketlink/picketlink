@@ -22,8 +22,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_DISCRIMINATOR;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -34,6 +32,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -79,10 +78,10 @@ public class JPACriteriaQueryBuilder {
 
         String discriminator = this.config.getIdentityTypeDiscriminator(identityQuery.getIdentityType());
 
-        predicates.add(builder.equal(root.get(this.config.getModelProperty(PROPERTY_IDENTITY_DISCRIMINATOR).getName()),
+        predicates.add(builder.equal(root.get(this.config.getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
                 discriminator));
         
-        IdentityTypeHandler identityTypeManager = this.config.getIdentityTypeManager(this.identityQuery.getIdentityType());
+        IdentityTypeHandler identityTypeManager = this.config.getHandler(this.identityQuery.getIdentityType());
         
         for (Entry<QueryParameter, Object[]> entry : this.identityQuery.getParameters().entrySet()) {
             QueryParameter queryParameter = entry.getKey();

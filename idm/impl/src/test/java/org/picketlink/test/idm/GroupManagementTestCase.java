@@ -103,7 +103,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         assertNotNull(storedGroupInstance);
         assertNotNull(storedGroupInstance.getParentGroup());
-        assertEquals("GROUP:///Test Parent Group/Test Group", storedGroupInstance.getKey());
+        assertEquals("GROUP://Test Parent Group/Test Group", storedGroupInstance.getKey());
         assertEquals("Test Group", storedGroupInstance.getName());
     }
 
@@ -124,7 +124,7 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
 
         assertNotNull(storedGroupInstance);
         assertNotNull(storedGroupInstance.getParentGroup());
-        assertEquals("GROUP:///Test Parent Group/Test Group", storedGroupInstance.getKey());
+        assertEquals("GROUP://Test Parent Group/Test Group", storedGroupInstance.getKey());
         assertEquals("Test Group", storedGroupInstance.getName());
 
         Group invalidGroupInstance = identityManager.getGroup("Test Group", new SimpleGroup("Invalid Parent Group"));

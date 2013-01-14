@@ -4,6 +4,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
 import org.picketlink.idm.DefaultIdentityCache;
+import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
@@ -24,6 +25,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory;
     private IdentityCache identityCache;
+    private IdGenerator idGenerator;
 
     // FIXME Bad!! we can't do this, this class is multi-threaded!
     private EntityManager entityManager;
@@ -40,6 +42,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
         };
         this.credentialHandlerFactory = new DefaultCredentialHandlerFactory();
         this.identityCache = new DefaultIdentityCache();
+        this.idGenerator = new DefaultIdGenerator();
     }
 
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf){
@@ -67,7 +70,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
 
     @Override
     public IdentityStoreInvocationContext createContext() {
-        return new IdentityStoreInvocationContext(this.identityCache, eventBridge, credentialHandlerFactory);
+        return new IdentityStoreInvocationContext(this.identityCache, eventBridge, credentialHandlerFactory, idGenerator);
     }
 
     @Override

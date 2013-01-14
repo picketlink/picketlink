@@ -22,16 +22,6 @@
 
 package org.picketlink.idm.jpa.internal;
 
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_ATTRIBUTE_IDENTITY;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_ATTRIBUTE_NAME;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_ATTRIBUTE_VALUE;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_CREATED;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_DISCRIMINATOR;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_ENABLED;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_KEY;
-import static org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_PARTITION;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -42,8 +32,10 @@ import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
+import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.IdentityType.AttributeParameter;
+import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -56,6 +48,34 @@ import org.picketlink.idm.query.QueryParameter;
  * 
  */
 public abstract class IdentityTypeHandler<T extends IdentityType> {
+
+    private JPAIdentityStoreConfiguration config;
+
+    public IdentityTypeHandler(JPAIdentityStoreConfiguration config) {
+        this.config = config;
+    }
+
+    protected JPAIdentityStoreConfiguration getConfig() {
+        return config;
+    }
+
+    protected <P> P getModelPropertyValue(Class<P> propertyClass, Object instance, PropertyType propertyType) {
+        @SuppressWarnings("unchecked")
+        Property<P> property = (Property<P>) config.getModelProperty(propertyType);
+        return property == null ? null : property.getValue(instance);
+    }
+
+    protected void setModelPropertyValue(Object instance, PropertyType propertyType, Object value) {
+        setModelPropertyValue(instance, propertyType, value, false);
+    }
+
+    protected void setModelPropertyValue(Object instance, PropertyType propertyType, Object value, boolean required) {
+        if (config.isModelPropertySet(propertyType)) {
+           config.getModelProperty(propertyType).setValue(instance, value);
+        } else if (required) {
+            throw new IdentityManagementException("Model property [" + propertyType.name() + "] has not been configured.");
+        }
+    }
 
     /**
      * <p>
@@ -70,11 +90,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     public T createIdentityType(Realm realm, Object identity, JPAIdentityStore store) {
         T identityType = doCreateIdentityType(identity, store);
 
-        identityType.setEnabled(store.getModelProperty(Boolean.class, identity, PROPERTY_IDENTITY_ENABLED));
-        identityType.setExpirationDate(store.getModelProperty(Date.class, identity,
-                JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_EXPIRES));
-        identityType.setCreatedDate(store.getModelProperty(Date.class, identity,
-                JPAIdentityStoreConfiguration.PROPERTY_IDENTITY_CREATED));
+        identityType.setEnabled(getModelPropertyValue(Boolean.class, identity, PropertyType.IDENTITY_ENABLED));
+        identityType.setExpirationDate(getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_EXPIRY_DATE));
+        identityType.setCreatedDate(getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_CREATION_DATE));
 
         return identityType;
     }
@@ -92,7 +110,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         Object identity = null;
 
         try {
-            identity = store.getConfig().getIdentityClass().newInstance();
+            identity = getConfig().getIdentityClass().newInstance();
+            String id = store.getContext().getIdGenerator().generate();
+            getConfig().getModelProperty(PropertyType.IDENTITY_ID).setValue(identity, id);
+            fromIdentityType.setId(id);
             populateIdentityInstance(realm, identity, fromIdentityType, store);
         } catch (Exception e) {
             throw new IdentityManagementException("Error creating/populating Identity instance from IdentityType.", e);
@@ -112,22 +133,22 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      */
     protected void populateIdentityInstance(Realm realm, Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
         // populate the common properties from IdentityType
-        String identityDiscriminator = store.getConfig().getIdentityDiscriminator(fromIdentityType.getClass());
+        String identityDiscriminator = getConfig().getIdentityDiscriminator(fromIdentityType.getClass());
 
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
 
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_KEY, fromIdentityType.getKey(), true);
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_CREATED, fromIdentityType.getCreatedDate(), true);
-        store.setModelProperty(toIdentity, PROPERTY_IDENTITY_EXPIRES, fromIdentityType.getExpirationDate());
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_KEY, fromIdentityType.getKey(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());
 
         if (realm != null) {
-            store.setModelProperty(toIdentity, PROPERTY_IDENTITY_PARTITION, store.lookupPartitionObject(realm));
+            setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(realm));
         }
 
         doPopulateIdentityInstance(toIdentity, fromIdentityType, store);
     }
-    
+
     /**
      * <p>
      * Logic to be executed before removing the given {@link IdentityType}. The <code>identity</code> argument refers to a
@@ -154,65 +175,66 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      */
     public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
             JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-        JPAIdentityStoreConfiguration storeConfig = store.getConfig();
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         if (queryParameter.equals(IdentityType.ENABLED)) {
             predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_ENABLED).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ENABLED).getName()),
                     parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.CREATED_DATE)) {
             predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.EXPIRY_DATE)) {
             predicates.add(criteria.getBuilder().equal(
-                    criteria.getRoot().get(storeConfig.getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.CREATED_AFTER)) {
             predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
-                    criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
+                    criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.EXPIRY_AFTER)) {
             predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
-                    criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
+                    criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.CREATED_BEFORE)) {
             predicates.add(criteria.getBuilder().lessThanOrEqualTo(
-                    criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_CREATED).getName()),
+                    criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter.equals(IdentityType.EXPIRY_BEFORE)) {
             predicates.add(criteria.getBuilder().lessThanOrEqualTo(
-                    criteria.getRoot().<Date> get(storeConfig.getModelProperty(PROPERTY_IDENTITY_EXPIRES).getName()),
+                    criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
 
         if (queryParameter instanceof IdentityType.AttributeParameter) {
             AttributeParameter customParameter = (AttributeParameter) queryParameter;
 
-            Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getAttributeClass());
-            Root fromProject = subquery.from(storeConfig.getAttributeClass());
-            Subquery<?> select = subquery.select(fromProject.get(storeConfig.getModelProperty(PROPERTY_ATTRIBUTE_IDENTITY).getName()));
+            Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getAttributeClass());
+            Root fromProject = subquery.from(getConfig().getAttributeClass());
+            Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
+                    PropertyType.ATTRIBUTE_IDENTITY).getName()));
 
             Predicate conjunction = criteria.getBuilder().conjunction();
 
             conjunction.getExpressions().add(
-                    criteria.getBuilder().equal(fromProject.get(storeConfig.getModelProperty(PROPERTY_ATTRIBUTE_NAME).getName()),
-                            customParameter.getName()));
+                    criteria.getBuilder().equal(fromProject.get(getConfig().getModelProperty(
+                            PropertyType.ATTRIBUTE_NAME).getName()), customParameter.getName()));
             conjunction.getExpressions().add(
-                    (fromProject.get(storeConfig.getModelProperty(PROPERTY_ATTRIBUTE_VALUE).getName()).in((Object[]) parameterValues)));
+                    (fromProject.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE).getName())
+                            .in((Object[]) parameterValues)));
 
             subquery.where(conjunction);
 
