@@ -163,7 +163,7 @@ public class DefaultIdentityManager implements IdentityManager {
                 for (Feature f : Feature.values()) {
                     if (identityStoreConfig.getFeatureSet().supports(f)) {
                         if (!featureToStoreMap.containsKey(f)) {
-                            featureToStoreMap.put(f,  new HashSet<IdentityStoreConfiguration>());
+                            featureToStoreMap.put(f, new HashSet<IdentityStoreConfiguration>());
                         }
                         featureToStoreMap.get(f).add(identityStoreConfig);
                     }
@@ -185,7 +185,7 @@ public class DefaultIdentityManager implements IdentityManager {
         return getContextualStoreForFeature(ctx, feature, null);
     }
 
-    private IdentityStore<?> getContextualStoreForFeature(IdentityStoreInvocationContext ctx, Feature feature, 
+    private IdentityStore<?> getContextualStoreForFeature(IdentityStoreInvocationContext ctx, Feature feature,
             Class<? extends Relationship> relationshipClass) {
         String realm = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
 
@@ -196,44 +196,43 @@ public class DefaultIdentityManager implements IdentityManager {
         IdentityStoreConfiguration config = null;
         Map<Feature, Set<IdentityStoreConfiguration>> featureToStoreMap = realmStores.get(realm);
 
-        if (!featureToStoreMap.containsKey(feature)) {
-            throw new UnsupportedOperationException("The requested identity management feature [" + feature.toString()
-                    + "] has not been configured.");
+        Set<IdentityStoreConfiguration> stores;
+        
+        if (featureToStoreMap.containsKey(feature)) {
+            stores = featureToStoreMap.get(feature);
+        } else if (featureToStoreMap.containsKey(Feature.all)) {
+            stores = featureToStoreMap.get(Feature.all);
         } else {
-            Set<IdentityStoreConfiguration> stores;
-            if (featureToStoreMap.containsKey(feature)) {
-                stores = featureToStoreMap.get(feature);
-            } else if (featureToStoreMap.containsKey(Feature.all)) {
-                stores = featureToStoreMap.get(Feature.all);
-            } else {
-                throw new SecurityConfigurationException("No identity store configuration found for requested feature [" + feature + 
-                        "]");
-            }
+            throw new SecurityConfigurationException("No identity store configuration found for requested feature [" + feature
+                    + "]");
+        }
 
-            if (relationshipClass != null) {
-                for (IdentityStoreConfiguration storeConfig : stores) {
-                    if (config.getFeatureSet().supportsRelationship(relationshipClass)) {
-                        config = storeConfig;
-                        break;
-                    }
+        if (relationshipClass != null) {
+            for (IdentityStoreConfiguration storeConfig : stores) {
+                if (config.getFeatureSet().supportsRelationship(relationshipClass)) {
+                    config = storeConfig;
+                    break;
                 }
+            }
+        } else {
+            if (stores.size() > 1) {
+                throw new SecurityConfigurationException(
+                        "Ambiguous security configuration - multiple identity stores have been " + "configured for feature ["
+                                + feature + "]");
             } else {
-                if (stores.size() > 1) {
-                        throw new SecurityConfigurationException("Ambiguous security configuration - multiple identity stores have been " +
-                                "configured for feature [" + feature + "]");
-                } else {
-                    config = stores.iterator().next();
-                }
+                config = stores.iterator().next();
             }
         }
 
         if (config == null) {
-            throw new SecurityConfigurationException("No identity store configuration found for requested feature [" + feature + 
-                    "] with relationship type [" + relationshipClass.getName() + "]");
+            throw new SecurityConfigurationException("No identity store configuration found for requested feature [" + feature
+                    + "] with relationship type [" + relationshipClass.getName() + "]");
         }
 
         IdentityStore<?> store = storeFactory.createIdentityStore(config, ctx);
+        
         getContextFactory().initContextForStore(ctx, store);
+        
         return store;
     }
 
@@ -287,7 +286,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (identityType.getId() == null) {
             throw new IdentityManagementException("No identifier was specified.");
         }
-        
+
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();
@@ -409,15 +408,15 @@ public class DefaultIdentityManager implements IdentityManager {
 
         query.setParameter(GroupMembership.MEMBER, identityType);
         query.setParameter(GroupMembership.GROUP, group);
-        
+
         List<GroupMembership> result = query.getResultList();
-        
+
         GroupMembership groupMembership = null;
-        
+
         if (!result.isEmpty()) {
             groupMembership = result.get(0);
         }
-        
+
         return groupMembership;
     }
 
@@ -431,7 +430,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
         GroupMembership groupMembership = getGroupMembership(identityType, group);
-        
+
         if (groupMembership != null) {
             getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(groupMembership);
         }
@@ -458,11 +457,11 @@ public class DefaultIdentityManager implements IdentityManager {
         query.setParameter(GroupRole.MEMBER, identityType);
         query.setParameter(GroupRole.ROLE, role);
         query.setParameter(GroupRole.GROUP, group);
-        
+
         List<GroupRole> result = query.getResultList();
-        
+
         GroupRole groupRole = null;
-        
+
         if (!result.isEmpty()) {
             groupRole = result.get(0);
         }
@@ -472,14 +471,14 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void grantGroupRole(IdentityType member, Role role, Group group) {
         if (getGroupRole(member, role, group) == null) {
-            add(new GroupRole(member, group, role));            
+            add(new GroupRole(member, group, role));
         }
     }
 
     @Override
     public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
         GroupRole groupRole = getGroupRole(identityType, role, group);
-        
+
         if (groupRole != null) {
             getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(groupRole);
         }
@@ -495,11 +494,11 @@ public class DefaultIdentityManager implements IdentityManager {
 
         query.setParameter(Grant.ASSIGNEE, identityType);
         query.setParameter(Grant.ROLE, role);
-        
+
         List<Grant> result = query.getResultList();
-        
+
         Grant grant = null;
-        
+
         if (!result.isEmpty()) {
             grant = result.get(0);
         }
@@ -509,14 +508,14 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void grantRole(IdentityType identityType, Role role) {
         if (getGrant(identityType, role) == null) {
-            add(new Grant(identityType, role));    
+            add(new Grant(identityType, role));
         }
     }
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
         Grant grant = getGrant(identityType, role);
-        
+
         if (grant != null) {
             getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(grant);
         }
@@ -553,12 +552,13 @@ public class DefaultIdentityManager implements IdentityManager {
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
         return new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), Feature.readUser));
     }
-    
+
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
-        return new DefaultRelationshipQuery<T>(relationshipType, getContextualStoreForFeature(createContext(), Feature.readRelationship));
+        return new DefaultRelationshipQuery<T>(relationshipType, getContextualStoreForFeature(createContext(),
+                Feature.readRelationship));
     }
-    
+
     @Override
     public void createRealm(Realm realm) {
         storeFactory.createPartitionStore(partitionStoreConfig).createPartition(realm);
@@ -593,6 +593,5 @@ public class DefaultIdentityManager implements IdentityManager {
     public void loadAttribute(IdentityType identityType, String attributeName) {
 
     }
-
 
 }
