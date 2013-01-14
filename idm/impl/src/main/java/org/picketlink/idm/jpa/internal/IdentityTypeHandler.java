@@ -111,6 +111,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         try {
             identity = getConfig().getIdentityClass().newInstance();
+            String id = store.getContext().getIdGenerator().generate();
+            getConfig().getModelProperty(PropertyType.IDENTITY_ID).setValue(identity, id);
+            fromIdentityType.setId(id);
             populateIdentityInstance(realm, identity, fromIdentityType, store);
         } catch (Exception e) {
             throw new IdentityManagementException("Error creating/populating Identity instance from IdentityType.", e);

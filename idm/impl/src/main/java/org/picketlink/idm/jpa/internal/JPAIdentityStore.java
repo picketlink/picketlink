@@ -139,9 +139,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 Object relationshipObject = getConfig().getRelationshipClass().newInstance();
                 Class<? extends Relationship> relationshipClass = relationship.getClass();
 
-                getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).setValue(relationshipObject, getContext().getIdGenerator().generate());
+                String id = getContext().getIdGenerator().generate();
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).setValue(relationshipObject,id);
                 getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).setValue(relationshipObject,
                         relationshipClass.getName());
+                relationship.setId(id);
 
                 EntityManager em = getEntityManager();
                 em.persist(relationshipObject);
