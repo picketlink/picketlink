@@ -161,19 +161,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private void addRelationship(Relationship relationship) {
-        List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
-                .<IdentityType> createQuery(relationship.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
-
         FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
-        
+
         fileRelationship.setId(relationship.getId());
         fileRelationship.setType(relationship.getClass().getName());
 
-        for (Property<IdentityType> property : relationshipIdentityTypes) {
-            fileRelationship.getIdentityTypes().put(property.getName(), property.getValue(relationship));
-        }
-
+        updateRelationshipIdentity(relationship, fileRelationship);
         updateRelationshipAttributes(relationship, fileRelationship);
 
         Map<String, List<FileRelationshipStorage>> relationshipsMap = getConfig().getRelationships(getContext());
@@ -186,6 +179,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         relationships.add(fileRelationship);
         flushRelationships();
+    }
+
+    private void updateRelationshipIdentity(Relationship relationship, FileRelationshipStorage fileRelationship) {
+        List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
+                .<IdentityType> createQuery(relationship.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
+
+        for (Property<IdentityType> property : relationshipIdentityTypes) {
+            fileRelationship.getIdentityTypes().put(property.getName(), property.getValue(relationship));
+        }
     }
 
     private void updateRelationshipAttributes(Relationship relationship, FileRelationshipStorage fileRelationship) {
@@ -359,7 +362,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(attributedTypeClass.getName());
+            List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(
+                    attributedTypeClass.getName());
 
             for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
                 if (storedRelationship.getId().equals(relationship.getId())) {
@@ -603,52 +607,48 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
             Entry<String, IdentityType> entry = (Entry<String, IdentityType>) iterator.next();
 
-            IdentityType storedIdentityType = entry.getValue();
+            IdentityType storedEntry = entry.getValue();
 
-            if (!identityTypeClass.isAssignableFrom(storedIdentityType.getClass())) {
+            if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
                 continue;
             }
 
-            if (IDMUtil.isUserType(identityTypeClass)) {
-                User user = (User) storedIdentityType;
-
-                if (!isQueryParameterEquals(identityQuery.getParameters(), User.LOGIN_NAME, user.getLoginName())) {
-                    continue;
-                }
-
-                if (!isQueryParameterEquals(identityQuery.getParameters(), User.EMAIL, user.getEmail())) {
-                    continue;
-                }
-
-                if (!isQueryParameterEquals(identityQuery.getParameters(), User.FIRST_NAME, user.getFirstName())) {
-                    continue;
-                }
-
-                if (!isQueryParameterEquals(identityQuery.getParameters(), User.LAST_NAME, user.getLastName())) {
-                    continue;
-                }
-            }
-
             if (IDMUtil.isAgentType(identityTypeClass)) {
-                Agent agent = (Agent) storedIdentityType;
+                Agent agent = (Agent) storedEntry;
 
-                if (!isQueryParameterEquals(identityQuery.getParameters(), Agent.LOGIN_NAME, agent.getLoginName())) {
+                if (!isQueryParameterEquals(identityQuery, Agent.LOGIN_NAME, agent.getLoginName())) {
                     continue;
+                }
+
+                if (IDMUtil.isUserType(identityTypeClass)) {
+                    User user = (User) storedEntry;
+
+                    if (!isQueryParameterEquals(identityQuery, User.EMAIL, user.getEmail())) {
+                        continue;
+                    }
+
+                    if (!isQueryParameterEquals(identityQuery, User.FIRST_NAME, user.getFirstName())) {
+                        continue;
+                    }
+
+                    if (!isQueryParameterEquals(identityQuery, User.LAST_NAME, user.getLastName())) {
+                        continue;
+                    }
                 }
             }
 
             if (IDMUtil.isRoleType(identityTypeClass)) {
-                Role role = (Role) storedIdentityType;
+                Role role = (Role) storedEntry;
 
-                if (!isQueryParameterEquals(identityQuery.getParameters(), Role.NAME, role.getName())) {
+                if (!isQueryParameterEquals(identityQuery, Role.NAME, role.getName())) {
                     continue;
                 }
             }
 
             if (IDMUtil.isGroupType(identityTypeClass)) {
-                Group group = (Group) storedIdentityType;
+                Group group = (Group) storedEntry;
 
-                if (!isQueryParameterEquals(identityQuery.getParameters(), Group.NAME, group.getName())) {
+                if (!isQueryParameterEquals(identityQuery, Group.NAME, group.getName())) {
                     continue;
                 }
 
@@ -658,56 +658,106 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     parentGroupName = group.getParentGroup().getName();
                 }
 
-                if (!isQueryParameterEquals(identityQuery.getParameters(), Group.PARENT, parentGroupName)) {
+                if (!isQueryParameterEquals(identityQuery, Group.PARENT, parentGroupName)) {
                     continue;
                 }
             }
 
-            if (!isQueryParameterEquals(identityQuery.getParameters(), IdentityType.ENABLED, storedIdentityType.isEnabled())) {
+            if (!isQueryParameterEquals(identityQuery, IdentityType.ENABLED, storedEntry.isEnabled())) {
                 continue;
             }
 
-            Date createdDate = storedIdentityType.getCreatedDate();
+            if (identityQuery.getParameter(IdentityType.CREATED_DATE) != null
+                    || identityQuery.getParameter(IdentityType.CREATED_BEFORE) != null
+                    || identityQuery.getParameter(IdentityType.CREATED_AFTER) != null) {
+                Date createdDate = storedEntry.getCreatedDate();
 
-            if (createdDate != null) {
-                if (!isQueryParameterEquals(identityQuery.getParameters(), IdentityType.CREATED_DATE, createdDate)) {
+                if (createdDate != null) {
+                    if (!isQueryParameterEquals(identityQuery, IdentityType.CREATED_DATE, createdDate)) {
+                        continue;
+                    }
+
+                    long timeInMillis = createdDate.getTime();
+
+                    if (!isQueryParameterLessThan(identityQuery, IdentityType.CREATED_BEFORE, timeInMillis)) {
+                        continue;
+                    }
+
+                    if (!isQueryParameterGreaterThan(identityQuery, IdentityType.CREATED_AFTER, timeInMillis)) {
+                        continue;
+                    }
+                }
+            }
+
+            if (identityQuery.getParameter(IdentityType.EXPIRY_DATE) != null
+                    || identityQuery.getParameter(IdentityType.EXPIRY_BEFORE) != null
+                    || identityQuery.getParameter(IdentityType.EXPIRY_AFTER) != null) {
+                Date expiryDate = storedEntry.getExpirationDate();
+
+                if (!isQueryParameterEquals(identityQuery, IdentityType.EXPIRY_DATE, expiryDate)) {
                     continue;
                 }
 
-                if (!isQueryParameterLessThan(identityQuery.getParameters(), IdentityType.CREATED_BEFORE, createdDate.getTime())) {
+                Long expiryDateInMillis = null;
+
+                if (expiryDate != null) {
+                    expiryDateInMillis = expiryDate.getTime();
+                }
+
+                if (!isQueryParameterLessThan(identityQuery, IdentityType.EXPIRY_BEFORE, expiryDateInMillis)) {
                     continue;
                 }
 
-                if (!isQueryParameterGreaterThan(identityQuery.getParameters(), IdentityType.CREATED_AFTER,
-                        createdDate.getTime())) {
+                if (!isQueryParameterGreaterThan(identityQuery, IdentityType.EXPIRY_AFTER, expiryDateInMillis)) {
                     continue;
                 }
             }
 
-            Date expiryDate = storedIdentityType.getExpirationDate();
+            Map<QueryParameter, Object[]> attributeParameters = identityQuery
+                    .getParameters(AttributedType.AttributeParameter.class);
 
-            if (!isQueryParameterEquals(identityQuery.getParameters(), IdentityType.EXPIRY_DATE, expiryDate)) {
-                continue;
+            if (!attributeParameters.isEmpty()) {
+                boolean match = false;
+
+                for (Entry<QueryParameter, Object[]> attributeParameterEntry : attributeParameters.entrySet()) {
+                    QueryParameter queryParameter = attributeParameterEntry.getKey();
+                    Object[] queryParameterValues = attributeParameterEntry.getValue();
+
+                    AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
+                    Attribute<Serializable> userAttribute = storedEntry.getAttribute(customParameter.getName());
+
+                    if (userAttribute != null && userAttribute.getValue() != null) {
+                        int count = queryParameterValues.length;
+
+                        for (Object value : queryParameterValues) {
+                            if (userAttribute.getValue().getClass().isArray()) {
+                                Object[] userValues = (Object[]) userAttribute.getValue();
+
+                                for (Object object : userValues) {
+                                    if (object.equals(value)) {
+                                        count--;
+                                    }
+                                }
+                            } else {
+                                if (value.equals(userAttribute.getValue())) {
+                                    count--;
+                                }
+                            }
+                        }
+
+                        match = count <= 0;
+
+                        if (!match) {
+                            break;
+                        }
+                    }
+                }
+
+                if (!match) {
+                    continue;
+                }
             }
 
-            Long expiryDateInMillis = null;
-
-            if (expiryDate != null) {
-                expiryDateInMillis = expiryDate.getTime();
-            }
-
-            if (!isQueryParameterLessThan(identityQuery.getParameters(), IdentityType.EXPIRY_BEFORE, expiryDateInMillis)) {
-                continue;
-            }
-
-            if (!isQueryParameterGreaterThan(identityQuery.getParameters(), IdentityType.EXPIRY_AFTER, expiryDateInMillis)) {
-                continue;
-            }
-
-            result.add((T) storedIdentityType);
-        }
-
-        for (T storedEntry : new ArrayList<T>(result)) {
             Object[] values = identityQuery.getParameter(IdentityType.HAS_ROLE);
 
             if (values != null) {
@@ -729,7 +779,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
 
                 if (valuesMatchCount > 0) {
-                    result.remove(storedEntry);
+                    continue;
                 }
             }
 
@@ -755,7 +805,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
 
                 if (valuesMatchCount > 0) {
-                    result.remove(storedEntry);
+                    continue;
                 }
             }
 
@@ -781,7 +831,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
 
                 if (valuesMatchCount > 0) {
-                    result.remove(storedEntry);
+                    continue;
                 }
             }
 
@@ -790,10 +840,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (values != null) {
                 Role currentRole = (Role) storedEntry;
 
-                List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(Grant.class.getName());
+                List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(
+                        Grant.class.getName());
 
                 if (relationships == null) {
-                    result.remove(storedEntry);
+                    continue;
                 } else {
                     int valuesMatchCount = values.length;
 
@@ -814,7 +865,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     }
 
                     if (valuesMatchCount > 0) {
-                        result.remove(storedEntry);
+                        continue;
                     }
                 }
             }
@@ -828,7 +879,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                         GroupMembership.class.getName());
 
                 if (relationships == null) {
-                    result.remove(storedEntry);
+                    continue;
                 } else {
                     int valuesMatchCount = values.length;
 
@@ -849,61 +900,15 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     }
 
                     if (valuesMatchCount > 0) {
-                        result.remove(storedEntry);
+                        continue;
                     }
                 }
             }
 
+            result.add((T) storedEntry);
         }
-
-        findByCustomAttributes(result, identityQuery);
 
         return result;
-    }
-
-    private void findByCustomAttributes(List<? extends AttributedType> identityTypes, IdentityQuery<?> identityQuery) {
-        Set<Entry<QueryParameter, Object[]>> entrySet = identityQuery.getParameters().entrySet();
-
-        for (AttributedType fileUser : new ArrayList<AttributedType>(identityTypes)) {
-            for (Entry<QueryParameter, Object[]> entry : entrySet) {
-                QueryParameter queryParameter = entry.getKey();
-                Object[] queryParameterValues = entry.getValue();
-
-                if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && queryParameterValues != null) {
-                    AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
-                    Attribute<Serializable> userAttribute = fileUser.getAttribute(customParameter.getName());
-                    boolean match = false;
-
-                    if (userAttribute != null && userAttribute.getValue() != null) {
-                        int count = queryParameterValues.length;
-
-                        for (Object value : queryParameterValues) {
-                            if (userAttribute.getValue().getClass().isArray()) {
-                                Object[] userValues = (Object[]) userAttribute.getValue();
-
-                                for (Object object : userValues) {
-                                    if (object.equals(value)) {
-                                        count--;
-                                    }
-                                }
-                            } else {
-                                if (value.equals(userAttribute.getValue())) {
-                                    count--;
-                                }
-                            }
-                        }
-
-                        if (count <= 0) {
-                            match = true;
-                        }
-                    }
-
-                    if (!match) {
-                        identityTypes.remove(fileUser);
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -935,9 +940,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
     }
 
-    private boolean isQueryParameterEquals(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
+    private boolean isQueryParameterEquals(IdentityQuery<?> identityQuery, QueryParameter queryParameter,
             Serializable valueToCompare) {
-        Object[] values = parameters.get(queryParameter);
+        Object[] values = identityQuery.getParameter(queryParameter);
 
         if (values == null) {
             return true;
@@ -960,9 +965,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return false;
     }
 
-    private boolean isQueryParameterEquals(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
-            Date valueToCompare) {
-        Object[] values = parameters.get(queryParameter);
+    private boolean isQueryParameterEquals(IdentityQuery<?> identityQuery, QueryParameter queryParameter, Date valueToCompare) {
+        Object[] values = identityQuery.getParameter(queryParameter);
 
         if (values == null) {
             return true;
@@ -974,19 +978,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return false;
     }
 
-    private boolean isQueryParameterGreaterThan(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
+    private boolean isQueryParameterGreaterThan(IdentityQuery<?> identityQuery, QueryParameter queryParameter,
             Long valueToCompare) {
-        return isQueryParameterGreaterOrLessThan(parameters, queryParameter, valueToCompare, true);
+        return isQueryParameterGreaterOrLessThan(identityQuery, queryParameter, valueToCompare, true);
     }
 
-    private boolean isQueryParameterLessThan(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
-            Long valueToCompare) {
-        return isQueryParameterGreaterOrLessThan(parameters, queryParameter, valueToCompare, false);
+    private boolean isQueryParameterLessThan(IdentityQuery<?> identityQuery, QueryParameter queryParameter, Long valueToCompare) {
+        return isQueryParameterGreaterOrLessThan(identityQuery, queryParameter, valueToCompare, false);
     }
 
-    private boolean isQueryParameterGreaterOrLessThan(Map<QueryParameter, Object[]> parameters, QueryParameter queryParameter,
+    private boolean isQueryParameterGreaterOrLessThan(IdentityQuery<?> identityQuery, QueryParameter queryParameter,
             Long valueToCompare, boolean greaterThan) {
-        Object[] values = parameters.get(queryParameter);
+        Object[] values = identityQuery.getParameter(queryParameter);
 
         if (values == null) {
             return true;
@@ -1038,7 +1041,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public void storeCredential(Agent agent, CredentialStorage storage) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(agent.getLoginName());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(
+                agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -1078,7 +1082,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(agent.getLoginName());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(
+                agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -1154,7 +1159,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
         ArrayList<T> storedCredentials = new ArrayList<T>();
 
-        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(agent.getLoginName());
+        Map<String, List<FileCredentialStorage>> agentCredentials = getConfig().getCredentials(getContext()).get(
+                agent.getLoginName());
 
         if (agentCredentials == null) {
             agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
@@ -1194,13 +1200,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private IdentityManagementException createNotImplementedYetException() {
         return new IdentityManagementException("Not implemented yet.");
     }
-    
+
     /**
      * <p>
      * Flush all changes made to agents to the filesystem.
      * </p>
      */
-    synchronized void flushAgents() {
+    private synchronized void flushAgents() {
         getConfig().flushAgents(getContext().getRealm());
     }
 
@@ -1209,7 +1215,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * Flush all changes made to roles to the filesystem.
      * </p>
      */
-    synchronized void flushRoles() {
+    private synchronized void flushRoles() {
         getConfig().flushRoles(getContext().getRealm());
     }
 
@@ -1218,16 +1224,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * Flush all changes made to groups to the filesystem.
      * </p>
      */
-    synchronized void flushGroups() {
+    private synchronized void flushGroups() {
         getConfig().flushGroups(getContext().getRealm());
     }
 
     /**
      * <p>
-     * Flush all changes made to memberships to the filesystem.
+     * Flush all changes made to relationships to the filesystem.
      * </p>
      */
-    synchronized void flushRelationships() {
+    private synchronized void flushRelationships() {
         getConfig().flushRelationships(getContext().getRealm());
     }
 
@@ -1236,7 +1242,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * Flush all changes made to credentials to the filesystem.
      * </p>
      */
-    synchronized void flushCredentials() {
+    private synchronized void flushCredentials() {
         getConfig().flushCredentials(getContext().getRealm());
     }
 
@@ -1245,7 +1251,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<T> result = new ArrayList<T>();
 
         Class<T> relationshipType = query.getRelationshipType();
-        List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(relationshipType.getName());
+        List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext())
+                .get(relationshipType.getName());
 
         if (relationships == null) {
             return result;

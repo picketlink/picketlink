@@ -1,8 +1,11 @@
 package org.picketlink.idm.query.internal;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
@@ -48,6 +51,21 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     @Override
     public Object[] getParameter(QueryParameter queryParameter) {
         return this.parameters.get(queryParameter);
+    }
+    
+    @Override
+    public Map<QueryParameter, Object[]> getParameters(Class<?> type) {
+        Map<QueryParameter, Object[]> typedParameters = new HashMap<QueryParameter, Object[]>();
+        
+        Set<Entry<QueryParameter, Object[]>> entrySet = this.parameters.entrySet();
+        
+        for (Entry<QueryParameter, Object[]> entry : entrySet) {
+            if (type.isInstance(entry.getKey())) {
+                typedParameters.put(entry.getKey(), entry.getValue());
+            }
+        }
+        
+        return typedParameters;
     }
 
     @Override
