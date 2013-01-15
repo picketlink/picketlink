@@ -23,13 +23,75 @@
 package org.picketlink.idm.file.internal;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 /**
  * @author Pedro Silva
- *
+ * 
  */
 public final class FileUtils {
 
+    /**
+     * <p>
+     * Read the specified {@link File} instance and try to read a {@link Object} with the given parametrized type.
+     * </p>
+     * 
+     * @param file
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T readObject(File file) {
+        ObjectInputStream ois = null;
+
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            ois = new ObjectInputStream(fis);
+
+            return (T) ois.readObject();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (ois != null) {
+                    ois.close();
+                }
+            } catch (IOException e) {
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * <p>
+     * Check if the specified {@link File} exists. If not create it.
+     * </p>
+     * 
+     * @param file
+     * @return
+     */
+    public static File createFile(File file) {
+        if (!file.exists()) {
+            try {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            } catch (IOException e) {
+            }
+        }
+
+        return file;
+    }
+
+    /**
+     * <p>
+     * Delete the specified {@link File} instance from the filesystem. If the instance is a directory it will be deleted
+     * recursively, otherwise only the file will be deleted.
+     * </p>
+     * 
+     * @param file
+     */
     public static void delete(File file) {
         if (file.exists()) {
             if (file.isDirectory()) {
@@ -39,12 +101,12 @@ public final class FileUtils {
                     File child = new File(file.getPath() + File.separator + childName);
                     delete(child);
                 }
-                
+
                 file.delete();
             } else {
                 file.delete();
             }
         }
     }
-    
+
 }
