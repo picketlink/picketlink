@@ -23,6 +23,8 @@ public interface IdentityQuery<T extends IdentityType> {
     Map<QueryParameter, Object[]> getParameters();
     
     Object[] getParameter(QueryParameter queryParameter);
+    
+    Map<QueryParameter, Object[]> getParameters(Class<?> type);
 
     int getOffset();
 
