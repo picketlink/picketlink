@@ -51,7 +51,6 @@ public final class FileUtils {
 
             return (T) ois.readObject();
         } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             try {
                 if (ois != null) {
@@ -72,7 +71,7 @@ public final class FileUtils {
      * @param file
      * @return
      */
-    public static File createFile(File file) {
+    public static File createFileIfNotExists(File file) {
         if (!file.exists()) {
             try {
                 file.getParentFile().mkdirs();

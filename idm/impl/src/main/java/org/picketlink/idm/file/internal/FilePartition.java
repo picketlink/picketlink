@@ -29,6 +29,7 @@ import java.util.Map;
 
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 
 /**
@@ -44,6 +45,8 @@ public class FilePartition implements Serializable {
     private Map<String, Group> groups = new HashMap<String, Group>();
     private Map<String, Map<String, List<FileCredentialStorage>>> credentials = new HashMap<String, Map<String, List<FileCredentialStorage>>>();
     private Map<String, List<FileRelationshipStorage>> relationships = new HashMap<String, List<FileRelationshipStorage>>();
+
+    private Partition partition;
 
     public Map<String, Agent> getAgents() {
         return agents;
@@ -83,6 +86,14 @@ public class FilePartition implements Serializable {
 
     public void setRelationships(Map<String, List<FileRelationshipStorage>> relationships) {
         this.relationships = relationships;
+    }
+
+    public Partition getPartition() {
+        return partition;
+    }
+
+    public void setPartition(Partition partition) {
+        this.partition = partition;
     }
 
 }

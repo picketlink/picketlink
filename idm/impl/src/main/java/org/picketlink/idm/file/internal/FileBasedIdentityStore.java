@@ -71,6 +71,8 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleAgent;
@@ -187,7 +189,45 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
 
         for (Property<IdentityType> property : relationshipIdentityTypes) {
-            fileRelationship.getIdentityTypes().put(property.getName(), property.getValue(relationship));
+            IdentityType value = property.getValue(relationship);
+            
+            if (Role.class.isInstance(value)) {
+                Role role = (Role) value;
+                
+                if (getRole(role.getName()) == null) {
+                    if (getContext().getTier() != null) {
+                        throw new IdentityManagementException("Role [" + role.getName() + "] not found for the given Tier [" + getContext().getTier().getName() + "]");    
+                    } else {
+                        String realmName = Realm.DEFAULT_REALM;
+                        
+                        if (getContext().getRealm() != null) {
+                            realmName = getContext().getRealm().getName();
+                        }
+                        
+                        throw new IdentityManagementException("Role [" + role.getName() + "] not found for the given Realm [" + realmName + "]");
+                    }
+                }
+            }
+            
+            if (Group.class.isInstance(value)) {
+                Group group = (Group) value;
+                
+                if (getGroup(group.getName()) == null) {
+                    if (getContext().getTier() != null) {
+                        throw new IdentityManagementException("Group [" + group.getName() + "] not found for the given Tier [" + getContext().getTier().getName() + "]");    
+                    } else {
+                        String realmName = Realm.DEFAULT_REALM;
+                        
+                        if (getContext().getRealm() != null) {
+                            realmName = getContext().getRealm().getName();
+                        }
+                        
+                        throw new IdentityManagementException("Group [" + group.getName() + "] not found for the given Realm [" + realmName + "]");
+                    }
+                }
+            }
+            
+            fileRelationship.getIdentityTypes().put(property.getName(), value);
         }
     }
 
@@ -384,6 +424,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private Role addRole(Role role) {
         SimpleRole fileRole = new SimpleRole(role.getName());
 
+        fileRole.setPartition(getCurrentPartition());
+        
         updateIdentityType(role, fileRole);
 
         getConfig().getRoles(getContext()).put(fileRole.getName(), fileRole);
@@ -401,6 +443,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             fileGroup = new SimpleGroup(group.getName());
         }
 
+        fileGroup.setPartition(getCurrentPartition());
+        
         updateIdentityType(group, fileGroup);
 
         getConfig().getGroups(getContext()).put(fileGroup.getName(), fileGroup);
@@ -415,7 +459,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         storedUser.setFirstName(user.getFirstName());
         storedUser.setLastName(user.getLastName());
         storedUser.setEmail(user.getEmail());
-
+        storedUser.setPartition(getCurrentRealm());
+        
         updateIdentityType(user, storedUser);
 
         getConfig().getAgents(getContext()).put(storedUser.getLoginName(), storedUser);
@@ -424,11 +469,34 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return storedUser;
     }
 
+    private Realm getCurrentRealm() {
+        Realm realm = getContext().getRealm();
+        
+        if (realm == null) {
+            realm = new Realm(Realm.DEFAULT_REALM);
+            realm.setId(Realm.DEFAULT_REALM);
+        }
+        
+        return realm;
+    }
+    
+    private Partition getCurrentPartition() {
+        Partition partition = getContext().getTier();
+        
+        if (partition == null) {
+            partition = getCurrentRealm();
+        }
+        
+        return partition;
+    }
+
     private Agent addAgent(Agent user) {
         Agent storedAgent = new SimpleAgent(user.getLoginName());
 
         updateIdentityType(user, storedAgent);
-
+        
+        storedAgent.setPartition(getCurrentRealm());
+        
         getConfig().getAgents(getContext()).put(storedAgent.getLoginName(), storedAgent);
         flushAgents();
 
@@ -923,7 +991,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         toIdentityType.setEnabled(fromIdentityType.isEnabled());
         toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
-
+        
         updateAttributedType(fromIdentityType, toIdentityType);
     }
 
@@ -1207,7 +1275,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     private synchronized void flushAgents() {
-        getConfig().flushAgents(getContext().getRealm());
+        getConfig().flushAgents(getContext());
     }
 
     /**
@@ -1216,7 +1284,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     private synchronized void flushRoles() {
-        getConfig().flushRoles(getContext().getRealm());
+        getConfig().flushRoles(getContext());
     }
 
     /**
@@ -1225,7 +1293,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     private synchronized void flushGroups() {
-        getConfig().flushGroups(getContext().getRealm());
+        getConfig().flushGroups(getContext());
     }
 
     /**
@@ -1234,7 +1302,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     private synchronized void flushRelationships() {
-        getConfig().flushRelationships(getContext().getRealm());
+        getConfig().flushRelationships(getContext());
     }
 
     /**
@@ -1243,7 +1311,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * </p>
      */
     private synchronized void flushCredentials() {
-        getConfig().flushCredentials(getContext().getRealm());
+        getConfig().flushCredentials(getContext());
     }
 
     @Override
