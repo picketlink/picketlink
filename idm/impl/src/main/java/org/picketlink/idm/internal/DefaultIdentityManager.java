@@ -80,6 +80,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private ThreadLocal<Realm> currentRealm = new ThreadLocal<Realm>();
 
+    private ThreadLocal<Tier> currentTier = new ThreadLocal<Tier>();
+
     private static Method METHOD_CREATE_CONTEXT;
     {
         try {
@@ -92,23 +94,25 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public IdentityManager forRealm(final Realm realm) {
         final DefaultIdentityManager proxied = this;
-
+        final Tier tier = currentTier.get();
         return (IdentityManager) Proxy.newProxyInstance(this.getClass().getClassLoader(),
                 new Class[] { IdentityManager.class }, new InvocationHandler() {
 
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                         Object result = null;
-                        
+
                         try {
                             currentRealm.set(realm);
+                            currentTier.set(tier);
                             result = method.invoke(proxied, args);
                         } catch (Exception e) {
                             throw e;
                         } finally {
-                            currentRealm.remove();    
+                            currentRealm.remove();
+                            currentTier.remove();
                         }
-                        
+
                         return result;
                     }
                 });
@@ -117,19 +121,31 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public IdentityManager forTier(final Tier tier) {
         final DefaultIdentityManager proxied = this;
-
+        final Realm realm = currentRealm.get();
+        
         return (IdentityManager) Proxy.newProxyInstance(this.getClass().getClassLoader(),
                 new Class[] { IdentityManager.class }, new InvocationHandler() {
-
+                    
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        if (method.equals(METHOD_CREATE_CONTEXT)) {
-                            IdentityStoreInvocationContext ctx = proxied.createContext();
-                            ctx.setTier(tier);
-                            return ctx;
-                        } else {
-                            return method.invoke(proxied, args);
+                        Object result = null;
+
+                        try {
+                            currentRealm.set(realm);
+                            currentTier.set(tier);
+                            result = method.invoke(proxied, args);
+                        } catch (Exception e) {
+                            if (e.getCause() != null) {
+                                throw e.getCause();
+                            }
+
+                            throw e;
+                        } finally {
+                            currentRealm.remove();
+                            currentTier.remove();
                         }
+
+                        return result;
                     }
                 });
     }
@@ -247,6 +263,7 @@ public class DefaultIdentityManager implements IdentityManager {
         IdentityStoreInvocationContext context = getContextFactory().createContext();
 
         context.setRealm(currentRealm.get());
+        context.setTier(currentTier.get());
 
         return context;
     }
