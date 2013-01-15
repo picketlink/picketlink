@@ -105,11 +105,6 @@ public class LDAPUser extends LDAPEntry implements User {
     }
 
     @Override
-    public String getKey() {
-        return getId();
-    }
-
-    @Override
     public String getFirstName() {
         Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.GIVENNAME);
 

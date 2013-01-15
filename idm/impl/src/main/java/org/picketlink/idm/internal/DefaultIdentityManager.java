@@ -552,12 +552,6 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public IdentityType lookupIdentityByKey(String key) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
         return new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), Feature.readUser));
     }

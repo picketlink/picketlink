@@ -1,8 +1,10 @@
 package org.picketlink.idm.jpa.internal;
 
+import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
+import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.PartitionStore;
 
 /**
@@ -35,6 +37,12 @@ public class JPAPartitionStore implements PartitionStore {
     public Tier getTier(String tierId) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public void setup(PartitionStoreConfiguration config, IdentityStoreInvocationContext context) {
+        // TODO Auto-generated method stub
+        
     }
 
 }

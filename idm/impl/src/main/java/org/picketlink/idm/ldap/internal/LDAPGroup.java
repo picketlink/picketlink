@@ -64,11 +64,6 @@ public class LDAPGroup extends LDAPEntry implements Group {
         setLDAPAttributes(attributes);
     }
 
-    @Override
-    public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, getId());
-    }
-
     public void setName(String name) {
         this.groupName = name;
         Attribute theAttribute = getLDAPAttributes().get(CN);

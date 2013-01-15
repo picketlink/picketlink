@@ -17,11 +17,6 @@ public interface Agent extends IdentityType {
     QueryParameter LOGIN_NAME = new QueryParameter() {};
 
     /**
-     * This String prefixes all values returned by the getKey() method.
-     */
-    String KEY_PREFIX = "AGENT://";
-
-    /**
      * Returns the login name of this agent.  This value should be unique, as it is used
      * to identify the agent for authentication
      * 

@@ -61,7 +61,7 @@ public interface IdentityManager extends Serializable{
      */
     void setIdentityStoreFactory(StoreFactory factory);
 
-    // General
+    // Identity CRUD methods 
 
     void add(IdentityType value);
 
@@ -126,12 +126,7 @@ public interface IdentityManager extends Serializable{
     void updateCredential(Agent agent, Object value);
     void updateCredential(Agent agent, Object value, Date effectiveDate, Date expiryDate);
 
-    // User / Role / Group enablement / expiry
-
-    IdentityType lookupIdentityByKey(String key);
-
     // Attributes
-
 
     void loadAttribute(IdentityType identityType, String attributeName);
 

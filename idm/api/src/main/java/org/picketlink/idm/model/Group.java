@@ -44,8 +44,6 @@ public interface Group extends IdentityType, Serializable {
      */
     QueryParameter PARENT = new QueryParameter() {};
 
-    String KEY_PREFIX = "GROUP://";
-
     /**
      * Groups are stored in tree hierarchy and therefore ID represents a path. ID string always begins with "/" element that
      * represents root of the tree

@@ -59,9 +59,4 @@ public class SimpleUser extends SimpleAgent implements User {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    @Override
-    public String getKey() {
-        return String.format("%s%s", User.KEY_PREFIX, getId());
-    }
 }

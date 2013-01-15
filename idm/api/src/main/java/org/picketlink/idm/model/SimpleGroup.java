@@ -57,14 +57,6 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
         return parentGroup;
     }
 
-    public String getKey() {
-        String id = null;
-
-        id = parentGroup == null ? String.format("%s", this.name) : String.format("%s/%s", parentGroup.getName(), this.name);
-
-        return String.format("%s%s", KEY_PREFIX, id);
-    }
-
     @Override
     public int hashCode() {
         return super.hashCode();

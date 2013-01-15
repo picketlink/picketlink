@@ -33,10 +33,6 @@ import org.picketlink.idm.query.QueryParameter;
  * @author Shane Bryzak
  */
 public interface IdentityType extends AttributedType {
-    /**
-     *  A query parameter used to set the key value.
-     */
-    QueryParameter KEY = new QueryParameter() {};
 
     /**
      * A query parameter used to set the enabled value.
@@ -109,14 +105,6 @@ public interface IdentityType extends AttributedType {
      * should only return Group instances that the specified User or Group is a member of
      */
     QueryParameter HAS_MEMBER = new QueryParameter() {};
-
-    /**
-     * Returns a key value for this IdentityType.  The key may be used to perform a 
-     * lookup operation to retrieve the exact IdentityType instance, and so must be unique.
-     *  
-     * @return A String value representing the unique key value
-     */
-    String getKey();
 
     /**
      * Indicates the current enabled status of this IdentityType.

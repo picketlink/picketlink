@@ -58,7 +58,6 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
         assertNotNull(storedRoleInstance);
 
-        assertEquals(newRoleInstance.getKey(), storedRoleInstance.getKey());
         assertEquals(newRoleInstance.getName(), storedRoleInstance.getName());
     }
 
@@ -80,7 +79,6 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         storedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
 
         assertNotNull(storedRoleInstance);
-        assertEquals("ROLE://Administrator", storedRoleInstance.getKey());
         assertEquals("Administrator", storedRoleInstance.getName());
     }
 

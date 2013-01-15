@@ -137,7 +137,6 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
 
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_KEY, fromIdentityType.getKey(), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());

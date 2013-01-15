@@ -96,11 +96,6 @@ public class LDAPRole extends LDAPEntry implements Role {
     }
 
     @Override
-    public String getKey() {
-        return String.format("%s%s", Role.KEY_PREFIX, getName());
-    }
-
-    @Override
     public String getId() {
         // TODO Auto-generated method stub
         return null;

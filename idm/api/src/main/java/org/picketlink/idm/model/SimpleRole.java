@@ -39,10 +39,6 @@ public class SimpleRole extends AbstractIdentityType implements Role {
         return name;
     }
 
-    public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, name);
-    }
-
     @Override
     public int hashCode() {
         return super.hashCode();

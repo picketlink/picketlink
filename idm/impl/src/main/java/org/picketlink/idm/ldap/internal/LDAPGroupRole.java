@@ -89,9 +89,4 @@ public class LDAPGroupRole extends LDAPEntry /*implements GroupRole*/ {
         return this.role;
     }
 
-    @Override
-    public String getKey() {
-        return null;
-    }
-    
 }
