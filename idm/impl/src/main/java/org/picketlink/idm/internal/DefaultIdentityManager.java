@@ -77,7 +77,7 @@ public class DefaultIdentityManager implements IdentityManager {
     private StoreFactory storeFactory = new DefaultStoreFactory();
 
     private IdentityStoreInvocationContextFactory contextFactory;
-    
+
     private ThreadLocal<Realm> currentRealm = new ThreadLocal<Realm>();
 
     private static Method METHOD_CREATE_CONTEXT;
@@ -98,16 +98,18 @@ public class DefaultIdentityManager implements IdentityManager {
 
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//                        if (method.equals(METHOD_CREATE_CONTEXT)) {
-//                            IdentityStoreInvocationContext ctx = proxied.createContext();
-//                            ctx.setRealm(realm);
-//                            return ctx;
-//                        } else {
+                        Object result = null;
+                        
+                        try {
                             currentRealm.set(realm);
-                            Object result = method.invoke(proxied, args);
-                            currentRealm.remove();
-                            return result;
-//                        }
+                            result = method.invoke(proxied, args);
+                        } catch (Exception e) {
+                            throw e;
+                        } finally {
+                            currentRealm.remove();    
+                        }
+                        
+                        return result;
                     }
                 });
     }
@@ -202,7 +204,7 @@ public class DefaultIdentityManager implements IdentityManager {
         Map<Feature, Set<IdentityStoreConfiguration>> featureToStoreMap = realmStores.get(realm);
 
         Set<IdentityStoreConfiguration> stores;
-        
+
         if (featureToStoreMap.containsKey(feature)) {
             stores = featureToStoreMap.get(feature);
         } else if (featureToStoreMap.containsKey(Feature.all)) {
@@ -235,24 +237,24 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         IdentityStore<?> store = storeFactory.createIdentityStore(config, ctx);
-        
+
         getContextFactory().initContextForStore(ctx, store);
-        
+
         return store;
     }
 
     private IdentityStoreInvocationContext createContext() {
         IdentityStoreInvocationContext context = getContextFactory().createContext();
-        
+
         context.setRealm(currentRealm.get());
-        
+
         return context;
     }
 
     @Override
     public void add(IdentityType identityType) {
         Feature feature;
-        
+
         IdentityStoreInvocationContext ctx = createContext();
 
         if (User.class.isInstance(identityType)) {
