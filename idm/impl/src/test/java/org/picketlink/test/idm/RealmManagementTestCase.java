@@ -43,9 +43,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testCreateRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Realm realm = new Realm("Testing");
-        
-        identityManager.createRealm(realm);
+        Realm realm = createRealm();
         
         realm = identityManager.getRealm(realm.getName());
         
@@ -53,16 +51,27 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         Assert.assertEquals("Testing", realm.getName());
         Assert.assertEquals(Realm.KEY_PREFIX + "Testing", realm.getKey());
     }
+
+    private Realm createRealm() {
+        IdentityManager identityManager = getIdentityManager();
+        
+        Realm realm = identityManager.getRealm("Testing");
+        
+        if (realm != null) {
+            identityManager.removeRealm(realm);
+        }
+        
+        realm = new Realm("Testing");
+        
+        identityManager.createRealm(realm);
+        return realm;
+    }
     
     @Test
     public void testRemoveRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Realm realm = new Realm("Testing");
-        
-        identityManager.createRealm(realm);
-        
-        realm = identityManager.getRealm(realm.getName());
+        Realm realm = createRealm();
         
         Assert.assertNotNull(realm);
         
@@ -77,11 +86,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testUsersForRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Realm realm = new Realm("Testing");
-        
-        identityManager.createRealm(realm);
-        
-        realm = identityManager.getRealm(realm.getName());
+        Realm realm = createRealm();
         
         IdentityManager testingIdentityManager = identityManager.forRealm(realm);
         
@@ -92,6 +97,8 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         testingUser = testingIdentityManager.getUser(testingUser.getLoginName());
         
         Assert.assertNotNull(testingUser);
+        Assert.assertNotNull(testingUser.getPartition());
+        Assert.assertEquals(realm.getId(), testingUser.getPartition().getId());
         
         testingUser = identityManager.getUser(testingUser.getLoginName());
         
@@ -104,11 +111,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testRolesForRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Realm realm = new Realm("Testing");
-        
-        identityManager.createRealm(realm);
-        
-        realm = identityManager.getRealm(realm.getName());
+        Realm realm = createRealm();
         
         IdentityManager testingIdentityManager = identityManager.forRealm(realm);
         
@@ -119,7 +122,10 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         testingRole = testingIdentityManager.getRole(testingRole.getName());
         
         Assert.assertNotNull(testingRole);
-        
+        Assert.assertNotNull(testingRole);
+        Assert.assertNotNull(testingRole.getPartition());
+        Assert.assertEquals(realm.getId(), testingRole.getPartition().getId());
+
         testingRole = identityManager.getRole(testingRole.getName());
         
         Assert.assertNull(testingRole);
@@ -129,11 +135,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testGroupsForRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Realm realm = new Realm("Testing");
-        
-        identityManager.createRealm(realm);
-        
-        realm = identityManager.getRealm(realm.getName());
+        Realm realm = createRealm();
         
         IdentityManager testingIdentityManager = identityManager.forRealm(realm);
         
@@ -144,6 +146,9 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         testingGroup = testingIdentityManager.getGroup(testingGroup.getName());
         
         Assert.assertNotNull(testingGroup);
+        Assert.assertNotNull(testingGroup);
+        Assert.assertNotNull(testingGroup.getPartition());
+        Assert.assertEquals(realm.getId(), testingGroup.getPartition().getId());
         
         testingGroup = identityManager.getGroup(testingGroup.getName());
         

@@ -26,6 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FilePartitionStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
@@ -45,6 +46,7 @@ import org.picketlink.test.idm.PasswordCredentialTestCase;
 import org.picketlink.test.idm.RealmManagementTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.RoleQueryTestCase;
+import org.picketlink.test.idm.TierManagementTestCase;
 import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.UserManagementTestCase;
 import org.picketlink.test.idm.UserQueryTestCase;
@@ -61,15 +63,17 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ RealmManagementTestCase.class, GroupMembershipTestCase.class, ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class, RoleManagementTestCase.class,
-        GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
+@SuiteClasses({ RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
+        ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
+        RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
         UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
         AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
-        AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class})
+        AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
     private IdentityManager identityManager;
+    private FileDataSource dataSource = new FileDataSource();
 
     public static TestLifecycle init() throws Exception {
         if (instance == null) {
@@ -89,9 +93,25 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         if (this.identityManager == null) {
             IdentityConfiguration config = new IdentityConfiguration();
 
-            config.addStoreConfiguration(getConfiguration());
-            config.addStoreConfiguration(getConfiguration2());
-            config.addStoreConfiguration(new FilePartitionStoreConfiguration());
+            FileDataSource dataSource = new FileDataSource();
+
+            FileIdentityStoreConfiguration defaultConfiguration = getDefaultConfiguration();
+
+            defaultConfiguration.setDataSource(dataSource);
+
+            config.addStoreConfiguration(defaultConfiguration);
+
+            FileIdentityStoreConfiguration testingRealmConfiguration = getTestingRealmConfiguration();
+
+            testingRealmConfiguration.setDataSource(dataSource);
+
+            config.addStoreConfiguration(testingRealmConfiguration);
+
+            FilePartitionStoreConfiguration partitionStore = new FilePartitionStoreConfiguration();
+
+            partitionStore.setDataSource(dataSource);
+
+            config.addStoreConfiguration(partitionStore);
 
             this.identityManager = new DefaultIdentityManager();
 
@@ -106,15 +126,15 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     }
 
-    public static FileIdentityStoreConfiguration getConfiguration() {
+    public static FileIdentityStoreConfiguration getDefaultConfiguration() {
         return new FileIdentityStoreConfiguration();
     }
-    
-    public static FileIdentityStoreConfiguration getConfiguration2() {
+
+    public static FileIdentityStoreConfiguration getTestingRealmConfiguration() {
         FileIdentityStoreConfiguration config = new FileIdentityStoreConfiguration();
-        
+
         config.setRealm("Testing");
-        
+
         return config;
     }
 
