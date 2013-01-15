@@ -467,10 +467,10 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public Role getRole(String name) {
         IdentityStoreInvocationContext ctx = createContext();
-        if (ctx.getRealm() != null && ctx.getTier() != null) {
-            throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the "
-                    + "scope of a Realm or a Tier, however both have been set.");
-        }
+//        if (ctx.getRealm() != null && ctx.getTier() != null) {
+//            throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the "
+//                    + "scope of a Realm or a Tier, however both have been set.");
+//        }
         return getContextualStoreForFeature(ctx, Feature.readRole).getRole(name);
     }
 
