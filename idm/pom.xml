@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.picketlink</groupId>
         <artifactId>picketlink-parent</artifactId>
-      	<version>5.0.0-2013Jan16</version>
+      	<version>3.0.0-2013Jan16</version>
       	<relativePath>../pom.xml</relativePath>
     </parent>
 
     <groupId>org.picketlink</groupId>
     <artifactId>picketlink-idm-parent</artifactId>
-    <version>5.0.0-2013Jan16</version>
+    <version>3.0.0-2013Jan16</version>
     <packaging>pom</packaging>
 
     <name>PicketLink IDM Parent</name>
