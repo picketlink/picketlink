@@ -1,0 +1,93 @@
+@import url("jbossorg.css");
+
+/* Override background image and font */
+body {
+    background-image:url(../images/seamframework/bkg_gradient.png);
+    font-family:'Lucida Grande', Geneva, Verdana, Arial, sans-serif;
+}
+
+/* More sfwk styling */
+a {text-decoration:none;}
+
+h1 {
+    color:#885324;
+    background-image:url(../images/seamframework/title_hdr.png);
+}
+
+/* Use sfwk colour for titles */
+h2, h3, h4, h5, h6 {color:#BA5624;}
+
+div.note {
+    background-color:#849092;
+    color:white;
+}
+
+div.note h2 {color:white;}
+
+div.note a:visited, div.tip a:visited, div.important a:visited, div.caution a:visited, div.warning a:visited, div.note a:link, div.tip a:link, div.important a:link, div.caution a:link, div.warning a:link {
+    color: #f7f2d0;
+}
+
+/* Override header images */
+#title a.site_href {
+    display:block;
+    height:100px;
+    width:362px;
+    float:left;
+    background:url(../images/seamframework/seamlogo.png) top left no-repeat;
+}
+
+#title a.doc_href {
+    display:block;
+    height:100px;
+    background:transparent url(../images/seamframework/community_doc.png) top right no-repeat;
+}
+
+/* Use sfwk colour as background for examples */
+.example {
+    background:url(../images/seamframework/leftside_bkgimage.gif) top left repeat;
+    padding:5px;
+    margin-bottom:10px;
+}
+
+/* Make the seam version info into a title */
+.releaseinfo {
+    color:#BA5624;
+    font-size:150%;
+}
+
+/* Use sfwk.org tables */
+.table-contents th {
+    background:#EDE8DB url(../images/seamframework/th.bg.gif) repeat-x scroll 0pt;
+    color:black;
+    font-weight:bold;
+    padding:2px 5px;
+    white-space:nowrap;
+}
+
+.table-contents th td {border-right:1px solid #D3D2D1;}
+
+/* Override bullet points */
+ul {list-style-image:url(../images/seamframework/dot.png);}
+ul ul {list-style-image:url(../images/seamframework/dot2.png);}
+
+/* Override admonition and navigation images */
+div.caution {background-image:url(../images/seamframework/docbook/caution.png);}
+div.important {background-image:url(../images/seamframework/docbook/important.png);}
+div.note {background-image:url(../images/seamframework/docbook/note.png);}
+div.tip {background-image:url(../images/seamframework/docbook/tip.png);}
+div.warning {background-image:url(../images/seamframework/docbook/warning.png);}
+
+.docnav li.next a strong {background-image:url(../images/seamframework/docbook/next.png);}
+.docnav li.previous a strong {background-image:url(../images/seamframework/docbook/prev.png);}
+.docnav li.home a strong {background-image:url(../images/seamframework/docbook/home.png);}
+.docnav li.up a strong {background-image:url(../images/seamframework/docbook/up.png);}
+
+/* Eclipse Help Navigation */
+.navheader td.next a {background-image:url(../images/seamframework/docbook/next.png);}
+.navheader td.previous a {background-image:url(../images/seamframework/docbook/prev.png);}
+
+.navfooter td.next a {background-image:url(../images/seamframework/docbook/next.png);}
+.navfooter td.previous a {background-image:url(../images/seamframework/docbook/prev.png);}
+.navfooter td.home a {background-image:url(../images/seamframework/docbook/home.png);}
+.navfooter td.up a {background-image:url(../images/seamframework/docbook/up.png);}

@@ -253,6 +253,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identityObject);
             getContext().getEventBridge().raiseEvent(event);
+        } else if (value instanceof Relationship)  {
+            Relationship relationship = (Relationship) value;
+            
+            
         }
     }
 

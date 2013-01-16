@@ -1,0 +1,82 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>org.jboss.seam</groupId>
+   <artifactId>seam-jdocbook-style</artifactId>
+   <packaging>jdocbook-style</packaging>
+   <version>1.1.1-SNAPSHOT</version>
+
+   <name>SeamFramework.org Documentation Styles</name>
+   <description>
+      The JDocBook styles for the SeamFramework.org Documentation.
+   </description>
+   <url>http://www.seamframework.org</url>
+   
+   <contributors>
+      <contributor>
+         <name>Pete Muir</name>
+      </contributor>
+      <contributor>
+         <name>Mark Newton</name>
+      </contributor>
+   </contributors>
+   
+   <scm>
+      <developerConnection>scm:svn:https://svn.jboss.org/repos/seam/maven-plugins/trunk</developerConnection>
+      <connection>scm:svn:http://anonsvn.jboss.org/repos/seam/maven-plugins</connection>
+      <url>http://fisheye.jboss.org/browse/Seam/maven-plugins</url>
+   </scm>
+
+   <pluginRepositories>
+      <pluginRepository>
+         <id>repository.jboss.org</id>
+         <name>JBoss Repository</name>
+         <url>http://repository.jboss.org/maven2</url>
+      </pluginRepository>
+   </pluginRepositories>
+   <repositories>
+      <repository>
+         <id>repository.jboss.org</id>
+         <name>JBoss Repository</name>
+         <url>http://repository.jboss.org/maven2</url>
+      </repository>
+   </repositories>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.jboss.maven.plugins</groupId>
+            <artifactId>maven-jdocbook-style-plugin</artifactId>
+            <version>1.0.0</version>
+            <extensions>true</extensions>
+         </plugin>
+      </plugins>
+
+      <extensions>
+         <extension>
+            <groupId>org.apache.maven.wagon</groupId>
+            <artifactId>wagon-webdav</artifactId>
+            <version>1.0-beta-2</version>
+         </extension>
+      </extensions>
+   </build>
+
+   <distributionManagement>
+      <repository>
+         <!-- Copy the dist to the local checkout of the JBoss maven2 repo ${maven.repository.root} -->
+         <!-- It is anticipated that ${maven.repository.root} be set in user's settings.xml -->
+         <!-- todo : replace this with direct svn access once the svnkit providers are available -->
+         <id>repository.jboss.org</id>
+         <url>file://${maven.repository.root}</url>
+      </repository>
+      <snapshotRepository>
+         <id>snapshots.jboss.org</id>
+         <name>JBoss Snapshot Repository</name>
+         <url>dav:https://snapshots.jboss.org/maven2</url>
+      </snapshotRepository>
+   </distributionManagement>
+
+
+
+</project>
