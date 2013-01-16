@@ -15,7 +15,19 @@
     </description>
 
 	<url>http://www.jboss.org/picketlink</url>
-
+	
+	<developers>
+		<developer>
+			<name>Shane Bryzak</name>
+		</developer>
+		<developer>
+			<name>Anil Saldahana</name>
+		</developer>
+		<developer>
+			<name>Pedro Silva</name>
+		</developer>
+	</developers>
+	
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
