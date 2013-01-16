@@ -23,4 +23,6 @@ public interface Agent extends IdentityType {
      * @return
      */
     String getLoginName();
+    
+    void setLoginName(String loginName);
 }
