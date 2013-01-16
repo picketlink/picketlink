@@ -626,10 +626,12 @@ public class DefaultIdentityManager implements IdentityManager {
         
         T identity = null;
         
-        if (!result.isEmpty() && result.size() == 1) {
-            identity = result.get(0);
-        } else {
-            throw new IdentityManagementException("Ambiguous IdentityType for identifier [" + id + "].");
+        if (!result.isEmpty()) {
+            if (result.size() > 1) {
+                throw new IdentityManagementException("Ambiguous IdentityType for identifier [" + id + "].");
+            } else {
+                identity = result.get(0);
+            }
         }
         
         return identity;
