@@ -34,8 +34,8 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.PropertyType;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -90,6 +90,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     public T createIdentityType(Realm realm, Object identity, JPAIdentityStore store) {
         T identityType = doCreateIdentityType(identity, store);
 
+        identityType.setId(getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_ID));
         identityType.setEnabled(getModelPropertyValue(Boolean.class, identity, PropertyType.IDENTITY_ENABLED));
         identityType.setExpirationDate(getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_EXPIRY_DATE));
         identityType.setCreatedDate(getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_CREATION_DATE));
@@ -175,7 +176,13 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
             JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = new ArrayList<Predicate>();
-
+        
+        if (queryParameter.equals(IdentityType.ID)) {
+            predicates.add(criteria.getBuilder().equal(
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
+                    parameterValues[0]));
+        }
+        
         if (queryParameter.equals(IdentityType.ENABLED)) {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ENABLED).getName()),

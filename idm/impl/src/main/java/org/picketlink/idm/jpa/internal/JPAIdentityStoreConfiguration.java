@@ -120,6 +120,11 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public void setRelationshipClass(Class<?> relationshipClass) {
         this.relationshipClass = relationshipClass;
     }
+    
+    public void setPartitionClass(Class<?> partitionClass) {
+        this.partitionClass = partitionClass;
+    }
+
 
     public Class<?> getRelationshipIdentityClass() {
         return relationshipIdentityClass;
@@ -502,4 +507,5 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     String getIdentityDiscriminator(Class<? extends IdentityType> identityType) {
         return getIdentityTypeDiscriminator(identityType);
     }
+
 }

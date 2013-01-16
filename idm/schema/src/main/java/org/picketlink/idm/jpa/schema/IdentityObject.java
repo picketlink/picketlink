@@ -26,7 +26,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -44,64 +43,51 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 @Entity
 public class IdentityObject {
 
-    @Id
-    @GeneratedValue
-    private long internalId;
-
-    @IDMProperty(PropertyType.DISCRIMINATOR)
+    @IDMProperty(PropertyType.IDENTITY_DISCRIMINATOR)
     private String discriminator;
+    
+    @ManyToOne
+    @IDMProperty (PropertyType.IDENTITY_PARTITION)
+    private PartitionObject partition;
 
-    @IDMProperty(PropertyType.ID)
+    @IDMProperty(PropertyType.IDENTITY_ID)
+    @Id
     private String id;
 
-    @SuppressWarnings("unused")
-    @IDMProperty(PropertyType.KEY)
+    @IDMProperty(PropertyType.IDENTITY_KEY)
     @Column (name="_key")
     private String key;
 
-    @IDMProperty(PropertyType.NAME)
+    @IDMProperty(PropertyType.AGENT_LOGIN_NAME)
+    private String loginName;
+    
+    @IDMProperty(PropertyType.IDENTITY_NAME)
     private String name;
 
-    @IDMProperty(PropertyType.FIRST_NAME)
+    @IDMProperty(PropertyType.USER_FIRST_NAME)
     private String firstName;
 
-    @IDMProperty(PropertyType.LAST_NAME)
+    @IDMProperty(PropertyType.USER_LAST_NAME)
     private String lastName;
 
-    @IDMProperty(PropertyType.EMAIL)
+    @IDMProperty(PropertyType.USER_EMAIL)
     private String email;
 
-    @IDMProperty(PropertyType.ENABLED)
+    @IDMProperty(PropertyType.IDENTITY_ENABLED)
     private boolean enabled;
 
-    @IDMProperty(PropertyType.CREATION_DATE)
+    @IDMProperty(PropertyType.IDENTITY_CREATION_DATE)
     private Date creationDate;
 
-    @IDMProperty(PropertyType.EXPIRY_DATE)
+    @IDMProperty(PropertyType.IDENTITY_EXPIRY_DATE)
     private Date expiryDate;
 
     @IDMAttribute(name = "one-valued")
     private String oneValued;
 
     @ManyToOne
-    @IDMProperty(PropertyType.PARENT_GROUP)
+    @IDMProperty(PropertyType.GROUP_PARENT)
     private IdentityObject parent;
-
-    @ManyToOne
-    @IDMProperty(PropertyType.RELATES_TO)
-    private IdentityObject relatesTo;
-
-    @ManyToOne
-    @IDMProperty(PropertyType.RELATED_TO)
-    private IdentityObject relatedTo;
-
-    public long getInternalId() {
-        return this.internalId;
-    }
-
-    public void setInternalId(long internalId) {
-        this.internalId = internalId;
-    }
 
     public String getDiscriminator() {
         return this.discriminator;
@@ -133,6 +119,22 @@ public class IdentityObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public PartitionObject getPartition() {
+        return partition;
+    }
+
+    public void setPartition(PartitionObject partition) {
+        this.partition = partition;
+    }
+
+    public String getLoginName() {
+        return loginName;
+    }
+
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
     }
 
     public String getFirstName() {
@@ -199,20 +201,4 @@ public class IdentityObject {
         this.oneValued = oneValued;
     }
 
-    public IdentityObject getRelatesTo() {
-        return this.relatesTo;
-    }
-
-    public void setRelatesTo(IdentityObject relatesTo) {
-        this.relatesTo = relatesTo;
-    }
-
-    public IdentityObject getRelatedTo() {
-        return relatedTo;
-    }
-
-    public void setRelatedTo(IdentityObject relatedTo) {
-        this.relatedTo = relatedTo;
-    }
-    
 }

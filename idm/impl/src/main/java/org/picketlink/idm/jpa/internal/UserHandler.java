@@ -27,18 +27,12 @@ import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.event.UserUpdatedEvent;
-import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.PropertyType;
-import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.QueryParameter;
@@ -56,6 +50,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
+        setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
         setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
         setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
         setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
@@ -85,9 +80,9 @@ public class UserHandler extends IdentityTypeHandler<User>{
         Root<?> root = criteria.getRoot();
         
         
-        if (queryParameter.equals(User.ID)) {
+        if (queryParameter.equals(User.LOGIN_NAME)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
                     parameterValues[0]));
         }
         
@@ -210,6 +205,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
         
         User user = new SimpleUser(idValue);
 
+        user.setLoginName(getModelPropertyValue(String.class, identity, PropertyType.AGENT_LOGIN_NAME));
         user.setFirstName(getModelPropertyValue(String.class, identity, PropertyType.USER_FIRST_NAME));
         user.setLastName(getModelPropertyValue(String.class, identity, PropertyType.USER_LAST_NAME));
         user.setEmail(getModelPropertyValue(String.class, identity, PropertyType.USER_EMAIL));

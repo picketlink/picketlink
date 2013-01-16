@@ -51,7 +51,7 @@ public class CredentialObject {
     @IDMProperty (PropertyType.CREDENTIAL_TYPE)
     private String type;
     
-    @IDMProperty (PropertyType.CREDENTIAL)
+    @IDMProperty (PropertyType.CREDENTIAL_VALUE)
     private String credential;
     
     @IDMProperty (PropertyType.CREDENTIAL_EFFECTIVE_DATE)
@@ -62,7 +62,7 @@ public class CredentialObject {
     @Temporal (TemporalType.TIMESTAMP)
     private Date expiryDate;
     
-    @IDMProperty (PropertyType.IDENTITY_TYPE)
+    @IDMProperty (PropertyType.CREDENTIAL_IDENTITY)
     @ManyToOne
     private IdentityObject identityType;
 

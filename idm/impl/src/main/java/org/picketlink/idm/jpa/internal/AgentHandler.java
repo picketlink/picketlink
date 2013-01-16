@@ -27,20 +27,16 @@ import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.AgentCreatedEvent;
 import org.picketlink.idm.event.AgentDeletedEvent;
 import org.picketlink.idm.event.AgentUpdatedEvent;
-import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -55,7 +51,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
-
+        setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
     }
 
     @Override
@@ -79,6 +75,8 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
         Agent agent = new SimpleAgent(idValue);
         
+        agent.setLoginName(getModelPropertyValue(String.class, identity, PropertyType.AGENT_LOGIN_NAME));
+        
         return agent;
     }
     
@@ -91,9 +89,9 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
         Root<?> root = criteria.getRoot();
         
         
-        if (queryParameter.equals(Agent.ID)) {
+        if (queryParameter.equals(Agent.LOGIN_NAME)) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
                     parameterValues[0]));
         }
         

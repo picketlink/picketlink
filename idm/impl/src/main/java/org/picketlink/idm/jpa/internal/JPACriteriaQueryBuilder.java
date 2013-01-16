@@ -32,7 +32,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 
@@ -56,38 +58,76 @@ public class JPACriteriaQueryBuilder {
         this.config = identityStore.getConfig();
         this.entityManager = identityStore.getEntityManager();
 
-        if(entityManager == null){
+        if (entityManager == null) {
             throw new IllegalStateException("Entity Manager is null");
         }
         this.builder = this.entityManager.getCriteriaBuilder();
-        
-        if(builder == null){
+
+        if (builder == null) {
             throw new IllegalStateException("Criteria Builder is null");
         }
-        
+
         Class<?> identityClass = this.config.getIdentityClass();
-        
+
         this.criteria = builder.createQuery(identityClass);
         this.root = criteria.from(identityClass);
     }
 
     public List<Predicate> getPredicates() {
         List<Predicate> predicates = new ArrayList<Predicate>();
-        
+
         this.builder = this.entityManager.getCriteriaBuilder();
 
-        String discriminator = this.config.getIdentityTypeDiscriminator(identityQuery.getIdentityType());
+        if (!IdentityType.class.equals(identityQuery.getIdentityType())) {
+            String discriminator = this.config.getIdentityTypeDiscriminator(identityQuery.getIdentityType());
 
-        predicates.add(builder.equal(root.get(this.config.getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
-                discriminator));
-        
-        IdentityTypeHandler identityTypeManager = this.config.getHandler(this.identityQuery.getIdentityType());
-        
-        for (Entry<QueryParameter, Object[]> entry : this.identityQuery.getParameters().entrySet()) {
-            QueryParameter queryParameter = entry.getKey();
-            Object[] parameterValues = entry.getValue();
-            
-            predicates.addAll(identityTypeManager.getPredicate(queryParameter, parameterValues, this, identityStore));
+            predicates.add(builder.equal(root.get(this.config.getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
+                    discriminator));
+
+            IdentityTypeHandler identityTypeManager = this.config.getHandler(this.identityQuery.getIdentityType());
+
+            for (Entry<QueryParameter, Object[]> entry : this.identityQuery.getParameters().entrySet()) {
+                QueryParameter queryParameter = entry.getKey();
+                Object[] parameterValues = entry.getValue();
+
+                predicates.addAll(identityTypeManager.getPredicate(queryParameter, parameterValues, this, identityStore));
+            }
+        } else {
+            IdentityTypeHandler identityTypeManager = new IdentityTypeHandler<IdentityType>(this.config) {
+
+                @Override
+                protected IdentityType doCreateIdentityType(Object identity, JPAIdentityStore store) {
+                    return null;
+                }
+
+                @Override
+                protected void doPopulateIdentityInstance(Object toIdentity, IdentityType fromIdentityType,
+                        JPAIdentityStore store) {
+                    
+                }
+
+                @Override
+                protected AbstractBaseEvent raiseCreatedEvent(IdentityType fromIdentityType, JPAIdentityStore store) {
+                    return null;
+                }
+
+                @Override
+                protected AbstractBaseEvent raiseUpdatedEvent(IdentityType fromIdentityType, JPAIdentityStore store) {
+                    return null;
+                }
+
+                @Override
+                protected AbstractBaseEvent raiseDeletedEvent(IdentityType fromIdentityType, JPAIdentityStore store) {
+                    return null;
+                }
+            };
+
+            for (Entry<QueryParameter, Object[]> entry : this.identityQuery.getParameters().entrySet()) {
+                QueryParameter queryParameter = entry.getKey();
+                Object[] parameterValues = entry.getValue();
+
+                predicates.addAll(identityTypeManager.getPredicate(queryParameter, parameterValues, this, identityStore));
+            }
         }
 
         return predicates;
@@ -96,11 +136,11 @@ public class JPACriteriaQueryBuilder {
     public CriteriaQuery<?> getCriteria() {
         return this.criteria;
     }
-    
+
     public CriteriaBuilder getBuilder() {
         return builder;
     }
-    
+
     public Root<?> getRoot() {
         return root;
     }

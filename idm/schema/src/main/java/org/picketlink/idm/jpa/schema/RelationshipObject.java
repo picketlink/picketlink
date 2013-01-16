@@ -22,72 +22,31 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 
 import org.picketlink.idm.jpa.annotations.EntityType;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
-import org.picketlink.idm.jpa.annotations.IDMProperty;
-import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
+@IDMEntity(EntityType.RELATIONSHIP_IDENTITY)
 @Entity
-@IDMEntity(EntityType.IDENTITY_ATTRIBUTE)
-public class CredentialObjectAttribute {
-
+public class RelationshipObject {
+    
     @Id
     @GeneratedValue
-    private Integer attributeId;
-
-    @ManyToOne
-    @JoinColumn
-    @IDMProperty (PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL)
-    private CredentialObject credentialObject;
-
-    @IDMProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME)
-    private String name;
-
-    @IDMProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE)
-    @Column (length=1024)
-    private String value;
-
-    public Integer getAttributeId() {
-        return this.attributeId;
+    private String id;
+    
+    public String getId() {
+        return id;
     }
 
-    public void setAttributeId(Integer attributeId) {
-        this.attributeId = attributeId;
-    }
-
-    public CredentialObject getCredentialObject() {
-        return this.credentialObject;
-    }
-
-    public void setCredentialObject(CredentialObject credentialObject) {
-        this.credentialObject = credentialObject;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return this.value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
+    public void setId(String id) {
+        this.id = id;
     }
 
 }

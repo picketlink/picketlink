@@ -22,83 +22,66 @@
 
 package org.picketlink.idm.jpa.schema;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
-import org.picketlink.idm.jpa.annotations.EntityType;
-import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 @Entity
-@IDMEntity(EntityType.IDENTITY_ATTRIBUTE)
-public class IdentityObjectAttribute {
+public class PartitionObject {
 
     @Id
     @GeneratedValue
-    private Integer attributeId;
+    @IDMProperty(PropertyType.PARTITION_ID)
+    private String id;
 
-    @ManyToOne
-    @JoinColumn
-    @IDMProperty (PropertyType.ATTRIBUTE_IDENTITY)
-    private IdentityObject identityObject;
-
-    @IDMProperty(PropertyType.ATTRIBUTE_NAME)
+    @IDMProperty(PropertyType.PARTITION_NAME)
     private String name;
 
-    @IDMProperty(PropertyType.ATTRIBUTE_VALUE)
-    @Column (length=1024)
-    private String value;
-
-    @IDMProperty(PropertyType.ATTRIBUTE_TYPE)
+    @IDMProperty(PropertyType.PARTITION_TYPE)
     private String type;
 
-    public Integer getAttributeId() {
-        return this.attributeId;
+    @ManyToOne
+    @IDMProperty(PropertyType.PARTITION_PARENT)
+    private PartitionObject parent;
+
+    public String getId() {
+        return id;
     }
 
-    public void setAttributeId(Integer attributeId) {
-        this.attributeId = attributeId;
-    }
-
-    public IdentityObject getIdentityObject() {
-        return this.identityObject;
-    }
-
-    public void setIdentityObject(IdentityObject identityObject) {
-        this.identityObject = identityObject;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
-        return this.name;
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public String getValue() {
-        return this.value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public String getType() {
-        return this.type;
+        return type;
     }
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public PartitionObject getParent() {
+        return parent;
+    }
+
+    public void setParent(PartitionObject parent) {
+        this.parent = parent;
     }
 
 }

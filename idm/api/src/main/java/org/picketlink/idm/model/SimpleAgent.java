@@ -18,4 +18,9 @@ public class SimpleAgent extends AbstractIdentityType implements Agent {
     public String getLoginName() {
         return loginName;
     }
+    
+    @Override
+    public void setLoginName(String loginName) {
+        this.loginName = loginName;
+    }
 }
