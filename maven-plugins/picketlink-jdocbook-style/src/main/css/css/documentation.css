@@ -291,15 +291,15 @@ div.note h2, div.note p, div.tip h2, div.tip p, div.caution h2, div.caution p, d
 
 #title a.site_href {
     display:block;
-    height:89px;
+    height:71px;
     width:310px;
     float:left;
-    background:url(../images/picketlink/jbossorglogo.png) top left no-repeat;
+    background:url(../images/picketlink/picketlink-logo.png) top left no-repeat;
 }
 
 #title a.doc_href {
     display:block;
-    height:89px;
+    height:71px;
     background:transparent url(../images/picketlink/community_doc.png) top right no-repeat;
 }
 
