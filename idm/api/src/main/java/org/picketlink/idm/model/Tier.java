@@ -17,12 +17,16 @@ public class Tier implements Partition {
     private String description;
     private Tier parent;
 
-    public Tier(String name, String description, Tier parent) {
+    public Tier(String name) {
         if (name == null) {
             throw new InstantiationError("Tier name must not be null");
         }
 
         this.name = name;
+    }
+    
+    public Tier(String name, String description, Tier parent) {
+        this(name);
         this.description = description;
         this.parent = parent;
     }

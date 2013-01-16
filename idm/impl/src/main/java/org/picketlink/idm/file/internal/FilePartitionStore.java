@@ -22,8 +22,9 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
+import static org.picketlink.idm.file.internal.FileUtils.delete;
+
+import java.io.File;
 import java.util.Collection;
 
 import org.picketlink.idm.IdentityManagementException;
@@ -44,22 +45,40 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
 
     @Override
     public void createPartition(Partition partition) {
+        if (Realm.class.isInstance(partition)) {
+            if (getRealm(partition.getName()) != null) {
+                throw new IdentityManagementException("A Realm with name [" + partition.getName() + "] already exists.");
+            }
+        }
+
+        if (Tier.class.isInstance(partition)) {
+            if (getTier(partition.getName()) != null) {
+                throw new IdentityManagementException("A Tier with name [" + partition.getName() + "] already exists.");
+            }
+        }
+
         partition.setId(this.context.getIdGenerator().generate());
-        getConfig().getPartitions().put(partition.getName(), partition);
-        flushPartitions();
+        
+        FilePartition filePartition = getConfig().getDataSource().initPartition(partition.getId());
+        
+        filePartition.setPartition(partition);
+        
+        getConfig().getPartitions().put(partition.getId(), filePartition);
+        getConfig().getDataSource().flushPartitions();
     }
 
     @Override
     public void removePartition(Partition partition) {
-        String id = partition.getName();
+        String id = partition.getId();
         
         if (id == null) {
             throw new IdentityManagementException("No identifier provided.");
         }
         
-        if (getConfig().getPartitions().containsKey(id)) {
-            getConfig().getPartitions().remove(id);
-            flushPartitions();
+        if (getConfig().getPartitions().containsKey(partition.getId())) {
+            delete(new File(getConfig().getDataSource().getWorkingDir() + File.separator + partition.getId()));
+            getConfig().getPartitions().remove(partition.getId());
+            getConfig().getDataSource().flushPartitions();
         } else {
             throw new IdentityManagementException("No Partition found with the given id [" + id + "].");
         }
@@ -67,11 +86,11 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
 
     @Override
     public Realm getRealm(String name) {
-        Collection<Partition> partitions = getConfig().getPartitions().values();
+        Collection<FilePartition> partitions = getConfig().getPartitions().values();
         
-        for (Partition partition : partitions) {
-            if (Realm.class.isInstance(partition)) {
-                Realm realm = (Realm) partition;
+        for (FilePartition partition : partitions) {
+            if (Realm.class.isInstance(partition.getPartition())) {
+                Realm realm = (Realm) partition.getPartition();
                 
                 if (realm.getName().equals(name)) {
                     return realm;
@@ -84,11 +103,11 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
 
     @Override
     public Tier getTier(String name) {
-        Collection<Partition> partitions = getConfig().getPartitions().values();
+        Collection<FilePartition> partitions = getConfig().getPartitions().values();
         
-        for (Partition partition : partitions) {
-            if (Tier.class.isInstance(partition)) {
-                Tier tier = (Tier) partition;
+        for (FilePartition partition : partitions) {
+            if (Tier.class.isInstance(partition.getPartition())) {
+                Tier tier = (Tier) partition.getPartition();
                 
                 if (tier.getName().equals(name)) {
                     return tier;
@@ -109,19 +128,5 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
         return this.config;
     }
     
-    /**
-     * <p>
-     * Flush all changes made to agents to the filesystem.
-     * </p>
-     */
-    synchronized void flushPartitions() {
-        try {
-            FileOutputStream fos = new FileOutputStream(this.getConfig().getPartitionsFile());
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(getConfig().getPartitions());
-            oos.close();
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error flushing partitions changes to file system.", e);
-        }
-    }
+
 }
