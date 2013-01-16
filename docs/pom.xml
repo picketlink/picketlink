@@ -16,10 +16,6 @@
   <description>
   </description>
 
-  <properties>
-      <pressgang.version>3.0.1-SNAPSHOT</pressgang.version>
-  </properties>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -36,14 +32,12 @@
               <version>${pressgang.version}</version>
             </dependency>
             <dependency>
-              <groupId>org.jboss.pressgang</groupId>
-              <artifactId>pressgang-jdocbook-style</artifactId>
+              <groupId>org.picketlink</groupId>
+              <artifactId>picketlink-jdocbook-style</artifactId>
               <type>jdocbook-style</type>
-              <version>${pressgang.version}</version>
+              <version>${project.version}</version>
             </dependency>
           </dependencies>
-
-          <!-- TODO FIXME This does not build offline. https://issues.jboss.org/browse/PRESSGANG-79 -->
 
           <configuration>
             <sourceDocumentName>master.xml</sourceDocumentName>
