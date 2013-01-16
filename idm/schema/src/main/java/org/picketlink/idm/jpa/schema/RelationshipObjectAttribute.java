@@ -22,8 +22,12 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import org.picketlink.idm.jpa.annotations.EntityType;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
@@ -34,31 +38,56 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@IDMEntity(EntityType.RELATIONSHIP)
 @Entity
-public class RelationshipObject {
+@IDMEntity(EntityType.RELATIONSHIP_ATTRIBUTE)
+public class RelationshipObjectAttribute {
 
     @Id
-    @IDMProperty(PropertyType.RELATIONSHIP_ID)
-    private String id;
+    @GeneratedValue
+    private Integer id;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_CLASS)
-    private String type;
+    @ManyToOne
+    @JoinColumn
+    @IDMProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP)
+    private RelationshipObject relationshipObject;
 
-    public String getId() {
+    @IDMProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME)
+    private String name;
+
+    @IDMProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE)
+    @Column(length = 1024)
+    private String value;
+
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
+    public RelationshipObject getRelationshipObject() {
+        return relationshipObject;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setRelationshipObject(RelationshipObject relationshipObject) {
+        this.relationshipObject = relationshipObject;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getValue() {
+        return this.value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 
 }

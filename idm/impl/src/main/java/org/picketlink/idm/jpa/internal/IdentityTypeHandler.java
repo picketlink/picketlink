@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -35,9 +36,14 @@ import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * <p>
@@ -224,6 +230,139 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
+        
+        if (queryParameter.equals(IdentityType.HAS_GROUP_ROLE)) {
+            for (Object object : parameterValues) {
+                GroupRole groupRole = (GroupRole) object;
+                
+                DefaultRelationshipQuery<GroupRole> query = new DefaultRelationshipQuery(GroupRole.class, store);
+
+                query.setParameter(GroupRole.MEMBER, groupRole.getMember());
+                query.setParameter(GroupRole.GROUP, groupRole.getGroup());
+                query.setParameter(GroupRole.ROLE, groupRole.getRole());
+
+                List<GroupRole> resultList = query.getResultList();
+
+                if (!resultList.isEmpty()) {
+                    List<String> relIds = new ArrayList<String>();
+
+                    for (GroupRole memberships : resultList) {
+                        relIds.add(memberships.getId());
+                    }
+
+                    Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
+                    Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
+                    Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
+                            PropertyType.RELATIONSHIP_IDENTITY).getName()));
+                    Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
+                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
+
+                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
+
+                    subqueryPredicates.add(criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
+                            GroupRole.MEMBER.getName()));
+                    subqueryPredicates.add(criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
+                            criteria.getRoot()));
+                    subqueryPredicates.add(criteria.getBuilder()
+                            .in(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
+
+                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
+
+                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                } else {
+                    predicates.add(criteria.getBuilder().equal(
+                            criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
+                }
+            }
+        }
+        
+        if (queryParameter.equals(IdentityType.MEMBER_OF)) {
+            for (Object groupName : parameterValues) {
+                DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery(GroupMembership.class, store);
+
+                query.setParameter(GroupMembership.GROUP, store.getGroup(groupName.toString()));
+
+                List<GroupMembership> resultList = query.getResultList();
+
+                if (!resultList.isEmpty()) {
+                    List<String> relIds = new ArrayList<String>();
+
+                    for (GroupMembership memberships : resultList) {
+                        relIds.add(memberships.getId());
+                    }
+
+                    Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
+                    Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
+                    Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
+                            PropertyType.RELATIONSHIP_IDENTITY).getName()));
+                    Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
+                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
+
+                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
+
+                    subqueryPredicates.add(criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
+                            GroupMembership.MEMBER.getName()));
+                    subqueryPredicates.add(criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
+                            criteria.getRoot()));
+                    subqueryPredicates.add(criteria.getBuilder()
+                            .in(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
+
+                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
+
+                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                } else {
+                    predicates.add(criteria.getBuilder().equal(
+                            criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
+                }
+            }
+        }
+        
+        if (queryParameter.equals(IdentityType.HAS_ROLE)) {
+            for (Object roleName : parameterValues) {
+                DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery(Grant.class, store);
+
+                query.setParameter(Grant.ROLE, store.getRole(roleName.toString()));
+
+                List<Grant> resultList = query.getResultList();
+
+                if (!resultList.isEmpty()) {
+                    List<String> relIds = new ArrayList<String>();
+
+                    for (Grant memberships : resultList) {
+                        relIds.add(memberships.getId());
+                    }
+
+                    Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
+                    Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
+                    Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
+                            PropertyType.RELATIONSHIP_IDENTITY).getName()));
+                    Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
+                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
+
+                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
+
+                    subqueryPredicates.add(criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
+                            Grant.ASSIGNEE.getName()));
+                    subqueryPredicates.add(criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
+                            criteria.getRoot()));
+                    subqueryPredicates.add(criteria.getBuilder()
+                            .in(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
+
+                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
+
+                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                } else {
+                    predicates.add(criteria.getBuilder().equal(
+                            criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
+                }
+            }
+        }
 
         if (queryParameter instanceof IdentityType.AttributeParameter) {
             AttributeParameter customParameter = (AttributeParameter) queryParameter;
@@ -274,5 +413,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     protected abstract AbstractBaseEvent raiseUpdatedEvent(T fromIdentityType, JPAIdentityStore store);
 
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType, JPAIdentityStore store);
+
+    public void onBeforeAdd(T identityType, IdentityStore<?> store) {
+        
+    }
 
 }

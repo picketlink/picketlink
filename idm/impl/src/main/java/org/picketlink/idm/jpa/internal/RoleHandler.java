@@ -22,8 +22,10 @@
 
 package org.picketlink.idm.jpa.internal;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -32,18 +34,19 @@ import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
-import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
-public class RoleHandler extends IdentityTypeHandler<Role>{
+public class RoleHandler extends IdentityTypeHandler<Role> {
 
     public RoleHandler(JPAIdentityStoreConfiguration config) {
         super(config);
@@ -74,48 +77,65 @@ public class RoleHandler extends IdentityTypeHandler<Role>{
         String name = getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
 
         SimpleRole role = new SimpleRole(name);
-        
+
         return role;
     }
-    
+
     @Override
     public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
             JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
-        
+
         if (queryParameter.equals(Role.NAME)) {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
-        
+
         if (queryParameter.equals(IdentityType.ROLE_OF)) {
             for (Object object : parameterValues) {
+                DefaultRelationshipQuery query = new DefaultRelationshipQuery(Grant.class, store);
 
-                // TODO rewrite using relationships
-                /*
-                Property<Object> memberModelProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
-                Property<Object> roleModelProperty = store.getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
+                query.setParameter(Grant.ASSIGNEE, object);
 
+                List<Grant> resultList = query.getResultList();
 
-                Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getMembershipClass());
-                Root fromProject = subquery.from(store.getConfig().getMembershipClass());
-                Subquery<?> select = subquery.select(fromProject.get(roleModelProperty.getName()));
+                if (!resultList.isEmpty()) {
+                    List<String> relIds = new ArrayList<String>();
 
-                Predicate conjunction = criteria.getBuilder().conjunction();
+                    for (Grant grant : resultList) {
+                        relIds.add(grant.getId());
+                    }
+                    
+                    Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
+                    Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
+                    Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
+                            PropertyType.RELATIONSHIP_IDENTITY).getName()));
+                    Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
+                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
 
-                conjunction.getExpressions().add(
-                        criteria.getBuilder().equal(fromProject.get(roleModelProperty.getName()), criteria.getRoot()));
-                conjunction.getExpressions().add(
-                        criteria.getBuilder().equal(fromProject.get(memberModelProperty.getName()), store.lookupIdentityObjectById((IdentityType) object)));
+                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
 
-                subquery.where(conjunction);
-                
-                predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));*/
+                    subqueryPredicates.add(criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
+                            Grant.ROLE.getName()));
+                    subqueryPredicates.add(criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
+                            criteria.getRoot()));
+                    subqueryPredicates.add(criteria.getBuilder().in(
+                            join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
+
+                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
+
+                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                } else {
+                    predicates.add(criteria.getBuilder().equal(
+                            criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
+                }
             }
         }
-        
+
         return predicates;
     }
-    
+
 }

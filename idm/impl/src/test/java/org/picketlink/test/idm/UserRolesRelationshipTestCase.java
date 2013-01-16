@@ -171,6 +171,17 @@ public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCa
         assertTrue(contains(result, "someRole"));
         assertTrue(contains(result, "someAnotherRole"));
         assertTrue(contains(result, "someImportantRole"));
+        
+        identityManager.revokeRole(user, someRole);
+        
+        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertFalse(contains(result, "someRole"));
+        assertTrue(contains(result, "someAnotherRole"));
+        assertTrue(contains(result, "someImportantRole"));
     }
 
     private boolean contains(List<Role> result, String roleId) {

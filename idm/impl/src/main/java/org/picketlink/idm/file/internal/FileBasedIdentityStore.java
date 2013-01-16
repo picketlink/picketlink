@@ -326,7 +326,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         return group;
     }
-    
+
     @Override
     public void validateCredentials(Credentials credentials) {
         CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
@@ -411,7 +411,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         return null;
     }
-    
+
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
         ArrayList<T> storedCredentials = new ArrayList<T>();
@@ -483,14 +483,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                         IdentityType identityTypeRel = storedRelationship.getIdentityTypes().get(
                                 identityTypeParameter.getName());
 
-                        if (IdentityTypeQueryParameter.class.isInstance(identityTypeParameter) && identityTypeRel != null) {
-                            for (Object object : values) {
-                                IdentityType identityType = (IdentityType) object;
+                        for (Object object : values) {
+                            IdentityType identityType = (IdentityType) object;
 
-                                if (identityTypeRel.getClass().isInstance(identityType)
-                                        && identityTypeRel.getId().equals(identityType.getId())) {
-                                    valuesMathCount--;
-                                }
+                            if (identityTypeRel.getClass().isInstance(identityType)
+                                    && identityTypeRel.getId().equals(identityType.getId())) {
+                                valuesMathCount--;
                             }
                         }
 
@@ -537,7 +535,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         return result;
     }
-    
+
     @Override
     public <T extends Relationship> int countQueryResults(RelationshipQuery<T> query) {
         return 0;
@@ -549,14 +547,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
         Set<?> entries = null;
-        
+
         if (IdentityType.class.equals(identityTypeClass)) {
             Map<String, IdentityType> allIdentityTypes = new HashMap<String, IdentityType>();
-            
+
             allIdentityTypes.putAll(getConfig().getAgents(getContext()));
             allIdentityTypes.putAll(getConfig().getRoles(getContext()));
             allIdentityTypes.putAll(getConfig().getGroups(getContext()));
-            
+
             entries = allIdentityTypes.entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
             entries = getConfig().getAgents(getContext()).entrySet();
@@ -582,7 +580,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!isQueryParameterEquals(identityQuery, IdentityType.ID, storedEntry.getId())) {
                 continue;
             }
-            
+
             if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent agent = (Agent) storedEntry;
 
@@ -1039,7 +1037,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
         return storage;
     }
-    
+
     private IdentityManagementException createNotImplementedYetException() {
         return new IdentityManagementException("Not implemented yet.");
     }
@@ -1132,7 +1130,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             fileRelationship.getIdentityTypes().put(property.getName(), value);
         }
     }
-    
+
     private void updateRelationshipAttributes(Relationship relationship, FileRelationshipStorage fileRelationship) {
         fileRelationship.getAttributes().clear();
 
@@ -1142,7 +1140,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             fileRelationship.getAttributes().put(attribute.getName(), attribute.getValue());
         }
     }
-    
+
     private Role getStoredRole(Role role) {
         if (role.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
@@ -1151,7 +1149,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Role storedRole = getRole(role.getName());
 
         if (storedRole == null) {
-            throw new RuntimeException("No Role found with the given name [" + role.getName() + "] for the current Partition [" + getCurrentPartition().getName() + "].");
+            throw new RuntimeException("No Role found with the given name [" + role.getName() + "] for the current Partition ["
+                    + getCurrentPartition().getName() + "].");
         }
         return storedRole;
     }
@@ -1164,7 +1163,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Group storedGroup = getGroup(group.getName());
 
         if (storedGroup == null) {
-            throw new RuntimeException("No Group found with the given name [" + group.getName() + "] for the current Partition [" + getCurrentPartition().getName() + "].");
+            throw new RuntimeException("No Group found with the given name [" + group.getName()
+                    + "] for the current Partition [" + getCurrentPartition().getName() + "].");
         }
         return storedGroup;
     }
@@ -1177,7 +1177,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Agent storedAgent = getAgent(agent.getLoginName());
 
         if (storedAgent == null) {
-            throw new RuntimeException("No Agent found with the given loginName [" + agent.getLoginName() + "] for the current Partition [" + getCurrentRealm().getName() + "]");
+            throw new RuntimeException("No Agent found with the given loginName [" + agent.getLoginName()
+                    + "] for the current Partition [" + getCurrentRealm().getName() + "]");
         }
         return storedAgent;
     }
@@ -1190,12 +1191,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         User storedUser = getUser(user.getLoginName());
 
         if (storedUser == null) {
-            throw new RuntimeException("No User found with the given loginName [" + user.getLoginName() + "] for the current Partition [" + getCurrentRealm().getName() + "]");
+            throw new RuntimeException("No User found with the given loginName [" + user.getLoginName()
+                    + "] for the current Partition [" + getCurrentRealm().getName() + "]");
         }
 
         return storedUser;
     }
-    
+
     private Role addRole(Role role) {
         SimpleRole fileRole = new SimpleRole(role.getName());
 
@@ -1389,7 +1391,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         return agent;
     }
-    
+
     private IdentityManagementException createUnsupportedIdentityTypeException(Class<? extends IdentityType> identityTypeClass) {
         return new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
     }

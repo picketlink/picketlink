@@ -33,7 +33,6 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.SimpleAgent;
 
 /**
  * <p>
@@ -150,11 +149,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
     @Override
     protected Agent createIdentityType() {
-        Agent agent = new SimpleAgent("someAgent");
-        
-        getIdentityManager().add(agent);
-        
-        return agent;
+        return createAgent("someAgent");
     }
 
 }

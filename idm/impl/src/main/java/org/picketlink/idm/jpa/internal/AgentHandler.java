@@ -28,16 +28,16 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.AgentCreatedEvent;
 import org.picketlink.idm.event.AgentDeletedEvent;
 import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -71,11 +71,9 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     @Override
     protected Agent doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        String idValue = getConfig().getModelProperty(PropertyType.IDENTITY_ID).getValue(identity).toString();
+        String loginName = getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
 
-        Agent agent = new SimpleAgent(idValue);
-        
-        agent.setLoginName(getModelPropertyValue(String.class, identity, PropertyType.AGENT_LOGIN_NAME));
+        Agent agent = new SimpleAgent(loginName);
         
         return agent;
     }
@@ -95,100 +93,14 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
                     parameterValues[0]));
         }
         
-        if (queryParameter.equals(IdentityType.HAS_GROUP_ROLE)) {
-            for (Object object : parameterValues) {
-                GroupRole groupRole = (GroupRole) object;
-
-                // TODO rewrite this to work with relationships instead
-                /**
-                Property<Object> memberModelProperty = getConfig().getModelProperty(getConfigJPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> roleModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-                Property<Object> groupModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
-
-
-                Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getMembershipClass());
-                Root fromProject = subquery.from(getConfig().getMembershipClass());
-                Subquery<?> select = subquery.select(fromProject.get(memberModelProperty.getName()));
-
-                Predicate conjunction = builder.conjunction();
-
-                conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(memberModelProperty.getName()), root));
-                
-                if (groupRole.getMember() != null) {
-                    conjunction.getExpressions().add(
-                            builder.equal(fromProject.get(memberModelProperty.getName()), store.lookupIdentityObjectById(groupRole.getMember())));
-                }
-                
-                if (groupRole.getRole() != null) {
-                    conjunction.getExpressions().add(
-                            builder.equal(fromProject.get(roleModelProperty.getName()), store.lookupIdentityObjectById(groupRole.getRole())));
-                    
-                }
-                
-                if (groupRole.getGroup() != null) {
-                    conjunction.getExpressions().add(
-                            builder.equal(fromProject.get(groupModelProperty.getName()), store.lookupIdentityObjectById(groupRole.getGroup())));
-                }
-
-                subquery.where(conjunction);
-
-                predicates.add(builder.in(root).value(subquery));*/
-            }
-        }
-        
-        if (queryParameter.equals(IdentityType.MEMBER_OF)) {
-            for (Object object : parameterValues) {
-                // TODO rewrite this to use relationships
-                /*
-                Property<Object> memberModelProperty = getConfig().getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> groupModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_GROUP);
-
-
-                Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getMembershipClass());
-                Root fromProject = subquery.from(storeConfig.getMembershipClass());
-                Subquery<?> select = subquery.select(fromProject.get(memberModelProperty.getName()));
-
-                Predicate conjunction = builder.conjunction();
-
-                conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(memberModelProperty.getName()), root));
-                conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(groupModelProperty.getName()), store.lookupIdentityObjectById(new SimpleGroup(object.toString()))));
-
-                subquery.where(conjunction);
-                
-                predicates.add(builder.in(root).value(subquery));*/
-            }
-        }
-        
-        if (queryParameter.equals(IdentityType.HAS_ROLE)) {
-            for (Object object : parameterValues) {
-                String roleName = (String) parameterValues[0];
-                // TODO rewrite this to use relationships
-                /*
-                Property<Object> memberModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_MEMBER);
-                Property<Object> roleModelProperty = storeConfig.getModelProperty(JPAIdentityStoreConfiguration.PROPERTY_MEMBERSHIP_ROLE);
-
-
-                Subquery<?> subquery = criteria.getCriteria().subquery(storeConfig.getMembershipClass());
-                Root fromProject = subquery.from(storeConfig.getMembershipClass());
-                Subquery<?> select = subquery.select(fromProject.get(memberModelProperty.getName()));
-
-                Predicate conjunction = builder.conjunction();
-
-                conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(memberModelProperty.getName()), root));
-                conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(roleModelProperty.getName()), store.lookupIdentityObjectById(new SimpleRole(object.toString()))));
-
-                subquery.where(conjunction);
-
-                predicates.add(builder.in(root).value(subquery));*/
-            }
-        }
-        
         return predicates;
+    }
+    
+    @Override
+    public void onBeforeAdd(Agent identityType, IdentityStore<?> store) {
+        if (store.getAgent(identityType.getLoginName()) != null) {
+            throw new IdentityManagementException("An Agent already exists with the given loginName [" + identityType.getLoginName() + "]");
+        }
     }
     
 }

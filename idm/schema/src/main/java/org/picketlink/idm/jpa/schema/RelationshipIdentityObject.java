@@ -23,7 +23,9 @@
 package org.picketlink.idm.jpa.schema;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import org.picketlink.idm.jpa.annotations.EntityType;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
@@ -34,16 +36,24 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-@IDMEntity(EntityType.RELATIONSHIP)
+@IDMEntity(EntityType.RELATIONSHIP_IDENTITY)
 @Entity
-public class RelationshipObject {
+public class RelationshipIdentityObject {
 
     @Id
-    @IDMProperty(PropertyType.RELATIONSHIP_ID)
+    @GeneratedValue
     private String id;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_CLASS)
-    private String type;
+    @IDMProperty(PropertyType.RELATIONSHIP_DESCRIPTOR)
+    private String descriptor;
+
+    @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY)
+    @ManyToOne
+    private IdentityObject identityObject;
+
+    @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP)
+    @ManyToOne
+    private RelationshipObject relationshipObject;
 
     public String getId() {
         return id;
@@ -53,12 +63,28 @@ public class RelationshipObject {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
+    public IdentityObject getIdentityObject() {
+        return identityObject;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setIdentityObject(IdentityObject identityObject) {
+        this.identityObject = identityObject;
+    }
+
+    public RelationshipObject getRelationshipObject() {
+        return relationshipObject;
+    }
+
+    public void setRelationshipObject(RelationshipObject relationshipObject) {
+        this.relationshipObject = relationshipObject;
+    }
+
+    public String getDescriptor() {
+        return descriptor;
+    }
+
+    public void setDescriptor(String descriptor) {
+        this.descriptor = descriptor;
     }
 
 }

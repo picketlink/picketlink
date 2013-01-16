@@ -42,6 +42,9 @@ import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
+import org.picketlink.idm.jpa.schema.RelationshipObject;
+import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.test.idm.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.AgentGroupsRelationshipTestCase;
 import org.picketlink.test.idm.AgentManagementTestCase;
@@ -134,7 +137,9 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
         configuration.setIdentityClass(IdentityObject.class);
         configuration.setAttributeClass(IdentityObjectAttribute.class);
-//        configuration.setRelationshipClass(RelationshipObject.class);
+        configuration.setRelationshipClass(RelationshipObject.class);
+        configuration.setRelationshipIdentityClass(RelationshipIdentityObject.class);
+        configuration.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
         configuration.setCredentialClass(CredentialObject.class);
         configuration.setCredentialAttributeClass(CredentialObjectAttribute.class);
         configuration.setPartitionClass(PartitionObject.class);
