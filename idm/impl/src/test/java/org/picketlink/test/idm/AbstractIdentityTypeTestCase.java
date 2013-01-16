@@ -82,10 +82,12 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         
         T identityType = createIdentityType();
         
-        T lookedUpIdentityType = identityManager.<T>lookupIdentityById((Class<T>)identityType.getClass(), identityType.getId());
+        T lookedUpIdentityType = identityManager.lookupIdentityById((Class<T>)identityType.getClass(), identityType.getId());
 
         assertNotNull(identityType);
         assertEquals(identityType.getId(), lookedUpIdentityType.getId());
+        
+        assertNull(identityManager.lookupIdentityById(identityType.getClass(), "bad_id"));
     }
     
     protected abstract T createIdentityType();
