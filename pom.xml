@@ -5,7 +5,7 @@
 
 	<groupId>org.picketlink</groupId>
 	<artifactId>picketlink-parent</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
+	<version>5.0.0-2013Jan16</version>
 	<packaging>pom</packaging>
 
 	<name>PicketLink Parent</name>
@@ -15,7 +15,19 @@
     </description>
 
 	<url>http://www.jboss.org/picketlink</url>
-
+	
+	<developers>
+		<developer>
+			<name>Shane Bryzak</name>
+		</developer>
+		<developer>
+			<name>Anil Saldahana</name>
+		</developer>
+		<developer>
+			<name>Pedro Silva</name>
+		</developer>
+	</developers>
+	
 	<licenses>
 		<license>
 			<name>Apache License, Version 2.0</name>
