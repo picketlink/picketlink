@@ -571,6 +571,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 continue;
             }
 
+            if (!isQueryParameterEquals(identityQuery, IdentityType.ID, storedEntry.getId())) {
+                continue;
+            }
+            
             if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent agent = (Agent) storedEntry;
 

@@ -76,13 +76,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         assertTrue(new Date().compareTo(storedUserInstance.getCreatedDate()) > 0);
     }
 
-    /**
-     * <p>
-     * Loads from the LDAP tree an already stored user.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testGet() throws Exception {
         IdentityManager identityManager = getIdentityManager();

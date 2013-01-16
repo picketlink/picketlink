@@ -115,6 +115,8 @@ public interface IdentityManager extends Serializable{
 
     // Query API
 
+    <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String value);
+    
     <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType);
 
     <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType);

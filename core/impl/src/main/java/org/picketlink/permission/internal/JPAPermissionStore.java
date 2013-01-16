@@ -121,7 +121,7 @@ public class JPAPermissionStore implements PermissionStore
                     Set<String> resourcePermissions = permissionHandlerPolicy.convertResourcePermissions(
                             resource, meta.getAclPermission().getValue(result));
                     
-                    IdentityType recipient = identityManager.lookupIdentityByKey(meta.getAclRecipient().getValue(result));
+                    IdentityType recipient = identityManager.lookupIdentityById(IdentityType.class, meta.getAclRecipient().getValue(result));
                     
                     for (String permission : resourcePermissions)
                     {
@@ -183,7 +183,7 @@ public class JPAPermissionStore implements PermissionStore
             criteriaText.append("P.");
             criteriaText.append(meta.getAclRecipient().getName());
             criteriaText.append(" = :RECIPIENT");      
-            paramValues.put("RECIPIENT", query.getRecipient().getKey());
+            paramValues.put("RECIPIENT", query.getRecipient().getId());
         }
         
         queryText.append(criteriaText);
@@ -230,7 +230,7 @@ public class JPAPermissionStore implements PermissionStore
                 {
                     store.getAclIdentifier().setValue(p, permissionHandlerPolicy.getGeneratedIdentifier(permission.getResource()));
                 }
-                store.getAclRecipient().setValue(p, permission.getRecipient().getKey());
+                store.getAclRecipient().setValue(p, permission.getRecipient().getId());
                 store.getAclPermission().setValue(p, permission.getPermission());                
                 
                 em.persist(p);

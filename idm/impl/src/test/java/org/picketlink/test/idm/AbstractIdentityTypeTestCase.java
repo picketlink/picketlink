@@ -76,6 +76,18 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertTrue(enabledIdentityTypeInstance.isEnabled());
     }
     
+    @Test
+    public void testLookupById() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        
+        T identityType = createIdentityType();
+        
+        T lookedUpIdentityType = identityManager.<T>lookupIdentityById((Class<T>)identityType.getClass(), identityType.getId());
+
+        assertNotNull(identityType);
+        assertEquals(identityType.getId(), lookedUpIdentityType.getId());
+    }
+    
     protected abstract T createIdentityType();
     
     protected abstract T getIdentityType();

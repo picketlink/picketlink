@@ -616,4 +616,21 @@ public class DefaultIdentityManager implements IdentityManager {
 
     }
 
+    @Override
+    public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id) {
+        IdentityQuery<T> query = createIdentityQuery(identityType);
+        
+        query.setParameter(IdentityType.ID, id);
+        
+        List<T> result = query.getResultList();
+        
+        T identity = null;
+        
+        if (!result.isEmpty()) {
+            identity = result.get(0);
+        }
+        
+        return identity;
+    }
+
 }
