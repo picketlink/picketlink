@@ -147,7 +147,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
                 eventToFire = new RoleCreatedEvent(storedRole);
             } else {
-                throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
+                throw createUnsupportedIdentityTypeException(identityTypeClass);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
@@ -202,7 +202,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
                 eventToFire = new RoleUpdatedEvent(storedRole);
             } else {
-                throw new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
+                throw createUnsupportedIdentityTypeException(identityTypeClass);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
@@ -549,15 +549,23 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
         Set<?> entries = null;
-
-        if (IDMUtil.isUserType(identityTypeClass)) {
+        
+        if (IdentityType.class.equals(identityTypeClass)) {
+            Map<String, IdentityType> allIdentityTypes = new HashMap<String, IdentityType>();
+            
+            allIdentityTypes.putAll(getConfig().getAgents(getContext()));
+            allIdentityTypes.putAll(getConfig().getRoles(getContext()));
+            allIdentityTypes.putAll(getConfig().getGroups(getContext()));
+            
+            entries = allIdentityTypes.entrySet();
+        } else if (IDMUtil.isAgentType(identityTypeClass)) {
             entries = getConfig().getAgents(getContext()).entrySet();
         } else if (IDMUtil.isRoleType(identityTypeClass)) {
             entries = getConfig().getRoles(getContext()).entrySet();
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
             entries = getConfig().getGroups(getContext()).entrySet();
-        } else if (IDMUtil.isAgentType(identityTypeClass)) {
-            entries = getConfig().getAgents(getContext()).entrySet();
+        } else {
+            throw createUnsupportedIdentityTypeException(identityTypeClass);
         }
 
         List<T> result = new ArrayList<T>();
@@ -1380,5 +1388,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         getConfig().flushRelationships(getContext());
 
         return agent;
+    }
+    
+    private IdentityManagementException createUnsupportedIdentityTypeException(Class<? extends IdentityType> identityTypeClass) {
+        return new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
     }
 }
