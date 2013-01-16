@@ -34,14 +34,6 @@ import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.test.idm.GroupManagementTestCase;
-import org.picketlink.test.idm.GroupQueryTestCase;
-import org.picketlink.test.idm.RoleManagementTestCase;
-import org.picketlink.test.idm.RoleQueryTestCase;
-import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.UserManagementTestCase;
-import org.picketlink.test.idm.UserQueryTestCase;
-import org.picketlink.test.idm.UserRolesRelationshipTestCase;
 import org.picketlink.test.idm.runners.IdentityManagerRunner;
 import org.picketlink.test.idm.runners.TestLifecycle;
 
@@ -54,9 +46,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  *
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
-    UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-    RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class})
+@SuiteClasses({ })
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     private static LDAPIdentityStoreTestSuite instance;
