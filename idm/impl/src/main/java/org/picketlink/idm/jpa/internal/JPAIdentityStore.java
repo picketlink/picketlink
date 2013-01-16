@@ -42,6 +42,7 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttri
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -1451,6 +1452,31 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                     
                     predicates.add(builder.in(root).value(subquery));
                 }
+            }
+            
+            if (queryParameter instanceof IdentityType.AttributeParameter) {
+                AttributeParameter customParameter = (AttributeParameter) queryParameter;
+
+                Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipAttributeClass());
+                Root fromProject = subquery.from(getConfig().getRelationshipAttributeClass());
+                Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
+                        PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName()));
+
+                Predicate conjunction = builder.conjunction();
+
+                conjunction.getExpressions().add(
+                        builder.equal(fromProject.get(getConfig().getModelProperty(
+                                PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getName()), customParameter.getName()));
+                conjunction.getExpressions().add(
+                        (fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE).getName())
+                                .in((Object[]) values)));
+
+                subquery.where(conjunction);
+
+                subquery.groupBy(subquery.getSelection()).having(
+                        builder.equal(builder.count(subquery.getSelection()), values.length));
+
+                predicates.add(builder.in(root).value(subquery));
             }
         }
         
