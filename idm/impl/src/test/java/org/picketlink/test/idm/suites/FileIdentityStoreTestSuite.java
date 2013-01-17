@@ -32,6 +32,8 @@ import org.picketlink.idm.file.internal.FilePartitionStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.test.idm.IdentityManagerRunner;
+import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
 import org.picketlink.test.idm.basic.GroupManagementTestCase;
 import org.picketlink.test.idm.basic.RoleManagementTestCase;
@@ -50,8 +52,6 @@ import org.picketlink.test.idm.relationship.AgentRolesRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserRolesRelationshipTestCase;
-import org.picketlink.test.idm.runners.IdentityManagerRunner;
-import org.picketlink.test.idm.runners.TestLifecycle;
 import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**

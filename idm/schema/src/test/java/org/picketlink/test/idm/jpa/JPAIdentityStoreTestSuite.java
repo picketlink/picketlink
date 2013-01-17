@@ -46,6 +46,8 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.test.idm.IdentityManagerRunner;
+import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
 import org.picketlink.test.idm.basic.GroupManagementTestCase;
 import org.picketlink.test.idm.basic.RoleManagementTestCase;
@@ -64,8 +66,6 @@ import org.picketlink.test.idm.relationship.AgentRolesRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserRolesRelationshipTestCase;
-import org.picketlink.test.idm.runners.IdentityManagerRunner;
-import org.picketlink.test.idm.runners.TestLifecycle;
 import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**

@@ -34,8 +34,8 @@ import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.test.idm.runners.IdentityManagerRunner;
-import org.picketlink.test.idm.runners.TestLifecycle;
+import org.picketlink.test.idm.IdentityManagerRunner;
+import org.picketlink.test.idm.TestLifecycle;
 
 /**
  * <p>

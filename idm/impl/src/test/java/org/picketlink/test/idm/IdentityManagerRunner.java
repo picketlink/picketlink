@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm.runners;
+package org.picketlink.test.idm;
 
 import java.lang.reflect.Method;
 import java.util.List;
