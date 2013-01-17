@@ -36,7 +36,7 @@ import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * @author Pedro Silva
- *
+ * 
  */
 public class FilePartitionStore implements PartitionStore<FilePartitionStoreConfiguration> {
 
@@ -58,11 +58,11 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
         }
 
         partition.setId(this.context.getIdGenerator().generate());
-        
+
         FilePartition filePartition = getConfig().getDataSource().initPartition(partition.getId());
-        
+
         filePartition.setPartition(partition);
-        
+
         getConfig().getPartitions().put(partition.getId(), filePartition);
         getConfig().getDataSource().flushPartitions();
     }
@@ -70,12 +70,20 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
     @Override
     public void removePartition(Partition partition) {
         String id = partition.getId();
-        
+
         if (id == null) {
             throw new IdentityManagementException("No identifier provided.");
         }
-        
+
         if (getConfig().getPartitions().containsKey(partition.getId())) {
+            FilePartition filePartition = getConfig().getPartitions().get(partition.getId());
+
+            if (!filePartition.getAgents().isEmpty() || !filePartition.getRoles().isEmpty()
+                    || !filePartition.getGroups().isEmpty()) {
+                throw new IdentityManagementException(
+                        "Realm could not be removed. There IdentityTypes associated with it. Remove them first.");
+            }
+
             delete(new File(getConfig().getDataSource().getWorkingDir() + File.separator + partition.getId()));
             getConfig().getPartitions().remove(partition.getId());
             getConfig().getDataSource().flushPartitions();
@@ -87,34 +95,34 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
     @Override
     public Realm getRealm(String name) {
         Collection<FilePartition> partitions = getConfig().getPartitions().values();
-        
+
         for (FilePartition partition : partitions) {
             if (Realm.class.isInstance(partition.getPartition())) {
                 Realm realm = (Realm) partition.getPartition();
-                
+
                 if (realm.getName().equals(name)) {
                     return realm;
                 }
             }
         }
-        
+
         return null;
     }
 
     @Override
     public Tier getTier(String name) {
         Collection<FilePartition> partitions = getConfig().getPartitions().values();
-        
+
         for (FilePartition partition : partitions) {
             if (Tier.class.isInstance(partition.getPartition())) {
                 Tier tier = (Tier) partition.getPartition();
-                
+
                 if (tier.getName().equals(name)) {
                     return tier;
                 }
             }
         }
-        
+
         return null;
     }
 
@@ -123,10 +131,9 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
         this.config = config;
         this.context = context;
     }
-    
+
     private FilePartitionStoreConfiguration getConfig() {
         return this.config;
     }
-    
 
 }
