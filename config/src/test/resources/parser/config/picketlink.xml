@@ -1,0 +1,100 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+  <PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0"
+                 ServerEnvironment="tomcat" BindingType="POST" SupportsSignatures="true">
+    <IdentityURL>${picketlink.idp.url::http://localhost:8080/idp-sig/}</IdentityURL>
+    <Trust>
+      <Domains>${picketlink.sp.domains::sp.com,idp.com}</Domains>
+    </Trust>
+
+    <KeyProvider ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
+      <Auth Key="KeyStoreURL" Value="fakeKeystore"/>
+      <Auth Key="KeyStorePass" Value="MASK-O1P+U1Domeec8lCaoIkTGg=="/>
+      <Auth Key="SigningKeyPass" Value="MASK-AJbh4WmHwy8="/>
+      <Auth Key="SigningKeyAlias" Value="servercert"/>
+      <Auth Key="salt" Value="18273645"/>
+      <Auth Key="iterationCount" Value="11"/>
+      <ValidatingAlias Key="certKey" Value="servercert"/>
+    </KeyProvider>
+
+  </PicketLinkIDP>
+
+  <Handlers xmlns="urn:picketlink:identity-federation:handler:config:2.1">
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler"/>
+  </Handlers>
+
+  <PicketLinkSTS xmlns="urn:picketlink:identity-federation:config:1.0"
+                 STSName="Test STS" TokenTimeout="7200" EncryptToken="true">
+    <KeyProvider ClassName="SomeClass">
+      <ValidatingAlias Key="localhost" Value="localhostalias"/>
+      <ValidatingAlias Key="jboss.com" Value="jbossalias"/>
+      <SigningAlias>issueralias</SigningAlias>
+    </KeyProvider>
+    <RequestHandler>org.picketlink.identity.federation.wstrust.Handler</RequestHandler>
+    <TokenProviders>
+      <TokenProvider
+          ProviderClass="org.jboss.SpecialTokenProvider"
+          TokenType="specialToken"
+          TokenElement="SpecialToken"
+          TokenElementNS="http://www.tokens.org">
+        <Property Key="Property1" Value="Value1"/>
+        <Property Key="Property2" Value="Value2"/>
+      </TokenProvider>
+    </TokenProviders>
+    <ServiceProviders>
+      <ServiceProvider Endpoint="http://provider.endpoint/provider"
+                       TokenType="specialToken"
+                       TruststoreAlias="providerAlias"/>
+    </ServiceProviders>
+  </PicketLinkSTS>
+
+  <!-- Start of IDM configuration -->
+  <PicketLinkIDM>
+    <IdentityManager ClassName="org.picketlink.idm.internal.DefaultIdentityManager" />
+    <StoreFactory ClassName="org.picketlink.idm.internal.DefaultStoreFactory" />
+
+    <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
+      <!-- EntityManagerFactory is not needed for LDAP testsuite -->
+      <!--<EntityManagerFactory></EntityManagerFactory>-->
+
+      <!-- Should be those mandatory? Maybe we can left default impls if not provided here... -->
+      <EventBridge ClassName="org.picketlink.idm.internal.NullEventBridge" /> <!-- TODO: This class doesn't exist atm -->
+      <CredentialHandlerFactory ClassName="org.picketlink.idm.internal.DefaultIdGenerator" />
+      <IdentityCache ClassName="org.picketlink.idm.internal.DefaultIdentityCache" />
+      <IdGenerator ClassName="org.picketlink.idm.internal.DefaultIdentityCache" />
+    </IdentityStoreInvocationContextFactory>
+
+    <IdentityConfiguration>
+      <IdentityStoreConfiguration ClassName="org.picketlink.idm.ldap.internal.LDAPConfiguration">
+        <Property Name="bindDN">uid=admin,ou=system</Property>
+        <Property Name="bindCredential">secret</Property>
+        <Property Name="ldapURL">ldap://localhost:10389</Property>
+        <Property Name="userDNSuffix">ou=People,dc=jboss,dc=org</Property>
+        <Property Name="roleDNSuffix">ou=Roles,dc=jboss,dc=org</Property>
+        <Property Name="groupDNSuffix">ou=Groups,dc=jboss,dc=org</Property>
+      </IdentityStoreConfiguration>
+
+      <!-- More store configurations can be provided... -->
+      <!--<StoreConfiguration ClassName="org.picketlink.AnotherStoreConfiguration">
+
+      </StoreConfiguration>-->
+
+      <!-- Some PartitionStoreConfiguration ... -->
+      <!--<PartitionStoreConfiguration ClassName="...">
+      </PartitionStoreConfiguration>-->
+
+    </IdentityConfiguration>
+  </PicketLinkIDM>
+
+</PicketLink>
+

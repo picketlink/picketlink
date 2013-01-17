@@ -5,12 +5,14 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 
+import org.picketlink.identity.federation.core.config.idm.IDMType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.parsers.AbstractParser;
+import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
 import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 
@@ -57,6 +59,20 @@ public class PicketLinkConfigParser extends AbstractParser {
                 STSConfigParser samlConfigParser = new STSConfigParser();
                 STSType sts = (STSType) samlConfigParser.parse(xmlEventReader);
                 picketLinkType.setStsType(sts);
+            } else if ("PicketLinkIDM".equals(tag)) {
+                // TODO: we are using reflection because this class doesn't see IDMConfigParser at compile time. Needs to be fixed...
+                try {
+                    Class<?> idmParserClass = Class.forName("org.picketlink.config.idm.parsers.IDMConfigParser");
+                    ParserNamespaceSupport parser = (ParserNamespaceSupport)idmParserClass.newInstance();
+                    IDMType idmType = (IDMType)parser.parse(xmlEventReader);
+                    picketLinkType.setIdmType(idmType);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            // avoid infinite loop if unknown element is found
+            else {
+                throw logger.parserUnknownStartElement(tag, startElement.getLocation());
             }
             startElement = StaxParserUtil.peekNextStartElement(xmlEventReader);
             if (startElement == null)
