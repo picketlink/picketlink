@@ -16,4 +16,13 @@
 
     <name>PicketLink Config</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.picketlink</groupId>
+            <artifactId>picketlink-federation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+    </dependencies>
+
 </project>
