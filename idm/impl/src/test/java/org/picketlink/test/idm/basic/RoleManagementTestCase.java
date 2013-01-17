@@ -24,7 +24,10 @@ package org.picketlink.test.idm.basic;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+
+import java.util.Date;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
@@ -42,70 +45,40 @@ import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
  */
 public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
 
-    /**
-     * <p>
-     * Creates a new {@link Role} instance using the API. This method also checks if the user was properly created by retrieving
-     * his information from the store.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testCreate() throws Exception {
         Role newRole = createRole("someRole");
 
+        assertNotNull(newRole.getId());
+        
         IdentityManager identityManager = getIdentityManager();
 
         Role storedRole = identityManager.getRole(newRole.getName());
 
         assertNotNull(storedRole);
-
+        assertEquals(newRole.getId(), storedRole.getId());
         assertEquals(newRole.getName(), storedRole.getName());
         assertNotNull(storedRole.getPartition());
         assertEquals(Realm.DEFAULT_REALM, storedRole.getPartition().getName());
+        assertNotNull(storedRole.getPartition());
+        assertEquals(Realm.DEFAULT_REALM, storedRole.getPartition().getName());
+        assertTrue(storedRole.isEnabled());
+        assertNull(storedRole.getExpirationDate());
+        assertNotNull(storedRole.getCreatedDate());
+        assertTrue(new Date().compareTo(storedRole.getCreatedDate()) >= 0);
     }
 
-    /**
-     * <p>
-     * Loads from the LDAP tree an already stored role.
-     * </p>
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testGet() throws Exception {
-        Role storedRoleInstance = createIdentityType();
-
-        assertNotNull(storedRoleInstance);
-
-        IdentityManager identityManager = getIdentityManager();
-
-        storedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
-
-        assertNotNull(storedRoleInstance);
-        assertEquals("Administrator", storedRoleInstance.getName());
-    }
-
-    /**
-     * <p>
-     * Remove from the LDAP tree an already stored role.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testRemove() throws Exception {
-        Role storedRoleInstance = createIdentityType();
-
-        assertNotNull(storedRoleInstance);
+        Role storedRole = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.remove(storedRoleInstance);
+        identityManager.remove(storedRole);
 
-        Role removedRoleInstance = identityManager.getRole(storedRoleInstance.getName());
+        Role removedRole = identityManager.getRole(storedRole.getName());
 
-        assertNull(removedRoleInstance);
+        assertNull(removedRole);
     }
 
     @Override

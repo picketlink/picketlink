@@ -45,18 +45,12 @@ import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
  */
 public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
-    /**
-     * <p>
-     * Creates a new {@link User} instance using the API. This method also checks if the user was properly created by retrieving
-     * his information from the store.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testCreate() throws Exception {
         User newUser = createUser("jduke");
 
+        assertNotNull(newUser.getId());
+        
         newUser.setEmail("jduke@jboss.org");
         newUser.setFirstName("Java");
         newUser.setLastName("Duke");
@@ -68,6 +62,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         User storedUser = identityManager.getUser(newUser.getLoginName());
 
         assertNotNull(storedUser);
+        assertEquals(newUser.getId(), storedUser.getId());
         assertEquals(newUser.getLoginName(), storedUser.getLoginName());
         assertEquals(newUser.getFirstName(), storedUser.getFirstName());
         assertEquals(newUser.getLastName(), storedUser.getLastName());
@@ -77,16 +72,9 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         assertTrue(storedUser.isEnabled());
         assertNull(storedUser.getExpirationDate());
         assertNotNull(storedUser.getCreatedDate());
-        assertTrue(new Date().after(storedUser.getCreatedDate()));
+        assertTrue(new Date().compareTo(storedUser.getCreatedDate()) >= 0);
     }
 
-    /**
-     * <p>
-     * Updates the stored user information.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testUpdate() throws Exception {
         IdentityManager identityManager = getIdentityManager();
@@ -125,13 +113,6 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
     }
 
-    /**
-     * <p>
-     * Remove from the LDAP tree an already stored user.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();

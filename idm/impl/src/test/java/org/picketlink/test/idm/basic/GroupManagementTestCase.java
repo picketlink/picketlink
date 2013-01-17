@@ -24,11 +24,15 @@ package org.picketlink.test.idm.basic;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
+import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
+
+import java.util.Date;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
@@ -42,113 +46,71 @@ import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
  */
 public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group> {
 
-    /**
-     * <p>
-     * Creates a new {@link Group} instance using the API. This method also checks if the group was properly created by
-     * retrieving his information from the store.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testCreate() throws Exception {
-        Group newGroupInstance = createGroup("someGroup", null);
+        Group newGroup = createGroup("someGroup", null);
 
+        assertNotNull(newGroup.getId());
+        
         IdentityManager identityManager = getIdentityManager();
 
-        Group storedGroupInstance = identityManager.getGroup(newGroupInstance.getName());
+        Group storedGroup = identityManager.getGroup(newGroup.getName());
 
-        assertNotNull(storedGroupInstance);
-        assertEquals(newGroupInstance.getName(), storedGroupInstance.getName());
+        assertNotNull(storedGroup);
+        assertEquals(newGroup.getId(), storedGroup.getId());
+        assertEquals(newGroup.getName(), storedGroup.getName());
+        assertNotNull(storedGroup.getPartition());
+        assertEquals(Realm.DEFAULT_REALM, storedGroup.getPartition().getName());
+        assertTrue(storedGroup.isEnabled());
+        assertNull(storedGroup.getExpirationDate());
+        assertNotNull(storedGroup.getCreatedDate());
+        assertTrue(new Date().compareTo(storedGroup.getCreatedDate()) >= 0);
     }
-
-    /**
-     * <p>
-     * Creates a new {@link Group} instance as a child of another {@link Group} using the API. This method also checks if the
-     * group was properly created by retrieving his information from the store.
-     * </p>
-     *
-     * @throws Exception
-     */
+    
     @Test
     public void testCreateWithParentGroup() throws Exception {
         Group childGroup = createGroup("childGroup", "parentGroup");
 
-        // let's retrieve the group information and see if it was properly stored
         IdentityManager identityManager = getIdentityManager();
 
         Group storedChildGroup = identityManager.getGroup(childGroup.getName());
 
         assertNotNull(storedChildGroup);
-        assertNotNull(storedChildGroup.getParentGroup());
         assertEquals(childGroup.getName(), storedChildGroup.getName());
-        assertEquals(childGroup.getParentGroup().getName(), storedChildGroup.getParentGroup().getName());
+        assertNotNull(storedChildGroup.getParentGroup());
+        assertEquals(childGroup.getParentGroup().getId(), storedChildGroup.getParentGroup().getId());
     }
 
-    /**
-     * <p>
-     * Loads from the LDAP tree an already stored group.
-     * </p>
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testGet() throws Exception {
-        Group storedGroupInstance = createIdentityType();
-
-        IdentityManager identityManager = getIdentityManager();
-
-        storedGroupInstance = identityManager.getGroup(storedGroupInstance.getName());
-
-        assertNotNull(storedGroupInstance);
-        assertNotNull(storedGroupInstance.getParentGroup());
-        assertEquals("Test Group", storedGroupInstance.getName());
-    }
-
-    /**
-     * <p>
-     * Loads from the LDAP tree an already stored group.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testGetWithParent() throws Exception {
-        Group storedGroupInstance = createIdentityType();
+        Group storedGroup = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
 
-        storedGroupInstance = identityManager.getGroup("Test Group", new SimpleGroup("Test Parent Group"));
+        storedGroup = identityManager.getGroup("Test Group", new SimpleGroup("Test Parent Group"));
 
-        assertNotNull(storedGroupInstance);
-        assertNotNull(storedGroupInstance.getParentGroup());
-        assertEquals("Test Group", storedGroupInstance.getName());
+        assertNotNull(storedGroup);
+        assertNotNull(storedGroup.getParentGroup());
+        assertEquals("Test Group", storedGroup.getName());
 
-        Group invalidGroupInstance = identityManager.getGroup("Test Group", new SimpleGroup("Invalid Parent Group"));
+        Group invalidGroup = identityManager.getGroup("Test Group", new SimpleGroup("Invalid Parent Group"));
 
-        assertNull(invalidGroupInstance);
+        assertNull(invalidGroup);
     }
 
-    /**
-     * <p>
-     * Remove from the LDAP tree an already stored group.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testRemove() throws Exception {
-        Group storedGroupInstance = createIdentityType();
+        Group storedGroup = createIdentityType();
 
-        assertNotNull(storedGroupInstance);
+        assertNotNull(storedGroup);
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.remove(storedGroupInstance);
+        identityManager.remove(storedGroup);
 
-        Group removedGroupInstance = identityManager.getGroup(storedGroupInstance.getName());
+        Group removedGroup = identityManager.getGroup(storedGroup.getName());
 
-        assertNull(removedGroupInstance);
+        assertNull(removedGroup);
     }
 
     @Override

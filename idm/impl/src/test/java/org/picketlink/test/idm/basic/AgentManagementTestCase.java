@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
@@ -45,92 +46,52 @@ import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
  */
 public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent> {
 
-    /**
-     * <p>
-     * Creates a new {@link Agent} instance using the API. This method also checks if the user was properly created by retrieving
-     * his information from the store.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testCreate() throws Exception {
         Agent newAgent = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.update(newAgent);
-
-        // let's retrieve the user information and see if they are properly stored
         Agent storedAgent = identityManager.getAgent(newAgent.getLoginName());
 
         assertNotNull(storedAgent);
-
+        assertEquals(newAgent.getId(), storedAgent.getId());
         assertEquals(newAgent.getLoginName(), storedAgent.getLoginName());
         assertTrue(storedAgent.isEnabled());
-        assertTrue(new Date().compareTo(storedAgent.getCreatedDate()) > 0);
+        assertNotNull(storedAgent.getPartition());
+        assertEquals(Realm.DEFAULT_REALM, storedAgent.getPartition().getName());
+        assertTrue(storedAgent.isEnabled());
+        assertNull(storedAgent.getExpirationDate());
+        assertNotNull(storedAgent.getCreatedDate());
+        assertTrue(new Date().compareTo(storedAgent.getCreatedDate()) >= 0);
     }
 
-    /**
-     * <p>
-     * Loads from the store an already stored agent.
-     * </p>
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testGet() throws Exception {
-        Agent storedAgent = createIdentityType();
-
-        IdentityManager identityManager = getIdentityManager();
-
-        storedAgent = identityManager.getAgent(storedAgent.getLoginName());
-
-        assertNotNull(storedAgent);
-
-        assertEquals(storedAgent.getLoginName(), storedAgent.getLoginName());
-    }
-
-    /**
-     * <p>
-     * Updates the stored agent information.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testUpdate() throws Exception {
         Agent storedAgent = createIdentityType();
 
         IdentityManager identityManager = getIdentityManager();
 
+        Date actualDate = new Date();
+        
+        storedAgent.setExpirationDate(actualDate);
         storedAgent.setAttribute(new Attribute<String>("someAttribute", "1"));
         
         identityManager.update(storedAgent);
 
-        // let's load again the user from the store and check for the updated information
         Agent updatedUser = identityManager.getAgent(storedAgent.getLoginName());
 
         assertNotNull(updatedUser.getAttribute("someAttribute"));
         assertEquals("1", updatedUser.getAttribute("someAttribute").getValue());
+        assertEquals(actualDate, updatedUser.getExpirationDate());
     }
 
-    /**
-     * <p>
-     * Remove from the store an already stored agent.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testRemove() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
         Agent someAgent = createIdentityType();
         Agent anotherAgent = createAgent("someAnotherAgent");
-
-        assertNotNull(someAgent);
-        assertNotNull(anotherAgent);
 
         identityManager.remove(someAgent);
 

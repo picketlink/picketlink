@@ -608,7 +608,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         Calendar calendar = Calendar.getInstance();
 
-        calendar.add(Calendar.HOUR, 1);
+        calendar.add(Calendar.MINUTE, 1);
 
         query.setParameter(User.EXPIRY_DATE, calendar.getTime());
 
