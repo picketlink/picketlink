@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.credential;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -32,6 +32,7 @@ import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.User;
+import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
  * <p>

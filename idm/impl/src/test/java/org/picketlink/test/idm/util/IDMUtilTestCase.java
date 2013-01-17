@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.test.idm.internal.util;
+package org.picketlink.test.idm.util;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

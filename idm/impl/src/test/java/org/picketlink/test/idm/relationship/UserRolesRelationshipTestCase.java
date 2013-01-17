@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.relationship;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
@@ -29,18 +29,19 @@ import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
  * <p>
- * Test case for the relationship between {@link Agent} and {@link Role} types.
+ * Test case for the relationship between {@link User} and {@link Role} types.
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestCase {
+public class UserRolesRelationshipTestCase extends AbstractIdentityManagerTestCase {
 
     /**
      * <p>
@@ -50,24 +51,24 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
      * @throws Exception
      */
     @Test
-    public void testGrantRoleToAgent() throws Exception {
-        Agent someAgent = createAgent("someAgent");
+    public void testGrantRoleToUser() throws Exception {
+        User someUser = createUser("someUser");
         Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.grantRole(someAgent, someRole);
+        identityManager.grantRole(someUser, someRole);
 
-        assertTrue(identityManager.hasRole(someAgent, someRole));
+        assertTrue(identityManager.hasRole(someUser, someRole));
 
         Role someAnotherRole = createRole("someAnotherRole");
 
-        assertFalse(identityManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(identityManager.hasRole(someUser, someAnotherRole));
 
-        identityManager.grantRole(someAgent, someAnotherRole);
+        identityManager.grantRole(someUser, someAnotherRole);
 
-        assertTrue(identityManager.hasRole(someAgent, someAnotherRole));
-        assertTrue(identityManager.hasRole(someAgent, someRole));
+        assertTrue(identityManager.hasRole(someUser, someAnotherRole));
+        assertTrue(identityManager.hasRole(someUser, someRole));
     }
 
     /**
@@ -78,28 +79,28 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
      * @throws Exception
      */
     @Test
-    public void testRevokeRoleFromAgent() throws Exception {
-        Agent someAgent = createAgent("someAgent");
+    public void testRevokeRoleFromUser() throws Exception {
+        User someUser = createUser("someUser");
 
         Role someRole = createRole("someRole");
         Role someAnotherRole = createRole("someAnotherRole");
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.grantRole(someAgent, someRole);
-        identityManager.grantRole(someAgent, someAnotherRole);
+        identityManager.grantRole(someUser, someRole);
+        identityManager.grantRole(someUser, someAnotherRole);
 
-        assertTrue(identityManager.hasRole(someAgent, someRole));
-        assertTrue(identityManager.hasRole(someAgent, someAnotherRole));
+        assertTrue(identityManager.hasRole(someUser, someRole));
+        assertTrue(identityManager.hasRole(someUser, someAnotherRole));
 
-        identityManager.revokeRole(someAgent, someRole);
+        identityManager.revokeRole(someUser, someRole);
 
-        assertFalse(identityManager.hasRole(someAgent, someRole));
-        assertTrue(identityManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(identityManager.hasRole(someUser, someRole));
+        assertTrue(identityManager.hasRole(someUser, someAnotherRole));
 
-        identityManager.revokeRole(someAgent, someAnotherRole);
+        identityManager.revokeRole(someUser, someAnotherRole);
 
-        assertFalse(identityManager.hasRole(someAgent, someAnotherRole));
+        assertFalse(identityManager.hasRole(someUser, someAnotherRole));
     }
     
     /**
@@ -110,12 +111,12 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
      * @throws Exception
      */
     @Test
-    public void testFindAgentRoles() throws Exception {
+    public void testFindUserRoles() throws Exception {
         Role someRole = createRole("someRole");
         Role someAnotherRole = createRole("someAnotherRole");
         Role someImportantRole = createRole("someImportantRole");
         
-        Agent user = createAgent("someAgent");
+        User user = createUser("someUser");
         
         IdentityManager identityManager = getIdentityManager();
         
@@ -169,6 +170,17 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
         
         assertFalse(result.isEmpty());
         assertTrue(contains(result, "someRole"));
+        assertTrue(contains(result, "someAnotherRole"));
+        assertTrue(contains(result, "someImportantRole"));
+        
+        identityManager.revokeRole(user, someRole);
+        
+        query.setParameter(Role.ROLE_OF, new Object[] {user});
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertFalse(contains(result, "someRole"));
         assertTrue(contains(result, "someAnotherRole"));
         assertTrue(contains(result, "someImportantRole"));
     }

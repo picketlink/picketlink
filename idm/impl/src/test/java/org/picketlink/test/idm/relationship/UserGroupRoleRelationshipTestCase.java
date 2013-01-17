@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.relationship;
 
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -31,6 +31,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
+import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
  * <p>

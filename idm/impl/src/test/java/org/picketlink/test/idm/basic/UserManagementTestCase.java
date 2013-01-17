@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.basic;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -31,7 +31,9 @@ import java.util.Date;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.User;
+import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
@@ -53,49 +55,29 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
      */
     @Test
     public void testCreate() throws Exception {
-        User newUserInstance = createUser("jduke");
+        User newUser = createUser("jduke");
 
-        newUserInstance.setEmail("jduke@jboss.org");
-        newUserInstance.setFirstName("Java");
-        newUserInstance.setLastName("Duke");
+        newUser.setEmail("jduke@jboss.org");
+        newUser.setFirstName("Java");
+        newUser.setLastName("Duke");
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.update(newUserInstance);
+        identityManager.update(newUser);
 
-        // let's retrieve the user information and see if they are properly stored
-        User storedUserInstance = identityManager.getUser(newUserInstance.getLoginName());
+        User storedUser = identityManager.getUser(newUser.getLoginName());
 
-        assertNotNull(storedUserInstance);
-
-        assertEquals(newUserInstance.getLoginName(), storedUserInstance.getLoginName());
-        assertEquals(newUserInstance.getFirstName(), storedUserInstance.getFirstName());
-        assertEquals(newUserInstance.getLastName(), storedUserInstance.getLastName());
-        assertEquals(newUserInstance.getEmail(), storedUserInstance.getEmail());
-        assertTrue(storedUserInstance.isEnabled());
-        assertTrue(new Date().compareTo(storedUserInstance.getCreatedDate()) > 0);
-    }
-
-    @Test
-    public void testGet() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        User storedUserInstance = createUser("admin");
-        
-        storedUserInstance.setEmail("admin@jboss.org");
-        storedUserInstance.setFirstName("The");
-        storedUserInstance.setLastName("Administrator");
-
-        identityManager.update(storedUserInstance);
-
-        storedUserInstance = identityManager.getUser(storedUserInstance.getLoginName());
-
-        assertNotNull(storedUserInstance);
-
-        assertEquals("admin", storedUserInstance.getLoginName());
-        assertEquals("The", storedUserInstance.getFirstName());
-        assertEquals("Administrator", storedUserInstance.getLastName());
-        assertEquals("admin@jboss.org", storedUserInstance.getEmail());
+        assertNotNull(storedUser);
+        assertEquals(newUser.getLoginName(), storedUser.getLoginName());
+        assertEquals(newUser.getFirstName(), storedUser.getFirstName());
+        assertEquals(newUser.getLastName(), storedUser.getLastName());
+        assertEquals(newUser.getEmail(), storedUser.getEmail());
+        assertNotNull(storedUser.getPartition());
+        assertEquals(Realm.DEFAULT_REALM, storedUser.getPartition().getName());
+        assertTrue(storedUser.isEnabled());
+        assertNull(storedUser.getExpirationDate());
+        assertNotNull(storedUser.getCreatedDate());
+        assertTrue(new Date().after(storedUser.getCreatedDate()));
     }
 
     /**
@@ -109,34 +91,37 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     public void testUpdate() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        User storedUserInstance = createUser("admin");
+        User storedUser = createUser("admin");
         
-        storedUserInstance.setEmail("admin@jboss.org");
-        storedUserInstance.setFirstName("The");
-        storedUserInstance.setLastName("Administrator");
+        storedUser.setEmail("admin@jboss.org");
+        storedUser.setFirstName("The");
+        storedUser.setLastName("Administrator");
 
-        identityManager.update(storedUserInstance);
+        identityManager.update(storedUser);
         
-        storedUserInstance = identityManager.getUser(storedUserInstance.getLoginName());
+        storedUser = identityManager.getUser(storedUser.getLoginName());
         
-        assertEquals("admin", storedUserInstance.getLoginName());
-        assertEquals("The", storedUserInstance.getFirstName());
-        assertEquals("Administrator", storedUserInstance.getLastName());
-        assertEquals("admin@jboss.org", storedUserInstance.getEmail());
+        assertEquals("admin", storedUser.getLoginName());
+        assertEquals("The", storedUser.getFirstName());
+        assertEquals("Administrator", storedUser.getLastName());
+        assertEquals("admin@jboss.org", storedUser.getEmail());
 
-        // let's update some user information
-        storedUserInstance.setFirstName("Updated " + storedUserInstance.getFirstName());
-        storedUserInstance.setLastName("Updated " + storedUserInstance.getLastName());
-        storedUserInstance.setEmail("Updated " + storedUserInstance.getEmail());
+        storedUser.setFirstName("Updated " + storedUser.getFirstName());
+        storedUser.setLastName("Updated " + storedUser.getLastName());
+        storedUser.setEmail("Updated " + storedUser.getEmail());
+        
+        Date actualDate = new Date();
+        
+        storedUser.setExpirationDate(actualDate);
 
-        identityManager.update(storedUserInstance);
+        identityManager.update(storedUser);
 
-        // let's load again the user from the store and check for the updated information
-        User updatedUser = identityManager.getUser(storedUserInstance.getLoginName());
+        User updatedUser = identityManager.getUser(storedUser.getLoginName());
 
         assertEquals("Updated The", updatedUser.getFirstName());
         assertEquals("Updated Administrator", updatedUser.getLastName());
         assertEquals("Updated admin@jboss.org", updatedUser.getEmail());
+        assertEquals(actualDate, updatedUser.getExpirationDate());
 
     }
 
@@ -154,14 +139,11 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         User someUser = createUser("admin");
         User anotherUser = createUser("someAnotherUser");
 
-        assertNotNull(someUser);
-        assertNotNull(anotherUser);
-
         identityManager.remove(someUser);
 
-        User removedUserInstance = getIdentityManager().getUser(someUser.getLoginName());
+        User removedUser = getIdentityManager().getUser(someUser.getLoginName());
 
-        assertNull(removedUserInstance);
+        assertNull(removedUser);
         
         anotherUser = identityManager.getUser(anotherUser.getLoginName());
         

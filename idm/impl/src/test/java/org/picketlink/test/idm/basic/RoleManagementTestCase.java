@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.basic;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -28,7 +28,9 @@ import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
+import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
@@ -50,15 +52,17 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
      */
     @Test
     public void testCreate() throws Exception {
-        Role newRoleInstance = createRole("someRole");
+        Role newRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
-        Role storedRoleInstance = identityManager.getRole(newRoleInstance.getName());
+        Role storedRole = identityManager.getRole(newRole.getName());
 
-        assertNotNull(storedRoleInstance);
+        assertNotNull(storedRole);
 
-        assertEquals(newRoleInstance.getName(), storedRoleInstance.getName());
+        assertEquals(newRole.getName(), storedRole.getName());
+        assertNotNull(storedRole.getPartition());
+        assertEquals(Realm.DEFAULT_REALM, storedRole.getPartition().getName());
     }
 
     /**

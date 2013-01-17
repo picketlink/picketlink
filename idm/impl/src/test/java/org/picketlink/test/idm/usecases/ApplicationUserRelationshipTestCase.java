@@ -19,7 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.usecases;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNotNull;
@@ -35,6 +35,7 @@ import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
  * OAuth Use Case of an User X authorizing an OAuth application APP to have access 
