@@ -152,21 +152,21 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager defaultIdentityManager = getIdentityManager();
         
-        User testingUser = new SimpleUser("testingUser");
+        User realmUser = new SimpleUser("realmUser");
         
         // get a IdentityManager instance for the given realm and associate the user with the realm
-        defaultIdentityManager.forRealm(realm).add(testingUser);
+        defaultIdentityManager.forRealm(realm).add(realmUser);
         
-        testingUser = defaultIdentityManager.forRealm(realm).getUser(testingUser.getLoginName());
+        realmUser = defaultIdentityManager.forRealm(realm).getUser(realmUser.getLoginName());
         
-        assertNotNull(testingUser);
-        assertNotNull(testingUser.getPartition());
-        assertEquals(realm.getId(), testingUser.getPartition().getId());
+        assertNotNull(realmUser);
+        assertNotNull(realmUser.getPartition());
+        assertEquals(realm.getId(), realmUser.getPartition().getId());
         
         // the identitytype should not be associated with the DEFAULT realm
-        testingUser = defaultIdentityManager.getUser(testingUser.getLoginName());
+        realmUser = defaultIdentityManager.getUser(realmUser.getLoginName());
         
-        assertNull(testingUser);
+        assertNull(realmUser);
     }
     
     @Test
@@ -198,7 +198,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         
         IdentityManager defaultIdentityManager = getIdentityManager();
         
-        Group testingGroup = new SimpleGroup("testingGroup");
+        Group testingGroup = new SimpleGroup("testingRealmGroup");
         
         // get a IdentityManager instance for the given realm and associate the group with the current realm
         defaultIdentityManager.forRealm(realm).add(testingGroup);

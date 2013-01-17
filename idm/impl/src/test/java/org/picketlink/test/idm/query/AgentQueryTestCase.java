@@ -555,9 +555,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         calendar = Calendar.getInstance();
 
-        calendar.add(Calendar.HOUR, 1);
+        calendar.add(Calendar.MINUTE, 1);
 
-        query.setParameter(Agent.CREATED_AFTER, new Date());
+        query.setParameter(Agent.CREATED_AFTER, calendar.getTime());
 
         result = query.getResultList();
 

@@ -46,7 +46,6 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
-import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * <p>
@@ -460,7 +459,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType, JPAIdentityStore store);
 
-    public void onBeforeAdd(T identityType, IdentityStore<?> store) {
+    public void onBeforeAdd(T identityType, JPAIdentityStore store) {
 
     }
 

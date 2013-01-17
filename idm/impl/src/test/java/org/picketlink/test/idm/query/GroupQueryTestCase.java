@@ -120,9 +120,9 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         
         identityManager.createTier(someTier);
 
-        Group someGroupRealm = new SimpleGroup("someGroupRealm");
+        Group someGroupTier = new SimpleGroup("someGroupTier");
         
-        identityManager.forTier(someTier).add(someGroupRealm);
+        identityManager.forTier(someTier).add(someGroupTier);
         
         IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
         
@@ -133,7 +133,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
         
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, someGroupRealm.getName()));
+        assertTrue(contains(result, someGroupTier.getName()));
         
         Tier someAnotherTier = new Tier("Some Another Group Tier");
         
@@ -150,7 +150,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
         
         assertFalse(result.isEmpty());
-        assertFalse(contains(result, someGroupRealm.getName()));
+        assertFalse(contains(result, someGroupTier.getName()));
         assertTrue(contains(result, someGroupTestingTier.getName()));
     }
     

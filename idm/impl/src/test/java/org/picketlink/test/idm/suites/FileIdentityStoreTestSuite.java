@@ -72,8 +72,6 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
-    private IdentityManager identityManager;
-    private FileDataSource dataSource = new FileDataSource();
 
     public static TestLifecycle init() throws Exception {
         if (instance == null) {
@@ -90,35 +88,44 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     @Override
     public IdentityManager createIdentityManager() {
-        if (this.identityManager == null) {
-            IdentityConfiguration config = new IdentityConfiguration();
 
-            FileDataSource dataSource = new FileDataSource();
+        IdentityConfiguration config = new IdentityConfiguration();
 
-            FileIdentityStoreConfiguration defaultConfiguration = getDefaultConfiguration();
+        FileDataSource dataSource = new FileDataSource();
 
-            defaultConfiguration.setDataSource(dataSource);
+        addDefaultConfiguration(config, dataSource);
+        addTestingRealmConfiguration(config, dataSource);
+        addPartitionstoreConfiguration(config, dataSource);
 
-            config.addStoreConfiguration(defaultConfiguration);
+        IdentityManager identityManager = new DefaultIdentityManager();
 
-            FileIdentityStoreConfiguration testingRealmConfiguration = getTestingRealmConfiguration();
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
-            testingRealmConfiguration.setDataSource(dataSource);
+        return identityManager;
+    }
 
-            config.addStoreConfiguration(testingRealmConfiguration);
+    private void addPartitionstoreConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
+        FilePartitionStoreConfiguration partitionStore = new FilePartitionStoreConfiguration();
 
-            FilePartitionStoreConfiguration partitionStore = new FilePartitionStoreConfiguration();
+        partitionStore.setDataSource(dataSource);
 
-            partitionStore.setDataSource(dataSource);
+        config.addStoreConfiguration(partitionStore);
+    }
 
-            config.addStoreConfiguration(partitionStore);
+    private void addTestingRealmConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
+        FileIdentityStoreConfiguration testingRealmConfiguration = getTestingRealmConfiguration();
 
-            this.identityManager = new DefaultIdentityManager();
+        testingRealmConfiguration.setDataSource(dataSource);
 
-            identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
-        }
+        config.addStoreConfiguration(testingRealmConfiguration);
+    }
 
-        return this.identityManager;
+    private void addDefaultConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
+        FileIdentityStoreConfiguration defaultConfiguration = getDefaultConfiguration();
+
+        defaultConfiguration.setDataSource(dataSource);
+
+        config.addStoreConfiguration(defaultConfiguration);
     }
 
     @Override

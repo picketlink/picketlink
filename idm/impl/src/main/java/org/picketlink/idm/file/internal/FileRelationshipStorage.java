@@ -27,8 +27,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Relationship;
 
 /**
+ * <p> {@link Serializable} class used to store {@link Relationship} metadata.</p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */

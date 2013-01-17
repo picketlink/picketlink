@@ -33,6 +33,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.GroupCreatedEvent;
 import org.picketlink.idm.event.GroupDeletedEvent;
@@ -235,6 +236,17 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
         if (currentPartition.getParent() != null) {
             addPartitionIds(partitionIds, currentPartition.getParent());
+        }
+    }
+    
+    @Override
+    public void onBeforeAdd(Group group, JPAIdentityStore store) {
+        if (group.getName() == null) {
+            throw new IdentityManagementException("No name was provided.");
+        }
+        
+        if (store.getGroup(group.getName()) != null) {
+            throw new IdentityManagementException("Group already exists with the given loginName [" + group.getName() + "] for the given Partition [" + store.getCurrentPartition().getName() + "]");
         }
     }
 }

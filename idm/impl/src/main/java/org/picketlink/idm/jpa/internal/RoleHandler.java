@@ -31,6 +31,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
@@ -168,5 +169,15 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
             addPartitionIds(partitionIds, currentPartition.getParent());
         }
     }
-
+    
+    @Override
+    public void onBeforeAdd(Role role, JPAIdentityStore store) {
+        if (role.getName() == null) {
+            throw new IdentityManagementException("No name was provided.");
+        }
+        
+        if (store.getGroup(role.getName()) != null) {
+            throw new IdentityManagementException("Role already exists with the given loginName [" + role.getName() + "] for the given Partition [" + store.getCurrentPartition().getName() + "]");
+        }
+    }
 }

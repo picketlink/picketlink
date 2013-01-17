@@ -26,8 +26,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
@@ -85,40 +83,16 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
     AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
-    protected static EntityManagerFactory emf;
+    private EntityManagerFactory emf;
+    private EntityManager entityManager;
 
     public static TestLifecycle init() throws Exception {
         return new JPAIdentityStoreTestSuite();
     }
 
-    /**
-     * <p>
-     * Creates a shared {@link EntityManagerFactory} and database instances
-     * </p>
-     * 
-     * @throws Exception
-     */
-    @BeforeClass
-    public static void onBeforeTests() throws Exception {
-        emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
-    }
-
-    /**
-     * <p>
-     * Closes the shared {@link EntityManagerFactory} instance.
-     * </p>
-     * 
-     * @throws Exception
-     */
-    @AfterClass
-    public static void onAfterTests() throws Exception {
-        emf.close();
-    }
-
-    private EntityManager entityManager;
-
     @Override
     public void onInit() {
+        this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }
@@ -178,6 +152,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     public void onDestroy() {
         this.entityManager.getTransaction().commit();
         this.entityManager.close();
+        this.emf.close();
     }
 
 }

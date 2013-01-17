@@ -28,6 +28,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
@@ -130,5 +131,15 @@ public class UserHandler extends IdentityTypeHandler<User>{
         
         return user;
     }
-
+    
+    @Override
+    public void onBeforeAdd(User user, JPAIdentityStore store) {
+        if (user.getLoginName() == null) {
+            throw new IdentityManagementException("No login name was provided.");
+        }
+        
+        if (store.getUser(user.getLoginName()) != null) {
+            throw new IdentityManagementException("User already exists with the given loginName [" + user.getLoginName() + "] for the given Realm [" + store.getCurrentRealm().getName() + "]");
+        }
+    }
 }

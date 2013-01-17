@@ -125,10 +125,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (value instanceof IdentityType) {
             IdentityType identityType = (IdentityType) value;
 
-            if (lookupIdentityObjectById(identityType.getId()) != null) {
-                throw new IdentityManagementException("IdentityType already exists.");
-            }
-
             try {
                 IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
 

@@ -106,10 +106,39 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
 
+    /**
+     * <p>
+     * Store The current {@link Partition}. It can be a {@link Realm} or a {@link Tier}.
+     * </p>
+     */
+    private Partition currentPartition;
+
+    /**
+     * <p>
+     * Store the current {@link Realm}. We need that given that users can only be associated with a given {@link Realm}.
+     * </p>
+     */
+    private Realm currentRealm;
+
     @Override
     public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
         this.context = context;
+
+        // we need to store the current realm to store users properly. The current partition can be a realm or a tier, but users
+        // can not be stored in tiers.
+        this.currentRealm = this.context.getRealm();
+
+        if (this.currentRealm == null) {
+            this.currentRealm = new Realm(Realm.DEFAULT_REALM);
+            this.currentRealm.setId(Realm.DEFAULT_REALM);
+        }
+
+        this.currentPartition = getContext().getTier();
+
+        if (this.currentPartition == null) {
+            this.currentPartition = this.currentRealm;
+        }
     }
 
     @Override
@@ -126,89 +155,83 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public void add(AttributedType attributedType) {
         attributedType.setId(generateUUID());
 
-        Object eventToFire = null;
-
         if (IdentityType.class.isInstance(attributedType)) {
+            @SuppressWarnings("unchecked")
             Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
-            if (IDMUtil.isUserType(identityTypeClass)) {
-                User storedUser = addUser((User) attributedType);
-                
-                eventToFire = new UserCreatedEvent(storedUser);
-            } else if (IDMUtil.isAgentType(identityTypeClass)) {
-                Agent storedAgent = addAgent((Agent) attributedType);
+            if (IDMUtil.isAgentType(identityTypeClass)) {
+                Agent agent = (Agent) attributedType;
 
-                eventToFire = new AgentCreatedEvent(storedAgent);
+                if (agent.getLoginName() == null) {
+                    throw new IdentityManagementException("No login name was provided.");
+                }
+
+                if (getAgent(agent.getLoginName()) != null) {
+                    throw new IdentityManagementException("Agent already exists with the given login name ["
+                            + agent.getLoginName() + "] for the given Realm [" + getCurrentRealm().getName() + "]");
+                }
+
+                if (IDMUtil.isUserType(identityTypeClass)) {
+                    User storedUser = addUser((User) agent);
+                    getContext().getEventBridge().raiseEvent(new UserCreatedEvent(storedUser));
+                } else {
+                    Agent storedAgent = addAgent(agent);
+                    getContext().getEventBridge().raiseEvent(new AgentCreatedEvent(storedAgent));
+                }
             } else if (IDMUtil.isGroupType(identityTypeClass)) {
                 Group storedGroup = addGroup((Group) attributedType);
-
-                eventToFire = new GroupCreatedEvent(storedGroup);
+                getContext().getEventBridge().raiseEvent(new GroupCreatedEvent(storedGroup));
             } else if (IDMUtil.isRoleType(identityTypeClass)) {
                 Role storedRole = addRole((Role) attributedType);
-
-                eventToFire = new RoleCreatedEvent(storedRole);
+                getContext().getEventBridge().raiseEvent(new RoleCreatedEvent(storedRole));
             } else {
                 throw createUnsupportedIdentityTypeException(identityTypeClass);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
-            Relationship relationship = (Relationship) attributedType;
-
-            addRelationship(relationship);
-
-            eventToFire = new RelationshipCreatedEvent(relationship);
+            Relationship storedrelationship = addRelationship((Relationship) attributedType);
+            getContext().getEventBridge().raiseEvent(new RelationshipCreatedEvent(storedrelationship));
         } else {
             throw new IdentityManagementException("Unsupported AttributedType [" + attributedType.getClass().getName() + "].");
         }
-
-        getContext().getEventBridge().raiseEvent(eventToFire);
     }
 
     @Override
     public void update(AttributedType attributedType) {
-        Object eventToFire = null;
+        if (attributedType.getId() == null) {
+            throw new IdentityManagementException("No identifier provided.");
+        }
 
         if (IdentityType.class.isInstance(attributedType)) {
+            @SuppressWarnings("unchecked")
             Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User updatedUser = (User) attributedType;
-
-                User storedUser = getStoredUser(updatedUser);
-
-                updateUser(updatedUser, storedUser);
-
-                eventToFire = new UserUpdatedEvent(storedUser);
+                
+                updateUser(updatedUser);
+                getContext().getEventBridge().raiseEvent(new UserUpdatedEvent(updatedUser));
             } else if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent updatedAgent = (Agent) attributedType;
 
-                Agent storedAgent = getStoredAgent(updatedAgent);
-
-                updateAgent(updatedAgent, storedAgent);
-
-                eventToFire = new AgentUpdatedEvent(storedAgent);
+                updateAgent(updatedAgent);
+                getContext().getEventBridge().raiseEvent(new AgentUpdatedEvent(updatedAgent));
             } else if (IDMUtil.isGroupType(identityTypeClass)) {
                 Group updatedGroup = (Group) attributedType;
 
-                Group storedGroup = getStoredGroup(updatedGroup);
-
-                updateGroup(updatedGroup, storedGroup);
-
-                eventToFire = new GroupUpdatedEvent(storedGroup);
+                updateGroup(updatedGroup);
+                getContext().getEventBridge().raiseEvent(new GroupUpdatedEvent(updatedGroup));
             } else if (IDMUtil.isRoleType(identityTypeClass)) {
                 Role updatedRole = (Role) attributedType;
 
-                Role storedRole = getStoredRole(updatedRole);
-
-                updateRole(updatedRole, storedRole);
-
-                eventToFire = new RoleUpdatedEvent(storedRole);
+                updateRole(updatedRole);
+                getContext().getEventBridge().raiseEvent(new RoleUpdatedEvent(updatedRole));
             } else {
                 throw createUnsupportedIdentityTypeException(identityTypeClass);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(
+            List<FileRelationshipStorage> relationships = getRelationshipsForCurrentPartition().get(
                     attributedType.getClass().getName());
 
             for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
@@ -219,13 +242,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             }
 
             getConfig().flushRelationships(getContext());
-
-            eventToFire = new RelationshipUpdatedEvent(relationship);
+            getContext().getEventBridge().raiseEvent(new RelationshipUpdatedEvent(relationship));
         } else {
             throw new IdentityManagementException("Unsupported AttributedType [" + attributedType.getClass().getName() + "].");
         }
-
-        getContext().getEventBridge().raiseEvent(eventToFire);
     }
 
     @Override
@@ -238,7 +258,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (IDMUtil.isUserType(attributedTypeClass)) {
                 User user = (User) attributedType;
 
-                User storedUser = getStoredUser(user);
+                User storedUser = lookupUser(user);
 
                 removeUser(storedUser);
 
@@ -246,7 +266,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else if (IDMUtil.isAgentType(attributedTypeClass)) {
                 Agent agent = (Agent) attributedType;
 
-                Agent storedAgent = getStoredAgent(agent);
+                Agent storedAgent = lookupAgent(agent);
 
                 removeAgent(storedAgent);
 
@@ -254,7 +274,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else if (IDMUtil.isGroupType(attributedTypeClass)) {
                 Group group = (Group) attributedType;
 
-                Group storedGroup = getStoredGroup(group);
+                Group storedGroup = lookupGroup(group);
 
                 removeGroup(storedGroup);
 
@@ -262,7 +282,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else if (IDMUtil.isRoleType(attributedTypeClass)) {
                 Role role = (Role) attributedType;
 
-                Role storedRole = getStoredRole(role);
+                Role storedRole = lookupRole(role);
 
                 removeRole(storedRole);
 
@@ -271,7 +291,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(
+            List<FileRelationshipStorage> relationships = getRelationshipsForCurrentPartition().get(
                     attributedTypeClass.getName());
 
             for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
@@ -292,7 +312,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Agent getAgent(String loginName) {
-        return getConfig().getAgents(getContext()).get(loginName);
+        return getAgentsForCurrentRealm().get(loginName);
     }
 
     @Override
@@ -308,62 +328,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Role getRole(String roleName) {
-        return lookupRole(roleName, getCurrentRealm(), getContext().getTier());
-    }
-    
-    private Role lookupRole(String roleName, Realm realm, Tier tier) {
-        Role role = getConfig().getRoles(realm.getId()).get(roleName);
-        
-        if (role == null && tier != null) {
-            role = getConfig().getRoles(tier.getId()).get(roleName);
-            
-            if (role == null && tier.getParent() != null) {
-                role = lookupRole(roleName, realm, tier.getParent());
-            }
-        }
-        
-        return role;
-    }
-    
-    private Group lookupGroup(String groupName, Realm realm, Tier tier) {
-        Group group = getConfig().getGroups(realm.getId()).get(groupName);
-        
-        if (group == null && tier != null) {
-            group = getConfig().getGroups(tier.getId()).get(groupName);
-            
-            if (group == null && tier.getParent() != null) {
-                group = lookupGroup(groupName, realm, tier.getParent());
-            }
-        }
-        
-        return group;
-    }
-    
-    /**
-     * <p>
-     * Returns the identifier for the given {@link Realm}. If it is null, the default {@link Realm} identifier will be returned.
-     * </p>
-     * 
-     * @param realm
-     * @return
-     */
-    private Partition getRealmId(IdentityStoreInvocationContext context) {
-        Partition partition = context.getRealm();
-        
-        if (partition == null) {
-            partition = getCurrentRealm();
-        }
-        
-        if (context.getTier() != null) {
-            partition = context.getTier();
-        }
-
-        return partition;
+        return lookupRole(roleName, getCurrentPartition());
     }
 
     @Override
     public Group getGroup(String groupName) {
-        return lookupGroup(groupName, getCurrentRealm(), getContext().getTier());
+        return lookupGroup(groupName, getCurrentPartition());
     }
 
     @Override
@@ -510,7 +480,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<T> result = new ArrayList<T>();
 
         Class<T> relationshipType = query.getRelationshipType();
-        List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext())
+        List<FileRelationshipStorage> relationships = getRelationshipsForCurrentPartition()
                 .get(relationshipType.getName());
 
         if (relationships == null) {
@@ -598,46 +568,45 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
         Set<?> entries = null;
-        
+
         Object[] partitionParameters = identityQuery.getParameter(IdentityType.PARTITION);
         Partition partition = null;
-        
+
         if (partitionParameters != null && partitionParameters.length > 0) {
             partition = (Partition) partitionParameters[0];
         }
-        
+
         if (IdentityType.class.equals(identityTypeClass)) {
             Map<String, IdentityType> allIdentityTypes = new HashMap<String, IdentityType>();
-            
+
             if (partition == null) {
-                allIdentityTypes.putAll(getConfig().getAgents(getContext()));
-                allIdentityTypes.putAll(getConfig().getRoles(getRealmId(getContext()).getId()));
-                allIdentityTypes.putAll(getConfig().getGroups(getRealmId(getContext()).getId()));
+                allIdentityTypes.putAll(getAgentsForCurrentRealm());
+                allIdentityTypes.putAll(getRolesForCurrentPartition());
+                allIdentityTypes.putAll(getGroupsForCurrentPartition());
             } else {
-                allIdentityTypes.putAll(getConfig().getAgents(partition.getId()));
-                allIdentityTypes.putAll(getConfig().getRoles(partition.getId()));
-                allIdentityTypes.putAll(getConfig().getGroups(partition.getId()));
+                allIdentityTypes.putAll(getAgentsForPartition(partition));
+                allIdentityTypes.putAll(getRolesForPartition(partition));
+                allIdentityTypes.putAll(getGroupsForPartition(partition));
             }
-            
-            
+
             entries = allIdentityTypes.entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
             if (partition == null) {
-                entries = getConfig().getAgents(getContext()).entrySet();
+                entries = getAgentsForCurrentRealm().entrySet();
             } else {
-                entries = getConfig().getAgents(partition.getId()).entrySet();
+                entries = getAgentsForPartition(partition).entrySet();
             }
         } else if (IDMUtil.isRoleType(identityTypeClass)) {
             if (partition == null) {
-                entries = getConfig().getRoles(getRealmId(getContext()).getId()).entrySet();
+                entries = getRolesForCurrentPartition().entrySet();
             } else {
-                entries = getConfig().getRoles(partition.getId()).entrySet();
+                entries = getRolesForPartition(partition).entrySet();
             }
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
             if (partition == null) {
-                entries = getConfig().getGroups(getRealmId(getContext()).getId()).entrySet();
+                entries = getGroupsForCurrentPartition().entrySet();
             } else {
-                entries = getConfig().getGroups(partition.getId()).entrySet();
+                entries = getGroupsForPartition(partition).entrySet();
             }
         } else {
             throw createUnsupportedIdentityTypeException(identityTypeClass);
@@ -657,7 +626,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!isQueryParameterEquals(identityQuery, IdentityType.ID, storedEntry.getId())) {
                 continue;
             }
-            
+
             if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent agent = (Agent) storedEntry;
 
@@ -885,7 +854,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (values != null) {
                 Role currentRole = (Role) storedEntry;
 
-                List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(
+                List<FileRelationshipStorage> relationships = getRelationshipsForCurrentPartition().get(
                         Grant.class.getName());
 
                 if (relationships == null) {
@@ -902,7 +871,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                             if (!grant.getRole().getId().equals(currentRole.getId())) {
                                 continue;
                             }
-                            
+
                             if (grant.getAssignee().getId().equals(agent.getId())) {
                                 valuesMatchCount--;
                             }
@@ -920,7 +889,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (values != null) {
                 Group currentGroup = (Group) storedEntry;
 
-                List<FileRelationshipStorage> relationships = getConfig().getRelationships(getContext()).get(
+                List<FileRelationshipStorage> relationships = getRelationshipsForCurrentPartition().get(
                         GroupMembership.class.getName());
 
                 if (relationships == null) {
@@ -954,38 +923,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
 
         return result;
-    }
-
-    /**
-     * <p>
-     * Updated the common properties for a specific {@link IdentityType} instance from another instance.
-     * </p>
-     * 
-     * @param fromIdentityType
-     * @param toIdentityType
-     */
-    private void updateIdentityType(IdentityType fromIdentityType, IdentityType toIdentityType) {
-        toIdentityType.setEnabled(fromIdentityType.isEnabled());
-        toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
-        toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
-
-        updateAttributedType(fromIdentityType, toIdentityType);
-        
-        fromIdentityType.setId(toIdentityType.getId());
-        fromIdentityType.setPartition(toIdentityType.getPartition());
-    }
-
-    private void updateAttributedType(AttributedType fromIdentityType, AttributedType toIdentityType) {
-        toIdentityType.setId(fromIdentityType.getId());
-
-        for (Object object : toIdentityType.getAttributes().toArray()) {
-            Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
-            toIdentityType.removeAttribute(attribute.getName());
-        }
-
-        for (Attribute<? extends Serializable> attrib : fromIdentityType.getAttributes()) {
-            toIdentityType.setAttribute(attrib);
-        }
     }
 
     private boolean isQueryParameterEquals(IdentityQuery<?> identityQuery, QueryParameter queryParameter,
@@ -1163,7 +1100,15 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return getContext().getIdGenerator().generate();
     }
 
-    private void addRelationship(Relationship relationship) {
+    /**
+     * <p>
+     * Persists the given {@link Relationship} instance.
+     * </p>
+     * 
+     * @param relationship
+     * @return
+     */
+    private Relationship addRelationship(Relationship relationship) {
         FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
 
         fileRelationship.setId(relationship.getId());
@@ -1172,45 +1117,65 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         updateRelationshipIdentity(relationship, fileRelationship);
         updateRelationshipAttributes(relationship, fileRelationship);
 
-        Map<String, List<FileRelationshipStorage>> relationshipsMap = getConfig().getRelationships(getContext());
+        Map<String, List<FileRelationshipStorage>> relationshipsMap = getRelationshipsForCurrentPartition();
         List<FileRelationshipStorage> relationships = relationshipsMap.get(relationship.getClass().getName());
 
-        if (!relationshipsMap.containsKey(relationship.getClass().getName())) {
+        if (relationships == null) {
             relationships = new ArrayList<FileRelationshipStorage>();
             relationshipsMap.put(relationship.getClass().getName(), relationships);
         }
 
         relationships.add(fileRelationship);
         getConfig().flushRelationships(getContext());
+
+        return relationship;
     }
 
+    /**
+     * <p>
+     * Updates the given {@link FileRelationshipStorage} instance with all {@link IdentityType} (relationship roles) properties
+     * of the given {@link Relationship} class. The properties should be annotated with the {@link RelationshipIdentity}
+     * annotation. This method also check if the {@link IdentityType} instances are already stored.
+     * </p>
+     * 
+     * @param relationship
+     * @param fileRelationship
+     */
     private void updateRelationshipIdentity(Relationship relationship, FileRelationshipStorage fileRelationship) {
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
                 .<IdentityType> createQuery(relationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
 
-        for (Property<IdentityType> property : relationshipIdentityTypes) {
-            IdentityType value = property.getValue(relationship);
+        for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
+            IdentityType value = annotatedProperty.getValue(relationship);
 
             if (Agent.class.isInstance(value)) {
                 Agent agent = (Agent) value;
-                getStoredAgent(agent);
+                lookupAgent(agent);
             }
 
             if (Role.class.isInstance(value)) {
                 Role role = (Role) value;
-                getStoredRole(role);
+                lookupRole(role);
             }
 
             if (Group.class.isInstance(value)) {
                 Group group = (Group) value;
-                getStoredGroup(group);
+                lookupGroup(group);
             }
 
-            fileRelationship.getIdentityTypes().put(property.getName(), value);
+            fileRelationship.getIdentityTypes().put(annotatedProperty.getName(), value);
         }
     }
 
+    /**
+     * <p>
+     * Updates the given {@link FileRelationshipStorage} instance with all attributes from the given {@link Relationship} class.
+     * </p>
+     * 
+     * @param relationship
+     * @param fileRelationship
+     */
     private void updateRelationshipAttributes(Relationship relationship, FileRelationshipStorage fileRelationship) {
         fileRelationship.getAttributes().clear();
 
@@ -1221,7 +1186,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
     }
 
-    private Role getStoredRole(Role role) {
+    /**
+     * <p>
+     * Looks up the given {@link Role}.
+     * </p>
+     * 
+     * @param role
+     * @return
+     * @throws IdentityManagementException case the given {@link Role} does not exists.
+     */
+    private Role lookupRole(Role role) throws IdentityManagementException {
         if (role.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -1229,13 +1203,22 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Role storedRole = getRole(role.getName());
 
         if (storedRole == null) {
-            throw new RuntimeException("No Role found with the given name [" + role.getName() + "] for the current Partition ["
-                    + getCurrentPartition().getName() + "].");
+            throw new IdentityManagementException("No Role found with the given name [" + role.getName()
+                    + "] for the current Partition [" + getCurrentPartition().getName() + "].");
         }
         return storedRole;
     }
 
-    private Group getStoredGroup(Group group) {
+    /**
+     * <p>
+     * Looks up the given {@link Group}.
+     * </p>
+     * 
+     * @param group
+     * @return
+     * @throws IdentityManagementException case the given {@link Role} does not exists.
+     */
+    private Group lookupGroup(Group group) throws IdentityManagementException {
         if (group.getName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -1243,13 +1226,23 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Group storedGroup = getGroup(group.getName());
 
         if (storedGroup == null) {
-            throw new RuntimeException("No Group found with the given name [" + group.getName()
+            throw new IdentityManagementException("No Group found with the given name [" + group.getName()
                     + "] for the current Partition [" + getCurrentPartition().getName() + "].");
         }
+
         return storedGroup;
     }
 
-    private Agent getStoredAgent(Agent agent) {
+    /**
+     * <p>
+     * Looks up the given {@link Agent}.
+     * </p>
+     * 
+     * @param agent
+     * @return
+     * @throws IdentityManagementException case the given {@link Role} does not exists.
+     */
+    private Agent lookupAgent(Agent agent) throws IdentityManagementException {
         if (agent.getLoginName() == null) {
             throw new IdentityManagementException("No identifier was provided.");
         }
@@ -1257,21 +1250,31 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Agent storedAgent = getAgent(agent.getLoginName());
 
         if (storedAgent == null) {
-            throw new RuntimeException("No Agent found with the given loginName [" + agent.getLoginName()
+            throw new IdentityManagementException("No Agent found with the given loginName [" + agent.getLoginName()
                     + "] for the current Partition [" + getCurrentRealm().getName() + "]");
         }
+
         return storedAgent;
     }
 
-    private User getStoredUser(User user) {
+    /**
+     * <p>
+     * Looks up the given {@link User}.
+     * </p>
+     * 
+     * @param user
+     * @return
+     * @throws IdentityManagementException case the given {@link Role} does not exists.
+     */
+    private User lookupUser(User user) throws IdentityManagementException {
         if (user.getLoginName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
+            throw new IdentityManagementException("No login name was provided.");
         }
 
         User storedUser = getUser(user.getLoginName());
 
         if (storedUser == null) {
-            throw new RuntimeException("No User found with the given loginName [" + user.getLoginName()
+            throw new IdentityManagementException("No User found with the given login name [" + user.getLoginName()
                     + "] for the current Partition [" + getCurrentRealm().getName() + "]");
         }
 
@@ -1279,23 +1282,57 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Role addRole(Role role) {
+        if (role.getName() == null) {
+            throw new IdentityManagementException("No name was provided.");
+        }
+
+        if (getRole(role.getName()) != null) {
+            throw new IdentityManagementException("Role already exists with the given name [" + role.getName()
+                    + "] for the given Partition [" + getCurrentPartition().getName() + "]");
+        }
+
         SimpleRole fileRole = new SimpleRole(role.getName());
 
         fileRole.setPartition(getCurrentPartition());
 
         updateIdentityType(role, fileRole);
 
-        getConfig().getRoles(getRealmId(getContext()).getId()).put(fileRole.getName(), fileRole);
-        getConfig().flushRoles(getContext());
+        getRolesForCurrentPartition().put(fileRole.getName(), fileRole);
+        flushRoles();
 
         return fileRole;
     }
 
+    private void flushRoles() {
+        getConfig().flushRoles(getContext());
+    }
+
+    private Map<String, Role> getRolesForCurrentPartition() {
+        return getConfig().getRoles(getCurrentPartition().getId());
+    }
+
+    /**
+     * <p>
+     * Persists the given {@link Group} instance.
+     * </p>
+     * 
+     * @param group
+     * @return
+     */
     private Group addGroup(Group group) {
+        if (group.getName() == null) {
+            throw new IdentityManagementException("No name was provided.");
+        }
+
+        if (getGroup(group.getName()) != null) {
+            throw new IdentityManagementException("Group already exists with the given name [" + group.getName()
+                    + "] for the given Partition [" + getCurrentPartition().getName() + "]");
+        }
+
         SimpleGroup fileGroup = null;
 
         if (group.getParentGroup() != null) {
-            fileGroup = new SimpleGroup(group.getName(), getGroup(group.getParentGroup().getName()));
+            fileGroup = new SimpleGroup(group.getName(), lookupGroup(group.getParentGroup()));
         } else {
             fileGroup = new SimpleGroup(group.getName());
         }
@@ -1304,12 +1341,28 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(group, fileGroup);
 
-        getConfig().getGroups(getRealmId(getContext()).getId()).put(fileGroup.getName(), fileGroup);
-        getConfig().flushGroups(getContext());
+        getGroupsForCurrentPartition().put(fileGroup.getName(), fileGroup);
+        flushGroups();
 
         return fileGroup;
     }
 
+    private void flushGroups() {
+        getConfig().flushGroups(getContext());
+    }
+
+    private Map<String, Group> getGroupsForCurrentPartition() {
+        return getConfig().getGroups(getCurrentPartition().getId());
+    }
+
+    /**
+     * <p>
+     * Persists the given {@link User} instance.
+     * </p>
+     * 
+     * @param user
+     * @return
+     */
     private User addUser(User user) {
         User storedUser = new SimpleUser(user.getLoginName());
 
@@ -1320,69 +1373,93 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(user, storedUser);
 
-        getConfig().getAgents(getContext()).put(storedUser.getLoginName(), storedUser);
-        getConfig().flushAgents(getContext());
-        
+        getAgentsForCurrentRealm().put(storedUser.getLoginName(), storedUser);
+        flushAgents();
+
         return storedUser;
     }
 
+    private void flushAgents() {
+        getConfig().flushAgents(getContext());
+    }
+
+    private Map<String, Agent> getAgentsForCurrentRealm() {
+        return getConfig().getAgents(getContext());
+    }
+
     private Realm getCurrentRealm() {
-        Realm realm = getContext().getRealm();
-
-        if (realm == null) {
-            realm = new Realm(Realm.DEFAULT_REALM);
-            realm.setId(Realm.DEFAULT_REALM);
-        }
-
-        return realm;
+        return this.currentRealm;
     }
 
     private Partition getCurrentPartition() {
-        Partition partition = getContext().getTier();
-
-        if (partition == null) {
-            partition = getCurrentRealm();
-        }
-
-        return partition;
+        return this.currentPartition;
     }
 
+    /**
+     * <p>
+     * Persists the given {@link Agent} instance.
+     * </p>
+     * 
+     * @param user
+     * @return
+     */
     private Agent addAgent(Agent user) {
         Agent storedAgent = new SimpleAgent(user.getLoginName());
 
-        updateIdentityType(user, storedAgent);
-
         storedAgent.setPartition(getCurrentRealm());
 
-        getConfig().getAgents(getContext()).put(storedAgent.getLoginName(), storedAgent);
-        getConfig().flushAgents(getContext());
+        updateIdentityType(user, storedAgent);
+
+        getAgentsForCurrentRealm().put(storedAgent.getLoginName(), storedAgent);
+        flushAgents();
 
         return storedAgent;
     }
 
-    private Role updateRole(Role updatedRole, Role storedRole) {
+    /**
+     * <p>Updates a previously stored {@link Role}.</p>
+     * 
+     * @param updatedRole
+     * @return
+     */
+    private Role updateRole(Role updatedRole) {
+        Role storedRole = lookupRole(updatedRole);
+        
         if (storedRole != updatedRole) {
             updateIdentityType(updatedRole, storedRole);
         }
 
-        getConfig().getRoles(getRealmId(getContext()).getId()).put(storedRole.getName(), storedRole);
-        getConfig().flushRoles(getContext());
+        getRolesForCurrentPartition().put(storedRole.getName(), storedRole);
+        flushRoles();
 
         return storedRole;
     }
 
-    private Group updateGroup(Group updatedGroup, Group storedGroup) {
+    /**
+     * <p>Updates a previously stored {@link Group}.</p>
+     * 
+     * @param updatedGroup
+     */
+    private void updateGroup(Group updatedGroup) {
+        Group storedGroup = lookupGroup(updatedGroup);
+        
         if (storedGroup != updatedGroup) {
             updateIdentityType(updatedGroup, storedGroup);
         }
 
-        getConfig().getGroups(getRealmId(getContext()).getId()).put(storedGroup.getName(), storedGroup);
-        getConfig().flushGroups(getContext());
-
-        return storedGroup;
+        getGroupsForCurrentPartition().put(storedGroup.getName(), storedGroup);
+        flushGroups();
     }
 
-    private User updateUser(User updatedUser, User storedUser) {
+    /**
+     * <p>Updates a previously stored {@link User}.</p>
+     * 
+     * @param updatedUser
+     * @return
+     */
+    private void updateUser(User updatedUser) {
+        User storedUser = lookupUser(updatedUser);
+        
         if (storedUser != updatedUser) {
             storedUser.setFirstName(updatedUser.getFirstName());
             storedUser.setLastName(updatedUser.getLastName());
@@ -1391,36 +1468,40 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedUser, storedUser);
         }
 
-        getConfig().getAgents(getContext()).put(storedUser.getLoginName(), storedUser);
-        getConfig().flushAgents(getContext());
-
-        return updatedUser;
+        getAgentsForCurrentRealm().put(storedUser.getLoginName(), storedUser);
+        flushAgents();
     }
 
-    private Agent updateAgent(Agent updatedAgent, Agent storedAgent) {
+    /**
+     * <p>Updates a previously stored {@link Agent}.</p>
+     * 
+     * @param updatedAgent
+     * @return
+     */
+    private void updateAgent(Agent updatedAgent) {
+        Agent storedAgent = lookupAgent(updatedAgent);
+        
         if (storedAgent != updatedAgent) {
             updateIdentityType(updatedAgent, storedAgent);
         }
 
-        getConfig().getAgents(getContext()).put(storedAgent.getLoginName(), storedAgent);
-        getConfig().flushAgents(getContext());
-
-        return updatedAgent;
+        getAgentsForCurrentRealm().put(storedAgent.getLoginName(), storedAgent);
+        flushAgents();
     }
 
     private Role removeRole(Role role) {
-        getConfig().getRoles(getRealmId(getContext()).getId()).remove(role.getName());
+        getRolesForCurrentPartition().remove(role.getName());
 
         removeRelationships(role);
 
-        getConfig().flushRoles(getContext());
+        flushRoles();
         getConfig().flushRelationships(getContext());
 
         return role;
     }
 
     private void removeRelationships(AttributedType role) {
-        Set<Entry<String, List<FileRelationshipStorage>>> entrySet = getConfig().getRelationships(getContext()).entrySet();
+        Set<Entry<String, List<FileRelationshipStorage>>> entrySet = getRelationshipsForCurrentPartition().entrySet();
 
         for (Entry<String, List<FileRelationshipStorage>> entry : entrySet) {
             List<FileRelationshipStorage> relationships = entry.getValue();
@@ -1440,33 +1521,33 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Group removeGroup(Group group) {
-        getConfig().getGroups(getRealmId(getContext()).getId()).remove(group.getName());
+        getGroupsForCurrentPartition().remove(group.getName());
 
         removeRelationships(group);
 
-        getConfig().flushGroups(getContext());
+        flushGroups();
         getConfig().flushRelationships(getContext());
 
         return group;
     }
 
     private User removeUser(User user) {
-        getConfig().getAgents(getContext()).remove(user.getLoginName());
+        getAgentsForCurrentRealm().remove(user.getLoginName());
 
         removeRelationships(user);
 
-        getConfig().flushAgents(getContext());
+        flushAgents();
         getConfig().flushRelationships(getContext());
 
         return user;
     }
 
     private Agent removeAgent(Agent agent) {
-        getConfig().getAgents(getContext()).remove(agent.getLoginName());
+        getAgentsForCurrentRealm().remove(agent.getLoginName());
 
         removeRelationships(agent);
 
-        getConfig().flushAgents(getContext());
+        flushAgents();
         getConfig().flushRelationships(getContext());
 
         return agent;
@@ -1474,5 +1555,118 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private IdentityManagementException createUnsupportedIdentityTypeException(Class<? extends IdentityType> identityTypeClass) {
         return new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
+    }
+    
+    /**
+     * <p>Returns the stored {@link Relationship} instances for the current {@link Partition}.</p>
+     * 
+     * @return
+     */
+    private Map<String, List<FileRelationshipStorage>> getRelationshipsForCurrentPartition() {
+        return getConfig().getRelationships(getContext());
+    }
+    
+    /**
+     * <p>
+     * Recursively lookup for a {@link Group} with the given name considering the given {@link Partition}. If {@link Partition}
+     * is a {@link Tier} instance the parent tier will also be considered during the lookup.
+     * </p>
+     * 
+     * @param roleName
+     * @param partition
+     * @return
+     */
+    private Role lookupRole(String roleName, Partition partition) {
+        Role role = getRolesForPartition(partition).get(roleName);
+
+        if (role == null) {
+            if (Tier.class.isInstance(partition)) {
+                Tier tier = (Tier) partition;
+
+                if (tier.getParent() != null) {
+                    role = lookupRole(roleName, tier.getParent());
+                }
+            }
+        }
+
+        return role;
+    }
+
+    /**
+     * <p>
+     * Recursively lookup for a {@link Group} with the given name considering the given {@link Partition}. If {@link Partition}
+     * is a {@link Tier} instance the parent tier will also be considered during the lookup.
+     * </p>
+     * 
+     * @param groupName
+     * @param partition
+     * @return
+     */
+    private Group lookupGroup(String groupName, Partition partition) {
+        Group group = getGroupsForPartition(partition).get(groupName);
+
+        if (group == null) {
+            if (Tier.class.isInstance(partition)) {
+                Tier tier = (Tier) partition;
+
+                if (tier.getParent() != null) {
+                    group = lookupGroup(groupName, tier.getParent());
+                }
+            }
+        }
+
+        return group;
+    }
+    
+    private Map<String, Group> getGroupsForPartition(Partition partition) {
+        return getConfig().getGroups(partition.getId());
+    }
+
+    private Map<String, Role> getRolesForPartition(Partition partition) {
+        return getConfig().getRoles(partition.getId());
+    }
+
+    private Map<String, Agent> getAgentsForPartition(Partition partition) {
+        return getConfig().getAgents(partition.getId());
+    }
+
+    /**
+     * <p>
+     * Update the common properties for a specific {@link IdentityType} instance from another instance.
+     * </p>
+     * 
+     * @param fromIdentityType
+     * @param toIdentityType
+     */
+    private void updateIdentityType(IdentityType fromIdentityType, IdentityType toIdentityType) {
+        toIdentityType.setEnabled(fromIdentityType.isEnabled());
+        toIdentityType.setCreatedDate(fromIdentityType.getCreatedDate());
+        toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
+
+        updateAttributedType(fromIdentityType, toIdentityType);
+
+        fromIdentityType.setId(toIdentityType.getId());
+        fromIdentityType.setPartition(toIdentityType.getPartition());
+    }
+
+    /**
+     * <p>
+     * Update the common properties for a specific {@link IdentityType} instance from another instance.
+     * </p>
+     * 
+     * @param fromIdentityType
+     * @param toIdentityType
+     */
+    private void updateAttributedType(AttributedType fromIdentityType, AttributedType toIdentityType) {
+        toIdentityType.setId(fromIdentityType.getId());
+
+        for (Object object : toIdentityType.getAttributes().toArray()) {
+            Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
+            toIdentityType.removeAttribute(attribute.getName());
+        }
+
+        for (Attribute<? extends Serializable> attrib : fromIdentityType.getAttributes()) {
+            toIdentityType.setAttribute(attrib);
+        }
     }
 }

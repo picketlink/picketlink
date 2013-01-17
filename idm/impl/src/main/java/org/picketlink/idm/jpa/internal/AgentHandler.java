@@ -37,7 +37,6 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -102,9 +101,13 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     }
     
     @Override
-    public void onBeforeAdd(Agent identityType, IdentityStore<?> store) {
-        if (store.getAgent(identityType.getLoginName()) != null) {
-            throw new IdentityManagementException("An Agent already exists with the given loginName [" + identityType.getLoginName() + "]");
+    public void onBeforeAdd(Agent agent, JPAIdentityStore store) {
+        if (agent.getLoginName() == null) {
+            throw new IdentityManagementException("No login name was provided.");
+        }
+        
+        if (store.getAgent(agent.getLoginName()) != null) {
+            throw new IdentityManagementException("Agent already exists with the given loginName [" + agent.getLoginName() + "] for the given Realm [" + store.getCurrentRealm().getName() + "]");
         }
     }
     

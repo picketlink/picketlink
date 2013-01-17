@@ -109,6 +109,10 @@ public class DefaultIdentityManager implements IdentityManager {
                             currentTier.set(tier);
                             result = method.invoke(proxied, args);
                         } catch (Exception e) {
+                            if (e.getCause() != null) {
+                                throw e.getCause();
+                            }
+
                             throw e;
                         } finally {
                             currentRealm.remove();

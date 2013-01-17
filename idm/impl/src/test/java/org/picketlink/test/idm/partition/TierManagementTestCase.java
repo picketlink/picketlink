@@ -226,7 +226,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager applicationTierIdentityManager = identityManager.forTier(applicationTier);
 
-        Group testingGroup = new SimpleGroup("testingGroup");
+        Group testingGroup = new SimpleGroup("testingGroupTier");
 
         applicationTierIdentityManager.add(testingGroup);
 
@@ -247,12 +247,12 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Tier parentTier = createApplicationTier();
 
-        Group testingGroup = new SimpleGroup("testingGroup");
+        Group testingGroup = new SimpleGroup("testingGroupParentTier");
         
         // create the identitytype and associate with the parent tier
         defaultIdentityManager.forTier(parentTier).add(testingGroup);
 
-        testingGroup = defaultIdentityManager.forTier(parentTier).getGroup("testingGroup");
+        testingGroup = defaultIdentityManager.forTier(parentTier).getGroup("testingGroupParentTier");
         
         assertNotNull(testingGroup);
         
@@ -260,7 +260,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         Tier servicesTier = createServicesTier(null);
         
         // the identitytype is not visible to the servicesTier 
-        testingGroup = defaultIdentityManager.forTier(servicesTier).getGroup("testingGroup");
+        testingGroup = defaultIdentityManager.forTier(servicesTier).getGroup("testingGroupParentTier");
         
         assertNull(testingGroup);
         
@@ -268,7 +268,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         servicesTier = createServicesTier(parentTier);
         
         // the identitytype is now visible to the servicesTier
-        testingGroup = defaultIdentityManager.forTier(servicesTier).getGroup("testingGroup");
+        testingGroup = defaultIdentityManager.forTier(servicesTier).getGroup("testingGroupParentTier");
         
         assertNotNull(testingGroup);
     }
