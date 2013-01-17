@@ -102,34 +102,34 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
     @Test(expected = IdentityManagementException.class)
     public void testRemoveWithRoles() throws Exception {
-        Tier testingTier = createTestingTier();
+        Tier applicationTier = createApplicationTier();
 
         IdentityManager defaultIdentityManager = getIdentityManager();
 
-        IdentityManager testingTierIdentityManager = defaultIdentityManager.forTier(testingTier);
+        IdentityManager applicationTierIdentityManager = defaultIdentityManager.forTier(applicationTier);
 
         Role testingRole = new SimpleRole("testingRole");
 
         // should throw an exception because the current tier has IdentityTypes associated.
-        testingTierIdentityManager.add(testingRole);
+        applicationTierIdentityManager.add(testingRole);
 
-        defaultIdentityManager.removeTier(testingTier);
+        defaultIdentityManager.removeTier(applicationTier);
     }
 
     @Test(expected = IdentityManagementException.class)
     public void testRemoveTierGroups() throws Exception {
-        Tier testingTier = createTestingTier();
+        Tier applicationTier = createApplicationTier();
 
         IdentityManager defaultIdentityManager = getIdentityManager();
 
-        IdentityManager testingTierIdentityManager = defaultIdentityManager.forTier(testingTier);
+        IdentityManager applicationTierIdentityManager = defaultIdentityManager.forTier(applicationTier);
 
         Group testingGroup = new SimpleGroup("testingGroup");
 
         // should throw an exception because the current tier has IdentityTypes associated.
-        testingTierIdentityManager.add(testingGroup);
+        applicationTierIdentityManager.add(testingGroup);
 
-        defaultIdentityManager.removeTier(testingTier);
+        defaultIdentityManager.removeTier(applicationTier);
     }
 
     @Test

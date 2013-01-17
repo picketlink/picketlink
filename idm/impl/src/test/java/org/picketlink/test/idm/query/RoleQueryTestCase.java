@@ -25,6 +25,7 @@ package org.picketlink.test.idm.query;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -34,7 +35,9 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
@@ -47,7 +50,67 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  *
  */
 public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
+    
+    @Test
+    public void testFindById() throws Exception {
+        Role role = createRole("someRole");
 
+        IdentityManager identityManager = getIdentityManager();
+
+        IdentityQuery<Role> query = identityManager.<Role> createIdentityQuery(Role.class);
+
+        query.setParameter(Role.ID, role.getId());
+
+        List<Role> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertEquals(role.getName(), result.get(0).getName());
+    }
+    
+    @Test
+    public void testFindByRealm() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        
+        Role someRoleDefaultRealm = new SimpleRole("someRoleRealm");
+        
+        identityManager.add(someRoleDefaultRealm);
+        
+        IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
+        
+        Realm defaultRealm = identityManager.getRealm(Realm.DEFAULT_REALM);
+        
+        assertNotNull(defaultRealm);
+        
+        query.setParameter(Role.PARTITION, defaultRealm);
+        
+        List<Role> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, someRoleDefaultRealm.getName()));
+        
+        Realm testingRealm = identityManager.getRealm("Testing");
+        
+        if (testingRealm == null) {
+            testingRealm = new Realm("Testing");
+            identityManager.createRealm(testingRealm);
+        }
+        
+        Role someRoleTestingRealm = new SimpleRole("someRoleTestingRealm");
+        
+        identityManager.forRealm(testingRealm).add(someRoleTestingRealm);
+        
+        query = identityManager.createIdentityQuery(Role.class);
+        
+        query.setParameter(Role.PARTITION, testingRealm);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertFalse(contains(result, someRoleDefaultRealm.getName()));
+        assertTrue(contains(result, someRoleTestingRealm.getName()));
+    }
+    
     /**
      * <p>
      * Find an {@link Role} by id.
@@ -302,7 +365,6 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         
         // Should return an empty list.
         query.setParameter(User.CREATED_AFTER, futureDate.getTime());
-
 
         result = query.getResultList();
 

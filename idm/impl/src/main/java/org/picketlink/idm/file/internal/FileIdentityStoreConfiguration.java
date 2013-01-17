@@ -83,6 +83,10 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public Map<String, Agent> getAgents(IdentityStoreInvocationContext context) {
         return this.dataSource.getAgents(context);
     }
+    
+    public Map<String, Agent> getAgents(String realmId) {
+        return this.dataSource.getAgents(realmId);
+    }
 
     public Map<String, Map<String, List<FileCredentialStorage>>> getCredentials(IdentityStoreInvocationContext context) {
         return this.dataSource.getCredentials(context);

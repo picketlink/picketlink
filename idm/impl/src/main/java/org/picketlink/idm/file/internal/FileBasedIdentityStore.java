@@ -133,7 +133,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
             if (IDMUtil.isUserType(identityTypeClass)) {
                 User storedUser = addUser((User) attributedType);
-
+                
                 eventToFire = new UserCreatedEvent(storedUser);
             } else if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent storedAgent = addAgent((Agent) attributedType);
@@ -598,21 +598,47 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
         Set<?> entries = null;
-
+        
+        Object[] partitionParameters = identityQuery.getParameter(IdentityType.PARTITION);
+        Partition partition = null;
+        
+        if (partitionParameters != null && partitionParameters.length > 0) {
+            partition = (Partition) partitionParameters[0];
+        }
+        
         if (IdentityType.class.equals(identityTypeClass)) {
             Map<String, IdentityType> allIdentityTypes = new HashMap<String, IdentityType>();
-
-            allIdentityTypes.putAll(getConfig().getAgents(getContext()));
-            allIdentityTypes.putAll(getConfig().getRoles(getRealmId(getContext()).getId()));
-            allIdentityTypes.putAll(getConfig().getGroups(getRealmId(getContext()).getId()));
-
+            
+            if (partition == null) {
+                allIdentityTypes.putAll(getConfig().getAgents(getContext()));
+                allIdentityTypes.putAll(getConfig().getRoles(getRealmId(getContext()).getId()));
+                allIdentityTypes.putAll(getConfig().getGroups(getRealmId(getContext()).getId()));
+            } else {
+                allIdentityTypes.putAll(getConfig().getAgents(partition.getId()));
+                allIdentityTypes.putAll(getConfig().getRoles(partition.getId()));
+                allIdentityTypes.putAll(getConfig().getGroups(partition.getId()));
+            }
+            
+            
             entries = allIdentityTypes.entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
-            entries = getConfig().getAgents(getContext()).entrySet();
+            if (partition == null) {
+                entries = getConfig().getAgents(getContext()).entrySet();
+            } else {
+                entries = getConfig().getAgents(partition.getId()).entrySet();
+            }
         } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            entries = getConfig().getRoles(getRealmId(getContext()).getId()).entrySet();
+            if (partition == null) {
+                entries = getConfig().getRoles(getRealmId(getContext()).getId()).entrySet();
+            } else {
+                entries = getConfig().getRoles(partition.getId()).entrySet();
+            }
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            entries = getConfig().getGroups(getRealmId(getContext()).getId()).entrySet();
+            if (partition == null) {
+                entries = getConfig().getGroups(getRealmId(getContext()).getId()).entrySet();
+            } else {
+                entries = getConfig().getGroups(partition.getId()).entrySet();
+            }
         } else {
             throw createUnsupportedIdentityTypeException(identityTypeClass);
         }
@@ -631,7 +657,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!isQueryParameterEquals(identityQuery, IdentityType.ID, storedEntry.getId())) {
                 continue;
             }
-
+            
             if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent agent = (Agent) storedEntry;
 
@@ -944,6 +970,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         toIdentityType.setExpirationDate(fromIdentityType.getExpirationDate());
 
         updateAttributedType(fromIdentityType, toIdentityType);
+        
+        fromIdentityType.setId(toIdentityType.getId());
+        fromIdentityType.setPartition(toIdentityType.getPartition());
     }
 
     private void updateAttributedType(AttributedType fromIdentityType, AttributedType toIdentityType) {
@@ -1293,7 +1322,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         getConfig().getAgents(getContext()).put(storedUser.getLoginName(), storedUser);
         getConfig().flushAgents(getContext());
-
+        
         return storedUser;
     }
 

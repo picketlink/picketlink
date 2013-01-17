@@ -50,13 +50,23 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
-    /**
-     * <p>
-     * Find an {@link Agent} by id.
-     * </p>
-     * 
-     * @throws Exception
-     */
+    @Test
+    public void testFindById() throws Exception {
+        Agent agent = createAgent("someAgent");
+
+        IdentityManager identityManager = getIdentityManager();
+
+        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
+
+        query.setParameter(Agent.ID, agent.getId());
+
+        List<Agent> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertEquals(agent.getLoginName(), result.get(0).getLoginName());
+    }
+    
     @Test
     public void testFindByLoginName() throws Exception {
         createAgent("someAgent");
@@ -71,17 +81,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
-
         assertEquals("someAgent", result.get(0).getLoginName());
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by his associated {@link Group} and {@link Role}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindBySingleGroupRole() throws Exception {
         Agent user = createAgent("someAgent");
@@ -110,13 +112,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by his associated {@link Group}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindBySingleGroup() throws Exception {
         Agent user = createAgent("admin");
@@ -144,13 +139,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by his associated {@link Role}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindBySingleRole() throws Exception {
         Agent user = createAgent("admin");
@@ -178,13 +166,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by his associated {@link Group}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindByMultipleGroups() throws Exception {
         Agent user = createAgent("admin");
@@ -225,13 +206,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by his associated {@link Role}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindByMultipleRoles() throws Exception {
         Agent user = createAgent("admin");
@@ -272,13 +246,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(user.getLoginName(), result.get(0).getLoginName());
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by his associated {@link Group}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindByMultipleAgentWithGroups() throws Exception {
         Agent adminAgent = createAgent("admin");
@@ -312,17 +279,9 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(result.isEmpty());
         assertTrue(contains(result, adminAgent.getLoginName()));
-
         assertFalse(contains(result, someAgent.getLoginName()));
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by his associated {@link Role}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindByMultipleAgentWithRoles() throws Exception {
         Agent adminAgent = createAgent("admin");
@@ -359,13 +318,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(contains(result, someAgent.getLoginName()));
     }
 
-    /**
-     * <p>
-     * Finds users with the enabled/disabled status.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindEnabledAndDisabledAgents() throws Exception {
         Agent someAgent = createAgent("someAgent");
@@ -431,13 +383,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(contains(result, someAnotherAgent.getLoginName()));
     }
 
-    /**
-     * <p>
-     * Finds users by the creation date.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindCreationDate() throws Exception {
         Agent user = createAgent("someAgent");
@@ -469,13 +414,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.isEmpty());
     }
 
-    /**
-     * <p>
-     * Finds users by the expiration date.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindExpiryDate() throws Exception {
         Agent user = createAgent("someAgent");
@@ -498,32 +436,22 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
         assertTrue(contains(result, user.getLoginName()));
-
         assertEquals("someAgent", result.get(0).getLoginName());
 
         query = identityManager.<Agent> createIdentityQuery(Agent.class);
 
         Calendar calendar = Calendar.getInstance();
 
-        calendar.add(Calendar.HOUR, 1);
+        calendar.add(Calendar.MINUTE, 1);
 
         query.setParameter(Agent.EXPIRY_DATE, calendar.getTime());
 
         // no users
         result = query.getResultList();
-
         assertTrue(result.isEmpty());
     }
 
-    /**
-     * <p>
-     * Finds users created between a specific date.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindBetweenCreationDate() throws Exception {
         Agent someAgent = createAgent("someAgent");
@@ -544,7 +472,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Agent> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
         assertTrue(contains(result, someAgent.getLoginName()));
         assertTrue(contains(result, someAnotherAgent.getLoginName()));
 
@@ -559,7 +486,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
         assertTrue(contains(result, someAgent.getLoginName()));
         assertTrue(contains(result, someAnotherAgent.getLoginName()));
         assertTrue(contains(result, someFutureAgent.getLoginName()));
@@ -585,20 +511,13 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         calendar.add(Calendar.HOUR, 1);
 
-        query.setParameter(Agent.EXPIRY_DATE, calendar.getTime());
+        query.setParameter(Agent.CREATED_AFTER, new Date());
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
     }
 
-    /**
-     * <p>
-     * Finds users using the IDM specific attributes and user defined attributes.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindUsingMultipleParameters() throws Exception {
         Agent user = createAgent("admin");
@@ -651,13 +570,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.isEmpty());
     }
 
-    /**
-     * <p>
-     * Finds users expired between a specific date.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindBetweenExpirationDate() throws Exception {
         Agent someAgent = createAgent("someAgent");
@@ -716,7 +628,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
         assertTrue(contains(result, someAgent.getLoginName()));
         assertTrue(contains(result, someAnotherAgent.getLoginName()));
         assertTrue(contains(result, someFutureAgent.getLoginName()));
@@ -730,7 +641,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
         assertTrue(contains(result, someAgent.getLoginName()));
         assertTrue(contains(result, someAnotherAgent.getLoginName()));
         assertTrue(contains(result, someFutureAgent.getLoginName()));
@@ -750,13 +660,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.isEmpty());
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by looking its attributes.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindByAgentDefinedAttributes() throws Exception {
         Agent someAgent = createAgent("someAgent");
@@ -803,13 +706,6 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, someAgent.getLoginName()));
     }
 
-    /**
-     * <p>
-     * Find an {@link Agent} by looking its multi-valued attributes.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindByAgentDefinedMultiValuedAttributes() throws Exception {
         Agent someAgent = createAgent("someAgent");

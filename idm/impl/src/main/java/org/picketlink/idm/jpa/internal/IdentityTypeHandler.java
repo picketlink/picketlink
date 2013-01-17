@@ -25,6 +25,9 @@ package org.picketlink.idm.jpa.internal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
@@ -41,7 +44,6 @@ import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
@@ -78,7 +80,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     protected void setModelPropertyValue(Object instance, PropertyType propertyType, Object value, boolean required) {
         if (config.isModelPropertySet(propertyType)) {
-           config.getModelProperty(propertyType).setValue(instance, value);
+            config.getModelProperty(propertyType).setValue(instance, value);
         } else if (required) {
             throw new IdentityManagementException("Model property [" + propertyType.name() + "] has not been configured.");
         }
@@ -98,19 +100,20 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         identityType.setId(getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_ID));
         identityType.setEnabled(getModelPropertyValue(Boolean.class, identity, PropertyType.IDENTITY_ENABLED));
-        
-        Object partitionObject = getModelPropertyValue(getConfig().getPartitionClass(), identity, PropertyType.IDENTITY_PARTITION);
-        
+
+        Object partitionObject = getModelPropertyValue(getConfig().getPartitionClass(), identity,
+                PropertyType.IDENTITY_PARTITION);
+
         Partition partition = store.convertPartitionEntityToPartition(partitionObject);
-        
+
         identityType.setPartition(partition);
-        
+
         identityType.setExpirationDate(getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_EXPIRY_DATE));
         identityType.setCreatedDate(getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_CREATION_DATE));
 
         return identityType;
     }
-    
+
     /**
      * <p>
      * Creates a Identity Class instance using the information from the given {@link IdentityType}.
@@ -134,7 +137,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         return identity;
     }
-    
+
     /**
      * <p>
      * Populates the given {@link Object} argument representing a Identity Class (from the config) with the information from the
@@ -149,7 +152,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         String identityDiscriminator = getConfig().getIdentityDiscriminator(fromIdentityType.getClass());
 
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
-        
+
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());
@@ -176,75 +179,92 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * mapping for the common properties for all {@link IdentityType} types.
      * </p>
      * 
-     * @param queryParameter
-     * @param parameterValues
      * @param criteria
      * @return
      */
-    public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
-            JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+    public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = new ArrayList<Predicate>();
-        
-        if (queryParameter.equals(IdentityType.ID)) {
+
+        Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.ID);
+
+        if (parameterValues != null) {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
                     parameterValues[0]));
         }
-        
-        if (queryParameter.equals(IdentityType.PARTITION)) {
+
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.PARTITION);
+
+        if (parameterValues != null) {
             Partition partition = (Partition) parameterValues[0];
-            
+
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
                     store.lookupPartitionObject(partition)));
         }
-        
-        if (queryParameter.equals(IdentityType.ENABLED)) {
+
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.ENABLED);
+
+        if (parameterValues != null) {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ENABLED).getName()),
                     parameterValues[0]));
         }
 
-        if (queryParameter.equals(IdentityType.CREATED_DATE)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.CREATED_DATE);
+
+        if (parameterValues != null) {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     parameterValues[0]));
         }
 
-        if (queryParameter.equals(IdentityType.EXPIRY_DATE)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.EXPIRY_DATE);
+
+        if (parameterValues != null) {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     parameterValues[0]));
         }
 
-        if (queryParameter.equals(IdentityType.CREATED_AFTER)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.CREATED_AFTER);
+
+        if (parameterValues != null) {
             predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
                     criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     (Date) parameterValues[0]));
         }
 
-        if (queryParameter.equals(IdentityType.EXPIRY_AFTER)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.EXPIRY_AFTER);
+
+        if (parameterValues != null) {
             predicates.add(criteria.getBuilder().greaterThanOrEqualTo(
                     criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
+        
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.CREATED_BEFORE);
 
-        if (queryParameter.equals(IdentityType.CREATED_BEFORE)) {
+        if (parameterValues != null) {
             predicates.add(criteria.getBuilder().lessThanOrEqualTo(
                     criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_CREATION_DATE).getName()),
                     (Date) parameterValues[0]));
         }
+        
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.EXPIRY_BEFORE);
 
-        if (queryParameter.equals(IdentityType.EXPIRY_BEFORE)) {
+        if (parameterValues != null) {
             predicates.add(criteria.getBuilder().lessThanOrEqualTo(
                     criteria.getRoot().<Date> get(getConfig().getModelProperty(PropertyType.IDENTITY_EXPIRY_DATE).getName()),
                     (Date) parameterValues[0]));
         }
         
-        if (queryParameter.equals(IdentityType.HAS_GROUP_ROLE)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_GROUP_ROLE);
+
+        if (parameterValues != null) {
             for (Object object : parameterValues) {
                 GroupRole groupRole = (GroupRole) object;
-                
+
                 DefaultRelationshipQuery<GroupRole> query = new DefaultRelationshipQuery(GroupRole.class, store);
 
                 query.setParameter(GroupRole.MEMBER, groupRole.getMember());
@@ -288,7 +308,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             }
         }
         
-        if (queryParameter.equals(IdentityType.MEMBER_OF)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.MEMBER_OF);
+
+        if (parameterValues != null) {
             for (Object groupName : parameterValues) {
                 DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery(GroupMembership.class, store);
 
@@ -331,7 +353,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             }
         }
         
-        if (queryParameter.equals(IdentityType.HAS_ROLE)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_ROLE);
+
+        if (parameterValues != null) {
             for (Object roleName : parameterValues) {
                 DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery(Grant.class, store);
 
@@ -373,28 +397,34 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                 }
             }
         }
-
-        if (queryParameter instanceof IdentityType.AttributeParameter) {
-            AttributeParameter customParameter = (AttributeParameter) queryParameter;
-
+        
+        Map<QueryParameter, Object[]> parameters = criteria.getIdentityQuery().getParameters(IdentityType.AttributeParameter.class);
+        
+        Set<Entry<QueryParameter, Object[]>> entrySet = parameters.entrySet();
+        
+        for (Entry<QueryParameter, Object[]> entry : entrySet) {
+            AttributeParameter customParameter = (AttributeParameter) entry.getKey();
+            Object[] attributeValues = entry.getValue(); 
+                    
             Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getAttributeClass());
             Root fromProject = subquery.from(getConfig().getAttributeClass());
-            Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
-                    PropertyType.ATTRIBUTE_IDENTITY).getName()));
+            Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY)
+                    .getName()));
 
             Predicate conjunction = criteria.getBuilder().conjunction();
 
             conjunction.getExpressions().add(
-                    criteria.getBuilder().equal(fromProject.get(getConfig().getModelProperty(
-                            PropertyType.ATTRIBUTE_NAME).getName()), customParameter.getName()));
+                    criteria.getBuilder().equal(
+                            fromProject.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getName()),
+                            customParameter.getName()));
             conjunction.getExpressions().add(
                     (fromProject.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE).getName())
-                            .in((Object[]) parameterValues)));
+                            .in((Object[]) attributeValues)));
 
             subquery.where(conjunction);
 
             subquery.groupBy(subquery.getSelection()).having(
-                    criteria.getBuilder().equal(criteria.getBuilder().count(subquery.getSelection()), parameterValues.length));
+                    criteria.getBuilder().equal(criteria.getBuilder().count(subquery.getSelection()), attributeValues.length));
 
             predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
         }
@@ -403,7 +433,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     }
 
     /**
-     * <p>Subclasses should override this method to create a specific {@link IdentityType} given the provided Identity Class instance.</p>
+     * <p>
+     * Subclasses should override this method to create a specific {@link IdentityType} given the provided Identity Class
+     * instance.
+     * </p>
      * 
      * @param identity
      * @return
@@ -411,7 +444,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     protected abstract T doCreateIdentityType(Object identity, JPAIdentityStore store);
 
     /**
-     * <p>Subclasses should override this method to populate the given Identity Class instance with the specific information for a given {@link IdentityType}.</p>
+     * <p>
+     * Subclasses should override this method to populate the given Identity Class instance with the specific information for a
+     * given {@link IdentityType}.
+     * </p>
      * 
      * @param toIdentity
      * @param fromIdentityType
@@ -425,7 +461,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType, JPAIdentityStore store);
 
     public void onBeforeAdd(T identityType, IdentityStore<?> store) {
-        
+
     }
 
 }

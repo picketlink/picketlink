@@ -86,12 +86,7 @@ public class JPACriteriaQueryBuilder {
 
             IdentityTypeHandler identityTypeManager = this.config.getHandler(this.identityQuery.getIdentityType());
 
-            for (Entry<QueryParameter, Object[]> entry : this.identityQuery.getParameters().entrySet()) {
-                QueryParameter queryParameter = entry.getKey();
-                Object[] parameterValues = entry.getValue();
-
-                predicates.addAll(identityTypeManager.getPredicate(queryParameter, parameterValues, this, identityStore));
-            }
+            predicates.addAll(identityTypeManager.getPredicate(this, identityStore));
         } else {
             IdentityTypeHandler identityTypeManager = new IdentityTypeHandler<IdentityType>(this.config) {
 
@@ -103,7 +98,7 @@ public class JPACriteriaQueryBuilder {
                 @Override
                 protected void doPopulateIdentityInstance(Object toIdentity, IdentityType fromIdentityType,
                         JPAIdentityStore store) {
-                    
+
                 }
 
                 @Override
@@ -122,12 +117,7 @@ public class JPACriteriaQueryBuilder {
                 }
             };
 
-            for (Entry<QueryParameter, Object[]> entry : this.identityQuery.getParameters().entrySet()) {
-                QueryParameter queryParameter = entry.getKey();
-                Object[] parameterValues = entry.getValue();
-
-                predicates.addAll(identityTypeManager.getPredicate(queryParameter, parameterValues, this, identityStore));
-            }
+            predicates.addAll(identityTypeManager.getPredicate(this, identityStore));
         }
 
         return predicates;
@@ -144,7 +134,7 @@ public class JPACriteriaQueryBuilder {
     public Root<?> getRoot() {
         return root;
     }
-    
+
     public IdentityQuery<?> getIdentityQuery() {
         return this.identityQuery;
     }

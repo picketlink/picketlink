@@ -35,8 +35,8 @@ import org.picketlink.idm.event.AgentDeletedEvent;
 import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -80,17 +80,19 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     }
     
     @Override
-    public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
-            JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-
-        List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
+    public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
         
-        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                store.lookupPartitionObject(store.getCurrentRealm())));
+        if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
+                    store.lookupPartitionObject(store.getCurrentRealm())));
+        }
         
-        if (queryParameter.equals(Agent.LOGIN_NAME)) {
+        Object[] parameterValues = criteria.getIdentityQuery().getParameter(Agent.LOGIN_NAME);
+
+        if (parameterValues != null) {
             predicates.add(builder.equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
                     parameterValues[0]));

@@ -200,14 +200,15 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         if (realm == null) {
             realm = getRealm(Realm.DEFAULT_REALM);
-
-            if (realm == null) {
-                realm = new Realm(Realm.DEFAULT_REALM);
-                createPartition(realm);
-                context.setRealm(getRealm(Realm.DEFAULT_REALM));
-            }
         }
 
+        return realm;
+    }
+
+    private Realm createDefaultRealm() {
+        Realm realm;
+        realm = new Realm(Realm.DEFAULT_REALM);
+        createPartition(realm);
         return realm;
     }
 
@@ -1698,7 +1699,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public Realm getRealm(String realmName) {
-        return convertPartitionEntityToRealm(lookupPartitionEntityByName(Realm.class, realmName));
+        Realm realm = convertPartitionEntityToRealm(lookupPartitionEntityByName(Realm.class, realmName));
+        
+        if (realm == null && Realm.DEFAULT_REALM.equals(realmName)) {
+            realm = createDefaultRealm();
+        }
+        
+        return realm;
     }
 
     private Realm convertPartitionEntityToRealm(Object partitionObject) {

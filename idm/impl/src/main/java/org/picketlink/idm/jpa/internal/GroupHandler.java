@@ -40,10 +40,8 @@ import org.picketlink.idm.event.GroupUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.Tier;
-import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
@@ -145,9 +143,8 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     }
 
     @Override
-    public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
-            JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-        List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
+    public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
         Join<Object, Object> joinPartition = root.join(getConfig().getModelProperty(
@@ -163,13 +160,17 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         
         predicates.add(builder.in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(partitionIds));
         
-        if (queryParameter.equals(Group.NAME)) {
+        Object[] parameterValues = criteria.getIdentityQuery().getParameter(Group.NAME);
+
+        if (parameterValues != null) {
             predicates.add(builder.equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
 
-        if (queryParameter.equals(Group.PARENT)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(Group.PARENT);
+
+        if (parameterValues != null) {
             Join<Object, Object> join = criteria.getRoot().join(
                     getConfig().getModelProperty(PropertyType.GROUP_PARENT).getName());
 
@@ -177,7 +178,9 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                     parameterValues[0]));
         }
 
-        if (queryParameter.equals(IdentityType.HAS_MEMBER)) {
+        parameterValues = criteria.getIdentityQuery().getParameter(Group.HAS_MEMBER);
+
+        if (parameterValues != null) {
             for (Object object : parameterValues) {
                 DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery(GroupMembership.class, store);
 

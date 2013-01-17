@@ -29,10 +29,6 @@ import org.picketlink.idm.query.QueryParameter;
  * Group representation
  */
 public interface Group extends IdentityType, Serializable {
-    /**
-     * A query parameter used to set the id value.
-     */
-    QueryParameter ID = new QueryParameter() {};
 
     /**
      * A query parameter used to set the name value.

@@ -37,7 +37,9 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
@@ -51,15 +53,68 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
-    /**
-     * <p>
-     * Find an {@link User} by id.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
     public void testFindById() throws Exception {
+        User group = createUser("someGroup");
+
+        IdentityManager identityManager = getIdentityManager();
+
+        IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
+
+        query.setParameter(User.ID, group.getId());
+
+        List<User> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertEquals(group.getLoginName(), result.get(0).getLoginName());
+    }
+    
+    @Test
+    public void testFindByRealm() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        
+        SimpleUser someUserDefaultRealm = new SimpleUser("someUserRealm");
+        
+        identityManager.add(someUserDefaultRealm);
+        
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
+        
+        Realm defaultRealm = identityManager.getRealm(Realm.DEFAULT_REALM);
+        
+        assertNotNull(defaultRealm);
+        
+        query.setParameter(User.PARTITION, defaultRealm);
+        
+        List<User> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, someUserDefaultRealm.getLoginName()));
+        
+        Realm testingRealm = identityManager.getRealm("Testing");
+        
+        if (testingRealm == null) {
+            testingRealm = new Realm("Testing");
+            identityManager.createRealm(testingRealm);
+        }
+        
+        SimpleUser someUserTestingRealm = new SimpleUser("someUserTestingRealm");
+        
+        identityManager.forRealm(testingRealm).add(someUserTestingRealm);
+        
+        query = identityManager.createIdentityQuery(User.class);
+        
+        query.setParameter(User.PARTITION, testingRealm);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertFalse(contains(result, someUserDefaultRealm.getLoginName()));
+        assertTrue(contains(result, someUserTestingRealm.getLoginName()));
+    }
+    
+    @Test
+    public void testFindByLoginName() throws Exception {
         createUser("admin");
 
         IdentityManager identityManager = getIdentityManager();
@@ -994,9 +1049,9 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.isEmpty());
     }
 
-    private boolean contains(List<User> result, String userId) {
+    private boolean contains(List<User> result, String loginName) {
         for (User resultUser : result) {
-            if (resultUser.getLoginName().equals(userId)) {
+            if (resultUser.getLoginName().equals(loginName)) {
                 return true;
             }
         }

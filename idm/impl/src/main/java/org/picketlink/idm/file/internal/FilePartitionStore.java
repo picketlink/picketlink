@@ -91,18 +91,27 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
     @Override
     public Realm getRealm(String name) {
         Collection<FilePartition> partitions = getConfig().getPartitions().values();
-
+        Realm realm = null;
+        
         for (FilePartition partition : partitions) {
             if (Realm.class.isInstance(partition.getPartition())) {
-                Realm realm = (Realm) partition.getPartition();
-
-                if (realm.getName().equals(name)) {
-                    return realm;
+                if (partition.getPartition().getName().equals(name)) {
+                    realm = (Realm) partition.getPartition();
+                    break;
                 }
             }
         }
+        
+        if (realm == null && name.equals(Realm.DEFAULT_REALM)) {
+            realm = new Realm(Realm.DEFAULT_REALM);
+            realm.setId(Realm.DEFAULT_REALM);
 
-        return null;
+            FilePartition filePartition = getConfig().getDataSource().initPartition(realm.getId());
+            getConfig().getPartitions().put(realm.getName(), filePartition);
+            getConfig().getDataSource().flushPartitions();
+        }
+
+        return realm;
     }
 
     @Override

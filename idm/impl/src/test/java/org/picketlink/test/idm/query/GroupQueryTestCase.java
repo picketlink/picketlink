@@ -25,6 +25,7 @@ package org.picketlink.test.idm.query;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -35,6 +36,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
@@ -48,13 +51,66 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
-    /**
-     * <p>
-     * Find an {@link Group} by id.
-     * </p>
-     *
-     * @throws Exception
-     */
+    @Test
+    public void testFindById() throws Exception {
+        Group group = createGroup("someGroup", null);
+
+        IdentityManager identityManager = getIdentityManager();
+
+        IdentityQuery<Group> query = identityManager.<Group> createIdentityQuery(Group.class);
+
+        query.setParameter(Group.ID, group.getId());
+
+        List<Group> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(result.size() == 1);
+        assertEquals(group.getName(), result.get(0).getName());
+    }
+    
+    @Test
+    public void testFindByRealm() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        
+        Group someGroupDefaultRealm = new SimpleGroup("someGroupRealm");
+        
+        identityManager.add(someGroupDefaultRealm);
+        
+        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
+        
+        Realm defaultRealm = identityManager.getRealm(Realm.DEFAULT_REALM);
+        
+        assertNotNull(defaultRealm);
+        
+        query.setParameter(Group.PARTITION, defaultRealm);
+        
+        List<Group> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, someGroupDefaultRealm.getName()));
+        
+        Realm testingRealm = identityManager.getRealm("Testing");
+        
+        if (testingRealm == null) {
+            testingRealm = new Realm("Testing");
+            identityManager.createRealm(testingRealm);
+        }
+        
+        Group someGroupTestingRealm = new SimpleGroup("someGroupTestingRealm");
+        
+        identityManager.forRealm(testingRealm).add(someGroupTestingRealm);
+        
+        query = identityManager.createIdentityQuery(Group.class);
+        
+        query.setParameter(Group.PARTITION, testingRealm);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertFalse(contains(result, someGroupDefaultRealm.getName()));
+        assertTrue(contains(result, someGroupTestingRealm.getName()));
+    }
+    
     @Test
     public void testFindByName() throws Exception {
         createGroup("admin", null);

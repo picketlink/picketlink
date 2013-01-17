@@ -331,4 +331,14 @@ public class FileDataSource {
     public Map<String, FilePartition> getPartitions() {
         return this.partitions;
     }
+
+    public Map<String, Agent> getAgents(String realmId) {
+        FilePartition partition = this.partitions.get(realmId);
+
+        if (partition == null) {
+            partition = initPartition(realmId);
+        }
+
+        return partition.getAgents();
+    }
 }
