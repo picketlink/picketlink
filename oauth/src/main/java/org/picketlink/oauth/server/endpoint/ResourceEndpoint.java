@@ -73,7 +73,7 @@ public class ResourceEndpoint extends BaseEndpoint {
         // Get the access token
         String accessToken = oauthRequest.getAccessToken();
 
-        IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
+        IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
         userQuery.setParameter(IdentityType.ATTRIBUTE.byName("accessToken"), accessToken);
 
         List<User> users = userQuery.getResultList();
