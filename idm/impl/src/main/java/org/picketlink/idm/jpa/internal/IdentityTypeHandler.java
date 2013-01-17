@@ -40,6 +40,7 @@ import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
@@ -89,15 +90,21 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * provides the mapping for the common properties for all {@link IdentityType} types.
      * </p>
      * 
-     * @param realm
      * @param identity
      * @return
      */
-    public T createIdentityType(Realm realm, Object identity, JPAIdentityStore store) {
+    public T createIdentityType(Object identity, JPAIdentityStore store) {
         T identityType = doCreateIdentityType(identity, store);
 
         identityType.setId(getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_ID));
         identityType.setEnabled(getModelPropertyValue(Boolean.class, identity, PropertyType.IDENTITY_ENABLED));
+        
+        Object partitionObject = getModelPropertyValue(getConfig().getPartitionClass(), identity, PropertyType.IDENTITY_PARTITION);
+        
+        Partition partition = store.convertPartitionEntityToPartition(partitionObject);
+        
+        identityType.setPartition(partition);
+        
         identityType.setExpirationDate(getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_EXPIRY_DATE));
         identityType.setCreatedDate(getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_CREATION_DATE));
 
@@ -109,11 +116,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * Creates a Identity Class instance using the information from the given {@link IdentityType}.
      * </p>
      * 
-     * @param realm
      * @param fromIdentityType
      * @return
      */
-    public Object createIdentityInstance(Realm realm, T fromIdentityType, JPAIdentityStore store) {
+    public Object createIdentityInstance(T fromIdentityType, JPAIdentityStore store) {
         Object identity = null;
 
         try {
@@ -121,7 +127,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             String id = store.getContext().getIdGenerator().generate();
             getConfig().getModelProperty(PropertyType.IDENTITY_ID).setValue(identity, id);
             fromIdentityType.setId(id);
-            populateIdentityInstance(realm, identity, fromIdentityType, store);
+            populateIdentityInstance(identity, fromIdentityType, store);
         } catch (Exception e) {
             throw new IdentityManagementException("Error creating/populating Identity instance from IdentityType.", e);
         }
@@ -138,19 +144,15 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param toIdentity
      * @param fromIdentityType
      */
-    protected void populateIdentityInstance(Realm realm, Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
+    protected void populateIdentityInstance(Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
         // populate the common properties from IdentityType
         String identityDiscriminator = getConfig().getIdentityDiscriminator(fromIdentityType.getClass());
 
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
-
+        
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());
-
-        if (realm != null) {
-            setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(realm));
-        }
 
         doPopulateIdentityInstance(toIdentity, fromIdentityType, store);
     }
@@ -187,6 +189,14 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
                     parameterValues[0]));
+        }
+        
+        if (queryParameter.equals(IdentityType.PARTITION)) {
+            Partition partition = (Partition) parameterValues[0];
+            
+            predicates.add(criteria.getBuilder().equal(
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
+                    store.lookupPartitionObject(partition)));
         }
         
         if (queryParameter.equals(IdentityType.ENABLED)) {

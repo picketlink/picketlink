@@ -52,6 +52,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
         setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
     }
 
     @Override
@@ -86,6 +87,8 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
         
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
+                store.lookupPartitionObject(store.getCurrentRealm())));
         
         if (queryParameter.equals(Agent.LOGIN_NAME)) {
             predicates.add(builder.equal(

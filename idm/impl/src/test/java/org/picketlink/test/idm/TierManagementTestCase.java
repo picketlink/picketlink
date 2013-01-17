@@ -58,13 +58,10 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         
         Tier tier = identityManager.getTier("Application");
         
-        if (tier != null) {
-            identityManager.removeTier(tier);
+        if (tier == null) {
+            tier = new Tier("Application");
+            identityManager.createTier(tier);
         }
-        
-        tier = new Tier("Application");
-        
-        identityManager.createTier(tier);
         
         return tier;
     }
@@ -98,7 +95,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         
         testingRole = applicationTierIdentityManager.getRole(testingRole.getName());
         
-        Assert.assertNotNull(testingRole);
         Assert.assertNotNull(testingRole);
         Assert.assertNotNull(testingRole.getPartition());
         Assert.assertEquals(applicationTier.getId(), testingRole.getPartition().getId());
@@ -147,13 +143,11 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         
         Realm realm = identityManager.getRealm("Testing");
         
-        if (realm != null) {
-            identityManager.removeRealm(realm);
+        if (realm == null) {
+            realm = new Realm("Testing");
+            identityManager.createRealm(realm);
         }
         
-        realm = new Realm("Testing");
-        
-        identityManager.createRealm(realm);
         return realm;
     }
     

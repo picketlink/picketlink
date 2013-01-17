@@ -49,6 +49,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
         setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
         setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
@@ -79,6 +80,8 @@ public class UserHandler extends IdentityTypeHandler<User>{
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
         
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
+                store.lookupPartitionObject(store.getCurrentRealm())));
         
         if (queryParameter.equals(User.LOGIN_NAME)) {
             predicates.add(builder.equal(

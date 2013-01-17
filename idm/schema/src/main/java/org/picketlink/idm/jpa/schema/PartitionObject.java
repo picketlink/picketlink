@@ -23,7 +23,6 @@
 package org.picketlink.idm.jpa.schema;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
@@ -38,7 +37,6 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 public class PartitionObject {
 
     @Id
-    @GeneratedValue
     @IDMProperty(PropertyType.PARTITION_ID)
     private String id;
 

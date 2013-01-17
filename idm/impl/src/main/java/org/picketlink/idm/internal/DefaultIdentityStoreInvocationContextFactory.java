@@ -13,6 +13,7 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * A default implementation of IdentityStoreInvocationContextFactory.
@@ -84,4 +85,14 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
     public void setEntityManager(EntityManager em){
         this.entityManager = em;
     }
+
+    @Override
+    public void initContextForStore(IdentityStoreInvocationContext ctx, PartitionStore<?> store) {
+        if (store instanceof JPAIdentityStore) {
+            if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
+                ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, getEntityManager());
+            }
+        }
+    }
+
 }

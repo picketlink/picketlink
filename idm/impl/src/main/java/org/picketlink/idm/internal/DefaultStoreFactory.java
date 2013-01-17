@@ -12,7 +12,6 @@ import org.picketlink.idm.file.internal.FilePartitionStore;
 import org.picketlink.idm.file.internal.FilePartitionStoreConfiguration;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.jpa.internal.JPAPartitionStore;
 import org.picketlink.idm.jpa.internal.JPAPartitionStoreConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -42,7 +41,7 @@ public class DefaultStoreFactory implements StoreFactory {
         identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
         identityConfigMap.put(LDAPConfiguration.class, LDAPIdentityStore.class);
         identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
-        partitionConfigMap.put(JPAPartitionStoreConfiguration.class, JPAPartitionStore.class);
+        partitionConfigMap.put(JPAPartitionStoreConfiguration.class, JPAIdentityStore.class);
         partitionConfigMap.put(FilePartitionStoreConfiguration.class, FilePartitionStore.class);
     }
 

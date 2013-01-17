@@ -24,6 +24,7 @@ package org.picketlink.test.idm;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Realm;
@@ -54,16 +55,13 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
     private Realm createRealm() {
         IdentityManager identityManager = getIdentityManager();
-        
         Realm realm = identityManager.getRealm("Testing");
         
-        if (realm != null) {
-            identityManager.removeRealm(realm);
+        if (realm == null) {
+            realm = new Realm("Testing");
+            identityManager.createRealm(realm);
         }
         
-        realm = new Realm("Testing");
-        
-        identityManager.createRealm(realm);
         return realm;
     }
     
@@ -103,6 +101,19 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         testingUser = identityManager.getUser(testingUser.getLoginName());
         
         Assert.assertNull(testingUser);
+    }
+    
+    @Test (expected=IdentityManagementException.class)
+    public void testRemoveRealmWithIdentityTypes() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        
+        Realm realm = createRealm();
+        
+        IdentityManager testingIdentityManager = identityManager.forRealm(realm);
+        
+        User testingUser = new SimpleUser("testingUser");
+        
+        testingIdentityManager.add(testingUser);
         
         identityManager.removeRealm(realm);
     }

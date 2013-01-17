@@ -35,6 +35,11 @@ import org.picketlink.idm.query.QueryParameter;
 public interface IdentityType extends AttributedType {
 
     /**
+     * A query parameter used to set the {@link Partition} value
+     */
+    QueryParameter PARTITION = new QueryParameter() {};
+    
+    /**
      * A query parameter used to set the enabled value.
      */
     QueryParameter ENABLED = new QueryParameter() {};

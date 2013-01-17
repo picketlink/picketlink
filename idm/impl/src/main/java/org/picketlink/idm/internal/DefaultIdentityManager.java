@@ -58,6 +58,7 @@ import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreFactory;
 
 /**
@@ -264,7 +265,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
         context.setRealm(currentRealm.get());
         context.setTier(currentTier.get());
-
+        
         return context;
     }
 
@@ -583,32 +584,62 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void createRealm(Realm realm) {
-        storeFactory.createPartitionStore(partitionStoreConfig, createContext()).createPartition(realm);
+        IdentityStoreInvocationContext context = createContext();
+        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
+        
+        getContextFactory().initContextForStore(context, store);
+        
+        store.createPartition(realm);
     }
 
     @Override
     public void removeRealm(Realm realm) {
-        storeFactory.createPartitionStore(partitionStoreConfig, createContext()).removePartition(realm);
+        IdentityStoreInvocationContext context = createContext();
+        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
+        
+        getContextFactory().initContextForStore(context, store);
+
+        store.removePartition(realm);
     }
 
     @Override
     public Realm getRealm(String name) {
-        return storeFactory.createPartitionStore(partitionStoreConfig, createContext()).getRealm(name);
+        IdentityStoreInvocationContext context = createContext();
+        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
+        
+        getContextFactory().initContextForStore(context, store);
+        
+        return store.getRealm(name);
     }
 
     @Override
     public void createTier(Tier tier) {
-        storeFactory.createPartitionStore(partitionStoreConfig, createContext()).createPartition(tier);
+        IdentityStoreInvocationContext context = createContext();
+        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
+        
+        getContextFactory().initContextForStore(context, store);
+        
+        store.createPartition(tier);
     }
 
     @Override
     public void removeTier(Tier tier) {
-        storeFactory.createPartitionStore(partitionStoreConfig, createContext()).removePartition(tier);
+        IdentityStoreInvocationContext context = createContext();
+        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
+        
+        getContextFactory().initContextForStore(context, store);
+        
+        store.removePartition(tier);
     }
 
     @Override
     public Tier getTier(String id) {
-        return storeFactory.createPartitionStore(partitionStoreConfig, createContext()).getTier(id);
+        IdentityStoreInvocationContext context = createContext();
+        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
+        
+        getContextFactory().initContextForStore(context, store);
+        
+        return store.getTier(id);
     }
 
     @Override

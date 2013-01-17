@@ -25,6 +25,7 @@ package org.picketlink.idm.jpa.internal;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -54,6 +55,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentPartition()), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 
@@ -85,6 +87,12 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
     public List<Predicate> getPredicate(QueryParameter queryParameter, Object[] parameterValues,
             JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
+
+        CriteriaBuilder builder = criteria.getBuilder();
+        Root<?> root = criteria.getRoot();
+        
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
+                store.lookupPartitionObject(store.getCurrentPartition())));
 
         if (queryParameter.equals(Role.NAME)) {
             predicates.add(criteria.getBuilder().equal(

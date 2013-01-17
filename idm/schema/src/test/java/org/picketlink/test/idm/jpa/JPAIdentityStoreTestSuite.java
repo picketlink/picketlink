@@ -37,6 +37,7 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.jpa.internal.JPAPartitionStoreConfiguration;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -56,8 +57,10 @@ import org.picketlink.test.idm.GroupManagementTestCase;
 import org.picketlink.test.idm.GroupMembershipTestCase;
 import org.picketlink.test.idm.GroupQueryTestCase;
 import org.picketlink.test.idm.PasswordCredentialTestCase;
+import org.picketlink.test.idm.RealmManagementTestCase;
 import org.picketlink.test.idm.RoleManagementTestCase;
 import org.picketlink.test.idm.RoleQueryTestCase;
+import org.picketlink.test.idm.TierManagementTestCase;
 import org.picketlink.test.idm.UserGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.UserManagementTestCase;
 import org.picketlink.test.idm.UserQueryTestCase;
@@ -74,7 +77,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ GroupMembershipTestCase.class,
+@SuiteClasses({ RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
     ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
     RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
     UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
@@ -124,8 +127,16 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     public IdentityManager createIdentityManager() {
         IdentityConfiguration config = new IdentityConfiguration();
 
-        config.addStoreConfiguration(getConfiguration());
-
+        config.addStoreConfiguration(getDefaultConfiguration());
+        config.addStoreConfiguration(getTestingRealmConfiguration());
+        
+        JPAPartitionStoreConfiguration partitionStoreConfig = new JPAPartitionStoreConfiguration();
+        
+        partitionStoreConfig.setPartitionClass(PartitionObject.class);
+        partitionStoreConfig.setIdentityClass(IdentityObject.class);
+        
+        config.addStoreConfiguration(partitionStoreConfig);
+        
         IdentityManager identityManager = new DefaultIdentityManager();
         DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
         icf.setEntityManager(entityManager);
@@ -134,9 +145,25 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         return identityManager;
     }
 
-    private IdentityStoreConfiguration getConfiguration() {
+    private IdentityStoreConfiguration getDefaultConfiguration() {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
 
+        configureJPAConfiguration(configuration);
+
+        return configuration;
+    }
+    
+    private IdentityStoreConfiguration getTestingRealmConfiguration() {
+        JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
+        
+        configuration.setRealm("Testing");
+        
+        configureJPAConfiguration(configuration);
+        
+        return configuration;
+    }
+
+    private void configureJPAConfiguration(JPAIdentityStoreConfiguration configuration) {
         configuration.setIdentityClass(IdentityObject.class);
         configuration.setAttributeClass(IdentityObjectAttribute.class);
         configuration.setRelationshipClass(RelationshipObject.class);
@@ -145,8 +172,6 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         configuration.setCredentialClass(CredentialObject.class);
         configuration.setCredentialAttributeClass(CredentialObjectAttribute.class);
         configuration.setPartitionClass(PartitionObject.class);
-
-        return configuration;
     }
 
     @Override

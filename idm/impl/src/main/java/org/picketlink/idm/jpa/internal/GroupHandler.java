@@ -57,6 +57,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Group fromGroup, JPAIdentityStore store) {
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentPartition()), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
 
         if (fromGroup.getParentGroup() != null) {
@@ -147,7 +148,11 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
             JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
-
+        Root<?> root = criteria.getRoot();
+        
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
+                store.lookupPartitionObject(store.getCurrentPartition())));
+        
         if (queryParameter.equals(Group.NAME)) {
             predicates.add(builder.equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),

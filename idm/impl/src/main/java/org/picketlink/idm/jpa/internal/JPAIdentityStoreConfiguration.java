@@ -32,7 +32,7 @@ import org.picketlink.idm.model.User;
  * @author Shane Bryzak
  * 
  */
-public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
+public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration implements JPAStoreConfiguration {
 
     // Discriminator constants
     private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";
@@ -114,7 +114,11 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     public Class<?> getRelationshipClass() {
-        return relationshipClass;
+        return this.relationshipClass;
+    }
+    
+    public Class<?> getPartitionClass() {
+        return this.partitionClass;
     }
 
     public void setRelationshipClass(Class<?> relationshipClass) {
@@ -332,6 +336,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
             return;
         }
 
+        configureModelProperty(PropertyType.PARTITION_ID, partitionClass, null, "id", "id");
         configureModelProperty(PropertyType.PARTITION_TYPE, partitionClass, null, "type", "partitionType");
         configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
         configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");

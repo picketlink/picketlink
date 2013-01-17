@@ -30,6 +30,7 @@ import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * A simple implementation of {@link IdentityStoreInvocationContextFactory} that has no dependencies on JPA
@@ -50,5 +51,10 @@ public class SimpleIdentityStoreInvocationContextFactory implements IdentityStor
     @SuppressWarnings("rawtypes")
     @Override
     public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
+    }
+
+    @Override
+    public void initContextForStore(IdentityStoreInvocationContext context, PartitionStore store) {
+        
     }
 }

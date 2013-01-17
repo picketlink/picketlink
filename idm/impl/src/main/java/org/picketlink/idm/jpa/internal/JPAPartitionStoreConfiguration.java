@@ -12,6 +12,7 @@ import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
+import org.picketlink.idm.internal.util.properties.query.PropertyQuery;
 import org.picketlink.idm.internal.util.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
@@ -21,11 +22,13 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  * 
  * @author Shane Bryzak
  */
-public class JPAPartitionStoreConfiguration extends PartitionStoreConfiguration {
+public class JPAPartitionStoreConfiguration extends PartitionStoreConfiguration implements JPAStoreConfiguration {
 
     private Class<?> partitionClass;
 
     private Map<PropertyType, Property<Object>> partitionProperties = new HashMap<PropertyType, Property<Object>>();
+
+    private Class<?> identityClass;
 
     public Class<?> getPartitionClass() {
         return partitionClass;
@@ -73,24 +76,84 @@ public class JPAPartitionStoreConfiguration extends PartitionStoreConfiguration 
         }
 
         configurePartitions();
+        configureIdentity();
+    }
+    
+    protected void configureIdentity() throws SecurityConfigurationException {
+        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, identityClass, null, 
+                "discriminator", "identityType", "identityTypeName", "typeName", "type");
+        configureModelProperty(PropertyType.IDENTITY_KEY, identityClass, null, "key");
+        configureModelProperty(PropertyType.IDENTITY_ID, identityClass, null, "id", "identifier");
+        configureModelProperty(PropertyType.IDENTITY_NAME, identityClass, null, "name");
+        configureModelProperty(PropertyType.GROUP_PARENT, identityClass, null, "parentGroup", "parent");
+        configureModelProperty(PropertyType.IDENTITY_ENABLED, identityClass, null, "enabled", "active");
+        configureModelProperty(PropertyType.IDENTITY_CREATION_DATE, identityClass, null, false, "created", "creationDate");
+        configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, identityClass, null, false, "expires", "expiryDate");
+        configureModelProperty(PropertyType.IDENTITY_PARTITION, identityClass, null, false, "partition");
+        configureModelProperty(PropertyType.AGENT_LOGIN_NAME, identityClass, null, "loginName", "login");
     }
 
-    protected void configurePartitions() throws SecurityConfigurationException {
-        List<Property<Object>> props = PropertyQueries.createQuery(partitionClass)
-                .addCriteria(new PropertyTypeCriteria(PropertyType.PARTITION_ID)).getResultList();
+    protected void configurePartitions() {
+        if (partitionClass == null) {
+            return;
+        }
+
+        configureModelProperty(PropertyType.PARTITION_ID, partitionClass, null, "type", "id");
+        configureModelProperty(PropertyType.PARTITION_TYPE, partitionClass, null, "type", "partitionType");
+        configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
+        configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");
+    }
+    
+    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass, 
+            String... possibleNames) {
+        configureModelProperty(propertyType, targetClass, propertyClass, false, possibleNames);
+    }
+    
+    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass, 
+            boolean optional, String... possibleNames) {
+        PropertyQuery<Object> query = PropertyQueries.createQuery(targetClass);
+
+        if (propertyType != null) {
+            query.addCriteria(new PropertyTypeCriteria(propertyType));
+        }
+
+        if (propertyClass != null) {
+            query.addCriteria(new TypedPropertyCriteria(propertyClass));
+        }
+
+        List<Property<Object>> props = query.getResultList();
 
         if (props.size() == 1) {
-            partitionProperties.put(PropertyType.PARTITION_ID, props.get(0));
+            partitionProperties.put(propertyType,  props.get(0));
         } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous partition id property in partition class "
-                    + partitionClass.getName());
+            throw new SecurityConfigurationException("Ambiguous " + propertyType.name() + " property in identity class [" +
+                targetClass.getName() + "]");
         } else {
-            Property<Object> p = findNamedProperty(partitionClass, "id", "identity");
+            if (possibleNames != null && possibleNames.length > 0) {
+                Property<Object> p = findNamedProperty(targetClass, possibleNames);
 
-            if (p != null) {
-                partitionProperties.put(PropertyType.PARTITION_ID, p);
+                if (p != null) {
+                    partitionProperties.put(propertyType, p);
+                }
+            }
+
+            if (!optional) {
+                throw new SecurityConfigurationException("Error configuring JPAIdentityStore - no " + 
+                    propertyType.name() + " property found in identity class [" + targetClass.getName() + "]");
             }
         }
     }
 
+    public Property<Object> getModelProperty(PropertyType propertyType) {
+        return partitionProperties.get(propertyType);
+    }
+
+    @Override
+    public Class<?> getIdentityClass() {
+        return this.identityClass;
+    }
+
+    public void setIdentityClass(Class<?> identityClass) {
+        this.identityClass = identityClass;
+    }
 }

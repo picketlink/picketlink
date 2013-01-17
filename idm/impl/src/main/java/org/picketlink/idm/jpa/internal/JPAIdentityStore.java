@@ -14,6 +14,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -49,6 +50,7 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
@@ -59,6 +61,7 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
@@ -67,7 +70,8 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author Shane Bryzak
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class })
-public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore {
+public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore,
+        PartitionStore<JPAPartitionStoreConfiguration> {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -82,6 +86,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     private JPAIdentityStoreConfiguration config;
 
+    private JPAPartitionStoreConfiguration partitionConfig;
+
     /**
      * The invocation context
      */
@@ -95,6 +101,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public JPAIdentityStoreConfiguration getConfig() {
         return config;
+    }
+
+    private JPAStoreConfiguration getCurrentConfig() {
+        if (this.config != null) {
+            return this.config;
+        }
+
+        return this.partitionConfig;
     }
 
     @Override
@@ -117,10 +131,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             try {
                 IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
-                
+
                 handler.onBeforeAdd(identityType, this);
-                
-                Object identity = handler.createIdentityInstance(getContext().getRealm(), identityType, this);
+
+                Object identity = handler.createIdentityInstance(identityType, this);
 
                 EntityManager em = getEntityManager();
 
@@ -173,12 +187,38 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                             relationshipIdentity, relationshipObject);
                     em.persist(relationshipIdentity);
                 }
-                
+
                 updateRelationshipAttributes(relationship, relationshipObject);
             } catch (Exception ex) {
                 throw new IdentityManagementException("Exception while creating Relationship [" + relationship + "].", ex);
             }
         }
+    }
+
+    protected Realm getCurrentRealm() {
+        Realm realm = context.getRealm();
+
+        if (realm == null) {
+            realm = getRealm(Realm.DEFAULT_REALM);
+
+            if (realm == null) {
+                realm = new Realm(Realm.DEFAULT_REALM);
+                createPartition(realm);
+                context.setRealm(getRealm(Realm.DEFAULT_REALM));
+            }
+        }
+
+        return realm;
+    }
+    
+    protected Partition getCurrentPartition() {
+        Partition partition = getContext().getTier();
+
+        if (partition == null) {
+            partition = getCurrentRealm();
+        }
+
+        return partition;
     }
 
     @Override
@@ -198,7 +238,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                         + "] does not exist.");
             }
 
-            handler.populateIdentityInstance(getContext().getRealm(), identityObject, identityType, this);
+            handler.populateIdentityInstance(identityObject, identityType, this);
 
             updateAttributes(identityType, identityObject);
 
@@ -213,11 +253,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             getContext().getEventBridge().raiseEvent(event);
         } else if (value instanceof Relationship) {
             Relationship relationship = (Relationship) value;
-            
+
             Object relationshipObject = lookupRelationshipObjectById(relationship.getId());
-            
+
             updateRelationshipAttributes(relationship, relationshipObject);
-            
+
             EntityManager em = getEntityManager();
 
             em.merge(relationshipObject);
@@ -261,19 +301,19 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             getContext().getEventBridge().raiseEvent(event);
         } else if (value instanceof Relationship) {
             Relationship relationship = (Relationship) value;
-            
+
             // First we build a list of all the relationships that the specified identity
             // is participating in
             if (getConfig().getRelationshipClass() != null) {
                 EntityManager em = getEntityManager();
-                
+
                 CriteriaBuilder builder = em.getCriteriaBuilder();
                 CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
                 Root<?> root = criteria.from(getConfig().getRelationshipIdentityClass());
                 List<Predicate> predicates = new ArrayList<Predicate>();
-                Join<?, ?> join = root
-                        .join(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
-                
+                Join<?, ?> join = root.join(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP)
+                        .getName());
+
                 predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName()),
                         relationship.getId()));
 
@@ -495,16 +535,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     private <T extends IdentityType> T convertToIdentityType(Object identity) {
-        String discriminator = getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(identity)
-                .toString();
-        IdentityTypeHandler<? extends IdentityType> identityTypeManager = getConfig().getIdentityTypeStores().get(
-                discriminator);
+        String discriminator = getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(identity).toString();
+        IdentityTypeHandler<? extends IdentityType> identityTypeManager = getConfig().getIdentityTypeStores()
+                .get(discriminator);
 
-        T identityType = (T) identityTypeManager.createIdentityType(getContext().getRealm(), identity, this);
+        T identityType = (T) identityTypeManager.createIdentityType(identity, this);
 
-        configurePartition(getContext().getRealm(), identity, identityType);
         populateIdentityTypeAttributes(identityType, identity);
-        
+
         return identityType;
     }
 
@@ -576,7 +614,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             throw new IdentityManagementException("Error creating attributes.", e);
         }
     }
-    
+
     private void storeRelationshipAttribute(Object identity, Attribute<? extends Serializable> userAttribute) {
         Object value = userAttribute.getValue();
         Object[] values = null;
@@ -588,7 +626,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME);
-        Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP);
+        Property<Object> attributeIdentityProperty = getConfig().getModelProperty(
+                PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP);
         Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE);
 
         try {
@@ -635,7 +674,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
         }
     }
-    
+
     private void removeRelationshipAttributes(Object identity, List<String> attributesToRetain) {
         StringBuffer attributeNames = new StringBuffer();
 
@@ -650,7 +689,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         List<?> storedAttributes = findRelationshipAttributes(identity);
 
         for (Object attribute : storedAttributes) {
-            String attributeName = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getValue(attribute).toString();
+            String attributeName = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getValue(attribute)
+                    .toString();
 
             if (!attributesToRetain.contains(attributeName)) {
                 getEntityManager().remove(attribute);
@@ -668,12 +708,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     private void removeAllAttributes(Object identity) {
         removeAttributes(identity, Collections.<String> emptyList());
     }
-    
+
     private void removeAllRelationshipAttributes(Object identity) {
         removeRelationshipAttributes(identity, Collections.<String> emptyList());
     }
 
-    private List<?> findIdentityTypeAttributes(IdentityType identityType, String idValue, Attribute<? extends Serializable> userAttribute) {
+    private List<?> findIdentityTypeAttributes(IdentityType identityType, String idValue,
+            Attribute<? extends Serializable> userAttribute) {
         Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY);
 
         EntityManager em = getEntityManager();
@@ -694,9 +735,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         return em.createQuery(criteria).getResultList();
     }
-    
-    private List<?> findRelationshipAttributes(Relationship relationship, String idValue, Attribute<? extends Serializable> userAttribute) {
-        Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
+
+    private List<?> findRelationshipAttributes(Relationship relationship, String idValue,
+            Attribute<? extends Serializable> userAttribute) {
+        Property<Object> attributeIdentityProperty = getConfig().getModelProperty(
+                PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
 
         EntityManager em = getEntityManager();
 
@@ -709,7 +752,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName()), idValue));
 
-        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getName()),
+        predicates.add(builder.equal(
+                root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getName()),
                 userAttribute.getName()));
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
@@ -734,7 +778,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         return em.createQuery(criteria).getResultList();
     }
-    
+
     private List<?> findRelationshipAttributes(Object object) {
         Class<?> attributeClass = getConfig().getRelationshipAttributeClass();
         String identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName();
@@ -777,7 +821,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             return results.get(0);
         }
     }
-    
+
     protected Object lookupRelationshipObjectById(String id) {
         if (id == null) {
             return null;
@@ -955,7 +999,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
         }
     }
-    
+
     private void updateRelationshipAttributes(Relationship relationship, Object identity) {
         EntityManager em = getEntityManager();
 
@@ -1094,7 +1138,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             throw new IdentityManagementException("Error setting attribute.", e);
         }
     }
-    
+
     private void populateRelationshipAttributes(Relationship relationshipType, Object relationship) {
         try {
             if (getConfig().getRelationshipAttributeClass() != null) {
@@ -1117,8 +1161,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 if (!results.isEmpty()) {
                     for (Object object : results) {
-                        Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME);
-                        Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE);
+                        Property<Object> attributeNameProperty = getConfig().getModelProperty(
+                                PropertyType.RELATIONSHIP_ATTRIBUTE_NAME);
+                        Property<Object> attributeValueProperty = getConfig().getModelProperty(
+                                PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE);
 
                         String attribName = (String) attributeNameProperty.getValue(object);
                         Serializable attribValue = (Serializable) attributeValueProperty.getValue(object);
@@ -1157,13 +1203,27 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
-    private Partition convertPartitionEntityToPartition(Object instance) {
-        return null;
+    protected Partition convertPartitionEntityToPartition(Object partitionObject) {
+        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.PARTITION_TYPE);
+
+        String type = typeProperty.getValue(partitionObject).toString();
+
+        Partition partition = null;
+
+        if (Realm.class.getName().equals(type)) {
+            partition = convertPartitionEntityToRealm(partitionObject);
+        } else if (Tier.class.getName().equals(type)) {
+            partition = convertPartitionEntityToTier(partitionObject);
+        } else {
+            throw new IdentityManagementException("Unsupported Partition type [" + type + "].");
+        }
+
+        return partition;
     }
 
     Object lookupPartitionObject(Partition partition) {
-        // TODO implement realm lookup
-        return null;
+        EntityManager entityManager = getEntityManager();
+        return entityManager.find(getCurrentConfig().getPartitionClass(), partition.getId());
     }
 
     @Override
@@ -1415,16 +1475,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipClass());
         Root<?> root = criteria.from(getConfig().getRelationshipClass());
-        
+
         List<Predicate> predicates = new ArrayList<Predicate>();
-        
-        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).getName()), query.getRelationshipType().getName()));
+
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).getName()), query
+                .getRelationshipType().getName()));
 
         Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
         Property<Object> idProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID);
         Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
-        Property<Object> relationshipProperty = getConfig().getModelProperty(
-                PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
+        Property<Object> relationshipProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
 
         for (Entry<QueryParameter, Object[]> entry : parameters) {
             QueryParameter queryParameter = entry.getKey();
@@ -1445,15 +1505,15 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                     conjunction.getExpressions().add(
                             builder.equal(fromProject.get(descriptorProperty.getName()), identityTypeParameter.getName()));
-                    conjunction.getExpressions().add(
-                            builder.equal(fromProject.get(identityProperty.getName()), identityObject));
-                    
+                    conjunction.getExpressions()
+                            .add(builder.equal(fromProject.get(identityProperty.getName()), identityObject));
+
                     subquery.where(conjunction);
-                    
+
                     predicates.add(builder.in(root).value(subquery));
                 }
             }
-            
+
             if (queryParameter instanceof IdentityType.AttributeParameter) {
                 AttributeParameter customParameter = (AttributeParameter) queryParameter;
 
@@ -1465,8 +1525,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 Predicate conjunction = builder.conjunction();
 
                 conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(getConfig().getModelProperty(
-                                PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getName()), customParameter.getName()));
+                        builder.equal(fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME)
+                                .getName()), customParameter.getName()));
                 conjunction.getExpressions().add(
                         (fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE).getName())
                                 .in((Object[]) values)));
@@ -1479,45 +1539,46 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 predicates.add(builder.in(root).value(subquery));
             }
         }
-        
+
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-        
+
         List<?> queryResult = em.createQuery(criteria).getResultList();
 
         for (Object relationshipObject : queryResult) {
             CriteriaQuery<?> identityCriteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
             Root<?> identityRoot = identityCriteria.from(getConfig().getRelationshipIdentityClass());
-            
+
             identityCriteria.where(builder.equal(identityRoot.get(relationshipProperty.getName()), relationshipObject));
-            
+
             List<?> identities = em.createQuery(identityCriteria).getResultList();
-            
+
             T relationshipType = null;
-            
+
             try {
                 relationshipType = query.getRelationshipType().newInstance();
             } catch (Exception e) {
-                throw new IdentityManagementException("Error creating Relationship instance for type [" + query.getRelationshipType().getName() + "]");
+                throw new IdentityManagementException("Error creating Relationship instance for type ["
+                        + query.getRelationshipType().getName() + "]");
             }
-            
+
             List<Property<Object>> props = PropertyQueries.createQuery(query.getRelationshipType())
                     .addCriteria(new NamedPropertyCriteria("id")).getResultList();
-            
+
             props.get(0).setValue(relationshipType, idProperty.getValue(relationshipObject));
-            
+
             for (Object object : identities) {
                 String descriptor = descriptorProperty.getValue(object).toString();
-                
+
                 props = PropertyQueries.createQuery(query.getRelationshipType())
                         .addCriteria(new NamedPropertyCriteria(descriptor)).getResultList();
-                
+
                 IdentityType identityType = convertToIdentityType(identityProperty.getValue(object));
-                
+
                 props.get(0).setValue(relationshipType, identityType);
             }
-            
+
             populateRelationshipAttributes(relationshipType, relationshipObject);
-            
+
             result.add(relationshipType);
         }
 
@@ -1528,6 +1589,154 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     public <T extends Relationship> int countQueryResults(RelationshipQuery<T> query) {
         // TODO Auto-generated method stub
         return 0;
+    }
+
+    @Override
+    public void createPartition(Partition partition) {
+        Property<Object> idProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_ID);
+        Property<Object> nameProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_NAME);
+        Property<Object> typeProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_TYPE);
+
+        Class<?> partitionClass = getCurrentConfig().getPartitionClass();
+        Object partitionObject = null;
+
+        try {
+            partitionObject = partitionClass.newInstance();
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not instantiate Partition class [" + partitionClass.getName() + "]");
+        }
+
+        String id = this.context.getIdGenerator().generate();
+
+        partition.setId(id);
+
+        idProperty.setValue(partitionObject, partition.getId());
+        nameProperty.setValue(partitionObject, partition.getName());
+        typeProperty.setValue(partitionObject, partition.getClass().getName());
+
+        EntityManager em = getEntityManager();
+
+        em.persist(partitionObject);
+        em.flush();
+    }
+
+    private JPAPartitionStoreConfiguration getPartitionConfig() {
+        return this.partitionConfig;
+    }
+
+    @Override
+    public void removePartition(Partition partition) {
+        if (partition.getId() == null) {
+            throw new IdentityManagementException("No identifier provided.");
+        }
+
+        EntityManager entityManager = getEntityManager();
+
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<?> criteria = builder.createQuery(getCurrentConfig().getIdentityClass());
+        Root<?> root = criteria.from(getCurrentConfig().getIdentityClass());
+
+        Predicate wherePartition = builder.equal(
+                root.get(getCurrentConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
+                lookupPartitionObject(partition));
+
+        criteria.where(wherePartition);
+
+        List<?> result = entityManager.createQuery(criteria).getResultList();
+
+        if (result.isEmpty()) {
+            entityManager.remove(lookupPartitionObject(partition));
+            entityManager.flush();
+        } else {
+            throw new IdentityManagementException(
+                    "Realm could not be removed. There IdentityTypes associated with it. Remove them first.");
+        }
+    }
+
+    @Override
+    public Realm getRealm(String realmName) {
+        return convertPartitionEntityToRealm(lookupPartitionEntityByName(Realm.class, realmName));
+    }
+
+    private Realm convertPartitionEntityToRealm(Object partitionObject) {
+        Realm realm = null;
+
+        if (partitionObject != null) {
+            Property<Object> typeProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_TYPE);
+
+            if (Realm.class.getName().equals(typeProperty.getValue(partitionObject).toString())) {
+                Property<Object> idProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_ID);
+                Property<Object> nameProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_NAME);
+
+                realm = new Realm(nameProperty.getValue(partitionObject).toString());
+
+                realm.setId(idProperty.getValue(partitionObject).toString());
+            }
+        }
+
+        return realm;
+    }
+
+    private Tier convertPartitionEntityToTier(Object partitionObject) {
+        Tier tier = null;
+
+        if (partitionObject != null) {
+            Property<Object> typeProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_TYPE);
+
+            if (Tier.class.getName().equals(typeProperty.getValue(partitionObject).toString())) {
+                Property<Object> idProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_ID);
+                Property<Object> nameProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_NAME);
+
+                tier = new Tier(nameProperty.getValue(partitionObject).toString());
+
+                tier.setId(idProperty.getValue(partitionObject).toString());
+            }
+        }
+
+        return tier;
+    }
+
+    @Override
+    public Tier getTier(String tierName) {
+        return convertPartitionEntityToTier(lookupPartitionEntityByName(Tier.class, tierName));
+    }
+
+    private Object lookupPartitionEntityByName(Class<? extends Partition> partitionType, String name) {
+        if (name == null) {
+            throw new IdentityManagementException("Tier name was not provided.");
+        }
+
+        EntityManager entityManager = getEntityManager();
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+
+        Class<?> partitionClass = getCurrentConfig().getPartitionClass();
+
+        CriteriaQuery<?> criteria = builder.createQuery(partitionClass);
+        Root<?> root = criteria.from(partitionClass);
+
+        Predicate whereType = builder.equal(
+                root.get(getCurrentConfig().getModelProperty(PropertyType.PARTITION_TYPE).getName()), partitionType.getName());
+        Predicate whereName = builder.equal(
+                root.get(getCurrentConfig().getModelProperty(PropertyType.PARTITION_NAME).getName()), name);
+
+        criteria.where(whereName, whereType);
+
+        Object partitionObject = null;
+
+        try {
+            partitionObject = entityManager.createQuery(criteria).getSingleResult();
+        } catch (NonUniqueResultException nuoe) {
+            throw new IdentityManagementException("Abiguous Tier found with the given name [" + name + "]");
+        } catch (NoResultException ignore) {
+        }
+
+        return partitionObject;
+    }
+
+    @Override
+    public void setup(JPAPartitionStoreConfiguration config, IdentityStoreInvocationContext context) {
+        this.partitionConfig = config;
+        this.context = context;
     }
 
 }
