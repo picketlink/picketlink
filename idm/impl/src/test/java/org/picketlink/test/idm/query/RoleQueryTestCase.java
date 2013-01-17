@@ -38,6 +38,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
@@ -109,6 +110,48 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertFalse(contains(result, someRoleDefaultRealm.getName()));
         assertTrue(contains(result, someRoleTestingRealm.getName()));
+    }
+    
+    @Test
+    public void testFindByTier() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        Tier someTier = new Tier("Some Role Tier");
+        
+        identityManager.createTier(someTier);
+
+        Role someRoleRealm = new SimpleRole("someRoleRealm");
+        
+        identityManager.forTier(someTier).add(someRoleRealm);
+        
+        IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
+        
+        assertNotNull(someTier);
+        
+        query.setParameter(Role.PARTITION, someTier);
+        
+        List<Role> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, someRoleRealm.getName()));
+        
+        Tier someAnotherTier = new Tier("Some Another Role Tier");
+        
+        identityManager.createTier(someAnotherTier);
+        
+        Role someRoleTestingTier = new SimpleRole("someRoleTestingRealm");
+        
+        identityManager.forTier(someAnotherTier).add(someRoleTestingTier);
+        
+        query = identityManager.createIdentityQuery(Role.class);
+        
+        query.setParameter(Role.PARTITION, someAnotherTier);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertFalse(contains(result, someRoleRealm.getName()));
+        assertTrue(contains(result, someRoleTestingTier.getName()));
     }
     
     /**

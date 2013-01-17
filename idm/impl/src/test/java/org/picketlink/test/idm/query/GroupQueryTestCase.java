@@ -38,6 +38,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
@@ -109,6 +110,48 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertFalse(contains(result, someGroupDefaultRealm.getName()));
         assertTrue(contains(result, someGroupTestingRealm.getName()));
+    }
+    
+    @Test
+    public void testFindByTier() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+
+        Tier someTier = new Tier("Some Group Tier");
+        
+        identityManager.createTier(someTier);
+
+        Group someGroupRealm = new SimpleGroup("someGroupRealm");
+        
+        identityManager.forTier(someTier).add(someGroupRealm);
+        
+        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
+        
+        assertNotNull(someTier);
+        
+        query.setParameter(Group.PARTITION, someTier);
+        
+        List<Group> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, someGroupRealm.getName()));
+        
+        Tier someAnotherTier = new Tier("Some Another Group Tier");
+        
+        identityManager.createTier(someAnotherTier);
+        
+        Group someGroupTestingTier = new SimpleGroup("someGroupTestingRealm");
+        
+        identityManager.forTier(someAnotherTier).add(someGroupTestingTier);
+        
+        query = identityManager.createIdentityQuery(Group.class);
+        
+        query.setParameter(Group.PARTITION, someAnotherTier);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertFalse(contains(result, someGroupRealm.getName()));
+        assertTrue(contains(result, someGroupTestingTier.getName()));
     }
     
     @Test
