@@ -40,6 +40,7 @@ import org.picketlink.idm.event.GroupUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
@@ -56,7 +57,8 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Group fromGroup, JPAIdentityStore store) {
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentPartition()), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
+                store.lookupPartitionObject(store.getCurrentPartition()), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
 
         if (fromGroup.getParentGroup() != null) {
@@ -147,18 +149,20 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
-        Join<Object, Object> joinPartition = root.join(getConfig().getModelProperty(
-                PropertyType.IDENTITY_PARTITION).getName());
-        
-        List<String> partitionIds = new ArrayList<String>();
-        
-        partitionIds.add(store.getCurrentPartition().getId());
-        
-        if (Tier.class.isInstance(store.getCurrentPartition())) {
-            addPartitionIds(partitionIds, (Tier) store.getCurrentPartition());
+        Join<Object, Object> joinPartition = root.join(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName());
+
+        if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
+            List<String> partitionIds = new ArrayList<String>();
+
+            partitionIds.add(store.getCurrentPartition().getId());
+
+            if (Tier.class.isInstance(store.getCurrentPartition())) {
+                addPartitionIds(partitionIds, (Tier) store.getCurrentPartition());
+            }
+
+            predicates.add(builder.in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName()))
+                    .value(partitionIds));
         }
-        
-        predicates.add(builder.in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(partitionIds));
         
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(Group.NAME);
 
@@ -222,13 +226,13 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                 }
             }
         }
-        
+
         return predicates;
     }
 
     private void addPartitionIds(List<String> partitionIds, Tier currentPartition) {
         partitionIds.add(currentPartition.getId());
-        
+
         if (currentPartition.getParent() != null) {
             addPartitionIds(partitionIds, currentPartition.getParent());
         }

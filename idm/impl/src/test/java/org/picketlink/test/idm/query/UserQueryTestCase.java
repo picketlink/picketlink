@@ -74,7 +74,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        SimpleUser someUserDefaultRealm = new SimpleUser("someUserRealm");
+        User someUserDefaultRealm = new SimpleUser("someUserRealm");
         
         identityManager.add(someUserDefaultRealm);
         
@@ -98,7 +98,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
             identityManager.createRealm(testingRealm);
         }
         
-        SimpleUser someUserTestingRealm = new SimpleUser("someUserTestingRealm");
+        User someUserTestingRealm = new SimpleUser("someUserTestingRealm");
         
         identityManager.forRealm(testingRealm).add(someUserTestingRealm);
         

@@ -25,6 +25,7 @@ package org.picketlink.test.idm.query;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -37,7 +38,9 @@ import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
@@ -65,6 +68,49 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
         assertEquals(agent.getLoginName(), result.get(0).getLoginName());
+    }
+    
+    @Test
+    public void testFindByRealm() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        
+        Agent someAgentDefaultRealm = new SimpleAgent("someAgentRealm");
+        
+        identityManager.add(someAgentDefaultRealm);
+        
+        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        
+        Realm defaultRealm = identityManager.getRealm(Realm.DEFAULT_REALM);
+        
+        assertNotNull(defaultRealm);
+        
+        query.setParameter(Agent.PARTITION, defaultRealm);
+        
+        List<Agent> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, someAgentDefaultRealm.getLoginName()));
+        
+        Realm testingRealm = identityManager.getRealm("Testing");
+        
+        if (testingRealm == null) {
+            testingRealm = new Realm("Testing");
+            identityManager.createRealm(testingRealm);
+        }
+        
+        Agent someAgentTestingRealm = new SimpleAgent("someAgentTestingRealm");
+        
+        identityManager.forRealm(testingRealm).add(someAgentTestingRealm);
+        
+        query = identityManager.createIdentityQuery(Agent.class);
+        
+        query.setParameter(Agent.PARTITION, testingRealm);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertFalse(contains(result, someAgentDefaultRealm.getLoginName()));
+        assertTrue(contains(result, someAgentTestingRealm.getLoginName()));
     }
     
     @Test
