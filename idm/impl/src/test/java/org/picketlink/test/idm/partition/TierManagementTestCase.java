@@ -25,8 +25,8 @@ package org.picketlink.test.idm.partition;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -50,6 +50,7 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
+    private static final String SERVICES_TIER_NAME = "Services";
     private static final String APPLICATION_TIER_NAME = "Application";
     private static final String TESTING_TIER_NAME = "Testing Tier";
 
@@ -79,29 +80,9 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         serviceTier = identityManager.getTier(serviceTier.getName());
 
         assertNotNull(serviceTier);
-        assertEquals("Services", serviceTier.getName());
+        assertEquals(SERVICES_TIER_NAME, serviceTier.getName());
         assertNotNull(serviceTier.getParent());
         assertEquals(applicationTier.getName(), serviceTier.getParent().getName());
-    }
-
-    private Tier createServicesTier(Tier parentTier) {
-        IdentityManager identityManager = getIdentityManager();
-
-        Tier serviceTier = identityManager.getTier("Services");
-
-        if (serviceTier != null) {
-            identityManager.removeTier(serviceTier);
-        }
-
-        if (parentTier != null) {
-            serviceTier = new Tier("Services", parentTier);
-        } else {
-            serviceTier = new Tier("Services");
-        }
-
-        identityManager.createTier(serviceTier);
-
-        return serviceTier;
     }
 
     @Test
@@ -120,7 +101,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
 
     @Test(expected = IdentityManagementException.class)
-    public void testRemoveTierWithRoles() throws Exception {
+    public void testRemoveWithRoles() throws Exception {
         Tier testingTier = createTestingTier();
 
         IdentityManager defaultIdentityManager = getIdentityManager();
@@ -136,7 +117,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
 
     @Test(expected = IdentityManagementException.class)
-    public void testRemoveTierWithGroups() throws Exception {
+    public void testRemoveTierGroups() throws Exception {
         Tier testingTier = createTestingTier();
 
         IdentityManager defaultIdentityManager = getIdentityManager();
@@ -184,7 +165,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
 
     @Test
-    public void testRolesForTier() throws Exception {
+    public void testCreateRoles() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
 
         Tier applicationTier = createApplicationTier();
@@ -197,17 +178,17 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         testingRole = applicationTierIdentityManager.getRole(testingRole.getName());
 
-        Assert.assertNotNull(testingRole);
-        Assert.assertNotNull(testingRole.getPartition());
-        Assert.assertEquals(applicationTier.getId(), testingRole.getPartition().getId());
+        assertNotNull(testingRole);
+        assertNotNull(testingRole.getPartition());
+        assertEquals(applicationTier.getId(), testingRole.getPartition().getId());
 
         testingRole = defaultIdentityManager.getRole(testingRole.getName());
 
-        Assert.assertNull(testingRole);
+        assertNull(testingRole);
     }
 
     @Test
-    public void testUserRolesForTier() throws Exception {
+    public void testGrantUserRoles() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
 
         Tier applicationTier = createApplicationTier();
@@ -220,38 +201,22 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         adminRole = applicationTierIdentityManager.getRole(adminRole.getName());
 
-        Assert.assertNotNull(adminRole);
+        assertNotNull(adminRole);
 
         Realm testingRealm = createRealm();
 
         IdentityManager testingRealmIdentityManager = applicationTierIdentityManager.forRealm(testingRealm);
 
-        adminRole = applicationTierIdentityManager.getRole(adminRole.getName());
-
-        Assert.assertNotNull(adminRole);
-
         User someUser = new SimpleUser("someUser");
 
         testingRealmIdentityManager.add(someUser);
-
         testingRealmIdentityManager.grantRole(someUser, adminRole);
 
-        Assert.assertTrue(testingRealmIdentityManager.hasRole(someUser, adminRole));
-        Assert.assertTrue(applicationTierIdentityManager.hasRole(someUser, adminRole));
+        assertTrue(testingRealmIdentityManager.hasRole(someUser, adminRole));
+        assertTrue(applicationTierIdentityManager.hasRole(someUser, adminRole));
     }
 
-    private Realm createRealm() {
-        IdentityManager identityManager = getIdentityManager();
 
-        Realm realm = identityManager.getRealm("Testing");
-
-        if (realm == null) {
-            realm = new Realm("Testing");
-            identityManager.createRealm(realm);
-        }
-
-        return realm;
-    }
 
     @Test
     public void testGroupsForTier() throws Exception {
@@ -267,15 +232,13 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         testingGroup = applicationTierIdentityManager.getGroup(testingGroup.getName());
 
-        Assert.assertNotNull(testingGroup);
-        Assert.assertNotNull(testingGroup);
-        Assert.assertNotNull(testingGroup);
-        Assert.assertNotNull(testingGroup.getPartition());
-        Assert.assertEquals(applicationTier.getId(), testingGroup.getPartition().getId());
+        assertNotNull(testingGroup);
+        assertNotNull(testingGroup.getPartition());
+        assertEquals(applicationTier.getId(), testingGroup.getPartition().getId());
 
         testingGroup = identityManager.getGroup(testingGroup.getName());
 
-        Assert.assertNull(testingGroup);
+        assertNull(testingGroup);
     }
     
     @Test
@@ -334,5 +297,38 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         }
 
         return tier;
+    }
+    
+    private Tier createServicesTier(Tier parentTier) {
+        IdentityManager identityManager = getIdentityManager();
+
+        Tier serviceTier = identityManager.getTier(SERVICES_TIER_NAME);
+
+        if (serviceTier != null) {
+            identityManager.removeTier(serviceTier);
+        }
+
+        if (parentTier != null) {
+            serviceTier = new Tier(SERVICES_TIER_NAME, parentTier);
+        } else {
+            serviceTier = new Tier(SERVICES_TIER_NAME);
+        }
+
+        identityManager.createTier(serviceTier);
+
+        return serviceTier;
+    }
+    
+    private Realm createRealm() {
+        IdentityManager identityManager = getIdentityManager();
+
+        Realm realm = identityManager.getRealm("Testing");
+
+        if (realm == null) {
+            realm = new Realm("Testing");
+            identityManager.createRealm(realm);
+        }
+
+        return realm;
     }
 }
