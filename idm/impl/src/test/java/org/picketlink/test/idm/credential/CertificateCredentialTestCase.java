@@ -22,12 +22,13 @@
 
 package org.picketlink.test.idm.credential;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
@@ -46,15 +47,8 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCase {
 
-    /**
-     * <p>
-     * Tests the {@link X509Cert} usage.
-     * </p>
-     *
-     * @throws Exception
-     */
     @Test
-    public void testX509Certificate() throws Exception {
+    public void testSuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         X509Certificate clientCert = getTestingCertificate("servercert.txt");
         X509Cert certCredential = new X509Cert(clientCert);
@@ -62,11 +56,22 @@ public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCa
         
         User user = createUser(credential.getUsername());
         
-        identityManager.updateCredential(user, certCredential, null, null);
-        
+        identityManager.updateCredential(user, certCredential);
         identityManager.validateCredentials(credential);
         
-        Assert.assertEquals(Status.VALID, credential.getStatus());
+        assertEquals(Status.VALID, credential.getStatus());
+    }
+    
+    @Test
+    public void testUnsuccessfulValidation() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        X509Certificate clientCert = getTestingCertificate("servercert.txt");
+        X509Cert certCredential = new X509Cert(clientCert);
+        X509CertificateCredentials credential = new X509CertificateCredentials(certCredential);
+        
+        User user = createUser(credential.getUsername());
+        
+        identityManager.updateCredential(user, certCredential);
         
         X509Certificate badCert = getTestingCertificate("servercert2.txt");
         X509Cert badClientCertCredential = new X509Cert(badCert);
@@ -76,7 +81,7 @@ public class CertificateCredentialTestCase extends AbstractIdentityManagerTestCa
         
         identityManager.validateCredentials(badCredential);
         
-        Assert.assertEquals(Status.INVALID, badCredential.getStatus());
+        assertEquals(Status.INVALID, badCredential.getStatus());
     }
     
     private X509Certificate getTestingCertificate(String fromTextFile) {

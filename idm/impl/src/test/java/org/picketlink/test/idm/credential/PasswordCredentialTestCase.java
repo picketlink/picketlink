@@ -22,6 +22,8 @@
 
 package org.picketlink.test.idm.credential;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Calendar;
 import java.util.Date;
 
@@ -44,13 +46,6 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase {
 
-    /**
-     * <p>
-     * Tests a successful validation.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testSuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
@@ -66,16 +61,9 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         identityManager.validateCredentials(credential);
 
-        Assert.assertEquals(Status.VALID, credential.getStatus());
+        assertEquals(Status.VALID, credential.getStatus());
     }
 
-    /**
-     * <p>
-     * Tests a unsuccessful validation.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testUnsuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
@@ -90,7 +78,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         identityManager.validateCredentials(badUserName);
 
-        Assert.assertEquals(Status.INVALID, badUserName.getStatus());
+        assertEquals(Status.INVALID, badUserName.getStatus());
 
         UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
 
@@ -101,17 +89,10 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         identityManager.validateCredentials(badPassword);
 
-        Assert.assertEquals(Status.INVALID, badPassword.getStatus());
+        assertEquals(Status.INVALID, badPassword.getStatus());
 
     }
     
-    /**
-     * <p>
-     * Tests a unsuccessful validation when the credential is expired.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
@@ -130,7 +111,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         identityManager.validateCredentials(credential);
 
-        Assert.assertEquals(Status.EXPIRED, credential.getStatus());
+        assertEquals(Status.EXPIRED, credential.getStatus());
         
         Password newPassword = new Password("new_password".toCharArray());
         
@@ -140,16 +121,9 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         
         identityManager.validateCredentials(credential);
 
-        Assert.assertEquals(Status.VALID, credential.getStatus());
+        assertEquals(Status.VALID, credential.getStatus());
     }
     
-    /**
-     * <p>
-     * Tests password updation.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testUpdatePassword() throws Exception {
         IdentityManager identityManager = getIdentityManager();
@@ -162,17 +136,17 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
 
         identityManager.validateCredentials(firstCredential);
 
-        Assert.assertEquals(Status.VALID, firstCredential.getStatus());
+        assertEquals(Status.VALID, firstCredential.getStatus());
         
         Password secondPassword = new Password("password2".toCharArray());
         
         identityManager.updateCredential(user, secondPassword);
         
         UsernamePasswordCredentials secondCredential = new UsernamePasswordCredentials(user.getLoginName(), secondPassword);
-        
+
         identityManager.validateCredentials(secondCredential);
 
-        Assert.assertEquals(Status.VALID, secondCredential.getStatus());
+        assertEquals(Status.VALID, secondCredential.getStatus());
         
         identityManager.validateCredentials(firstCredential);
 
