@@ -21,7 +21,7 @@
 			<name>Shane Bryzak</name>
 		</developer>
 		<developer>
-			<name>Anil Saldahana</name>
+			<name>Anil Saldhana</name>
 		</developer>
 		<developer>
 			<name>Pedro Silva</name>
@@ -48,8 +48,10 @@
 	<modules>
 		<module>idm</module>
 		<module>core</module>
+		<module>federation</module>
 		<module>social</module>
 		<!-- <module>oauth</module> -->
+		<module>config</module>
 	</modules>
 
 	<dependencyManagement>
