@@ -87,7 +87,7 @@ public class OAuthResourceFilter implements Filter {
             String passedClientID = httpRequest.getParameter(OAuth.OAUTH_CLIENT_ID);
             String accessToken = oauthRequest.getAccessToken();
 
-            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
+            IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
             userQuery.setParameter(User.ID, passedClientID);
 
             List<User> users = userQuery.getResultList();

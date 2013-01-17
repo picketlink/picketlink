@@ -125,7 +125,7 @@ public class OAuthServerUtil {
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null")
                         .buildJSONMessage();
             }
-            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
+            IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
             userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
 
             List<User> users = userQuery.getResultList();
@@ -208,7 +208,7 @@ public class OAuthServerUtil {
                         .buildJSONMessage();
             }
 
-            IdentityQuery<User> userQuery = identityManager.createQuery(User.class);
+            IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
             userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
 
             List<User> users = userQuery.getResultList();
