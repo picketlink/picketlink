@@ -310,35 +310,35 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public Role getRole(String roleName) {
         return lookupRole(roleName, getCurrentRealm(), getContext().getTier());
     }
-    
+
     private Role lookupRole(String roleName, Realm realm, Tier tier) {
         Role role = getConfig().getRoles(realm.getId()).get(roleName);
-        
+
         if (role == null && tier != null) {
             role = getConfig().getRoles(tier.getId()).get(roleName);
-            
+
             if (role == null && tier.getParent() != null) {
                 role = lookupRole(roleName, realm, tier.getParent());
             }
         }
-        
+
         return role;
     }
-    
+
     private Group lookupGroup(String groupName, Realm realm, Tier tier) {
         Group group = getConfig().getGroups(realm.getId()).get(groupName);
-        
+
         if (group == null && tier != null) {
             group = getConfig().getGroups(tier.getId()).get(groupName);
-            
+
             if (group == null && tier.getParent() != null) {
                 group = lookupGroup(groupName, realm, tier.getParent());
             }
         }
-        
+
         return group;
     }
-    
+
     /**
      * <p>
      * Returns the identifier for the given {@link Realm}. If it is null, the default {@link Realm} identifier will be returned.
@@ -349,11 +349,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Partition getRealmId(IdentityStoreInvocationContext context) {
         Partition partition = context.getRealm();
-        
+
         if (partition == null) {
             partition = getCurrentRealm();
         }
-        
+
         if (context.getTier() != null) {
             partition = context.getTier();
         }
@@ -877,7 +877,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                                 continue;
                             }
 
-                            if (grant.getAssignee().getId().equals(agent.getId())) {
+                            if (grant.getAssignee() != null && grant.getAssignee().getId() != null
+                                    && grant.getAssignee().getId().equals(agent.getId())) {
                                 valuesMatchCount--;
                             }
                         }
