@@ -72,12 +72,12 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return this.dataSource.getRelationships(context);
     }
 
-    public Map<String, Role> getRoles(IdentityStoreInvocationContext context) {
-        return this.dataSource.getRoles(context);
+    public Map<String, Role> getRoles(String realmId) {
+        return this.dataSource.getRoles(realmId);
     }
 
-    public Map<String, Group> getGroups(IdentityStoreInvocationContext context) {
-        return this.dataSource.getGroups(context);
+    public Map<String, Group> getGroups(String realmId) {
+        return this.dataSource.getGroups(realmId);
     }
 
     public Map<String, Agent> getAgents(IdentityStoreInvocationContext context) {

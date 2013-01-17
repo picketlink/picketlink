@@ -71,10 +71,6 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
     public void removePartition(Partition partition) {
         String id = partition.getId();
 
-        if (id == null) {
-            throw new IdentityManagementException("No identifier provided.");
-        }
-
         if (getConfig().getPartitions().containsKey(partition.getId())) {
             FilePartition filePartition = getConfig().getPartitions().get(partition.getId());
 

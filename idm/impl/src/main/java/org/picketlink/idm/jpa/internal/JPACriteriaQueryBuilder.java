@@ -144,5 +144,8 @@ public class JPACriteriaQueryBuilder {
     public Root<?> getRoot() {
         return root;
     }
-
+    
+    public IdentityQuery<?> getIdentityQuery() {
+        return this.identityQuery;
+    }
 }

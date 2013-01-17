@@ -46,6 +46,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
@@ -584,60 +585,66 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void createRealm(Realm realm) {
-        IdentityStoreInvocationContext context = createContext();
-        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
-        
-        getContextFactory().initContextForStore(context, store);
-        
-        store.createPartition(realm);
+        checkCreateNullPartition(realm);
+        checkCreateNullPartitionName(realm);
+        getContextualPartitionStore().createPartition(realm);
+    }
+
+    private void checkCreateNullPartitionName(Partition partition) {
+        if (partition.getName() == null) {
+            throw new IdentityManagementException("Realm name must not be null");
+        }
+    }
+
+    private void checkCreateNullPartition(Partition partition) {
+        if (partition == null) {
+            throw new IdentityManagementException("Partition must not be null.");
+        }
     }
 
     @Override
     public void removeRealm(Realm realm) {
-        IdentityStoreInvocationContext context = createContext();
-        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
-        
-        getContextFactory().initContextForStore(context, store);
+        checkNotNullId(realm);
+        getContextualPartitionStore().removePartition(realm);
+    }
 
-        store.removePartition(realm);
+    private void checkNotNullId(Partition partition) {
+        if (partition.getId() == null) {
+            throw new IdentityManagementException("No identifier provided.");
+        }
     }
 
     @Override
     public Realm getRealm(String name) {
-        IdentityStoreInvocationContext context = createContext();
-        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
-        
-        getContextFactory().initContextForStore(context, store);
+        PartitionStore store = getContextualPartitionStore();
         
         return store.getRealm(name);
     }
 
     @Override
     public void createTier(Tier tier) {
+        checkCreateNullPartition(tier);
+        checkCreateNullPartitionName(tier);
+        getContextualPartitionStore().createPartition(tier);
+    }
+
+    private PartitionStore getContextualPartitionStore() {
         IdentityStoreInvocationContext context = createContext();
         PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
         
         getContextFactory().initContextForStore(context, store);
-        
-        store.createPartition(tier);
+        return store;
     }
 
     @Override
     public void removeTier(Tier tier) {
-        IdentityStoreInvocationContext context = createContext();
-        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
-        
-        getContextFactory().initContextForStore(context, store);
-        
-        store.removePartition(tier);
+        checkNotNullId(tier);
+        getContextualPartitionStore().removePartition(tier);
     }
 
     @Override
     public Tier getTier(String id) {
-        IdentityStoreInvocationContext context = createContext();
-        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
-        
-        getContextFactory().initContextForStore(context, store);
+        PartitionStore store = getContextualPartitionStore();
         
         return store.getTier(id);
     }

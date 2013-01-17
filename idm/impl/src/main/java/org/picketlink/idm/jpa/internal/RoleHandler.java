@@ -40,6 +40,7 @@ import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
@@ -55,7 +56,8 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentPartition()), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
+                store.lookupPartitionObject(store.getCurrentPartition()), true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 
@@ -90,9 +92,18 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
+        Join<Object, Object> joinPartition = root.join(getConfig().getModelProperty(
+                PropertyType.IDENTITY_PARTITION).getName());
         
-        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                store.lookupPartitionObject(store.getCurrentPartition())));
+        List<String> partitionIds = new ArrayList<String>();
+        
+        partitionIds.add(store.getCurrentPartition().getId());
+        
+        if (Tier.class.isInstance(store.getCurrentPartition())) {
+            addPartitionIds(partitionIds, (Tier) store.getCurrentPartition());
+        }
+        
+        predicates.add(builder.in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(partitionIds));
 
         if (queryParameter.equals(Role.NAME)) {
             predicates.add(criteria.getBuilder().equal(
@@ -114,7 +125,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
                     for (Grant grant : resultList) {
                         relIds.add(grant.getId());
                     }
-                    
+
                     Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
                     Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
                     Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
@@ -130,8 +141,8 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
                     subqueryPredicates.add(criteria.getBuilder().equal(
                             fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
                             criteria.getRoot()));
-                    subqueryPredicates.add(criteria.getBuilder().in(
-                            join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
+                    subqueryPredicates.add(criteria.getBuilder()
+                            .in(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
 
                     subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
 
@@ -144,6 +155,14 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
         }
 
         return predicates;
+    }
+
+    private void addPartitionIds(List<String> partitionIds, Tier currentPartition) {
+        partitionIds.add(currentPartition.getId());
+        
+        if (currentPartition.getParent() != null) {
+            addPartitionIds(partitionIds, currentPartition.getParent());
+        }
     }
 
 }

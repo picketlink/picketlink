@@ -22,7 +22,10 @@
 
 package org.picketlink.test.idm;
 
-import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
@@ -35,134 +38,193 @@ import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
 /**
+ * <p>Test case for the {@link Realm} management operations.</p>
+ * 
  * @author Pedro Silva
  *
  */
 public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
+    private static final String TESTING_REALM_NAME = "Testing";
+
     @Test
     public void testCreateRealm() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
         Realm realm = createRealm();
+
+        IdentityManager defaultIdentityManager = getIdentityManager();
         
-        realm = identityManager.getRealm(realm.getName());
+        realm = defaultIdentityManager.getRealm(realm.getName());
         
-        Assert.assertNotNull(realm);
-        Assert.assertEquals("Testing", realm.getName());
-        Assert.assertEquals(Realm.KEY_PREFIX + "Testing", realm.getKey());
+        assertNotNull(realm);
+        assertEquals(TESTING_REALM_NAME, realm.getName());
+        assertEquals(Realm.KEY_PREFIX + TESTING_REALM_NAME, realm.getKey());
+    }
+    
+    @Test (expected=IdentityManagementException.class)
+    public void testCreateWithNullArgument() throws Exception {
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        defaultIdentityManager.createRealm(null);
+    }
+    
+    @Test (expected=InstantiationError.class)
+    public void testCreateWithNullName() throws Exception {
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        defaultIdentityManager.createRealm(new Realm(null));
     }
 
+    @Test
+    public void testRemoveRealm() throws Exception {
+        Realm realm = createRealm();
+        
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        defaultIdentityManager.removeRealm(realm);
+        
+        realm = defaultIdentityManager.getRealm(realm.getName());
+        
+        assertNull(realm);
+    }
+    
+    @Test (expected=IdentityManagementException.class)
+    public void testRemoveRealmWithUsers() throws Exception {
+        Realm realm = createRealm();
+        
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+        
+        User testingUser = new SimpleUser("testingUser");
+        
+        // should throw an exception because the current realm has IdentityTypes associated.
+        testingIdentityManager.add(testingUser);
+        
+        defaultIdentityManager.removeRealm(realm);
+    }
+
+    @Test (expected=IdentityManagementException.class)
+    public void testRemoveRealmWithRoles() throws Exception {
+        Realm realm = createRealm();
+        
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+        
+        Role testingRole = new SimpleRole("testingRole");
+        
+        // should throw an exception because the current realm has IdentityTypes associated.
+        testingIdentityManager.add(testingRole);
+        
+        defaultIdentityManager.removeRealm(realm);
+    }
+    
+    @Test (expected=IdentityManagementException.class)
+    public void testRemoveRealmWithGroups() throws Exception {
+        Realm realm = createRealm();
+        
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+        
+        Group testingGroup = new SimpleGroup("testingGroup");
+        
+        // should throw an exception because the current realm has IdentityTypes associated.
+        testingIdentityManager.add(testingGroup);
+        
+        defaultIdentityManager.removeRealm(realm);
+    }
+
+    @Test
+    public void testUsersForRealm() throws Exception {
+        Realm realm = createRealm();
+
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        // get a IdentityManager instance for the given realm
+        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+        
+        User testingUser = new SimpleUser("testingUser");
+        
+        // add the IdentityType and associate it with the current realm
+        testingIdentityManager.add(testingUser);
+        
+        testingUser = testingIdentityManager.getUser(testingUser.getLoginName());
+        
+        assertNotNull(testingUser);
+        assertNotNull(testingUser.getPartition());
+        assertEquals(realm.getId(), testingUser.getPartition().getId());
+        
+        // the identitytype should not be associated with the DEFAULT realm
+        testingUser = defaultIdentityManager.getUser(testingUser.getLoginName());
+        
+        assertNull(testingUser);
+    }
+    
+    @Test
+    public void testRolesForRealm() throws Exception {
+        Realm realm = createRealm();
+        
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        // get a IdentityManager instance for the given realm
+        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+        
+        Role testingRole = new SimpleRole("testingRole");
+        
+        // add the IdentityType and associate it with the current realm
+        testingIdentityManager.add(testingRole);
+        
+        testingRole = testingIdentityManager.getRole(testingRole.getName());
+        
+        assertNotNull(testingRole);
+        assertNotNull(testingRole);
+        assertNotNull(testingRole.getPartition());
+        assertEquals(realm.getId(), testingRole.getPartition().getId());
+
+        // the identitytype should not be associated with the DEFAULT realm
+        testingRole = defaultIdentityManager.getRole(testingRole.getName());
+        
+        assertNull(testingRole);
+    }
+    
+    @Test
+    public void testGroupsForRealm() throws Exception {
+        Realm realm = createRealm();
+        
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        // get a IdentityManager instance for the given realm
+        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+        
+        Group testingGroup = new SimpleGroup("testingGroup");
+        
+        // add the IdentityType and associate it with the current realm
+        testingIdentityManager.add(testingGroup);
+        
+        testingGroup = testingIdentityManager.getGroup(testingGroup.getName());
+        
+        assertNotNull(testingGroup);
+        assertNotNull(testingGroup);
+        assertNotNull(testingGroup.getPartition());
+        assertEquals(realm.getId(), testingGroup.getPartition().getId());
+        
+        // the identitytype should not be associated with the DEFAULT realm
+        testingGroup = defaultIdentityManager.getGroup(testingGroup.getName());
+        
+        assertNull(testingGroup);
+    }
+    
     private Realm createRealm() {
         IdentityManager identityManager = getIdentityManager();
-        Realm realm = identityManager.getRealm("Testing");
+        Realm realm = identityManager.getRealm(TESTING_REALM_NAME);
         
         if (realm == null) {
-            realm = new Realm("Testing");
+            realm = new Realm(TESTING_REALM_NAME);
             identityManager.createRealm(realm);
         }
         
         return realm;
     }
-    
-    @Test
-    public void testRemoveRealm() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        Realm realm = createRealm();
-        
-        Assert.assertNotNull(realm);
-        
-        identityManager.removeRealm(realm);
-        
-        realm = identityManager.getRealm(realm.getName());
-        
-        Assert.assertNull(realm);
-    }
-    
-    @Test
-    public void testUsersForRealm() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        Realm realm = createRealm();
-        
-        IdentityManager testingIdentityManager = identityManager.forRealm(realm);
-        
-        User testingUser = new SimpleUser("testingUser");
-        
-        testingIdentityManager.add(testingUser);
-        
-        testingUser = testingIdentityManager.getUser(testingUser.getLoginName());
-        
-        Assert.assertNotNull(testingUser);
-        Assert.assertNotNull(testingUser.getPartition());
-        Assert.assertEquals(realm.getId(), testingUser.getPartition().getId());
-        
-        testingUser = identityManager.getUser(testingUser.getLoginName());
-        
-        Assert.assertNull(testingUser);
-    }
-    
-    @Test (expected=IdentityManagementException.class)
-    public void testRemoveRealmWithIdentityTypes() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        Realm realm = createRealm();
-        
-        IdentityManager testingIdentityManager = identityManager.forRealm(realm);
-        
-        User testingUser = new SimpleUser("testingUser");
-        
-        testingIdentityManager.add(testingUser);
-        
-        identityManager.removeRealm(realm);
-    }
-    
-    @Test
-    public void testRolesForRealm() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        Realm realm = createRealm();
-        
-        IdentityManager testingIdentityManager = identityManager.forRealm(realm);
-        
-        Role testingRole = new SimpleRole("testingRole");
-        
-        testingIdentityManager.add(testingRole);
-        
-        testingRole = testingIdentityManager.getRole(testingRole.getName());
-        
-        Assert.assertNotNull(testingRole);
-        Assert.assertNotNull(testingRole);
-        Assert.assertNotNull(testingRole.getPartition());
-        Assert.assertEquals(realm.getId(), testingRole.getPartition().getId());
 
-        testingRole = identityManager.getRole(testingRole.getName());
-        
-        Assert.assertNull(testingRole);
-    }
-    
-    @Test
-    public void testGroupsForRealm() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-        
-        Realm realm = createRealm();
-        
-        IdentityManager testingIdentityManager = identityManager.forRealm(realm);
-        
-        Group testingGroup = new SimpleGroup("testingGroup");
-        
-        testingIdentityManager.add(testingGroup);
-        
-        testingGroup = testingIdentityManager.getGroup(testingGroup.getName());
-        
-        Assert.assertNotNull(testingGroup);
-        Assert.assertNotNull(testingGroup);
-        Assert.assertNotNull(testingGroup.getPartition());
-        Assert.assertEquals(realm.getId(), testingGroup.getPartition().getId());
-        
-        testingGroup = identityManager.getGroup(testingGroup.getName());
-        
-        Assert.assertNull(testingGroup);
-    }
 }

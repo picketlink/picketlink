@@ -63,7 +63,7 @@ import org.picketlink.test.idm.runners.TestLifecycle;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
+@SuiteClasses({ TierManagementTestCase.class, GroupMembershipTestCase.class,
         ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
         RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
         UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,

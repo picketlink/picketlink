@@ -31,6 +31,10 @@ public class Tier implements Partition {
         this.parent = parent;
     }
 
+    public Tier(String name, Tier applicationTier) {
+        this(name, null, applicationTier);
+    }
+
     @Override
     public String getId() {
         return id;

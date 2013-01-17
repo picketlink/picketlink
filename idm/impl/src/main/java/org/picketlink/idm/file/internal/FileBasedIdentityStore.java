@@ -79,6 +79,7 @@ import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
@@ -306,13 +307,63 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public Role getRole(String role) {
-        return getConfig().getRoles(getContext()).get(role);
+    public Role getRole(String roleName) {
+        return lookupRole(roleName, getCurrentRealm(), getContext().getTier());
+    }
+    
+    private Role lookupRole(String roleName, Realm realm, Tier tier) {
+        Role role = getConfig().getRoles(realm.getId()).get(roleName);
+        
+        if (role == null && tier != null) {
+            role = getConfig().getRoles(tier.getId()).get(roleName);
+            
+            if (role == null && tier.getParent() != null) {
+                role = lookupRole(roleName, realm, tier.getParent());
+            }
+        }
+        
+        return role;
+    }
+    
+    private Group lookupGroup(String groupName, Realm realm, Tier tier) {
+        Group group = getConfig().getGroups(realm.getId()).get(groupName);
+        
+        if (group == null && tier != null) {
+            group = getConfig().getGroups(tier.getId()).get(groupName);
+            
+            if (group == null && tier.getParent() != null) {
+                group = lookupGroup(groupName, realm, tier.getParent());
+            }
+        }
+        
+        return group;
+    }
+    
+    /**
+     * <p>
+     * Returns the identifier for the given {@link Realm}. If it is null, the default {@link Realm} identifier will be returned.
+     * </p>
+     * 
+     * @param realm
+     * @return
+     */
+    private Partition getRealmId(IdentityStoreInvocationContext context) {
+        Partition partition = context.getRealm();
+        
+        if (partition == null) {
+            partition = getCurrentRealm();
+        }
+        
+        if (context.getTier() != null) {
+            partition = context.getTier();
+        }
+
+        return partition;
     }
 
     @Override
-    public Group getGroup(String groupId) {
-        return getConfig().getGroups(getContext()).get(groupId);
+    public Group getGroup(String groupName) {
+        return lookupGroup(groupName, getCurrentRealm(), getContext().getTier());
     }
 
     @Override
@@ -552,16 +603,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             Map<String, IdentityType> allIdentityTypes = new HashMap<String, IdentityType>();
 
             allIdentityTypes.putAll(getConfig().getAgents(getContext()));
-            allIdentityTypes.putAll(getConfig().getRoles(getContext()));
-            allIdentityTypes.putAll(getConfig().getGroups(getContext()));
+            allIdentityTypes.putAll(getConfig().getRoles(getRealmId(getContext()).getId()));
+            allIdentityTypes.putAll(getConfig().getGroups(getRealmId(getContext()).getId()));
 
             entries = allIdentityTypes.entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
             entries = getConfig().getAgents(getContext()).entrySet();
         } else if (IDMUtil.isRoleType(identityTypeClass)) {
-            entries = getConfig().getRoles(getContext()).entrySet();
+            entries = getConfig().getRoles(getRealmId(getContext()).getId()).entrySet();
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
-            entries = getConfig().getGroups(getContext()).entrySet();
+            entries = getConfig().getGroups(getRealmId(getContext()).getId()).entrySet();
         } else {
             throw createUnsupportedIdentityTypeException(identityTypeClass);
         }
@@ -1205,7 +1256,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(role, fileRole);
 
-        getConfig().getRoles(getContext()).put(fileRole.getName(), fileRole);
+        getConfig().getRoles(getRealmId(getContext()).getId()).put(fileRole.getName(), fileRole);
         getConfig().flushRoles(getContext());
 
         return fileRole;
@@ -1224,7 +1275,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(group, fileGroup);
 
-        getConfig().getGroups(getContext()).put(fileGroup.getName(), fileGroup);
+        getConfig().getGroups(getRealmId(getContext()).getId()).put(fileGroup.getName(), fileGroup);
         getConfig().flushGroups(getContext());
 
         return fileGroup;
@@ -1285,7 +1336,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedRole, storedRole);
         }
 
-        getConfig().getRoles(getContext()).put(storedRole.getName(), storedRole);
+        getConfig().getRoles(getRealmId(getContext()).getId()).put(storedRole.getName(), storedRole);
         getConfig().flushRoles(getContext());
 
         return storedRole;
@@ -1296,7 +1347,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedGroup, storedGroup);
         }
 
-        getConfig().getGroups(getContext()).put(storedGroup.getName(), storedGroup);
+        getConfig().getGroups(getRealmId(getContext()).getId()).put(storedGroup.getName(), storedGroup);
         getConfig().flushGroups(getContext());
 
         return storedGroup;
@@ -1329,7 +1380,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Role removeRole(Role role) {
-        getConfig().getRoles(getContext()).remove(role.getName());
+        getConfig().getRoles(getRealmId(getContext()).getId()).remove(role.getName());
 
         removeRelationships(role);
 
@@ -1360,7 +1411,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Group removeGroup(Group group) {
-        getConfig().getGroups(getContext()).remove(group.getName());
+        getConfig().getGroups(getRealmId(getContext()).getId()).remove(group.getName());
 
         removeRelationships(group);
 

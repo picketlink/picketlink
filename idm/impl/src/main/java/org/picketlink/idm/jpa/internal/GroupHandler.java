@@ -42,6 +42,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
@@ -149,9 +150,18 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         List<Predicate> predicates = super.getPredicate(queryParameter, parameterValues, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         Root<?> root = criteria.getRoot();
+        Join<Object, Object> joinPartition = root.join(getConfig().getModelProperty(
+                PropertyType.IDENTITY_PARTITION).getName());
         
-        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                store.lookupPartitionObject(store.getCurrentPartition())));
+        List<String> partitionIds = new ArrayList<String>();
+        
+        partitionIds.add(store.getCurrentPartition().getId());
+        
+        if (Tier.class.isInstance(store.getCurrentPartition())) {
+            addPartitionIds(partitionIds, (Tier) store.getCurrentPartition());
+        }
+        
+        predicates.add(builder.in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(partitionIds));
         
         if (queryParameter.equals(Group.NAME)) {
             predicates.add(builder.equal(
@@ -213,4 +223,11 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         return predicates;
     }
 
+    private void addPartitionIds(List<String> partitionIds, Tier currentPartition) {
+        partitionIds.add(currentPartition.getId());
+        
+        if (currentPartition.getParent() != null) {
+            addPartitionIds(partitionIds, currentPartition.getParent());
+        }
+    }
 }

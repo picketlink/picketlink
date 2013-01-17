@@ -112,9 +112,7 @@ public class FileDataSource {
         return partition.getAgents();
     }
 
-    Map<String, Role> getRoles(IdentityStoreInvocationContext context) {
-        String realmId = getRealmId(context);
-        
+    Map<String, Role> getRoles(String realmId) {
         FilePartition partition = this.partitions.get(realmId);
 
         if (partition == null) {
@@ -206,9 +204,7 @@ public class FileDataSource {
         return partition.getCredentials();
     }
 
-    Map<String, Group> getGroups(IdentityStoreInvocationContext context) {
-        String realmId = getRealmId(context);
-
+    Map<String, Group> getGroups(String realmId) {
         FilePartition partition = this.partitions.get(realmId);
 
         if (partition == null) {

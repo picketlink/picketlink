@@ -210,7 +210,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         return realm;
     }
-    
+
     protected Partition getCurrentPartition() {
         Partition partition = getContext().getTier();
 
@@ -1614,6 +1614,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         nameProperty.setValue(partitionObject, partition.getName());
         typeProperty.setValue(partitionObject, partition.getClass().getName());
 
+        if (Tier.class.isInstance(partition)) {
+            Tier tier = (Tier) partition;
+            Tier parentTier = tier.getParent();
+
+            if (parentTier != null) {
+                Property<Object> parentProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_PARENT);
+                parentProperty.setValue(partitionObject, lookupPartitionObject(parentTier));
+            }
+        }
+
         EntityManager em = getEntityManager();
 
         em.persist(partitionObject);
@@ -1630,6 +1640,33 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             throw new IdentityManagementException("No identifier provided.");
         }
 
+        Object partitionObject = lookupPartitionObject(partition);
+
+        if (partitionObject == null) {
+            throw new IdentityManagementException("No Partition found with the given id [" + partition.getId() + "].");
+        }
+
+        EntityManager entityManager = getEntityManager();
+
+        List<?> associatedIdentityTypes = getIdentityTypesForPartition(partitionObject);
+
+        if (!associatedIdentityTypes.isEmpty()) {
+            throw new IdentityManagementException(
+                    "Partition could not be removed. There are IdentityTypes associated with it. Remove them first.");
+        }
+
+        List<?> childPartitions = getChildPartitions(partitionObject);
+
+        if (!childPartitions.isEmpty()) {
+            throw new IdentityManagementException(
+                    "Partition could not be removed. There are child partitions associated with it. Remove them first.");
+        }
+
+        entityManager.remove(partitionObject);
+        entityManager.flush();
+    }
+
+    private List<?> getIdentityTypesForPartition(Object partitionObject) {
         EntityManager entityManager = getEntityManager();
 
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -1637,20 +1674,26 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Root<?> root = criteria.from(getCurrentConfig().getIdentityClass());
 
         Predicate wherePartition = builder.equal(
-                root.get(getCurrentConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                lookupPartitionObject(partition));
+                root.get(getCurrentConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()), partitionObject);
 
         criteria.where(wherePartition);
 
-        List<?> result = entityManager.createQuery(criteria).getResultList();
+        return entityManager.createQuery(criteria).getResultList();
+    }
 
-        if (result.isEmpty()) {
-            entityManager.remove(lookupPartitionObject(partition));
-            entityManager.flush();
-        } else {
-            throw new IdentityManagementException(
-                    "Realm could not be removed. There IdentityTypes associated with it. Remove them first.");
-        }
+    private List<?> getChildPartitions(Object partitionObject) {
+        EntityManager entityManager = getEntityManager();
+
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<?> criteria = builder.createQuery(getCurrentConfig().getPartitionClass());
+        Root<?> root = criteria.from(getCurrentConfig().getPartitionClass());
+
+        Predicate wherePartition = builder.equal(
+                root.get(getCurrentConfig().getModelProperty(PropertyType.PARTITION_PARENT).getName()), partitionObject);
+
+        criteria.where(wherePartition);
+
+        return entityManager.createQuery(criteria).getResultList();
     }
 
     @Override
@@ -1686,8 +1729,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (Tier.class.getName().equals(typeProperty.getValue(partitionObject).toString())) {
                 Property<Object> idProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_ID);
                 Property<Object> nameProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_NAME);
+                Property<Object> parentProperty = getCurrentConfig().getModelProperty(PropertyType.PARTITION_PARENT);
 
-                tier = new Tier(nameProperty.getValue(partitionObject).toString());
+                Object parentTierObject = parentProperty.getValue(partitionObject);
+
+                if (parentTierObject != null) {
+                    tier = new Tier(nameProperty.getValue(partitionObject).toString(),
+                            convertPartitionEntityToTier(parentTierObject));
+                } else {
+                    tier = new Tier(nameProperty.getValue(partitionObject).toString());
+                }
 
                 tier.setId(idProperty.getValue(partitionObject).toString());
             }
