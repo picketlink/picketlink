@@ -44,6 +44,9 @@ public class AbstractIdentityManagerTestCase {
     private IdentityManager identityManager;
 
     public IdentityManager getIdentityManager() {
+        if(this.identityManager == null){
+            throw new RuntimeException("Identity Manager is not set.");
+        }
         return this.identityManager;
     }
 
