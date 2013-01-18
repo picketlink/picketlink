@@ -647,8 +647,12 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(Agent.EXPIRY_BEFORE, currentDate);
 
         Agent someFutureAgent = createAgent("someFutureAgent");
+        
+        calendar = Calendar.getInstance();
 
-        someFutureAgent.setExpirationDate(new Date());
+        calendar.add(Calendar.MINUTE, 1);
+
+        someFutureAgent.setExpirationDate(calendar.getTime());
 
         identityManager.update(someFutureAgent);
 
@@ -681,8 +685,12 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Agent> createIdentityQuery(Agent.class);
 
+        calendar = Calendar.getInstance();
+
+        calendar.add(Calendar.MINUTE, 1);
+        
         // users expired before the given time
-        query.setParameter(Agent.EXPIRY_BEFORE, new Date());
+        query.setParameter(Agent.EXPIRY_BEFORE, calendar.getTime());
 
         result = query.getResultList();
 

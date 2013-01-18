@@ -48,6 +48,10 @@ public class FilePartitionStore implements PartitionStore {
 
     public FilePartitionStore(FileBasedIdentityStore identityStore) {
         this.identityStore = identityStore;
+
+        if (getRealm(Realm.DEFAULT_REALM) == null) {
+            createDefaultRealm();
+        }
     }
 
     @Override
@@ -63,7 +67,7 @@ public class FilePartitionStore implements PartitionStore {
                 throw new IdentityManagementException("A Tier with name [" + partition.getName() + "] already exists.");
             }
         }
-
+        
         partition.setId(getContext().getIdGenerator().generate());
 
         FilePartition filePartition = getConfig().getDataSource().initPartition(partition.getId());
@@ -109,16 +113,11 @@ public class FilePartitionStore implements PartitionStore {
             }
         }
 
-        if (realm == null && name.equals(Realm.DEFAULT_REALM)) {
-            realm = new Realm(Realm.DEFAULT_REALM);
-            realm.setId(Realm.DEFAULT_REALM);
-
-            FilePartition filePartition = getConfig().getDataSource().initPartition(realm.getId());
-            getConfig().getPartitions().put(realm.getName(), filePartition);
-            getConfig().getDataSource().flushPartitions();
-        }
-
         return realm;
+    }
+
+    private void createDefaultRealm() {
+        createPartition(new Realm(Realm.DEFAULT_REALM));
     }
 
     @Override
@@ -141,7 +140,7 @@ public class FilePartitionStore implements PartitionStore {
     private FileIdentityStoreConfiguration getConfig() {
         return this.identityStore.getConfig();
     }
-    
+
     private IdentityStoreInvocationContext getContext() {
         return this.identityStore.getContext();
     }

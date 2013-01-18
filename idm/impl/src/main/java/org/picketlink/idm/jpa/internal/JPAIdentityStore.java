@@ -85,12 +85,15 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     private IdentityStoreInvocationContext context;
     
-    private JPAPartitionStore partitionStore = new JPAPartitionStore(this);
-    private JPACredentialStore credentialStore = new JPACredentialStore(this);
+    private JPAPartitionStore partitionStore;
+    private JPACredentialStore credentialStore;
 
     public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
         this.context = context;
+        
+        this.partitionStore = new JPAPartitionStore(this);
+        this.credentialStore = new JPACredentialStore(this);
     }
 
     @Override

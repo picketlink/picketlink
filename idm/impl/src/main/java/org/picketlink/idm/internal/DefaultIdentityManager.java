@@ -78,8 +78,8 @@ public class DefaultIdentityManager implements IdentityManager {
     private IdentityStoreInvocationContextFactory contextFactory;
 
     private ThreadLocal<Realm> currentRealm = new ThreadLocal<Realm>();
-
     private ThreadLocal<Tier> currentTier = new ThreadLocal<Tier>();
+    private ThreadLocal<IdentityStoreInvocationContext> currentContext = new ThreadLocal<IdentityStoreInvocationContext>();
 
     @Override
     public IdentityManager forRealm(final Realm realm) {
@@ -116,10 +116,10 @@ public class DefaultIdentityManager implements IdentityManager {
     public IdentityManager forTier(final Tier tier) {
         final DefaultIdentityManager proxied = this;
         final Realm realm = currentRealm.get();
-        
+
         return (IdentityManager) Proxy.newProxyInstance(this.getClass().getClassLoader(),
                 new Class[] { IdentityManager.class }, new InvocationHandler() {
-                    
+
                     @Override
                     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                         Object result = null;
@@ -200,7 +200,7 @@ public class DefaultIdentityManager implements IdentityManager {
         return getContextualStoreForFeature(ctx, feature, null);
     }
 
-    private IdentityStore<?> getContextualStoreForFeature(IdentityStoreInvocationContext ctx, Feature feature,
+    private IdentityStore<?> getContextualStoreForFeature(final IdentityStoreInvocationContext ctx, Feature feature,
             Class<? extends Relationship> relationshipClass) {
         String realm = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
 
@@ -222,31 +222,31 @@ public class DefaultIdentityManager implements IdentityManager {
                     + "]");
         }
 
-        if (relationshipClass != null) {
-            for (IdentityStoreConfiguration storeConfig : stores) {
-                if (config.getFeatureSet().supportsRelationship(relationshipClass)) {
-                    config = storeConfig;
-                    break;
-                }
-            }
+        if (stores.size() > 1) {
+            throw new SecurityConfigurationException("Ambiguous security configuration - multiple identity stores have been "
+                    + "configured for feature [" + feature + "]");
         } else {
-            if (stores.size() > 1) {
-                throw new SecurityConfigurationException(
-                        "Ambiguous security configuration - multiple identity stores have been " + "configured for feature ["
-                                + feature + "]");
-            } else {
-                config = stores.iterator().next();
-            }
+            config = stores.iterator().next();
         }
 
         if (config == null) {
             throw new SecurityConfigurationException("No identity store configuration found for requested feature [" + feature
-                    + "] with relationship type [" + relationshipClass.getName() + "]");
+                    + "]");
         }
 
-        IdentityStore<?> store = storeFactory.createIdentityStore(config, ctx);
+        if (relationshipClass != null) {
+            if (!config.getFeatureSet().supportsRelationship(relationshipClass)) {
+                throw new SecurityConfigurationException("No identity store configuration found for requested feature ["
+                        + feature + "] with relationship type [" + relationshipClass.getName() + "]");
+            }
+        }
+
+        @SuppressWarnings("unchecked")
+        final IdentityStore<IdentityStoreConfiguration> store = storeFactory.createIdentityStore(config, ctx);
 
         getContextFactory().initContextForStore(ctx, store);
+
+        store.setup(config, ctx);
 
         return store;
     }
@@ -256,7 +256,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
         context.setRealm(currentRealm.get());
         context.setTier(currentTier.get());
-        
+
         return context;
     }
 
@@ -612,12 +612,14 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private PartitionStore getContextualPartitionStore() {
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), Feature.managePartitions);
-        
+        @SuppressWarnings("unchecked")
+        final IdentityStore<IdentityStoreConfiguration> store = (IdentityStore<IdentityStoreConfiguration>) getContextualStoreForFeature(
+                createContext(), Feature.managePartitions);
+
         if (PartitionStore.class.isInstance(store)) {
-            return (PartitionStore) store;            
+            return (PartitionStore) store;
         }
-        
+
         throw new IdentityManagementException("No PartitionStore configured.");
     }
 
@@ -640,13 +642,13 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id) {
         IdentityQuery<T> query = createIdentityQuery(identityType);
-        
+
         query.setParameter(IdentityType.ID, id);
-        
+
         List<T> result = query.getResultList();
-        
+
         T identity = null;
-        
+
         if (!result.isEmpty()) {
             if (result.size() > 1) {
                 throw new IdentityManagementException("Ambiguous IdentityType for identifier [" + id + "].");
@@ -654,7 +656,7 @@ public class DefaultIdentityManager implements IdentityManager {
                 identity = result.get(0);
             }
         }
-        
+
         return identity;
     }
 

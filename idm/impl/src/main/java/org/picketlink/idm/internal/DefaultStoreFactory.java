@@ -28,8 +28,11 @@ import org.picketlink.idm.spi.StoreFactory;
  * @author Shane Bryzak
  */
 public class DefaultStoreFactory implements StoreFactory {
+    
     private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
 
+
+    
     public DefaultStoreFactory() {
         identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
         identityConfigMap.put(LDAPConfiguration.class, LDAPIdentityStore.class);
@@ -42,10 +45,9 @@ public class DefaultStoreFactory implements StoreFactory {
         for (Class<? extends IdentityStoreConfiguration> cc : identityConfigMap.keySet()) {
             if (cc.isInstance(config)) {
                 try {
-                    IdentityStore<IdentityStoreConfiguration> store = (IdentityStore<IdentityStoreConfiguration>) identityConfigMap
+                    IdentityStore<?> identityStore = (IdentityStore<?>) identityConfigMap
                             .get(cc).newInstance();
-                    store.setup(config, context);
-                    return store;
+                    return identityStore;
                 } catch (InstantiationException e) {
                     throw new SecurityConfigurationException("Exception while creating new IdentityStore instance", e);
                 } catch (IllegalAccessException e) {

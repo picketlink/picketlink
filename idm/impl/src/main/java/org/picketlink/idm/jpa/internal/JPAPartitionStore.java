@@ -53,6 +53,10 @@ public class JPAPartitionStore implements PartitionStore {
 
     public JPAPartitionStore(JPAIdentityStore identityStore) {
         this.identityStore = identityStore;
+        
+        if (getRealm(Realm.DEFAULT_REALM) == null) {
+            createDefaultRealm();
+        }
     }
     
     @Override
@@ -104,13 +108,7 @@ public class JPAPartitionStore implements PartitionStore {
     
     @Override
     public Realm getRealm(String realmName) {
-        Realm realm = convertPartitionEntityToRealm(lookupPartitionEntityByName(Realm.class, realmName));
-        
-        if (realm == null && Realm.DEFAULT_REALM.equals(realmName)) {
-            realm = createDefaultRealm();
-        }
-        
-        return realm;
+        return convertPartitionEntityToRealm(lookupPartitionEntityByName(Realm.class, realmName));
     }
     
     @Override
@@ -182,11 +180,8 @@ public class JPAPartitionStore implements PartitionStore {
         return partitionObject;
     }
     
-    private Realm createDefaultRealm() {
-        Realm realm;
-        realm = new Realm(Realm.DEFAULT_REALM);
-        createPartition(realm);
-        return realm;
+    private void createDefaultRealm() {
+        createPartition(new Realm(Realm.DEFAULT_REALM));
     }
     
     protected Partition convertPartitionEntityToPartition(Object partitionObject) {

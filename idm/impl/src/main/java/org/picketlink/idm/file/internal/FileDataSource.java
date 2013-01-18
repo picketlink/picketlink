@@ -123,7 +123,7 @@ public class FileDataSource {
     }
 
     Map<String, List<FileRelationshipStorage>> getRelationships(IdentityStoreInvocationContext context) {
-        String realmId = getRealmId(context);
+        String realmId = context.getPartition().getId();
 
         FilePartition partition = this.partitions.get(realmId);
 
@@ -193,7 +193,7 @@ public class FileDataSource {
     }
 
     Map<String, Map<String, List<FileCredentialStorage>>> getCredentials(IdentityStoreInvocationContext context) {
-        String realmId = getRealmId(context);
+        String realmId = context.getPartition().getId();
 
         FilePartition partition = this.partitions.get(realmId);
 
@@ -236,26 +236,24 @@ public class FileDataSource {
     }
 
     void flushRoles(IdentityStoreInvocationContext context) {
-        String realmId = getRealmId(context);
-        
-        flush(context, ROLES_FILE_NAME, this.partitions.get(realmId).getRoles());
+        flush(context, ROLES_FILE_NAME, this.partitions.get(context.getPartition().getId()).getRoles());
     }
 
     void flushGroups(IdentityStoreInvocationContext context) {
-        flush(context, GROUPS_FILE_NAME, this.partitions.get(getRealmId(context)).getGroups());
+        flush(context, GROUPS_FILE_NAME, this.partitions.get(context.getPartition().getId()).getGroups());
     }
 
     void flushCredentials(IdentityStoreInvocationContext context) {
-        flush(context, CREDENTIALS_FILE_NAME, this.partitions.get(getRealmId(context)).getCredentials());
+        flush(context, CREDENTIALS_FILE_NAME, this.partitions.get(context.getPartition().getId()).getCredentials());
     }
 
     void flushRelationships(IdentityStoreInvocationContext context) {
-        flush(context, RELATIONSHIPS_FILE_NAME, this.partitions.get(getRealmId(context)).getRelationships());
+        flush(context, RELATIONSHIPS_FILE_NAME, this.partitions.get(context.getPartition().getId()).getRelationships());
     }
 
     void flush(IdentityStoreInvocationContext context, String fileName, Object object) {
         try {
-            String filePath = getWorkingDir() + File.separator + getRealmId(context) + File.separator + fileName;
+            String filePath = getWorkingDir() + File.separator + context.getPartition().getId() + File.separator + fileName;
             FileOutputStream fos = new FileOutputStream(filePath);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(object);
@@ -299,27 +297,7 @@ public class FileDataSource {
         this.partitionsFile = FileUtils.createFileIfNotExists(new File(workingDirectoryFile.getPath() + "/pl-idm-partitions.db"));
     }
 
-    /**
-     * <p>
-     * Returns the identifier for the given {@link Realm}. If it is null, the default {@link Realm} identifier will be returned.
-     * </p>
-     * 
-     * @param realm
-     * @return
-     */
-    private String getRealmId(IdentityStoreInvocationContext context) {
-        String realmId = Realm.DEFAULT_REALM;
 
-        if (context.getRealm() != null) {
-            realmId = context.getRealm().getId();
-        }
-        
-        if (context.getTier() != null) {
-            realmId = context.getTier().getId();
-        }
-        
-        return realmId;
-    }
 
     public void init() {
         if (!this.initialized) {
