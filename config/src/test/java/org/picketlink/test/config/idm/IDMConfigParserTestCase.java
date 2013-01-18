@@ -41,12 +41,14 @@ import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 
 /**
+ * Test for parsing of IDM configuration in picketlink.xml file
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class IDMConfigParserTestCase {
 
     @Test
-    public void testIDM() throws ParsingException {
+    public void testParseIDMConfiguration() throws ParsingException {
         System.setProperty("property.existing", "Property3SystemPropValue");
 
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
@@ -92,11 +94,39 @@ public class IDMConfigParserTestCase {
         assertEquals("Property2Value", anotherConfig.getProperty("property2"));
         assertNull(anotherConfig.getProperty("property3"));
 
-        assertEquals("org.picketlink.idm.ldap.internal.LDAPConfiguration", ldapConfig.getClassName());;
+        assertEquals("org.picketlink.idm.ldap.internal.LDAPConfiguration", ldapConfig.getClassName());
         assertEquals(6, ldapConfig.getAllProperties().keySet().size());
         assertEquals("uid=admin,ou=system", ldapConfig.getProperty("bindDN"));
         assertEquals("ldap://localhost:10389", ldapConfig.getProperty("ldapURL"));
         assertEquals("ou=Groups,dc=jboss,dc=org", ldapConfig.getProperty("groupDNSuffix"));
         assertNull(ldapConfig.getProperty("property3"));
+    }
+
+    @Test
+    public void testParseMinimalIDMConfiguration() throws ParsingException {
+        ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+        InputStream configStream = tcl.getResourceAsStream("parser/config/picketlink-minimal.xml");
+        PicketLinkConfigParser parser = new PicketLinkConfigParser();
+        Object result = parser.parse(configStream);
+        assertNotNull(result);
+        PicketLinkType picketlink = (PicketLinkType) result;
+
+        // test IDM configuration
+        IDMType idmType = picketlink.getIdmType();
+        assertNotNull(idmType);
+        assertNull(idmType.getIdentityManagerClass());
+        assertNull(idmType.getStoreFactoryClass());
+        assertNull(idmType.getIdentityStoreInvocationContextFactory());
+        assertNull(idmType.getIdentityConfigurationType().getPartitionStoreConfiguration());
+
+        List<StoreConfigurationType> identityStoreConfigs = idmType.getIdentityConfigurationType().getIdentityStoreConfigurations();
+        assertEquals(1, identityStoreConfigs.size());
+        StoreConfigurationType identityStoreConfig = identityStoreConfigs.get(0);
+
+        assertEquals("org.picketlink.SomeIdentityStoreConfiguration", identityStoreConfig.getClassName());
+        assertEquals(2, identityStoreConfig.getAllProperties().keySet().size());
+        assertEquals("Prop1Value", identityStoreConfig.getProperty("property1"));
+        assertEquals("Prop2Value", identityStoreConfig.getProperty("property2"));
+
     }
 }

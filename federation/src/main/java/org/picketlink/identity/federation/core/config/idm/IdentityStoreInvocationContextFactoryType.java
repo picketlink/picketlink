@@ -25,6 +25,9 @@ package org.picketlink.identity.federation.core.config.idm;
 /**
  * Type representing identityStoreInvocationContextFactory
  *
+ * TODO: Move this class to config module. For now it needs to be in federation because needs to be accessible from PicketlinkType class
+ * TODO: Add XML config snippet similarly like for other type classes
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class IdentityStoreInvocationContextFactoryType {

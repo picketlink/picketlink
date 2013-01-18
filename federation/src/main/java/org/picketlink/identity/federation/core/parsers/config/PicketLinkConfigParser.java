@@ -60,7 +60,7 @@ public class PicketLinkConfigParser extends AbstractParser {
                 STSType sts = (STSType) samlConfigParser.parse(xmlEventReader);
                 picketLinkType.setStsType(sts);
             } else if ("PicketLinkIDM".equals(tag)) {
-                // TODO: we are using reflection because this class doesn't see IDMConfigParser at compile time. Needs to be fixed...
+                // TODO: using reflection because this class doesn't see IDMConfigParser at compile time. Needs to be fixed...
                 try {
                     Class<?> idmParserClass = Class.forName("org.picketlink.config.idm.parsers.IDMConfigParser");
                     ParserNamespaceSupport parser = (ParserNamespaceSupport)idmParserClass.newInstance();

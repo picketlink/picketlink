@@ -41,6 +41,8 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.util.StringUtil;
 
 /**
+ * Stax based XML parser for Picketlink IDM configuration
+ *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class IDMConfigParser extends AbstractParser {
@@ -279,7 +281,7 @@ public class IDMConfigParser extends AbstractParser {
                 if (attribute != null)
                     propertyName = StaxParserUtil.getAttributeValue(attribute);
 
-                // parsing property value (for now we assume characters only)
+                // parsing property value (for now we assume characters only. More types need to be added later...)
                 String propertyValue = null;
                 while (true) {
                     xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
