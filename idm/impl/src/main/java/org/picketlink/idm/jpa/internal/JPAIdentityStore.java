@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -22,16 +21,12 @@ import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
-import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
-import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.event.AbstractBaseEvent;
-import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.internal.util.properties.Property;
 import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
@@ -91,6 +86,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     private IdentityStoreInvocationContext context;
     
     private JPAPartitionStore partitionStore = new JPAPartitionStore(this);
+    private JPACredentialStore credentialStore = new JPACredentialStore(this);
 
     public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
@@ -287,7 +283,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             handler.remove(identityObject, identityType, this);
 
             // Remove credentials
-            removeCredentials(identityObject);
+            this.credentialStore.removeCredentials(identityObject);
 
             // Remove attributes
             removeAttributes(identityObject);
@@ -563,6 +559,31 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
+        return this.credentialStore.retrieveCredentials(agent, storageClass);
+    }
+    
+    @Override
+    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
+        return this.credentialStore.retrieveCurrentCredential(agent, storageClass);
+    }
+    
+    @Override
+    public void storeCredential(Agent agent, CredentialStorage storage) {
+        this.credentialStore.storeCredential(agent, storage);
+    }
+    
+    @Override
+    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+        this.credentialStore.updateCredential(agent, credential, effectiveDate, expiryDate);
+    }
+    
+    @Override
+    public void validateCredentials(Credentials credentials) {
+        this.credentialStore.validateCredentials(credentials);
+    }
+    
     protected EntityManager getEntityManager() {
         if (!getContext().isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
             throw new IllegalStateException("Error while trying to determine EntityManager - context parameter not set.");
@@ -912,40 +933,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
-    private void removeCredentials(Object object) {
-        EntityManager em = getEntityManager();
 
-        if (getConfig().getCredentialClass() != null) {
-            CriteriaBuilder builder = em.getCriteriaBuilder();
-            CriteriaQuery<?> criteria = builder.createQuery(getConfig().getCredentialClass());
-            Root<?> root = criteria.from(getConfig().getCredentialClass());
-            List<Predicate> predicates = new ArrayList<Predicate>();
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY).getName()),
-                    object));
-            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-            List<?> results = em.createQuery(criteria).getResultList();
-
-            for (Object credential : results) {
-                CriteriaQuery<?> attributeCriteria = builder.createQuery(getConfig().getCredentialAttributeClass());
-                Root<?> attributeRoot = attributeCriteria.from(getConfig().getCredentialAttributeClass());
-                List<Predicate> attributePredicates = new ArrayList<Predicate>();
-
-                Property<Object> attributeCredential = getConfig().getModelProperty(
-                        PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL);
-
-                attributePredicates.add(builder.equal(attributeRoot.get(attributeCredential.getName()), credential));
-
-                List<?> attributes = em.createQuery(attributeCriteria).getResultList();
-
-                for (Object attribute : attributes) {
-                    em.remove(attribute);
-                }
-
-                em.remove(credential);
-            }
-        }
-    }
 
     private void updateAttributes(IdentityType identityType, Object identity) {
         EntityManager em = getEntityManager();
@@ -1194,245 +1182,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         } catch (Exception e) {
             throw new IdentityManagementException("Error setting attribute.", e);
         }
-    }
-
-    @Override
-    public void validateCredentials(Credentials credentials) {
-        CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
-        if (handler == null) {
-            throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
-        }
-        handler.validate(credentials, this);
-    }
-
-    @Override
-    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
-        CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
-        if (handler == null) {
-            throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
-        }
-        handler.update(agent, credential, this, effectiveDate, expiryDate);
-    }
-
-    @Override
-    public void storeCredential(Agent agent, CredentialStorage storage) {
-        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
-        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
-        Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
-        Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
-
-        Object lastCredential = retrieveCurrentCredentialEntity(agent, storage.getClass());
-
-        EntityManager em = getEntityManager();
-
-        if (lastCredential != null) {
-            expiryProperty.setValue(lastCredential, new Date());
-            em.merge(lastCredential);
-        }
-
-        Object newCredential = null;
-
-        try {
-            newCredential = getConfig().getCredentialClass().newInstance();
-        } catch (Exception e) {
-            throw new IdentityManagementException("Could not instantiate credential class ["
-                    + getConfig().getCredentialClass().getName() + "].", e);
-        }
-
-        Date effectiveDate = storage.getEffectiveDate();
-
-        if (effectiveDate == null) {
-            effectiveDate = new Date();
-        }
-
-        Object agentInstance = lookupIdentityObjectById(agent.getId());
-
-        identityTypeProperty.setValue(newCredential, agentInstance);
-        typeProperty.setValue(newCredential, storage.getClass().getName());
-        effectiveProperty.setValue(newCredential, effectiveDate);
-        expiryProperty.setValue(newCredential, storage.getExpiryDate());
-
-        em.persist(newCredential);
-
-        List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
-                .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
-
-        Property<Object> attributeName = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME);
-        Property<Object> attributeValue = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE);
-        Property<Object> attributeCredential = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL);
-
-        for (Property<Object> property : annotatedTypes) {
-            if (property.getJavaClass().equals(String.class)) {
-                Object newCredentialAttribute = null;
-
-                try {
-                    newCredentialAttribute = this.getConfig().getCredentialAttributeClass().newInstance();
-                } catch (Exception e) {
-                    throw new IdentityManagementException("Could not instantiate credential attribute class ["
-                            + getConfig().getCredentialAttributeClass().getName() + "].", e);
-                }
-
-                attributeName.setValue(newCredentialAttribute, property.getName());
-                attributeValue.setValue(newCredentialAttribute, Base64.encodeObject((Serializable) property.getValue(storage)));
-                attributeCredential.setValue(newCredentialAttribute, newCredential);
-
-                em.persist(newCredentialAttribute);
-            }
-        }
-
-        em.flush();
-    }
-
-    @Override
-    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        Object lastCredential = retrieveCurrentCredentialEntity(agent, storageClass);
-
-        return (T) convertToCredentialStorage(lastCredential, storageClass);
-    }
-
-    private <T> Object retrieveCurrentCredentialEntity(Agent agent, Class<T> storageClass) {
-        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
-        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
-        Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
-        Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
-
-        EntityManager em = getEntityManager();
-
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getCredentialClass());
-        Root<?> root = criteria.from(getConfig().getCredentialClass());
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        Object agentInstance = lookupIdentityObjectById(agent.getId());
-
-        predicates.add(builder.equal(root.get(identityTypeProperty.getName()), agentInstance));
-        predicates.add(builder.equal(root.get(typeProperty.getName()), storageClass.getName()));
-
-        Predicate conjunction = builder.conjunction();
-
-        conjunction.getExpressions().add(
-                builder.or(builder.greaterThanOrEqualTo(root.<Date> get(expiryProperty.getName()), new Date()),
-                        builder.isNull(root.<Date> get(expiryProperty.getName()))));
-
-        predicates.add(conjunction);
-
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-        criteria.orderBy(builder.desc(root.get(effectiveProperty.getName())));
-
-        Object lastCredential = null;
-
-        try {
-            List<?> result = em.createQuery(criteria).getResultList();
-
-            if (!result.isEmpty()) {
-                lastCredential = result.get(0);
-            }
-        } catch (NoResultException ignore) {
-        } catch (Exception e) {
-            throw new IdentityManagementException("Could not query credentials.", e);
-        }
-        return lastCredential;
-    }
-
-    private CredentialStorage convertToCredentialStorage(Object instance, Class<? extends CredentialStorage> storageClass) {
-        CredentialStorage storage = null;
-
-        if (instance != null) {
-            try {
-                storage = storageClass.newInstance();
-            } catch (Exception e) {
-                throw new IdentityManagementException("Could not instantiate storage class [" + storageClass.getName() + "].",
-                        e);
-            }
-
-            Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
-            Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
-
-            List<Property<Object>> effectiveDateProperty = PropertyQueries.createQuery(storageClass)
-                    .addCriteria(new NamedPropertyCriteria("effectiveDate")).getResultList();
-
-            effectiveDateProperty.get(0).setValue(storage, effectiveProperty.getValue(instance));
-
-            List<Property<Object>> expiryDateProperty = PropertyQueries.createQuery(storageClass)
-                    .addCriteria(new NamedPropertyCriteria("expiryDate")).getResultList();
-
-            expiryDateProperty.get(0).setValue(storage, expiryProperty.getValue(instance));
-
-            EntityManager em = getEntityManager();
-
-            CriteriaBuilder builder = em.getCriteriaBuilder();
-            CriteriaQuery<?> attributeCriteria = builder.createQuery(getConfig().getCredentialAttributeClass());
-            Root<?> attributeRoot = attributeCriteria.from(getConfig().getCredentialAttributeClass());
-            List<Predicate> attributePredicates = new ArrayList<Predicate>();
-
-            Property<Object> attributeCredential = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL);
-
-            attributePredicates.add(builder.equal(attributeRoot.get(attributeCredential.getName()), instance));
-
-            attributeCriteria.where(attributePredicates.toArray(new Predicate[attributePredicates.size()]));
-
-            List<?> attributes = em.createQuery(attributeCriteria).getResultList();
-
-            Property<Object> attributeName = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME);
-            Property<Object> attributeValue = getConfig().getModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE);
-
-            for (Object attribute : attributes) {
-                String name = attributeName.getValue(attribute).toString();
-                String value = attributeValue.getValue(attribute).toString();
-
-                List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storageClass)
-                        .addCriteria(new NamedPropertyCriteria(name)).getResultList();
-
-                if (annotatedTypes.isEmpty()) {
-                    throw new IdentityManagementException("Could not find property [" + attributeName.getName()
-                            + "] on CredentialStorage [" + storageClass.getName() + "].");
-                } else if (annotatedTypes.size() > 1) {
-                    throw new IdentityManagementException("Ambiguos property [" + attributeName.getName()
-                            + "] on CredentialStorage [" + storageClass.getName() + "].");
-                }
-
-                Property<Object> property = annotatedTypes.get(0);
-
-                property.setValue(storage, Base64.decodeToObject(value));
-            }
-        }
-
-        return storage;
-    }
-
-    @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
-        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
-        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
-
-        EntityManager em = getEntityManager();
-
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getCredentialClass());
-        Root<?> root = criteria.from(getConfig().getCredentialClass());
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        Object agentInstance = lookupIdentityObjectById(agent.getId());
-
-        predicates.add(builder.equal(root.get(identityTypeProperty.getName()), agentInstance));
-        predicates.add(builder.equal(root.get(typeProperty.getName()), storageClass.getName()));
-
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-        List<?> result = em.createQuery(criteria).getResultList();
-
-        List<T> storages = new ArrayList<T>();
-
-        for (Object object : result) {
-            storages.add((T) convertToCredentialStorage(object, storageClass));
-        }
-
-        return storages;
     }
 
     @Override
