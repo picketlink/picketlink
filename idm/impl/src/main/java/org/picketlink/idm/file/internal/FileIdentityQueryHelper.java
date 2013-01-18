@@ -56,7 +56,7 @@ public class FileIdentityQueryHelper {
         this.identityQuery = identityQuery;
         this.identityStore = identityStore;
     }
-    
+
     public boolean matchCreatedDateParameters(IdentityType identityType) {
         if (identityQuery.getParameter(IdentityType.CREATED_DATE) != null
                 || identityQuery.getParameter(IdentityType.CREATED_BEFORE) != null
@@ -76,15 +76,13 @@ public class FileIdentityQueryHelper {
                     return false;
                 }
             }
-        }  
-        
+        }
+
         return true;
     }
-    
+
     public boolean matchRolesOf(IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.ROLE_OF);
-
-        boolean hasRole = true;
 
         if (values != null) {
             Role currentRole = (Role) identityType;
@@ -93,42 +91,40 @@ public class FileIdentityQueryHelper {
                     Grant.class.getName());
 
             if (relationships == null) {
-                hasRole = false;
-            } else {
-                int valuesMatchCount = values.length;
+                return false;
+            }
+            
+            int valuesMatchCount = values.length;
 
-                for (Object object : values) {
-                    Agent agent = (Agent) object;
+            for (Object object : values) {
+                Agent agent = (Agent) object;
 
-                    if (agent != null) {
-                        for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
-                            Grant grant = identityStore.convertToRelationship(storedRelationship);
+                if (agent != null) {
+                    for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                        Grant grant = identityStore.convertToRelationship(storedRelationship);
 
-                            if (!grant.getRole().getId().equals(currentRole.getId())) {
-                                continue;
-                            }
+                        if (!grant.getRole().getId().equals(currentRole.getId())) {
+                            continue;
+                        }
 
-                            if (grant.getAssignee().getId().equals(agent.getId())) {
-                                valuesMatchCount--;
-                            }
+                        if (grant.getAssignee().getId().equals(agent.getId())) {
+                            valuesMatchCount--;
                         }
                     }
                 }
 
                 if (valuesMatchCount > 0) {
-                    hasRole = false;
+                    return false;
                 }
             }
         }
 
-        return hasRole;
+        return true;
     }
 
     public boolean matchHasMember(IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_MEMBER);
 
-        boolean hasRole = true;
-        
         if (values != null) {
             Group currentGroup = (Group) identityType;
 
@@ -136,39 +132,36 @@ public class FileIdentityQueryHelper {
                     GroupMembership.class.getName());
 
             if (relationships == null) {
-                hasRole  = false;
-            } else {
-                int valuesMatchCount = values.length;
+                return false;
+            }
+            int valuesMatchCount = values.length;
 
-                for (Object object : values) {
-                    Agent agent = (Agent) object;
+            for (Object object : values) {
+                Agent agent = (Agent) object;
 
-                    for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
-                        GroupMembership grant = identityStore.convertToRelationship(storedRelationship);
+                for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                    GroupMembership grant = identityStore.convertToRelationship(storedRelationship);
 
-                        if (!grant.getGroup().getId().equals(currentGroup.getId())) {
-                            continue;
-                        }
+                    if (!grant.getGroup().getId().equals(currentGroup.getId())) {
+                        continue;
+                    }
 
-                        if (grant.getMember().getId().equals(agent.getId())) {
-                            valuesMatchCount--;
-                        }
+                    if (grant.getMember().getId().equals(agent.getId())) {
+                        valuesMatchCount--;
                     }
                 }
-                
+
                 if (valuesMatchCount > 0) {
-                    hasRole  = false;
+                    return false;
                 }
             }
         }
-        
-        return hasRole;
+
+        return true;
     }
 
     public boolean matchHasGroupRole(IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_GROUP_ROLE);
-
-        boolean hasRole = true;
 
         if (values != null) {
             int valuesMatchCount = values.length;
@@ -192,17 +185,15 @@ public class FileIdentityQueryHelper {
             }
 
             if (valuesMatchCount > 0) {
-                hasRole = false;
+                return false;
             }
         }
 
-        return hasRole;
+        return true;
     }
 
     public boolean matchMemberOf(IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.MEMBER_OF);
-
-        boolean hasRole = true;
 
         if (values != null) {
             int valuesMatchCount = values.length;
@@ -226,17 +217,15 @@ public class FileIdentityQueryHelper {
             }
 
             if (valuesMatchCount > 0) {
-                hasRole = false;
+                return false;
             }
         }
 
-        return hasRole;
+        return true;
     }
 
     public boolean matchHasRole(IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_ROLE);
-
-        boolean hasRole = true;
 
         if (values != null) {
             int valuesMatchCount = values.length;
@@ -259,11 +248,11 @@ public class FileIdentityQueryHelper {
             }
 
             if (valuesMatchCount > 0) {
-                hasRole = false;
+                return false;
             }
         }
 
-        return hasRole;
+        return true;
     }
 
     /**
@@ -417,7 +406,7 @@ public class FileIdentityQueryHelper {
                 return false;
             }
         }
-        
+
         return true;
     }
 
