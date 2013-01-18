@@ -704,7 +704,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         calendar = Calendar.getInstance();
 
-        calendar.add(Calendar.MINUTE, 1);
+        calendar.add(Calendar.MINUTE, 2);
 
         // users expired after the given time. Should return an empty list.
         query.setParameter(Agent.EXPIRY_AFTER, calendar.getTime());
