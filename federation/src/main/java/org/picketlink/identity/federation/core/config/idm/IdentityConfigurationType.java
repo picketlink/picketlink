@@ -22,6 +22,8 @@
 
 package org.picketlink.identity.federation.core.config.idm;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -34,6 +36,22 @@ import java.util.List;
  */
 public class IdentityConfigurationType {
 
-    private List<StoreConfigurationType> identityStoreConfigurations;
+    private List<StoreConfigurationType> identityStoreConfigurations = new ArrayList<StoreConfigurationType>();
     private StoreConfigurationType partitionStoreConfiguration;
+
+    public List<StoreConfigurationType> getIdentityStoreConfigurations() {
+        return Collections.unmodifiableList(identityStoreConfigurations);
+    }
+
+    public void addIdentityStoreConfiguration(StoreConfigurationType storeConfigurationType) {
+        identityStoreConfigurations.add(storeConfigurationType);
+    }
+
+    public StoreConfigurationType getPartitionStoreConfiguration() {
+        return partitionStoreConfiguration;
+    }
+
+    public void setPartitionStoreConfiguration(StoreConfigurationType partitionStoreConfiguration) {
+        this.partitionStoreConfiguration = partitionStoreConfiguration;
+    }
 }

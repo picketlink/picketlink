@@ -34,11 +34,39 @@ public class IDMType {
 
     private String identityManagerClass;
     private String storeFactoryClass;
-    private String identityStoreInvocationContextFactoryClass;
-    private String eventBridgeClass;
-    private String credentialHandlerFactoryClass;
-    private String identityCacheClass;
-    private String idGeneratorClass;
+    private IdentityStoreInvocationContextFactoryType identityStoreInvocationContextFactory;
 
     private IdentityConfigurationType identityConfigurationType;
+
+    public String getIdentityManagerClass() {
+        return identityManagerClass;
+    }
+
+    public void setIdentityManagerClass(String identityManagerClass) {
+        this.identityManagerClass = identityManagerClass;
+    }
+
+    public String getStoreFactoryClass() {
+        return storeFactoryClass;
+    }
+
+    public void setStoreFactoryClass(String storeFactoryClass) {
+        this.storeFactoryClass = storeFactoryClass;
+    }
+
+    public IdentityStoreInvocationContextFactoryType getIdentityStoreInvocationContextFactory() {
+        return identityStoreInvocationContextFactory;
+    }
+
+    public void setIdentityStoreInvocationContextFactory(IdentityStoreInvocationContextFactoryType identityStoreInvocationContextFactory) {
+        this.identityStoreInvocationContextFactory = identityStoreInvocationContextFactory;
+    }
+
+    public IdentityConfigurationType getIdentityConfigurationType() {
+        return identityConfigurationType;
+    }
+
+    public void setIdentityConfigurationType(IdentityConfigurationType identityConfigurationType) {
+        this.identityConfigurationType = identityConfigurationType;
+    }
 }
