@@ -22,7 +22,7 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
-import org.picketlink.idm.query.IdentityTypeQueryParameter;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
  * GroupRole is a Relationship type that assigns a role within a group to an identity (either a User or Group).
@@ -34,7 +34,7 @@ public class GroupRole extends GroupMembership implements Relationship {
 
     private static final long serialVersionUID = 2844617870858266637L;
 
-    public static final IdentityTypeQueryParameter ROLE = new IdentityTypeQueryParameter() {
+    public static final RelationshipQueryParameter ROLE = new RelationshipQueryParameter() {
         
         @Override
         public String getName() {

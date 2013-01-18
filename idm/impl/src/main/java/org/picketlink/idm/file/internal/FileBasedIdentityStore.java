@@ -79,7 +79,7 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.IdentityTypeQueryParameter;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
@@ -302,8 +302,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     QueryParameter queryParameter = entry.getKey();
                     Object[] values = entry.getValue();
 
-                    if (entry.getKey() instanceof IdentityTypeQueryParameter) {
-                        IdentityTypeQueryParameter identityTypeParameter = (IdentityTypeQueryParameter) entry.getKey();
+                    if (entry.getKey() instanceof RelationshipQueryParameter) {
+                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) entry.getKey();
                         int valuesMathCount = values.length;
 
                         IdentityType identityTypeRel = storedRelationship.getIdentityTypes().get(

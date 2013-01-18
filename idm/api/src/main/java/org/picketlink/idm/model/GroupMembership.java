@@ -1,7 +1,7 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
-import org.picketlink.idm.query.IdentityTypeQueryParameter;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
@@ -11,7 +11,7 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public class GroupMembership extends AbstractAttributedType implements Relationship {
     
-    public static final IdentityTypeQueryParameter MEMBER = new IdentityTypeQueryParameter() {
+    public static final RelationshipQueryParameter MEMBER = new RelationshipQueryParameter() {
         
         @Override
         public String getName() {
@@ -19,7 +19,7 @@ public class GroupMembership extends AbstractAttributedType implements Relations
         }
     };;
 
-    public static final IdentityTypeQueryParameter GROUP = new IdentityTypeQueryParameter() {
+    public static final RelationshipQueryParameter GROUP = new RelationshipQueryParameter() {
         
         @Override
         public String getName() {

@@ -1,7 +1,7 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
-import org.picketlink.idm.query.IdentityTypeQueryParameter;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
  * Represents the grant of a Role to an Assignee 
@@ -11,7 +11,7 @@ import org.picketlink.idm.query.IdentityTypeQueryParameter;
 public class Grant extends AbstractAttributedType implements Relationship {
     private static final long serialVersionUID = -200089007240264375L;
 
-    public static final IdentityTypeQueryParameter ASSIGNEE = new IdentityTypeQueryParameter() {
+    public static final RelationshipQueryParameter ASSIGNEE = new RelationshipQueryParameter() {
         
         @Override
         public String getName() {
@@ -19,7 +19,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
         }
     };;
 
-    public static final IdentityTypeQueryParameter ROLE = new IdentityTypeQueryParameter() {
+    public static final RelationshipQueryParameter ROLE = new RelationshipQueryParameter() {
         
         @Override
         public String getName() {

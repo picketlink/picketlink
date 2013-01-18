@@ -1,7 +1,7 @@
 package org.picketlink.idm.model;
 
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
-import org.picketlink.idm.query.IdentityTypeQueryParameter;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
  * Models an oAuth authorization
@@ -13,7 +13,7 @@ public class Authorization extends AbstractAttributedType implements Relationshi
 
     private static final long serialVersionUID = -8044173562668371515L;
 
-    public static final IdentityTypeQueryParameter USER = new IdentityTypeQueryParameter() {
+    public static final RelationshipQueryParameter USER = new RelationshipQueryParameter() {
 
         @Override
         public String getName() {
@@ -21,7 +21,7 @@ public class Authorization extends AbstractAttributedType implements Relationshi
         }
     };;
 
-    public static final IdentityTypeQueryParameter APPLICATION = new IdentityTypeQueryParameter() {
+    public static final RelationshipQueryParameter APPLICATION = new RelationshipQueryParameter() {
         
         @Override
         public String getName() {

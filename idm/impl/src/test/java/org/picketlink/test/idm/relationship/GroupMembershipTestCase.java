@@ -149,6 +149,20 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(identityManager.isMember(someUser, someAnotherGroup));
     }
+    
+    @Test
+    public void testRemoveUserWithRelationships() throws Exception {
+        User someUser = createUser("someUser");
+        Group someGroup = createGroup("someGroup", null);
+
+        IdentityManager identityManager = getIdentityManager();
+
+        identityManager.addToGroup(someUser, someGroup);
+        
+        identityManager.remove(someUser);
+        
+        assertFalse(identityManager.isMember(someUser, someGroup));
+    }
 
     /**
      * <p>

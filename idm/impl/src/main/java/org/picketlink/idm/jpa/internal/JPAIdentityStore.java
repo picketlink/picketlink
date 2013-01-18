@@ -48,9 +48,9 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.IdentityTypeQueryParameter;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
@@ -274,9 +274,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             // Remove credentials
             this.credentialStore.removeCredentials(entity);
             // Remove attributes
-            removeAttributes(entity);
+            removeIdentityTypeAttributes(entity);
             // Remove relationships
-            removeRelationships(entity);
+            removeIdentityTypeRelationships(entity);
 
             // Remove the identity object itself
             em.remove(entity);
@@ -294,28 +294,37 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 throw new IdentityManagementException("The specified relationship object [" + relationship.getId()
                         + "] does not exist.");
             }
-            
+
             List<?> childRelationships = findChildRelationships(relationship);
 
             EntityManager em = getEntityManager();
-            
+
             for (Object object : childRelationships) {
                 em.remove(object);
             }
-            
+
             Object[] attributes = relationship.getAttributes().toArray();
-            
+
             for (Object object : attributes) {
                 Attribute<?> attribute = (Attribute<?>) object;
                 relationship.removeAttribute(attribute.getName());
             }
-            
+
             removeAttributes(relationship, entity);
-            
+
             em.remove(entity);
+            em.flush();
         }
     }
-    
+
+    /**
+     * <p>
+     * Finds all child relationships for the given {@link Relationship}.
+     * </p>
+     * 
+     * @param relationship
+     * @return
+     */
     private List<?> findChildRelationships(Relationship relationship) {
         EntityManager em = getEntityManager();
 
@@ -323,8 +332,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
         Root<?> root = criteria.from(getConfig().getRelationshipIdentityClass());
         List<Predicate> predicates = new ArrayList<Predicate>();
-        Join<?, ?> join = root
-                .join(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
+        Join<?, ?> join = root.join(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
 
         predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName()),
                 relationship.getId()));
@@ -373,7 +381,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Group group = getContext().getCache().lookupGroup(partition, groupId);
 
         if (group == null) {
-            DefaultIdentityQuery<Group> defaultIdentityQuery = new DefaultIdentityQuery(Group.class, this);
+            DefaultIdentityQuery<Group> defaultIdentityQuery = new DefaultIdentityQuery<Group>(Group.class, this);
 
             defaultIdentityQuery.setParameter(Group.NAME, groupId);
 
@@ -417,7 +425,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // If the cache doesn't have a reference to the Role, we have to look up it's identity object
         // and create a Role instance based on it
         if (role == null) {
-            DefaultIdentityQuery<Role> defaultIdentityQuery = new DefaultIdentityQuery(Role.class, this);
+            DefaultIdentityQuery<Role> defaultIdentityQuery = new DefaultIdentityQuery<Role>(Role.class, this);
 
             defaultIdentityQuery.setParameter(Role.NAME, name);
 
@@ -447,7 +455,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // If the cache doesn't have a reference to the User, we have to look up it's identity object
         // and create a User instance based on it
         if (agent == null) {
-            DefaultIdentityQuery<Agent> defaultIdentityQuery = new DefaultIdentityQuery(Agent.class, this);
+            DefaultIdentityQuery<Agent> defaultIdentityQuery = new DefaultIdentityQuery<Agent>(Agent.class, this);
 
             defaultIdentityQuery.setParameter(Agent.LOGIN_NAME, loginName);
 
@@ -465,6 +473,95 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return agent;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
+    public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
+        List<T> result = new ArrayList<T>();
+
+        EntityManager em = getEntityManager();
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipClass());
+        Root<?> root = criteria.from(getConfig().getRelationshipClass());
+
+        List<Predicate> predicates = new ArrayList<Predicate>();
+
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).getName()), query
+                .getRelationshipType().getName()));
+
+        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
+        Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
+        Property<Object> relationshipProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
+        
+        Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
+        
+        for (Entry<QueryParameter, Object[]> entry : parameters) {
+            QueryParameter queryParameter = entry.getKey();
+            Object[] values = entry.getValue();
+
+            if (entry.getKey() instanceof RelationshipQueryParameter) {
+                RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) entry.getKey();
+
+                for (Object object : values) {
+                    IdentityType identityType = (IdentityType) object;
+                    Object identityObject = lookupIdentityObjectById(identityType.getId());
+
+                    Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityClass());
+                    Root fromProject = subquery.from(getConfig().getRelationshipIdentityClass());
+                    subquery.select(fromProject.get(relationshipProperty.getName()));
+
+                    Predicate conjunction = builder.conjunction();
+
+                    conjunction.getExpressions().add(
+                            builder.equal(fromProject.get(descriptorProperty.getName()), identityTypeParameter.getName()));
+                    conjunction.getExpressions()
+                            .add(builder.equal(fromProject.get(identityProperty.getName()), identityObject));
+
+                    subquery.where(conjunction);
+
+                    predicates.add(builder.in(root).value(subquery));
+                }
+            }
+
+            if (queryParameter instanceof AttributeParameter) {
+                AttributeParameter customParameter = (AttributeParameter) queryParameter;
+
+                Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipAttributeClass());
+                Root fromProject = subquery.from(getConfig().getRelationshipAttributeClass());
+                
+                subquery.select(fromProject.get(getConfig().getModelProperty(
+                        PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName()));
+
+                Predicate conjunction = builder.conjunction();
+
+                conjunction.getExpressions().add(
+                        builder.equal(fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME)
+                                .getName()), customParameter.getName()));
+                conjunction.getExpressions().add(
+                        (fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE).getName())
+                                .in((Object[]) values)));
+
+                subquery.where(conjunction);
+
+                subquery.groupBy(subquery.getSelection()).having(
+                        builder.equal(builder.count(subquery.getSelection()), values.length));
+
+                predicates.add(builder.in(root).value(subquery));
+            }
+        }
+
+        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+
+        List<?> queryResult = em.createQuery(criteria).getResultList();
+
+        for (Object relationshipObject : queryResult) {
+            result.add((T) convertToRelationshipType(relationshipObject));
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         List<T> result = new ArrayList<T>();
@@ -483,8 +580,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             List<?> queryResult = em.createQuery(criteria).getResultList();
 
             for (Object identity : queryResult) {
-                T identityType = convertToIdentityType(identity);
-                result.add(identityType);
+                result.add((T) convertToIdentityType(identity));
             }
         } catch (Exception e) {
             throw new IdentityManagementException("Error executing query.", e);
@@ -492,19 +588,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         return result;
     }
-
-    private <T extends IdentityType> T convertToIdentityType(Object identity) {
-        String discriminator = getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(identity).toString();
-        IdentityTypeHandler<? extends IdentityType> identityTypeManager = getConfig().getIdentityTypeStores()
-                .get(discriminator);
-
-        T identityType = (T) identityTypeManager.createIdentityType(identity, this);
-
-        populateIdentityTypeAttributes(identityType, identity);
-
-        return identityType;
-    }
-
+    
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
         // TODO implement
@@ -554,24 +638,85 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         this.credentialStore.validateCredentials(credentials);
     }
 
-    protected EntityManager getEntityManager() {
-        if (!getContext().isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
-            throw new IllegalStateException("Error while trying to determine EntityManager - context parameter not set.");
+    /**
+     * <p>Converts the given object to an instance of its corresponding {@link IdentityType}.</p>
+     * 
+     * @param relationshipObject
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private <T extends Relationship> T convertToRelationshipType(Object relationshipObject) {
+        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
+        Property<Object> idProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID);
+        Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
+        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS);
+
+        String typeName = typeProperty.getValue(relationshipObject).toString();
+        T relationshipType = null;
+        Class<?> relationshipClass = null;
+        
+        try {
+            relationshipClass = Class.forName(typeName);
+            relationshipType = (T) relationshipClass.newInstance();
+        } catch (Exception e) {
+            throw new IdentityManagementException("Error creating Relationship instance for type ["
+                    + typeName + "]");
         }
 
-        return (EntityManager) getContext().getParameter(INVOCATION_CTX_ENTITY_MANAGER);
+        List<Property<Object>> identityTypeIdProperty = PropertyQueries.createQuery(relationshipClass)
+                .addCriteria(new NamedPropertyCriteria("id")).getResultList();
+
+        identityTypeIdProperty.get(0).setValue(relationshipType, idProperty.getValue(relationshipObject));
+
+        List<?> identities = findChildRelationships(relationshipType);
+
+        for (Object object : identities) {
+            String descriptor = descriptorProperty.getValue(object).toString();
+
+            List<Property<Object>> identityTypeProperty = PropertyQueries.createQuery(relationshipClass)
+                    .addCriteria(new NamedPropertyCriteria(descriptor)).getResultList();
+
+            IdentityType identityType = convertToIdentityType(identityProperty.getValue(object));
+
+            identityTypeProperty.get(0).setValue(relationshipType, identityType);
+        }
+
+        populateRelationshipAttributes(relationshipType, relationshipObject);
+        
+        return relationshipType;
+    }
+    
+    /**
+     * <p>
+     * Converts the given object to an instance of its corresponding {@link IdentityType}.
+     * </p>
+     * 
+     * @param entity
+     * @return
+     */
+    private <T extends IdentityType> T convertToIdentityType(Object entity) {
+        String discriminator = getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(entity).toString();
+        IdentityTypeHandler<? extends IdentityType> identityTypeManager = getConfig().getIdentityTypeStores()
+                .get(discriminator);
+
+        @SuppressWarnings("unchecked")
+        T identityType = (T) identityTypeManager.createIdentityType(entity, this);
+
+        populateIdentityTypeAttributes(identityType, entity);
+
+        return identityType;
     }
 
     /**
      * <p>
-     * Stores the specified {@link Attribute}.
+     * Stores the specified {@link Attribute} for the given {@link IdentityType} entity.
      * </p>
      * 
-     * @param identity
-     * @param userAttribute
+     * @param entity
+     * @param attribute
      */
-    private void storeAttribute(Object identity, Attribute<? extends Serializable> userAttribute) {
-        Object value = userAttribute.getValue();
+    private void storeIdentityTypeAttribute(Object entity, Attribute<? extends Serializable> attribute) {
+        Object value = attribute.getValue();
         Object[] values = null;
 
         if (value.getClass().isArray()) {
@@ -588,9 +733,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             for (Object attribValue : values) {
                 Object newInstance = getConfig().getAttributeClass().newInstance();
 
-                attributeNameProperty.setValue(newInstance, userAttribute.getName());
+                attributeNameProperty.setValue(newInstance, attribute.getName());
                 attributeValueProperty.setValue(newInstance, attribValue);
-                attributeIdentityProperty.setValue(newInstance, identity);
+                attributeIdentityProperty.setValue(newInstance, entity);
 
                 getEntityManager().persist(newInstance);
             }
@@ -599,6 +744,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
+    /**
+     * <p>
+     * Stores the specified {@link Attribute} for the given {@link IdentityType} entity.
+     * </p>
+     * 
+     * @param identity
+     * @param userAttribute
+     */
     private void storeRelationshipAttribute(Object identity, Attribute<? extends Serializable> userAttribute) {
         Object value = userAttribute.getValue();
         Object[] values = null;
@@ -629,6 +782,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
+    /**
+     * <p>
+     * Removes the store attributes not present in the {@link Relationship} instance.
+     * </p>
+     * 
+     * @param relationship
+     * @param identity
+     */
     private void removeAttributes(Relationship relationship, Object identity) {
         List<?> storedAttributes = findRelationshipAttributes(identity);
 
@@ -651,7 +812,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param identity
      */
     private void removeAttributes(IdentityType relationship, Object identity) {
-        List<?> storedAttributes = findIdentityTypeAttributes(identity);
+        List<?> storedAttributes = findAllIdentityTypeAttributes(identity);
 
         for (Object attribute : storedAttributes) {
             String attributeName = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getValue(attribute).toString();
@@ -668,12 +829,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * </p>
      * 
      * @param identityType
-     * @param idValue
      * @param attribute
      * @return
      */
-    private List<?> findIdentityTypeAttributes(IdentityType identityType, String idValue,
-            Attribute<? extends Serializable> attribute) {
+    private List<?> findIdentityTypeAttributes(IdentityType identityType, Attribute<? extends Serializable> attribute) {
         EntityManager em = getEntityManager();
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -685,7 +844,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         Join<?, ?> join = root.join(attributeIdentityProperty.getName());
 
-        predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), idValue));
+        predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), identityType.getId()));
         predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getName()),
                 attribute.getName()));
 
@@ -704,8 +863,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param attribute
      * @return
      */
-    private List<?> findRelationshipAttributes(Relationship relationship, String idValue,
-            Attribute<? extends Serializable> attribute) {
+    private List<?> findRelationshipAttributes(Relationship relationship, Attribute<? extends Serializable> attribute) {
         Property<Object> attributeIdentityProperty = getConfig().getModelProperty(
                 PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
 
@@ -718,7 +876,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         Join<?, ?> join = root.join(attributeIdentityProperty.getName());
 
-        predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName()), idValue));
+        predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName()), relationship.getId()));
 
         predicates
                 .add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getName()),
@@ -729,7 +887,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return em.createQuery(criteria).getResultList();
     }
 
-    private List<?> findIdentityTypeAttributes(Object object) {
+    /**
+     * <p>Returns all stored attributes for the given {@link IdentityType} entity.</p>
+     * 
+     * @param object
+     * @return
+     */
+    private List<?> findAllIdentityTypeAttributes(Object object) {
         Class<?> attributeClass = getConfig().getAttributeClass();
         String identityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY).getName();
 
@@ -747,6 +911,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return em.createQuery(criteria).getResultList();
     }
 
+    /**
+     * <p>Returns all stored attributes for the given {@link IdentityType} entity.</p>
+     * 
+     * @param object
+     * @return
+     */
     private List<?> findRelationshipAttributes(Object object) {
         Class<?> attributeClass = getConfig().getRelationshipAttributeClass();
         String identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName();
@@ -765,6 +935,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return em.createQuery(criteria).getResultList();
     }
 
+    /**
+     * <p>Lookup a stored {@link IdentityType} using the id.</p>
+     * 
+     * @param id
+     * @return
+     */
     protected Object lookupIdentityObjectById(String id) {
         if (id == null) {
             return null;
@@ -790,7 +966,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
-    protected Object lookupRelationshipObjectById(String id) {
+    /**
+     * <p>Lookup a stored {@link Relationship} using the id.</p>
+     * 
+     * @param id
+     * @return
+     */
+    private Object lookupRelationshipObjectById(String id) {
         if (id == null) {
             return null;
         }
@@ -815,23 +997,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
-    private void removeRelationships(Object identity) {
-        EntityManager em = getEntityManager();
-
+    /**
+     * <p>Removes all relationships associated with the given {@link IdentityType}.</p>
+     * 
+     * @param entity
+     */
+    private void removeIdentityTypeRelationships(Object entity) {
         // First we build a list of all the relationships that the specified identity
         // is participating in
         if (getConfig().getRelationshipClass() != null) {
-            CriteriaBuilder builder = em.getCriteriaBuilder();
-            CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
-            Root<?> root = criteria.from(getConfig().getRelationshipIdentityClass());
-            List<Predicate> predicates = new ArrayList<Predicate>();
-
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
-                    identity));
-
-            criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-            List<?> results = em.createQuery(criteria).getResultList();
+            List<?> results = findIdentityTypeRelationships(entity);
 
             Set<Object> relationshipsToRemove = new HashSet<Object>();
 
@@ -842,45 +1017,41 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             // Now that we have the list, we can iterate through and remove the records
             for (Object relationship : relationshipsToRemove) {
-                // First we delete the attributes
-                criteria = builder.createQuery(getConfig().getRelationshipAttributeClass());
-                root = criteria.from(getConfig().getRelationshipAttributeClass());
-                predicates = new ArrayList<Predicate>();
-                predicates.add(builder.equal(
-                        root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName()),
-                        relationship));
-                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-                results = em.createQuery(criteria).getResultList();
-
-                for (Object attribute : results) {
-                    em.remove(attribute);
-                }
-
-                // Next we delete the relationship identities
-                criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
-                root = criteria.from(getConfig().getRelationshipIdentityClass());
-                predicates = new ArrayList<Predicate>();
-                predicates.add(builder.equal(
-                        root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName()),
-                        relationship));
-                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-                results = em.createQuery(criteria).getResultList();
-
-                for (Object identityType : results) {
-                    em.remove(identityType);
-                }
-
-                // Finally we delete the relationship itself
-                em.remove(relationship);
+                remove(convertToRelationshipType(relationship));
             }
         }
     }
+    
+    /**
+     * <p>Returns all relationships associated with the given {@link IdentityType}.</p>
+     * 
+     * @param identityTypeEntity
+     * @return
+     */
+    private List<?> findIdentityTypeRelationships(Object identityTypeEntity) {
+        EntityManager em = getEntityManager();
+        
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
+        Root<?> root = criteria.from(getConfig().getRelationshipIdentityClass());
 
-    private void removeAttributes(Object object) {
+        criteria.where(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
+                identityTypeEntity));
+
+        return em.createQuery(criteria).getResultList();
+        
+    }
+
+    /**
+     * <p>Removes all attributes for given {@link IdentityType}.</p>
+     * 
+     * @param object
+     */
+    private void removeIdentityTypeAttributes(Object object) {
         EntityManager em = getEntityManager();
 
         if (getConfig().getAttributeClass() != null) {
-            List<?> results = findIdentityTypeAttributes(object);
+            List<?> results = findAllIdentityTypeAttributes(object);
             for (Object result : results) {
                 em.remove(result);
             }
@@ -916,13 +1087,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                         }
                     } else {
                         // remove the attributes to persist them again. Only the current attribute, not all.
-                        List<?> results = findIdentityTypeAttributes(identityType, identityType.getId(), attribute);
+                        List<?> results = findIdentityTypeAttributes(identityType, attribute);
 
                         for (Object object : results) {
                             em.remove(object);
                         }
 
-                        storeAttribute(entity, attribute);
+                        storeIdentityTypeAttribute(entity, attribute);
                     }
                 } catch (Exception e) {
                     throw new IdentityManagementException("Error setting attribute [" + attribute + "] for [" + entity + "]", e);
@@ -933,6 +1104,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
+    /**
+     * <p>Updates the attributes for the given {@link IdentityType}.</p>
+     * 
+     * @param relationship
+     * @param identity
+     */
     private void updateRelationshipAttributes(Relationship relationship, Object identity) {
         Collection<Attribute<? extends Serializable>> attributes = relationship.getAttributes();
 
@@ -942,7 +1119,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             for (Attribute<? extends Serializable> attribute : attributes) {
                 try {
                     // remove the attributes to persist them again. Only the current attribute, not all.
-                    List<?> results = findRelationshipAttributes(relationship, relationship.getId(), attribute);
+                    List<?> results = findRelationshipAttributes(relationship, attribute);
 
                     for (Object object : results) {
                         em.remove(object);
@@ -961,17 +1138,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     /**
      * <p>
-     * Populates the given {@link IdentityType} instance with the attributes associated with the given <code>identity</code>
-     * argument.
+     * Populates the given {@link IdentityType} instance with the attributes associated with the given entity.
      * </p>
      * 
      * @param identityType
-     * @param identity
+     * @param entity
      */
-    private void populateIdentityTypeAttributes(IdentityType identityType, Object identity) {
+    private void populateIdentityTypeAttributes(IdentityType identityType, Object entity) {
         try {
             for (MappedAttribute attrib : getConfig().getAttributeProperties().values()) {
-                if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(identity) == null) {
+                if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(entity) == null) {
                     // TODO: need to deal with AttributeType
                 } else {
                     Member member = attrib.getAttributeProperty().getMember();
@@ -985,7 +1161,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                         field.setAccessible(true);
 
                         mappedName = annotation.name();
-                        value = field.get(identity);
+                        value = field.get(entity);
                     }
 
                     identityType.setAttribute(new Attribute<Serializable>(mappedName, (Serializable) value));
@@ -993,22 +1169,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
 
             if (getConfig().getAttributeClass() != null) {
-                EntityManager em = getEntityManager();
-
-                CriteriaBuilder builder = em.getCriteriaBuilder();
-                CriteriaQuery<?> criteria = builder.createQuery(getConfig().getAttributeClass());
-                Root<?> attributeClassRoot = criteria.from(getConfig().getAttributeClass());
-                List<Predicate> predicates = new ArrayList<Predicate>();
-
-                Join identityPropertyJoin = attributeClassRoot.join(getConfig().getModelProperty(
-                        PropertyType.ATTRIBUTE_IDENTITY).getName());
-                String propertyNameToJoin = getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName();
-
-                predicates.add(builder.equal(identityPropertyJoin.get(propertyNameToJoin), identityType.getId()));
-
-                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-                List<?> results = em.createQuery(criteria).getResultList();
+                List<?> results = findAllIdentityTypeAttributes(entity);
 
                 if (!results.isEmpty()) {
                     for (Object object : results) {
@@ -1052,6 +1213,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
+    /**
+     * <p>
+     * Populates the given {@link IdentityType} instance with the attributes associated with the given entity.
+     * </p>
+     * @param relationshipType
+     * @param relationship
+     */
     private void populateRelationshipAttributes(Relationship relationshipType, Object relationship) {
         try {
             if (getConfig().getRelationshipAttributeClass() != null) {
@@ -1062,7 +1230,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 Root<?> attributeClassRoot = criteria.from(getConfig().getRelationshipAttributeClass());
                 List<Predicate> predicates = new ArrayList<Predicate>();
 
-                Join identityPropertyJoin = attributeClassRoot.join(getConfig().getModelProperty(
+                Join<?, ?> identityPropertyJoin = attributeClassRoot.join(getConfig().getModelProperty(
                         PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName());
                 String propertyNameToJoin = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName();
 
@@ -1117,126 +1285,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
-        List<T> result = new ArrayList<T>();
-        Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
-
-        EntityManager em = getEntityManager();
-
-        CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipClass());
-        Root<?> root = criteria.from(getConfig().getRelationshipClass());
-
-        List<Predicate> predicates = new ArrayList<Predicate>();
-
-        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).getName()), query
-                .getRelationshipType().getName()));
-
-        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
-        Property<Object> idProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID);
-        Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
-        Property<Object> relationshipProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
-
-        for (Entry<QueryParameter, Object[]> entry : parameters) {
-            QueryParameter queryParameter = entry.getKey();
-            Object[] values = entry.getValue();
-
-            if (entry.getKey() instanceof IdentityTypeQueryParameter) {
-                IdentityTypeQueryParameter identityTypeParameter = (IdentityTypeQueryParameter) entry.getKey();
-
-                for (Object object : values) {
-                    IdentityType identityType = (IdentityType) object;
-                    Object identityObject = lookupIdentityObjectById(identityType.getId());
-
-                    Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityClass());
-                    Root fromProject = subquery.from(getConfig().getRelationshipIdentityClass());
-                    Subquery<?> select = subquery.select(fromProject.get(relationshipProperty.getName()));
-
-                    Predicate conjunction = builder.conjunction();
-
-                    conjunction.getExpressions().add(
-                            builder.equal(fromProject.get(descriptorProperty.getName()), identityTypeParameter.getName()));
-                    conjunction.getExpressions()
-                            .add(builder.equal(fromProject.get(identityProperty.getName()), identityObject));
-
-                    subquery.where(conjunction);
-
-                    predicates.add(builder.in(root).value(subquery));
-                }
-            }
-
-            if (queryParameter instanceof IdentityType.AttributeParameter) {
-                AttributeParameter customParameter = (AttributeParameter) queryParameter;
-
-                Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipAttributeClass());
-                Root fromProject = subquery.from(getConfig().getRelationshipAttributeClass());
-                Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
-                        PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName()));
-
-                Predicate conjunction = builder.conjunction();
-
-                conjunction.getExpressions().add(
-                        builder.equal(fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME)
-                                .getName()), customParameter.getName()));
-                conjunction.getExpressions().add(
-                        (fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE).getName())
-                                .in((Object[]) values)));
-
-                subquery.where(conjunction);
-
-                subquery.groupBy(subquery.getSelection()).having(
-                        builder.equal(builder.count(subquery.getSelection()), values.length));
-
-                predicates.add(builder.in(root).value(subquery));
-            }
-        }
-
-        criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-        List<?> queryResult = em.createQuery(criteria).getResultList();
-
-        for (Object relationshipObject : queryResult) {
-            CriteriaQuery<?> identityCriteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
-            Root<?> identityRoot = identityCriteria.from(getConfig().getRelationshipIdentityClass());
-
-            identityCriteria.where(builder.equal(identityRoot.get(relationshipProperty.getName()), relationshipObject));
-
-            List<?> identities = em.createQuery(identityCriteria).getResultList();
-
-            T relationshipType = null;
-
-            try {
-                relationshipType = query.getRelationshipType().newInstance();
-            } catch (Exception e) {
-                throw new IdentityManagementException("Error creating Relationship instance for type ["
-                        + query.getRelationshipType().getName() + "]");
-            }
-
-            List<Property<Object>> props = PropertyQueries.createQuery(query.getRelationshipType())
-                    .addCriteria(new NamedPropertyCriteria("id")).getResultList();
-
-            props.get(0).setValue(relationshipType, idProperty.getValue(relationshipObject));
-
-            for (Object object : identities) {
-                String descriptor = descriptorProperty.getValue(object).toString();
-
-                props = PropertyQueries.createQuery(query.getRelationshipType())
-                        .addCriteria(new NamedPropertyCriteria(descriptor)).getResultList();
-
-                IdentityType identityType = convertToIdentityType(identityProperty.getValue(object));
-
-                props.get(0).setValue(relationshipType, identityType);
-            }
-
-            populateRelationshipAttributes(relationshipType, relationshipObject);
-
-            result.add(relationshipType);
-        }
-
-        return result;
-    }
-
-    @Override
     public <T extends Relationship> int countQueryResults(RelationshipQuery<T> query) {
         // TODO: Implement
         throw new UnsupportedOperationException();
@@ -1256,5 +1304,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     protected Partition getCurrentPartition() {
         return getContext().getPartition();
+    }
+
+    protected EntityManager getEntityManager() {
+        if (!getContext().isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
+            throw new IllegalStateException("Error while trying to determine EntityManager - context parameter not set.");
+        }
+
+        return (EntityManager) getContext().getParameter(INVOCATION_CTX_ENTITY_MANAGER);
     }
 }
