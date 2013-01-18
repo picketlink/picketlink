@@ -1223,8 +1223,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     private void populateRelationshipAttributes(Relationship relationshipType, Object relationship) {
         try {
             if (getConfig().getRelationshipAttributeClass() != null) {
-                EntityManager em = getEntityManager();
-
                 List<?> results = findRelationshipAttributes(relationship);
 
                 if (!results.isEmpty()) {
