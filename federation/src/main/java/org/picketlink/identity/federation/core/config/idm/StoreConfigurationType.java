@@ -22,7 +22,6 @@
 
 package org.picketlink.identity.federation.core.config.idm;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
