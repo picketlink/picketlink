@@ -32,7 +32,7 @@ import org.picketlink.idm.model.User;
  * @author Shane Bryzak
  * 
  */
-public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration implements JPAStoreConfiguration {
+public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
     // Discriminator constants
     private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";
