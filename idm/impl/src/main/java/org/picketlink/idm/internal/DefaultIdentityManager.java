@@ -612,7 +612,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private PartitionStore getContextualPartitionStore() {
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), null);
+        IdentityStore<?> store = getContextualStoreForFeature(createContext(), Feature.managePartitions);
         
         if (PartitionStore.class.isInstance(store)) {
             return (PartitionStore) store;            

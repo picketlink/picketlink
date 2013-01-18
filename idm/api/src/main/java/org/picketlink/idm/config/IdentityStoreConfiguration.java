@@ -82,7 +82,8 @@ public abstract class IdentityStoreConfiguration extends BaseAbstractStoreConfig
         updateAgent, 
         deleteAgent, 
         readAgent,
-        all
+        managePartitions,
+        all;
     }
 
     public class FeatureSet {
