@@ -1,6 +1,5 @@
 package org.picketlink.idm.spi;
 
-import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 
 /**
  * Factory for creating and initializing IdentityStoreInvocationContext instances

@@ -38,10 +38,16 @@ import org.picketlink.idm.spi.PartitionStore;
  * @author Pedro Silva
  * 
  */
-public class FilePartitionStore implements PartitionStore<FilePartitionStoreConfiguration> {
+public class FilePartitionStore implements PartitionStore<FileIdentityStoreConfiguration> {
 
-    private FilePartitionStoreConfiguration config;
+    private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
+    
+    private FileBasedIdentityStore identityStore;
+
+    public FilePartitionStore(FileBasedIdentityStore identityStore) {
+        this.identityStore = identityStore;
+    }
 
     @Override
     public void createPartition(Partition partition) {
@@ -132,12 +138,12 @@ public class FilePartitionStore implements PartitionStore<FilePartitionStoreConf
     }
 
     @Override
-    public void setup(FilePartitionStoreConfiguration config, IdentityStoreInvocationContext context) {
+    public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
         this.context = context;
     }
 
-    private FilePartitionStoreConfiguration getConfig() {
+    private FileIdentityStoreConfiguration getConfig() {
         return this.config;
     }
 

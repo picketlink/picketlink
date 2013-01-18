@@ -1,6 +1,6 @@
 package org.picketlink.idm.spi;
 
-import org.picketlink.idm.config.PartitionStoreConfiguration;
+import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
@@ -12,7 +12,7 @@ import org.picketlink.idm.model.Tier;
  * @author Shane Bryzak
  *
  */
-public interface PartitionStore<T extends PartitionStoreConfiguration> {
+public interface PartitionStore<T extends StoreConfiguration> {
     /**
      * 
      * @param tier
@@ -34,10 +34,10 @@ public interface PartitionStore<T extends PartitionStoreConfiguration> {
 
     /**
      * 
-     * @param tierId
+     * @param tierName
      * @return
      */
-    Tier getTier(String tierId);
+    Tier getTier(String tierName);
 
     void setup(T config, IdentityStoreInvocationContext context);
 }

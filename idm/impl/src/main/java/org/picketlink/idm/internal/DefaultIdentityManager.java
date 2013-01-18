@@ -37,7 +37,6 @@ import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration.Feature;
-import org.picketlink.idm.config.PartitionStoreConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
@@ -73,8 +72,6 @@ public class DefaultIdentityManager implements IdentityManager {
     private static final long serialVersionUID = -2835518073812662628L;
 
     private Map<String, Map<Feature, Set<IdentityStoreConfiguration>>> realmStores = new HashMap<String, Map<Feature, Set<IdentityStoreConfiguration>>>();
-
-    private PartitionStoreConfiguration partitionStoreConfig;
 
     private StoreFactory storeFactory = new DefaultStoreFactory();
 
@@ -197,8 +194,6 @@ public class DefaultIdentityManager implements IdentityManager {
                         featureToStoreMap.get(f).add(identityStoreConfig);
                     }
                 }
-            } else if (PartitionStoreConfiguration.class.isInstance(config)) {
-                partitionStoreConfig = (PartitionStoreConfiguration) config;
             }
         }
 
@@ -633,11 +628,13 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private PartitionStore getContextualPartitionStore() {
-        IdentityStoreInvocationContext context = createContext();
-        PartitionStore store = storeFactory.createPartitionStore(partitionStoreConfig, context);
+        IdentityStore<?> store = getContextualStoreForFeature(createContext(), null);
         
-        getContextFactory().initContextForStore(context, store);
-        return store;
+        if (PartitionStore.class.isInstance(store)) {
+            return (PartitionStore) store;            
+        }
+        
+        throw new IdentityManagementException("No Partition store configured.");
     }
 
     @Override

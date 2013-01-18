@@ -1,7 +1,6 @@
 package org.picketlink.idm.spi;
 
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.config.PartitionStoreConfiguration;
 
 /**
  * Creates IdentityStore instances based on a provided configuration
@@ -20,14 +19,6 @@ public interface StoreFactory {
     IdentityStore createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext context);
 
     /**
-     * Creates an instance of a PartitionStore using the provided configuration
-     * 
-     * @param config
-     * @return
-     */
-    PartitionStore createPartitionStore(PartitionStoreConfiguration config, IdentityStoreInvocationContext context);
-
-    /**
      * Maps specific implementations of IdentityStoreConfiguration to a corresponding
      * IdentityStore implementation.
      * 
@@ -37,13 +28,4 @@ public interface StoreFactory {
     void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass, 
             Class<? extends IdentityStore> storeClass);
 
-    /**
-     * Maps specific implementations of PartitionStoreConfiguration to a corresponding
-     * PartitionStore implementation
-     * 
-     * @param configClass
-     * @param storeClass
-     */
-    void mapPartitionConfiguration(Class<? extends PartitionStoreConfiguration> configClass,
-            Class<? extends PartitionStore> storeClass);
 }

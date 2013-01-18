@@ -35,7 +35,6 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.jpa.internal.JPAPartitionStoreConfiguration;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -103,13 +102,6 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
         config.addStoreConfiguration(getDefaultConfiguration());
         config.addStoreConfiguration(getTestingRealmConfiguration());
-        
-        JPAPartitionStoreConfiguration partitionStoreConfig = new JPAPartitionStoreConfiguration();
-        
-        partitionStoreConfig.setPartitionClass(PartitionObject.class);
-        partitionStoreConfig.setIdentityClass(IdentityObject.class);
-        
-        config.addStoreConfiguration(partitionStoreConfig);
         
         IdentityManager identityManager = new DefaultIdentityManager();
         DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);

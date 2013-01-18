@@ -115,5 +115,12 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public void setDataSource(FileDataSource dataSource) {
         this.dataSource = dataSource;
     }
+    
+    public FileDataSource getDataSource() {
+        return this.dataSource;
+    }
 
+    public Map<String, FilePartition> getPartitions() {
+        return getDataSource().getPartitions();
+    }
 }

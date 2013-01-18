@@ -28,7 +28,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
-import org.picketlink.idm.file.internal.FilePartitionStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -95,21 +94,12 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
         addDefaultConfiguration(config, dataSource);
         addTestingRealmConfiguration(config, dataSource);
-        addPartitionstoreConfiguration(config, dataSource);
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
         identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
         return identityManager;
-    }
-
-    private void addPartitionstoreConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
-        FilePartitionStoreConfiguration partitionStore = new FilePartitionStoreConfiguration();
-
-        partitionStore.setDataSource(dataSource);
-
-        config.addStoreConfiguration(partitionStore);
     }
 
     private void addTestingRealmConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
