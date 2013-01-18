@@ -107,7 +107,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             String id = store.getContext().getIdGenerator().generate();
             getConfig().getModelProperty(PropertyType.IDENTITY_ID).setValue(identity, id);
             fromIdentityType.setId(id);
-            populateIdentityInstance(identity, fromIdentityType, store);
+            populateEntity(identity, fromIdentityType, store);
         } catch (Exception e) {
             throw new IdentityManagementException("Error creating/populating Identity instance from IdentityType.", e);
         }
@@ -124,7 +124,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param toIdentity
      * @param fromIdentityType
      */
-    protected void populateIdentityInstance(Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
+    protected void populateEntity(Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
         // populate the common properties from IdentityType
         String identityDiscriminator = getConfig().getIdentityDiscriminator(fromIdentityType.getClass());
 
