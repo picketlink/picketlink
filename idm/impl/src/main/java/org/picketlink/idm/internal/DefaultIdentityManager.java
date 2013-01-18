@@ -81,15 +81,6 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private ThreadLocal<Tier> currentTier = new ThreadLocal<Tier>();
 
-    private static Method METHOD_CREATE_CONTEXT;
-    {
-        try {
-            METHOD_CREATE_CONTEXT = DefaultIdentityManager.class.getDeclaredMethod("createContext");
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating DefaultIdentityManager - createContext() method not available", e);
-        }
-    };
-
     @Override
     public IdentityManager forRealm(final Realm realm) {
         final DefaultIdentityManager proxied = this;
@@ -467,12 +458,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Role getRole(String name) {
-        IdentityStoreInvocationContext ctx = createContext();
-//        if (ctx.getRealm() != null && ctx.getTier() != null) {
-//            throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the "
-//                    + "scope of a Realm or a Tier, however both have been set.");
-//        }
-        return getContextualStoreForFeature(ctx, Feature.readRole).getRole(name);
+        return getContextualStoreForFeature(createContext(), Feature.readRole).getRole(name);
     }
 
     @Override
@@ -615,9 +601,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Realm getRealm(String name) {
-        PartitionStore store = getContextualPartitionStore();
-        
-        return store.getRealm(name);
+        return getContextualPartitionStore().getRealm(name);
     }
 
     @Override
@@ -627,14 +611,14 @@ public class DefaultIdentityManager implements IdentityManager {
         getContextualPartitionStore().createPartition(tier);
     }
 
-    private PartitionStore getContextualPartitionStore() {
+    private PartitionStore<?> getContextualPartitionStore() {
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), null);
         
         if (PartitionStore.class.isInstance(store)) {
-            return (PartitionStore) store;            
+            return (PartitionStore<?>) store;            
         }
         
-        throw new IdentityManagementException("No Partition store configured.");
+        throw new IdentityManagementException("No PartitionStore configured.");
     }
 
     @Override
@@ -645,9 +629,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Tier getTier(String id) {
-        PartitionStore store = getContextualPartitionStore();
-        
-        return store.getTier(id);
+        return getContextualPartitionStore().getTier(id);
     }
 
     @Override

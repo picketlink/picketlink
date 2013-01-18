@@ -60,7 +60,7 @@ public class DefaultStoreFactory implements StoreFactory {
 
     @Override
     public void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
-            Class<? extends IdentityStore> storeClass) {
+            Class<? extends IdentityStore<?>> storeClass) {
         identityConfigMap.put(configClass, (Class<? extends IdentityStore<?>>) storeClass);
     }
 }

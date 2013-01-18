@@ -26,6 +26,6 @@ public interface StoreFactory {
      * @param storeClass
      */
     void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass, 
-            Class<? extends IdentityStore> storeClass);
+            Class<? extends IdentityStore<?>> storeClass);
 
 }
