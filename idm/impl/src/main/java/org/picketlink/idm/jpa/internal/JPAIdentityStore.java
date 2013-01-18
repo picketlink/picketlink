@@ -1225,20 +1225,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (getConfig().getRelationshipAttributeClass() != null) {
                 EntityManager em = getEntityManager();
 
-                CriteriaBuilder builder = em.getCriteriaBuilder();
-                CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipAttributeClass());
-                Root<?> attributeClassRoot = criteria.from(getConfig().getRelationshipAttributeClass());
-                List<Predicate> predicates = new ArrayList<Predicate>();
-
-                Join<?, ?> identityPropertyJoin = attributeClassRoot.join(getConfig().getModelProperty(
-                        PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName());
-                String propertyNameToJoin = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName();
-
-                predicates.add(builder.equal(identityPropertyJoin.get(propertyNameToJoin), relationshipType.getId()));
-
-                criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-
-                List<?> results = em.createQuery(criteria).getResultList();
+                List<?> results = findRelationshipAttributes(relationship);
 
                 if (!results.isEmpty()) {
                     for (Object object : results) {
