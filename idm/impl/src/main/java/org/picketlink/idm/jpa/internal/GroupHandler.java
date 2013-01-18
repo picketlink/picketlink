@@ -41,9 +41,7 @@ import org.picketlink.idm.event.GroupUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
@@ -58,9 +56,9 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Group fromGroup, JPAIdentityStore store) {
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
                 store.lookupPartitionObject(store.getCurrentPartition()), true);
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
 
         if (fromGroup.getParentGroup() != null) {
             Object parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
@@ -70,7 +68,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                 parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
             }
 
-            setModelPropertyValue(toIdentity, PropertyType.GROUP_PARENT, parentIdentity, true);
+            getConfig().setModelPropertyValue(toIdentity, PropertyType.GROUP_PARENT, parentIdentity, true);
         }
     }
 
@@ -80,17 +78,17 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     }
 
     @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Group fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseCreatedEvent(Group fromIdentityType) {
         return new GroupCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Group fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseUpdatedEvent(Group fromIdentityType) {
         return new GroupUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Group fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseDeletedEvent(Group fromIdentityType) {
         return new GroupDeletedEvent(fromIdentityType);
     }
 
@@ -126,18 +124,16 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
     @Override
     protected Group doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        String name = getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
-
-        Object parentInstance = getModelPropertyValue(Object.class, identity, PropertyType.GROUP_PARENT);
-
         SimpleGroup group = null;
+        
+        Object parentInstance = getConfig().getModelPropertyValue(Object.class, identity, PropertyType.GROUP_PARENT);
 
+        String name = getConfig().getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
+        
         if (parentInstance != null) {
-            String parentId = getModelPropertyValue(String.class, parentInstance, PropertyType.IDENTITY_NAME);
+            String parentId = getConfig().getModelPropertyValue(String.class, parentInstance, PropertyType.IDENTITY_NAME);
 
-            Group parent = store.getGroup(parentId);
-
-            group = new SimpleGroup(name, parent);
+            group = new SimpleGroup(name, store.getGroup(parentId));
         } else {
             group = new SimpleGroup(name);
         }
@@ -145,26 +141,12 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         return group;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
-        Root<?> root = criteria.getRoot();
-        Join<Object, Object> joinPartition = root.join(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName());
 
-        if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
-            List<String> partitionIds = new ArrayList<String>();
-
-            partitionIds.add(store.getCurrentPartition().getId());
-
-            if (Tier.class.isInstance(store.getCurrentPartition())) {
-                addPartitionIds(partitionIds, (Tier) store.getCurrentPartition());
-            }
-
-            predicates.add(builder.in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName()))
-                    .value(partitionIds));
-        }
-        
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(Group.NAME);
 
         if (parameterValues != null) {
@@ -187,7 +169,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
         if (parameterValues != null) {
             for (Object object : parameterValues) {
-                DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery(GroupMembership.class, store);
+                DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, store);
 
                 query.setParameter(GroupMembership.MEMBER, object);
 
@@ -202,7 +184,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
                     Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
                     Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
-                    Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
+                    subquery.select(fromProject.get(getConfig().getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY).getName()));
                     Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
@@ -231,16 +213,8 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         return predicates;
     }
 
-    private void addPartitionIds(List<String> partitionIds, Tier currentPartition) {
-        partitionIds.add(currentPartition.getId());
-
-        if (currentPartition.getParent() != null) {
-            addPartitionIds(partitionIds, currentPartition.getParent());
-        }
-    }
-    
     @Override
-    public void onBeforeAdd(Group group, JPAIdentityStore store) {
+    public void validate(Group group, JPAIdentityStore store) {
         if (group.getName() == null) {
             throw new IdentityManagementException("No name was provided.");
         }

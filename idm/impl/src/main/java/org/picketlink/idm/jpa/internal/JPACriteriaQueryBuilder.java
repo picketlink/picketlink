@@ -24,7 +24,6 @@ package org.picketlink.idm.jpa.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -36,7 +35,6 @@ import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -44,9 +42,7 @@ import org.picketlink.idm.query.QueryParameter;
  */
 public class JPACriteriaQueryBuilder {
 
-    private JPAIdentityStoreConfiguration config;
     private IdentityQuery<?> identityQuery;
-    private EntityManager entityManager;
     private CriteriaBuilder builder;
     private Root<?> root;
     private CriteriaQuery<?> criteria;
@@ -55,40 +51,26 @@ public class JPACriteriaQueryBuilder {
     public JPACriteriaQueryBuilder(JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
         this.identityStore = identityStore;
         this.identityQuery = identityQuery;
-        this.config = identityStore.getConfig();
-        this.entityManager = identityStore.getEntityManager();
-
-        if (entityManager == null) {
-            throw new IllegalStateException("Entity Manager is null");
-        }
-        this.builder = this.entityManager.getCriteriaBuilder();
-
-        if (builder == null) {
-            throw new IllegalStateException("Criteria Builder is null");
-        }
-
-        Class<?> identityClass = this.config.getIdentityClass();
-
-        this.criteria = builder.createQuery(identityClass);
-        this.root = criteria.from(identityClass);
+        
+        this.builder = getEntityManager().getCriteriaBuilder();
+        this.criteria = builder.createQuery(getConfig().getIdentityClass());
+        this.root = criteria.from(getConfig().getIdentityClass());
     }
 
     public List<Predicate> getPredicates() {
         List<Predicate> predicates = new ArrayList<Predicate>();
 
-        this.builder = this.entityManager.getCriteriaBuilder();
+        if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
+            String discriminator = getConfig().getIdentityTypeDiscriminator(identityQuery.getIdentityType());
 
-        if (!IdentityType.class.equals(identityQuery.getIdentityType())) {
-            String discriminator = this.config.getIdentityTypeDiscriminator(identityQuery.getIdentityType());
-
-            predicates.add(builder.equal(root.get(this.config.getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
+            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
                     discriminator));
 
-            IdentityTypeHandler identityTypeManager = this.config.getHandler(this.identityQuery.getIdentityType());
+            IdentityTypeHandler<?> identityTypeManager = getConfig().getHandler(this.identityQuery.getIdentityType());
 
             predicates.addAll(identityTypeManager.getPredicate(this, identityStore));
         } else {
-            IdentityTypeHandler identityTypeManager = new IdentityTypeHandler<IdentityType>(this.config) {
+            IdentityTypeHandler<IdentityType> identityTypeManager = new IdentityTypeHandler<IdentityType>(getConfig()) {
 
                 @Override
                 protected IdentityType doCreateIdentityType(Object identity, JPAIdentityStore store) {
@@ -102,17 +84,17 @@ public class JPACriteriaQueryBuilder {
                 }
 
                 @Override
-                protected AbstractBaseEvent raiseCreatedEvent(IdentityType fromIdentityType, JPAIdentityStore store) {
+                protected AbstractBaseEvent raiseCreatedEvent(IdentityType fromIdentityType) {
                     return null;
                 }
 
                 @Override
-                protected AbstractBaseEvent raiseUpdatedEvent(IdentityType fromIdentityType, JPAIdentityStore store) {
+                protected AbstractBaseEvent raiseUpdatedEvent(IdentityType fromIdentityType) {
                     return null;
                 }
 
                 @Override
-                protected AbstractBaseEvent raiseDeletedEvent(IdentityType fromIdentityType, JPAIdentityStore store) {
+                protected AbstractBaseEvent raiseDeletedEvent(IdentityType fromIdentityType) {
                     return null;
                 }
             };
@@ -123,19 +105,27 @@ public class JPACriteriaQueryBuilder {
         return predicates;
     }
 
-    public CriteriaQuery<?> getCriteria() {
+    protected CriteriaQuery<?> getCriteria() {
         return this.criteria;
     }
 
-    public CriteriaBuilder getBuilder() {
+    protected CriteriaBuilder getBuilder() {
         return builder;
     }
 
-    public Root<?> getRoot() {
+    protected Root<?> getRoot() {
         return root;
     }
 
-    public IdentityQuery<?> getIdentityQuery() {
+    protected IdentityQuery<?> getIdentityQuery() {
         return this.identityQuery;
+    }
+    
+    private JPAIdentityStoreConfiguration getConfig() {
+        return this.identityStore.getConfig();
+    }
+
+    private EntityManager getEntityManager() {
+        return this.identityStore.getEntityManager();
     }
 }

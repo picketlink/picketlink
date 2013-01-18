@@ -118,27 +118,26 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             try {
                 IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
 
-                handler.onBeforeAdd(identityType, this);
+                handler.validate(identityType, this);
 
-                Object identity = handler.createIdentityInstance(identityType, this);
+                Object entity = handler.createEntity(identityType, this);
 
                 EntityManager em = getEntityManager();
 
-                em.persist(identity);
+                em.persist(entity);
                 em.flush();
 
-                updateAttributes(identityType, identity);
+                updateAttributes(identityType, entity);
 
-                AbstractBaseEvent event = handler.raiseCreatedEvent(identityType, this);
-
-                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identity);
+                AbstractBaseEvent event = handler.raiseCreatedEvent(identityType);
+                event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
                 getContext().getEventBridge().raiseEvent(event);
             } catch (Exception ex) {
                 throw new IdentityManagementException("Exception while creating IdentityType [" + identityType + "].", ex);
             }
         } else if (value instanceof Relationship) {
             if (getConfig().getRelationshipClass() == null) {
-                throw new IdentityManagementException("No Relationship class was provided. Relationships could not be stored.");
+                throw new IdentityManagementException("No Relationship Entity class was provided. Relationships can not be stored.");
             }
 
             Relationship relationship = (Relationship) value;
@@ -248,7 +247,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             em.merge(identityObject);
             em.flush();
 
-            AbstractBaseEvent event = handler.raiseUpdatedEvent(identityType, this);
+            AbstractBaseEvent event = handler.raiseUpdatedEvent(identityType);
 
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identityObject);
             getContext().getEventBridge().raiseEvent(event);
@@ -296,8 +295,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             em.remove(identityObject);
             em.flush();
 
-            AbstractBaseEvent event = handler.raiseDeletedEvent(identityType, this);
-
+            AbstractBaseEvent event = handler.raiseDeletedEvent(identityType);
             event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identityObject);
             getContext().getEventBridge().raiseEvent(event);
         } else if (value instanceof Relationship) {

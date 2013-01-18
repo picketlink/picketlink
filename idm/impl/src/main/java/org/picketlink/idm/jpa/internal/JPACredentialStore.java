@@ -64,9 +64,8 @@ public class JPACredentialStore implements CredentialStore {
     
     @Override
     public void storeCredential(Agent agent, CredentialStorage storage) {
-        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
-        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
-        Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
+        checkCredentialClassProvided();
+        
         Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
 
         Object lastCredential = retrieveCurrentCredentialEntity(agent, storage.getClass());
@@ -95,6 +94,10 @@ public class JPACredentialStore implements CredentialStore {
 
         Object agentInstance = this.identityStore.lookupIdentityObjectById(agent.getId());
 
+        Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
+        Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
+        Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
+        
         identityTypeProperty.setValue(newCredential, agentInstance);
         typeProperty.setValue(newCredential, storage.getClass().getName());
         effectiveProperty.setValue(newCredential, effectiveDate);
@@ -130,9 +133,11 @@ public class JPACredentialStore implements CredentialStore {
 
         em.flush();
     }
-    
+
     @Override
     public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
+        checkCredentialClassProvided();
+        
         Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
 
@@ -155,27 +160,23 @@ public class JPACredentialStore implements CredentialStore {
         List<T> storages = new ArrayList<T>();
 
         for (Object object : result) {
-            storages.add((T) convertToCredentialStorage(object, storageClass));
+            storages.add(convertToCredentialStorage(object, storageClass));
         }
 
         return storages;
     }
 
-    private EntityManager getEntityManager() {
-        return this.identityStore.getEntityManager();
-    }
-    
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
+        checkCredentialClassProvided();
+        
         Object lastCredential = retrieveCurrentCredentialEntity(agent, storageClass);
-
-        return (T) convertToCredentialStorage(lastCredential, storageClass);
+        return convertToCredentialStorage(lastCredential, storageClass);
     }
     
     protected void removeCredentials(Object object) {
-        EntityManager em = getEntityManager();
-
         if (getConfig().getCredentialClass() != null) {
+            EntityManager em = getEntityManager();
             CriteriaBuilder builder = em.getCriteriaBuilder();
             CriteriaQuery<?> criteria = builder.createQuery(getConfig().getCredentialClass());
             Root<?> root = criteria.from(getConfig().getCredentialClass());
@@ -231,8 +232,8 @@ public class JPACredentialStore implements CredentialStore {
         return this.identityStore.getContext();
     }
 
-    private CredentialStorage convertToCredentialStorage(Object instance, Class<? extends CredentialStorage> storageClass) {
-        CredentialStorage storage = null;
+    private <T extends CredentialStorage>  T convertToCredentialStorage(Object instance, Class<T> storageClass) {
+        T storage = null;
 
         if (instance != null) {
             try {
@@ -339,11 +340,21 @@ public class JPACredentialStore implements CredentialStore {
         } catch (Exception e) {
             throw new IdentityManagementException("Could not query credentials.", e);
         }
+        
         return lastCredential;
     }
 
     private JPAIdentityStoreConfiguration getConfig() {
         return this.identityStore.getConfig();
     }
-    
+ 
+    private void checkCredentialClassProvided() {
+        if (getConfig().getClass() == null) {
+            throw new IdentityManagementException("No class Entity class provided to store credentials.");
+        }
+    }
+
+    private EntityManager getEntityManager() {
+        return this.identityStore.getEntityManager();
+    }
 }

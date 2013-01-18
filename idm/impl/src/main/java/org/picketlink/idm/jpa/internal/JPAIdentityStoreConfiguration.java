@@ -45,15 +45,6 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration im
     private String identityTypeRole = DEFAULT_ROLE_IDENTITY_DISCRIMINATOR;
     private String identityTypeGroup = DEFAULT_GROUP_IDENTITY_DISCRIMINATOR;
 
-    // Supported Attribute types
-    private static final String ATTRIBUTE_TYPE_TEXT = "text";
-    private static final String ATTRIBUTE_TYPE_BOOLEAN = "boolean";
-    private static final String ATTRIBUTE_TYPE_DATE = "date";
-    private static final String ATTRIBUTE_TYPE_INT = "int";
-    private static final String ATTRIBUTE_TYPE_LONG = "long";
-    private static final String ATTRIBUTE_TYPE_FLOAT = "float";
-    private static final String ATTRIBUTE_TYPE_DOUBLE = "double";
-
     /**
      * <p>
      * Defines a map with all {@link IdentityTypeHandler} with the specific logic to handle the different {@link IdentityType}
@@ -260,6 +251,24 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration im
 
     public Property<Object> getModelProperty(PropertyType propertyType) {
         return modelProperties.get(propertyType);
+    }
+    
+    protected <P> P getModelPropertyValue(Class<P> propertyClass, Object instance, PropertyType propertyType) {
+        @SuppressWarnings("unchecked")
+        Property<P> property = (Property<P>) getModelProperty(propertyType);
+        return property == null ? null : property.getValue(instance);
+    }
+
+    protected void setModelPropertyValue(Object instance, PropertyType propertyType, Object value) {
+        setModelPropertyValue(instance, propertyType, value, false);
+    }
+
+    protected void setModelPropertyValue(Object instance, PropertyType propertyType, Object value, boolean required) {
+        if (isModelPropertySet(propertyType)) {
+            getModelProperty(propertyType).setValue(instance, value);
+        } else if (required) {
+            throw new IdentityManagementException("Model property [" + propertyType.name() + "] has not been configured.");
+        }
     }
 
     public boolean isModelPropertySet(PropertyType propertyType) {

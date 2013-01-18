@@ -26,7 +26,6 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
@@ -35,7 +34,6 @@ import org.picketlink.idm.event.AgentDeletedEvent;
 import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleAgent;
 
 /**
@@ -50,22 +48,22 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
-        setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
     }
 
     @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Agent fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseCreatedEvent(Agent fromIdentityType) {
         return new AgentCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Agent fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseUpdatedEvent(Agent fromIdentityType) {
         return new AgentUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Agent fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseDeletedEvent(Agent fromIdentityType) {
         return new AgentDeletedEvent(fromIdentityType);
     }
 
@@ -82,12 +80,6 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
-        Root<?> root = criteria.getRoot();
-        
-        if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                    store.lookupPartitionObject(store.getCurrentRealm())));
-        }
         
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(Agent.LOGIN_NAME);
 
@@ -101,7 +93,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     }
     
     @Override
-    public void onBeforeAdd(Agent agent, JPAIdentityStore store) {
+    public void validate(Agent agent, JPAIdentityStore store) {
         if (agent.getLoginName() == null) {
             throw new IdentityManagementException("No login name was provided.");
         }

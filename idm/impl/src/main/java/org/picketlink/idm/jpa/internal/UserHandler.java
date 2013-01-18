@@ -26,7 +26,6 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
@@ -34,7 +33,6 @@ import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 
@@ -50,26 +48,26 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
-        setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
-        setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
-        setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
-        setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
     }
 
     @Override
-    protected AbstractBaseEvent raiseCreatedEvent(User fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseCreatedEvent(User fromIdentityType) {
         return new UserCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(User fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseUpdatedEvent(User fromIdentityType) {
         return new UserUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType) {
         return new UserDeletedEvent(fromIdentityType);
     }
     
@@ -77,12 +75,6 @@ public class UserHandler extends IdentityTypeHandler<User>{
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
-        Root<?> root = criteria.getRoot();
-        
-        if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
-            predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                    store.lookupPartitionObject(store.getCurrentRealm())));
-        }
         
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(User.LOGIN_NAME);
 
@@ -125,15 +117,15 @@ public class UserHandler extends IdentityTypeHandler<User>{
         
         User user = new SimpleUser(loginName);
 
-        user.setFirstName(getModelPropertyValue(String.class, identity, PropertyType.USER_FIRST_NAME));
-        user.setLastName(getModelPropertyValue(String.class, identity, PropertyType.USER_LAST_NAME));
-        user.setEmail(getModelPropertyValue(String.class, identity, PropertyType.USER_EMAIL));
+        user.setFirstName(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_FIRST_NAME));
+        user.setLastName(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_LAST_NAME));
+        user.setEmail(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_EMAIL));
         
         return user;
     }
     
     @Override
-    public void onBeforeAdd(User user, JPAIdentityStore store) {
+    public void validate(User user, JPAIdentityStore store) {
         if (user.getLoginName() == null) {
             throw new IdentityManagementException("No login name was provided.");
         }

@@ -280,6 +280,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         throw createNotImplementedYetException();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
         List<T> result = new ArrayList<T>();
@@ -577,6 +578,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         this.partitionStore.removePartition(partition);
     }
 
+    @SuppressWarnings("unchecked")
     protected <T extends Relationship> T convertToRelationship(FileRelationshipStorage storedRelationship) {
         T relationship = null;
         Class<T> relationshipType = null;
@@ -1033,6 +1035,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         toIdentityType.setId(fromIdentityType.getId());
 
         for (Object object : toIdentityType.getAttributes().toArray()) {
+            @SuppressWarnings("unchecked")
             Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
             toIdentityType.removeAttribute(attribute.getName());
         }

@@ -25,7 +25,6 @@ package org.picketlink.idm.jpa.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -38,10 +37,8 @@ import org.picketlink.idm.event.RoleDeletedEvent;
 import org.picketlink.idm.event.RoleUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
@@ -56,56 +53,40 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
                 store.lookupPartitionObject(store.getCurrentPartition()), true);
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 
     @Override
-    protected AbstractBaseEvent raiseCreatedEvent(Role fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseCreatedEvent(Role fromIdentityType) {
         return new RoleCreatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseUpdatedEvent(Role fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseUpdatedEvent(Role fromIdentityType) {
         return new RoleUpdatedEvent(fromIdentityType);
     }
 
     @Override
-    protected AbstractBaseEvent raiseDeletedEvent(Role fromIdentityType, JPAIdentityStore store) {
+    protected AbstractBaseEvent raiseDeletedEvent(Role fromIdentityType) {
         return new RoleDeletedEvent(fromIdentityType);
     }
 
     @Override
     protected Role doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        String name = getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
+        String name = getConfig().getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
 
         SimpleRole role = new SimpleRole(name);
 
         return role;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(criteria, store);
 
-        CriteriaBuilder builder = criteria.getBuilder();
-        Root<?> root = criteria.getRoot();
-        Join<Object, Object> joinPartition = root.join(getConfig().getModelProperty(
-                PropertyType.IDENTITY_PARTITION).getName());
-        
-        if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
-            List<String> partitionIds = new ArrayList<String>();
-            
-            partitionIds.add(store.getCurrentPartition().getId());
-            
-            if (Tier.class.isInstance(store.getCurrentPartition())) {
-                addPartitionIds(partitionIds, (Tier) store.getCurrentPartition());
-            }
-            
-            predicates.add(builder.in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(partitionIds));
-        }
-        
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(Role.NAME);
 
         if (parameterValues != null) {
@@ -118,7 +99,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
         if (parameterValues != null) {
             for (Object object : parameterValues) {
-                DefaultRelationshipQuery query = new DefaultRelationshipQuery(Grant.class, store);
+                DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, store);
 
                 query.setParameter(Grant.ASSIGNEE, object);
 
@@ -133,7 +114,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
                     Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
                     Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
-                    Subquery<?> select = subquery.select(fromProject.get(getConfig().getModelProperty(
+                    subquery.select(fromProject.get(getConfig().getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY).getName()));
                     Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
@@ -162,16 +143,10 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
         return predicates;
     }
 
-    private void addPartitionIds(List<String> partitionIds, Tier currentPartition) {
-        partitionIds.add(currentPartition.getId());
-        
-        if (currentPartition.getParent() != null) {
-            addPartitionIds(partitionIds, currentPartition.getParent());
-        }
-    }
+
     
     @Override
-    public void onBeforeAdd(Role role, JPAIdentityStore store) {
+    public void validate(Role role, JPAIdentityStore store) {
         if (role.getName() == null) {
             throw new IdentityManagementException("No name was provided.");
         }
