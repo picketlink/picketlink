@@ -64,14 +64,13 @@
     <StoreFactory ClassName="org.picketlink.idm.internal.DefaultStoreFactory" />
 
     <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
-      <!-- EntityManagerFactory is not needed for LDAP testsuite -->
-      <!--<EntityManagerFactory></EntityManagerFactory>-->
+      <EntityManagerFactory ClassName="org.picketlink.idm.DefaultEntityManagerFactory" /> <!-- Class doesn't exists atm -->
 
       <!-- Should be those mandatory? Maybe we can left default impls if not provided here... -->
-      <EventBridge ClassName="org.picketlink.idm.internal.NullEventBridge" /> <!-- TODO: This class doesn't exist atm -->
-      <CredentialHandlerFactory ClassName="org.picketlink.idm.internal.DefaultIdGenerator" />
-      <IdentityCache ClassName="org.picketlink.idm.internal.DefaultIdentityCache" />
-      <IdGenerator ClassName="org.picketlink.idm.internal.DefaultIdentityCache" />
+      <EventBridge ClassName="org.picketlink.idm.internal.NullEventBridge" /> <!-- Class doesn't exists atm -->
+      <CredentialHandlerFactory ClassName="org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory" />
+      <IdentityCache ClassName="org.picketlink.idm.DefaultIdentityCache" />
+      <IdGenerator ClassName="${property.id.generator::org.picketlink.idm.internal.DefaultIdGenerator}" />
     </IdentityStoreInvocationContextFactory>
 
     <IdentityConfiguration>
@@ -85,13 +84,16 @@
       </IdentityStoreConfiguration>
 
       <!-- More store configurations can be provided... -->
-      <!--<StoreConfiguration ClassName="org.picketlink.AnotherStoreConfiguration">
-
-      </StoreConfiguration>-->
+      <IdentityStoreConfiguration ClassName="org.picketlink.AnotherStoreConfiguration">
+        <Property Name="property1">Property1Value</Property>
+        <Property Name="property2">Property2Value</Property>
+      </IdentityStoreConfiguration>
 
       <!-- Some PartitionStoreConfiguration ... -->
-      <!--<PartitionStoreConfiguration ClassName="...">
-      </PartitionStoreConfiguration>-->
+      <PartitionStoreConfiguration ClassName="org.picketlink.SomePartitionStore">
+        <Property Name="property3">${property.existing::Property3Value}</Property>
+        <Property Name="property4">${property.nonexisting::Property4Value}</Property>
+      </PartitionStoreConfiguration>
 
     </IdentityConfiguration>
   </PicketLinkIDM>

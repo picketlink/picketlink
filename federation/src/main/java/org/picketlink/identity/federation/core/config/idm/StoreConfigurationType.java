@@ -37,7 +37,16 @@ import java.util.Map;
  */
 public class StoreConfigurationType {
 
+    private String className;
     private Map<String, Object> configProperties = new HashMap<String, Object>();
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
 
     public Map<String, Object> getAllProperties() {
         return Collections.unmodifiableMap(configProperties);
@@ -45,5 +54,9 @@ public class StoreConfigurationType {
 
     public Object getProperty(String propertyName) {
         return configProperties.get(propertyName);
+    }
+
+    public void addProperty(String propertyName, Object propertyValue) {
+        configProperties.put(propertyName, propertyValue);
     }
 }
