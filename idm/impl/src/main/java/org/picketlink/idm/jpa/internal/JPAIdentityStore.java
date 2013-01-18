@@ -65,7 +65,7 @@ import org.picketlink.idm.spi.PartitionStore;
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class })
 public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore,
-        PartitionStore<JPAIdentityStoreConfiguration> {
+        PartitionStore {
 
     // Invocation context parameters
     public static final String INVOCATION_CTX_ENTITY_MANAGER = "CTX_ENTITY_MANAGER";
@@ -91,7 +91,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
         this.context = context;
-        this.partitionStore.setup(config, context);
     }
 
     @Override

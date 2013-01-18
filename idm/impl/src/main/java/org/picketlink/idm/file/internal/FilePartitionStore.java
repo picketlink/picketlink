@@ -35,14 +35,15 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.PartitionStore;
 
 /**
+ * <p>
+ * {@link PartitionStore} implementation that persists {@link Partition} instances using the {@link FileBasedIdentityStore}.
+ * </p>
+ * 
  * @author Pedro Silva
  * 
  */
-public class FilePartitionStore implements PartitionStore<FileIdentityStoreConfiguration> {
+public class FilePartitionStore implements PartitionStore {
 
-    private FileIdentityStoreConfiguration config;
-    private IdentityStoreInvocationContext context;
-    
     private FileBasedIdentityStore identityStore;
 
     public FilePartitionStore(FileBasedIdentityStore identityStore) {
@@ -63,7 +64,7 @@ public class FilePartitionStore implements PartitionStore<FileIdentityStoreConfi
             }
         }
 
-        partition.setId(this.context.getIdGenerator().generate());
+        partition.setId(getContext().getIdGenerator().generate());
 
         FilePartition filePartition = getConfig().getDataSource().initPartition(partition.getId());
 
@@ -98,7 +99,7 @@ public class FilePartitionStore implements PartitionStore<FileIdentityStoreConfi
     public Realm getRealm(String name) {
         Collection<FilePartition> partitions = getConfig().getPartitions().values();
         Realm realm = null;
-        
+
         for (FilePartition partition : partitions) {
             if (Realm.class.isInstance(partition.getPartition())) {
                 if (partition.getPartition().getName().equals(name)) {
@@ -107,7 +108,7 @@ public class FilePartitionStore implements PartitionStore<FileIdentityStoreConfi
                 }
             }
         }
-        
+
         if (realm == null && name.equals(Realm.DEFAULT_REALM)) {
             realm = new Realm(Realm.DEFAULT_REALM);
             realm.setId(Realm.DEFAULT_REALM);
@@ -137,14 +138,12 @@ public class FilePartitionStore implements PartitionStore<FileIdentityStoreConfi
         return null;
     }
 
-    @Override
-    public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
-        this.config = config;
-        this.context = context;
-    }
-
     private FileIdentityStoreConfiguration getConfig() {
-        return this.config;
+        return this.identityStore.getConfig();
+    }
+    
+    private IdentityStoreInvocationContext getContext() {
+        return this.identityStore.getContext();
     }
 
 }

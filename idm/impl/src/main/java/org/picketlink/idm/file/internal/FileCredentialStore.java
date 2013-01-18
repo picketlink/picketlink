@@ -46,8 +46,12 @@ import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
+ * <p>
+ * {@link CredentialStore} implementation that stored the credentials using the {@link FileBasedIdentityStore}.
+ * </p>
+ * 
  * @author Pedro Silva
- *
+ * 
  */
 public class FileCredentialStore implements CredentialStore {
 
@@ -56,7 +60,7 @@ public class FileCredentialStore implements CredentialStore {
     public FileCredentialStore(FileBasedIdentityStore identityStore) {
         this.identityStore = identityStore;
     }
- 
+
     public void validateCredentials(Credentials credentials) {
         CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this.identityStore);
         if (handler == null) {
@@ -64,7 +68,7 @@ public class FileCredentialStore implements CredentialStore {
                     "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
                             + "] for IdentityStore [" + this.getClass() + "]");
         }
-        
+
         handler.validate(credentials, this.identityStore);
     }
 
@@ -80,18 +84,7 @@ public class FileCredentialStore implements CredentialStore {
 
     @Override
     public void storeCredential(Agent agent, CredentialStorage storage) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition().get(
-                agent.getLoginName());
-
-        if (agentCredentials == null) {
-            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
-        }
-
-        List<FileCredentialStorage> credentials = agentCredentials.get(storage.getClass().getName());
-
-        if (credentials == null) {
-            credentials = new ArrayList<FileCredentialStorage>();
-        }
+        List<FileCredentialStorage> credentials = getCredentials(agent, storage.getClass());
 
         for (FileCredentialStorage fileCredentialStorage : credentials) {
             if (isCurrentCredential(fileCredentialStorage)) {
@@ -113,8 +106,6 @@ public class FileCredentialStore implements CredentialStore {
         }
 
         credentials.add(credential);
-        agentCredentials.put(storage.getClass().getName(), credentials);
-        getCredentialsForCurrentPartition().put(agent.getLoginName(), agentCredentials);
         flushCredentials();
     }
 
@@ -141,27 +132,18 @@ public class FileCredentialStore implements CredentialStore {
     }
 
     @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass) {
+    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageTyper) {
         ArrayList<T> storedCredentials = new ArrayList<T>();
 
-        Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition().get(
-                agent.getLoginName());
+        List<FileCredentialStorage> credentials = getCredentials(agent, storageTyper);
 
-        if (agentCredentials == null) {
-            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
-        }
-
-        List<FileCredentialStorage> credentials = agentCredentials.get(storageClass.getName());
-
-        if (credentials != null) {
-            for (FileCredentialStorage fileCredentialStorage : credentials) {
-                storedCredentials.add(convertToCredentialStorage(storageClass, fileCredentialStorage));
-            }
+        for (FileCredentialStorage fileCredentialStorage : credentials) {
+            storedCredentials.add(convertToCredentialStorage(storageTyper, fileCredentialStorage));
         }
 
         return storedCredentials;
     }
-    
+
     /**
      * <p>
      * Remove all stored credentials for the given {@link Agent}.
@@ -173,13 +155,11 @@ public class FileCredentialStore implements CredentialStore {
         getCredentialsForCurrentPartition().remove(agent.getLoginName());
         flushCredentials();
     }
-    
-    private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition() {
-        return getConfig().getCredentials(getContext());
-    }
-    
+
     /**
-     * <p>Checks if the specified {@link FileCredentialStorage} mapps to the current credential.</p>
+     * <p>
+     * Checks if the specified {@link FileCredentialStorage} mapps to the current credential.
+     * </p>
      * 
      * @param fileCredentialStorage
      * @return
@@ -205,15 +185,18 @@ public class FileCredentialStore implements CredentialStore {
 
         return isCurrent;
     }
-    
+
     /**
-     * <p>Converts a {@link FileCredentialStorage} to a specific {@link CredentialStorage} instance.</p>
+     * <p>
+     * Converts a {@link FileCredentialStorage} to a specific {@link CredentialStorage} instance.
+     * </p>
      * 
      * @param storageClass
      * @param fileCredentialStorage
      * @return
      */
-    private <T extends CredentialStorage> T convertToCredentialStorage(Class<T> storageClass, FileCredentialStorage fileCredentialStorage) {
+    private <T extends CredentialStorage> T convertToCredentialStorage(Class<T> storageClass,
+            FileCredentialStorage fileCredentialStorage) {
         T storage = null;
 
         try {
@@ -223,33 +206,65 @@ public class FileCredentialStore implements CredentialStore {
                     + storageClass.getName() + "].", e);
         }
 
-        Set<Entry<String, Serializable>> storedFieldsEntrySet = fileCredentialStorage.getStoredFields().entrySet();
+        Set<Entry<String, Serializable>> storedFields = fileCredentialStorage.getStoredFields().entrySet();
 
-        for (Entry<String, Serializable> storedFieldEntry : storedFieldsEntrySet) {
+        for (Entry<String, Serializable> storedField : storedFields) {
             List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storageClass)
-                    .addCriteria(new NamedPropertyCriteria(storedFieldEntry.getKey())).getResultList();
+                    .addCriteria(new NamedPropertyCriteria(storedField.getKey())).getResultList();
 
             if (annotatedTypes.isEmpty()) {
-                throw new IdentityManagementException("Could not find property [" + storedFieldEntry.getKey()
+                throw new IdentityManagementException("Could not find property [" + storedField.getKey()
                         + "] on CredentialStorage [" + storageClass.getName() + "].");
             } else if (annotatedTypes.size() > 1) {
-                throw new IdentityManagementException("Ambiguos property [" + storedFieldEntry.getKey()
-                        + "] on CredentialStorage [" + storageClass.getName() + "].");
+                throw new IdentityManagementException("Ambiguos property [" + storedField.getKey() + "] on CredentialStorage ["
+                        + storageClass.getName() + "].");
             }
 
-            Property<Object> property = annotatedTypes.get(0);
-
-            property.setValue(storage, storedFieldEntry.getValue());
+            annotatedTypes.get(0).setValue(storage, storedField.getValue());
         }
+
         return storage;
     }
-    
+
+    /**
+     * <p>
+     * Returns the stored credentials for the given {@link Agent}.
+     * </p>
+     * 
+     * @param agent
+     * @param storageType
+     * @return
+     */
+    private List<FileCredentialStorage> getCredentials(Agent agent, Class<? extends CredentialStorage> storageType) {
+        Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition().get(
+                agent.getLoginName());
+
+        if (agentCredentials == null) {
+            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
+        }
+
+        List<FileCredentialStorage> credentials = agentCredentials.get(storageType.getName());
+
+        if (credentials == null) {
+            credentials = new ArrayList<FileCredentialStorage>();
+        }
+
+        agentCredentials.put(storageType.getName(), credentials);
+        getCredentialsForCurrentPartition().put(agent.getLoginName(), agentCredentials);
+
+        return credentials;
+    }
+
     private IdentityStoreInvocationContext getContext() {
         return this.identityStore.getContext();
     }
-    
+
     private FileIdentityStoreConfiguration getConfig() {
         return this.identityStore.getConfig();
+    }
+
+    private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition() {
+        return getConfig().getCredentials(getContext());
     }
 
     private void flushCredentials() {

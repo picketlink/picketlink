@@ -104,7 +104,7 @@ import org.picketlink.idm.spi.PartitionStore;
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
 public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore,
-        PartitionStore<FileIdentityStoreConfiguration> {
+        PartitionStore {
 
     private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
@@ -130,8 +130,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.config = config;
         this.context = context;
-
-        this.partitionStore.setup(config, context);
 
         // we need to store the current realm to store users properly. The current partition can be a realm or a tier, but users
         // can not be stored in tiers.

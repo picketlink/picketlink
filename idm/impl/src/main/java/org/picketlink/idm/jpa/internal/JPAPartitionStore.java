@@ -47,20 +47,12 @@ import org.picketlink.idm.spi.PartitionStore;
  * @author Pedro Silva
  *
  */
-public class JPAPartitionStore implements PartitionStore<JPAIdentityStoreConfiguration> {
+public class JPAPartitionStore implements PartitionStore {
 
-    private IdentityStoreInvocationContext context;
-    private JPAIdentityStoreConfiguration config;
     private JPAIdentityStore identityStore;
 
     public JPAPartitionStore(JPAIdentityStore identityStore) {
         this.identityStore = identityStore;
-    }
-    
-    @Override
-    public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
-        this.config = config;
-        this.context = context;
     }
     
     @Override
@@ -78,7 +70,7 @@ public class JPAPartitionStore implements PartitionStore<JPAIdentityStoreConfigu
             throw new IdentityManagementException("Could not instantiate Partition class [" + partitionClass.getName() + "]");
         }
 
-        String id = this.context.getIdGenerator().generate();
+        String id = getContext().getIdGenerator().generate();
 
         partition.setId(id);
 
@@ -100,6 +92,14 @@ public class JPAPartitionStore implements PartitionStore<JPAIdentityStoreConfigu
 
         em.persist(partitionObject);
         em.flush();
+    }
+
+    private IdentityStoreInvocationContext getContext() {
+        return this.identityStore.getContext();
+    }
+    
+    private JPAIdentityStoreConfiguration getConfig() {
+        return this.identityStore.getConfig();
     }
     
     @Override
@@ -148,14 +148,6 @@ public class JPAPartitionStore implements PartitionStore<JPAIdentityStoreConfigu
 
         entityManager.remove(partitionObject);
         entityManager.flush();
-    }
-    
-    public JPAIdentityStoreConfiguration getConfig() {
-        return config;
-    }
-    
-    public IdentityStoreInvocationContext getContext() {
-        return context;
     }
     
     protected Object lookupPartitionEntityByName(Class<? extends Partition> partitionType, String name) {

@@ -611,11 +611,11 @@ public class DefaultIdentityManager implements IdentityManager {
         getContextualPartitionStore().createPartition(tier);
     }
 
-    private PartitionStore<?> getContextualPartitionStore() {
+    private PartitionStore getContextualPartitionStore() {
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), null);
         
         if (PartitionStore.class.isInstance(store)) {
-            return (PartitionStore<?>) store;            
+            return (PartitionStore) store;            
         }
         
         throw new IdentityManagementException("No PartitionStore configured.");
