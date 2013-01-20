@@ -122,6 +122,19 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
         }
     }
 
+    /**
+     * @param request
+     * @return
+     */
+    Principal getUserPrincipal(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        Principal userPrincipal = request.getUserPrincipal();
+        if (userPrincipal ==  null) {
+            userPrincipal = (Principal) session.getAttribute(GeneralConstants.PRINCIPAL_ID);
+        }
+        return userPrincipal;
+    }
+
     private class IDPLogOutHandler {
         public void generateSAMLRequest(SAML2HandlerRequest request, SAML2HandlerResponse response) throws ProcessingException {
         }
@@ -255,7 +268,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
                     LogoutRequestType lort = saml2Request.createLogoutRequest(request.getIssuer().getValue());
 
-                    Principal userPrincipal = httpServletRequest.getUserPrincipal();
+                    Principal userPrincipal = getUserPrincipal(httpServletRequest);
                     if (userPrincipal == null) {
                         throw logger.samlHandlerPrincipalNotFoundError();
                     }
@@ -354,7 +367,7 @@ public class SAML2LogOutHandler extends BaseSAML2Handler {
 
             HTTPContext httpContext = (HTTPContext) request.getContext();
             HttpServletRequest httpRequest = httpContext.getRequest();
-            Principal userPrincipal = httpRequest.getUserPrincipal();
+            Principal userPrincipal = getUserPrincipal(httpRequest);
             if (userPrincipal == null) {
                 throw logger.samlHandlerPrincipalNotFoundError();
             }
