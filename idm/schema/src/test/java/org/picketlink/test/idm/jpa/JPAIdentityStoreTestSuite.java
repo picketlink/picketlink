@@ -50,6 +50,7 @@ import org.picketlink.test.idm.basic.GroupManagementTestCase;
 import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
 import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
+import org.picketlink.test.idm.credential.DigestCredentialTestCase;
 import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
 import org.picketlink.test.idm.partition.RealmManagementTestCase;
 import org.picketlink.test.idm.partition.TierManagementTestCase;
@@ -79,7 +80,7 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
     RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
     UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
     AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
-    AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class })
+    AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
     private EntityManagerFactory emf;

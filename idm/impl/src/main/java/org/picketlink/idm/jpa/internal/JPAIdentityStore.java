@@ -22,6 +22,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
 import org.picketlink.idm.credential.internal.X509CertificateCredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
@@ -63,7 +64,7 @@ import org.picketlink.idm.spi.PartitionStore;
  * 
  * @author Shane Bryzak
  */
-@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class })
+@CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
 public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore, PartitionStore {
 
     // Invocation context parameters

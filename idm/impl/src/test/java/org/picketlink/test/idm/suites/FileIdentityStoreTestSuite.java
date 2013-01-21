@@ -63,12 +63,12 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ DigestCredentialTestCase.class, PasswordCredentialTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
+@SuiteClasses({ RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
     ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
     RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
     UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
     AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
-    AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class })
+    AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
