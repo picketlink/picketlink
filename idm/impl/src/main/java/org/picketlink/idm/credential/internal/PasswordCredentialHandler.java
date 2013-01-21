@@ -1,7 +1,5 @@
 package org.picketlink.idm.credential.internal;
 
-import static org.picketlink.idm.credential.internal.CredentialUtils.isLastCredentialExpired;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
@@ -19,8 +17,8 @@ import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * <p>
- * This particular implementation supports the validation of {@link UsernamePasswordCredentials}, and updating
- * {@link Password} credentials.
+ * This particular implementation supports the validation of {@link UsernamePasswordCredentials}, and updating {@link Password}
+ * credentials.
  * </p>
  * <p>
  * Passwords can be encoded or not. This behavior is configured by setting the <code>encodedPassword</code> property of the
@@ -54,15 +52,18 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
-                SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
-                String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword().getValue()));
+                if (!CredentialUtils.isCredentialExpired(hash)) {
+                    SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
+                    String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword()
+                            .getValue()));
 
-                if (hash.getEncodedHash().equals(encoded)) {
-                    usernamePassword.setStatus(Status.VALID);
-                    usernamePassword.setValidatedAgent(agent);
+                    if (hash.getEncodedHash().equals(encoded)) {
+                        usernamePassword.setStatus(Status.VALID);
+                        usernamePassword.setValidatedAgent(agent);
+                    }
+                } else {
+                    usernamePassword.setStatus(Status.EXPIRED);
                 }
-            } else if (isLastCredentialExpired(agent, store, SHASaltedPasswordStorage.class)) {
-                usernamePassword.setStatus(Status.EXPIRED);
             }
         }
     }
@@ -71,7 +72,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         CredentialStore store = validateCredentialStore(identityStore);
 
-        if (!Password.class.isInstance(credential)) { 
+        if (!Password.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
                     + "] not supported by this handler.");
         }
@@ -84,8 +85,8 @@ public class PasswordCredentialHandler implements CredentialHandler {
         hash.setSalt(generateSalt());
         hash.setEncodedHash(encoder.encodePassword(hash.getSalt(), new String(password.getValue())));
         hash.setEffectiveDate(effectiveDate);
-        
-        if(expiryDate != null){
+
+        if (expiryDate != null) {
             hash.setExpiryDate(expiryDate);
         }
 

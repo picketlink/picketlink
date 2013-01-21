@@ -22,8 +22,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import static org.picketlink.idm.credential.internal.CredentialUtils.isCurrentCredential;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,6 +34,7 @@ import java.util.Set;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.internal.CredentialUtils;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
@@ -88,18 +87,10 @@ public class FileCredentialStore implements CredentialStore {
     public void storeCredential(Agent agent, CredentialStorage storage) {
         List<FileCredentialStorage> credentials = getCredentials(agent, storage.getClass());
 
-        for (FileCredentialStorage fileCredentialStorage : credentials) {
-            CredentialStorage storedCredential = convertToCredentialStorage(storage.getClass(), fileCredentialStorage);
-            
-            if (isCurrentCredential(storedCredential)) {
-                fileCredentialStorage.setExpiryDate(new Date());
-            }
-        }
+        FileCredentialStorage credential = new FileCredentialStorage();
 
         List<Property<Object>> annotatedTypes = PropertyQueries.createQuery(storage.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(Stored.class)).getResultList();
-
-        FileCredentialStorage credential = new FileCredentialStorage();
 
         for (Property<Object> property : annotatedTypes) {
             credential.getStoredFields().put(property.getName(), (Serializable) property.getValue(storage));
@@ -115,26 +106,7 @@ public class FileCredentialStore implements CredentialStore {
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition().get(
-                agent.getLoginName());
-
-        if (agentCredentials == null) {
-            agentCredentials = new HashMap<String, List<FileCredentialStorage>>();
-        }
-
-        List<FileCredentialStorage> credentials = agentCredentials.get(storageClass.getName());
-
-        if (credentials != null) {
-            for (FileCredentialStorage fileCredentialStorage : credentials) {
-                T credential = convertToCredentialStorage(storageClass, fileCredentialStorage);
-                
-                if (isCurrentCredential(credential)) {
-                    return credential;
-                }
-            }
-        }
-
-        return null;
+        return (T) CredentialUtils.getCurrentCredential(agent, this, storageClass);
     }
 
     @Override

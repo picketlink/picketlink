@@ -27,6 +27,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -67,6 +68,84 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
         assertEquals(group.getName(), result.get(0).getName());
+    }
+    
+    @Test
+    public void testPagination() throws Exception {
+        for (int i = 0; i < 50; i++) {
+            createGroup("someGroup" + i + 1, null);
+        }
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
+        
+        query.setLimit(10);
+        query.setOffset(0);
+        
+        int resultCount = query.getResultCount();
+        
+        assertEquals(50, resultCount);
+        
+        List<Group> firstPage = query.getResultList();
+        
+        assertEquals(10, firstPage.size());
+        
+        List<String> groupIds = new ArrayList<String>();
+        
+        for (Group Group : firstPage) {
+            groupIds.add(Group.getId());
+        }
+        
+        query.setOffset(10);
+        
+        List<Group> secondPage = query.getResultList();
+        
+        assertEquals(10, secondPage.size());
+        
+        for (Group Group : secondPage) {
+            assertFalse(groupIds.contains(Group.getId()));
+            groupIds.add(Group.getId());
+        }
+        
+        query.setOffset(20);
+        
+        List<Group> thirdPage = query.getResultList();
+        
+        assertEquals(10, thirdPage.size());
+        
+        for (Group Group : thirdPage) {
+            assertFalse(groupIds.contains(Group.getId()));
+            groupIds.add(Group.getId());
+        }
+        
+        query.setOffset(30);
+        
+        List<Group> fourthPage = query.getResultList();
+        
+        assertEquals(10, fourthPage.size());
+        
+        for (Group Group : fourthPage) {
+            assertFalse(groupIds.contains(Group.getId()));
+            groupIds.add(Group.getId());
+        }
+        
+        query.setOffset(40);
+        
+        List<Group> fifthyPage = query.getResultList();
+        
+        assertEquals(10, fifthyPage.size());
+        
+        for (Group Group : fifthyPage) {
+            assertFalse(groupIds.contains(Group.getId()));
+            groupIds.add(Group.getId());
+        }
+        
+        query.setOffset(50);
+        
+        List<Group> invalidPage = query.getResultList();
+        
+        assertEquals(0, invalidPage.size());
     }
     
     @Test

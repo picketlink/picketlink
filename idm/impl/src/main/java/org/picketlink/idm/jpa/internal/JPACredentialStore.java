@@ -68,15 +68,6 @@ public class JPACredentialStore implements CredentialStore {
 
         Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
 
-        Object lastCredential = retrieveCurrentCredentialEntity(agent, storage.getClass());
-
-        EntityManager em = getEntityManager();
-
-        if (lastCredential != null) {
-            expiryProperty.setValue(lastCredential, new Date());
-            em.merge(lastCredential);
-        }
-
         Object newCredential = null;
 
         try {
@@ -102,6 +93,8 @@ public class JPACredentialStore implements CredentialStore {
         typeProperty.setValue(newCredential, storage.getClass().getName());
         effectiveProperty.setValue(newCredential, effectiveDate);
         expiryProperty.setValue(newCredential, storage.getExpiryDate());
+
+        EntityManager em = getEntityManager();
 
         em.persist(newCredential);
 
@@ -167,9 +160,7 @@ public class JPACredentialStore implements CredentialStore {
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
         checkCredentialClassProvided();
-
-        Object lastCredential = retrieveCurrentCredentialEntity(agent, storageClass);
-        return convertToCredentialStorage(lastCredential, storageClass);
+        return convertToCredentialStorage(retrieveLastCredentialEntity(agent, storageClass), storageClass);
     }
 
     protected void removeCredentials(Object object) {
@@ -296,11 +287,20 @@ public class JPACredentialStore implements CredentialStore {
         return storage;
     }
 
-    private <T> Object retrieveCurrentCredentialEntity(Agent agent, Class<T> storageClass) {
+    /**
+     * <p>
+     * Returns the last stored credential for the given {@link Agent} considering the given storageClass. The last credential is
+     * the one which the effectiveDate is more close to the current date.
+     * </p>
+     * 
+     * @param agent
+     * @param storageClass
+     * @return
+     */
+    private <T> Object retrieveLastCredentialEntity(Agent agent, Class<T> storageClass) {
         Property<Object> identityTypeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_IDENTITY);
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_TYPE);
         Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);
-        Property<Object> expiryProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE);
 
         EntityManager em = getEntityManager();
 
@@ -316,9 +316,7 @@ public class JPACredentialStore implements CredentialStore {
 
         Predicate conjunction = builder.conjunction();
 
-        conjunction.getExpressions().add(
-                builder.or(builder.greaterThanOrEqualTo(root.<Date> get(expiryProperty.getName()), new Date()),
-                        builder.isNull(root.<Date> get(expiryProperty.getName()))));
+        conjunction.getExpressions().add(builder.lessThanOrEqualTo(root.<Date> get(effectiveProperty.getName()), new Date()));
 
         predicates.add(conjunction);
 

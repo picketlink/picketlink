@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -493,9 +494,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
         Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
         Property<Object> relationshipProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
-        
+
         Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
-        
+
         for (Entry<QueryParameter, Object[]> entry : parameters) {
             QueryParameter queryParameter = entry.getKey();
             Object[] values = entry.getValue();
@@ -529,9 +530,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipAttributeClass());
                 Root fromProject = subquery.from(getConfig().getRelationshipAttributeClass());
-                
-                subquery.select(fromProject.get(getConfig().getModelProperty(
-                        PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP).getName()));
+
+                subquery.select(fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP)
+                        .getName()));
 
                 Predicate conjunction = builder.conjunction();
 
@@ -577,8 +578,20 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             CriteriaQuery<?> criteria = criteriaBuilder.getCriteria();
 
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
+            criteria.orderBy(criteriaBuilder.getBuilder().asc(
+                    criteriaBuilder.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName())));
 
-            List<?> queryResult = em.createQuery(criteria).getResultList();
+            TypedQuery<?> query = em.createQuery(criteria);
+
+            if (identityQuery.getLimit() > 0) {
+                query.setMaxResults(identityQuery.getLimit());
+
+                if (identityQuery.getOffset() > 0) {
+                    query.setFirstResult(identityQuery.getOffset());
+                }
+            }
+
+            List<?> queryResult = query.getResultList();
 
             for (Object identity : queryResult) {
                 result.add((T) convertToIdentityType(identity));
@@ -589,11 +602,21 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         return result;
     }
-    
+
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
-        // TODO implement
-        throw new UnsupportedOperationException();
+        int limit = identityQuery.getLimit();
+        int offset = identityQuery.getOffset();
+
+        identityQuery.setLimit(0);
+        identityQuery.setOffset(0);
+
+        int resultCount = identityQuery.getResultList().size();
+
+        identityQuery.setLimit(limit);
+        identityQuery.setOffset(offset);
+
+        return resultCount;
     }
 
     @Override
@@ -640,7 +663,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     /**
-     * <p>Converts the given object to an instance of its corresponding {@link IdentityType}.</p>
+     * <p>
+     * Converts the given object to an instance of its corresponding {@link IdentityType}.
+     * </p>
      * 
      * @param relationshipObject
      * @return
@@ -655,13 +680,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         String typeName = typeProperty.getValue(relationshipObject).toString();
         T relationshipType = null;
         Class<?> relationshipClass = null;
-        
+
         try {
             relationshipClass = Class.forName(typeName);
             relationshipType = (T) relationshipClass.newInstance();
         } catch (Exception e) {
-            throw new IdentityManagementException("Error creating Relationship instance for type ["
-                    + typeName + "]");
+            throw new IdentityManagementException("Error creating Relationship instance for type [" + typeName + "]");
         }
 
         List<Property<Object>> identityTypeIdProperty = PropertyQueries.createQuery(relationshipClass)
@@ -683,10 +707,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         populateRelationshipAttributes(relationshipType, relationshipObject);
-        
+
         return relationshipType;
     }
-    
+
     /**
      * <p>
      * Converts the given object to an instance of its corresponding {@link IdentityType}.
@@ -845,7 +869,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         Join<?, ?> join = root.join(attributeIdentityProperty.getName());
 
-        predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), identityType.getId()));
+        predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
+                identityType.getId()));
         predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getName()),
                 attribute.getName()));
 
@@ -877,7 +902,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         Join<?, ?> join = root.join(attributeIdentityProperty.getName());
 
-        predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName()), relationship.getId()));
+        predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName()),
+                relationship.getId()));
 
         predicates
                 .add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getName()),
@@ -889,7 +915,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     /**
-     * <p>Returns all stored attributes for the given {@link IdentityType} entity.</p>
+     * <p>
+     * Returns all stored attributes for the given {@link IdentityType} entity.
+     * </p>
      * 
      * @param object
      * @return
@@ -913,7 +941,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     /**
-     * <p>Returns all stored attributes for the given {@link IdentityType} entity.</p>
+     * <p>
+     * Returns all stored attributes for the given {@link IdentityType} entity.
+     * </p>
      * 
      * @param object
      * @return
@@ -937,7 +967,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     /**
-     * <p>Lookup a stored {@link IdentityType} using the id.</p>
+     * <p>
+     * Lookup a stored {@link IdentityType} using the id.
+     * </p>
      * 
      * @param id
      * @return
@@ -968,7 +1000,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     /**
-     * <p>Lookup a stored {@link Relationship} using the id.</p>
+     * <p>
+     * Lookup a stored {@link Relationship} using the id.
+     * </p>
      * 
      * @param id
      * @return
@@ -999,7 +1033,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     /**
-     * <p>Removes all relationships associated with the given {@link IdentityType}.</p>
+     * <p>
+     * Removes all relationships associated with the given {@link IdentityType}.
+     * </p>
      * 
      * @param entity
      */
@@ -1022,16 +1058,18 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
         }
     }
-    
+
     /**
-     * <p>Returns all relationships associated with the given {@link IdentityType}.</p>
+     * <p>
+     * Returns all relationships associated with the given {@link IdentityType}.
+     * </p>
      * 
      * @param identityTypeEntity
      * @return
      */
     private List<?> findIdentityTypeRelationships(Object identityTypeEntity) {
         EntityManager em = getEntityManager();
-        
+
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
         Root<?> root = criteria.from(getConfig().getRelationshipIdentityClass());
@@ -1040,11 +1078,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 identityTypeEntity));
 
         return em.createQuery(criteria).getResultList();
-        
+
     }
 
     /**
-     * <p>Removes all attributes for given {@link IdentityType}.</p>
+     * <p>
+     * Removes all attributes for given {@link IdentityType}.
+     * </p>
      * 
      * @param object
      */
@@ -1106,7 +1146,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     /**
-     * <p>Updates the attributes for the given {@link IdentityType}.</p>
+     * <p>
+     * Updates the attributes for the given {@link IdentityType}.
+     * </p>
      * 
      * @param relationship
      * @param identity
@@ -1218,6 +1260,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Populates the given {@link IdentityType} instance with the attributes associated with the given entity.
      * </p>
+     * 
      * @param relationshipType
      * @param relationship
      */

@@ -27,6 +27,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -55,19 +56,97 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testFindById() throws Exception {
-        User group = createUser("someGroup");
+        User user = createUser("someUser");
 
         IdentityManager identityManager = getIdentityManager();
 
         IdentityQuery<User> query = identityManager.<User> createIdentityQuery(User.class);
 
-        query.setParameter(User.ID, group.getId());
+        query.setParameter(User.ID, user.getId());
 
         List<User> result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
-        assertEquals(group.getLoginName(), result.get(0).getLoginName());
+        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+    }
+    
+    @Test
+    public void testPagination() throws Exception {
+        for (int i = 0; i < 50; i++) {
+            createUser("someUser" + i + 1);
+        }
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
+        
+        query.setLimit(10);
+        query.setOffset(0);
+        
+        int resultCount = query.getResultCount();
+        
+        assertEquals(50, resultCount);
+        
+        List<User> firstPage = query.getResultList();
+        
+        assertEquals(10, firstPage.size());
+        
+        List<String> userIds = new ArrayList<String>();
+        
+        for (User user : firstPage) {
+            userIds.add(user.getId());
+        }
+        
+        query.setOffset(10);
+        
+        List<User> secondPage = query.getResultList();
+        
+        assertEquals(10, secondPage.size());
+        
+        for (User user : secondPage) {
+            assertFalse(userIds.contains(user.getId()));
+            userIds.add(user.getId());
+        }
+        
+        query.setOffset(20);
+        
+        List<User> thirdPage = query.getResultList();
+        
+        assertEquals(10, thirdPage.size());
+        
+        for (User user : thirdPage) {
+            assertFalse(userIds.contains(user.getId()));
+            userIds.add(user.getId());
+        }
+        
+        query.setOffset(30);
+        
+        List<User> fourthPage = query.getResultList();
+        
+        assertEquals(10, fourthPage.size());
+        
+        for (User user : fourthPage) {
+            assertFalse(userIds.contains(user.getId()));
+            userIds.add(user.getId());
+        }
+        
+        query.setOffset(40);
+        
+        List<User> fifthyPage = query.getResultList();
+        
+        assertEquals(10, fifthyPage.size());
+        
+        for (User user : fifthyPage) {
+            assertFalse(userIds.contains(user.getId()));
+            userIds.add(user.getId());
+        }
+        
+        query.setOffset(50);
+        
+        List<User> invalidPage = query.getResultList();
+        
+        assertEquals(0, invalidPage.size());
     }
     
     @Test

@@ -27,6 +27,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +40,6 @@ import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.Tier;
-import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
@@ -67,6 +67,84 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
         assertEquals(role.getName(), result.get(0).getName());
+    }
+    
+    @Test
+    public void testPagination() throws Exception {
+        for (int i = 0; i < 50; i++) {
+            createRole("someRole" + i + 1);
+        }
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
+        
+        query.setLimit(10);
+        query.setOffset(0);
+        
+        int resultCount = query.getResultCount();
+        
+        assertEquals(50, resultCount);
+        
+        List<Role> firstPage = query.getResultList();
+        
+        assertEquals(10, firstPage.size());
+        
+        List<String> roleIds = new ArrayList<String>();
+        
+        for (Role Role : firstPage) {
+            roleIds.add(Role.getId());
+        }
+        
+        query.setOffset(10);
+        
+        List<Role> secondPage = query.getResultList();
+        
+        assertEquals(10, secondPage.size());
+        
+        for (Role Role : secondPage) {
+            assertFalse(roleIds.contains(Role.getId()));
+            roleIds.add(Role.getId());
+        }
+        
+        query.setOffset(20);
+        
+        List<Role> thirdPage = query.getResultList();
+        
+        assertEquals(10, thirdPage.size());
+        
+        for (Role Role : thirdPage) {
+            assertFalse(roleIds.contains(Role.getId()));
+            roleIds.add(Role.getId());
+        }
+        
+        query.setOffset(30);
+        
+        List<Role> fourthPage = query.getResultList();
+        
+        assertEquals(10, fourthPage.size());
+        
+        for (Role Role : fourthPage) {
+            assertFalse(roleIds.contains(Role.getId()));
+            roleIds.add(Role.getId());
+        }
+        
+        query.setOffset(40);
+        
+        List<Role> fifthyPage = query.getResultList();
+        
+        assertEquals(10, fifthyPage.size());
+        
+        for (Role Role : fifthyPage) {
+            assertFalse(roleIds.contains(Role.getId()));
+            roleIds.add(Role.getId());
+        }
+        
+        query.setOffset(50);
+        
+        List<Role> invalidPage = query.getResultList();
+        
+        assertEquals(0, invalidPage.size());
     }
     
     @Test
@@ -407,7 +485,7 @@ public class RoleQueryTestCase extends AbstractIdentityManagerTestCase {
         futureDate.add(Calendar.MINUTE, 1);
         
         // Should return an empty list.
-        query.setParameter(User.CREATED_AFTER, futureDate.getTime());
+        query.setParameter(Role.CREATED_AFTER, futureDate.getTime());
 
         result = query.getResultList();
 

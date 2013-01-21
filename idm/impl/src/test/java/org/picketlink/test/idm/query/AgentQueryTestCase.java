@@ -27,6 +27,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -68,6 +69,84 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(result.isEmpty());
         assertTrue(result.size() == 1);
         assertEquals(agent.getLoginName(), result.get(0).getLoginName());
+    }
+    
+    @Test
+    public void testPagination() throws Exception {
+        for (int i = 0; i < 50; i++) {
+            createAgent("someAgent" + i + 1);
+        }
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        
+        query.setLimit(10);
+        query.setOffset(0);
+        
+        int resultCount = query.getResultCount();
+        
+        assertEquals(50, resultCount);
+        
+        List<Agent> firstPage = query.getResultList();
+        
+        assertEquals(10, firstPage.size());
+        
+        List<String> agentIds = new ArrayList<String>();
+        
+        for (Agent Agent : firstPage) {
+            agentIds.add(Agent.getId());
+        }
+        
+        query.setOffset(10);
+        
+        List<Agent> secondPage = query.getResultList();
+        
+        assertEquals(10, secondPage.size());
+        
+        for (Agent Agent : secondPage) {
+            assertFalse(agentIds.contains(Agent.getId()));
+            agentIds.add(Agent.getId());
+        }
+        
+        query.setOffset(20);
+        
+        List<Agent> thirdPage = query.getResultList();
+        
+        assertEquals(10, thirdPage.size());
+        
+        for (Agent Agent : thirdPage) {
+            assertFalse(agentIds.contains(Agent.getId()));
+            agentIds.add(Agent.getId());
+        }
+        
+        query.setOffset(30);
+        
+        List<Agent> fourthPage = query.getResultList();
+        
+        assertEquals(10, fourthPage.size());
+        
+        for (Agent Agent : fourthPage) {
+            assertFalse(agentIds.contains(Agent.getId()));
+            agentIds.add(Agent.getId());
+        }
+        
+        query.setOffset(40);
+        
+        List<Agent> fifthyPage = query.getResultList();
+        
+        assertEquals(10, fifthyPage.size());
+        
+        for (Agent Agent : fifthyPage) {
+            assertFalse(agentIds.contains(Agent.getId()));
+            agentIds.add(Agent.getId());
+        }
+        
+        query.setOffset(50);
+        
+        List<Agent> invalidPage = query.getResultList();
+        
+        assertEquals(0, invalidPage.size());
     }
     
     @Test

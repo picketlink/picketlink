@@ -79,9 +79,9 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -262,7 +262,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
-        throw createNotImplementedYetException();
+        int limit = identityQuery.getLimit();
+        int offset = identityQuery.getOffset();
+        
+        identityQuery.setLimit(0);
+        identityQuery.setOffset(0);
+        
+        int resultCount = identityQuery.getResultList().size();
+        
+        identityQuery.setLimit(limit);
+        identityQuery.setOffset(offset);
+        
+        return resultCount;
     }
 
     @Override
@@ -419,6 +430,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         List<T> result = new ArrayList<T>();
 
+        int typesCount = 0;
+        
         for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
             Entry<String, IdentityType> entry = (Entry<String, IdentityType>) iterator.next();
 
@@ -427,6 +440,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
                 continue;
             }
+            
+            typesCount++;
 
             if (!isQueryParameterEquals(identityQuery, IdentityType.ID, storedEntry.getId())) {
                 continue;
@@ -523,6 +538,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             
             if (!queryHelper.matchHasMember(storedEntry)) {
                 continue;
+            }
+            
+            if (identityQuery.getLimit() > 0) {
+                if (result.size() == identityQuery.getLimit()) {
+                    return result;
+                }
+                
+                if (identityQuery.getOffset() > 0) {
+                    if (typesCount <= identityQuery.getOffset()) {
+                        continue;
+                    }
+                }
             }
             
             result.add((T) storedEntry);

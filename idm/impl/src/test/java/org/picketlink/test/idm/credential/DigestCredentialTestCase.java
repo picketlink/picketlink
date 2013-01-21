@@ -27,15 +27,12 @@ import static org.junit.Assert.assertEquals;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.internal.Digest;
 import org.picketlink.idm.credential.internal.DigestCredentials;
 import org.picketlink.idm.credential.internal.DigestUtil;
-import org.picketlink.idm.credential.internal.Password;
-import org.picketlink.idm.credential.internal.UsernamePasswordCredentials;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
@@ -148,31 +145,48 @@ public class DigestCredentialTestCase extends AbstractIdentityManagerTestCase {
     }
     
     @Test
-    public void testUpdatePassword() throws Exception {
+    public void testMultipleRealms() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        Password firstPassword = new Password("password1".toCharArray());
+        Digest realmAPassword = new Digest();
 
-        identityManager.updateCredential(user, firstPassword);
-
-        UsernamePasswordCredentials firstCredential = new UsernamePasswordCredentials(user.getLoginName(), firstPassword);
-
-        identityManager.validateCredentials(firstCredential);
-
-        assertEquals(Status.VALID, firstCredential.getStatus());
+        realmAPassword.setRealm("Realm A");
+        realmAPassword.setUsername(user.getLoginName());
+        realmAPassword.setPassword("somePassword");
         
-        Password secondPassword = new Password("password2".toCharArray());
-        
-        identityManager.updateCredential(user, secondPassword);
-        
-        UsernamePasswordCredentials secondCredential = new UsernamePasswordCredentials(user.getLoginName(), secondPassword);
+        identityManager.updateCredential(user, realmAPassword);
 
-        identityManager.validateCredentials(secondCredential);
+        Digest realmBPassword = new Digest();
 
-        assertEquals(Status.VALID, secondCredential.getStatus());
+        realmBPassword.setRealm("Realm B");
+        realmBPassword.setUsername(user.getLoginName());
+        realmBPassword.setPassword("somePassword");
         
-        identityManager.validateCredentials(firstCredential);
+        identityManager.updateCredential(user, realmBPassword);
 
-        Assert.assertEquals(Status.INVALID, firstCredential.getStatus());
+        realmAPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), realmAPassword.getRealm(), realmAPassword.getPassword().toCharArray()));
+        
+        DigestCredentials realmACredentials = new DigestCredentials(realmAPassword);
+
+        identityManager.validateCredentials(realmACredentials);
+
+        assertEquals(Status.VALID, realmACredentials.getStatus());
+        
+        realmBPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), realmBPassword.getRealm(), realmBPassword.getPassword().toCharArray()));
+        
+        DigestCredentials realmBCredentials = new DigestCredentials(realmBPassword);
+
+        identityManager.validateCredentials(realmBCredentials);
+
+        assertEquals(Status.VALID, realmBCredentials.getStatus());
+
+        realmBPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), realmAPassword.getRealm(), realmBPassword.getPassword().toCharArray()));
+        
+        realmBCredentials = new DigestCredentials(realmBPassword);
+
+        identityManager.validateCredentials(realmBCredentials);
+
+        assertEquals(Status.INVALID, realmBCredentials.getStatus());
+
     }
 }
