@@ -45,7 +45,7 @@ public final class CredentialUtils {
      * @param credential
      * @return
      */
-    public static final boolean isCurrentCredential(CredentialStorage credential) {
+    public static boolean isCurrentCredential(CredentialStorage credential) {
         boolean isCurrent = true;
 
         Date actualDate = new Date();
@@ -68,7 +68,7 @@ public final class CredentialUtils {
     }
     
     @SuppressWarnings("unchecked")
-    public static final boolean isLastCredentialExpired(Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
+    public static boolean isLastCredentialExpired(Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
         List<CredentialStorage> credentials = (List<CredentialStorage>) store.retrieveCredentials(agent, storageClass);
         CredentialStorage lastCredential = null;
         Date actualDate = new Date();
@@ -90,7 +90,7 @@ public final class CredentialUtils {
      * @param credentialStorage
      * @return
      */
-    public static final boolean isCredentialExpired(CredentialStorage credentialStorage) {
+    public static boolean isCredentialExpired(CredentialStorage credentialStorage) {
         return credentialStorage != null && credentialStorage.getExpiryDate() != null && new Date().compareTo(credentialStorage.getExpiryDate()) > 0;
     }
 }
