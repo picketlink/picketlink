@@ -1,15 +1,14 @@
 package org.picketlink.idm.credential.internal;
 
 import java.util.Date;
+import java.util.List;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.Digest;
-import org.picketlink.idm.credential.DigestCredentials;
-import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
+import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
@@ -19,8 +18,10 @@ import org.picketlink.idm.spi.IdentityStore;
  * This particular implementation supports the validation of {@link DigestCredentials}.
  * </p>
  * <p>
- * Digest validation requires that the password was previously stored as a {@link Password} without encoding using the
- * {@link PasswordStorage}.
+ * When using this handler, password are always stored using: H(A1) = MD5 (unq(username) ":" unq(realm) ":" password). During
+ * the validation this handler will use the stored HA1 to compare with the digest provided by the {@link Digest} credential.
+ * This is done in two ways, if the credential has the method and uri setted the H(A2) will also be calculated and used to
+ * calcutate the final digest as KD ( H(A1), unq(nonce-value) ":" nc-value ":" unq(cnonce-value) ":" unq(qop-value) ":" H(A2) ).
  * </p>
  * 
  * @author Shane Bryzak
@@ -31,30 +32,91 @@ public class DigestCredentialHandler implements CredentialHandler {
 
     @Override
     public void validate(Credentials credentials, IdentityStore<?> identityStore) {
-        if (!CredentialStore.class.isInstance(identityStore)) {
-            throw new IdentityManagementException("Provided IdentityStore [" + identityStore + "] is not an instance of CredentialStore.");
+        CredentialStore credentialStore = validateCredentialStore(identityStore);
+
+        if (!DigestCredentials.class.isInstance(credentials)) {
+            throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
+                    + "] not supported by this handler.");
         }
-        
+
         DigestCredentials digestCredential = (DigestCredentials) credentials;
 
-        Agent agent = identityStore.getAgent(digestCredential.getDigest().getUsername());
-        
-        CredentialStore credentialStore = (CredentialStore) identityStore;
-        
-        digestCredential.setStatus(Status.VALID);
-        
-//        PasswordStorage storedPassword = credentialStore.retrieveCurrentCredential(agent, PasswordStorage.class);
-//
-//        if (storedPassword != null) {
-//            if (DigestUtil.matchCredential(digestCredential.getDigest(), storedPassword.getPassword().toCharArray())) {
-//                digestCredential.setStatus(Status.VALID);
-//                digestCredential.setValidatedAgent(agent);
-//            }
-//        }
+        digestCredential.setStatus(Status.INVALID);
+
+        Digest digest = digestCredential.getDigest();
+        Agent agent = identityStore.getAgent(digest.getUsername());
+
+        if (agent != null) {
+            List<DigestCredentialStorage> storages = credentialStore.retrieveCredentials(agent, DigestCredentialStorage.class);
+            DigestCredentialStorage currentCredential = null;
+
+            for (DigestCredentialStorage storage : storages) {
+                if (storage.getRealm().equals(digest.getRealm()) && CredentialUtils.isCurrentCredential(storage)) {
+                    currentCredential = storage;
+                    break;
+                }
+            }
+
+            if (currentCredential != null) {
+                if (digest.getMethod() != null && digest.getUri() != null) {
+                    byte[] storedHA1 = currentCredential.getHa1();
+                    byte[] ha2 = DigestUtil.calculateA2(digest.getMethod(), digest.getUri());
+
+                    String calculateDigest = DigestUtil.calculateDigest(digest, storedHA1, ha2);
+
+                    if (calculateDigest.equals(digest.getDigest())) {
+                        digestCredential.setStatus(Status.VALID);
+                    }
+                } else {
+                    String storedDigestPassword = Base64.encodeBytes(currentCredential.getHa1());
+                    String providedDigest = digest.getDigest();
+
+                    if (String.valueOf(storedDigestPassword).equals(providedDigest)) {
+                        digestCredential.setStatus(Status.VALID);
+                    }
+                }
+            } else if (CredentialUtils.isLastCredentialExpired(agent, credentialStore, DigestCredentialStorage.class)) {
+                digestCredential.setStatus(Status.EXPIRED);
+            }
+        }
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> store, Date effectiveDate, Date expiryDate) {
-        // this handler only supports validation
+    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+        CredentialStore credentialStore = validateCredentialStore(identityStore);
+
+        if (!Digest.class.isInstance(credential)) {
+            throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
+                    + "] not supported by this handler.");
+        }
+
+        Digest digestCredential = (Digest) credential;
+
+        if (digestCredential.getRealm() == null || "".equals(digestCredential.getRealm().trim())) {
+            throw new IdentityManagementException("You must specify a Realm when updating a Digest credential.");
+        }
+
+        if (digestCredential.getPassword() == null || "".equals(digestCredential.getPassword().trim())) {
+            throw new IdentityManagementException("You must specify a password when updating a Digest credential.");
+        }
+
+        byte[] ha1 = DigestUtil.calculateA1(agent.getLoginName(), digestCredential.getRealm(), digestCredential.getPassword()
+                .toCharArray());
+
+        DigestCredentialStorage storage = new DigestCredentialStorage(ha1, digestCredential.getRealm());
+
+        storage.setEffectiveDate(effectiveDate);
+        storage.setExpiryDate(expiryDate);
+
+        credentialStore.storeCredential(agent, storage);
+    }
+
+    private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
+        if (!CredentialStore.class.isInstance(identityStore)) {
+            throw new IdentityManagementException("Provided IdentityStore [" + identityStore.getClass().getName()
+                    + "] is not an instance of CredentialStore.");
+        } else {
+            return (CredentialStore) identityStore;
+        }
     }
 }

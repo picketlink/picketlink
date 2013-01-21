@@ -31,6 +31,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials.Status;
+import org.picketlink.idm.credential.internal.Digest;
+import org.picketlink.idm.credential.internal.DigestCredentials;
+import org.picketlink.idm.credential.internal.DigestUtil;
 import org.picketlink.idm.credential.internal.Password;
 import org.picketlink.idm.credential.internal.UsernamePasswordCredentials;
 import org.picketlink.idm.model.User;
@@ -38,26 +41,29 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
  * <p>
- * Test case for {@link UsernamePasswordCredentials} type.
+ * Test case for {@link DigestCredentials} type.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase {
+public class DigestCredentialTestCase extends AbstractIdentityManagerTestCase {
 
     @Test
     public void testSuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        Password plainTextPassword = new Password("updated_password".toCharArray());
+        Digest digestPassword = new Digest();
 
-        identityManager.updateCredential(user, plainTextPassword);
-
-        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
-
-        credential.setUsername(user.getLoginName());
-        credential.setPassword(plainTextPassword);
+        digestPassword.setRealm("pl-idm");
+        digestPassword.setUsername(user.getLoginName());
+        digestPassword.setPassword("somePassword");
+        
+        identityManager.updateCredential(user, digestPassword);
+        
+        digestPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), digestPassword.getRealm(), digestPassword.getPassword().toCharArray()));
+        
+        DigestCredentials credential = new DigestCredentials(digestPassword);
 
         identityManager.validateCredentials(credential);
 
@@ -68,25 +74,32 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     public void testUnsuccessfulValidation() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        Password plainTextPassword = new Password("updated_password".toCharArray());
+        Digest digestPassword = new Digest();
 
-        identityManager.updateCredential(user, plainTextPassword, new Date(), null);
-        UsernamePasswordCredentials badUserName = new UsernamePasswordCredentials();
-
-        badUserName.setUsername("Bad" + user.getLoginName());
-        badUserName.setPassword(plainTextPassword);
+        digestPassword.setRealm("pl-idm");
+        digestPassword.setUsername(user.getLoginName());
+        digestPassword.setPassword("somePassword");
+        
+        identityManager.updateCredential(user, digestPassword);
+        
+        digestPassword.setDigest(DigestUtil.calculateA1("Bad" + user.getLoginName(), digestPassword.getRealm(), digestPassword.getPassword().toCharArray()));
+        
+        DigestCredentials badUserName = new DigestCredentials(digestPassword);
 
         identityManager.validateCredentials(badUserName);
 
         assertEquals(Status.INVALID, badUserName.getStatus());
 
-        UsernamePasswordCredentials badPassword = new UsernamePasswordCredentials();
+        digestPassword = new Digest();
 
-        plainTextPassword = new Password("bad_password".toCharArray());
+        digestPassword.setRealm("pl-idm");
+        digestPassword.setUsername(user.getLoginName());
+        digestPassword.setPassword("bad_somePassword");
         
-        badPassword.setUsername(user.getLoginName());
-        badPassword.setPassword(plainTextPassword);
-
+        digestPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), digestPassword.getRealm(), digestPassword.getPassword().toCharArray()));
+        
+        DigestCredentials badPassword = new DigestCredentials(digestPassword);
+        
         identityManager.validateCredentials(badPassword);
 
         assertEquals(Status.INVALID, badPassword.getStatus());
@@ -97,27 +110,37 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
-        Password plainTextPassword = new Password("updated_password".toCharArray());
-
+        Digest digest = new Digest();
+        
+        digest.setRealm("pl-idm");
+        digest.setUsername(user.getLoginName());
+        digest.setPassword("somePassword");
+        
         Calendar expirationDate = Calendar.getInstance();
         
         expirationDate.add(Calendar.MINUTE, -1);
         
-        identityManager.updateCredential(user, plainTextPassword, new Date(), expirationDate.getTime());
-        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
+        identityManager.updateCredential(user, digest, new Date(), expirationDate.getTime());
 
-        credential.setUsername(user.getLoginName());
-        credential.setPassword(plainTextPassword);
+        DigestCredentials credential = new DigestCredentials(digest);
 
+        digest.setDigest(DigestUtil.calculateA1(user.getLoginName(), digest.getRealm(), digest.getPassword().toCharArray()));
+        
         identityManager.validateCredentials(credential);
 
         assertEquals(Status.EXPIRED, credential.getStatus());
         
-        Password newPassword = new Password("new_password".toCharArray());
+        Digest newPassword = new Digest();
+        
+        newPassword.setRealm("pl-idm");
+        newPassword.setUsername(user.getLoginName());
+        newPassword.setPassword("someNewPassword");
         
         identityManager.updateCredential(user, newPassword);
         
-        credential = new UsernamePasswordCredentials(user.getLoginName(), newPassword);
+        credential = new DigestCredentials(newPassword);
+        
+        newPassword.setDigest(DigestUtil.calculateA1(user.getLoginName(), newPassword.getRealm(), newPassword.getPassword().toCharArray()));
         
         identityManager.validateCredentials(credential);
 

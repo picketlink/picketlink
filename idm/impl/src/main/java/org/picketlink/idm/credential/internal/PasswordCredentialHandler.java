@@ -1,17 +1,15 @@
 package org.picketlink.idm.credential.internal;
 
+import static org.picketlink.idm.credential.internal.CredentialUtils.isLastCredentialExpired;
+
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Date;
-import java.util.List;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
-import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
@@ -92,27 +90,6 @@ public class PasswordCredentialHandler implements CredentialHandler {
         }
 
         store.storeCredential(agent, hash);
-    }
-
-    private boolean isCredentialExpired(CredentialStorage credentialStorage) {
-        return credentialStorage != null && credentialStorage.getExpiryDate() == null || new Date().compareTo(credentialStorage.getExpiryDate()) > 0;
-    }
-
-    @SuppressWarnings("unchecked")
-    private boolean isLastCredentialExpired(Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
-        List<CredentialStorage> credentials = (List<CredentialStorage>) store.retrieveCredentials(agent, storageClass);
-        CredentialStorage lastCredential = null;
-        Date actualDate = new Date();
-
-        for (CredentialStorage storedCredential : credentials) {
-            if (storedCredential.getEffectiveDate().compareTo(actualDate) <= 0) {
-                if (lastCredential == null || lastCredential.getEffectiveDate().compareTo(storedCredential.getEffectiveDate()) <= 0) {
-                    lastCredential = storedCredential;
-                }
-            }
-        }
-
-        return isCredentialExpired(lastCredential);
     }
 
     private String generateSalt() {

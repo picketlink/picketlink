@@ -22,6 +22,8 @@
 
 package org.picketlink.idm.file.internal;
 
+import static org.picketlink.idm.credential.internal.CredentialUtils.isCurrentCredential;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -87,7 +89,9 @@ public class FileCredentialStore implements CredentialStore {
         List<FileCredentialStorage> credentials = getCredentials(agent, storage.getClass());
 
         for (FileCredentialStorage fileCredentialStorage : credentials) {
-            if (isCurrentCredential(fileCredentialStorage)) {
+            CredentialStorage storedCredential = convertToCredentialStorage(storage.getClass(), fileCredentialStorage);
+            
+            if (isCurrentCredential(storedCredential)) {
                 fileCredentialStorage.setExpiryDate(new Date());
             }
         }
@@ -122,8 +126,10 @@ public class FileCredentialStore implements CredentialStore {
 
         if (credentials != null) {
             for (FileCredentialStorage fileCredentialStorage : credentials) {
-                if (isCurrentCredential(fileCredentialStorage)) {
-                    return convertToCredentialStorage(storageClass, fileCredentialStorage);
+                T credential = convertToCredentialStorage(storageClass, fileCredentialStorage);
+                
+                if (isCurrentCredential(credential)) {
+                    return credential;
                 }
             }
         }
@@ -156,35 +162,7 @@ public class FileCredentialStore implements CredentialStore {
         flushCredentials();
     }
 
-    /**
-     * <p>
-     * Checks if the specified {@link FileCredentialStorage} mapps to the current credential.
-     * </p>
-     * 
-     * @param fileCredentialStorage
-     * @return
-     */
-    private boolean isCurrentCredential(FileCredentialStorage fileCredentialStorage) {
-        boolean isCurrent = true;
 
-        Date actualDate = new Date();
-
-        if (fileCredentialStorage.getEffectiveDate() != null) {
-            if (fileCredentialStorage.getEffectiveDate().compareTo(actualDate) > 0) {
-                isCurrent = false;
-            }
-        }
-
-        if (isCurrent) {
-            if (fileCredentialStorage.getExpiryDate() != null) {
-                if (fileCredentialStorage.getExpiryDate().compareTo(actualDate) <= 0) {
-                    isCurrent = false;
-                }
-            }
-        }
-
-        return isCurrent;
-    }
 
     /**
      * <p>

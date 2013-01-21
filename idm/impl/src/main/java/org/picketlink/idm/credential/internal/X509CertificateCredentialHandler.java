@@ -8,8 +8,6 @@ import java.util.Date;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.X509Cert;
-import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.internal.util.Base64;

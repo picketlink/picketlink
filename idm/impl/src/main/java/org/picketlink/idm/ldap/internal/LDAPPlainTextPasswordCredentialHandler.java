@@ -9,8 +9,8 @@ import javax.naming.directory.ModificationItem;
 
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.credential.internal.Password;
+import org.picketlink.idm.credential.internal.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;

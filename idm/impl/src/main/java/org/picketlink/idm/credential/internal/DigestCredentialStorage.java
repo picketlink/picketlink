@@ -22,38 +22,38 @@
 
 package org.picketlink.idm.credential.internal;
 
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
-import org.picketlink.idm.internal.util.Base64;
 
 /**
- * <p> {@link CredentialStorage} for {@link X509Certificate} credentials.</p>
+ * <p>
+ * {@link CredentialStorage} for {@link Digest} credentials.
+ * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
-public class X509CertificateStorage implements CredentialStorage {
+public class DigestCredentialStorage implements CredentialStorage {
 
     private Date effectiveDate;
     private Date expiryDate;
-    private String base64Cert;
+    
+    private String realm;
+    private byte[] ha1;
 
-    public X509CertificateStorage() { }
-
-    public X509CertificateStorage(X509Cert credential) {
-        try {
-            this.base64Cert = Base64.encodeBytes(credential.getValue().getEncoded());
-        } catch (CertificateEncodingException e) {
-            throw new IdentityManagementException("Could not get Base64 representation for X509 Certificate.", e);
-        }
+    public DigestCredentialStorage() {
+        
+    }
+    
+    public DigestCredentialStorage(byte[] ha1, String realm) {
+        this.ha1 = ha1;
+        this.realm = realm;
     }
 
-    @Override @Stored
+    @Override
+    @Stored
     public Date getEffectiveDate() {
         return effectiveDate;
     }
@@ -62,7 +62,8 @@ public class X509CertificateStorage implements CredentialStorage {
         this.effectiveDate = effectiveDate;
     }
 
-    @Override @Stored
+    @Override
+    @Stored
     public Date getExpiryDate() {
         return expiryDate;
     }
@@ -72,12 +73,21 @@ public class X509CertificateStorage implements CredentialStorage {
     }
 
     @Stored
-    public String getBase64Cert() {
-        return this.base64Cert;
+    public byte[] getHa1() {
+        return this.ha1;
     }
 
-    public void setBase64Cert(String base64Cert) {
-        this.base64Cert = base64Cert;
+    public void setHa1(byte[] ha1) {
+        this.ha1 = ha1;
     }
 
+    @Stored
+    public String getRealm() {
+        return this.realm;
+    }
+
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
+    
 }

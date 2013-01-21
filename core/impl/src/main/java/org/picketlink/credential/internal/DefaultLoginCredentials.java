@@ -7,7 +7,7 @@ import javax.inject.Named;
 import org.picketlink.authentication.event.LoginFailedEvent;
 import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.credential.internal.Password;
 import org.picketlink.idm.model.Agent;
 
 /**
