@@ -33,6 +33,7 @@ import javax.xml.stream.events.XMLEvent;
 import org.picketlink.identity.federation.core.config.idm.IDMType;
 import org.picketlink.identity.federation.core.config.idm.IdentityConfigurationType;
 import org.picketlink.identity.federation.core.config.idm.IdentityStoreInvocationContextFactoryType;
+import org.picketlink.identity.federation.core.config.idm.ObjectType;
 import org.picketlink.identity.federation.core.config.idm.StoreConfigurationType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handler;
@@ -82,6 +83,9 @@ public class IDMConfigParser extends AbstractParser {
     public static final String PROPERTY_ELEMENT = "Property";
 
     public static final String PROPERTY_NAME_ATTRIBUTE = "Name";
+
+    // Object property, which represents property of non-primitive type
+    public static final String OBJECT_ELEMENT = "Object";
 
     public Object parse(XMLEventReader xmlEventReader) throws ParsingException {
         StartElement startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
@@ -275,38 +279,94 @@ public class IDMConfigParser extends AbstractParser {
 
             if (elementName.equals(PROPERTY_ELEMENT)) {
                 // parsing property name
-                String propertyName = null;
-                QName attributeQName = new QName("", PROPERTY_NAME_ATTRIBUTE);
-                attribute = startElement.getAttributeByName(attributeQName);
-                if (attribute != null)
-                    propertyName = StaxParserUtil.getAttributeValue(attribute);
-
-                // parsing property value (for now we assume characters only. More types need to be added later...)
-                String propertyValue = null;
-                while (true) {
-                    xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
-                    if (xmlEvent.isCharacters()) {
-                        Characters chars = xmlEvent.asCharacters();
-                        propertyValue = chars.getData();
-                        if (propertyValue != null) {
-                            propertyValue = StringUtil.getSystemPropertyAsString(propertyValue.trim());
-                        }
-                        break;
-                    } else if (xmlEvent instanceof EndElement) {
-                        EndElement endElement = (EndElement) xmlEvent;
-                        String endElementName = StaxParserUtil.getEndElementName(endElement);
-                        if (endElementName.equals(PROPERTY_ELEMENT))
-                            break;
-                    }
-                }
-
-                storeConfigurationType.addProperty(propertyName, propertyValue);
+                parseAndAddProperty(xmlEventReader, startElement, storeConfigurationType);
             } else {
                 throw logger.parserUnknownStartElement(elementName, startElement.getLocation());
             }
         }
 
         return storeConfigurationType;
+    }
+
+    protected void parseAndAddProperty(XMLEventReader xmlEventReader, StartElement startElement, StoreConfigurationType storeConfigurationType)
+            throws ParsingException {
+        // parsing property name
+        String propertyName = null;
+        QName attributeQName = new QName("", PROPERTY_NAME_ATTRIBUTE);
+        Attribute attribute = startElement.getAttributeByName(attributeQName);
+        if (attribute != null)
+            propertyName = StaxParserUtil.getAttributeValue(attribute);
+
+        // parsing property value (for now we assume characters only. More types need to be added later...)
+        Object propertyValue = null;
+        while (true) {
+            XMLEvent xmlEvent = StaxParserUtil.getNextEvent(xmlEventReader);
+            if (xmlEvent.isStartElement()) {
+                StartElement objectStartElement = xmlEvent.asStartElement();
+                if (OBJECT_ELEMENT.equals(StaxParserUtil.getStartElementName(objectStartElement))) {
+                    propertyValue = parseObjectProperty(xmlEventReader, objectStartElement);
+                } else {
+                    throw logger.parserUnknownStartElement(StaxParserUtil.getStartElementName(startElement), startElement.getLocation());
+                }
+            }
+            else if (xmlEvent.isCharacters()) {
+                Characters chars = xmlEvent.asCharacters();
+                propertyValue = chars.getData();
+                if (propertyValue != null) {
+                    propertyValue = StringUtil.getSystemPropertyAsString(((String)propertyValue).trim());
+                }
+                break;
+            } else if (xmlEvent instanceof EndElement) {
+                EndElement endElement = (EndElement) xmlEvent;
+                String endElementName = StaxParserUtil.getEndElementName(endElement);
+                if (endElementName.equals(PROPERTY_ELEMENT))
+                    break;
+            }
+        }
+
+        storeConfigurationType.addProperty(propertyName, propertyValue);
+    }
+
+    // TODO: Almost same like parseStoreConfiguration. Think about reusability...
+    protected ObjectType parseObjectProperty(XMLEventReader xmlEventReader, StartElement startElement)
+            throws ParsingException {
+        QName classNameAttributeQName = new QName("", CLASS_NAME_ATTRIBUTE);
+        String storeFactoryElementName = StaxParserUtil.getStartElementName(startElement);
+
+        ObjectType objectType = new ObjectType();
+
+        Attribute attribute = startElement.getAttributeByName(classNameAttributeQName);
+        if (attribute != null)
+            objectType.setClassName(StaxParserUtil.getAttributeValue(attribute));
+
+        // parse the inner elements
+        while (xmlEventReader.hasNext()) {
+            XMLEvent xmlEvent = StaxParserUtil.peek(xmlEventReader);
+            if (xmlEvent == null)
+                break;
+            if (xmlEvent instanceof EndElement) {
+                EndElement endElement = (EndElement) StaxParserUtil.getNextEvent(xmlEventReader);
+                String endElementName = StaxParserUtil.getEndElementName(endElement);
+                if (endElementName.equals(storeFactoryElementName))
+                    break;
+                else
+                    continue;
+            }
+
+            startElement = StaxParserUtil.getNextStartElement(xmlEventReader);
+            if (startElement == null)
+                break;
+            String elementName = StaxParserUtil.getStartElementName(startElement);
+
+            if (elementName.equals(PROPERTY_ELEMENT)) {
+                // parsing property name
+                parseAndAddProperty(xmlEventReader, startElement, objectType);
+            } else {
+                throw logger.parserUnknownStartElement(elementName, startElement.getLocation());
+            }
+        }
+
+        return objectType;
     }
 
 

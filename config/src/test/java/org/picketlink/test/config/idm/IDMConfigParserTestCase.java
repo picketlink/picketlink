@@ -36,6 +36,7 @@ import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.idm.IDMType;
 import org.picketlink.identity.federation.core.config.idm.IdentityStoreInvocationContextFactoryType;
+import org.picketlink.identity.federation.core.config.idm.ObjectType;
 import org.picketlink.identity.federation.core.config.idm.StoreConfigurationType;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
@@ -49,7 +50,7 @@ public class IDMConfigParserTestCase {
 
     @Test
     public void testParseIDMConfiguration() throws ParsingException {
-        System.setProperty("property.existing", "Property3SystemPropValue");
+        System.setProperty("property.existing", "org.picketlink.idm.jpa.schema.IdentityObject");
 
         ClassLoader tcl = Thread.currentThread().getContextClassLoader();
         InputStream configStream = tcl.getResourceAsStream("parser/config/picketlink.xml");
@@ -79,27 +80,36 @@ public class IDMConfigParserTestCase {
         assertEquals("org.picketlink.idm.internal.DefaultIdGenerator", invStoreInvocationContextFactoryType.getIdGeneratorClass());
 
         StoreConfigurationType partitionStore = idmType.getIdentityConfigurationType().getPartitionStoreConfiguration();
-        assertEquals(2, partitionStore.getAllProperties().keySet().size());
-        assertEquals("Property3SystemPropValue", partitionStore.getProperty("property3"));
-        assertEquals("Property4Value", partitionStore.getProperty("property4"));
-        assertNull(partitionStore.getProperty("property5"));
+        assertNull(partitionStore);
 
         List<StoreConfigurationType> identityStoreConfigs = idmType.getIdentityConfigurationType().getIdentityStoreConfigurations();
-        assertEquals(2, identityStoreConfigs.size());
+        assertEquals(3, identityStoreConfigs.size());
         StoreConfigurationType ldapConfig = identityStoreConfigs.get(0);
-        StoreConfigurationType anotherConfig = identityStoreConfigs.get(1);
-
-        assertEquals(2, anotherConfig.getAllProperties().keySet().size());
-        assertEquals("Property1Value", anotherConfig.getProperty("property1"));
-        assertEquals("Property2Value", anotherConfig.getProperty("property2"));
-        assertNull(anotherConfig.getProperty("property3"));
+        StoreConfigurationType fileConfig = identityStoreConfigs.get(1);
+        StoreConfigurationType jpaConfig = identityStoreConfigs.get(2);
 
         assertEquals("org.picketlink.idm.ldap.internal.LDAPConfiguration", ldapConfig.getClassName());
-        assertEquals(6, ldapConfig.getAllProperties().keySet().size());
+        assertEquals(8, ldapConfig.getAllProperties().keySet().size());
         assertEquals("uid=admin,ou=system", ldapConfig.getProperty("bindDN"));
         assertEquals("ldap://localhost:10389", ldapConfig.getProperty("ldapURL"));
         assertEquals("ou=Groups,dc=jboss,dc=org", ldapConfig.getProperty("groupDNSuffix"));
         assertNull(ldapConfig.getProperty("property3"));
+        assertEquals("false", ldapConfig.getProperty("activeDirectory"));
+        ObjectType additionalProps = (ObjectType)ldapConfig.getProperty("additionalProperties");
+        assertEquals("java.util.Properties", additionalProps.getClassName());
+        assertEquals("Value1", additionalProps.getProperty("property1"));
+        assertEquals("Value2", additionalProps.getProperty("property2"));
+
+        assertEquals(1, fileConfig.getAllProperties().keySet().size());
+        ObjectType fileDatasource =  (ObjectType)fileConfig.getProperty("dataSource");
+        assertEquals("/tmp/example", fileDatasource.getProperty("workingDir"));
+        assertEquals("true", fileDatasource.getProperty("alwaysCreateFiles"));
+
+        assertEquals("org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration", jpaConfig.getClassName());
+        assertEquals(4, jpaConfig.getAllProperties().keySet().size());
+        assertEquals("org.picketlink.idm.jpa.schema.IdentityObject", jpaConfig.getProperty("identityClass"));
+        assertEquals("org.picketlink.idm.jpa.schema.RelationshipObject", jpaConfig.getProperty("relationshipClass"));
+        assertEquals("USERRR", jpaConfig.getProperty("identityTypeUser"));
     }
 
     @Test

@@ -81,19 +81,32 @@
         <Property Name="userDNSuffix">ou=People,dc=jboss,dc=org</Property>
         <Property Name="roleDNSuffix">ou=Roles,dc=jboss,dc=org</Property>
         <Property Name="groupDNSuffix">ou=Groups,dc=jboss,dc=org</Property>
+        <Property Name="activeDirectory">false</Property>
+        <Property Name="additionalProperties">
+          <Object ClassName="java.util.Properties">
+            <Property Name="property1">Value1</Property>
+            <Property Name="property2">Value2</Property>
+          </Object>
+        </Property>
       </IdentityStoreConfiguration>
 
       <!-- More store configurations can be provided... -->
-      <IdentityStoreConfiguration ClassName="org.picketlink.AnotherStoreConfiguration">
-        <Property Name="property1">Property1Value</Property>
-        <Property Name="property2">Property2Value</Property>
+      <IdentityStoreConfiguration ClassName="org.picketlink.idm.file.internal.FileIdentityStoreConfiguration">
+        <Property Name="dataSource">
+          <Object ClassName="org.picketlink.idm.file.internal.FileDataSource">
+            <Property Name="workingDir">/tmp/example</Property>
+            <Property Name="alwaysCreateFiles">true</Property>
+          </Object>
+        </Property>
       </IdentityStoreConfiguration>
 
-      <!-- Some PartitionStoreConfiguration ... -->
-      <PartitionStoreConfiguration ClassName="org.picketlink.SomePartitionStore">
-        <Property Name="property3">${property.existing::Property3Value}</Property>
-        <Property Name="property4">${property.nonexisting::Property4Value}</Property>
-      </PartitionStoreConfiguration>
+      <!-- JPAIdentityStoreConfiguration -->
+      <IdentityStoreConfiguration ClassName="org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration">
+        <Property Name="identityClass">${property.existing::org.picketlink.idm.jpa.schema.IdentityObjecttttt}</Property>
+        <Property Name="relationshipClass">${property.nonexisting::org.picketlink.idm.jpa.schema.RelationshipObject}</Property>
+        <Property Name="partitionClass">org.picketlink.idm.jpa.schema.PartitionObject</Property>
+        <Property Name="identityTypeUser">USERRR</Property>
+      </IdentityStoreConfiguration>
 
     </IdentityConfiguration>
   </PicketLinkIDM>
