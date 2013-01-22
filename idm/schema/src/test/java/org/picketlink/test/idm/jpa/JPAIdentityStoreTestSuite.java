@@ -31,6 +31,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
@@ -68,7 +69,8 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**
  * <p>
- * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore}.
+ * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore}. For each test is created a fresh
+ * {@link IdentityManager} instance. Data is not preserved between tests.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -112,6 +114,11 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         return identityManager;
     }
 
+    /**
+     * <p>Returns a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.</p>
+     * 
+     * @return
+     */
     private IdentityStoreConfiguration getDefaultConfiguration() {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
 
@@ -120,6 +127,11 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         return configuration;
     }
     
+    /**
+     * <p>Returns a specific {@link FileIdentityStoreConfiguration} for the Testing Realm.</p>
+     * 
+     * @return
+     */
     private IdentityStoreConfiguration getTestingRealmConfiguration() {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
         

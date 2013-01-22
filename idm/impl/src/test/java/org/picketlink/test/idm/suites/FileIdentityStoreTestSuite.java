@@ -26,11 +26,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -56,7 +56,8 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**
  * <p>
- * Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.
+ * Test suite for the {@link IdentityManager} using a {@link FileBasedIdentityStore}. For each test is created a fresh
+ * {@link IdentityManager} instance. Data is not preserved between tests.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -64,11 +65,12 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  */
 @RunWith(IdentityManagerRunner.class)
 @SuiteClasses({ RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
-    ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
-    RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
-    UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
-    AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
-    AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class })
+        ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
+        RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
+        UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+        AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
+        AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class,
+        DigestCredentialTestCase.class })
 public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     private static FileIdentityStoreTestSuite instance;
@@ -82,13 +84,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
     }
 
     @Override
-    public void onInit() {
-
-    }
-
-    @Override
     public IdentityManager createIdentityManager() {
-
         IdentityConfiguration config = new IdentityConfiguration();
 
         FileDataSource dataSource = new FileDataSource();
@@ -103,16 +99,32 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         return identityManager;
     }
 
+    /**
+     * <p>Configure a specific {@link FileIdentityStoreConfiguration} for the Testing Realm.</p>
+     * 
+     * @param config
+     * @param dataSource
+     */
     private void addTestingRealmConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
-        FileIdentityStoreConfiguration testingRealmConfiguration = getTestingRealmConfiguration();
+        FileIdentityStoreConfiguration fileConfig = new FileIdentityStoreConfiguration();
 
-        testingRealmConfiguration.setDataSource(dataSource);
+        fileConfig.setRealm("Testing");
 
-        config.addStoreConfiguration(testingRealmConfiguration);
+        fileConfig.setDataSource(dataSource);
+
+        config.addStoreConfiguration(fileConfig);
     }
 
+    /**
+     * <p>
+     * Configure a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.
+     * </p>
+     * 
+     * @param config
+     * @param dataSource
+     */
     private void addDefaultConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
-        FileIdentityStoreConfiguration defaultConfiguration = getDefaultConfiguration();
+        FileIdentityStoreConfiguration defaultConfiguration = new FileIdentityStoreConfiguration();
 
         defaultConfiguration.setDataSource(dataSource);
 
@@ -120,20 +132,13 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
     }
 
     @Override
+    public void onInit() {
+
+    }
+    
+    @Override
     public void onDestroy() {
 
-    }
-
-    public static FileIdentityStoreConfiguration getDefaultConfiguration() {
-        return new FileIdentityStoreConfiguration();
-    }
-
-    public static FileIdentityStoreConfiguration getTestingRealmConfiguration() {
-        FileIdentityStoreConfiguration config = new FileIdentityStoreConfiguration();
-
-        config.setRealm("Testing");
-
-        return config;
     }
 
 }
