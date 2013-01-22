@@ -61,6 +61,16 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
         this.identityCache = identityCache;
     }
 
+    public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf, IdentityCache identityCache,
+                                                        EventBridge eventBridge, IdGenerator idGenerator) {
+        this(emf, chf, identityCache);
+        this.idGenerator = idGenerator;
+
+        if (eventBridge != null) {
+            this.eventBridge = eventBridge;
+        }
+    }
+
     @Override
     public IdentityStoreInvocationContext createContext() {
         return new IdentityStoreInvocationContext(this.identityCache, eventBridge, credentialHandlerFactory, idGenerator);

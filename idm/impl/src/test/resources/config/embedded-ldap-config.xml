@@ -1,0 +1,27 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <!-- Start of IDM configuration -->
+  <PicketLinkIDM>
+    <IdentityManager ClassName="org.picketlink.idm.internal.DefaultIdentityManager" />
+    <StoreFactory ClassName="org.picketlink.idm.internal.DefaultStoreFactory" />
+
+    <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
+      <CredentialHandlerFactory ClassName="org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory" />
+      <IdentityCache ClassName="org.picketlink.idm.DefaultIdentityCache" />
+      <IdGenerator ClassName="${property.id.generator::org.picketlink.idm.internal.DefaultIdGenerator}" />
+    </IdentityStoreInvocationContextFactory>
+
+    <IdentityConfiguration>
+      <IdentityStoreConfiguration ClassName="org.picketlink.idm.ldap.internal.LDAPConfiguration">
+        <Property Name="bindDN">uid=admin,ou=system</Property>
+        <Property Name="bindCredential">secret</Property>
+        <Property Name="ldapURL">ldap://localhost:10389</Property>
+        <Property Name="userDNSuffix">ou=People,dc=jboss,dc=org</Property>
+        <Property Name="roleDNSuffix">ou=Roles,dc=jboss,dc=org</Property>
+        <Property Name="groupDNSuffix">ou=Groups,dc=jboss,dc=org</Property>
+      </IdentityStoreConfiguration>
+    </IdentityConfiguration>
+  </PicketLinkIDM>
+
+</PicketLink>
+
