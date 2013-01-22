@@ -42,7 +42,7 @@ public class RelationshipIdentityObject {
 
     @Id
     @GeneratedValue
-    private String id;
+    private long id;
 
     @IDMProperty(PropertyType.RELATIONSHIP_DESCRIPTOR)
     private String descriptor;
@@ -55,11 +55,11 @@ public class RelationshipIdentityObject {
     @ManyToOne
     private RelationshipObject relationshipObject;
 
-    public String getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(long id) {
         this.id = id;
     }
 
