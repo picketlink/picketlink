@@ -23,7 +23,6 @@
 package org.picketlink.idm.credential.internal;
 
 import java.util.Date;
-import java.util.List;
 
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
@@ -71,13 +70,20 @@ public final class CredentialUtils {
         return isCredentialExpired(getCurrentCredential(agent, store, storageClass));
     }
 
-    public static CredentialStorage getCurrentCredential(Agent agent, CredentialStore store,
-            Class<? extends CredentialStorage> storageClass) {
-        List<? extends CredentialStorage> credentials = store.retrieveCredentials(agent, storageClass);
-        CredentialStorage lastCredential = null;
+    /**
+     * <p>Returns the current credential for the given {@link Agent}.</p>
+     * 
+     * @param agent
+     * @param store
+     * @param storageClass
+     * @return
+     */
+    public static <T extends CredentialStorage> T getCurrentCredential(Agent agent, CredentialStore store,
+            Class<T> storageClass) {
+        T lastCredential = null;
         Date actualDate = new Date();
 
-        for (CredentialStorage storedCredential : credentials) {
+        for (T storedCredential : store.retrieveCredentials(agent, storageClass)) {
             if (storedCredential.getEffectiveDate().compareTo(actualDate) <= 0) {
                 if (lastCredential == null || lastCredential.getEffectiveDate().compareTo(storedCredential.getEffectiveDate()) <= 0) {
                     lastCredential = storedCredential;

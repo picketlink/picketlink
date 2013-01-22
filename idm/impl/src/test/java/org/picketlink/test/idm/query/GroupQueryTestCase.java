@@ -66,7 +66,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
+        assertEquals(1, result.size());
         assertEquals(group.getName(), result.get(0).getName());
     }
     
@@ -141,6 +141,8 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
             groupIds.add(Group.getId());
         }
         
+        assertEquals(50, groupIds.size());
+        
         query.setOffset(50);
         
         List<Group> invalidPage = query.getResultList();
@@ -167,6 +169,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
         
         assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroupDefaultRealm.getName()));
         
         Realm testingRealm = identityManager.getRealm("Testing");
@@ -187,7 +190,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
         
         assertFalse(result.isEmpty());
-        assertFalse(contains(result, someGroupDefaultRealm.getName()));
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroupTestingRealm.getName()));
     }
     
@@ -212,6 +215,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
         
         assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroupTier.getName()));
         
         Tier someAnotherTier = new Tier("Some Another Group Tier");
@@ -229,13 +233,13 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
         
         assertFalse(result.isEmpty());
-        assertFalse(contains(result, someGroupTier.getName()));
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroupTestingTier.getName()));
     }
     
     @Test
     public void testFindByName() throws Exception {
-        createGroup("admin", null);
+        Group group = createGroup("admin", null);
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -246,9 +250,8 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
-
-        assertEquals("admin", result.get(0).getName());
+        assertEquals(1, result.size());
+        assertEquals(group.getName(), result.get(0).getName());
     }
 
     /**
@@ -279,6 +282,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
 
@@ -301,8 +305,8 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroup.getName()));
-        assertFalse(contains(result, someAnotherGroup.getName()));
 
         someAnotherGroup.setEnabled(false);
 
@@ -314,8 +318,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someGroup.getName()));
-        assertFalse(contains(result, someAnotherGroup.getName()));
+        assertTrue(result.isEmpty());
     }
 
     /**
@@ -338,7 +341,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
+        assertEquals(1, result.size());
         assertEquals(group.getName(), result.get(0).getName());
         assertEquals(group.getParentGroup().getName(), result.get(0).getParentGroup().getName());
     }
@@ -363,12 +366,10 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(result.size() == 1);
+        assertEquals(1, result.size());
         assertEquals("someGroup", result.get(0).getName());
 
         query = identityManager.<Group> createIdentityQuery(Group.class);
-        
-        Thread.sleep(500);
         
         query.setParameter(Group.CREATED_DATE, new Date());
 
@@ -405,10 +406,8 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
+        assertEquals(1, result.size());
         assertTrue(contains(result, group.getName()));
-
-        assertEquals("someGroup", result.get(0).getName());
 
         query = identityManager.<Group> createIdentityQuery(Group.class);
 
@@ -446,12 +445,10 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(Group.CREATED_AFTER, calendar.getTime());
         query.setParameter(Group.CREATED_BEFORE, new Date());
 
-        Thread.sleep(500);
-
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
+        assertEquals(2, result.size());
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
 
@@ -465,7 +462,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
+        assertEquals(4, result.size());
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
         assertTrue(contains(result, someFutureGroup.getName()));
@@ -478,7 +475,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
+        assertEquals(4, result.size());
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
         assertTrue(contains(result, someFutureGroup.getName()));
@@ -525,8 +522,8 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertTrue(contains(result, group.getName()));
         assertEquals(1, result.size());
+        assertTrue(contains(result, group.getName()));
 
         query = identityManager.<Group> createIdentityQuery(Group.class);
 
@@ -568,52 +565,52 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         calendar.add(Calendar.YEAR, -1);
 
         Date expiryDate = calendar.getTime();
-
+        
         query.setParameter(Group.EXPIRY_AFTER, expiryDate);
         query.setParameter(Group.EXPIRY_BEFORE, new Date());
 
-        Thread.sleep(1000);
-
         Group someFutureGroup = createGroup("someFutureGroup", null);
+        
+        calendar = Calendar.getInstance();
 
-        someFutureGroup.setExpirationDate(new Date());
+        calendar.add(Calendar.MINUTE, 1);
+        
+        someFutureGroup.setExpirationDate(calendar.getTime());
 
         identityManager.update(someFutureGroup);
 
         Group someAnotherFutureGroup = createGroup("someAnotherFutureGroup", null);
 
-        someAnotherFutureGroup.setExpirationDate(new Date());
+        someAnotherFutureGroup.setExpirationDate(calendar.getTime());
 
         identityManager.update(someAnotherFutureGroup);
 
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
+        assertEquals(2, result.size());
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
 
         query = identityManager.<Group> createIdentityQuery(Group.class);
 
-        query.setParameter(Group.EXPIRY_AFTER, expiryDate);
+        query.setParameter(Group.EXPIRY_AFTER, calendar.getTime());
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
-        assertTrue(contains(result, someGroup.getName()));
-        assertTrue(contains(result, someAnotherGroup.getName()));
+        assertEquals(2, result.size());
         assertTrue(contains(result, someFutureGroup.getName()));
         assertTrue(contains(result, someAnotherFutureGroup.getName()));
 
         query = identityManager.<Group> createIdentityQuery(Group.class);
 
-        query.setParameter(Group.EXPIRY_BEFORE, new Date());
+        query.setParameter(Group.EXPIRY_BEFORE, calendar.getTime());
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-
+        assertEquals(4, result.size());
         assertTrue(contains(result, someGroup.getName()));
         assertTrue(contains(result, someAnotherGroup.getName()));
         assertTrue(contains(result, someFutureGroup.getName()));
@@ -623,7 +620,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         Calendar futureDate = Calendar.getInstance();
         
-        futureDate.add(Calendar.MINUTE, 1);
+        futureDate.add(Calendar.MINUTE, 2);
         
         // Should return an empty list.
         query.setParameter(User.EXPIRY_AFTER, futureDate.getTime());
@@ -657,6 +654,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroup.getName()));
 
         someGroup.setAttribute(new Attribute<String>("someAttribute", "someAttributeValueChanged"));
@@ -669,7 +667,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someGroup.getName()));
+        assertTrue(result.isEmpty());
 
         someGroup.setAttribute(new Attribute<String>("someAttribute2", "someAttributeValue2"));
 
@@ -683,6 +681,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroup.getName()));
     }
 
@@ -712,6 +711,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         List<Group> result = query.getResultList();
 
         assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroup.getName()));
 
         query = identityManager.<Group> createIdentityQuery(Group.class);
@@ -738,7 +738,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         result = query.getResultList();
 
-        assertFalse(contains(result, someGroup.getName()));
+        assertTrue(result.isEmpty());
 
         someGroup.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
                 "someAttributeValueChanged" }));
@@ -757,6 +757,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
+        assertEquals(1, result.size());
         assertTrue(contains(result, someGroup.getName()));
 
         query = identityManager.<Group> createIdentityQuery(Group.class);

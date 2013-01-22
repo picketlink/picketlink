@@ -79,7 +79,6 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private ThreadLocal<Realm> currentRealm = new ThreadLocal<Realm>();
     private ThreadLocal<Tier> currentTier = new ThreadLocal<Tier>();
-    private ThreadLocal<IdentityStoreInvocationContext> currentContext = new ThreadLocal<IdentityStoreInvocationContext>();
 
     @Override
     public IdentityManager forRealm(final Realm realm) {

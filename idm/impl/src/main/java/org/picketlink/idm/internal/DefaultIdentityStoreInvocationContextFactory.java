@@ -67,7 +67,7 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
     }
 
     @Override
-    public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
+    public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore<?> store) {
         if (store instanceof JPAIdentityStore) {
             if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, getEntityManager());

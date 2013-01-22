@@ -39,7 +39,6 @@ public class DefaultStoreFactory implements StoreFactory {
         identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public IdentityStore<?> createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         for (Class<? extends IdentityStoreConfiguration> cc : identityConfigMap.keySet()) {

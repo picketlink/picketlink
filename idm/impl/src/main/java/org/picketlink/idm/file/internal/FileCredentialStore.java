@@ -22,6 +22,8 @@
 
 package org.picketlink.idm.file.internal;
 
+import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,7 +36,6 @@ import java.util.Set;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.credential.internal.CredentialUtils;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
@@ -106,7 +107,7 @@ public class FileCredentialStore implements CredentialStore {
 
     @Override
     public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        return (T) CredentialUtils.getCurrentCredential(agent, this, storageClass);
+        return getCurrentCredential(agent, this, storageClass);
     }
 
     @Override

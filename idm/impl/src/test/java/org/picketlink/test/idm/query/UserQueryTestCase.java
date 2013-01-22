@@ -34,6 +34,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
@@ -929,8 +930,6 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(User.EXPIRY_AFTER, expiryDate);
         query.setParameter(User.EXPIRY_BEFORE, new Date());
 
-        Thread.sleep(1000);
-
         User someFutureUser = createUser("someFutureUser");
 
         someFutureUser.setExpirationDate(new Date());
@@ -980,10 +979,12 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<User> createIdentityQuery(User.class);
         
-        Thread.sleep(500);
-        
+        calendar = Calendar.getInstance();
+
+        calendar.add(Calendar.MINUTE, 2);
+
         // users expired after the given time. Should return an empty list.
-        query.setParameter(User.EXPIRY_AFTER, new Date());
+        query.setParameter(Agent.EXPIRY_AFTER, calendar.getTime());
         
         result = query.getResultList();
 
