@@ -74,7 +74,7 @@ public class ApplicationRegistrationTestCase extends AbstractIdentityManagerTest
         // let's query using only the appUrl attribute
         query = identityManager.createIdentityQuery(Agent.class);
 
-        query.setParameter(IdentityType.ATTRIBUTE.byName("appURL"), new String[] { appURL });
+        query.setParameter(IdentityType.ATTRIBUTE.byName("appURL"), appURL);
 
         result = query.getResultList();
 

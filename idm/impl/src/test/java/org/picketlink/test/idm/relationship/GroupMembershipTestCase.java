@@ -253,7 +253,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         
         query = identityManager.createRelationshipQuery(GroupMembership.class);
 
-        query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute2"), new String[] {"1", "2", "3"});
+        query.setParameter(GroupMembership.ATTRIBUTE.byName("attribute2"), "1", "2", "3");
 
         result = query.getResultList();
 

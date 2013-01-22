@@ -371,7 +371,11 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.<Group> createIdentityQuery(Group.class);
         
-        query.setParameter(Group.CREATED_DATE, new Date());
+        Calendar calendar = Calendar.getInstance();
+        
+        calendar.add(Calendar.MINUTE, 1);
+        
+        query.setParameter(Group.CREATED_DATE, calendar.getTime());
 
         result = query.getResultList();
 

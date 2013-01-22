@@ -748,7 +748,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         Agent someAnotherFutureAgent = createAgent("someAnotherFutureAgent");
 
-        someAnotherFutureAgent.setExpirationDate(new Date());
+        someAnotherFutureAgent.setExpirationDate(calendar.getTime());
 
         identityManager.update(someAnotherFutureAgent);
 

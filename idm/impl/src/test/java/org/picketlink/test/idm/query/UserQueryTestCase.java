@@ -329,7 +329,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
+        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole(user, salesGroup, managerRole));
 
         List<User> result = query.getResultList();
 
@@ -339,7 +339,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole[] { new GroupRole(user, salesGroup, managerRole) });
+        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole(user, salesGroup, managerRole));
 
         result = query.getResultList();
 
@@ -363,7 +363,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.MEMBER_OF, new String[] { "Administrators" });
+        query.setParameter(User.MEMBER_OF, "Administrators");
 
         List<User> result = query.getResultList();
 
@@ -373,7 +373,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.MEMBER_OF, new String[] { "Administrators" });
+        query.setParameter(User.MEMBER_OF, "Administrators");
 
         result = query.getResultList();
 
@@ -397,7 +397,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_ROLE, new String[] { "Administrators" });
+        query.setParameter(User.HAS_ROLE, "Administrators");
 
         List<User> result = query.getResultList();
 
@@ -407,7 +407,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_ROLE, new String[] { "Administrators" });
+        query.setParameter(User.HAS_ROLE, "Administrators");
 
         result = query.getResultList();
 
@@ -435,7 +435,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName(), someGroup.getName() });
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
 
         List<User> result = query.getResultList();
 
@@ -446,7 +446,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName(), someGroup.getName() });
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
 
         result = query.getResultList();
 
@@ -454,7 +454,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName() });
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName());
 
         result = query.getResultList();
 
@@ -482,7 +482,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName(), someRole.getName() });
+        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
 
         List<User> result = query.getResultList();
 
@@ -493,7 +493,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName(), someRole.getName() });
+        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
 
         result = query.getResultList();
 
@@ -501,7 +501,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName() });
+        query.setParameter(User.HAS_ROLE, administratorRole.getName());
 
         result = query.getResultList();
 
@@ -531,7 +531,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName() });
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName());
 
         List<User> result = query.getResultList();
 
@@ -543,7 +543,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.MEMBER_OF, new String[] { administratorGroup.getName(), someGroup.getName() });
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
 
         result = query.getResultList();
 
@@ -575,7 +575,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityQuery<User> query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName() });
+        query.setParameter(User.HAS_ROLE, administratorRole.getName());
 
         List<User> result = query.getResultList();
 
@@ -587,7 +587,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
         query = identityManager.createIdentityQuery(User.class);
 
-        query.setParameter(User.HAS_ROLE, new String[] { administratorRole.getName(), someRole.getName() });
+        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
 
         result = query.getResultList();
 
