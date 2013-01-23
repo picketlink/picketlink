@@ -43,6 +43,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
+import org.picketlink.idm.config.internal.resolver.PropertyResolverMapper;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
@@ -69,7 +70,7 @@ public class XMLBasedIdentityManagerProvider {
     private static final String DEFAULT_ID_GENERATOR_CLASS = "org.picketlink.idm.internal.DefaultIdGenerator";
     private static final String DEFAULT_CREDENTIAL_HANDLER_FACTORY_CLASS = "org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory";
 
-    private static final ClassLoader IDM_CLASSLOADER = IdentityManager.class.getClassLoader();
+    public static final ClassLoader IDM_CLASSLOADER = IdentityManager.class.getClassLoader();
 
     public IdentityManager buildIdentityManager(InputStream inputStream) {
         try {
@@ -177,14 +178,22 @@ public class XMLBasedIdentityManagerProvider {
             propertyQuery.addCriteria(new NamedPropertyCriteria(propertyName));
             Property<Object> property = propertyQuery.getWritableSingleResult();
 
-            property.setValue(storeConfig, props.get(propertyName));
+            // Obtain value from XML configuration
+            Object propertyValueFromConfig = props.get(propertyName);
+
+            // Create real instance of property from XML configuration
+            Object propertyValue = PropertyResolverMapper.getInstance().resolveProperty(propertyValueFromConfig, property.getJavaClass());
+
+            // Set property to current storeConfiguration
+            property.setValue(storeConfig, propertyValue);
         }
 
         return storeConfig;
     }
 
-    private Object instantiateComponent(String className) {
+    public static Object instantiateComponent(String className) {
         try {
+            // we should have better policy for classloaders (possibility to add other classloaders provided by user)
             Class<?> clazz = Reflections.classForName(className, IDM_CLASSLOADER);
             return clazz.newInstance();
         } catch (Exception e) {

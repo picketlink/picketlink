@@ -39,25 +39,50 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
 
 /**
- * Test case for configuring IDM via XML
+ * Test case for configuring IDM via XML TODO: temporary. needs to be improved or deleted (in case that default tests will use XML)
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class XMLIdentityManagerProviderTestCase {
 
-        @Test
-        public void testParseIDMConfiguration() {
-            try {
-                XMLBasedIdentityManagerProvider configProvider = new XMLBasedIdentityManagerProvider();
-                InputStream configStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("config/embedded-ldap-config.xml");
-                IdentityManager identityManager = configProvider.buildIdentityManager(configStream);
+    @Test
+    public void testParseLdapConfiguration() {
+        try {
+            IdentityManager identityManager = createIdentityConfiguration("config/embedded-ldap-config.xml");
 
-                // TODO: This is temporary for testing purpose. It expects thrown exception as ldap is not available. Needs to be fixed with LDAPTestUtil
-                Assert.fail("expected exception thrown");
-            } catch (RuntimeException re) {
-                assertNotNull(re.getCause());
-                assertEquals(CommunicationException.class, re.getCause().getClass());
-                assertTrue(re.getMessage().contains("localhost:10389"));
-            }
+            // TODO: This is temporary for testing purpose. It expects thrown exception as ldap is not available. Needs to be fixed with LDAPTestUtil
+            Assert.fail("expected exception thrown");
+        } catch (RuntimeException re) {
+            assertNotNull(re.getCause());
+            assertEquals(CommunicationException.class, re.getCause().getClass());
+            assertTrue(re.getMessage().contains("localhost:10389"));
         }
+    }
+
+    @Test
+    public void testParseFileConfiguration() {
+            IdentityManager identityManager = createIdentityConfiguration("config/embedded-file-config.xml");
+            assertNotNull(identityManager);
+    }
+
+    @Test
+    public void testParseJpaConfiguration() {
+        try {
+            IdentityManager identityManager = createIdentityConfiguration("config/embedded-jpa-config.xml");
+
+            // TODO: This is temporary for testing purpose. It expects thrown exception as ldap is not available. Needs to be fixed with LDAPTestUtil
+            Assert.fail("expected exception thrown");
+        } catch (RuntimeException re) {
+            assertNotNull(re.getCause());
+            assertEquals(ClassNotFoundException.class, re.getCause().getClass());
+        }
+    }
+
+    private IdentityManager createIdentityConfiguration(String identityConfigFile) {
+        XMLBasedIdentityManagerProvider configProvider = new XMLBasedIdentityManagerProvider();
+        InputStream configStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(identityConfigFile);
+        return configProvider.buildIdentityManager(configStream);
+    }
+
+
 }

@@ -8,7 +8,7 @@
     <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
       <CredentialHandlerFactory ClassName="org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory" />
       <IdentityCache ClassName="org.picketlink.idm.DefaultIdentityCache" />
-      <IdGenerator ClassName="${property.id.generator::org.picketlink.idm.internal.DefaultIdGenerator}" />
+      <IdGenerator ClassName="org.picketlink.idm.internal.DefaultIdGenerator" />
     </IdentityStoreInvocationContextFactory>
 
     <IdentityConfiguration>
@@ -19,6 +19,12 @@
         <Property Name="userDNSuffix">ou=People,dc=jboss,dc=org</Property>
         <Property Name="roleDNSuffix">ou=Roles,dc=jboss,dc=org</Property>
         <Property Name="groupDNSuffix">ou=Groups,dc=jboss,dc=org</Property>
+        <!--<Property Name="additionalProperties">
+          <Object ClassName="java.util.Properties">
+            <Property Name="property1">Value1</Property>
+            <Property Name="property2">Value2</Property>
+          </Object>
+        </Property>-->
       </IdentityStoreConfiguration>
     </IdentityConfiguration>
   </PicketLinkIDM>
