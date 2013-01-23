@@ -36,7 +36,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.internal.config.XMLBasedIdentityManagerProvider;
+import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
 
 /**
  * Test case for configuring IDM via XML
