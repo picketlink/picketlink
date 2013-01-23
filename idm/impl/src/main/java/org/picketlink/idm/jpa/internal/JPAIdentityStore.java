@@ -742,8 +742,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     private void storeIdentityTypeAttribute(Object entity, Attribute<? extends Serializable> attribute) {
         Object value = attribute.getValue();
-        Object[] values = null;
+        
+        if (value == null) {
+            return;
+        }
 
+        Object[] values = null;
+        
         if (value.getClass().isArray()) {
             values = (Object[]) value;
         } else {
