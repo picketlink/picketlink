@@ -55,7 +55,7 @@ import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.handlers.saml2.SAML2AttributeHandler;
 import org.picketlink.test.identity.federation.web.mock.MockHttpServletRequest;

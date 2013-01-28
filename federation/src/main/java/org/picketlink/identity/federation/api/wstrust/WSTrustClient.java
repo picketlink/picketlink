@@ -20,14 +20,14 @@ package org.picketlink.identity.federation.api.wstrust;
 import java.net.URI;
 import java.security.Principal;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;
 import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.w3c.dom.Element;

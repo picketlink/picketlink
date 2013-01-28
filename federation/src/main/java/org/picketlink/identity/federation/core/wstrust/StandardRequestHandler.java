@@ -30,16 +30,19 @@ import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 import javax.xml.namespace.QName;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
-import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.util.XMLEncryptionUtil;
+import org.picketlink.common.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
@@ -235,7 +238,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                            Element child = DocumentUtil.getChildElement(keyElement, new QName(WSTrustConstants.XMLDSig.RSA_KEYVALUE));
                            if(child != null){
                                try {
-                                keyValue = XMLSignatureUtil.getRSAKeyValue(child);
+                                keyValue = SignatureUtil.getRSAKeyValue(child);
                             } catch (ParsingException e) {
                                 throw logger.stsError(e);
                             }
@@ -244,7 +247,7 @@ public class StandardRequestHandler implements WSTrustRequestHandler {
                                child = DocumentUtil.getChildElement(keyElement, new QName(WSTrustConstants.XMLDSig.DSA_KEYVALUE));
                                if(child != null){
                                    try {
-                                    keyValue = XMLSignatureUtil.getDSAKeyValue(child);
+                                    keyValue = SignatureUtil.getDSAKeyValue(child);
                                 } catch (ParsingException e) {
                                     throw logger.stsError(e);
                                 }

@@ -32,13 +32,13 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StringUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

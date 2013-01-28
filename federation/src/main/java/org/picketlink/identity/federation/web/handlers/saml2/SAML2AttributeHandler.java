@@ -31,15 +31,15 @@ import java.util.Set;
 import javax.servlet.http.HttpSession;
 
 import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.impl.EmptyAttributeManager;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;
@@ -47,7 +47,7 @@ import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.StatementAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**

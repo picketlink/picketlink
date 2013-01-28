@@ -24,17 +24,17 @@ package org.picketlink.identity.federation.web.handlers.saml2;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**

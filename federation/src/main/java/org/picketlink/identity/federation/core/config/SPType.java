@@ -21,7 +21,8 @@
  */
 package org.picketlink.identity.federation.core.config;
 
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
+
 
 /**
  * Service Provider Type

@@ -9,7 +9,7 @@ import java.io.InputStream;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.writers.WSTrustRequestWriter;

@@ -23,8 +23,8 @@ package org.picketlink.identity.federation.core.sts;
 
 import java.util.Map;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.sts.registry.DefaultRevocationRegistry;
 import org.picketlink.identity.federation.core.sts.registry.DefaultTokenRegistry;

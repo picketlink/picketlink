@@ -1,7 +1,7 @@
 package org.picketlink.identity.federation.web.handlers.saml2;
 
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 
 public abstract class AbstractSignatureHandler extends BaseSAML2Handler {
 

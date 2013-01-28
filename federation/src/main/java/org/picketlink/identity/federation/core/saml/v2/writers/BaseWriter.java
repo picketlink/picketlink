@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
-import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.ASSERTION_NSURI;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -33,13 +33,14 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.StaxWriterUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.assertion.BaseIDAbstractType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedElementType;
@@ -293,7 +294,7 @@ public class BaseWriter {
         if (subjectConfirmationData instanceof KeyInfoConfirmationDataType) {
             KeyInfoConfirmationDataType kicd = (KeyInfoConfirmationDataType) subjectConfirmationData;
             KeyInfoType keyInfo = (KeyInfoType) kicd.getAnyType();
-            StaxUtil.writeKeyInfo(writer, keyInfo);
+            StaxWriterUtil.writeKeyInfo(writer, keyInfo);
             /*
              * if (keyInfo.getContent() == null || keyInfo.getContent().size() == 0) throw new
              * ProcessingException(ErrorCodes.WRITER_INVALID_KEYINFO_NULL_CONTENT); StaxUtil.writeStartElement(this.writer,

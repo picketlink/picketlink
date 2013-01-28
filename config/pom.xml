@@ -17,10 +17,24 @@
     <name>PicketLink Config</name>
 
     <dependencies>
+
+      <dependency>
+         <groupId>org.picketlink</groupId>
+         <artifactId>picketlink-common</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
         <dependency>
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-federation</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

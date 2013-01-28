@@ -38,13 +38,13 @@ import javax.xml.ws.WebServiceProvider;
 
 import org.jboss.security.xacml.core.JBossPDP;
 import org.jboss.security.xacml.interfaces.PolicyDecisionPoint;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SOAPSAMLXACMLUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.SystemPropertiesUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.SystemPropertiesUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.ResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Document;

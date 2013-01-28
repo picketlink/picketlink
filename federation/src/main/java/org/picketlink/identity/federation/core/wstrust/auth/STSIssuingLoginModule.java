@@ -29,7 +29,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginException;
 
 import org.picketlink.identity.federation.core.wstrust.STSClient;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAMLUtil;
 import org.w3c.dom.Element;
 

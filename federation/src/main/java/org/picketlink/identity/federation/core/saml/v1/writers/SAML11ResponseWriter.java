@@ -27,11 +27,11 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.saml.common.CommonStatusDetailType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;

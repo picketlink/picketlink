@@ -21,12 +21,11 @@
  */
 package org.picketlink.identity.federation.api.saml.v2.metadata;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
-
 import java.math.BigInteger;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyTypes;
 import org.picketlink.identity.xmlsec.w3.xmlenc.EncryptionMethodType;
@@ -65,7 +64,7 @@ public class KeyDescriptorMetaDataBuilder {
 
         KeyDescriptorType keyDescriptor = new KeyDescriptorType();
 
-        if (isNotNull(algorithm)) {
+        if (StringUtil.isNotNull(algorithm)) {
             EncryptionMethodType encryptionMethod = new EncryptionMethodType(algorithm);
 
             encryptionMethod.setEncryptionMethod(new EncryptionMethod(BigInteger.valueOf(keySize), null));
@@ -96,7 +95,7 @@ public class KeyDescriptorMetaDataBuilder {
             throw logger.nullArgumentError("keyInfo");
         KeyDescriptorType keyDescriptor = new KeyDescriptorType();
 
-        if (isNotNull(algorithm)) {
+        if (StringUtil.isNotNull(algorithm)) {
             EncryptionMethodType encryptionMethod = new EncryptionMethodType(algorithm);
 
             encryptionMethod.setEncryptionMethod(new EncryptionMethod(BigInteger.valueOf(keySize), null));

@@ -23,7 +23,7 @@
 
 package org.picketlink.test.identity.federation.api.saml.v2.metadata;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 import java.util.HashMap;
 import java.util.List;

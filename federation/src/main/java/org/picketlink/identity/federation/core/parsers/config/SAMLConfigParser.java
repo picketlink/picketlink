@@ -36,11 +36,11 @@ import org.picketlink.identity.federation.core.config.MetadataProviderType;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.SPType;
 import org.picketlink.identity.federation.core.config.TrustType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handler;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.parsers.AbstractParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.common.parsers.AbstractParser;
+import org.picketlink.common.util.StaxParserUtil;
 
 /**
  * Parse the SAML IDP/SP config as well as the handlers

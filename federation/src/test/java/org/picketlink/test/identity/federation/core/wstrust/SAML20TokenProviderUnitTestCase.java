@@ -37,10 +37,10 @@ import javax.xml.transform.dom.DOMSource;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLAssertionParser;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.Base64;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.Base64;
 import org.picketlink.identity.federation.core.wstrust.SecurityToken;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.WSTrustRequestContext;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.core.wstrust.plugins.saml.SAML20TokenProvider;

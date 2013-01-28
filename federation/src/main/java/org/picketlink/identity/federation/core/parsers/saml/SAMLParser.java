@@ -26,17 +26,17 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.parsers.AbstractParser;
-import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.AbstractParser;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntitiesDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.saml.metadata.SAMLEntityDescriptorParser;
 import org.picketlink.identity.federation.core.parsers.saml.xacml.SAMLXACMLRequestParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 
 /**
  * Parse SAML payload

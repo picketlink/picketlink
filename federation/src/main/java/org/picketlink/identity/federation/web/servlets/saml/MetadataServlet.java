@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.web.servlets.saml;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,25 +42,25 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
 import org.picketlink.identity.federation.api.util.KeyUtil;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.identity.federation.core.config.MetadataProviderType;
 import org.picketlink.identity.federation.core.config.ProviderType;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLMetadataWriter;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
-import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.EDTDescriptorChoiceType;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.w3c.dom.Element;
 

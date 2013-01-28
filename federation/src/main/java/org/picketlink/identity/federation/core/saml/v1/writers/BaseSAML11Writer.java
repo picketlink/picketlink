@@ -23,8 +23,8 @@ package org.picketlink.identity.federation.core.saml.v1.writers;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 
 /**
  * @author Anil.Saldhana@redhat.com
