@@ -36,8 +36,8 @@ import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 import javax.xml.transform.Source;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.util.DocumentUtil;
 import org.w3c.dom.Document;
 
 /**

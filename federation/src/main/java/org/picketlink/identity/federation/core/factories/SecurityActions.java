@@ -32,7 +32,7 @@ import javax.management.MBeanServerFactory;
 
 import org.jboss.security.SecurityContext;
 import org.jboss.security.SecurityContextFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 
 /**
  * Privileged blocks

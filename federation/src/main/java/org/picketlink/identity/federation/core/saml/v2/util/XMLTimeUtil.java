@@ -30,11 +30,11 @@ import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.constants.GeneralConstants;
 
 /**
  * Util class dealing with xml based time

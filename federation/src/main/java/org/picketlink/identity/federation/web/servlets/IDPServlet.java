@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.web.servlets;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,25 +45,25 @@ import javax.servlet.http.HttpSession;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.log4j.Logger;
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.KeyProviderType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.impl.DelegatedAttributeManager;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyConfigurationException;
+import org.picketlink.common.exceptions.TrustKeyConfigurationException;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
-import org.picketlink.identity.federation.core.interfaces.TrustKeyProcessingException;
+import org.picketlink.common.exceptions.TrustKeyProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssueInstantMissingException;
-import org.picketlink.identity.federation.core.saml.v2.exceptions.IssuerNotTrustedException;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.fed.IssueInstantMissingException;
+import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChain;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerChainConfig;
@@ -78,12 +78,12 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.common.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 import org.picketlink.identity.federation.web.core.IdentityServer;

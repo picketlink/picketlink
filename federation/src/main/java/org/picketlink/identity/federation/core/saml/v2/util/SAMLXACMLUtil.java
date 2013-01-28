@@ -31,10 +31,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.jboss.security.xacml.core.model.context.ObjectFactory;
 import org.jboss.security.xacml.core.model.context.RequestType;
 import org.jboss.security.xacml.core.model.context.ResponseType;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.util.TransformerUtil;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.TransformerUtil;
 import org.w3c.dom.Document;
 
 /**

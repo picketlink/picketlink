@@ -34,8 +34,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;

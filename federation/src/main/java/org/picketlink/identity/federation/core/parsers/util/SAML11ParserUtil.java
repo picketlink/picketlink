@@ -30,16 +30,17 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.parsers.saml.SAML11SubjectParser;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeStatementType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AttributeType;
@@ -622,7 +623,7 @@ public class SAML11ParserUtil {
         StaxParserUtil.validate(startElement, WSTrustConstants.XMLDSig.DSA_KEYVALUE);
         
         Element dsaElement = StaxParserUtil.getDOMElement(xmlEventReader);
-        return XMLSignatureUtil.getDSAKeyValue(dsaElement);
+        return SignatureUtil.getDSAKeyValue(dsaElement);
     }
 
     /**

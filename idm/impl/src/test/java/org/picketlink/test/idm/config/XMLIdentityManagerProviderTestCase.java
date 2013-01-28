@@ -23,9 +23,7 @@
 package org.picketlink.test.idm.config;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
@@ -34,7 +32,6 @@ import javax.naming.CommunicationException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
 

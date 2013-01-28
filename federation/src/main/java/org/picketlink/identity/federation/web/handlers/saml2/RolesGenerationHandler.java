@@ -33,8 +33,8 @@ import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
 import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.impl.EmptyRoleGenerator;
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerChainConfig;
@@ -42,7 +42,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerCo
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.identity.federation.saml.v2.protocol.LogoutRequestType;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**

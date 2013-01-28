@@ -20,9 +20,9 @@
  */
 package org.picketlink.identity.federation.core.wstrust.handlers;
 
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.FAILED_AUTHENTICATION;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.INVALID_SECURITY;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.SECURITY_TOKEN_UNAVAILABLE;
+import static org.picketlink.common.constants.WSTrustConstants.FAILED_AUTHENTICATION;
+import static org.picketlink.common.constants.WSTrustConstants.INVALID_SECURITY;
+import static org.picketlink.common.constants.WSTrustConstants.SECURITY_TOKEN_UNAVAILABLE;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -42,14 +42,14 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 import javax.xml.ws.soap.SOAPFaultException;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
 import org.picketlink.identity.federation.core.wstrust.STSClientFactory;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.w3c.dom.Element;
 
 /**

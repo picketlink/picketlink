@@ -25,13 +25,13 @@ import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionEvent;
 import javax.servlet.http.HttpSessionListener;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLProtocolContext;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 
 /**
  * An instance of {@link HttpSessionListener} at the IDP that performs actions when an {@link HttpSession} is created or

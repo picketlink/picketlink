@@ -21,10 +21,10 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.holders;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.saml.v2.assertion.NameIDType;
 
 /**

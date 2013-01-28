@@ -34,10 +34,11 @@ import javax.xml.crypto.dsig.SignatureMethod;
 
 import org.apache.log4j.Logger;
 import org.junit.Test;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.util.KeyStoreUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
 import org.picketlink.identity.xmlsec.w3.xmldsig.DSAKeyValueType;
 import org.picketlink.identity.xmlsec.w3.xmldsig.RSAKeyValueType;
 import org.w3c.dom.Document;
@@ -129,7 +130,7 @@ public class XMLSignatureUtilUnitTestCase {
         Element dsaEl = (Element) doc.getElementsByTagName("ds:DSAKeyValue").item(0);
         assertNotNull(dsaEl);
         
-        DSAKeyValueType dsa = XMLSignatureUtil.getDSAKeyValue(dsaEl);
+        DSAKeyValueType dsa = SignatureUtil.getDSAKeyValue(dsaEl);
         assertNotNull(dsa);
         assertNotNull(dsa.getP());
         assertNotNull(dsa.getQ());
@@ -157,7 +158,7 @@ public class XMLSignatureUtilUnitTestCase {
         Element rsaEl = (Element) doc.getElementsByTagName("ds:RSAKeyValue").item(0);
         assertNotNull(rsaEl);
         
-        RSAKeyValueType rsa = XMLSignatureUtil.getRSAKeyValue(rsaEl);
+        RSAKeyValueType rsa = SignatureUtil.getRSAKeyValue(rsaEl);
         assertNotNull(rsa);
         assertNotNull(rsa.getModulus());
         assertNotNull(rsa.getExponent()); 

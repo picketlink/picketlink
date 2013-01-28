@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.StringUtil;
 
 /**
  * Unit test {@link StringUtil}

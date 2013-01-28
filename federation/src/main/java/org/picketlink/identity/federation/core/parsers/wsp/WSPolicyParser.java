@@ -27,14 +27,14 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.parsers.AbstractParser;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.AbstractParser;
 import org.picketlink.identity.federation.core.parsers.ParserController;
-import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
+import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.identity.federation.core.wspolicy.WSPolicyConstants;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 
 /**

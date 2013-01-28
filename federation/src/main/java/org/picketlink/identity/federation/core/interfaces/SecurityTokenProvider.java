@@ -25,8 +25,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.common.exceptions.ProcessingException;
+
 
 /**
  * <p>

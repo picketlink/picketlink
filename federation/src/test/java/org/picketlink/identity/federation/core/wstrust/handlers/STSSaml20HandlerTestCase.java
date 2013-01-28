@@ -40,8 +40,8 @@ import javax.xml.ws.soap.SOAPFaultException;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.util.SOAPUtil;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig.Builder;

@@ -21,10 +21,10 @@
  */
 package org.picketlink.identity.federation.api.w3.xmldsig;
 
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.util.DocumentUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

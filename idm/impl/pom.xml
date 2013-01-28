@@ -69,10 +69,16 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
-			<groupId>org.picketlink</groupId>
-			<artifactId>picketlink-idm-api</artifactId>
-		</dependency>
+          <dependency>
+            <groupId>org.picketlink</groupId>
+            <artifactId>picketlink-common</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+
+	<dependency>
+            <groupId>org.picketlink</groupId>
+            <artifactId>picketlink-idm-api</artifactId>
+        </dependency>
     <dependency>
       <groupId>org.picketlink</groupId>
       <artifactId>picketlink-config</artifactId>

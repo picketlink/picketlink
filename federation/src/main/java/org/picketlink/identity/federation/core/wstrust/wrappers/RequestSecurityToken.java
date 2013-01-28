@@ -30,7 +30,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 import org.picketlink.identity.federation.ws.policy.Policy;

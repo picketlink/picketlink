@@ -34,7 +34,7 @@ import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v1.SAML11Constants;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11RequestWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11ActionType;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11SubjectType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11AttributeQueryType;

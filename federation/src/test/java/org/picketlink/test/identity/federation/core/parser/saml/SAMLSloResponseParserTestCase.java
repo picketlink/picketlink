@@ -24,8 +24,8 @@ package org.picketlink.test.identity.federation.core.parser.saml;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
-import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
+import static org.picketlink.common.constants.JBossSAMLConstants.LOGOUT_RESPONSE;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.PROTOCOL_NSURI;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,10 +36,10 @@ import javax.xml.namespace.QName;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusType;
 

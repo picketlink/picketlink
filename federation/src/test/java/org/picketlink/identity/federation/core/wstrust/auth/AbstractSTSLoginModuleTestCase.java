@@ -30,7 +30,7 @@ import javax.security.auth.login.LoginException;
 import org.picketlink.identity.federation.core.wstrust.auth.AbstractSTSLoginModule;
 import org.picketlink.identity.federation.core.wstrust.STSClient;
 import org.picketlink.identity.federation.core.wstrust.STSClientConfig;
-import org.picketlink.identity.federation.core.wstrust.WSTrustException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.w3c.dom.Element;
 
 import junit.framework.TestCase;

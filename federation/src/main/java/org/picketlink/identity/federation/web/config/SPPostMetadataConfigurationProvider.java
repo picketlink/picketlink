@@ -23,13 +23,13 @@ package org.picketlink.identity.federation.web.config;
 
 import java.io.InputStream;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntitiesDescriptorType;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;

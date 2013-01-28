@@ -38,8 +38,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 
 /**
  * Utility to handle Java Keystore

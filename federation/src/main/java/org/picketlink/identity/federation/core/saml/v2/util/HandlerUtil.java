@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.identity.federation.core.handler.config.Handler;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerConfig;
