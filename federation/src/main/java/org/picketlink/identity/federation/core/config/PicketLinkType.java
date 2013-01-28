@@ -1,5 +1,6 @@
 package org.picketlink.identity.federation.core.config;
 
+import org.picketlink.identity.federation.core.config.idm.IDMType;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 
 /**
@@ -12,6 +13,7 @@ public class PicketLinkType {
     private Handlers handlers;
     private STSType stsType;
     private boolean enableAudit;
+    private IDMType idmType;
 
     public ProviderType getIdpOrSP() {
         return idpOrSP;
@@ -43,5 +45,13 @@ public class PicketLinkType {
 
     public void setEnableAudit(boolean enableAudit) {
         this.enableAudit = enableAudit;
+    }
+
+    public IDMType getIdmType() {
+        return idmType;
+    }
+
+    public void setIdmType(IDMType idmType) {
+        this.idmType = idmType;
     }
 }

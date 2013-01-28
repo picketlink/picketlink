@@ -1,0 +1,38 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <!-- Start of IDM configuration -->
+  <PicketLinkIDM>
+
+    <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
+    </IdentityStoreInvocationContextFactory>
+
+    <IdentityConfiguration>
+
+      <IdentityStoreConfiguration ClassName="org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration">
+        <Property Name="identityClass">org.picketlink.idm.jpa.schema.IdentityObject</Property>
+        <Property Name="attributeClass">org.picketlink.idm.jpa.schema.IdentityObjectAttribute</Property>
+        <Property Name="relationshipClass">org.picketlink.idm.jpa.schema.RelationshipObject</Property>
+        <Property Name="relationshipIdentityClass">org.picketlink.idm.jpa.schema.RelationshipIdentityObject</Property>
+        <Property Name="relationshipAttributeClass">org.picketlink.idm.jpa.schema.RelationshipAttributeObject</Property>
+        <Property Name="credentialClass">org.picketlink.idm.jpa.schema.CredentialObject</Property>
+        <Property Name="credentialAttributeClass">org.picketlink.idm.jpa.schema.CredentialObjectAttribute</Property>
+        <Property Name="partitionClass">org.picketlink.idm.jpa.schema.PartitionObject</Property>
+      </IdentityStoreConfiguration>
+
+      <IdentityStoreConfiguration ClassName="org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration">
+        <Property Name="realm">Testing</Property>
+        <Property Name="identityClass">org.picketlink.idm.jpa.schema.IdentityObject</Property>
+        <Property Name="attributeClass">org.picketlink.idm.jpa.schema.IdentityObjectAttribute</Property>
+        <Property Name="relationshipClass">org.picketlink.idm.jpa.schema.RelationshipObject</Property>
+        <Property Name="relationshipIdentityClass">org.picketlink.idm.jpa.schema.RelationshipIdentityObject</Property>
+        <Property Name="relationshipAttributeClass">org.picketlink.idm.jpa.schema.RelationshipAttributeObject</Property>
+        <Property Name="credentialClass">org.picketlink.idm.jpa.schema.CredentialObject</Property>
+        <Property Name="credentialAttributeClass">org.picketlink.idm.jpa.schema.CredentialObjectAttribute</Property>
+        <Property Name="partitionClass">org.picketlink.idm.jpa.schema.PartitionObject</Property>
+      </IdentityStoreConfiguration>
+
+    </IdentityConfiguration>
+  </PicketLinkIDM>
+
+</PicketLink>
+
