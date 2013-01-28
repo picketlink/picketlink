@@ -36,17 +36,27 @@ import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
+import org.picketlink.test.idm.basic.AgentManagementTestCase;
+import org.picketlink.test.idm.basic.GroupManagementTestCase;
+import org.picketlink.test.idm.basic.RoleManagementTestCase;
+import org.picketlink.test.idm.basic.UserManagementTestCase;
+import org.picketlink.test.idm.query.AgentQueryTestCase;
+import org.picketlink.test.idm.query.GroupQueryTestCase;
+import org.picketlink.test.idm.query.RoleQueryTestCase;
+import org.picketlink.test.idm.query.UserQueryTestCase;
 
 /**
  * <p>
  * Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.
  * </p>
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ })
+@SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
+        AgentManagementTestCase.class, AgentQueryTestCase.class, UserQueryTestCase.class, RoleQueryTestCase.class,
+        GroupQueryTestCase.class })
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     private static LDAPIdentityStoreTestSuite instance;
@@ -63,25 +73,26 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
     private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
     private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
+    private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
 
     @BeforeClass
     public static void onBeforeClass() {
-        try {
-            init();
-            instance.setup();
-            instance.importLDIF("ldap/users.ldif");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // try {
+        // init();
+        // instance.setup();
+        // instance.importLDIF("ldap/users.ldif");
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
     }
 
     @AfterClass
     public static void onDestroyClass() {
-        try {
-            instance.tearDown();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // try {
+        // instance.tearDown();
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // }
     }
 
     @Override
@@ -112,7 +123,8 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         LDAPConfiguration config = (LDAPConfiguration) builder.build();
 
         config.setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL);
-        config.setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX);
+        config.setBaseDN("dc=jboss,dc=org");
+        config.setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX);
         config.setGroupDNSuffix(GROUP_DN_SUFFIX);
 
         return config;

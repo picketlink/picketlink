@@ -35,20 +35,18 @@ import org.picketlink.idm.model.Role;
  *
  * @author anil saldhana
  * @since Sep 7, 2012
-<<<<<<< HEAD
  */
- // TODO fix hierarchy
-public class LDAPGroupRole extends LDAPEntry /*implements GroupRole*/ {
+public class LDAPGroupRole extends LDAPIdentityType /*implements GroupRole*/ {
 
     private static final long serialVersionUID = 1L;
     
-    private LDAPUser user;
+    private LDAPAgent agent;
     private LDAPGroup group;
     private LDAPRole role;
 
-    public LDAPGroupRole(LDAPUser user, LDAPGroup group, LDAPRole role) {
-        super(user.getDN());
-        this.user = user;
+    public LDAPGroupRole(LDAPAgent agent, LDAPGroup group, LDAPRole role) {
+        super(agent.getDN());
+        this.agent = agent;
         this.group = group;
         this.role = role;
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
@@ -59,24 +57,24 @@ public class LDAPGroupRole extends LDAPEntry /*implements GroupRole*/ {
         
         getLDAPAttributes().put(LDAPConstants.MEMBER, this.role.getDN());
         
-//        Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.CN);
-//        
-//        if (theAttribute == null) {
-//            getLDAPAttributes().put(LDAPConstants.CN, this.group.getName());
-//        } else {
-//            theAttribute.set(0, this.group.getName());
-//        }
+        Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.CN);
+        
+        if (theAttribute == null) {
+            getLDAPAttributes().put(LDAPConstants.CN, this.group.getName());
+        } else {
+            theAttribute.set(0, this.group.getName());
+        }
 
     }
     
     @Override
     public String getDN() {
-        return "cn=" + this.group.getName() + LDAPConstants.COMMA + this.user.getDN(); 
+        return "cn=" + this.group.getName() + LDAPConstants.COMMA + this.agent.getDN(); 
     }
     
     //@Override
     public IdentityType getMember() {
-        return this.user;
+        return this.agent;
     }
 
     //@Override

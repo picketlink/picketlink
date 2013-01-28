@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
@@ -53,6 +54,17 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
 
+    @After
+    public void onFinish() {
+        IdentityQuery<Group> query = getIdentityManager().createIdentityQuery(Group.class);
+        
+        List<Group> result = query.getResultList();
+        
+        for (Group group : result) {
+            getIdentityManager().remove(group);
+        }
+    }
+    
     @Test
     public void testFindById() throws Exception {
         Group group = createGroup("someGroup", null);
@@ -73,7 +85,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
     @Test
     public void testPagination() throws Exception {
         for (int i = 0; i < 50; i++) {
-            createGroup("someGroup" + i + 1, null);
+            createGroup("someGroup" + (i + 1), null);
         }
         
         IdentityManager identityManager = getIdentityManager();
@@ -776,6 +788,77 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(result.isEmpty());
     }
 
+    /**
+     * <p>
+     * Finds all groups for a specific user.
+     * </p>
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testFindUserGroups() throws Exception {
+        Group someGroup = createGroup("someGroup", null);
+        Group someAnotherGroup = createGroup("someAnotherGroup", null);
+        Group someImportantGroup = createGroup("someImportantGroup", null);
+
+        User user = createUser("someUser");
+
+        IdentityManager identityManager = getIdentityManager();
+
+        identityManager.removeFromGroup(user, someGroup);
+        identityManager.removeFromGroup(user, someAnotherGroup);
+        identityManager.removeFromGroup(user, someImportantGroup);
+
+        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
+
+        query.setParameter(Group.HAS_MEMBER, new Object[] { user });
+
+        List<Group> result = query.getResultList();
+
+        assertFalse(contains(result, "someGroup"));
+        assertFalse(contains(result, "someAnotherGroup"));
+        assertFalse(contains(result, "someImportantGroup"));
+
+        identityManager.addToGroup(user, someGroup);
+
+        query = identityManager.createIdentityQuery(Group.class);
+
+        query.setParameter(Group.HAS_MEMBER, new Object[] { user });
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someGroup"));
+        assertFalse(contains(result, "someAnotherGroup"));
+        assertFalse(contains(result, "someImportantGroup"));
+
+        identityManager.addToGroup(user, someAnotherGroup);
+
+        query = identityManager.createIdentityQuery(Group.class);
+
+        query.setParameter(Group.HAS_MEMBER, new Object[] { user });
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someGroup"));
+        assertTrue(contains(result, "someAnotherGroup"));
+        assertFalse(contains(result, "someImportantGroup"));
+
+        identityManager.addToGroup(user, someImportantGroup);
+
+        query = identityManager.createIdentityQuery(Group.class);
+
+        query.setParameter(Group.HAS_MEMBER, new Object[] { user });
+
+        result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, "someGroup"));
+        assertTrue(contains(result, "someAnotherGroup"));
+        assertTrue(contains(result, "someImportantGroup"));
+    }
+    
     private boolean contains(List<Group> result, String groupName) {
         for (Group resultGroup : result) {
             if (resultGroup.getName().equals(groupName)) {

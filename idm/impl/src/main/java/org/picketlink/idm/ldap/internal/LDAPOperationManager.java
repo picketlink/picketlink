@@ -40,6 +40,7 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
+import javax.naming.ldap.LdapContext;
 
 /**
  * <p>
@@ -58,7 +59,7 @@ public class LDAPOperationManager {
     private List<String> managedAttributes = new ArrayList<String>();
 
     private Properties properties;
-    private DirContext context;
+    private LdapContext context;
     private DirContext authenticationContext;
 
     public LDAPOperationManager(Properties properties) throws NamingException {
@@ -78,16 +79,16 @@ public class LDAPOperationManager {
         try {
             context.bind(dn, object);
         } catch (NamingException e) {
-            if(e instanceof CommunicationException){
-                //Discard context and try to recover from LDAP server communication breakage
+            if (e instanceof CommunicationException) {
+                // Discard context and try to recover from LDAP server communication breakage
                 try {
                     context.close();
-                    context = new InitialLdapContext(properties,null);
+                    context = new InitialLdapContext(properties, null);
                     context.bind(dn, object);
                 } catch (NamingException e1) {
                     throw new RuntimeException(e1);
                 }
-            }else {
+            } else {
                 throw new RuntimeException(e);
             }
         }
@@ -128,8 +129,8 @@ public class LDAPOperationManager {
      * @param attribute
      */
     public void addAttribute(String dn, Attribute attribute) {
-            ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute) };
-            modifyAttributes(dn, mods);
+        ModificationItem[] mods = new ModificationItem[] { new ModificationItem(DirContext.ADD_ATTRIBUTE, attribute) };
+        modifyAttributes(dn, mods);
     }
 
     /**
@@ -144,16 +145,16 @@ public class LDAPOperationManager {
         try {
             context.rebind(dn, object);
         } catch (NamingException e) {
-            if(e instanceof CommunicationException){
-                //Discard context and try to recover from LDAP server communication breakage
+            if (e instanceof CommunicationException) {
+                // Discard context and try to recover from LDAP server communication breakage
                 try {
                     context.close();
-                    context = new InitialLdapContext(properties,null);
+                    context = new InitialLdapContext(properties, null);
                     context.rebind(dn, object);
                 } catch (NamingException e1) {
                     throw new RuntimeException(e1);
                 }
-            }else {
+            } else {
                 throw new RuntimeException(e);
             }
         }
@@ -191,7 +192,7 @@ public class LDAPOperationManager {
         List<T> result = new ArrayList<T>();
 
         NamingEnumeration<SearchResult> answer = null;
-        
+
         try {
             Attributes attributesToSearch = new BasicAttributes(true);
 
@@ -215,6 +216,76 @@ public class LDAPOperationManager {
 
         return result;
     }
+
+    /**
+     * <p>
+     * Returns the entryUUID for a given entry.
+     * </p>
+     * 
+     * @param baseDN
+     * @param attributesToSearch
+     * @return
+     */
+    public Attributes lookupOperationalAttributes(String baseDN, String filter) {
+        NamingEnumeration<SearchResult> answer = null;
+
+        try {
+            SearchControls controls = new SearchControls();
+            
+            controls.setReturningAttributes(new String[] { LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
+            
+            answer = this.context.search(baseDN, filter, controls);
+
+            if (answer.hasMore()) {
+                return answer.next().getAttributes();
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (answer != null) {
+                try {
+                    answer.close();
+                } catch (NamingException e) {
+                }
+            }
+        }
+
+        return null;
+    }
+    
+
+    
+    public String lookupCreateDate(String dn) {
+        NamingEnumeration<SearchResult> answer = null;
+
+        try {
+            SearchControls controls = new SearchControls();
+            
+            controls.setReturningAttributes(new String[] {LDAPConstants.CREATE_TIMESTAMP});
+            
+            answer = this.context.search(dn, "(objectClass=*)", controls);
+
+            if (answer.hasMore()) {
+                Attribute entryUUID = answer.next().getAttributes().get(LDAPConstants.CREATE_TIMESTAMP);
+
+                if (entryUUID != null) {
+                    return entryUUID.get().toString();
+                }
+            }
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (answer != null) {
+                try {
+                    answer.close();
+                } catch (NamingException e) {
+                }
+            }
+        }
+
+        return null;        
+    }
+
 
     /**
      * <p>
@@ -265,6 +336,17 @@ public class LDAPOperationManager {
             throw new RuntimeException(e);
         }
     }
+    
+    public NamingEnumeration<SearchResult> search(String baseDN, String filter, SearchControls controls) {
+        try {
+
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+            return this.context.search(baseDN, filter, controls);
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * <p>
@@ -280,17 +362,17 @@ public class LDAPOperationManager {
             throw new RuntimeException(e);
         }
     }
-    
+
     public void destroyRecursively(String dn) {
         NamingEnumeration<Binding> enumeration = null;
-        
+
         try {
             enumeration = this.context.listBindings(dn);
-            
+
             while (enumeration.hasMore()) {
                 Binding binding = enumeration.next();
                 String name = binding.getNameInNamespace();
-                
+
                 destroyRecursively(name);
             }
             this.context.unbind(dn);
@@ -301,7 +383,7 @@ public class LDAPOperationManager {
                 enumeration.close();
             } catch (Exception e) {
             }
-        }        
+        }
     }
 
     /**
@@ -370,22 +452,43 @@ public class LDAPOperationManager {
         return true;
     }
 
-    private void modifyAttributes(String dn, ModificationItem[] mods){
-        try{
+    private void modifyAttributes(String dn, ModificationItem[] mods) {
+        try {
             context.modifyAttributes(dn, mods);
         } catch (NamingException e) {
-            if(e instanceof CommunicationException){
-                //Discard context and try to recover from LDAP server communication breakage
+            if (e instanceof CommunicationException) {
+                // Discard context and try to recover from LDAP server communication breakage
                 try {
                     context.close();
-                    context = new InitialLdapContext(properties,null);
+                    context = new InitialLdapContext(properties, null);
                     context.modifyAttributes(dn, mods);
                 } catch (NamingException e1) {
                     throw new RuntimeException(e1);
                 }
-            }else {
+            } else {
                 throw new RuntimeException(e);
             }
         }
     }
+
+    public void createSubContext(String name, Attributes attributes) {
+        try {
+            this.context.createSubcontext(name, attributes);
+        } catch (NamingException e) {
+            throw new RuntimeException("Error creating subcontext [" + name + "]", e);
+        }
+    }
+
+    public LdapContext getContext() {
+        return this.context;
+    }
+
+    public LdapContext createContext() {
+        try {
+            return new InitialLdapContext(properties, null);
+        } catch (NamingException e) {
+            throw new RuntimeException("Error creating context.", e);
+        }
+    }
+
 }

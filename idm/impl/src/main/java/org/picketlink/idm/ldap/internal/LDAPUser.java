@@ -22,14 +22,11 @@
 package org.picketlink.idm.ldap.internal;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
 
 import org.picketlink.idm.model.User;
 
@@ -39,23 +36,12 @@ import org.picketlink.idm.model.User;
  * @author anil saldhana
  * @since Aug 30, 2012
  */
-public class LDAPUser extends LDAPEntry implements User {
+public class LDAPUser extends LDAPAgent implements User {
 
     private static final long serialVersionUID = 1L;
 
-    // protected transient ManagedAttributeLookup lookup;
-
     public LDAPUser(String dnSuffix) {
         super(dnSuffix);
-        Attribute oc = new BasicAttribute(OBJECT_CLASS);
-
-        oc.add("inetOrgPerson");
-        oc.add("organizationalPerson");
-        oc.add("person");
-        oc.add("top");
-        oc.add("extensibleObject");
-
-        getLDAPAttributes().put(oc);
     }
 
     public LDAPUser() {
@@ -72,46 +58,25 @@ public class LDAPUser extends LDAPEntry implements User {
         setCustomAttributes(customAttributes);
     }
 
-    @Override
-    protected String doGetAttributeForBinding() {
-        return UID;
-    }
 
-    @Override
-    public String getLoginName() {
-        return getId();
-    }
-    
-    public void setId(String id) {
-        Attribute theAttribute = getLDAPAttributes().get(UID);
-        if (theAttribute == null) {
-            getLDAPAttributes().put(UID, id);
-        } else {
-            theAttribute.set(0, id);
-        }
-    }
 
-    @Override
-    public String getId() {
-        Attribute theAttribute = getLDAPAttributes().get(UID);
-        if (theAttribute != null) {
-            try {
-                return (String) theAttribute.get();
-            } catch (NamingException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return null;
+    public LDAPUser(String loginName, String userDNSuffix) {
+        this(userDNSuffix);
+        setLoginName(loginName);
     }
 
     @Override
     public String getFirstName() {
         Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.GIVENNAME);
-
+        
         return getAttributeValue(theAttribute);
     }
 
     private String getAttributeValue(Attribute attribute) {
+        if (attribute == null) {
+            return null;
+        }
+        
         Object value = null;
 
         try {
@@ -133,6 +98,10 @@ public class LDAPUser extends LDAPEntry implements User {
 
     @Override
     public void setFirstName(String firstName) {
+        if (firstName == null) {
+            firstName = " ";
+        }
+        
         getLDAPAttributes().put(LDAPConstants.GIVENNAME, firstName);
     }
 
@@ -145,6 +114,10 @@ public class LDAPUser extends LDAPEntry implements User {
 
     @Override
     public void setLastName(String lastName) {
+        if (lastName == null) {
+            lastName = " ";
+        }
+
         getLDAPAttributes().put(SN, lastName);
     }
 
@@ -168,7 +141,11 @@ public class LDAPUser extends LDAPEntry implements User {
 
     @Override
     public void setEmail(String email) {
-        setAttribute(new org.picketlink.idm.model.Attribute<String>(LDAPConstants.EMAIL, email));
+        if (email == null) {
+            email = " ";
+        }
+        
+        getLDAPAttributes().put(LDAPConstants.EMAIL, email);
     }
     
     /**
@@ -189,10 +166,6 @@ public class LDAPUser extends LDAPEntry implements User {
         return fullName;
     }
 
-    @Override
-    public void setLoginName(String loginName) {
-        // TODO Auto-generated method stub
-        
-    }
+
 
 }

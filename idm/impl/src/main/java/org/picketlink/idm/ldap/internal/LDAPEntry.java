@@ -19,6 +19,7 @@
  * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
+
 package org.picketlink.idm.ldap.internal;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
@@ -31,14 +32,7 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.naming.Binding;
 import javax.naming.Context;
@@ -57,60 +51,114 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.picketlink.idm.internal.util.Base64;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
-
 /**
- * <p>An adaptor class that provides barebones implementation of the {@link DirContext}.</p>
+ * @author Pedro Silva
  * 
- * @author anil saldhana
- * @since Aug 30, 2012
  */
-public abstract class LDAPEntry implements DirContext, IdentityType {
+public class LDAPEntry implements DirContext, Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private Attributes attributes = new BasicAttributes(true);
     private LDAPCustomAttributes customAttributes = new LDAPCustomAttributes();
-    private String dnSuffix;
-    
-    private boolean enabled = true;
-    private Date expirationDate;
-    private Date createDate = new Date();
 
-    private String id;
-    
+    private String dnSuffix;
+
     public LDAPEntry(String dnSuffix) {
         this.dnSuffix = dnSuffix;
     }
 
-    @Override
-    public String getId() {
-        return this.id;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
-    
     public String getDN() {
         try {
-            return getDN(getLDAPAttributes().get(doGetAttributeForBinding()).get().toString());
+            return getDN(getLDAPAttributes().get(getAttributeForBinding()).get().toString());
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
     }
     
-    protected String doGetAttributeForBinding() {
+    public String getBidingName() {
+        try {
+            return getAttributeForBinding() + EQUAL + getLDAPAttributes().get(getAttributeForBinding()).get().toString();
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected String getAttributeForBinding() {
         return CN;
     }
 
     public String getDN(String name) {
-        return doGetAttributeForBinding() + EQUAL + name + COMMA + this.dnSuffix;
+        return getAttributeForBinding() + EQUAL + name + COMMA + this.dnSuffix;
     }
-    
+
+    public String getDnSuffix() {
+        return this.dnSuffix;
+    }
+
+    public LDAPCustomAttributes getCustomAttributes() {
+        if (this.customAttributes == null) {
+            this.customAttributes = new LDAPCustomAttributes();
+        }
+
+        // this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_ENABLED, String.valueOf(isEnabled()));
+        // this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_CREATE_DATE, String.valueOf(getCreatedDate().getTime()));
+        //
+        
+        return this.customAttributes;
+    }
+
+    public void setCustomAttributes(LDAPCustomAttributes customAttributes) {
+        this.customAttributes = customAttributes;
+
+        if (this.customAttributes != null) {
+            Object enabledAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_ENABLED);
+            Object createDateAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_CREATE_DATE);
+            Object expiryDateAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE);
+
+            // if (enabledAttribute != null) {
+            // this.enabled = Boolean.valueOf(enabledAttribute.toString());
+            // }
+            //
+            // if (createDateAttribute != null) {
+            // this.createDate = new Date(Long.valueOf(createDateAttribute.toString()));
+            // }
+            //
+            // if (expiryDateAttribute != null) {
+            // this.expirationDate = new Date(Long.valueOf(expiryDateAttribute.toString()));
+            // }
+        }
+    }
+
+    public void addMember(LDAPEntry childEntry) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
+        if (memberAttribute != null) {
+            if (memberAttribute.contains(SPACE_STRING)) {
+                memberAttribute.remove(SPACE_STRING);
+            }
+        } else {
+            memberAttribute = new BasicAttribute(MEMBER);
+        }
+
+        memberAttribute.add(childEntry.getDN());
+        getLDAPAttributes().put(memberAttribute);
+    }
+
+    public void removeMember(LDAPEntry childEntry) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
+        if (memberAttribute != null) {
+            memberAttribute.remove(childEntry.getDN());
+        }
+
+        try {
+            if (!memberAttribute.getAll().hasMoreElements()) {
+                memberAttribute.add(SPACE_STRING);
+            }
+        } catch (NamingException e) {
+            e.printStackTrace();
+        }
+    }
+
     protected void addAllLDAPAttributes(Attributes theAttributes) {
         if (theAttributes != null) {
             NamingEnumeration<? extends Attribute> ne = theAttributes.getAll();
@@ -141,11 +189,6 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
     }
 
     @Override
-    public Attributes getAttributes(Name name, String[] ids) throws NamingException {
-        return getAttributes(name.toString(), ids);
-    }
-
-    @Override
     public Attributes getAttributes(String name, String[] ids) throws NamingException {
         if (!name.equals(""))
             throw new NameNotFoundException();
@@ -158,194 +201,6 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
             }
         }
         return answer;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-    
-    @Override
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    @Override
-    public Date getExpirationDate() {
-        return this.expirationDate;
-    }
-    
-    @Override
-    public void setExpirationDate(Date expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
-    @Override
-    public Date getCreatedDate() {
-        return this.createDate;
-    }
-    
-    @Override
-    public void setCreatedDate(Date createdDate) {
-        this.createDate = createdDate;
-    }
-
-    @Override
-    public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
-        Serializable value = attribute.getValue();
-        
-        getLDAPAttributes().put(attribute.getName(), value);
-        getCustomAttributes().addAttribute(attribute.getName(), value);
-    }
-
-    @Override
-    public void removeAttribute(String name) {
-        getLDAPAttributes().remove(name);
-        getCustomAttributes().removeAttribute(name);
-    }
-
-    public LDAPCustomAttributes getCustomAttributes() {
-        if (this.customAttributes == null) {
-            this.customAttributes = new LDAPCustomAttributes();
-        }
-        
-        this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_ENABLED, String.valueOf(isEnabled()));
-        this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_CREATE_DATE, String.valueOf(getCreatedDate().getTime()));
-        
-        if (this.expirationDate != null) {
-            this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE, String.valueOf(getExpirationDate().getTime()));            
-        }
-
-        return this.customAttributes;
-    }
-
-    public void setCustomAttributes(LDAPCustomAttributes customAttributes) {
-        this.customAttributes = customAttributes;
-        
-        if (this.customAttributes != null) {
-            Object enabledAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_ENABLED);
-            Object createDateAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_CREATE_DATE);
-            Object expiryDateAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE);
-            
-            if (enabledAttribute != null) {
-                this.enabled = Boolean.valueOf(enabledAttribute.toString());    
-            }
-            
-            if (createDateAttribute != null) {
-                this.createDate = new Date(Long.valueOf(createDateAttribute.toString()));            
-            }
-
-            if (expiryDateAttribute != null) {
-                this.expirationDate = new Date(Long.valueOf(expiryDateAttribute.toString()));            
-            }
-}
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
-        try {
-            Attribute theAttribute = attributes.get(name);
-            Object value = null;
-
-            if (theAttribute != null) {
-                value = theAttribute.get();
-            } else if (this.customAttributes.getAttributes().containsKey(name)) {
-                value = this.customAttributes.getAttribute(name);
-            } else {
-                return null;
-            }
-
-            return new org.picketlink.idm.model.Attribute<T>(name, (T) value);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> getAttributes() {
-        try {
-            Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> attribs = new ArrayList<org.picketlink.idm.model.Attribute<? extends Serializable>>();
-
-            // retrieve all ldap attributes
-            NamingEnumeration<? extends Attribute> theAttributes = getLDAPAttributes().getAll();
-
-            while (theAttributes.hasMore()) {
-                Attribute anAttribute = theAttributes.next();
-                NamingEnumeration<Object> ne = (NamingEnumeration<Object>) anAttribute.getAll();
-
-                List<String> theList = new ArrayList<String>();
-                while (ne.hasMoreElements()) {
-                    String val = null;
-                    Object obj = ne.next();
-                    if (obj instanceof byte[]) {
-                        val = new String(Base64.encodeBytes((byte[]) obj));
-                    } else {
-                        val = (String) obj;
-                    }
-                    theList.add(val);
-                }
-                String[] valuesArr = new String[theList.size()];
-                theList.toArray(valuesArr);
-
-                attribs.add(new org.picketlink.idm.model.Attribute<Serializable>(anAttribute.getID(), valuesArr));
-            }
-
-            // retrieve all custom attributes
-            Map<String, Object> customAttributes = getCustomAttributes().getAttributes();
-            Set<Entry<String, Object>> entrySet = customAttributes.entrySet();
-
-            for (Entry<String, Object> entry : entrySet) {
-                attribs.add(new org.picketlink.idm.model.Attribute<Serializable>(entry.getKey(), (Serializable) entry
-                        .getValue()));
-            }
-
-            return attribs;
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    public void addMember(LDAPEntry childEntry) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        if (memberAttribute != null) {
-            if (memberAttribute.contains(SPACE_STRING)) {
-                memberAttribute.remove(SPACE_STRING);
-            }
-        } else {
-            memberAttribute = new BasicAttribute(MEMBER);
-        }
-        
-        memberAttribute.add(childEntry.getDN());
-        getLDAPAttributes().put(memberAttribute);
-    }
-    
-    public boolean isMember(LDAPEntry member) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-
-        return memberAttribute != null && memberAttribute.contains(member.getDN());
-    }   
-
-
-    public void removeMember(LDAPEntry childEntry) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        if (memberAttribute != null) {
-            memberAttribute.remove(childEntry.getDN());
-        }
-        
-        try {
-            if (!memberAttribute.getAll().hasMoreElements()) {
-                memberAttribute.add(SPACE_STRING);
-            }
-        } catch (NamingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public Partition getPartition() {
-        return null;
     }
 
     @Override
@@ -491,10 +346,6 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
     public Attributes getAttributes(String name) throws NamingException {
         return attributes;
     }
-    
-    public void setDnSuffix(String dnSuffix) {
-        this.dnSuffix = dnSuffix;
-    }
 
     @Override
     public void modifyAttributes(Name name, int mod_op, Attributes attrs) throws NamingException {
@@ -601,13 +452,10 @@ public abstract class LDAPEntry implements DirContext, IdentityType {
             throws NamingException {
         return null;
     }
-    
-    public String getDnSuffix() {
-        return this.dnSuffix;
-    }
-    
+
     @Override
-    public void setPartition(Partition partition) {
-        
+    public Attributes getAttributes(Name name, String[] attrIds) throws NamingException {
+        return null;
     }
+
 }

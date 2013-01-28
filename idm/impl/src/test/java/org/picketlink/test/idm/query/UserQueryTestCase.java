@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
@@ -55,6 +56,17 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  */
 public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
 
+    @After
+    public void onFinish() {
+        IdentityQuery<User> query = getIdentityManager().createIdentityQuery(User.class);
+        
+        List<User> result = query.getResultList();
+        
+        for (User user : result) {
+            getIdentityManager().remove(user);
+        }
+    }
+    
     @Test
     public void testFindById() throws Exception {
         User user = createUser("someUser");
@@ -75,7 +87,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
     @Test
     public void testPagination() throws Exception {
         for (int i = 0; i < 50; i++) {
-            createUser("someUser" + i + 1);
+            createUser("someUser" + (i + 1));
         }
         
         IdentityManager identityManager = getIdentityManager();

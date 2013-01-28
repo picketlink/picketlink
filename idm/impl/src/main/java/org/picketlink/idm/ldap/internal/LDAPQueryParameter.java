@@ -22,6 +22,10 @@
 
 package org.picketlink.idm.ldap.internal;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 import javax.naming.directory.Attribute;
 
 import org.picketlink.idm.model.Group;
@@ -86,7 +90,22 @@ public class LDAPQueryParameter {
         String filter = "(&";
 
         for (Object value : getValues()) {
-            filter = filter + "(" + getMappedTo().getID() + "=" + value.toString() + ")";
+            if (Date.class.isInstance(value)) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss'Z'");
+                
+                sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                
+                value = sdf.format(((Date) value));
+            }
+            
+            if (this.queryParameter.equals(IdentityType.CREATED_AFTER)) {
+                filter = filter + "(" + getMappedTo().getID() + ">=" + value.toString() + ")";
+            } else if (this.queryParameter.equals(IdentityType.CREATED_BEFORE)) {
+                filter = filter + "(" + getMappedTo().getID() + "<=" + value.toString() + ")";
+            } else {
+                filter = filter + "(" + getMappedTo().getID() + "=" + value.toString() + ")";    
+            }
+            
         }
 
         filter = filter + ")";

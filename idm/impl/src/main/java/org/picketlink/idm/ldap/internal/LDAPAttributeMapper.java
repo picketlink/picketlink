@@ -44,23 +44,21 @@ public class LDAPAttributeMapper {
     private static final Map<QueryParameter, String> ldapAttributeMap = new HashMap<QueryParameter, String>();
     
     static {
-        ldapAttributeMap.put(User.ID, LDAPConstants.UID);
+        ldapAttributeMap.put(User.ID, LDAPConstants.ENTRY_UUID);
+        ldapAttributeMap.put(User.LOGIN_NAME, LDAPConstants.UID);
         ldapAttributeMap.put(User.EMAIL, LDAPConstants.EMAIL);
         ldapAttributeMap.put(User.FIRST_NAME, LDAPConstants.GIVENNAME);
         ldapAttributeMap.put(User.LAST_NAME, LDAPConstants.SN);
         ldapAttributeMap.put(User.MEMBER_OF, LDAPConstants.MEMBER_OF);
-        
         ldapAttributeMap.put(Role.NAME, LDAPConstants.CN);
-        
         ldapAttributeMap.put(Group.NAME, LDAPConstants.CN);
+        ldapAttributeMap.put(User.CREATED_DATE, LDAPConstants.CREATE_TIMESTAMP);
+        ldapAttributeMap.put(User.CREATED_BEFORE, LDAPConstants.CREATE_TIMESTAMP);
+        ldapAttributeMap.put(User.CREATED_AFTER, LDAPConstants.CREATE_TIMESTAMP);
         
-        customAttributeMap.put(User.CREATED_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
-        customAttributeMap.put(User.CREATED_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
-        customAttributeMap.put(User.CREATED_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE);
         customAttributeMap.put(User.EXPIRY_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(User.EXPIRY_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(User.EXPIRY_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
-        
         customAttributeMap.put(IdentityType.ENABLED, LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED);
     }
     

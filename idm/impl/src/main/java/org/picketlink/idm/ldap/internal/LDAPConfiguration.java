@@ -56,6 +56,8 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     private Properties additionalProperties = new Properties();
     private FeatureSet featureSet = new FeatureSet();
     private LDAPOperationManager ldapManager;
+    private String agentDNSuffix;
+    private String baseDN;
 
     public String getStandardAttributesFileName() {
         return standardAttributesFileName;
@@ -221,5 +223,21 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
 
     public LDAPOperationManager getLdapManager() {
         return this.ldapManager;
+    }
+
+    public String getAgentDNSuffix() {
+        return this.agentDNSuffix;
+    }
+    
+    public void setAgentDNSuffix(String agentDNSuffix) {
+        this.agentDNSuffix = agentDNSuffix;
+    }
+
+    public void setBaseDN(String baseDN) {
+        this.baseDN = baseDN;
+    }
+    
+    public String getBaseDN() {
+        return this.baseDN;
     }
 }

@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
@@ -42,6 +43,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleAgent;
+import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
@@ -53,6 +55,17 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  * 
  */
 public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
+
+    @After
+    public void onFinish() {
+        IdentityQuery<Agent> query = getIdentityManager().createIdentityQuery(Agent.class);
+
+        List<Agent> result = query.getResultList();
+
+        for (Agent agent : result) {
+            getIdentityManager().remove(agent);
+        }
+    }
 
     @Test
     public void testFindById() throws Exception {
@@ -70,131 +83,131 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         assertEquals(1, result.size());
         assertEquals(agent.getLoginName(), result.get(0).getLoginName());
     }
-    
+
     @Test
     public void testPagination() throws Exception {
         for (int i = 0; i < 50; i++) {
-            createAgent("someAgent" + i + 1);
+            createAgent("someAgent" + (i + 1));
         }
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
-        
+
         query.setLimit(10);
         query.setOffset(0);
-        
+
         int resultCount = query.getResultCount();
-        
+
         assertEquals(50, resultCount);
-        
+
         List<Agent> firstPage = query.getResultList();
-        
+
         assertEquals(10, firstPage.size());
-        
+
         List<String> agentIds = new ArrayList<String>();
-        
+
         for (Agent Agent : firstPage) {
             agentIds.add(Agent.getId());
         }
-        
+
         query.setOffset(10);
-        
+
         List<Agent> secondPage = query.getResultList();
-        
+
         assertEquals(10, secondPage.size());
-        
+
         for (Agent Agent : secondPage) {
             assertFalse(agentIds.contains(Agent.getId()));
             agentIds.add(Agent.getId());
         }
-        
+
         query.setOffset(20);
-        
+
         List<Agent> thirdPage = query.getResultList();
-        
+
         assertEquals(10, thirdPage.size());
-        
+
         for (Agent Agent : thirdPage) {
             assertFalse(agentIds.contains(Agent.getId()));
             agentIds.add(Agent.getId());
         }
-        
+
         query.setOffset(30);
-        
+
         List<Agent> fourthPage = query.getResultList();
-        
+
         assertEquals(10, fourthPage.size());
-        
+
         for (Agent Agent : fourthPage) {
             assertFalse(agentIds.contains(Agent.getId()));
             agentIds.add(Agent.getId());
         }
-        
+
         query.setOffset(40);
-        
+
         List<Agent> fifthyPage = query.getResultList();
-        
+
         assertEquals(10, fifthyPage.size());
-        
+
         for (Agent Agent : fifthyPage) {
             assertFalse(agentIds.contains(Agent.getId()));
             agentIds.add(Agent.getId());
         }
-        
+
         assertEquals(50, agentIds.size());
-        
+
         query.setOffset(50);
-        
+
         List<Agent> invalidPage = query.getResultList();
-        
-        assertEquals(0, invalidPage.size());
+
+        assertTrue(invalidPage.isEmpty());
     }
-    
+
     @Test
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
-        
+
         Agent someAgentDefaultRealm = new SimpleAgent("someAgentRealm");
-        
+
         identityManager.add(someAgentDefaultRealm);
-        
+
         IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
-        
+
         Realm defaultRealm = identityManager.getRealm(Realm.DEFAULT_REALM);
-        
+
         assertNotNull(defaultRealm);
-        
+
         query.setParameter(Agent.PARTITION, defaultRealm);
-        
+
         List<Agent> result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertEquals(someAgentDefaultRealm.getLoginName(), result.get(0).getLoginName());
-        
+
         Realm testingRealm = identityManager.getRealm("Testing");
-        
+
         if (testingRealm == null) {
             testingRealm = new Realm("Testing");
             identityManager.createRealm(testingRealm);
         }
-        
+
         Agent someAgentTestingRealm = new SimpleAgent("someAgentTestingRealm");
-        
+
         identityManager.forRealm(testingRealm).add(someAgentTestingRealm);
-        
+
         query = identityManager.createIdentityQuery(Agent.class);
-        
+
         query.setParameter(Agent.PARTITION, testingRealm);
-        
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertEquals(someAgentTestingRealm.getLoginName(), result.get(0).getLoginName());
     }
-    
+
     @Test
     public void testFindByLoginName() throws Exception {
         Agent user = createAgent("someAgent");
@@ -483,7 +496,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         // only disabled users. No users are disabled.
         result = query.getResultList();
-        
+
         assertTrue(result.isEmpty());
 
         someAgent.setEnabled(false);
@@ -582,7 +595,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
 
         // no users
         result = query.getResultList();
-        
+
         assertTrue(result.isEmpty());
     }
 
@@ -711,7 +724,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         Agent someAgent = createAgent("someAgent");
 
         Date currentDate = new Date();
-        
+
         someAgent.setExpirationDate(currentDate);
 
         IdentityManager identityManager = getIdentityManager();
@@ -737,7 +750,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         query.setParameter(Agent.EXPIRY_BEFORE, currentDate);
 
         Agent someFutureAgent = createAgent("someFutureAgent");
-        
+
         calendar = Calendar.getInstance();
 
         calendar.add(Calendar.MINUTE, 1);
@@ -778,7 +791,7 @@ public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
         calendar = Calendar.getInstance();
 
         calendar.add(Calendar.MINUTE, 1);
-        
+
         // users expired before the given time
         query.setParameter(Agent.EXPIRY_BEFORE, calendar.getTime());
 

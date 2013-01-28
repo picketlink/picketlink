@@ -27,6 +27,7 @@ import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Test;
@@ -98,7 +99,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         storedUser.setLastName("Updated " + storedUser.getLastName());
         storedUser.setEmail("Updated " + storedUser.getEmail());
         
-        Date actualDate = new Date();
+        Date actualDate = Calendar.getInstance().getTime();
         
         storedUser.setExpirationDate(actualDate);
 

@@ -83,7 +83,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         // should also be possible to lookup all IdentityType instances
         lookedUpIdentityType = (T) identityManager.lookupIdentityById(IdentityType.class, identityType.getId());
 
-        assertNotNull(identityType);
+        assertNotNull(lookedUpIdentityType);
         assertEquals(identityType.getId(), lookedUpIdentityType.getId());
 
         assertNull(identityManager.lookupIdentityById(identityType.getClass(), "bad_id"));

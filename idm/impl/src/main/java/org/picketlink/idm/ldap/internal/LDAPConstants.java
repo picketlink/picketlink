@@ -45,5 +45,7 @@ public interface LDAPConstants {
     String CUSTOM_ATTRIBUTE_ENABLED = "enabled";
     String CUSTOM_ATTRIBUTE_CREATE_DATE = "createDate";
     String CUSTOM_ATTRIBUTE_EXPIRY_DATE = "expiryDate";
+    String ENTRY_UUID = "entryUUID";
+    String CREATE_TIMESTAMP = "createTimeStamp";
 
 }

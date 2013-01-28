@@ -40,7 +40,7 @@ import org.picketlink.idm.model.Group;
  * @author anil saldhana
  * @since Sep 4, 2012
  */
-public class LDAPGroup extends LDAPEntry implements Group {
+public class LDAPGroup extends LDAPIdentityType implements Group {
 
     private static final long serialVersionUID = 1L;
     
@@ -62,6 +62,11 @@ public class LDAPGroup extends LDAPEntry implements Group {
     public LDAPGroup(Attributes attributes, String groupDNSuffix) {
         super(groupDNSuffix);
         setLDAPAttributes(attributes);
+    }
+
+    public LDAPGroup(String name, String groupDNSuffix) {
+        this(groupDNSuffix);
+        setName(name);
     }
 
     public void setName(String name) {
@@ -107,12 +112,6 @@ public class LDAPGroup extends LDAPEntry implements Group {
         }
         
         memberAttribute.add(getDN(childGroup.getName()));
-    }
-
-    @Override
-    public void setId(String id) {
-        // TODO Auto-generated method stub
-        
     }
 
 }

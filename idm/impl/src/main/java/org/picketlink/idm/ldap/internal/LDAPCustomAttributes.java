@@ -25,32 +25,45 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Attributes of an {@link LDAPUser} that does not map to LDAP managed attributes
- *
+ * 
  * @author anil saldhana
  * @since Sep 7, 2012
  */
 public class LDAPCustomAttributes implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Object> attributes = new HashMap<String, Object>();
+    private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
 
-    public void addAttribute(String key, Object value) {
+    public void addAttribute(String key, Serializable value) {
         attributes.put(key, value);
     }
-    
+
     public void removeAttribute(String key) {
         this.attributes.remove(key);
     }
 
-    public Map<String, Object> getAttributes() {
+    public Map<String, Serializable> getAttributes() {
         return Collections.unmodifiableMap(attributes);
     }
 
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
-    
+
+    public void clear() {
+        Set<Entry<String, Object>> entrySet = new HashMap(this.attributes).entrySet();
+        
+        for (Entry<String, Object> entry : entrySet) {
+            if (!entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED)
+                    && !entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
+                this.attributes.remove(entry.getKey());
+            }
+        }
+    }
+
 }
