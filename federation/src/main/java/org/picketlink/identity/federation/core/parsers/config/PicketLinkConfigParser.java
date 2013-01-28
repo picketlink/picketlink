@@ -9,12 +9,12 @@ import org.picketlink.identity.federation.core.config.idm.IDMType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.identity.federation.core.config.STSType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.parsers.AbstractParser;
-import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.common.parsers.AbstractParser;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.common.util.StaxParserUtil;
 
 /**
  * Parser to parse the consolidated picketlink.xml

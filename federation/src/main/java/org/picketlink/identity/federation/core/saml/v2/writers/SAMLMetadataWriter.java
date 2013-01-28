@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.writers;
 
-import static org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants.METADATA_NSURI;
+import static org.picketlink.common.constants.JBossSAMLURIConstants.METADATA_NSURI;
 
 import java.net.URI;
 import java.util.List;
@@ -29,10 +29,10 @@ import java.util.List;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLURIConstants;
-import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeType;
 import org.picketlink.identity.federation.saml.v2.metadata.AdditionalMetadataLocationType;
 import org.picketlink.identity.federation.saml.v2.metadata.AffiliationDescriptorType;

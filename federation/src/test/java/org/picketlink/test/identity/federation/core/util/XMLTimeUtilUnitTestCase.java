@@ -33,7 +33,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.constants.GeneralConstants;
 
 /**
  * Unit Test the XML Time Util

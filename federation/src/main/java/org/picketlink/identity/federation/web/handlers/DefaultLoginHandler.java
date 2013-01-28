@@ -27,8 +27,8 @@ import java.util.Properties;
 
 import javax.security.auth.login.LoginException;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 
 /**

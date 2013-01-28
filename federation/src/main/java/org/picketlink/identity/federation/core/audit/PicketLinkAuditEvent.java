@@ -24,7 +24,7 @@ package org.picketlink.identity.federation.core.audit;
 import java.util.Map;
 
 import org.jboss.security.audit.AuditEvent;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StringUtil;
 
 /**
  * Specialized implementation of {@link AuditEvent}

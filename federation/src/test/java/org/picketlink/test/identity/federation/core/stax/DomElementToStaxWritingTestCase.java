@@ -26,8 +26,8 @@ import java.io.ByteArrayOutputStream;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxUtil;
 import org.w3c.dom.Document;
 
 /**

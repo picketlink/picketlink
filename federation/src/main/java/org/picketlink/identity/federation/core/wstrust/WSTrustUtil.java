@@ -44,15 +44,17 @@ import javax.xml.stream.events.StartElement;
 
 import org.apache.xml.security.encryption.EncryptedKey;
 import org.apache.xml.security.encryption.XMLCipher;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.exceptions.fed.WSTrustException;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.config.STSType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
-import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
@@ -472,7 +474,7 @@ public class WSTrustUtil {
      * @return the constructed {@code KeyValueType} or {@code null} if the specified key is neither a DSA nor a RSA key.
      */
     public static KeyValueType createKeyValue(PublicKey key) {
-        return XMLSignatureUtil.createKeyValue(key);
+        return SignatureUtil.createKeyValue(key);
     }
 
     public static String getServiceNameFromAppliesTo(RequestSecurityToken requestSecurityToken) {

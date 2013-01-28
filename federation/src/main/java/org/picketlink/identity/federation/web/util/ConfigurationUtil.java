@@ -23,12 +23,12 @@ package org.picketlink.identity.federation.web.util;
 
 import java.io.InputStream;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;

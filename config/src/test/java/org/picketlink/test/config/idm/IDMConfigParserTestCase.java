@@ -26,19 +26,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.util.List;
 
 import org.junit.Test;
+import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.idm.IDMType;
 import org.picketlink.identity.federation.core.config.idm.IdentityStoreInvocationContextFactoryType;
 import org.picketlink.identity.federation.core.config.idm.ObjectType;
 import org.picketlink.identity.federation.core.config.idm.StoreConfigurationType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
 import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 
 /**

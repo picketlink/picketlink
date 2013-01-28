@@ -29,7 +29,7 @@ import java.io.StringReader;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Validator;
 
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 
 /**
  * Base class for the parser unit tests
@@ -40,14 +40,14 @@ import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
 public class AbstractParserTest {
     public void validateSchema(String value) throws Exception {
         System.setProperty("jaxp.debug", "true");
-        Validator validator = StaxParserUtil.getSchemaValidator();
+        Validator validator = JAXPValidationUtil.validator();
         assertNotNull(validator);
         validator.validate(new StreamSource(new StringReader(value)));
     }
 
     public void validateSchema(InputStream is) throws Exception {
         System.setProperty("jaxp.debug", "true");
-        Validator validator = StaxParserUtil.getSchemaValidator();
+        Validator validator = JAXPValidationUtil.validator();
         assertNotNull(validator);
         validator.validate(new StreamSource(is));
     }

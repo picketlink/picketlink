@@ -24,7 +24,7 @@ package org.picketlink.identity.federation.web.util;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.PicketLinkType;
 import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ProcessingException;
 
 /**
  * Returns configuration for an IDP or SP

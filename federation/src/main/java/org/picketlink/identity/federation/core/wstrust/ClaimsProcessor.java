@@ -25,6 +25,7 @@ package org.picketlink.identity.federation.core.wstrust;
 import java.security.Principal;
 import java.util.Map;
 
+import org.picketlink.common.exceptions.fed.WSTrustException;
 import org.picketlink.identity.federation.ws.trust.ClaimsType;
 
 /**

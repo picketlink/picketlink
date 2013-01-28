@@ -23,7 +23,7 @@
 
 package org.picketlink.identity.federation.core.parsers.saml.metadata;
 
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ParsingException;
 
 import javax.xml.stream.EventFilter;
 import javax.xml.stream.XMLEventReader;

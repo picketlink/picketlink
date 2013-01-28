@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,11 +30,11 @@ import java.io.PrintWriter;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.saml.v2.holders.DestinationInfoHolder;
-import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.constants.GeneralConstants;
 
 /**
  * Utility for the HTTP/Post binding

@@ -29,9 +29,9 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.RSAPrivateKeySpec;
 import java.security.spec.RSAPublicKeySpec;
 
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.constants.WSTrustConstants;
 
 /**
  * <p>

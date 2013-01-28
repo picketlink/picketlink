@@ -29,10 +29,11 @@ import java.util.Properties;
 
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.util.StringUtil;
 
 /**
  * STSClientConfig has the ability to either programatically construct the configuration needed for {@link STSClient} or parse a

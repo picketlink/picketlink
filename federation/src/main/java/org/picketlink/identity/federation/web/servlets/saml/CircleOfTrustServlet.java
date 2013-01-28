@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.web.servlets.saml;
 
-import static org.picketlink.identity.federation.core.util.StringUtil.isNotNull;
+import static org.picketlink.common.util.StringUtil.isNotNull;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.IMetadataConfigurationStore;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;

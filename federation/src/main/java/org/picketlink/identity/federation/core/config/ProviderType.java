@@ -26,7 +26,8 @@ import java.util.Map;
 
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StringUtil;
+
 
 /**
  * Base Type for IDP and SP

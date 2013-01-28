@@ -21,8 +21,8 @@
  */
 package org.picketlink.identity.federation.core.saml.v2.interfaces;
 
-import org.picketlink.identity.federation.core.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ConfigurationException;
+import org.picketlink.common.exceptions.ProcessingException;
 
 /**
  * Handle SAML2 Request types and status response types
