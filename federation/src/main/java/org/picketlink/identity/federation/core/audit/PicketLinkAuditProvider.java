@@ -24,8 +24,8 @@ package org.picketlink.identity.federation.core.audit;
 import org.jboss.security.audit.AuditEvent;
 import org.jboss.security.audit.AuditProvider;
 import org.jboss.security.audit.providers.LogAuditProvider;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 
 /**
  * An implementation of {@link AuditProvider} that extends PicketBox's {@link LogAuditProvider}

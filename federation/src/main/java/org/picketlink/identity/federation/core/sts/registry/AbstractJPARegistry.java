@@ -25,8 +25,8 @@ package org.picketlink.identity.federation.core.sts.registry;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

@@ -24,7 +24,7 @@ import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.core.config.AuthPropertyType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
 import org.picketlink.identity.federation.core.config.ClaimsProcessorsType;
@@ -35,9 +35,9 @@ import org.picketlink.identity.federation.core.config.ServiceProviderType;
 import org.picketlink.identity.federation.core.config.ServiceProvidersType;
 import org.picketlink.identity.federation.core.config.TokenProviderType;
 import org.picketlink.identity.federation.core.config.TokenProvidersType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.parsers.AbstractParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.AbstractParser;
+import org.picketlink.common.util.StaxParserUtil;
 
 /**
  * <p>

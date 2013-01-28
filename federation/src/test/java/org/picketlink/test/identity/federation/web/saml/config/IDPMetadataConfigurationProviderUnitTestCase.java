@@ -29,7 +29,7 @@ import java.io.InputStream;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.config.IDPType;
 import org.picketlink.identity.federation.core.config.TrustType;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.web.config.IDPMetadataConfigurationProvider;
 
 /**

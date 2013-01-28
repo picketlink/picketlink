@@ -28,8 +28,8 @@ import static org.picketlink.identity.federation.core.wsa.WSAddressingConstants.
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.ws.addressing.AttributedURIType;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 

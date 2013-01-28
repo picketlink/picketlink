@@ -23,14 +23,14 @@ package org.picketlink.identity.federation.core.wstrust.writers;
 
 import static org.picketlink.identity.federation.core.wspolicy.WSPolicyConstants.APPLIES_TO;
 import static org.picketlink.identity.federation.core.wspolicy.WSPolicyConstants.WSP_PREFIX;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.WSP_NS;
+import static org.picketlink.common.constants.WSTrustConstants.WSP_NS;
 
 import java.util.List;
 
 import javax.xml.stream.XMLStreamWriter;
 
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.util.StaxUtil;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.ws.addressing.EndpointReferenceType;
 import org.picketlink.identity.federation.ws.policy.AppliesTo;
 

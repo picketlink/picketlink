@@ -21,11 +21,11 @@
  */
 package org.picketlink.identity.federation.core.wstrust.writers;
 
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.BASE_NAMESPACE;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.PREFIX;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.RST;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.RST_COLLECTION;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.RST_CONTEXT;
+import static org.picketlink.common.constants.WSTrustConstants.BASE_NAMESPACE;
+import static org.picketlink.common.constants.WSTrustConstants.PREFIX;
+import static org.picketlink.common.constants.WSTrustConstants.RST;
+import static org.picketlink.common.constants.WSTrustConstants.RST_COLLECTION;
+import static org.picketlink.common.constants.WSTrustConstants.RST_CONTEXT;
 
 import java.io.OutputStream;
 import java.net.URI;
@@ -34,14 +34,15 @@ import java.util.List;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Result;
 
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.identity.federation.core.saml.v2.util.StaxWriterUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLAssertionWriter;
-import org.picketlink.identity.federation.core.util.StaxUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.wsa.WSAddressingConstants;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenCollection;
@@ -295,7 +296,7 @@ public class WSTrustRequestWriter {
             } else if (useKeyTypeValue instanceof KeyValueType) {
                 writeKeyValueType((KeyValueType) useKeyTypeValue);
             } else if (useKeyTypeValue instanceof KeyInfoType) {
-                StaxUtil.writeKeyInfo(writer, (KeyInfoType) useKeyTypeValue);
+                StaxWriterUtil.writeKeyInfo(writer, (KeyInfoType) useKeyTypeValue);
             } else
                 throw logger.writerUnknownTypeError(useKeyTypeValue.getClass().getName());
         }
@@ -309,10 +310,10 @@ public class WSTrustRequestWriter {
         StaxUtil.writeNameSpace(writer, WSTrustConstants.XMLDSig.DSIG_PREFIX, WSTrustConstants.DSIG_NS);
         if (type instanceof RSAKeyValueType) {
             RSAKeyValueType rsaKeyValue = (RSAKeyValueType) type;
-            StaxUtil.writeRSAKeyValueType(writer,rsaKeyValue);
+            StaxWriterUtil.writeRSAKeyValueType(writer,rsaKeyValue);
         } else if(type instanceof DSAKeyValueType) {
             DSAKeyValueType dsaKeyValue = (DSAKeyValueType)type;
-            StaxUtil.writeDSAKeyValueType(writer, dsaKeyValue);
+            StaxWriterUtil.writeDSAKeyValueType(writer, dsaKeyValue);
         }
         StaxUtil.writeEndElement(writer);
     }

@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
+import org.picketlink.common.ErrorCodes;
 import org.picketlink.identity.federation.core.interfaces.RoleGenerator;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StringUtil;
 
 /**
  * Simple Role Generator that looks inside a roles.properties on the classpath with format: principalName=role1,role2

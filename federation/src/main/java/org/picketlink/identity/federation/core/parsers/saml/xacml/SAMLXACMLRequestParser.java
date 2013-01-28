@@ -31,12 +31,12 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 import org.jboss.security.xacml.core.model.context.RequestType;
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.parsers.ParserNamespaceSupport;
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLRequestAbstractParser;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.saml.v2.constants.JBossSAMLConstants;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.constants.JBossSAMLConstants;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.XACMLAuthzDecisionQueryType;
 import org.w3c.dom.Element;
 

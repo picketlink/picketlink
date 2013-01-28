@@ -20,7 +20,7 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import org.picketlink.identity.federation.core.exceptions.ParsingException;
+import org.picketlink.common.exceptions.ParsingException;
 
 /**
  * Simple factory for creating {@link STSClient}s.

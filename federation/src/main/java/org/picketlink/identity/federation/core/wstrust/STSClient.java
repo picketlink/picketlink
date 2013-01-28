@@ -17,7 +17,6 @@
  */
 package org.picketlink.identity.federation.core.wstrust;
 
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.security.Principal;
@@ -36,13 +35,13 @@ import javax.xml.ws.Service;
 import javax.xml.ws.Service.Mode;
 import javax.xml.ws.soap.SOAPBinding;
 
-import org.jboss.security.util.xml.DOMUtils;
-import org.picketlink.identity.federation.PicketLinkLogger;
-import org.picketlink.identity.federation.PicketLinkLoggerFactory;
+import org.picketlink.common.PicketLinkLogger;
+import org.picketlink.common.PicketLinkLoggerFactory;
+import org.picketlink.common.constants.WSTrustConstants;
+import org.picketlink.common.exceptions.fed.WSTrustException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.SOAPUtil;
-import org.picketlink.identity.federation.core.util.StringUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponse;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityTokenResponseCollection;

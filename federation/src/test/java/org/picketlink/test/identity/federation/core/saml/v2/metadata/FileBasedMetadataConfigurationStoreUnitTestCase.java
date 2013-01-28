@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.metadata.store.FileBasedMetadataConfigurationStore;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType;
 
 /**

@@ -29,9 +29,9 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.DSAPublicKeySpec;
 
-import org.picketlink.identity.federation.core.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.util.Base64;
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.constants.WSTrustConstants;
 
 /**
  * <p>

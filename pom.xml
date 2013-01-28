@@ -46,6 +46,7 @@
 	</properties>
 
 	<modules>
+		<module>common</module>
 		<module>idm</module>
 		<module>core</module>
 		<module>federation</module>

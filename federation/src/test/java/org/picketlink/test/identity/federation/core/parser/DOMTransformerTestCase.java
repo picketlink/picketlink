@@ -35,9 +35,9 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.stax.StAXSource;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.parsers.util.StaxParserUtil;
-import org.picketlink.identity.federation.core.saml.v2.util.DocumentUtil;
-import org.picketlink.identity.federation.core.util.TransformerUtil;
+import org.picketlink.common.util.StaxParserUtil;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.TransformerUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

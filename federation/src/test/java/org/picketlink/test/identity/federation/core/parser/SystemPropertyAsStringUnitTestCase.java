@@ -26,7 +26,7 @@ import static org.junit.Assert.fail;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StringUtil;
 
 /**
  * Unit Test {@link StringUtil#getSystemPropertyAsString(String)} that parses a string that represents a system property

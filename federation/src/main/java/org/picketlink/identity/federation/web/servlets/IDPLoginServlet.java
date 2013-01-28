@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.picketlink.identity.federation.core.ErrorCodes;
-import org.picketlink.identity.federation.web.constants.GeneralConstants;
+import org.picketlink.common.ErrorCodes;
+import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.identity.federation.web.handlers.DefaultLoginHandler;
 import org.picketlink.identity.federation.web.interfaces.ILoginHandler;
 

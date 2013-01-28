@@ -30,7 +30,7 @@ import javax.crypto.spec.PBEParameterSpec;
 
 import org.junit.Test;
 import org.picketlink.identity.federation.core.constants.PicketLinkFederationConstants;
-import org.picketlink.identity.federation.core.util.PBEUtils;
+import org.picketlink.common.util.PBEUtils;
 
 /**
  * Test the masking of the password using {@code PBEUtils}

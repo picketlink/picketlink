@@ -21,7 +21,7 @@
  */
 package org.picketlink.identity.federation.core.config;
 
-import org.picketlink.identity.federation.core.util.StringUtil;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.web.core.IdentityParticipantStack;
 
 /**

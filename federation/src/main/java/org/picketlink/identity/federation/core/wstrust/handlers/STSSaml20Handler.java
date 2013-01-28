@@ -20,11 +20,11 @@
  */
 package org.picketlink.identity.federation.core.wstrust.handlers;
 
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.WSSE_NS;
-import static org.picketlink.identity.federation.core.wstrust.WSTrustConstants.SAML2_ASSERTION_NS;
+import static org.picketlink.common.constants.WSTrustConstants.WSSE_NS;
+import static org.picketlink.common.constants.WSTrustConstants.SAML2_ASSERTION_NS;
 import javax.xml.namespace.QName;
 
-import org.picketlink.identity.federation.core.wstrust.WSTrustConstants;
+import org.picketlink.common.constants.WSTrustConstants;
 
 /**
  * A concrete implementation of {@link STSSecurityHandler} that can handle SAML version 2.0 Assertion inside of
