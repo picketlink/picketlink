@@ -1,0 +1,102 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+  <PicketLinkIDP xmlns="urn:picketlink:identity-federation:config:1.0"
+                 ServerEnvironment="tomcat" BindingType="POST" SupportsSignatures="true">
+    <IdentityURL>${picketlink.idp.url::http://localhost:8080/idp-sig/}</IdentityURL>
+    <Trust>
+      <Domains>${picketlink.sp.domains::sp.com,idp.com}</Domains>
+    </Trust>
+
+    <KeyProvider ClassName="org.picketlink.identity.federation.core.impl.KeyStoreKeyManager">
+      <Auth Key="KeyStoreURL" Value="fakeKeystore"/>
+      <Auth Key="KeyStorePass" Value="MASK-O1P+U1Domeec8lCaoIkTGg=="/>
+      <Auth Key="SigningKeyPass" Value="MASK-AJbh4WmHwy8="/>
+      <Auth Key="SigningKeyAlias" Value="servercert"/>
+      <Auth Key="salt" Value="18273645"/>
+      <Auth Key="iterationCount" Value="11"/>
+      <ValidatingAlias Key="certKey" Value="servercert"/>
+    </KeyProvider>
+
+  </PicketLinkIDP>
+
+  <Handlers xmlns="urn:picketlink:identity-federation:handler:config:2.1">
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2IssuerTrustHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2LogOutHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2AuthenticationHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.RolesGenerationHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureGenerationHandler"/>
+    <Handler
+        class="org.picketlink.identity.federation.web.handlers.saml2.SAML2SignatureValidationHandler"/>
+  </Handlers>
+
+  <PicketLinkSTS xmlns="urn:picketlink:identity-federation:config:1.0"
+                 STSName="Test STS" TokenTimeout="7200" EncryptToken="true">
+    <KeyProvider ClassName="SomeClass">
+      <ValidatingAlias Key="localhost" Value="localhostalias"/>
+      <ValidatingAlias Key="jboss.com" Value="jbossalias"/>
+      <SigningAlias>issueralias</SigningAlias>
+    </KeyProvider>
+    <RequestHandler>org.picketlink.identity.federation.wstrust.Handler</RequestHandler>
+    <TokenProviders>
+      <TokenProvider
+          ProviderClass="org.jboss.SpecialTokenProvider"
+          TokenType="specialToken"
+          TokenElement="SpecialToken"
+          TokenElementNS="http://www.tokens.org">
+        <Property Key="Property1" Value="Value1"/>
+        <Property Key="Property2" Value="Value2"/>
+      </TokenProvider>
+    </TokenProviders>
+    <ServiceProviders>
+      <ServiceProvider Endpoint="http://provider.endpoint/provider"
+                       TokenType="specialToken"
+                       TruststoreAlias="providerAlias"/>
+    </ServiceProviders>
+  </PicketLinkSTS>
+
+  <!-- Start of IDM configuration -->
+  <PicketLinkIDM>
+    <IdentityManager ClassName="org.picketlink.idm.internal.DefaultIdentityManager" />
+    <StoreFactory ClassName="org.picketlink.idm.internal.DefaultStoreFactory" />
+
+    <IdentityStoreInvocationContextFactory ClassName="org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory">
+      <EntityManagerFactory ClassName="org.picketlink.idm.DefaultEntityManagerFactory" /> <!-- Class doesn't exists atm -->
+
+      <!-- Should be those mandatory? Maybe we can left default impls if not provided here... -->
+      <EventBridge ClassName="org.picketlink.idm.internal.NullEventBridge" /> <!-- Class doesn't exists atm -->
+      <CredentialHandlerFactory ClassName="org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory" />
+      <IdentityCache ClassName="org.picketlink.idm.DefaultIdentityCache" />
+      <IdGenerator ClassName="${property.id.generator::org.picketlink.idm.internal.DefaultIdGenerator}" />
+    </IdentityStoreInvocationContextFactory>
+
+    <IdentityConfiguration>
+      <IdentityStoreConfiguration ClassName="org.picketlink.idm.ldap.internal.LDAPConfiguration">
+        <Property Name="bindDN">uid=admin,ou=system</Property>
+        <Property Name="bindCredential">secret</Property>
+        <Property Name="ldapURL">ldap://localhost:10389</Property>
+        <Property Name="userDNSuffix">ou=People,dc=jboss,dc=org</Property>
+        <Property Name="roleDNSuffix">ou=Roles,dc=jboss,dc=org</Property>
+        <Property Name="groupDNSuffix">ou=Groups,dc=jboss,dc=org</Property>
+      </IdentityStoreConfiguration>
+
+      <!-- More store configurations can be provided... -->
+      <IdentityStoreConfiguration ClassName="org.picketlink.AnotherStoreConfiguration">
+        <Property Name="property1">Property1Value</Property>
+        <Property Name="property2">Property2Value</Property>
+      </IdentityStoreConfiguration>
+
+      <!-- Some PartitionStoreConfiguration ... -->
+      <PartitionStoreConfiguration ClassName="org.picketlink.SomePartitionStore">
+        <Property Name="property3">${property.existing::Property3Value}</Property>
+        <Property Name="property4">${property.nonexisting::Property4Value}</Property>
+      </PartitionStoreConfiguration>
+
+    </IdentityConfiguration>
+  </PicketLinkIDM>
+
+</PicketLink>
+
