@@ -110,21 +110,4 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         return this;
     }
 
-    @Override
-    public void setContext(LdapContext context) {
-        this.context = context;
-    }
-
-    @Override
-    public void setCookie(byte[] cookie) {
-        this.cookie = cookie;
-    }
-    
-    public LdapContext getContext() {
-        return context;
-    }
-    
-    public byte[] getCookie() {
-        return cookie;
-    }
 }

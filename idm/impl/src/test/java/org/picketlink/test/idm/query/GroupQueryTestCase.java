@@ -44,6 +44,8 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
  * <p>
@@ -83,6 +85,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
     }
     
     @Test
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
     public void testPagination() throws Exception {
         for (int i = 0; i < 50; i++) {
             createGroup("someGroup" + (i + 1), null);
@@ -163,6 +166,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
     }
     
     @Test
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
@@ -207,6 +211,7 @@ public class GroupQueryTestCase extends AbstractIdentityManagerTestCase {
     }
     
     @Test
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
     public void testFindByTier() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 

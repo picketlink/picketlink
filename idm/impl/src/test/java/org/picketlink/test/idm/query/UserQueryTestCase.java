@@ -46,6 +46,8 @@ import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
  * <p>
@@ -85,6 +87,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
     }
     
     @Test
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
     public void testPagination() throws Exception {
         for (int i = 0; i < 50; i++) {
             createUser("someUser" + (i + 1));
@@ -163,6 +166,7 @@ public class UserQueryTestCase extends AbstractIdentityManagerTestCase {
     }
     
     @Test
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         

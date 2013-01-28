@@ -3,8 +3,6 @@ package org.picketlink.idm.query;
 import java.util.List;
 import java.util.Map;
 
-import javax.naming.ldap.LdapContext;
-
 import org.picketlink.idm.model.IdentityType;
 
 /**
@@ -41,12 +39,4 @@ public interface IdentityQuery<T extends IdentityType> {
     * @return count of all query results
     */
     int getResultCount();
-
-    void setContext(LdapContext context);
-
-    void setCookie(byte[] cookie);
-
-    LdapContext getContext();
-
-    byte[] getCookie();
 }

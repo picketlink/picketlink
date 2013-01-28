@@ -37,6 +37,8 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
  * <p>
@@ -84,6 +86,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
      * @throws Exception
      */
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreTestSuite.class)
     public void testUpdate() throws Exception {
         User someUser = getUser();
         Group someGroup = getGroup();
@@ -203,6 +206,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
      * @throws Exception
      */
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreTestSuite.class)
     public void testFindByAttributes() throws Exception {
         User someUser = getUser();
         Group someGroup = getGroup();

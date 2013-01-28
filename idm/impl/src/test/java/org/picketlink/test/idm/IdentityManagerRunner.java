@@ -23,6 +23,7 @@
 package org.picketlink.test.idm;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.runner.Runner;
@@ -89,8 +90,29 @@ public class IdentityManagerRunner extends Suite {
                 @Override
                 protected void runChild(FrameworkMethod method, RunNotifier notifier) {
                     lifecycle.onInit();
-                    super.runChild(method, notifier);
+                    
+                    if (!isExcludedSuite(suiteClass, method)) {
+                        super.runChild(method, notifier);    
+                    }
+                    
                     lifecycle.onDestroy();
+                }
+
+                private boolean isExcludedSuite(Class<?> suiteClass, FrameworkMethod method) {
+                    ExcludeTestSuite annotation = method.getAnnotation(ExcludeTestSuite.class);
+                    
+                    if (annotation != null) {
+                        List<Class<?>> excludedSuites = Arrays.asList(annotation.value());
+                        
+                        return excludedSuites.contains(suiteClass);
+                    }
+                    
+                    return false;
+                }
+
+                private boolean isExcludedSuite(Class<?> suiteClass) {
+                    // TODO Auto-generated method stub
+                    return false;
                 }
 
                 @Override
