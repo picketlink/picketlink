@@ -2,7 +2,6 @@ package org.picketlink;
 
 import java.io.Serializable;
 
-import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.idm.model.User;
 
 /**

@@ -21,7 +21,6 @@
  */
 package org.picketlink.idm.model;
 
-import org.picketlink.idm.query.QueryParameter;
 
 
 

@@ -8,13 +8,12 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.deltaspike.core.util.ExceptionUtils;
-
 import org.picketlink.Identity;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.authentication.Authenticator;
+import org.picketlink.authentication.Authenticator.AuthenticationStatus;
 import org.picketlink.authentication.AuthenticatorSelector;
 import org.picketlink.authentication.UnexpectedCredentialException;
-import org.picketlink.authentication.Authenticator.AuthenticationStatus;
 import org.picketlink.authentication.event.AlreadyLoggedInEvent;
 import org.picketlink.authentication.event.LoggedInEvent;
 import org.picketlink.authentication.event.LoginFailedEvent;
@@ -23,13 +22,11 @@ import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.internal.DefaultLoginCredentials;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.User;
 
 /**
  * Default Identity implementation
  */
-@SuppressWarnings("UnusedDeclaration")
 @SessionScoped
 @Named("identity")
 public class DefaultIdentity implements Identity
@@ -37,15 +34,12 @@ public class DefaultIdentity implements Identity
     private static final long serialVersionUID = 3696702275353144429L;
 
     @Inject
-    @SuppressWarnings("NonSerializableFieldInSerializableClass")
     private AuthenticatorSelector authenticatorSelector;
 
     @Inject
-    @SuppressWarnings("NonSerializableFieldInSerializableClass")
     private BeanManager beanManager;
 
     @Inject
-    @SuppressWarnings("NonSerializableFieldInSerializableClass")
     private DefaultLoginCredentials loginCredential;
 
     /**

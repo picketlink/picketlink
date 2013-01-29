@@ -3,7 +3,6 @@ package org.picketlink.permission.internal;
 import java.io.Serializable;
 
 import org.picketlink.permission.PermissionResolver;
-import org.picketlink.permission.PermissionResolver.PermissionStatus;
 
 /**
  * A PermissionResolver implementation that provides ACL-style object permissions, backed by a database.
