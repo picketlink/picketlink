@@ -1444,7 +1444,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
      * @return
      */
     private String createMembersFilter(Agent[] members, String baseDN) {
-        StringBuffer additionalFilter = new StringBuffer();
         String hasMemberFilter = "";
 
         for (Agent agent : members) {
@@ -1460,7 +1459,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         }
 
         NamingEnumeration<SearchResult> search = null;
-
+        
+        StringBuffer additionalFilter = new StringBuffer();
+        
         try {
             search = getLDAPManager().search(baseDN, hasMemberFilter.toString());
 
