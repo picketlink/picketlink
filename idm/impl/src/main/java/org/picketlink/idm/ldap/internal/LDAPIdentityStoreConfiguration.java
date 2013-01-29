@@ -22,9 +22,7 @@
 package org.picketlink.idm.ldap.internal;
 
 import java.util.Properties;
-import java.util.Set;
 
-import javax.naming.Context;
 import javax.naming.NamingException;
 
 import org.picketlink.idm.SecurityConfigurationException;
@@ -34,13 +32,12 @@ import org.picketlink.idm.model.GroupMembership;
 
 /**
  * A {@link IdentityStoreConfiguration} for LDAP
- *
+ * 
  * @author anil saldhana
  * @since Sep 6, 2012
  */
 
-// TODO suggest renaming this to LDAPIdentityStoreConfiguration 
-public class LDAPConfiguration extends IdentityStoreConfiguration {
+public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
     private String ldapURL;
     private String userDNSuffix;
@@ -59,56 +56,92 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     private String agentDNSuffix;
     private String baseDN;
 
+    @Override
+    public void init() throws SecurityConfigurationException {
+        this.featureSet.addSupportedFeature(Feature.all);
+        this.featureSet.addSupportedRelationship(Grant.class);
+        this.featureSet.addSupportedRelationship(GroupMembership.class);
+        
+        getSupportedCredentialHandlers().add(LDAPPlainTextPasswordCredentialHandler.class);
+        
+        if (getUserDNSuffix() == null) {
+            throw new SecurityConfigurationException("User baseDN not provided.");
+        }
+
+        if (getRoleDNSuffix() == null) {
+            throw new SecurityConfigurationException("Role baseDN not provided.");
+        }
+
+        if (getGroupDNSuffix() == null) {
+            throw new SecurityConfigurationException("Group baseDN not provided.");
+        }
+
+        if (getAgentDNSuffix() == null) {
+            throw new SecurityConfigurationException("Agent baseDN not provided.");
+        }
+
+        try {
+            this.ldapManager = new LDAPOperationManager(this);
+        } catch (NamingException e) {
+            throw new SecurityConfigurationException(e);
+        }
+    }
+
+    @Override
+    public FeatureSet getFeatureSet() {
+        return this.featureSet;
+    }
+
     public String getStandardAttributesFileName() {
         return standardAttributesFileName;
     }
 
-    public LDAPConfiguration setStandardAttributesFileName(String standardAttributesFileName) {
+    public LDAPIdentityStoreConfiguration setStandardAttributesFileName(String standardAttributesFileName) {
         this.standardAttributesFileName = standardAttributesFileName;
         return this;
     }
 
-    public LDAPConfiguration setLdapURL(String ldapURL) {
+    public LDAPIdentityStoreConfiguration setLdapURL(String ldapURL) {
         this.ldapURL = ldapURL;
         return this;
     }
 
-    public LDAPConfiguration setUserDNSuffix(String userDNSuffix) {
+    public LDAPIdentityStoreConfiguration setUserDNSuffix(String userDNSuffix) {
         this.userDNSuffix = userDNSuffix;
         return this;
     }
 
-    public LDAPConfiguration setRoleDNSuffix(String roleDNSuffix) {
+    public LDAPIdentityStoreConfiguration setRoleDNSuffix(String roleDNSuffix) {
         this.roleDNSuffix = roleDNSuffix;
         return this;
     }
 
-    public LDAPConfiguration setGroupDNSuffix(String groupDNSuffix) {
+    public LDAPIdentityStoreConfiguration setGroupDNSuffix(String groupDNSuffix) {
         this.groupDNSuffix = groupDNSuffix;
         return this;
     }
 
-    public LDAPConfiguration setFactoryName(String factoryName) {
+    public LDAPIdentityStoreConfiguration setFactoryName(String factoryName) {
         this.factoryName = factoryName;
         return this;
     }
 
-    public LDAPConfiguration setAuthType(String authType) {
+    public LDAPIdentityStoreConfiguration setAuthType(String authType) {
         this.authType = authType;
         return this;
     }
 
-    public LDAPConfiguration setProtocol(String protocol) {
+    public LDAPIdentityStoreConfiguration setProtocol(String protocol) {
         this.protocol = protocol;
         return this;
     }
 
-    public LDAPConfiguration setBindDN(String bindDN) {
+    public LDAPIdentityStoreConfiguration setBindDN(String bindDN) {
         this.bindDN = bindDN;
         return this;
     }
 
-    public LDAPConfiguration setBindCredential(String bindCredential) {
+    public LDAPIdentityStoreConfiguration setBindCredential(String bindCredential) {
         this.bindCredential = bindCredential;
         return this;
     }
@@ -165,62 +198,6 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
         this.additionalProperties.putAll(additionalProperties);
     }
 
-    @Override
-    public void init() throws SecurityConfigurationException {
-        constructContext();
-        this.featureSet.addSupportedFeature(Feature.all);
-        this.featureSet.addSupportedRelationship(Grant.class);
-        this.featureSet.addSupportedRelationship(GroupMembership.class);
-        getSupportedCredentialHandlers().add(LDAPPlainTextPasswordCredentialHandler.class);
-    }
-
-    @Override
-    public FeatureSet getFeatureSet() {
-        return this.featureSet ;
-    }
-
-    private void constructContext() {
-        Properties env = new Properties();
-        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, getFactoryName());
-        env.setProperty(Context.SECURITY_AUTHENTICATION, getAuthType());
-
-        String protocol = getProtocol();
-        if (protocol != null) {
-            env.setProperty(Context.SECURITY_PROTOCOL, protocol);
-        }
-        String bindDN = getBindDN();
-        char[] bindCredential = null;
-
-        if (getBindCredential() != null) {
-            bindCredential = getBindCredential().toCharArray();
-        }
-
-        if (bindDN != null) {
-            env.setProperty(Context.SECURITY_PRINCIPAL, bindDN);
-            env.put(Context.SECURITY_CREDENTIALS, bindCredential);
-        }
-
-        String url = getLdapURL();
-        if (url == null) {
-            throw new RuntimeException("url");
-        }
-
-        env.setProperty(Context.PROVIDER_URL, url);
-
-        // Just dump the additional properties
-        Properties additionalProperties = getAdditionalProperties();
-        Set<Object> keys = additionalProperties.keySet();
-        for (Object key : keys) {
-            env.setProperty((String) key, additionalProperties.getProperty((String) key));
-        }
-
-        try {
-            this.ldapManager = new LDAPOperationManager(env);
-        } catch (NamingException e1) {
-            throw new RuntimeException(e1);
-        }
-    }
-
     public LDAPOperationManager getLdapManager() {
         return this.ldapManager;
     }
@@ -228,15 +205,17 @@ public class LDAPConfiguration extends IdentityStoreConfiguration {
     public String getAgentDNSuffix() {
         return this.agentDNSuffix;
     }
-    
-    public void setAgentDNSuffix(String agentDNSuffix) {
+
+    public LDAPIdentityStoreConfiguration setAgentDNSuffix(String agentDNSuffix) {
         this.agentDNSuffix = agentDNSuffix;
+        return this;
     }
 
-    public void setBaseDN(String baseDN) {
+    public LDAPIdentityStoreConfiguration setBaseDN(String baseDN) {
         this.baseDN = baseDN;
+        return this;
     }
-    
+
     public String getBaseDN() {
         return this.baseDN;
     }

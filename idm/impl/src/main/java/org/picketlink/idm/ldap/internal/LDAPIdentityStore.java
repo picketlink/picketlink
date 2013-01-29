@@ -46,7 +46,6 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
-import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
@@ -87,13 +86,13 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
 @CredentialHandlers({ LDAPPlainTextPasswordCredentialHandler.class })
-public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
+public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfiguration> {
 
-    private LDAPConfiguration configuration;
+    private LDAPIdentityStoreConfiguration configuration;
     private IdentityStoreInvocationContext context;
 
     @Override
-    public void setup(LDAPConfiguration config, IdentityStoreInvocationContext context) {
+    public void setup(LDAPIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         this.configuration = config;
         this.context = context;
 
@@ -103,7 +102,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     @Override
-    public LDAPConfiguration getConfig() {
+    public LDAPIdentityStoreConfiguration getConfig() {
         return this.configuration;
     }
 
@@ -203,16 +202,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
 
             String baseDN = getBaseDN(identityType.getClass());
 
-            getLDAPManager().searchByAttribute(baseDN, LDAPConstants.ENTRY_UUID, identityType.getId(),
-                    new LDAPSearchCallback<User>() {
-
-                        @Override
-                        public User processResult(SearchResult sr) {
-                            String name = sr.getNameInNamespace();
-                            getLDAPManager().destroySubcontext(name);
-                            return null;
-                        }
-                    });
+            getLDAPManager().removeEntryById(baseDN, identityType.getId());
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
@@ -317,7 +307,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public Agent getAgent(String loginName) {
         Agent agent = null;
-        
+
         if (loginName != null) {
             LDAPAgent ldapAgent = lookupEntryByDN(new LDAPAgent(loginName, getConfig().getAgentDNSuffix()));
 
@@ -329,7 +319,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
                 populateIdentityType(ldapAgent, agent);
             }
         }
-        
+
         if (agent == null) {
             agent = getUser(loginName);
         }
@@ -833,7 +823,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public void validateCredentials(Credentials credentials) {
         CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
-        
+
         if (handler == null) {
             throw new SecurityConfigurationException(
                     "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
@@ -846,13 +836,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     @Override
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
-        
+
         if (handler == null) {
             throw new SecurityConfigurationException(
                     "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
                             + "] for IdentityStore [" + this.getClass() + "]");
         }
-        
+
         handler.update(agent, credential, this, effectiveDate, expiryDate);
     }
 
@@ -933,13 +923,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
     }
 
     protected <T extends LDAPIdentityType> T lookupEntryById(Class<T> type, String id) {
-        String filter = "(&(objectClass=*)(" + LDAPConstants.ENTRY_UUID + LDAPConstants.EQUAL + id + "))";
-
-        SearchControls controls = new SearchControls();
-
         T identityType = null;
 
-        NamingEnumeration<SearchResult> search = getLDAPManager().search(getBaseDN(type), filter, controls);
+        NamingEnumeration<SearchResult> search = getLDAPManager().lookupById(getBaseDN(type), id);
 
         try {
             if (search.hasMore()) {
@@ -1025,7 +1011,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         // information.
         // maybe in this case we should mix stores.
         identityType.setPartition(new Realm(Realm.DEFAULT_REALM));
-        
+
         identityType.setCustomAttributes(getCustomAttributes(identityType));
     }
 
@@ -1073,6 +1059,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration> {
         // Search for objects with these matching attributes
         try {
             answer = getLDAPManager().search(this.configuration.getGroupDNSuffix(), matchAttrs, new String[] { CN });
+            
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.nextElement();
                 Attributes attributes = sr.getAttributes();

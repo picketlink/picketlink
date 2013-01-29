@@ -33,6 +33,6 @@ import org.picketlink.idm.config.IdentityStoreConfigurationBuilder;
 public class LDAPConfigurationBuilder extends IdentityStoreConfigurationBuilder {
     @Override
     public IdentityStoreConfiguration build() {
-        return new LDAPConfiguration();
+        return new LDAPIdentityStoreConfiguration();
     }
 }
