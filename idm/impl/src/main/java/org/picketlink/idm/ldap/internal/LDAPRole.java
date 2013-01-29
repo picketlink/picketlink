@@ -28,7 +28,6 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 
 import org.picketlink.idm.model.Role;
@@ -45,10 +44,6 @@ public class LDAPRole extends LDAPIdentityType implements Role {
     
     private String roleName;
 
-    public LDAPRole() {
-        this(null);
-    }
-    
     public LDAPRole(String roleDNSuffix) {
         super(roleDNSuffix);
         
@@ -56,19 +51,6 @@ public class LDAPRole extends LDAPIdentityType implements Role {
         oc.add("top");
         oc.add(LDAPConstants.GROUP_OF_NAMES);
         getLDAPAttributes().put(oc);
-    }
-
-    /**
-     * <p>
-     * Creates a {@link LDAPRole} with the provided LDAP {@link Attributes}. The <code>roleDNSuffix</code> defines where roles
-     * entries reside in the LDAP tree.
-     * </p>
-     *
-     * @param ldapAttributes
-     */
-    public LDAPRole(Attributes ldapAttributes, String roleDNSuffix) {
-        this(roleDNSuffix);
-        setLDAPAttributes(ldapAttributes);
     }
 
     public LDAPRole(String name, String roleDNSuffix) {

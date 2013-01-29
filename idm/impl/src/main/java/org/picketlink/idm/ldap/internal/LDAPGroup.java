@@ -29,7 +29,6 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 
 import org.picketlink.idm.model.Group;
@@ -47,10 +46,6 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
     private Group parent;
     private String groupName;
 
-    public LDAPGroup() {
-        this(null);
-    }
-
     public LDAPGroup(String groupDNSuffix) {
         super(groupDNSuffix);
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
@@ -59,13 +54,13 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
         getLDAPAttributes().put(oc);
     }
 
-    public LDAPGroup(Attributes attributes, String groupDNSuffix) {
-        super(groupDNSuffix);
-        setLDAPAttributes(attributes);
-    }
-
     public LDAPGroup(String name, String groupDNSuffix) {
         this(groupDNSuffix);
+        
+        if (name == null) {
+            throw new IllegalArgumentException("You must provide a name.");
+        }
+        
         setName(name);
     }
 

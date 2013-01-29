@@ -27,7 +27,6 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 
 import org.picketlink.idm.model.Agent;
@@ -37,6 +36,8 @@ import org.picketlink.idm.model.Agent;
  *
  */
 public class LDAPAgent extends LDAPIdentityType implements Agent {
+
+    private static final long serialVersionUID = -8314904094352933682L;
 
     public LDAPAgent(String dnSuffix) {
         super(dnSuffix);
@@ -55,13 +56,13 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
         getLDAPAttributes().put(LDAPConstants.GIVENNAME, " ");
     }
 
-    public LDAPAgent(String agentDNSuffix, Attributes attributes) {
-        this(agentDNSuffix);
-        addAllLDAPAttributes(attributes);
-    }
-
     public LDAPAgent(String loginName, String agentDNSuffix) {
         this(agentDNSuffix);
+        
+        if (loginName == null) {
+            throw new IllegalArgumentException("You must provide a name.");
+        }
+        
         setLoginName(loginName);
     }
 

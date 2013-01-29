@@ -33,13 +33,13 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfiguration;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
 import org.picketlink.test.idm.basic.GroupManagementTestCase;
 import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
+import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
 import org.picketlink.test.idm.query.AgentQueryTestCase;
 import org.picketlink.test.idm.query.GroupQueryTestCase;
 import org.picketlink.test.idm.query.RoleQueryTestCase;
@@ -63,7 +63,7 @@ import org.picketlink.test.idm.relationship.UserRolesRelationshipTestCase;
 @SuiteClasses({ UserManagementTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
         AgentManagementTestCase.class, AgentQueryTestCase.class, UserQueryTestCase.class, RoleQueryTestCase.class,
         GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class, AgentGroupsRelationshipTestCase.class,
-        UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class })
+        UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class, PasswordCredentialTestCase.class })
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     private static LDAPIdentityStoreTestSuite instance;

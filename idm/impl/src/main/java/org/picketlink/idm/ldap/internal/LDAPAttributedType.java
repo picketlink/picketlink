@@ -22,24 +22,20 @@
 package org.picketlink.idm.ldap.internal;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.ENTRY_UUID;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.naming.Name;
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
-import org.picketlink.idm.internal.util.Base64;
 import org.picketlink.idm.model.AttributedType;
 
 /**
@@ -52,10 +48,13 @@ import org.picketlink.idm.model.AttributedType;
  */
 public abstract class LDAPAttributedType extends LDAPEntry implements AttributedType {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 7193133057734386770L;
+    
+    private LDAPCustomAttributes customAttributes;
 
     public LDAPAttributedType(String dnSuffix) {
         super(dnSuffix);
+        this.customAttributes = new LDAPCustomAttributes(dnSuffix);
     }
 
     public void setId(String id) {
@@ -90,92 +89,49 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
 
     @Override
     public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
-        Serializable value = attribute.getValue();
-
-        getLDAPAttributes().put(attribute.getName(), value);
-        getCustomAttributes().addAttribute(attribute.getName(), value);
+        getCustomAttributes().addAttribute(attribute.getName(), attribute.getValue());
     }
 
     @Override
     public void removeAttribute(String name) {
-        getLDAPAttributes().remove(name);
         getCustomAttributes().removeAttribute(name);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Serializable> org.picketlink.idm.model.Attribute<T> getAttribute(String name) {
-        try {
-            Attribute theAttribute = getLDAPAttributes().get(name);
-            Object value = null;
+        org.picketlink.idm.model.Attribute<T> attribute = null;
 
-            if (theAttribute != null) {
-                value = theAttribute.get();
-            } else if (getCustomAttributes().getAttributes().containsKey(name)) {
-                value = getCustomAttributes().getAttribute(name);
-            } else {
-                return null;
-            }
-
-            return new org.picketlink.idm.model.Attribute<T>(name, (T) value);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
+        if (getCustomAttributes().getAttributes().containsKey(name)) {
+            T value = (T) getCustomAttributes().getAttribute(name);
+            
+            attribute = new org.picketlink.idm.model.Attribute<T>(name, value);
         }
+
+        return attribute;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> getAttributes() {
-        try {
-            Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> attribs = new ArrayList<org.picketlink.idm.model.Attribute<? extends Serializable>>();
+        Collection<org.picketlink.idm.model.Attribute<? extends Serializable>> attribs = new ArrayList<org.picketlink.idm.model.Attribute<? extends Serializable>>();
 
-            // retrieve all ldap attributes
-            NamingEnumeration<? extends Attribute> theAttributes = getLDAPAttributes().getAll();
+        // retrieve all custom attributes
+        Map<String, Serializable> customAttributes = getCustomAttributes().getAttributes();
+        Set<Entry<String, Serializable>> entrySet = customAttributes.entrySet();
 
-            while (theAttributes.hasMore()) {
-                Attribute anAttribute = theAttributes.next();
-                NamingEnumeration<Object> ne = (NamingEnumeration<Object>) anAttribute.getAll();
-
-                List<String> theList = new ArrayList<String>();
-                while (ne.hasMoreElements()) {
-                    String val = null;
-                    Object obj = ne.next();
-                    if (obj instanceof byte[]) {
-                        val = new String(Base64.encodeBytes((byte[]) obj));
-                    } else {
-                        val = (String) obj;
-                    }
-                    theList.add(val);
-                }
-                String[] valuesArr = new String[theList.size()];
-                theList.toArray(valuesArr);
-
-                attribs.add(new org.picketlink.idm.model.Attribute<Serializable>(anAttribute.getID(), valuesArr));
-            }
-
-            // retrieve all custom attributes
-            Map<String, Serializable> customAttributes = getCustomAttributes().getAttributes();
-            Set<Entry<String, Serializable>> entrySet = customAttributes.entrySet();
-
-            for (Entry<String, Serializable> entry : entrySet) {
-                attribs.add(new org.picketlink.idm.model.Attribute<Serializable>(entry.getKey(), (Serializable) entry
-                        .getValue()));
-            }
-
-            return attribs;
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
+        for (Entry<String, Serializable> entry : entrySet) {
+            attribs.add(new org.picketlink.idm.model.Attribute<Serializable>(entry.getKey(), (Serializable) entry.getValue()));
         }
+
+        return attribs;
+    }
+    
+    public LDAPCustomAttributes getCustomAttributes() {
+        return this.customAttributes;
     }
 
-
-
-    public boolean isMember(LDAPAttributedType member) {
-        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-
-        return memberAttribute != null && memberAttribute.contains(member.getDN());
+    public void setCustomAttributes(LDAPCustomAttributes customAttributes) {
+        this.customAttributes = customAttributes;
     }
-
-
-
+    
 }

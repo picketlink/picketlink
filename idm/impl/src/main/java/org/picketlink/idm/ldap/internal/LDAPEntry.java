@@ -24,9 +24,6 @@ package org.picketlink.idm.ldap.internal;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
@@ -60,7 +57,6 @@ public class LDAPEntry implements DirContext, Serializable {
     private static final long serialVersionUID = 1L;
 
     private Attributes attributes = new BasicAttributes(true);
-    private LDAPCustomAttributes customAttributes = new LDAPCustomAttributes();
 
     private String dnSuffix;
 
@@ -102,40 +98,6 @@ public class LDAPEntry implements DirContext, Serializable {
     
     public void setDnSuffix(String dnSuffix) {
         this.dnSuffix = dnSuffix;
-    }
-
-    public LDAPCustomAttributes getCustomAttributes() {
-        if (this.customAttributes == null) {
-            this.customAttributes = new LDAPCustomAttributes();
-        }
-
-        // this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_ENABLED, String.valueOf(isEnabled()));
-        // this.customAttributes.addAttribute(CUSTOM_ATTRIBUTE_CREATE_DATE, String.valueOf(getCreatedDate().getTime()));
-        //
-        
-        return this.customAttributes;
-    }
-
-    public void setCustomAttributes(LDAPCustomAttributes customAttributes) {
-        this.customAttributes = customAttributes;
-
-        if (this.customAttributes != null) {
-            Object enabledAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_ENABLED);
-            Object createDateAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_CREATE_DATE);
-            Object expiryDateAttribute = this.customAttributes.getAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE);
-
-            // if (enabledAttribute != null) {
-            // this.enabled = Boolean.valueOf(enabledAttribute.toString());
-            // }
-            //
-            // if (createDateAttribute != null) {
-            // this.createDate = new Date(Long.valueOf(createDateAttribute.toString()));
-            // }
-            //
-            // if (expiryDateAttribute != null) {
-            // this.expirationDate = new Date(Long.valueOf(expiryDateAttribute.toString()));
-            // }
-        }
     }
 
     public void addMember(LDAPEntry childEntry) {
@@ -466,4 +428,9 @@ public class LDAPEntry implements DirContext, Serializable {
         return null;
     }
 
+    public boolean isMember(LDAPAttributedType member) {
+        Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
+
+        return memberAttribute != null && memberAttribute.contains(member.getDN());
+    }
 }
