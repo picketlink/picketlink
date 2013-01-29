@@ -41,17 +41,6 @@ public interface Group extends IdentityType, Serializable {
     QueryParameter PARENT = new QueryParameter() {};
 
     /**
-     * Groups are stored in tree hierarchy and therefore ID represents a path. ID string always begins with "/" element that
-     * represents root of the tree
-     * <p/>
-     * Example: Valid IDs are "/acme/departments/marketing", "/security/administrator" or "/administrator". Where "acme",
-     * "departments", "marketing", "security" and "administrator" are group names.
-     *
-     * @return Group Id in String representation.
-     */
-    String getId();
-
-    /**
      * Group name is unique identifier in specific group tree branch. For example group with id "/acme/departments/marketing"
      * will have name "marketing" and parent group of id "/acme/departments"
      *
