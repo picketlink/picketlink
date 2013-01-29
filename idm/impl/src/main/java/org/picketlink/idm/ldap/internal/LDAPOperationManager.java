@@ -226,7 +226,7 @@ public class LDAPOperationManager {
      * @param attributesToSearch
      * @return
      */
-    public Attributes lookupOperationalAttributes(String baseDN, String filter) {
+    public Attributes lookupOperationalAttributes(String baseDN, String entryDN) {
         NamingEnumeration<SearchResult> answer = null;
 
         try {
@@ -234,7 +234,7 @@ public class LDAPOperationManager {
             
             controls.setReturningAttributes(new String[] { LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
             
-            answer = this.context.search(baseDN, filter, controls);
+            answer = this.context.search(baseDN, entryDN, controls);
 
             if (answer.hasMore()) {
                 return answer.next().getAttributes();

@@ -65,6 +65,10 @@ public class LDAPEntry implements DirContext, Serializable {
     private String dnSuffix;
 
     public LDAPEntry(String dnSuffix) {
+        if (dnSuffix == null) {
+            throw new IllegalArgumentException("You must provide a base dn.");
+        }
+
         this.dnSuffix = dnSuffix;
     }
 
@@ -94,6 +98,10 @@ public class LDAPEntry implements DirContext, Serializable {
 
     public String getDnSuffix() {
         return this.dnSuffix;
+    }
+    
+    public void setDnSuffix(String dnSuffix) {
+        this.dnSuffix = dnSuffix;
     }
 
     public LDAPCustomAttributes getCustomAttributes() {

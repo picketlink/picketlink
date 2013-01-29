@@ -282,16 +282,20 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
 
     @Override
     public Agent getAgent(String id) {
-        // TODO: need to handle pure Agent instances. For now let's only
-        // consider User instances.
-        return getUser(id);
+        Agent agent = getAgent(id);
+        
+        if (agent == null) {
+            agent = getUser(id);
+        }
+        
+        return agent;
     }
 
     @Override
-    public User getUser(String id) {
+    public User getUser(String loginName) {
         final String baseDN = this.configuration.getUserDNSuffix();
 
-        List<User> answer = getLdapManager().searchByAttribute(baseDN, UID, id, new LDAPSearchCallback<User>() {
+        List<User> answer = getLdapManager().searchByAttribute(baseDN, UID, loginName, new LDAPSearchCallback<User>() {
 
             @Override
             public User processResult(SearchResult sr) {
@@ -366,150 +370,23 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
         return null;
     }
 
-//    @Override
-//    public GroupRole createMembership(IdentityType member, Group group, Role role) {
-//        if (member instanceof User) {
-//            User user = getUser(((User) member).getId());
-//
-//            LDAPRole ldapRole = null;
-//
-//            if (role != null) {
-//                ldapRole = (LDAPRole) getRole(role.getName());
-//            }
-//
-//            LDAPUser ldapUser = null;
-//
-//            if (user != null) {
-//                ldapUser = (LDAPUser) getUser(user.getId());
-//            }
-//
-//            LDAPGroup ldapGroup = null;
-//
-//            if (group != null) {
-//                ldapGroup = (LDAPGroup) getGroup(group.getName());
-//            }
-//
-//            if (ldapRole != null && ldapGroup != null) {
-//                LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
-//                storeMembershipEntry(groupRole, ldapRole);
-//            } else {
-//                if (ldapUser != null && ldapRole != null) {
-//                    addMember(ldapRole, ldapUser);
-//                }
-//
-//                if (ldapGroup != null && ldapRole != null) {
-//                    addMember(ldapGroup, ldapRole);
-//                }
-//
-//                if (ldapGroup != null && ldapUser != null) {
-//                    addMember(ldapGroup, ldapUser);
-//                }
-//            }
-//
-//            return new SimpleGroupRole(ldapUser, ldapRole, ldapGroup);
-//        } else if (member instanceof Group) {
-//            // FIXME implement Group membership, or return null
-//            return null;
-//        } else {
-//            throw new IllegalArgumentException("The member parameter must be an instance of User or Group");
-//        }
-//    }
-//
-//    @Override
-//    public void removeMembership(IdentityType member, Group group, Role role) {
-//        if (member instanceof User) {
-//            LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
-//
-//            LDAPRole ldapRole = null;
-//
-//            if (role != null) {
-//                ldapRole = (LDAPRole) getRole(role.getName());
-//            }
-//
-//            LDAPGroup ldapGroup = null;
-//
-//            if (group != null) {
-//                ldapGroup = (LDAPGroup) getGroup(group.getName());
-//            }
-//
-//            if (group != null && role != null) {
-//                LDAPGroupRole groupRole = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole);
-//                removeMemberShipEntry(groupRole, ldapRole);
-//            } else {
-//                if (ldapRole != null) {
-//                    removeMember(ldapRole, ldapUser);
-//                }
-//
-//                if (ldapGroup != null) {
-//                    removeMember(ldapGroup, ldapUser);
-//                }
-//            }
-//        } else if (member instanceof Group) {
-//            // FIXME implement Group membership if supported
-//        }
-//    }
-//
-//    @Override
-//    public GroupRole getMembership(IdentityType member, Group group, Role role) {
-//        GroupRole groupRole = null;
-//
-//        LDAPUser ldapUser = (LDAPUser) getUser(((User) member).getId());
-//
-//        if (group != null && role != null) {
-//            LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-//            LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
-//
-//            String dn = new LDAPGroupRole(ldapUser, ldapGroup, ldapRole).getDN();
-//
-//            groupRole = getLdapManager().lookup(dn);
-//
-//            LDAPGroupRole ldapGroupRole = (LDAPGroupRole) groupRole;
-//
-//            if (groupRole == null || !ldapGroupRole.isMember(ldapRole)) {
-//                groupRole = null;
-//            }
-//        } else {
-//            if (role != null) {
-//                LDAPRole ldapRole = (LDAPRole) getRole(role.getName());
-//
-//                if (ldapRole.isMember(ldapUser)) {
-//                    groupRole = new SimpleGroupRole(ldapUser, getRole(role.getName()), null);
-//                }
-//            }
-//
-//            if (group != null) {
-//                LDAPGroup ldapGroup = (LDAPGroup) getGroup(group.getName());
-//
-//                if (ldapGroup.isMember(ldapUser)) {
-//                    groupRole = new SimpleGroupRole(ldapUser, null, group);
-//                }
-//            }
-//        }
-//
-//        return groupRole;
-//    }
-
     @Override
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
-        // TODO: pagination of query results needs to be implemented
         List<T> result = new ArrayList<T>();
-        String filter = getSearchFilter((IdentityQuery<IdentityType>) identityQuery);
-
+        
         Class<T> typeClass = identityQuery.getIdentityType();
 
-        NamingEnumeration<SearchResult> answer = null;
-
-        if (filter == null) {
-            return result;
-        }
-
         LDAPQuery ldapQuery = new LDAPQuery(identityQuery.getParameters());
-        String idAttribute = getIdAttribute(typeClass);
         String dnSuffix = getBaseDN(typeClass);
-
+        String idAttribute = getIdAttribute(typeClass);
+        
+        NamingEnumeration<SearchResult> answer = null;
+        
         try {
 
-            answer = getLdapManager().search(dnSuffix, filter);
+            String queryFilter = createQueryFilter(identityQuery);
+            
+            answer = getLdapManager().search(dnSuffix, queryFilter);
 
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.nextElement();
@@ -528,39 +405,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
                             .getAttribute(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED));
 
                     if (!enabled.equals(values[0].toString())) {
-                        continue;
-                    }
-                }
-
-                if (identityQuery.getParameters().containsKey(IdentityType.CREATED_DATE)) {
-                    Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_DATE);
-                    long storedDateInMillis = Long.valueOf(customAttributes.getAttribute(
-                            LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE).toString());
-                    long providedDateInMillis = ((Date) values[0]).getTime();
-
-                    if (storedDateInMillis != providedDateInMillis) {
-                        continue;
-                    }
-                }
-
-                if (identityQuery.getParameters().containsKey(IdentityType.CREATED_BEFORE)) {
-                    Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_BEFORE);
-                    long storedDateInMillis = Long.valueOf(customAttributes.getAttribute(
-                            LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE).toString());
-                    long providedDateInMillis = ((Date) values[0]).getTime();
-
-                    if (storedDateInMillis > providedDateInMillis) {
-                        continue;
-                    }
-                }
-
-                if (identityQuery.getParameters().containsKey(IdentityType.CREATED_AFTER)) {
-                    Object[] values = identityQuery.getParameters().get(IdentityType.CREATED_AFTER);
-                    long storedDateInMillis = Long.valueOf(customAttributes.getAttribute(
-                            LDAPConstants.CUSTOM_ATTRIBUTE_CREATE_DATE).toString());
-                    long providedDateInMillis = ((Date) values[0]).getTime();
-
-                    if (storedDateInMillis < providedDateInMillis) {
                         continue;
                     }
                 }
@@ -1207,8 +1051,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPConfiguration>, Cred
      * @param identityQuery
      * @return
      */
-    private String getSearchFilter(IdentityQuery<IdentityType> identityQuery) {
-        Class<IdentityType> typeClass = identityQuery.getIdentityType();
+    private String createQueryFilter(IdentityQuery<? extends IdentityType> identityQuery) {
+        Class<? extends IdentityType> typeClass = identityQuery.getIdentityType();
 
         StringBuffer additionalFilter = new StringBuffer();
 
