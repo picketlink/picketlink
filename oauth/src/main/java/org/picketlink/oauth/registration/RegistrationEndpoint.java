@@ -34,7 +34,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
- 
+
 import org.picketlink.idm.credential.internal.Password;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleUser;
