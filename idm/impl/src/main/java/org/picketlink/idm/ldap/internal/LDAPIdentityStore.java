@@ -773,22 +773,30 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                         agentEntry = lookupEntryByDN(new LDAPAgent(agent.getLoginName(), getConfig().getAgentDNSuffix()));
                     }
                 }
+                
+                if (agentEntry != null && groupEntry != null && roleEntry != null) {
+                    LDAPGroupRole groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
 
-                LDAPGroupRole groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
+                    NamingEnumeration<SearchResult> search = getLDAPManager().search(agentEntry.getDN(),
+                            groupRoleEntry.getBidingName());
 
-                NamingEnumeration<SearchResult> search = getLDAPManager().search(agentEntry.getDN(),
-                        groupRoleEntry.getBidingName());
+                    try {
+                        if (search.hasMore()) {
+                            groupRoleEntry.setLDAPAttributes(search.next().getAttributes());
 
-                try {
-                    if (search.hasMore()) {
-                        groupRoleEntry.setLDAPAttributes(search.next().getAttributes());
-
-                        if (groupRoleEntry.isMember(roleEntry)) {
-                            results.add((T) new GroupRole(agent, group, role));
+                            if (groupRoleEntry.isMember(roleEntry)) {
+                                results.add((T) new GroupRole(agent, group, role));
+                            }
+                        }
+                    } catch (Exception e) {
+                        throw new IdentityManagementException("Error looking up GroupRole relationship.", e);
+                    } finally {
+                        try {
+                            search.close();
+                        } catch (NamingException e) {
+                            
                         }
                     }
-                } catch (Exception e) {
-                    throw new IdentityManagementException("Error looking up GroupRole relationship.", e);
                 }
             }
         }

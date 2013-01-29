@@ -75,7 +75,7 @@ public class LDAPEntry implements DirContext, Serializable {
             throw new RuntimeException(e);
         }
     }
-    
+
     public String getBidingName() {
         try {
             return getAttributeForBinding() + EQUAL + getLDAPAttributes().get(getAttributeForBinding()).get().toString();
@@ -95,7 +95,7 @@ public class LDAPEntry implements DirContext, Serializable {
     public String getDnSuffix() {
         return this.dnSuffix;
     }
-    
+
     public void setDnSuffix(String dnSuffix) {
         this.dnSuffix = dnSuffix;
     }
@@ -116,16 +116,13 @@ public class LDAPEntry implements DirContext, Serializable {
 
     public void removeMember(LDAPEntry childEntry) {
         Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
+
         if (memberAttribute != null) {
             memberAttribute.remove(childEntry.getDN());
-        }
 
-        try {
-            if (!memberAttribute.getAll().hasMoreElements()) {
+            if (memberAttribute.size() == 0) {
                 memberAttribute.add(SPACE_STRING);
             }
-        } catch (NamingException e) {
-            e.printStackTrace();
         }
     }
 

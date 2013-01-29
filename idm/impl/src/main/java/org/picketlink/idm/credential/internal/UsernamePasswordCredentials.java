@@ -1,7 +1,6 @@
 package org.picketlink.idm.credential.internal;
 
 import org.picketlink.idm.credential.AbstractBaseCredentials;
-import org.picketlink.idm.credential.Credentials.Status;
 
 
 /**
