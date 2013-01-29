@@ -26,7 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.picketlink.idm.internal.util.Base64;
+import org.picketlink.common.util.Base64;
 import org.picketlink.idm.password.PasswordEncoder;
 
 /**

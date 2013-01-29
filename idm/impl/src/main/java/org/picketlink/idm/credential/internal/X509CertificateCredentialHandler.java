@@ -10,7 +10,7 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.idm.internal.util.Base64;
+import org.picketlink.common.util.Base64;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
