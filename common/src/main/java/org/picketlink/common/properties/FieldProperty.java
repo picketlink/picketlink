@@ -1,4 +1,4 @@
-package org.picketlink.internal.util.properties;
+package org.picketlink.common.properties;
 
 import java.lang.reflect.Field;
 

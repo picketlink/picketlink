@@ -1,13 +1,13 @@
-package org.picketlink.internal.util.properties;
+package org.picketlink.common.properties;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Type;
 
-import org.picketlink.internal.util.reflection.Reflections;
+import org.picketlink.common.reflection.Reflections;
 
-import static org.picketlink.internal.util.reflection.Reflections.getFieldValue;
-import static org.picketlink.internal.util.reflection.Reflections.setFieldValue;
+import static org.picketlink.common.reflection.Reflections.getFieldValue;
+import static org.picketlink.common.reflection.Reflections.setFieldValue;
 
 /**
  * A bean property based on the value contained in a field

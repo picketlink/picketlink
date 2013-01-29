@@ -1,4 +1,4 @@
-package org.picketlink.internal.util.properties.query;
+package org.picketlink.common.properties.query;
 
 /**
  * Utilities for working with property queries
