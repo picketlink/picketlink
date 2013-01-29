@@ -27,10 +27,10 @@ import java.util.Map;
 import org.picketlink.identity.federation.core.config.idm.ObjectType;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
-import org.picketlink.idm.internal.util.properties.Property;
-import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
-import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
-import org.picketlink.idm.internal.util.properties.query.PropertyQuery;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.PropertyQuery;
 
 /**
  * Base resolver for passed {@link ObjectType} values. This resolver will try to create it's object based on java beans of given type

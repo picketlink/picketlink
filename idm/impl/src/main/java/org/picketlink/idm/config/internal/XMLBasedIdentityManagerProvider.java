@@ -45,11 +45,11 @@ import org.picketlink.idm.config.internal.resolver.PropertyResolverMapper;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.internal.util.properties.Property;
-import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
-import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
-import org.picketlink.idm.internal.util.properties.query.PropertyQuery;
-import org.picketlink.idm.internal.util.reflection.Reflections;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.PropertyQuery;
+import org.picketlink.common.reflection.Reflections;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 

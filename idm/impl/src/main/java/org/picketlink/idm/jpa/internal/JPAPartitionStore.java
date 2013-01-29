@@ -35,7 +35,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.internal.util.properties.Property;
+import org.picketlink.common.properties.Property;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;

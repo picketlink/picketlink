@@ -1,4 +1,4 @@
-package org.picketlink.internal.util.reflection;
+package org.picketlink.common.reflection;
 
 import java.beans.Introspector;
 import java.io.Serializable;

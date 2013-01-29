@@ -1,13 +1,13 @@
-package org.picketlink.internal.util.properties;
+package org.picketlink.common.properties;
 
 import java.beans.Introspector;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
-import org.picketlink.internal.util.reflection.Reflections;
+import org.picketlink.common.reflection.Reflections;
 
-import static org.picketlink.internal.util.reflection.Reflections.invokeMethod;
+import static org.picketlink.common.reflection.Reflections.invokeMethod;
 
 /**
  * A bean property based on the value represented by a getter/setter method pair

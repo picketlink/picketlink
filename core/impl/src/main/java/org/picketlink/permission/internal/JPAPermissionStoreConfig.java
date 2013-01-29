@@ -12,9 +12,9 @@ import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.persistence.Entity;
 
 import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.internal.util.properties.Property;
-import org.picketlink.internal.util.properties.query.AnnotatedPropertyCriteria;
-import org.picketlink.internal.util.properties.query.PropertyQueries;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.permission.annotations.ACLIdentifier;
 import org.picketlink.permission.annotations.ACLPermission;
 import org.picketlink.permission.annotations.ACLRecipient;
