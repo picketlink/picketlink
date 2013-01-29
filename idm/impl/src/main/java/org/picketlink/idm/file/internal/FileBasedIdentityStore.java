@@ -65,7 +65,10 @@ import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
@@ -166,7 +169,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 throw createUnsupportedIdentityTypeException(identityTypeClass);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
-            addRelationship((Relationship) attributedType);
+            Relationship relationship = (Relationship) attributedType;
+            
+            addRelationship(relationship);
+            
+            if (GroupRole.class.isInstance(relationship)) {
+                GroupRole groupRole = (GroupRole) relationship;
+                
+                addRelationship(new Grant(groupRole.getMember(), groupRole.getRole()));
+                addRelationship(new GroupMembership(groupRole.getMember(), groupRole.getGroup()));
+            }
         } else {
             throw createUnsupportedAttributedType(attributedType.getClass());
         }
@@ -850,6 +862,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param relationship
      */
     private void addRelationship(Relationship relationship) {
+        if (relationship.getId() == null) {
+            relationship.setId(getContext().getIdGenerator().generate());    
+        }
+        
         FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
 
         fileRelationship.setId(relationship.getId());

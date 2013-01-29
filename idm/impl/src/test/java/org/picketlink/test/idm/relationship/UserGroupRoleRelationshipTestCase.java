@@ -78,6 +78,12 @@ public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTe
         assertTrue(identityManager.hasGroupRole(developerUser, employeeRole, companyGroup));
         assertTrue(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
 
+        assertTrue(identityManager.hasRole(developerUser, employeeRole));
+        assertTrue(identityManager.hasRole(developerUser, developerRole));
+
+        assertTrue(identityManager.isMember(developerUser, companyGroup));
+        assertTrue(identityManager.isMember(developerUser, projectGroup));
+
         assertTrue(identityManager.hasGroupRole(projectManagerUser, employeeRole, companyGroup));
         assertTrue(identityManager.hasGroupRole(projectManagerUser, managerRole, projectGroup));
 

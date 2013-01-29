@@ -1234,6 +1234,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             }
 
             addMember(groupRoleEntry, roleEntry);
+            
+            addGrantRelationship(new Grant(agent, role));
+            addGroupMembership(new GroupMembership(agent, group));
         } else {
             throw new IdentityManagementException("You must assign a valid Agent instance for this relationship type.");
         }

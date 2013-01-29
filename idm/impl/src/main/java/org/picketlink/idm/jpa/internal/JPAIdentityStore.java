@@ -40,7 +40,10 @@ import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
@@ -147,42 +150,65 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
 
             Relationship relationship = (Relationship) value;
-
-            relationship.setId(getContext().getIdGenerator().generate());
-
+            
             try {
-                Object entity = getConfig().getRelationshipClass().newInstance();
-
-                getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).setValue(entity, relationship.getId());
-                getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).setValue(entity,
-                        relationship.getClass().getName());
-
-                List<Property<IdentityType>> props = PropertyQueries.<IdentityType> createQuery(relationship.getClass())
-                        .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
-
-                EntityManager em = getEntityManager();
-
-                em.persist(entity);
-
-                for (Property<IdentityType> prop : props) {
-                    Object relationshipIdentity = getConfig().getRelationshipIdentityClass().newInstance();
-
-                    IdentityType identityType = prop.getValue(relationship);
-
-                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).setValue(relationshipIdentity,
-                            lookupIdentityObjectById(identityType.getId()));
-                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).setValue(relationshipIdentity,
-                            prop.getName());
-                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).setValue(
-                            relationshipIdentity, entity);
-                    em.persist(relationshipIdentity);
+                addRelationship(relationship);
+                
+                if (GroupRole.class.isInstance(relationship)) {
+                    GroupRole groupRole = (GroupRole) relationship;
+                    
+                    addRelationship(new Grant(groupRole.getMember(), groupRole.getRole()));
+                    addRelationship(new GroupMembership(groupRole.getMember(), groupRole.getGroup()));
                 }
-
-                updateRelationshipAttributes(relationship, entity);
             } catch (Exception ex) {
                 throw new IdentityManagementException("Exception while creating Relationship [" + relationship + "].", ex);
             }
         }
+    }
+
+    private void addRelationship(Relationship relationship) {
+        relationship.setId(getContext().getIdGenerator().generate());
+
+            Object entity = null;
+            
+            try {
+                entity = getConfig().getRelationshipClass().newInstance();
+            } catch (Exception e) {
+                throw new IdentityManagementException("Error instantiating relationship class [" + getConfig().getRelationshipClass().getName() + "]", e);
+            }
+
+            getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).setValue(entity, relationship.getId());
+            getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).setValue(entity,
+                    relationship.getClass().getName());
+
+            List<Property<IdentityType>> props = PropertyQueries.<IdentityType> createQuery(relationship.getClass())
+                    .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
+
+            EntityManager em = getEntityManager();
+
+            em.persist(entity);
+
+            for (Property<IdentityType> prop : props) {
+                Object relationshipIdentity = null;
+                
+                try {
+                    relationshipIdentity = getConfig().getRelationshipIdentityClass().newInstance();
+                } catch (Exception e) {
+                    throw new IdentityManagementException("Error instantiating relationship identity class [" + getConfig().getRelationshipIdentityClass().getName() + "]", e);
+                }
+
+                IdentityType identityType = prop.getValue(relationship);
+
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).setValue(relationshipIdentity,
+                        lookupIdentityObjectById(identityType.getId()));
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).setValue(relationshipIdentity,
+                        prop.getName());
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).setValue(
+                        relationshipIdentity, entity);
+                em.persist(relationshipIdentity);
+            }
+
+            updateRelationshipAttributes(relationship, entity);
     }
 
     @Override
