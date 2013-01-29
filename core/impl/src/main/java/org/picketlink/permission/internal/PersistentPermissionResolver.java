@@ -13,15 +13,12 @@ public class PersistentPermissionResolver implements PermissionResolver
 
     public PermissionStatus hasPermission(Object resource, String operation)
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
 
     public PermissionStatus hasPermission(Class<?> resourceClass, Serializable identifier, String operation)
     {
-        // TODO Auto-generated method stub
         return null;
     }
-
 }
