@@ -31,21 +31,21 @@ import java.util.List;
 import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.KeyProviderType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.config.STSType;
-import org.picketlink.identity.federation.core.config.ServiceProviderType;
-import org.picketlink.identity.federation.core.config.ServiceProvidersType;
-import org.picketlink.identity.federation.core.config.TokenProviderType;
-import org.picketlink.identity.federation.core.config.TokenProvidersType;
-import org.picketlink.identity.federation.core.config.TrustType;
-import org.picketlink.identity.federation.core.handler.config.Handler;
-import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
-import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.KeyProviderType;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.config.federation.STSType;
+import org.picketlink.config.federation.ServiceProviderType;
+import org.picketlink.config.federation.ServiceProvidersType;
+import org.picketlink.config.federation.TokenProviderType;
+import org.picketlink.config.federation.TokenProvidersType;
+import org.picketlink.config.federation.TrustType;
+import org.picketlink.config.federation.handler.Handler;
+import org.picketlink.config.federation.handler.Handlers;
+import org.picketlink.config.federation.parsers.SAMLConfigParser;
+import org.picketlink.config.federation.parsers.STSConfigParser;
 
 /**
  * Unit Test the various config

@@ -25,14 +25,14 @@ import java.io.InputStream;
 import java.util.List;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
-import org.picketlink.identity.federation.core.config.KeyProviderType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.STSType;
-import org.picketlink.identity.federation.core.config.ServiceProviderType;
-import org.picketlink.identity.federation.core.config.TokenProviderType;
-import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.ClaimsProcessorType;
+import org.picketlink.config.federation.KeyProviderType;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.STSType;
+import org.picketlink.config.federation.ServiceProviderType;
+import org.picketlink.config.federation.TokenProviderType;
+import org.picketlink.config.federation.parsers.STSConfigParser;
 
 /**
  * <p>

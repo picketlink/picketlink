@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
@@ -54,6 +53,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.config.federation.ProviderType;
 import org.picketlink.identity.federation.web.core.HTTPContext;
 
 /**

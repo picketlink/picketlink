@@ -31,8 +31,8 @@ import javax.crypto.SecretKey;
 
 import org.picketlink.common.exceptions.TrustKeyConfigurationException;
 import org.picketlink.common.exceptions.TrustKeyProcessingException;
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.KeyValueType;
 
 /**
  * Key Manager interface used in trust decisions

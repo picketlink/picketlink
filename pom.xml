@@ -47,12 +47,12 @@
 
 	<modules>
 		<module>common</module>
+		<module>config</module>
 		<module>idm</module>
 		<module>core</module>
 		<module>federation</module>
 		<module>social</module>
 		<!-- <module>oauth</module> -->
-		<module>config</module>
 	</modules>
 
 	<dependencyManagement>

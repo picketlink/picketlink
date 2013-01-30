@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.InputStream;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.web.config.SPPostMetadataConfigurationProvider;
 

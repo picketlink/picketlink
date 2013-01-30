@@ -29,12 +29,6 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 
 import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.idm.IDMType;
-import org.picketlink.identity.federation.core.config.idm.IdentityConfigurationType;
-import org.picketlink.identity.federation.core.config.idm.IdentityStoreInvocationContextFactoryType;
-import org.picketlink.identity.federation.core.config.idm.StoreConfigurationType;
-import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManager;
@@ -50,6 +44,12 @@ import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.reflection.Reflections;
+import org.picketlink.config.PicketLinkConfigParser;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.idm.IDMType;
+import org.picketlink.config.idm.IdentityConfigurationType;
+import org.picketlink.config.idm.IdentityStoreInvocationContextFactoryType;
+import org.picketlink.config.idm.StoreConfigurationType;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 

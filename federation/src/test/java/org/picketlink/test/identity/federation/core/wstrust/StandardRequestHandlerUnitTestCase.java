@@ -28,8 +28,8 @@ import java.io.InputStream;
 import java.security.Principal;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.config.STSType;
-import org.picketlink.identity.federation.core.parsers.sts.STSConfigParser;
+import org.picketlink.config.federation.STSType;
+import org.picketlink.config.federation.parsers.STSConfigParser;
 import org.picketlink.identity.federation.core.parsers.wst.WSTrustParser;
 import org.picketlink.identity.federation.core.wstrust.PicketLinkSTSConfiguration;
 import org.picketlink.identity.federation.core.wstrust.STSConfiguration;

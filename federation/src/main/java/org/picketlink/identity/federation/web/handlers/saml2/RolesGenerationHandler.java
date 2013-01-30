@@ -32,7 +32,7 @@ import org.jboss.security.audit.AuditLevel;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.config.federation.IDPType;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.impl.EmptyRoleGenerator;

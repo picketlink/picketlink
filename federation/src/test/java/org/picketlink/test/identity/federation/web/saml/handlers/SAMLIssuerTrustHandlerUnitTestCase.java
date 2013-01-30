@@ -25,8 +25,8 @@ package org.picketlink.test.identity.federation.web.saml.handlers;
 
 import junit.framework.TestCase;
 import org.junit.Assert;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.TrustType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.TrustType;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;
 import org.picketlink.common.exceptions.fed.IssuerNotTrustedException;

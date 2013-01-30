@@ -32,13 +32,13 @@ import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.idm.IDMType;
-import org.picketlink.identity.federation.core.config.idm.IdentityStoreInvocationContextFactoryType;
-import org.picketlink.identity.federation.core.config.idm.ObjectType;
-import org.picketlink.identity.federation.core.config.idm.StoreConfigurationType;
-import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
+import org.picketlink.config.PicketLinkConfigParser;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.idm.IDMType;
+import org.picketlink.config.idm.IdentityStoreInvocationContextFactoryType;
+import org.picketlink.config.idm.ObjectType;
+import org.picketlink.config.idm.StoreConfigurationType;
 
 /**
  * Test for parsing of IDM configuration in picketlink.xml file
