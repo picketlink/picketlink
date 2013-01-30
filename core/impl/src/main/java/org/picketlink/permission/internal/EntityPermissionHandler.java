@@ -11,10 +11,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.Id;
 
 import org.picketlink.internal.util.Strings;
-import org.picketlink.internal.util.properties.Property;
-import org.picketlink.internal.util.properties.query.AnnotatedPropertyCriteria;
-import org.picketlink.internal.util.properties.query.PropertyQueries;
-import org.picketlink.internal.util.properties.query.PropertyQuery;
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
+import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.permission.annotations.PermissionsHandledBy;
 import org.picketlink.permission.spi.PermissionHandler;
 

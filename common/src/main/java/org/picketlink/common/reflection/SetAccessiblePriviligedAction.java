@@ -1,4 +1,4 @@
-package org.picketlink.internal.util.reflection;
+package org.picketlink.common.reflection;
 
 import java.lang.reflect.AccessibleObject;
 import java.security.PrivilegedAction;

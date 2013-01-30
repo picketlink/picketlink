@@ -1,4 +1,4 @@
-package org.picketlink.internal.util.properties.query;
+package org.picketlink.common.properties.query;
 
 import java.beans.Introspector;
 import java.lang.reflect.Field;
