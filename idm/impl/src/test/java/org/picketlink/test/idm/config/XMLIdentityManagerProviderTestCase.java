@@ -52,7 +52,7 @@ public class XMLIdentityManagerProviderTestCase {
         } catch (RuntimeException re) {
             assertNotNull(re.getCause());
             assertEquals(CommunicationException.class, re.getCause().getClass());
-            assertTrue(re.getMessage().contains("localhost:10389"));
+            assertTrue(re.getCause().getMessage().contains("localhost:10389"));
         }
     }
 
