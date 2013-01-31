@@ -1,3 +1,25 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2013, Red Hat, Inc., and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+
 package org.picketlink.config;
 
 import javax.xml.namespace.QName;
@@ -7,7 +29,6 @@ import javax.xml.stream.events.StartElement;
 
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
-import org.picketlink.common.parsers.ParserNamespaceSupport;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.federation.ProviderType;
@@ -16,6 +37,7 @@ import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.config.federation.parsers.SAMLConfigParser;
 import org.picketlink.config.federation.parsers.STSConfigParser;
 import org.picketlink.config.idm.IDMType;
+import org.picketlink.config.idm.parsers.IDMConfigParser;
 
 /**
  * Parser to parse the consolidated picketlink.xml
@@ -60,12 +82,10 @@ public class PicketLinkConfigParser extends AbstractParser {
                 STSConfigParser samlConfigParser = new STSConfigParser();
                 STSType sts = (STSType) samlConfigParser.parse(xmlEventReader);
                 picketLinkType.setStsType(sts);
-            } else if ("PicketLinkIDM".equals(tag)) {
-                // TODO: using reflection because this class doesn't see IDMConfigParser at compile time. Needs to be fixed...
+            } else if (IDMConfigParser.ROOT_ELEMENT.equals(tag)) {
                 try {
-                    Class<?> idmParserClass = Class.forName("org.picketlink.config.idm.parsers.IDMConfigParser");
-                    ParserNamespaceSupport parser = (ParserNamespaceSupport)idmParserClass.newInstance();
-                    IDMType idmType = (IDMType)parser.parse(xmlEventReader);
+                    IDMConfigParser parser = new IDMConfigParser();
+                    IDMType idmType = (IDMType) parser.parse(xmlEventReader);
                     picketLinkType.setIdmType(idmType);
                 } catch (Exception e) {
                     e.printStackTrace();
