@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="../" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title>Overview</title>
+  
+    <section>
+      <title>What is PicketLink?</title>
+      
+      <para>
+        PicketLink is an Application Security Framework for Java EE applications.  It provides features for authenticating users,
+        authorizing access to the business methods of your application, and managing your application's users, groups, roles and permissions.
+      </para>
+    </section>
+    
+    <section>
+      <title>License</title>
+      
+      <para>
+        PicketLink 3.0 is licensed under the Apache License Version 2, the terms and conditions of which can be found at
+        <ulink url="http://www.apache.org/licenses/LICENSE-2.0.html">apache.org</ulink>.
+      </para>
+    </section>
+
+</chapter>
