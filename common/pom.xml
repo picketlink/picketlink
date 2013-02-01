@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>org.picketlink</groupId>
 		<artifactId>picketlink-parent</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.0-2013Feb01</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -24,6 +24,18 @@
 	</organization>
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.2</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
