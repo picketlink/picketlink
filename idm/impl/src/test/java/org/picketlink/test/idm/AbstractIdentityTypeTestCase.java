@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.junit.Test;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
@@ -293,6 +294,15 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         multiValuedAttribute = updatedIdentityType.getAttribute("multi-valued");
 
         assertNull(multiValuedAttribute);
+    }
+
+    @Test (expected=IdentityManagementException.class)
+    public void testAddDuplicatedObject() throws Exception {
+        T storedIdentityType = createIdentityType();
+
+        storedIdentityType.setId(null);
+
+        getIdentityManager().add(storedIdentityType);
     }
 
 }

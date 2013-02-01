@@ -121,11 +121,20 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             identityType.setPartition(getContext().getRealm());
 
             if (Agent.class.isInstance(attributedType)) {
+                Agent newAgent = (Agent) attributedType;
+
+                if (newAgent.getLoginName() == null) {
+                    throw new IdentityManagementException("No login name was provided.");
+                }
+                if (getAgent(newAgent.getLoginName()) != null) {
+                    throw new IdentityManagementException("Agent already exists with the given login name ["
+                            + newAgent.getLoginName() + "] for the given Realm [" + getContext().getRealm().getName() + "]");
+                }
+
                 if (User.class.isInstance(attributedType)) {
                     User newUser = (User) attributedType;
                     addUser(newUser);
                 } else {
-                    Agent newAgent = (Agent) attributedType;
                     addAgent(newAgent);
                 }
             } else if (Role.class.isInstance(attributedType)) {
@@ -1218,6 +1227,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void addGroup(Group newGroup) {
+        if (newGroup.getName() == null) {
+            throw new IdentityManagementException("No name was provided.");
+        }
+
+        if (getGroup(newGroup.getName()) != null) {
+            throw new IdentityManagementException("Group already exists with the given name [" + newGroup.getName()
+                    + "] for the given Partition [" + getContext().getPartition().getName() + "]");
+        }
+
         LDAPGroup ldapGroup = new LDAPGroup(getConfig().getGroupDNSuffix());
 
         ldapGroup.setName(newGroup.getName());
@@ -1241,6 +1259,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void addRole(Role newRole) {
+        if (newRole.getName() == null) {
+            throw new IdentityManagementException("No name was provided.");
+        }
+
+        if (getRole(newRole.getName()) != null) {
+            throw new IdentityManagementException("Role already exists with the given name [" + newRole.getName()
+                    + "] for the given Partition [" + getContext().getPartition().getName() + "]");
+        }
+
         LDAPRole ldapRole = new LDAPRole(getConfig().getRoleDNSuffix());
 
         ldapRole.setName(newRole.getName());
