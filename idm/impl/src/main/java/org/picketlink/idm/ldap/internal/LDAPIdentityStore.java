@@ -113,8 +113,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public void add(AttributedType attributedType) {
-        attributedType.setId(getContext().getIdGenerator().generate());
-
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
 
@@ -1000,6 +998,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         getLDAPManager().createSubContext(ldapIdentityType.getDN(), ldapIdentityType.getLDAPAttributes());
         getLDAPManager().rebind(getCustomAttributesDN(ldapIdentityType.getDN()), ldapIdentityType.getCustomAttributes());
+        
+        populateLDAPOperationAttributes(ldapIdentityType);
+        
+        newIdentityType.setId(ldapIdentityType.getId());
     }
 
     private LDAPOperationManager getLDAPManager() {
@@ -1136,22 +1138,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         identityType.setLDAPAttributes(sr.getAttributes());
         identityType.setCustomAttributes(getCustomAttributes(identityType));
 
-        Attributes operationalAttributes = getLDAPManager().lookupOperationalAttributes(identityType.getDnSuffix(),
-                identityType.getBidingName());
-
-        identityType.setId(operationalAttributes.get(LDAPConstants.ENTRY_UUID).get().toString());
-
-        String createdTimeStamp = operationalAttributes.get(LDAPConstants.CREATE_TIMESTAMP).get().toString();
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        try {
-            identityType.setCreatedDate(sdf.parse(createdTimeStamp));
-        } catch (ParseException e) {
-            throw new IdentityManagementException("Error parsing created date.", e);
-        }
+        populateLDAPOperationAttributes(identityType);
 
         // for now, the store is not supporting partitions. ldap does not pprovide a good attribute to hold such
         // information.
@@ -1159,6 +1146,29 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         identityType.setPartition(new Realm(Realm.DEFAULT_REALM));
 
         identityType.setCustomAttributes(getCustomAttributes(identityType));
+    }
+
+    private <T extends LDAPIdentityType> void populateLDAPOperationAttributes(T identityType) {
+        try {
+            Attributes operationalAttributes = getLDAPManager().lookupOperationalAttributes(identityType.getDnSuffix(),
+                    identityType.getBidingName());
+
+            identityType.setId(operationalAttributes.get(LDAPConstants.ENTRY_UUID).get().toString());
+
+            String createdTimeStamp = operationalAttributes.get(LDAPConstants.CREATE_TIMESTAMP).get().toString();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+
+            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+            try {
+                identityType.setCreatedDate(sdf.parse(createdTimeStamp));
+            } catch (ParseException e) {
+                throw new IdentityManagementException("Error parsing created date.", e);
+            }
+        } catch (Exception e) {
+            throw new IdentityManagementException("Error populating operational attributes.", e);
+        }
     }
 
     /**
