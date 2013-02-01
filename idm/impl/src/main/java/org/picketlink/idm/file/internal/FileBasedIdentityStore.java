@@ -441,7 +441,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         if (IdentityType.class.equals(identityTypeClass)) {
             if (partition == null) {
                 entries.addAll(getAgentsForCurrentRealm().values());
-                entries.addAll(getAgentsForCurrentRealm().values());
                 entries.addAll(getRolesForCurrentPartition().values());
                 entries.addAll(getGroupsForCurrentPartition().values());
             } else {
