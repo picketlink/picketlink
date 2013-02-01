@@ -75,7 +75,7 @@ public class DefaultIdentity implements Identity
                 }
 
                 beanManager.fireEvent(new AlreadyLoggedInEvent());
-                return AuthenticationResult.SUCCESS;
+                throw new SecurityException("Already Logged In");
             }
 
             boolean success = authenticate();
