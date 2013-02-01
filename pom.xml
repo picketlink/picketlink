@@ -65,6 +65,12 @@
 
 			<dependency>
 				<groupId>org.picketlink</groupId>
+				<artifactId>picketlink-common</artifactId>
+				<version>${project.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.picketlink</groupId>
 				<artifactId>picketlink-core-api</artifactId>
 				<version>${project.version}</version>
 				<scope>compile</scope>
