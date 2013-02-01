@@ -26,8 +26,8 @@ import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryPa
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -429,7 +429,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
-        Set<?> entries = null;
+        Collection entries = new ArrayList<T>();
 
         Object[] partitionParameters = identityQuery.getParameter(IdentityType.PARTITION);
         Partition partition = null;
@@ -439,36 +439,33 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
 
         if (IdentityType.class.equals(identityTypeClass)) {
-            Map<String, IdentityType> allIdentityTypes = new HashMap<String, IdentityType>();
-
             if (partition == null) {
-                allIdentityTypes.putAll(getAgentsForCurrentRealm());
-                allIdentityTypes.putAll(getRolesForCurrentPartition());
-                allIdentityTypes.putAll(getGroupsForCurrentPartition());
+                entries.addAll(getAgentsForCurrentRealm().values());
+                entries.addAll(getAgentsForCurrentRealm().values());
+                entries.addAll(getRolesForCurrentPartition().values());
+                entries.addAll(getGroupsForCurrentPartition().values());
             } else {
-                allIdentityTypes.putAll(getAgentsForPartition(partition));
-                allIdentityTypes.putAll(getRolesForPartition(partition));
-                allIdentityTypes.putAll(getGroupsForPartition(partition));
+                entries.addAll(getAgentsForPartition(partition).values());
+                entries.addAll(getRolesForPartition(partition).values());
+                entries.addAll(getGroupsForPartition(partition).values());
             }
-
-            entries = allIdentityTypes.entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
             if (partition == null) {
-                entries = getAgentsForCurrentRealm().entrySet();
+                entries = getAgentsForCurrentRealm().values();
             } else {
-                entries = getAgentsForPartition(partition).entrySet();
+                entries = getAgentsForPartition(partition).values();
             }
         } else if (IDMUtil.isRoleType(identityTypeClass)) {
             if (partition == null) {
-                entries = getRolesForCurrentPartition().entrySet();
+                entries = getRolesForCurrentPartition().values();
             } else {
-                entries = getRolesForPartition(partition).entrySet();
+                entries = getRolesForPartition(partition).values();
             }
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
             if (partition == null) {
-                entries = getGroupsForCurrentPartition().entrySet();
+                entries = getGroupsForCurrentPartition().values();
             } else {
-                entries = getGroupsForPartition(partition).entrySet();
+                entries = getGroupsForPartition(partition).values();
             }
         } else {
             throw createUnsupportedIdentityTypeException(identityTypeClass);
@@ -479,9 +476,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         int typesCount = 0;
 
         for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
-            Entry<String, IdentityType> entry = (Entry<String, IdentityType>) iterator.next();
-
-            IdentityType storedEntry = entry.getValue();
+            IdentityType storedEntry = (IdentityType) iterator.next();
 
             if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
                 continue;
