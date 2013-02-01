@@ -30,6 +30,7 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
@@ -41,8 +42,20 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestCase {
+public class AgentRolesRelationshipTestCase<T extends Agent> extends AbstractIdentityManagerTestCase {
+    
+    protected T createIdentityType(String name, Partition partition) {
+        if (name == null) {
+            name = "someAgent";
+        }
+        
+        return (T) createAgent(name, partition);
+    }
 
+    protected T getIdentityType() {
+        return (T) getIdentityManager().getAgent("someAgent");
+    }
+    
     /**
      * <p>
      * Tests granting roles to users.
@@ -52,7 +65,7 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
      */
     @Test
     public void testGrantRoleToAgent() throws Exception {
-        Agent someAgent = createAgent("someAgent");
+        T someAgent = createIdentityType("someAgent", null);
         Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
@@ -80,7 +93,7 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
      */
     @Test
     public void testRevokeRoleFromAgent() throws Exception {
-        Agent someAgent = createAgent("someAgent");
+        T someAgent = createIdentityType("someAgent", null);
 
         Role someRole = createRole("someRole");
         Role someAnotherRole = createRole("someAnotherRole");
@@ -116,7 +129,7 @@ public class AgentRolesRelationshipTestCase extends AbstractIdentityManagerTestC
         Role someAnotherRole = createRole("someAnotherRole");
         Role someImportantRole = createRole("someImportantRole");
         
-        Agent user = createAgent("someAgent");
+        T user = createIdentityType("someAgent", null);
         
         IdentityManager identityManager = getIdentityManager();
         

@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
@@ -41,8 +42,20 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class AgentGroupsRelationshipTestCase extends AbstractIdentityManagerTestCase {
+public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractIdentityManagerTestCase {
+    
+    protected T createIdentityType(String name, Partition partition) {
+        if (name == null) {
+            name = "someAgent";
+        }
+        
+        return (T) createAgent(name, partition);
+    }
 
+    protected T getIdentityType() {
+        return (T) getIdentityManager().getAgent("someAgent");
+    }
+    
     /**
      * <p>
      * Tests adding an {@link Agent} as a member of a {@link Group}.
@@ -52,7 +65,7 @@ public class AgentGroupsRelationshipTestCase extends AbstractIdentityManagerTest
      */
     @Test
     public void testAddAgentToGroup() throws Exception {
-        Agent someAgent = createAgent("someAgent");
+        T someAgent = createIdentityType("someAgent", null);
         Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
@@ -79,7 +92,7 @@ public class AgentGroupsRelationshipTestCase extends AbstractIdentityManagerTest
      */
     @Test
     public void testRemoveAgentFromGroup() throws Exception {
-        Agent someAgent = createAgent("someAgent");
+        T someAgent = createIdentityType("someAgent", null);
         Group someGroup = createGroup("someGroup", null);
         Group someAnotherGroup = createGroup("someAnotherGroup", null);
 
@@ -113,7 +126,7 @@ public class AgentGroupsRelationshipTestCase extends AbstractIdentityManagerTest
         Group someAnotherGroup = createGroup("someAnotherGroup", null);
         Group someImportantGroup = createGroup("someImportantGroup", null);
         
-        Agent user = createAgent("someAgent");
+        T user = createIdentityType("someAgent", null);
         
         IdentityManager identityManager = getIdentityManager();
         

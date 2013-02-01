@@ -24,11 +24,14 @@ package org.picketlink.test.idm;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 
 /**
@@ -44,7 +47,7 @@ public class AbstractIdentityManagerTestCase {
     private IdentityManager identityManager;
 
     public IdentityManager getIdentityManager() {
-        if(this.identityManager == null){
+        if (this.identityManager == null) {
             throw new RuntimeException("Identity Manager is not set.");
         }
         return this.identityManager;
@@ -63,6 +66,21 @@ public class AbstractIdentityManagerTestCase {
 
         user = new SimpleUser(userName);
         getIdentityManager().add(user);
+
+        return user;
+    }
+    
+    protected User createUser(String userName, Partition partition) {
+        IdentityManager identityManager = getIdentityManagerForPartition(partition);
+        
+        User user = identityManager.getUser(userName);
+
+        if (user != null) {
+            identityManager.remove(user);
+        }
+
+        user = new SimpleUser(userName);
+        identityManager.add(user);
 
         return user;
     }
@@ -86,6 +104,38 @@ public class AbstractIdentityManagerTestCase {
         return agent;
     }
 
+    protected Agent createAgent(String loginName, Partition partition) {
+        IdentityManager identityManager = getIdentityManagerForPartition(partition);
+        
+        Agent agent = identityManager.getAgent(loginName);
+
+        if (agent != null) {
+            identityManager.remove(agent);
+            agent = null;
+        }
+
+        agent = new SimpleAgent(loginName);
+
+        identityManager.add(agent);
+
+        return agent;
+    }
+
+    private IdentityManager getIdentityManagerForPartition(Partition partition) {
+        IdentityManager identityManager = getIdentityManager();
+
+        if (partition != null) {
+            if (Realm.class.isInstance(partition)) {
+                identityManager = identityManager.forRealm((Realm) partition);
+            } else if (Tier.class.isInstance(partition)) {
+                identityManager = identityManager.forTier((Tier) partition);
+            } else {
+                throw new IllegalArgumentException("Unexpected partition type.");
+            }
+        }
+        return identityManager;
+    }
+
     protected Agent getAgent(String loginName) {
         return getIdentityManager().getAgent(loginName);
     }
@@ -104,6 +154,22 @@ public class AbstractIdentityManagerTestCase {
         return role;
     }
     
+    protected Role createRole(String name, Partition partition) {
+        IdentityManager identityManager = getIdentityManagerForPartition(partition);
+        
+        Role role = identityManager.getRole(name);
+
+        if (role != null) {
+            identityManager.remove(role);
+            role = null;
+        }
+
+        role = new SimpleRole(name);
+        identityManager.add(role);
+
+        return role;
+    }
+
     protected Role getRole(String name) {
         return getIdentityManager().getRole(name);
     }
@@ -137,10 +203,44 @@ public class AbstractIdentityManagerTestCase {
 
             getIdentityManager().add(group);
         }
-        
+
         return group;
     }
     
+    protected Group createGroup(String name, String parentGroupName, Partition partition) {
+        IdentityManager identityManager = getIdentityManagerForPartition(partition);
+        Group parentGroup = identityManager.getGroup(parentGroupName);
+
+        if (parentGroup != null && parentGroupName != null) {
+            identityManager.remove(parentGroup);
+            parentGroup = null;
+        }
+
+        if (parentGroup == null && parentGroupName != null) {
+            parentGroup = new SimpleGroup(parentGroupName);
+            identityManager.add(parentGroup);
+        }
+
+        Group group = identityManager.getGroup(name);
+
+        if (group != null) {
+            identityManager.remove(group);
+            group = null;
+        }
+
+        if (group == null) {
+            if (parentGroupName == null) {
+                group = new SimpleGroup(name);
+            } else {
+                group = new SimpleGroup(name, parentGroup);
+            }
+
+            identityManager.add(group);
+        }
+
+        return group;
+    }
+
     protected Group getGroup(String name) {
         return getIdentityManager().getGroup(name);
     }

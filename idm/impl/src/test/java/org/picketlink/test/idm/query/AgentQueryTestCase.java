@@ -25,28 +25,19 @@ package org.picketlink.test.idm.query;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleAgent;
+import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
-import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
  * <p>
@@ -55,907 +46,406 @@ import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class AgentQueryTestCase extends AbstractIdentityManagerTestCase {
+public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTestCase<T> {
 
+    protected T createIdentityType(String name, Partition partition) {
+        if (name == null) {
+            name = "someAgent";
+        }
+        
+        return (T) createAgent(name, partition);
+    }
+    
+    @Override
+    protected T getIdentityType() {
+        return (T) getIdentityManager().getAgent("someAgent");
+    }
+    
     @After
     public void onFinish() {
-        IdentityQuery<Agent> query = getIdentityManager().createIdentityQuery(Agent.class);
+        T agentType = createIdentityType(null, null);
+        
+        IdentityQuery<T> query = getIdentityManager().createIdentityQuery((Class<T>) agentType.getClass());
 
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
-        for (Agent agent : result) {
+        for (T agent : result) {
             getIdentityManager().remove(agent);
         }
     }
 
     @Test
-    public void testFindById() throws Exception {
-        Agent agent = createAgent("someAgent");
+    public void testFindByLoginName() throws Exception {
+        T agentType = createIdentityType("someAgent", null);
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
+        IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.ID, agent.getId());
+        query.setParameter(Agent.LOGIN_NAME, "someAgent");
 
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
-        assertEquals(agent.getLoginName(), result.get(0).getLoginName());
+        assertEquals(agentType.getId(), result.get(0).getId());
     }
 
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
-    public void testPagination() throws Exception {
-        for (int i = 0; i < 50; i++) {
-            createAgent("someAgent" + (i + 1));
-        }
+    public void testFindByMultipleAgentWithGroups() throws Exception {
+        T agentType = createIdentityType("admin", null);
+        T someAgent = createIdentityType("someAgent", null);
+
+        Group administratorGroup = createGroup("Administrators", null);
+        Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        identityManager.addToGroup(agentType, administratorGroup);
+        identityManager.addToGroup(someAgent, administratorGroup);
 
-        query.setLimit(10);
-        query.setOffset(0);
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        int resultCount = query.getResultCount();
+        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName());
 
-        assertEquals(50, resultCount);
-
-        List<Agent> firstPage = query.getResultList();
-
-        assertEquals(10, firstPage.size());
-
-        List<String> agentIds = new ArrayList<String>();
-
-        for (Agent Agent : firstPage) {
-            agentIds.add(Agent.getId());
-        }
-
-        query.setOffset(10);
-
-        List<Agent> secondPage = query.getResultList();
-
-        assertEquals(10, secondPage.size());
-
-        for (Agent Agent : secondPage) {
-            assertFalse(agentIds.contains(Agent.getId()));
-            agentIds.add(Agent.getId());
-        }
-
-        query.setOffset(20);
-
-        List<Agent> thirdPage = query.getResultList();
-
-        assertEquals(10, thirdPage.size());
-
-        for (Agent Agent : thirdPage) {
-            assertFalse(agentIds.contains(Agent.getId()));
-            agentIds.add(Agent.getId());
-        }
-
-        query.setOffset(30);
-
-        List<Agent> fourthPage = query.getResultList();
-
-        assertEquals(10, fourthPage.size());
-
-        for (Agent Agent : fourthPage) {
-            assertFalse(agentIds.contains(Agent.getId()));
-            agentIds.add(Agent.getId());
-        }
-
-        query.setOffset(40);
-
-        List<Agent> fifthyPage = query.getResultList();
-
-        assertEquals(10, fifthyPage.size());
-
-        for (Agent Agent : fifthyPage) {
-            assertFalse(agentIds.contains(Agent.getId()));
-            agentIds.add(Agent.getId());
-        }
-
-        assertEquals(50, agentIds.size());
-
-        query.setOffset(50);
-
-        List<Agent> invalidPage = query.getResultList();
-
-        assertTrue(invalidPage.isEmpty());
-    }
-
-    @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
-    public void testFindByRealm() throws Exception {
-        IdentityManager identityManager = getIdentityManager();
-
-        Agent someAgentDefaultRealm = new SimpleAgent("someAgentRealm");
-
-        identityManager.add(someAgentDefaultRealm);
-
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
-
-        Realm defaultRealm = identityManager.getRealm(Realm.DEFAULT_REALM);
-
-        assertNotNull(defaultRealm);
-
-        query.setParameter(Agent.PARTITION, defaultRealm);
-
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(someAgentDefaultRealm.getLoginName(), result.get(0).getLoginName());
+        assertEquals(2, result.size());
+        assertTrue(contains(result, agentType.getId()));
+        assertTrue(contains(result, someAgent.getId()));
 
-        Realm testingRealm = identityManager.getRealm("Testing");
+        identityManager.addToGroup(agentType, someGroup);
 
-        if (testingRealm == null) {
-            testingRealm = new Realm("Testing");
-            identityManager.createRealm(testingRealm);
-        }
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        Agent someAgentTestingRealm = new SimpleAgent("someAgentTestingRealm");
-
-        identityManager.forRealm(testingRealm).add(someAgentTestingRealm);
-
-        query = identityManager.createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.PARTITION, testingRealm);
+        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
-        assertEquals(someAgentTestingRealm.getLoginName(), result.get(0).getLoginName());
+        assertTrue(contains(result, agentType.getId()));
     }
 
     @Test
-    public void testFindByLoginName() throws Exception {
-        Agent user = createAgent("someAgent");
+    public void testFindByMultipleAgentWithRoles() throws Exception {
+        T agentType = createIdentityType("admin", null);
+        T someAgent = createIdentityType("someAgent", null);
+
+        Role administratorRole = createRole("Administrators");
+        Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
+        identityManager.grantRole(agentType, administratorRole);
+        identityManager.grantRole(someAgent, administratorRole);
 
-        query.setParameter(Agent.LOGIN_NAME, "someAgent");
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        List<Agent> result = query.getResultList();
+        query.setParameter(Agent.HAS_ROLE, administratorRole.getName());
+
+        List<T> result = query.getResultList();
+
+        assertFalse(result.isEmpty());
+        assertEquals(2, result.size());
+        assertTrue(contains(result, agentType.getId()));
+        assertTrue(contains(result, someAgent.getId()));
+
+        identityManager.grantRole(agentType, someRole);
+
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
+
+        query.setParameter(Agent.HAS_ROLE, administratorRole.getName(), someRole.getName());
+
+        result = query.getResultList();
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+        assertTrue(contains(result, agentType.getId()));
     }
 
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Group} and {@link Role}.
+     * </p>
+     *
+     * @throws Exception
+     */
     @Test
     public void testFindBySingleGroupRole() throws Exception {
-        Agent user = createAgent("someAgent");
+        T agentType = createIdentityType("someUser", null);
         Group salesGroup = createGroup("Sales", null);
         Role managerRole = createRole("Manager");
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole(user, salesGroup, managerRole));
+        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole(agentType, salesGroup, managerRole));
 
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        identityManager.grantGroupRole(user, managerRole, salesGroup);
+        identityManager.grantGroupRole(agentType, managerRole, salesGroup);
 
-        query = identityManager.createIdentityQuery(Agent.class);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_GROUP_ROLE, new GroupRole(user, salesGroup, managerRole));
+        query.setParameter(User.HAS_GROUP_ROLE, new GroupRole(agentType, salesGroup, managerRole));
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+        assertEquals(agentType.getId(), result.get(0).getId());
     }
 
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Group}.
+     * </p>
+     *
+     * @throws Exception
+     */
     @Test
     public void testFindBySingleGroup() throws Exception {
-        Agent user = createAgent("admin");
+        T agentType = createIdentityType("admin", null);
         Group administratorGroup = createGroup("Administrators", null);
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, "Administrators");
+        query.setParameter(User.MEMBER_OF, "Administrators");
 
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        identityManager.addToGroup(user, administratorGroup);
+        identityManager.addToGroup(agentType, administratorGroup);
 
-        query = identityManager.createIdentityQuery(Agent.class);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, "Administrators");
+        query.setParameter(User.MEMBER_OF, "Administrators");
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+        assertEquals(agentType.getId(), result.get(0).getId());
     }
 
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Role}.
+     * </p>
+     *
+     * @throws Exception
+     */
     @Test
     public void testFindBySingleRole() throws Exception {
-        Agent user = createAgent("admin");
+        T agentType = createIdentityType("admin", null);
         Role administratorRole = createRole("Administrators");
 
         IdentityManager identityManager = getIdentityManager();
 
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_ROLE, "Administrators");
+        query.setParameter(User.HAS_ROLE, "Administrators");
 
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        identityManager.grantRole(user, administratorRole);
+        identityManager.grantRole(agentType, administratorRole);
 
-        query = identityManager.createIdentityQuery(Agent.class);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_ROLE, "Administrators");
+        query.setParameter(User.HAS_ROLE, "Administrators");
 
         result = query.getResultList();
 
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+        assertFalse(result.isEmpty());
+        assertEquals(agentType.getId(), result.get(0).getId());
     }
 
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Group}.
+     * </p>
+     *
+     * @throws Exception
+     */
     @Test
     public void testFindByMultipleGroups() throws Exception {
-        Agent user = createAgent("admin");
+        T agentType = createIdentityType("admin", null);
         Group administratorGroup = createGroup("Administrators", null);
         Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.addToGroup(user, administratorGroup);
-        identityManager.addToGroup(user, someGroup);
+        identityManager.addToGroup(agentType, administratorGroup);
+        identityManager.addToGroup(agentType, someGroup);
 
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
 
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+        assertFalse(result.isEmpty());
+        assertEquals(agentType.getId(), result.get(0).getId());
 
-        identityManager.removeFromGroup(user, someGroup);
+        identityManager.removeFromGroup(agentType, someGroup);
 
-        query = identityManager.createIdentityQuery(Agent.class);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.createIdentityQuery(Agent.class);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName());
 
         result = query.getResultList();
 
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+        assertFalse(result.isEmpty());
+        assertEquals(agentType.getId(), result.get(0).getId());
     }
 
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Role}.
+     * </p>
+     *
+     * @throws Exception
+     */
     @Test
     public void testFindByMultipleRoles() throws Exception {
-        Agent user = createAgent("admin");
+        T agentType = createIdentityType("admin", null);
         Role administratorRole = createRole("Administrators");
         Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.grantRole(user, administratorRole);
-        identityManager.grantRole(user, someRole);
+        identityManager.grantRole(agentType, administratorRole);
+        identityManager.grantRole(agentType, someRole);
 
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_ROLE, administratorRole.getName(), someRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
 
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+        assertEquals(agentType.getId(), result.get(0).getId());
 
-        identityManager.revokeRole(user, someRole);
+        identityManager.revokeRole(agentType, someRole);
 
-        query = identityManager.createIdentityQuery(Agent.class);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_ROLE, administratorRole.getName(), someRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
 
         result = query.getResultList();
 
         assertTrue(result.isEmpty());
 
-        query = identityManager.createIdentityQuery(Agent.class);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_ROLE, administratorRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole.getName());
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
+        assertEquals(agentType.getId(), result.get(0).getId());
     }
 
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Group}.
+     * </p>
+     *
+     * @throws Exception
+     */
     @Test
-    public void testFindByMultipleAgentWithGroups() throws Exception {
-        Agent adminAgent = createAgent("admin");
-        Agent someAgent = createAgent("someAgent");
+    public void testFindByMultipleUserWithGroups() throws Exception {
+        T agentType = createIdentityType("admin", null);
+        T someAgent = createIdentityType("someUser", null);
 
         Group administratorGroup = createGroup("Administrators", null);
         Group someGroup = createGroup("someGroup", null);
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.addToGroup(adminAgent, administratorGroup);
+        identityManager.addToGroup(agentType, administratorGroup);
         identityManager.addToGroup(someAgent, administratorGroup);
 
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName());
 
-        List<Agent> result = query.getResultList();
+        List<T> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
-        assertTrue(contains(result, adminAgent.getLoginName()));
-        assertTrue(contains(result, someAgent.getLoginName()));
+        assertTrue(contains(result, agentType.getId()));
+        assertTrue(contains(result, someAgent.getId()));
 
-        identityManager.addToGroup(adminAgent, someGroup);
+        identityManager.addToGroup(agentType, someGroup);
 
-        query = identityManager.createIdentityQuery(Agent.class);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, adminAgent.getLoginName()));
+        assertTrue(contains(result, agentType.getId()));
+
+        assertFalse(contains(result, someAgent.getId()));
     }
 
+    /**
+     * <p>
+     * Find an {@link User} by his associated {@link Role}.
+     * </p>
+     *
+     * @throws Exception
+     */
     @Test
-    public void testFindByMultipleAgentWithRoles() throws Exception {
-        Agent adminAgent = createAgent("admin");
-        Agent someAgent = createAgent("someAgent");
+    public void testFindByMultipleUserWithRoles() throws Exception {
+        T agentType = createIdentityType("admin", null);
+        T someagent = createIdentityType("someUser", null);
 
         Role administratorRole = createRole("Administrators");
         Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.grantRole(adminAgent, administratorRole);
-        identityManager.grantRole(someAgent, administratorRole);
+        identityManager.grantRole(agentType, administratorRole);
+        identityManager.grantRole(someagent, administratorRole);
 
-        IdentityQuery<Agent> query = identityManager.createIdentityQuery(Agent.class);
+        IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_ROLE, administratorRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole.getName());
 
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
-        assertTrue(contains(result, adminAgent.getLoginName()));
-        assertTrue(contains(result, someAgent.getLoginName()));
-
-        identityManager.grantRole(adminAgent, someRole);
-
-        query = identityManager.createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.HAS_ROLE, administratorRole.getName(), someRole.getName());
-
-        result = query.getResultList();
+        List<T> result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, adminAgent.getLoginName()));
-    }
+        assertTrue(contains(result, agentType.getId()));
+        assertTrue(contains(result, someagent.getId()));
 
-    @Test
-    public void testFindEnabledAndDisabledAgents() throws Exception {
-        Agent someAgent = createAgent("someAgent");
-        Agent someAnotherAgent = createAgent("someAnotherAgent");
+        identityManager.grantRole(agentType, someRole);
 
-        someAgent.setEnabled(true);
-        someAnotherAgent.setEnabled(true);
+        query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        IdentityManager identityManager = getIdentityManager();
-
-        identityManager.update(someAgent);
-        identityManager.update(someAnotherAgent);
-
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.ENABLED, true);
-
-        // all enabled users
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.ENABLED, false);
-
-        // only disabled users. No users are disabled.
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-
-        someAgent.setEnabled(false);
-
-        // let's disabled the user and try to find him
-        identityManager.update(someAgent);
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.ENABLED, false);
-
-        // get the previously disabled user
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-
-        someAnotherAgent.setEnabled(false);
-
-        // let's disabled the user and try to find him
-        identityManager.update(someAnotherAgent);
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.ENABLED, true);
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testFindCreationDate() throws Exception {
-        Agent user = createAgent("someAgent");
-
-        IdentityManager identityManager = getIdentityManager();
-
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.CREATED_DATE, user.getCreatedDate());
-
-        // only the previously created user
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        Calendar futureDate = Calendar.getInstance();
-
-        futureDate.add(Calendar.MINUTE, 1);
-
-        query.setParameter(Agent.CREATED_DATE, futureDate.getTime());
-
-        // no users
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testFindExpiryDate() throws Exception {
-        Agent user = createAgent("someAgent");
-
-        Date expirationDate = new Date();
-
-        IdentityManager identityManager = getIdentityManager();
-
-        user = identityManager.getAgent("someAgent");
-
-        user.setExpirationDate(expirationDate);
-
-        identityManager.update(user);
-
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.EXPIRY_DATE, user.getExpirationDate());
-
-        // all expired users
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(user.getLoginName(), result.get(0).getLoginName());
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.add(Calendar.MINUTE, 1);
-
-        query.setParameter(Agent.EXPIRY_DATE, calendar.getTime());
-
-        // no users
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testFindBetweenCreationDate() throws Exception {
-        Agent someAgent = createAgent("someAgent");
-        Agent someAnotherAgent = createAgent("someAnotherAgent");
-
-        IdentityManager identityManager = getIdentityManager();
-
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.add(Calendar.YEAR, -1);
-
-        // users between the given time period
-        query.setParameter(Agent.CREATED_AFTER, calendar.getTime());
-        query.setParameter(Agent.CREATED_BEFORE, new Date());
-
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        Agent someFutureAgent = createAgent("someFutureAgent");
-        Agent someAnotherFutureAgent = createAgent("someAnotherFutureAgent");
-
-        // users created after the given time
-        query.setParameter(Agent.CREATED_AFTER, calendar.getTime());
+        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
 
         result = query.getResultList();
 
         assertFalse(result.isEmpty());
-        assertEquals(4, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherAgent.getLoginName()));
-        assertTrue(contains(result, someFutureAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherFutureAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        // users created before the given time
-        query.setParameter(Agent.CREATED_BEFORE, new Date());
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(4, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherAgent.getLoginName()));
-        assertTrue(contains(result, someFutureAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherFutureAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        calendar = Calendar.getInstance();
-
-        calendar.add(Calendar.MINUTE, 1);
-
-        query.setParameter(Agent.CREATED_AFTER, calendar.getTime());
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testFindUsingMultipleParameters() throws Exception {
-        Agent user = createAgent("admin");
-
-        IdentityManager identityManager = getIdentityManager();
-
-        identityManager.update(user);
-
-        user.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
-
-        identityManager.update(user);
-
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, user.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(Agent.LOGIN_NAME, "admin");
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue2");
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-        query.setParameter(Agent.LOGIN_NAME, "admin");
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, user.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-        query.setParameter(Agent.LOGIN_NAME, "Bad ID");
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testFindBetweenExpirationDate() throws Exception {
-        Agent someAgent = createAgent("someAgent");
-
-        Date currentDate = new Date();
-
-        someAgent.setExpirationDate(currentDate);
-
-        IdentityManager identityManager = getIdentityManager();
-
-        identityManager.update(someAgent);
-
-        Agent someAnotherAgent = createAgent("someAnotherAgent");
-
-        someAnotherAgent.setExpirationDate(currentDate);
-
-        identityManager.update(someAnotherAgent);
-
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.add(Calendar.YEAR, -1);
-
-        Date expiryDate = calendar.getTime();
-
-        // users between the given time period
-        query.setParameter(Agent.EXPIRY_AFTER, expiryDate);
-        query.setParameter(Agent.EXPIRY_BEFORE, currentDate);
-
-        Agent someFutureAgent = createAgent("someFutureAgent");
-
-        calendar = Calendar.getInstance();
-
-        calendar.add(Calendar.MINUTE, 1);
-
-        someFutureAgent.setExpirationDate(calendar.getTime());
-
-        identityManager.update(someFutureAgent);
-
-        Agent someAnotherFutureAgent = createAgent("someAnotherFutureAgent");
-
-        someAnotherFutureAgent.setExpirationDate(calendar.getTime());
-
-        identityManager.update(someAnotherFutureAgent);
-
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(2, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        // users expired after the given time
-        query.setParameter(Agent.EXPIRY_AFTER, expiryDate);
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(4, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherAgent.getLoginName()));
-        assertTrue(contains(result, someFutureAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherFutureAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        calendar = Calendar.getInstance();
-
-        calendar.add(Calendar.MINUTE, 1);
-
-        // users expired before the given time
-        query.setParameter(Agent.EXPIRY_BEFORE, calendar.getTime());
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(4, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherAgent.getLoginName()));
-        assertTrue(contains(result, someFutureAgent.getLoginName()));
-        assertTrue(contains(result, someAnotherFutureAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        calendar = Calendar.getInstance();
-
-        calendar.add(Calendar.MINUTE, 2);
-
-        // users expired after the given time. Should return an empty list.
-        query.setParameter(Agent.EXPIRY_AFTER, calendar.getTime());
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    @Test
-    public void testFindByAgentDefinedAttributes() throws Exception {
-        Agent someAgent = createAgent("someAgent");
-
-        someAgent.setAttribute(new Attribute<String>("someAttribute", "someAttributeValue"));
-
-        IdentityManager identityManager = getIdentityManager();
-
-        identityManager.update(someAgent);
-
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-
-        someAgent.setAttribute(new Attribute<String>("someAttribute", "someAttributeValueChanged"));
-
-        identityManager.update(someAgent);
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValue");
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-
-        someAgent.setAttribute(new Attribute<String>("someAttribute2", "someAttributeValue2"));
-
-        identityManager.update(someAgent);
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), "someAttributeValueChanged");
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), "someAttributeValue2");
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-    }
-
-    @Test
-    public void testFindByAgentDefinedMultiValuedAttributes() throws Exception {
-        Agent someAgent = createAgent("someAgent");
-
-        someAgent.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
-                "someAttributeValue2" }));
-
-        IdentityManager identityManager = getIdentityManager();
-
-        identityManager.update(someAgent);
-
-        IdentityQuery<Agent> query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
-                "someAttributeValue2" });
-
-        List<Agent> result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttributeValue1",
-                "someAttributeValue2" });
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValueChanged",
-                "someAttributeValue2" });
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue" });
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-
-        someAgent.setAttribute(new Attribute<String[]>("someAttribute", new String[] { "someAttributeValue1",
-                "someAttributeValueChanged" }));
-        someAgent.setAttribute(new Attribute<String[]>("someAttribute2", new String[] { "someAttribute2Value1",
-                "someAttribute2Value2" }));
-
-        identityManager.update(someAgent);
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
-                "someAttributeValueChanged" });
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttribute2Value1",
-                "someAttribute2Value2" });
-
-        result = query.getResultList();
-
-        assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertTrue(contains(result, someAgent.getLoginName()));
-
-        query = identityManager.<Agent> createIdentityQuery(Agent.class);
-
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute"), new Object[] { "someAttributeValue1",
-                "someAttributeValueChanged" });
-        query.setParameter(IdentityType.ATTRIBUTE.byName("someAttribute2"), new Object[] { "someAttribute2ValueChanged",
-                "someAttribute2Value2" });
-
-        result = query.getResultList();
-
-        assertTrue(result.isEmpty());
-    }
-
-    private boolean contains(List<Agent> result, String userId) {
-        for (Agent resultAgent : result) {
-            if (resultAgent.getLoginName().equals(userId)) {
-                return true;
-            }
-        }
-
-        return false;
+        assertTrue(contains(result, agentType.getId()));
+        assertFalse(contains(result, someagent.getId()));
     }
 }
