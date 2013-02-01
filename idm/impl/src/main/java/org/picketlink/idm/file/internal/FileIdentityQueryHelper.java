@@ -87,7 +87,7 @@ public class FileIdentityQueryHelper {
         if (values != null) {
             Role currentRole = (Role) identityType;
 
-            List<FileRelationshipStorage> relationships = identityStore.getRelationshipsForCurrentPartition().get(
+            List<FileRelationship> relationships = identityStore.getRelationshipsForCurrentPartition().get(
                     Grant.class.getName());
 
             if (relationships == null) {
@@ -100,15 +100,17 @@ public class FileIdentityQueryHelper {
                 Agent agent = (Agent) object;
 
                 if (agent != null) {
-                    for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                    for (FileRelationship storedRelationship : new ArrayList<FileRelationship>(relationships)) {
                         Grant grant = identityStore.convertToRelationship(storedRelationship);
+                        
+                        if (grant != null) {
+                            if (!grant.getRole().getId().equals(currentRole.getId())) {
+                                continue;
+                            }
 
-                        if (!grant.getRole().getId().equals(currentRole.getId())) {
-                            continue;
-                        }
-
-                        if (grant.getAssignee().getId().equals(agent.getId())) {
-                            valuesMatchCount--;
+                            if (grant.getAssignee().getId().equals(agent.getId())) {
+                                valuesMatchCount--;
+                            }
                         }
                     }
                 }
@@ -128,7 +130,7 @@ public class FileIdentityQueryHelper {
         if (values != null) {
             Group currentGroup = (Group) identityType;
 
-            List<FileRelationshipStorage> relationships = identityStore.getRelationshipsForCurrentPartition().get(
+            List<FileRelationship> relationships = identityStore.getRelationshipsForCurrentPartition().get(
                     GroupMembership.class.getName());
 
             if (relationships == null) {
@@ -139,15 +141,17 @@ public class FileIdentityQueryHelper {
             for (Object object : values) {
                 Agent agent = (Agent) object;
 
-                for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                for (FileRelationship storedRelationship : new ArrayList<FileRelationship>(relationships)) {
                     GroupMembership grant = identityStore.convertToRelationship(storedRelationship);
 
-                    if (!grant.getGroup().getId().equals(currentGroup.getId())) {
-                        continue;
-                    }
+                    if (grant != null) {
+                        if (!grant.getGroup().getId().equals(currentGroup.getId())) {
+                            continue;
+                        }
 
-                    if (grant.getMember().getId().equals(agent.getId())) {
-                        valuesMatchCount--;
+                        if (grant.getMember().getId().equals(agent.getId())) {
+                            valuesMatchCount--;
+                        }
                     }
                 }
 

@@ -23,51 +23,38 @@
 package org.picketlink.idm.file.internal;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Relationship;
+import org.jboss.security.identity.plugins.SimpleRole;
+import org.picketlink.idm.model.Role;
 
 /**
- * <p> {@link Serializable} class used to store {@link Relationship} metadata.</p>
- * 
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
+ * @author Pedro Silva
  * 
  */
-public class FileRelationshipStorage implements Serializable {
+public class FileRole extends AbstractIdentityTypeEntry<Role> {
 
-    private static final long serialVersionUID = -349640861496483678L;
+    private static final long serialVersionUID = 1L;
 
-    private Map<String, IdentityType> identityTypes = new HashMap<String, IdentityType>();
-    private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
+    private static final transient String FILE_Role_VERSION = "1";
 
-    private String id;
+    public FileRole(Role role) {
+        super(FILE_Role_VERSION, role);
+    }
 
-    private String type;
+    @Override
+    protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
+        super.doPopulateProperties(properties);
+        
+        Role role = getEntry();
+        
+        properties.put("name", role.getName());
+    }
 
-    public Map<String, IdentityType> getIdentityTypes() {
-        return this.identityTypes;
+    @Override
+    protected Role doCreateInstance(Map<String, Serializable> properties) throws Exception {
+        String name = properties.get("name").toString(); 
+        return (Role) new SimpleRole(name);
     }
     
-    public Map<String, Serializable> getAttributes() {
-        return this.attributes;
-    }
-
-    public String getId() {
-        return this.id;
-    }
-    
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getType() {
-        return this.type;
-    }
-    
-    public void setType(String type) {
-        this.type = type;
-    }
-
 }
