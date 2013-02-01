@@ -23,6 +23,7 @@
 package org.picketlink.test.idm.partition;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -213,7 +214,9 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         testingRealmIdentityManager.grantRole(someUser, adminRole);
 
         assertTrue(testingRealmIdentityManager.hasRole(someUser, adminRole));
-        assertTrue(applicationTierIdentityManager.hasRole(someUser, adminRole));
+        
+        
+        assertFalse(applicationTierIdentityManager.hasRole(someUser, adminRole));
     }
 
 
