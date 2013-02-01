@@ -53,4 +53,6 @@ public interface Group extends IdentityType, Serializable {
      */
     Group getParentGroup();
 
+    void setParentGroup(Group group);
+
 }

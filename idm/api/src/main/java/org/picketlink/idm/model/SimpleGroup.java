@@ -53,8 +53,14 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
         return name;
     }
 
+    @Override
     public Group getParentGroup() {
         return parentGroup;
+    }
+    
+    @Override
+    public void setParentGroup(Group group) {
+        this.parentGroup = group;
     }
 
     @Override
