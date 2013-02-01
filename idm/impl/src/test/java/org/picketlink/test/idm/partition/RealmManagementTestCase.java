@@ -23,8 +23,11 @@
 package org.picketlink.test.idm.partition;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
@@ -170,6 +173,108 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     }
     
     @Test
+    public void testCreateSameUserDifferentRealms() throws Exception {
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        User defaultRealmUser = new SimpleUser("commonName");
+        
+        defaultIdentityManager.add(defaultRealmUser);
+        
+        try {
+            defaultIdentityManager.add(new SimpleUser(defaultRealmUser.getLoginName()));
+            fail();
+        } catch (Exception e) {
+        }
+        
+        Realm realm = createRealm();
+        
+        User testingRealmUser = new SimpleUser("commonName");
+        
+        // get a IdentityManager instance for the given realm and associate the user with the realm
+        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
+        
+        testingRealmManager.add(testingRealmUser);
+        
+        defaultRealmUser = defaultIdentityManager.getUser(defaultRealmUser.getLoginName());
+        
+        assertNotNull(defaultRealmUser);
+
+        testingRealmUser = testingRealmManager.getUser(testingRealmUser.getLoginName());
+        
+        assertNotNull(testingRealmUser);
+        
+        assertFalse(defaultRealmUser.getId().equals(testingRealmUser.getId()));
+    }
+    
+    @Test
+    public void testCreateSameRoleDifferentRealms() throws Exception {
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        Role defaultRealmRole = new SimpleRole("commonName");
+        
+        defaultIdentityManager.add(defaultRealmRole);
+        
+        try {
+            defaultIdentityManager.add(new SimpleRole(defaultRealmRole.getName()));
+            fail();
+        } catch (Exception e) {
+        }
+        
+        Realm realm = createRealm();
+        
+        Role testingRealmRole = new SimpleRole("commonName");
+        
+        // get a IdentityManager instance for the given realm and associate the Role with the realm
+        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
+        
+        testingRealmManager.add(testingRealmRole);
+        
+        defaultRealmRole = defaultIdentityManager.getRole(defaultRealmRole.getName());
+        
+        assertNotNull(defaultRealmRole);
+
+        testingRealmRole = testingRealmManager.getRole(testingRealmRole.getName());
+        
+        assertNotNull(testingRealmRole);
+        
+        assertFalse(defaultRealmRole.getId().equals(testingRealmRole.getId()));
+    }
+    
+    @Test
+    public void testCreateSameGroupDifferentRealms() throws Exception {
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        Group defaultRealmGroup = new SimpleGroup("commonName");
+        
+        defaultIdentityManager.add(defaultRealmGroup);
+        
+        try {
+            defaultIdentityManager.add(new SimpleGroup(defaultRealmGroup.getName()));
+            fail();
+        } catch (Exception e) {
+        }
+        
+        Realm realm = createRealm();
+        
+        Group testingRealmGroup = new SimpleGroup("commonName");
+        
+        // get a IdentityManager instance for the given realm and associate the Group with the realm
+        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
+        
+        testingRealmManager.add(testingRealmGroup);
+        
+        defaultRealmGroup = defaultIdentityManager.getGroup(defaultRealmGroup.getName());
+        
+        assertNotNull(defaultRealmGroup);
+
+        testingRealmGroup = testingRealmManager.getGroup(testingRealmGroup.getName());
+        
+        assertNotNull(testingRealmGroup);
+        
+        assertFalse(defaultRealmGroup.getId().equals(testingRealmGroup.getId()));
+    }
+    
+    @Test
     public void testCreateRoles() throws Exception {
         Realm realm = createRealm();
         
@@ -213,6 +318,65 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         testingGroup = defaultIdentityManager.getGroup(testingGroup.getName());
         
         assertNull(testingGroup);
+    }
+    
+    @Test
+    public void testRelationships() throws Exception {
+        IdentityManager defaultIdentityManager = getIdentityManager();
+        
+        User defaultRealmUser = new SimpleUser("defaultRealmUser");
+        Role defaultRealmRole = new SimpleRole("defaultRealmRole");
+        Group defaultRealmGroup = new SimpleGroup("defaultRealmGroup");
+        
+        defaultIdentityManager.add(defaultRealmUser);
+        defaultIdentityManager.add(defaultRealmRole);
+        defaultIdentityManager.add(defaultRealmGroup);
+        
+        defaultIdentityManager.grantRole(defaultRealmUser, defaultRealmRole);
+        defaultIdentityManager.addToGroup(defaultRealmUser, defaultRealmGroup);
+        defaultIdentityManager.grantGroupRole(defaultRealmUser, defaultRealmRole, defaultRealmGroup);
+
+        assertTrue(defaultIdentityManager.hasRole(defaultRealmUser, defaultRealmRole));
+        assertTrue(defaultIdentityManager.isMember(defaultRealmUser, defaultRealmGroup));
+        assertTrue(defaultIdentityManager.hasGroupRole(defaultRealmUser, defaultRealmRole, defaultRealmGroup));
+
+        Realm realm = createRealm();
+        
+        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
+        
+        assertFalse(testingRealmManager.hasRole(defaultRealmUser, defaultRealmRole));
+        assertFalse(testingRealmManager.isMember(defaultRealmUser, defaultRealmGroup));
+        assertFalse(testingRealmManager.hasGroupRole(defaultRealmUser, defaultRealmRole, defaultRealmGroup));
+        
+        User testingRealmUser = new SimpleUser("testingRealmUser");
+        Role testingRealmRole = new SimpleRole("testingRealmRole");
+        Group testingRealmGroup = new SimpleGroup("testingRealmGroup");
+        
+        testingRealmManager.add(testingRealmUser);
+        testingRealmManager.add(testingRealmRole);
+        testingRealmManager.add(testingRealmGroup);
+        
+        testingRealmManager.grantRole(testingRealmUser, testingRealmRole);
+        testingRealmManager.addToGroup(testingRealmUser, testingRealmGroup);
+        testingRealmManager.grantGroupRole(testingRealmUser, testingRealmRole, testingRealmGroup);
+        
+        assertTrue(testingRealmManager.hasRole(testingRealmUser, testingRealmRole));
+        assertTrue(testingRealmManager.isMember(testingRealmUser, testingRealmGroup));
+        assertTrue(testingRealmManager.hasGroupRole(testingRealmUser, testingRealmRole, testingRealmGroup));
+        
+        assertFalse(defaultIdentityManager.hasRole(testingRealmUser, testingRealmRole));
+        assertFalse(defaultIdentityManager.isMember(testingRealmUser, testingRealmGroup));
+        assertFalse(defaultIdentityManager.hasGroupRole(testingRealmUser, testingRealmRole, testingRealmGroup));
+        
+        assertFalse(defaultIdentityManager.hasRole(defaultRealmUser, testingRealmRole));
+        assertFalse(defaultIdentityManager.hasRole(testingRealmUser, defaultRealmRole));
+        
+        assertFalse(defaultIdentityManager.isMember(defaultRealmUser, testingRealmGroup));
+        assertFalse(defaultIdentityManager.isMember(testingRealmUser, defaultRealmGroup));
+
+        assertFalse(defaultIdentityManager.hasGroupRole(defaultRealmUser, testingRealmRole, defaultRealmGroup));
+        assertFalse(defaultIdentityManager.hasGroupRole(testingRealmUser, defaultRealmRole, testingRealmGroup));
+
     }
     
     private Realm createRealm() {
