@@ -559,7 +559,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
             if (agent != null && group != null) {
                 LDAPGroup groupEntry = lookupGroup(group.getName());
-                LDAPAgent agentEntry = lookupAgent(agent.getLoginName());
+                LDAPAgent agentEntry = lookupAgent(agent);
 
                 if (agentEntry != null && groupEntry.isMember(agentEntry)) {
                     results.add((T) new GroupMembership(agent, group));
@@ -607,7 +607,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             if (agent != null && group != null && role != null) {
                 LDAPGroup groupEntry = lookupGroup(group.getName());
                 LDAPRole roleEntry = lookupRole(role.getName());
-                LDAPAgent agentEntry = lookupAgent(agent.getLoginName());
+                LDAPAgent agentEntry = lookupAgent(agent);
 
                 if (agentEntry != null && groupEntry != null && roleEntry != null) {
                     LDAPGroupRole groupRoleEntry = null;
@@ -634,7 +634,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     }
                 }
             } else if (agent != null && role == null && group == null) {
-                LDAPAgent agentEntry = lookupAgent(agent.getLoginName());
+                LDAPAgent agentEntry = lookupAgent(agent);
 
                 if (agentEntry != null) {
                     NamingEnumeration<SearchResult> search = getLDAPManager().search(agentEntry.getDN(),
@@ -1363,7 +1363,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         if (Agent.class.isInstance(groupMembership.getMember())) {
             Agent agent = (Agent) groupMembership.getMember();
-            agentEntry = lookupAgent(agent.getLoginName());
+            agentEntry = lookupAgent(agent);
         }
 
         NamingEnumeration<SearchResult> search = lookupGroupRoleEntry(agentEntry, groupEntry);
@@ -1384,7 +1384,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         if (Agent.class.isInstance(groupMembership.getMember())) {
             Agent agent = (Agent) groupMembership.getMember();
-            agentEntry = lookupAgent(agent.getLoginName());
+            agentEntry = lookupAgent(agent);
         }
 
         removeMember(groupEntry, agentEntry);
@@ -1396,7 +1396,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         if (Agent.class.isInstance(grant.getAssignee())) {
             Agent agent = (Agent) grant.getAssignee();
-            agentEntry = lookupAgent(agent.getLoginName());
+            agentEntry = lookupAgent(agent);
         }
 
         removeMember(roleEntry, agentEntry);
