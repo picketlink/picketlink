@@ -238,17 +238,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         if (loginName != null) {
             LDAPAgent ldapAgent = lookupAgent(loginName);
 
-            if (ldapAgent != null && !LDAPUser.class.isInstance(ldapAgent)) {
-                agent = new SimpleAgent(ldapAgent.getLoginName());
+            if (ldapAgent != null) {
+                if (LDAPUser.class.isInstance(ldapAgent)) {
+                    agent = getUser(loginName);
+                } else {
+                    agent = new SimpleAgent(ldapAgent.getLoginName());
 
-                agent.setLoginName(ldapAgent.getLoginName());
+                    agent.setLoginName(ldapAgent.getLoginName());
 
-                populateIdentityType(ldapAgent, agent);
+                    populateIdentityType(ldapAgent, agent);
+                }
             }
-        }
-
-        if (agent == null) {
-            agent = getUser(loginName);
         }
 
         return agent;
@@ -958,7 +958,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         populateLDAPOperationAttributes(identityType);
 
-        // for now, the store is not supporting partitions. ldap does not pprovide a good attribute to hold such
+        // for now, the store is not supporting partitions. ldap does not provide a good attribute to hold such
         // information.
         // maybe in this case we should mix stores.
         identityType.setPartition(new Realm(Realm.DEFAULT_REALM));
@@ -1218,7 +1218,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             }
 
             addMember(groupRoleEntry, roleEntry);
-
             addGrantRelationship(new Grant(agent, role));
             addGroupMembership(new GroupMembership(agent, group));
         } else {
