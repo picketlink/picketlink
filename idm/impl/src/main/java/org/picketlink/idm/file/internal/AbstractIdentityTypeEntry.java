@@ -26,8 +26,11 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Tier;
 
 /**
  * @author Pedro Silva
@@ -45,7 +48,17 @@ public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends 
     protected T doPopulateEntry(Map<String, Serializable> properties) throws Exception {
         T identityType = super.doPopulateEntry(properties);
 
-        Realm partition = new Realm(properties.get("partitionName").toString());
+        String partitionType = properties.get("partitionType").toString();
+        
+        Partition partition = null;
+        
+        if (partitionType.equals(Realm.class.getName())) {
+            partition = new Realm(properties.get("partitionName").toString());
+        } else if (partitionType.equals(Tier.class.getName())) { 
+            partition = new Tier(properties.get("partitionName").toString());
+        } else {
+            throw new IdentityManagementException("Unsupported partition type [" + partitionType + "].");
+        } 
 
         partition.setId(properties.get("partitionId").toString());
 
@@ -66,6 +79,7 @@ public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends 
 
         properties.put("partitionName", identityType.getPartition().getName());
         properties.put("partitionId", identityType.getPartition().getId());
+        properties.put("partitionType", identityType.getPartition().getClass().getName());
         properties.put("createdDate", identityType.getCreatedDate());
         properties.put("expirationDate", identityType.getExpirationDate());
         properties.put("enabled", identityType.isEnabled());

@@ -258,7 +258,7 @@ public class LDAPQuery {
         for (Agent agent : members) {
             if (agent != null) {
                 if (Agent.class.isInstance(agent)) {
-                    LDAPAgent ldapAgent = this.identityStore.lookupAgent(agent.getLoginName());
+                    LDAPAgent ldapAgent = this.identityStore.lookupAgent(agent);
 
                     if (ldapAgent != null) {
                         membersFilter = membersFilter + "(member=" + ldapAgent.getDN() + ")";

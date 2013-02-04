@@ -241,7 +241,24 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Agent getAgent(String loginName) {
-        return getAgentsForCurrentRealm().get(loginName);
+        Agent agent = getAgentsForCurrentRealm().get(loginName);
+
+        configurePartition(agent);
+
+        return agent;
+    }
+
+    private void configurePartition(IdentityType identityType) {
+        if (identityType != null && identityType.getPartition() != null) {
+            Partition partition = this.partitionStore.lookupById(identityType.getPartition().getId());
+
+            if (partition == null) {
+                throw new IdentityManagementException("IdentityType is associated with a non-existent partition with id ["
+                        + identityType.getPartition().getId() + "]");
+            }
+
+            identityType.setPartition(partition);
+        }
     }
 
     @Override
@@ -263,11 +280,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public Group getGroup(String groupName) {
         Group group = lookupGroup(groupName, getCurrentPartition());
-        
+
         if (group != null && group.getParentGroup() != null) {
             group.setParentGroup(getGroup(group.getParentGroup().getName()));
         }
-        
+
         return group;
     }
 
@@ -336,8 +353,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     QueryParameter queryParameter = entry.getKey();
                     Object[] values = entry.getValue();
 
-                    if (entry.getKey() instanceof RelationshipQueryParameter) {
-                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) entry.getKey();
+                    if (queryParameter instanceof RelationshipQueryParameter) {
+                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
                         int valuesMathCount = values.length;
 
                         IdentityType identityTypeRel = lookupIdentityTypeById(storedRelationship
@@ -429,6 +446,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
+        @SuppressWarnings("rawtypes")
         Collection entries = new ArrayList<T>();
 
         Object[] partitionParameters = identityQuery.getParameter(IdentityType.PARTITION);
@@ -480,7 +498,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
                 continue;
             }
-
+            
             typesCount++;
 
             if (!isQueryParameterEquals(identityQuery, IdentityType.ID, storedEntry.getId())) {
@@ -551,13 +569,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 continue;
             }
 
-            Map<QueryParameter, Object[]> attributeParameters = identityQuery
-                    .getParameters(AttributedType.AttributeParameter.class);
-
-            if (!attributeParameters.isEmpty()) {
-                if (!queryHelper.matchAttributes(storedEntry, attributeParameters)) {
-                    continue;
-                }
+            if (!queryHelper.matchAttributes(storedEntry)) {
+                continue;
             }
 
             if (!queryHelper.matchHasRole(storedEntry)) {
@@ -592,6 +605,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
 
+            configurePartition(storedEntry);
+            
             result.add((T) storedEntry);
         }
 
@@ -672,16 +687,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
 
             for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
-                IdentityType identityType = lookupIdentityTypeById(fileRelationship.getIdentityTypeId(annotatedProperty.getName()));
-                
+                IdentityType identityType = lookupIdentityTypeById(fileRelationship.getIdentityTypeId(annotatedProperty
+                        .getName()));
+
                 if (identityType == null) {
                     return null;
                 }
-                
-                annotatedProperty.setValue(clonedRelationship,
-                        identityType);
+
+                annotatedProperty.setValue(clonedRelationship, identityType);
             }
-            
+
             updateAttributedType(storedRelationship, clonedRelationship);
         } catch (Exception e) {
             throw new IdentityManagementException("Could not create relationship instance.", e);
@@ -701,7 +716,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Role lookupRole(Role role) throws IdentityManagementException {
         if (role.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
+            throw new IdentityManagementException("No name was provided.");
         }
 
         Role storedRole = getRole(role.getName());
@@ -710,6 +725,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             throw new IdentityManagementException("No Role found with the given name [" + role.getName()
                     + "] for the current Partition [" + getCurrentPartition().getName() + "].");
         }
+
         return storedRole;
     }
 
@@ -724,7 +740,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Group lookupGroup(Group group) throws IdentityManagementException {
         if (group.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
+            throw new IdentityManagementException("No name was provided.");
         }
 
         Group storedGroup = getGroup(group.getName());
@@ -748,7 +764,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Agent lookupAgent(Agent agent) throws IdentityManagementException {
         if (agent.getLoginName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
+            throw new IdentityManagementException("No loginName was provided.");
         }
 
         Agent storedAgent = getAgent(agent.getLoginName());
@@ -814,9 +830,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private void storeRole(Role role) {
         FilePartition filePartition = getDataSource().getPartition(role.getPartition().getId());
-        
+
         filePartition.getRoles().put(role.getName(), new FileRole(role));
-        
+
         getDataSource().flushRoles(filePartition);
     }
 
@@ -840,7 +856,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Group fileGroup = null;
 
         if (group.getParentGroup() != null) {
-            fileGroup = new SimpleGroup(group.getName(), lookupGroup(group.getParentGroup()));
+            Group lookupGroup = lookupGroup(group.getParentGroup());
+
+            if (lookupGroup == null) {
+                throw new IdentityManagementException("No parent group found with the given name ["
+                        + group.getParentGroup().getName() + "].");
+            }
+
+            fileGroup = new SimpleGroup(group.getName(), lookupGroup);
         } else {
             fileGroup = new SimpleGroup(group.getName());
         }
@@ -855,9 +878,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private void storeGroup(Group fileGroup) {
         FilePartition partition = getDataSource().getPartition(fileGroup.getPartition().getId());
-        
+
         partition.getGroups().put(fileGroup.getName(), new FileGroup(fileGroup));
-        
+
         getDataSource().flushGroups(partition);
     }
 
@@ -902,9 +925,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private void storeAgent(Agent storedAgent) {
         FilePartition filePartition = getDataSource().getPartition(storedAgent.getPartition().getId());
-        
+
         filePartition.getAgents().put(storedAgent.getLoginName(), new FileAgent(storedAgent));
-        
+
         getDataSource().flushAgents(filePartition);
     }
 
@@ -949,7 +972,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             relationships = new ArrayList<FileRelationship>();
             relationshipsMap.put(newRelationship.getClass().getName(), relationships);
         }
-        
+
         relationships.add(fileRelationship);
         getDataSource().flushRelationships();
 
@@ -1060,7 +1083,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
         }
-        
+
         getContext().getEventBridge().raiseEvent(new RelationshipUpdatedEvent(relationship));
     }
 
@@ -1127,6 +1150,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
         }
+        
+        configurePartition(role);
 
         return role;
     }
@@ -1153,6 +1178,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
         }
+        
+        configurePartition(group);
 
         return group;
     }
@@ -1170,12 +1197,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(relationships)) {
             Relationship storedRelationship = fileRelationship.getEntry();
-            
+
             if (storedRelationship.getId().equals(relationship.getId())) {
                 relationships.remove(fileRelationship);
             }
         }
 
+        getDataSource().flushRelationships();
         getContext().getEventBridge().raiseEvent(new RelationshipDeletedEvent(relationship));
     }
 
@@ -1191,9 +1219,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Role storedRole = lookupRole(role);
 
         FilePartition partition = getDataSource().getPartition(storedRole.getPartition().getId());
-        
+
         partition.getRoles().remove(storedRole.getName());
-        
+
         getDataSource().flushRoles(partition);
 
         removeRelationships(storedRole);
@@ -1213,13 +1241,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Group storedGroup = lookupGroup(group);
 
         FilePartition partition = getDataSource().getPartition(storedGroup.getPartition().getId());
-        
+
         partition.getGroups().remove(storedGroup.getName());
-        
+
         getDataSource().flushGroups(partition);
 
         removeRelationships(storedGroup);
-        
+
         getContext().getEventBridge().raiseEvent(new GroupDeletedEvent(group));
     }
 
@@ -1234,12 +1262,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Agent storedAgent = lookupAgent(agent);
 
         FilePartition partition = getDataSource().getPartition(storedAgent.getPartition().getId());
-        
+
         partition.getAgents().remove(storedAgent.getLoginName());
-        
+
         getDataSource().flushAgents(partition);
         removeRelationships(storedAgent);
-        
+
         this.credentialStore.removeCredentials(storedAgent);
 
         if (IDMUtil.isUserType(agent.getClass())) {
@@ -1248,7 +1276,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         getContext().getEventBridge().raiseEvent(new AgentDeletedEvent(agent));
     }
-    
+
     public void removeRelationships(IdentityType identityType) {
         Set<Entry<String, List<FileRelationship>>> allRelationships = getDataSource().getRelationships().entrySet();
 
@@ -1261,9 +1289,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
         }
+
+        getDataSource().flushRelationships();
     }
-
-
 
     /**
      * <p>
@@ -1369,7 +1397,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             throw new IdentityManagementException("No identifier provided.");
         }
     }
-    
+
     private FileDataSource getDataSource() {
         return getConfig().getDataSource();
     }

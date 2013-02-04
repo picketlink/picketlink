@@ -86,7 +86,7 @@ public class FileAgent extends AbstractIdentityTypeEntry<Agent> {
 
             Serializable email = properties.get("email");
             
-            if (firstName != null) {
+            if (email != null) {
                 user.setEmail(email.toString());                
             }
         }

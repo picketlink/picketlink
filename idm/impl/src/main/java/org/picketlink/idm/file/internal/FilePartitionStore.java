@@ -161,4 +161,8 @@ public class FilePartitionStore implements PartitionStore {
     private Map<String, FilePartition> getPartitions() {
         return getDataSource().getPartitions();
     }
+
+    public Partition lookupById(String id) {
+        return getPartitions().get(id).getPartition();
+    }
 }
