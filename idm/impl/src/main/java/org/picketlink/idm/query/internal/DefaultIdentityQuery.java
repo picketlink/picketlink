@@ -7,8 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.naming.ldap.LdapContext;
-
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -28,8 +26,6 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private Class<T> identityType;
     private int offset;
     private int limit;
-    private LdapContext context;
-    private byte[] cookie;
     
     public DefaultIdentityQuery(Class<T> identityType, IdentityStore<?> identityStore) {
         this.identityStore = identityStore;

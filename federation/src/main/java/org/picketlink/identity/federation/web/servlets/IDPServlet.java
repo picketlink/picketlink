@@ -46,13 +46,13 @@ import javax.xml.crypto.dsig.CanonicalizationMethod;
 
 import org.apache.log4j.Logger;
 import org.picketlink.common.ErrorCodes;
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.KeyProviderType;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.KeyProviderType;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.handler.config.Handlers;
 import org.picketlink.identity.federation.core.impl.DelegatedAttributeManager;
 import org.picketlink.identity.federation.core.interfaces.AttributeManager;
 import org.picketlink.identity.federation.core.interfaces.ProtocolContext;

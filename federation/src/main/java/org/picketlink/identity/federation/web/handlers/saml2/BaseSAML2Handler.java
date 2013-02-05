@@ -26,7 +26,7 @@ import javax.servlet.http.HttpSession;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.config.federation.IDPType;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;

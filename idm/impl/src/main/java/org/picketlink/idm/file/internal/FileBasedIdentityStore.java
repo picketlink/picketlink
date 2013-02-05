@@ -28,13 +28,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
@@ -58,14 +60,13 @@ import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
 import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.internal.util.IDMUtil;
-import org.picketlink.idm.internal.util.properties.Property;
-import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
-import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
-import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
@@ -82,6 +83,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
+import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -97,8 +99,7 @@ import org.picketlink.idm.spi.PartitionStore;
  * 
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
-public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore,
-        PartitionStore {
+public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore, PartitionStore {
 
     private FileIdentityStoreConfiguration config;
     private IdentityStoreInvocationContext context;
@@ -113,9 +114,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         this.credentialStore = new FileCredentialStore(this);
         this.partitionStore = new FilePartitionStore(this);
-        
+
         if (this.context.getRealm() == null) {
-            this.context.setRealm(getRealm(Realm.DEFAULT_REALM));
+            Realm defaultRealm = getRealm(Realm.DEFAULT_REALM);
+
+            if (defaultRealm == null) {
+                defaultRealm = new Realm(Realm.DEFAULT_REALM);
+                createPartition(defaultRealm);
+            }
+
+            this.context.setRealm(defaultRealm);
         }
     }
 
@@ -166,7 +174,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 throw createUnsupportedIdentityTypeException(identityTypeClass);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
-            addRelationship((Relationship) attributedType);
+            Relationship relationship = (Relationship) attributedType;
+
+            addRelationship(relationship);
+
+            if (GroupRole.class.isInstance(relationship)) {
+                GroupRole groupRole = (GroupRole) relationship;
+
+                addRelationship(new Grant(groupRole.getMember(), groupRole.getRole()));
+                addRelationship(new GroupMembership(groupRole.getMember(), groupRole.getGroup()));
+            }
         } else {
             throw createUnsupportedAttributedType(attributedType.getClass());
         }
@@ -224,7 +241,24 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Agent getAgent(String loginName) {
-        return getAgentsForCurrentRealm().get(loginName);
+        Agent agent = getAgentsForCurrentRealm().get(loginName);
+
+        configurePartition(agent);
+
+        return agent;
+    }
+
+    private void configurePartition(IdentityType identityType) {
+        if (identityType != null && identityType.getPartition() != null) {
+            Partition partition = this.partitionStore.lookupById(identityType.getPartition().getId());
+
+            if (partition == null) {
+                throw new IdentityManagementException("IdentityType is associated with a non-existent partition with id ["
+                        + identityType.getPartition().getId() + "]");
+            }
+
+            identityType.setPartition(partition);
+        }
     }
 
     @Override
@@ -245,7 +279,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Group getGroup(String groupName) {
-        return lookupGroup(groupName, getCurrentPartition());
+        Group group = lookupGroup(groupName, getCurrentPartition());
+
+        if (group != null && group.getParentGroup() != null) {
+            group.setParentGroup(getGroup(group.getParentGroup().getName()));
+        }
+
+        return group;
     }
 
     @Override
@@ -264,15 +304,15 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
         int limit = identityQuery.getLimit();
         int offset = identityQuery.getOffset();
-        
+
         identityQuery.setLimit(0);
         identityQuery.setOffset(0);
-        
+
         int resultCount = identityQuery.getResultList().size();
-        
+
         identityQuery.setLimit(limit);
         identityQuery.setOffset(offset);
-        
+
         return resultCount;
     }
 
@@ -297,13 +337,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<T> result = new ArrayList<T>();
 
         Class<T> relationshipType = query.getRelationshipType();
-        List<FileRelationshipStorage> relationships = getRelationshipsForCurrentPartition().get(relationshipType.getName());
+        List<FileRelationship> relationships = getRelationshipsForCurrentPartition().get(relationshipType.getName());
 
         if (relationships == null) {
             return result;
         }
 
-        for (FileRelationshipStorage storedRelationship : relationships) {
+        for (FileRelationship storedRelationship : relationships) {
             boolean match = false;
 
             if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
@@ -313,28 +353,37 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     QueryParameter queryParameter = entry.getKey();
                     Object[] values = entry.getValue();
 
-                    if (entry.getKey() instanceof RelationshipQueryParameter) {
-                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) entry.getKey();
+                    if (queryParameter instanceof RelationshipQueryParameter) {
+                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
                         int valuesMathCount = values.length;
 
-                        IdentityType identityTypeRel = storedRelationship.getIdentityTypes().get(
-                                identityTypeParameter.getName());
+                        IdentityType identityTypeRel = lookupIdentityTypeById(storedRelationship
+                                .getIdentityTypeId(identityTypeParameter.getName()));
 
-                        for (Object object : values) {
-                            IdentityType identityType = (IdentityType) object;
+                        if (identityTypeRel != null) {
+                            for (Object object : values) {
+                                IdentityType identityType = (IdentityType) object;
 
-                            if (identityTypeRel.getClass().isInstance(identityType)
-                                    && identityTypeRel.getId().equals(identityType.getId())) {
-                                valuesMathCount--;
+                                if (identityTypeRel.getClass().isInstance(identityType)
+                                        && identityTypeRel.getId().equals(identityType.getId())) {
+                                    valuesMathCount--;
+                                }
                             }
-                        }
 
-                        match = valuesMathCount <= 0;
+                            match = valuesMathCount <= 0;
+                        }
                     }
 
                     if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && values != null) {
                         AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
-                        Serializable userAttributeValue = storedRelationship.getAttributes().get(customParameter.getName());
+                        Attribute<Serializable> userAttribute = storedRelationship.getEntry().getAttribute(
+                                customParameter.getName());
+
+                        Serializable userAttributeValue = null;
+
+                        if (userAttribute != null) {
+                            userAttributeValue = userAttribute.getValue();
+                        }
 
                         if (userAttributeValue != null) {
                             int count = values.length;
@@ -373,6 +422,20 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return result;
     }
 
+    private IdentityType lookupIdentityTypeById(String identityTypeId) {
+        IdentityQuery<IdentityType> query = new DefaultIdentityQuery<IdentityType>(IdentityType.class, this);
+
+        query.setParameter(IdentityType.ID, identityTypeId);
+
+        List<IdentityType> results = query.getResultList();
+
+        if (results.isEmpty()) {
+            return null;
+        }
+
+        return results.get(0);
+    }
+
     @Override
     public <T extends Relationship> int countQueryResults(RelationshipQuery<T> query) {
         throw createNotImplementedYetException();
@@ -383,7 +446,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery) {
         Class<T> identityTypeClass = identityQuery.getIdentityType();
 
-        Set<?> entries = null;
+        @SuppressWarnings("rawtypes")
+        Collection entries = new ArrayList<T>();
 
         Object[] partitionParameters = identityQuery.getParameter(IdentityType.PARTITION);
         Partition partition = null;
@@ -393,36 +457,32 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
 
         if (IdentityType.class.equals(identityTypeClass)) {
-            Map<String, IdentityType> allIdentityTypes = new HashMap<String, IdentityType>();
-
             if (partition == null) {
-                allIdentityTypes.putAll(getAgentsForCurrentRealm());
-                allIdentityTypes.putAll(getRolesForCurrentPartition());
-                allIdentityTypes.putAll(getGroupsForCurrentPartition());
+                entries.addAll(getAgentsForCurrentRealm().values());
+                entries.addAll(getRolesForCurrentPartition().values());
+                entries.addAll(getGroupsForCurrentPartition().values());
             } else {
-                allIdentityTypes.putAll(getAgentsForPartition(partition));
-                allIdentityTypes.putAll(getRolesForPartition(partition));
-                allIdentityTypes.putAll(getGroupsForPartition(partition));
+                entries.addAll(getAgentsForPartition(partition).values());
+                entries.addAll(getRolesForPartition(partition).values());
+                entries.addAll(getGroupsForPartition(partition).values());
             }
-
-            entries = allIdentityTypes.entrySet();
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
             if (partition == null) {
-                entries = getAgentsForCurrentRealm().entrySet();
+                entries = getAgentsForCurrentRealm().values();
             } else {
-                entries = getAgentsForPartition(partition).entrySet();
+                entries = getAgentsForPartition(partition).values();
             }
         } else if (IDMUtil.isRoleType(identityTypeClass)) {
             if (partition == null) {
-                entries = getRolesForCurrentPartition().entrySet();
+                entries = getRolesForCurrentPartition().values();
             } else {
-                entries = getRolesForPartition(partition).entrySet();
+                entries = getRolesForPartition(partition).values();
             }
         } else if (IDMUtil.isGroupType(identityTypeClass)) {
             if (partition == null) {
-                entries = getGroupsForCurrentPartition().entrySet();
+                entries = getGroupsForCurrentPartition().values();
             } else {
-                entries = getGroupsForPartition(partition).entrySet();
+                entries = getGroupsForPartition(partition).values();
             }
         } else {
             throw createUnsupportedIdentityTypeException(identityTypeClass);
@@ -431,11 +491,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<T> result = new ArrayList<T>();
 
         int typesCount = 0;
-        
-        for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
-            Entry<String, IdentityType> entry = (Entry<String, IdentityType>) iterator.next();
 
-            IdentityType storedEntry = entry.getValue();
+        for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
+            IdentityType storedEntry = (IdentityType) iterator.next();
 
             if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
                 continue;
@@ -502,22 +560,17 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             }
 
             FileIdentityQueryHelper queryHelper = new FileIdentityQueryHelper(identityQuery, this);
-            
+
             if (!queryHelper.matchCreatedDateParameters(storedEntry)) {
                 continue;
             }
-            
+
             if (!queryHelper.matchExpiryDateParameters(storedEntry)) {
                 continue;
             }
-            
-            Map<QueryParameter, Object[]> attributeParameters = identityQuery
-                    .getParameters(AttributedType.AttributeParameter.class);
-            
-            if (!attributeParameters.isEmpty()) {
-                if (!queryHelper.matchAttributes(storedEntry, attributeParameters)) {
-                    continue;
-                }
+
+            if (!queryHelper.matchAttributes(storedEntry)) {
+                continue;
             }
 
             if (!queryHelper.matchHasRole(storedEntry)) {
@@ -527,7 +580,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!queryHelper.matchMemberOf(storedEntry)) {
                 continue;
             }
-            
+
             if (!queryHelper.matchHasGroupRole(storedEntry)) {
                 continue;
             }
@@ -535,30 +588,30 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!queryHelper.matchRolesOf(storedEntry)) {
                 continue;
             }
-            
+
             if (!queryHelper.matchHasMember(storedEntry)) {
                 continue;
             }
-            
+
             if (identityQuery.getLimit() > 0) {
                 if (result.size() == identityQuery.getLimit()) {
                     return result;
                 }
-                
+
                 if (identityQuery.getOffset() > 0) {
                     if (typesCount <= identityQuery.getOffset()) {
                         continue;
                     }
                 }
             }
+
+            configurePartition(storedEntry);
             
             result.add((T) storedEntry);
         }
 
         return result;
     }
-
-
 
     @Override
     public void storeCredential(Agent agent, CredentialStorage storage) {
@@ -606,42 +659,50 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends Relationship> T convertToRelationship(FileRelationshipStorage storedRelationship) {
-        T relationship = null;
+    protected <T extends Relationship> T convertToRelationship(FileRelationship fileRelationship) {
         Class<T> relationshipType = null;
 
         try {
-            relationshipType = (Class<T>) Class.forName(storedRelationship.getType());
-        } catch (ClassNotFoundException e1) {
-            throw new IdentityManagementException("Could not get Relationship type [" + storedRelationship.getType() + "]");
+            relationshipType = (Class<T>) Class.forName(fileRelationship.getType());
+        } catch (Exception e) {
+            throw new IdentityManagementException("Could not find relationship type.");
         }
+
+        return cloneRelationship(fileRelationship, relationshipType);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Relationship> T cloneRelationship(FileRelationship fileRelationship, Class<?> relationshipType) {
+        T clonedRelationship = null;
 
         try {
-            relationship = relationshipType.newInstance();
+            clonedRelationship = (T) relationshipType.newInstance();
 
-            relationship.setId(storedRelationship.getId());
+            Relationship storedRelationship = fileRelationship.getEntry();
 
-            Set<Entry<String, IdentityType>> identityTypes = storedRelationship.getIdentityTypes().entrySet();
+            clonedRelationship.setId(storedRelationship.getId());
 
-            for (Entry<String, IdentityType> entry : identityTypes) {
-                List<Property<IdentityType>> annotatedTypes = PropertyQueries.<IdentityType> createQuery(relationshipType)
-                        .addCriteria(new NamedPropertyCriteria(entry.getKey())).getResultList();
+            List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
+                    .<IdentityType> createQuery(clonedRelationship.getClass())
+                    .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
 
-                Property<IdentityType> property = annotatedTypes.get(0);
+            for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
+                IdentityType identityType = lookupIdentityTypeById(fileRelationship.getIdentityTypeId(annotatedProperty
+                        .getName()));
 
-                property.setValue(relationship, entry.getValue());
+                if (identityType == null) {
+                    return null;
+                }
+
+                annotatedProperty.setValue(clonedRelationship, identityType);
             }
 
-            Set<Entry<String, Serializable>> attributes = storedRelationship.getAttributes().entrySet();
-
-            for (Entry<String, Serializable> entry : attributes) {
-                relationship.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
-            }
+            updateAttributedType(storedRelationship, clonedRelationship);
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IdentityManagementException("Could not create relationship instance.", e);
         }
-        
-        return relationship;
+
+        return clonedRelationship;
     }
 
     /**
@@ -655,7 +716,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Role lookupRole(Role role) throws IdentityManagementException {
         if (role.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
+            throw new IdentityManagementException("No name was provided.");
         }
 
         Role storedRole = getRole(role.getName());
@@ -664,6 +725,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             throw new IdentityManagementException("No Role found with the given name [" + role.getName()
                     + "] for the current Partition [" + getCurrentPartition().getName() + "].");
         }
+
         return storedRole;
     }
 
@@ -678,7 +740,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Group lookupGroup(Group group) throws IdentityManagementException {
         if (group.getName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
+            throw new IdentityManagementException("No name was provided.");
         }
 
         Group storedGroup = getGroup(group.getName());
@@ -702,7 +764,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Agent lookupAgent(Agent agent) throws IdentityManagementException {
         if (agent.getLoginName() == null) {
-            throw new IdentityManagementException("No identifier was provided.");
+            throw new IdentityManagementException("No loginName was provided.");
         }
 
         Agent storedAgent = getAgent(agent.getLoginName());
@@ -756,15 +818,22 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     + "] for the given Partition [" + getCurrentPartition().getName() + "]");
         }
 
-        SimpleRole fileRole = new SimpleRole(role.getName());
+        Role fileRole = new SimpleRole(role.getName());
 
         fileRole.setPartition(getCurrentPartition());
 
         updateIdentityType(role, fileRole);
 
-        getRolesForCurrentPartition().put(fileRole.getName(), fileRole);
-        flushRoles();
+        storeRole(fileRole);
         getContext().getEventBridge().raiseEvent(new RoleCreatedEvent(role));
+    }
+
+    private void storeRole(Role role) {
+        FilePartition filePartition = getDataSource().getPartition(role.getPartition().getId());
+
+        filePartition.getRoles().put(role.getName(), new FileRole(role));
+
+        getDataSource().flushRoles(filePartition);
     }
 
     /**
@@ -784,10 +853,17 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     + "] for the given Partition [" + getCurrentPartition().getName() + "]");
         }
 
-        SimpleGroup fileGroup = null;
+        Group fileGroup = null;
 
         if (group.getParentGroup() != null) {
-            fileGroup = new SimpleGroup(group.getName(), lookupGroup(group.getParentGroup()));
+            Group lookupGroup = lookupGroup(group.getParentGroup());
+
+            if (lookupGroup == null) {
+                throw new IdentityManagementException("No parent group found with the given name ["
+                        + group.getParentGroup().getName() + "].");
+            }
+
+            fileGroup = new SimpleGroup(group.getName(), lookupGroup);
         } else {
             fileGroup = new SimpleGroup(group.getName());
         }
@@ -796,9 +872,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(group, fileGroup);
 
-        getGroupsForCurrentPartition().put(fileGroup.getName(), fileGroup);
-        flushGroups();
+        storeGroup(fileGroup);
         getContext().getEventBridge().raiseEvent(new GroupCreatedEvent(group));
+    }
+
+    private void storeGroup(Group fileGroup) {
+        FilePartition partition = getDataSource().getPartition(fileGroup.getPartition().getId());
+
+        partition.getGroups().put(fileGroup.getName(), new FileGroup(fileGroup));
+
+        getDataSource().flushGroups(partition);
     }
 
     /**
@@ -818,8 +901,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(user, storedUser);
 
-        getAgentsForCurrentRealm().put(storedUser.getLoginName(), storedUser);
-        flushAgents();
+        storeAgent(storedUser);
         getContext().getEventBridge().raiseEvent(new UserCreatedEvent(storedUser));
     }
 
@@ -837,9 +919,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         updateIdentityType(agent, storedAgent);
 
-        getAgentsForCurrentRealm().put(storedAgent.getLoginName(), storedAgent);
-        flushAgents();
+        storeAgent(storedAgent);
         getContext().getEventBridge().raiseEvent(new AgentCreatedEvent(storedAgent));
+    }
+
+    private void storeAgent(Agent storedAgent) {
+        FilePartition filePartition = getDataSource().getPartition(storedAgent.getPartition().getId());
+
+        filePartition.getAgents().put(storedAgent.getLoginName(), new FileAgent(storedAgent));
+
+        getDataSource().flushAgents(filePartition);
     }
 
     /**
@@ -850,80 +939,44 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param relationship
      */
     private void addRelationship(Relationship relationship) {
-        FileRelationshipStorage fileRelationship = new FileRelationshipStorage();
-
-        fileRelationship.setId(relationship.getId());
-        fileRelationship.setType(relationship.getClass().getName());
-
-        updateRelationshipIdentity(relationship, fileRelationship);
-        updateRelationshipAttributes(relationship, fileRelationship);
-
-        Map<String, List<FileRelationshipStorage>> relationshipsMap = getRelationshipsForCurrentPartition();
-        List<FileRelationshipStorage> relationships = relationshipsMap.get(relationship.getClass().getName());
-
-        if (relationships == null) {
-            relationships = new ArrayList<FileRelationshipStorage>();
-            relationshipsMap.put(relationship.getClass().getName(), relationships);
+        if (relationship.getId() == null) {
+            relationship.setId(getContext().getIdGenerator().generate());
         }
 
-        relationships.add(fileRelationship);
-        flushRelationships();
-        getContext().getEventBridge().raiseEvent(new RelationshipCreatedEvent(relationship));
-    }
+        Relationship newRelationship = null;
 
-    /**
-     * <p>
-     * Updates the given {@link FileRelationshipStorage} instance with all {@link IdentityType} (relationship roles) properties
-     * of the given {@link Relationship} class. The properties should be annotated with the {@link RelationshipIdentity}
-     * annotation. This method also check if the {@link IdentityType} instances are already stored.
-     * </p>
-     * 
-     * @param relationship
-     * @param fileRelationship
-     */
-    private void updateRelationshipIdentity(Relationship relationship, FileRelationshipStorage fileRelationship) {
+        try {
+            newRelationship = relationship.getClass().newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        newRelationship.setId(relationship.getId());
+
         List<Property<IdentityType>> relationshipIdentityTypes = PropertyQueries
-                .<IdentityType> createQuery(relationship.getClass())
+                .<IdentityType> createQuery(newRelationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
-            IdentityType value = annotatedProperty.getValue(relationship);
-
-            if (Agent.class.isInstance(value)) {
-                Agent agent = (Agent) value;
-                lookupAgent(agent);
-            }
-
-            if (Role.class.isInstance(value)) {
-                Role role = (Role) value;
-                lookupRole(role);
-            }
-
-            if (Group.class.isInstance(value)) {
-                Group group = (Group) value;
-                lookupGroup(group);
-            }
-
-            fileRelationship.getIdentityTypes().put(annotatedProperty.getName(), value);
+            annotatedProperty.setValue(newRelationship, annotatedProperty.getValue(relationship));
         }
-    }
 
-    /**
-     * <p>
-     * Updates the given {@link FileRelationshipStorage} instance with all attributes from the given {@link Relationship} class.
-     * </p>
-     * 
-     * @param relationship
-     * @param fileRelationship
-     */
-    private void updateRelationshipAttributes(Relationship relationship, FileRelationshipStorage fileRelationship) {
-        fileRelationship.getAttributes().clear();
+        updateAttributedType(relationship, newRelationship);
 
-        Collection<Attribute<? extends Serializable>> attributes = relationship.getAttributes();
+        FileRelationship fileRelationship = new FileRelationship(newRelationship);
 
-        for (Attribute<? extends Serializable> attribute : attributes) {
-            fileRelationship.getAttributes().put(attribute.getName(), attribute.getValue());
+        Map<String, List<FileRelationship>> relationshipsMap = getDataSource().getRelationships();
+        List<FileRelationship> relationships = relationshipsMap.get(newRelationship.getClass().getName());
+
+        if (relationships == null) {
+            relationships = new ArrayList<FileRelationship>();
+            relationshipsMap.put(newRelationship.getClass().getName(), relationships);
         }
+
+        relationships.add(fileRelationship);
+        getDataSource().flushRelationships();
+
+        getContext().getEventBridge().raiseEvent(new RelationshipCreatedEvent(relationship));
     }
 
     /**
@@ -941,8 +994,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedRole, storedRole);
         }
 
-        getRolesForCurrentPartition().put(storedRole.getName(), storedRole);
-        flushRoles();
+        storeRole(storedRole);
         getContext().getEventBridge().raiseEvent(new RoleUpdatedEvent(updatedRole));
     }
 
@@ -960,8 +1012,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedGroup, storedGroup);
         }
 
-        getGroupsForCurrentPartition().put(storedGroup.getName(), storedGroup);
-        flushGroups();
+        storeGroup(storedGroup);
         getContext().getEventBridge().raiseEvent(new GroupUpdatedEvent(updatedGroup));
     }
 
@@ -984,8 +1035,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedUser, storedUser);
         }
 
-        getAgentsForCurrentRealm().put(storedUser.getLoginName(), storedUser);
-        flushAgents();
+        storeAgent(storedUser);
         getContext().getEventBridge().raiseEvent(new UserUpdatedEvent(updatedUser));
     }
 
@@ -1004,8 +1054,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             updateIdentityType(updatedAgent, storedAgent);
         }
 
-        getAgentsForCurrentRealm().put(storedAgent.getLoginName(), storedAgent);
-        flushAgents();
+        storeAgent(storedAgent);
         getContext().getEventBridge().raiseEvent(new AgentUpdatedEvent(updatedAgent));
     }
 
@@ -1017,17 +1066,24 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param relationship
      */
     private void updateRelationship(Relationship relationship) {
-        List<FileRelationshipStorage> relationships = getRelationshipsForCurrentPartition().get(
-                relationship.getClass().getName());
+        List<FileRelationship> relationships = getDataSource().getRelationships().get(relationship.getClass().getName());
 
-        for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+        for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(relationships)) {
+            Relationship storedRelationship = fileRelationship.getEntry();
+
             if (storedRelationship.getId().equals(relationship.getId())) {
-                updateAttributedType(relationship, convertToRelationship(storedRelationship));
-                updateRelationshipAttributes(relationship, storedRelationship);
+                for (Object object : storedRelationship.getAttributes().toArray()) {
+                    @SuppressWarnings("unchecked")
+                    Attribute<? extends Serializable> attribute = (Attribute<? extends Serializable>) object;
+                    storedRelationship.removeAttribute(attribute.getName());
+                }
+
+                for (Attribute<? extends Serializable> attrib : relationship.getAttributes()) {
+                    storedRelationship.setAttribute(attrib);
+                }
             }
         }
 
-        flushRelationships();
         getContext().getEventBridge().raiseEvent(new RelationshipUpdatedEvent(relationship));
     }
 
@@ -1094,6 +1150,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
         }
+        
+        configurePartition(role);
 
         return role;
     }
@@ -1120,6 +1178,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
         }
+        
+        configurePartition(group);
 
         return group;
     }
@@ -1133,16 +1193,17 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param relationship
      */
     private void removeRelationship(Relationship relationship) {
-        List<FileRelationshipStorage> relationships = getRelationshipsForCurrentPartition().get(
-                relationship.getClass().getName());
+        List<FileRelationship> relationships = getDataSource().getRelationships().get(relationship.getClass().getName());
 
-        for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+        for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(relationships)) {
+            Relationship storedRelationship = fileRelationship.getEntry();
+
             if (storedRelationship.getId().equals(relationship.getId())) {
-                relationships.remove(storedRelationship);
+                relationships.remove(fileRelationship);
             }
         }
 
-        flushRelationships();
+        getDataSource().flushRelationships();
         getContext().getEventBridge().raiseEvent(new RelationshipDeletedEvent(relationship));
     }
 
@@ -1157,11 +1218,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void removeRole(Role role) {
         Role storedRole = lookupRole(role);
 
-        getRolesForCurrentPartition().remove(storedRole.getName());
+        FilePartition partition = getDataSource().getPartition(storedRole.getPartition().getId());
+
+        partition.getRoles().remove(storedRole.getName());
+
+        getDataSource().flushRoles(partition);
 
         removeRelationships(storedRole);
-
-        flushRoles();
 
         getContext().getEventBridge().raiseEvent(new RoleDeletedEvent(role));
     }
@@ -1177,11 +1240,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void removeGroup(Group group) {
         Group storedGroup = lookupGroup(group);
 
-        getGroupsForCurrentPartition().remove(storedGroup.getName());
+        FilePartition partition = getDataSource().getPartition(storedGroup.getPartition().getId());
+
+        partition.getGroups().remove(storedGroup.getName());
+
+        getDataSource().flushGroups(partition);
 
         removeRelationships(storedGroup);
-
-        flushGroups();
 
         getContext().getEventBridge().raiseEvent(new GroupDeletedEvent(group));
     }
@@ -1196,12 +1261,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void removeAgent(Agent agent) {
         Agent storedAgent = lookupAgent(agent);
 
-        getAgentsForCurrentRealm().remove(storedAgent.getLoginName());
+        FilePartition partition = getDataSource().getPartition(storedAgent.getPartition().getId());
 
+        partition.getAgents().remove(storedAgent.getLoginName());
+
+        getDataSource().flushAgents(partition);
         removeRelationships(storedAgent);
-        this.credentialStore.removeCredentials(storedAgent);
 
-        flushAgents();
+        this.credentialStore.removeCredentials(storedAgent);
 
         if (IDMUtil.isUserType(agent.getClass())) {
             getContext().getEventBridge().raiseEvent(new UserDeletedEvent((User) agent));
@@ -1210,33 +1277,20 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         getContext().getEventBridge().raiseEvent(new AgentDeletedEvent(agent));
     }
 
-    /**
-     * <p>
-     * Removes all relationships for the given {@link IdentityType}.
-     * </p>
-     * 
-     * @param identityTypeToRemove
-     */
-    private void removeRelationships(IdentityType identityTypeToRemove) {
-        Set<Entry<String, List<FileRelationshipStorage>>> entrySet = getRelationshipsForCurrentPartition().entrySet();
+    public void removeRelationships(IdentityType identityType) {
+        Set<Entry<String, List<FileRelationship>>> allRelationships = getDataSource().getRelationships().entrySet();
 
-        for (Entry<String, List<FileRelationshipStorage>> entry : entrySet) {
-            List<FileRelationshipStorage> relationships = entry.getValue();
+        for (Entry<String, List<FileRelationship>> entry : allRelationships) {
+            List<FileRelationship> relationships = entry.getValue();
 
-            for (FileRelationshipStorage fileRelationshipStorage : new ArrayList<FileRelationshipStorage>(relationships)) {
-                Collection<IdentityType> identityTypes = fileRelationshipStorage.getIdentityTypes().values();
-
-                for (IdentityType relationshipIdentityType : identityTypes) {
-                    if (identityTypeToRemove.getClass().isInstance(relationshipIdentityType)) {
-                        if (identityTypeToRemove.getId().equals(relationshipIdentityType.getId())) {
-                            remove(convertToRelationship(fileRelationshipStorage));
-                        }
-                    }
+            for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(relationships)) {
+                if (fileRelationship.hasIdentityType(identityType.getId())) {
+                    relationships.remove(fileRelationship);
                 }
             }
         }
 
-        flushRelationships();
+        getDataSource().flushRelationships();
     }
 
     /**
@@ -1248,7 +1302,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @return
      */
     private Map<String, Group> getGroupsForPartition(Partition partition) {
-        return getConfig().getGroups(partition.getId());
+        return getDataSource().getGroups(partition);
     }
 
     /**
@@ -1260,7 +1314,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @return
      */
     private Map<String, Role> getRolesForPartition(Partition partition) {
-        return getConfig().getRoles(partition.getId());
+        return getDataSource().getRoles(partition);
     }
 
     /**
@@ -1272,7 +1326,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @return
      */
     private Map<String, Agent> getAgentsForPartition(Partition partition) {
-        return getConfig().getAgents(partition.getId());
+        return getDataSource().getAgents(partition);
     }
 
     /**
@@ -1282,8 +1336,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * 
      * @return
      */
-    protected Map<String, List<FileRelationshipStorage>> getRelationshipsForCurrentPartition() {
-        return getConfig().getRelationships(getContext());
+    protected Map<String, List<FileRelationship>> getRelationshipsForCurrentPartition() {
+        return getDataSource().getRelationships();
     }
 
     /**
@@ -1294,7 +1348,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @return
      */
     private Map<String, Role> getRolesForCurrentPartition() {
-        return getConfig().getRoles(getCurrentPartition().getId());
+        return getDataSource().getRoles(getCurrentPartition());
     }
 
     /**
@@ -1305,7 +1359,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @return
      */
     private Map<String, Group> getGroupsForCurrentPartition() {
-        return getConfig().getGroups(getCurrentPartition().getId());
+        return getDataSource().getGroups(getCurrentPartition());
     }
 
     /**
@@ -1316,23 +1370,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @return
      */
     private Map<String, Agent> getAgentsForCurrentRealm() {
-        return getConfig().getAgents(getContext());
-    }
-
-    private void flushRoles() {
-        getConfig().flushRoles(getContext());
-    }
-
-    private void flushGroups() {
-        getConfig().flushGroups(getContext());
-    }
-
-    private void flushAgents() {
-        getConfig().flushAgents(getContext());
-    }
-
-    private void flushRelationships() {
-        getConfig().flushRelationships(getContext());
+        return getDataSource().getAgents(getContext().getRealm());
     }
 
     private IdentityManagementException createNotImplementedYetException() {
@@ -1359,4 +1397,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             throw new IdentityManagementException("No identifier provided.");
         }
     }
+
+    private FileDataSource getDataSource() {
+        return getConfig().getDataSource();
+    }
+
 }

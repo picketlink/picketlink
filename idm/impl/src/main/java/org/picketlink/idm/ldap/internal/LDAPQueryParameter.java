@@ -56,10 +56,10 @@ public class LDAPQueryParameter {
     }
 
     public Attribute getMappedTo() {
-        Attribute mapped = LDAPAttributeMapper.map(queryParameter);
+        Attribute mapped = LDAPQueryAttributeMapper.map(queryParameter);
 
         if (mapped == null) {
-            mapped = LDAPAttributeMapper.mapCustom(getQueryParameter());
+            mapped = LDAPQueryAttributeMapper.mapCustom(getQueryParameter());
         }
 
         return mapped;
@@ -74,7 +74,7 @@ public class LDAPQueryParameter {
     }
 
     public boolean isMappedToManagedAttribute() {
-        return LDAPAttributeMapper.map(getQueryParameter()) != null && !isMembershipParameter();
+        return LDAPQueryAttributeMapper.map(getQueryParameter()) != null && !isMembershipParameter();
     }
 
     public boolean isMembershipParameter() {

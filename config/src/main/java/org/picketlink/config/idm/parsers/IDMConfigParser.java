@@ -34,11 +34,11 @@ import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.parsers.AbstractParser;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.common.util.StringUtil;
-import org.picketlink.identity.federation.core.config.idm.IDMType;
-import org.picketlink.identity.federation.core.config.idm.IdentityConfigurationType;
-import org.picketlink.identity.federation.core.config.idm.IdentityStoreInvocationContextFactoryType;
-import org.picketlink.identity.federation.core.config.idm.ObjectType;
-import org.picketlink.identity.federation.core.config.idm.StoreConfigurationType;
+import org.picketlink.config.idm.IDMType;
+import org.picketlink.config.idm.IdentityConfigurationType;
+import org.picketlink.config.idm.IdentityStoreInvocationContextFactoryType;
+import org.picketlink.config.idm.ObjectType;
+import org.picketlink.config.idm.StoreConfigurationType;
 
 /**
  * Stax based XML parser for Picketlink IDM configuration

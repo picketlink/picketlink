@@ -25,6 +25,7 @@ package org.picketlink.test.idm.basic;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
@@ -33,12 +34,18 @@ import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
- * Test case for {@link Agent} basic management operations.
+ * Test case for the {@link Agent} basic management operations using only the default realm.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -49,7 +56,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     @Test
     public void testCreate() throws Exception {
         Agent newAgent = createIdentityType();
-
+        
         IdentityManager identityManager = getIdentityManager();
 
         Agent storedAgent = identityManager.getAgent(newAgent.getLoginName());
@@ -102,6 +109,51 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         anotherAgent = identityManager.getAgent(anotherAgent.getLoginName());
         
         assertNotNull(anotherAgent);
+        
+        Role role = createRole("role");
+        Group group = createGroup("group", null);
+        
+        identityManager.grantRole(anotherAgent, role);
+        identityManager.addToGroup(anotherAgent, group);
+        identityManager.grantGroupRole(anotherAgent, role, group);
+        
+        RelationshipQuery<?> relationshipQuery = identityManager.createRelationshipQuery(Grant.class);
+        
+        relationshipQuery.setParameter(Grant.ASSIGNEE, anotherAgent);
+        
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+        
+        relationshipQuery = identityManager.createRelationshipQuery(GroupMembership.class);
+        
+        relationshipQuery.setParameter(GroupMembership.MEMBER, anotherAgent);
+        
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+        
+        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+        
+        relationshipQuery.setParameter(GroupRole.MEMBER, anotherAgent);
+        
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+        
+        identityManager.remove(anotherAgent);
+        
+        relationshipQuery = identityManager.createRelationshipQuery(Grant.class);
+        
+        relationshipQuery.setParameter(Grant.ASSIGNEE, anotherAgent);
+        
+        assertTrue(relationshipQuery.getResultList().isEmpty());
+        
+        relationshipQuery = identityManager.createRelationshipQuery(GroupMembership.class);
+        
+        relationshipQuery.setParameter(GroupMembership.MEMBER, anotherAgent);
+        
+        assertTrue(relationshipQuery.getResultList().isEmpty());
+        
+        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+        
+        relationshipQuery.setParameter(GroupRole.MEMBER, anotherAgent);
+        
+        assertTrue(relationshipQuery.getResultList().isEmpty());
     }
 
     @Override

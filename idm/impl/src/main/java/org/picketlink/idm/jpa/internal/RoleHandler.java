@@ -151,7 +151,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
             throw new IdentityManagementException("No name was provided.");
         }
         
-        if (store.getGroup(role.getName()) != null) {
+        if (store.getRole(role.getName()) != null) {
             throw new IdentityManagementException("Role already exists with the given loginName [" + role.getName() + "] for the given Partition [" + store.getCurrentPartition().getName() + "]");
         }
     }

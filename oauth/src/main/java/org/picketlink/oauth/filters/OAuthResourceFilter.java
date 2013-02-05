@@ -46,8 +46,9 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 
@@ -163,7 +164,10 @@ public class OAuthResourceFilter implements Filter {
             String storeType = context.getInitParameter("storeType");
             if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
                 LDAPIdentityStore store = new LDAPIdentityStore();
-                LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
+                LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
+                LDAPIdentityStoreConfiguration ldapConfiguration = (LDAPIdentityStoreConfiguration) builder.build();
+
+                // LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
 
                 Properties properties = getProperties();
                 ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(

@@ -22,16 +22,9 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.util.List;
-import java.util.Map;
-
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.Role;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -68,50 +61,6 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return this.featureSet;
     }
 
-    public Map<String, List<FileRelationshipStorage>> getRelationships(IdentityStoreInvocationContext context) {
-        return this.dataSource.getRelationships(context);
-    }
-
-    public Map<String, Role> getRoles(String realmId) {
-        return this.dataSource.getRoles(realmId);
-    }
-
-    public Map<String, Group> getGroups(String realmId) {
-        return this.dataSource.getGroups(realmId);
-    }
-
-    public Map<String, Agent> getAgents(IdentityStoreInvocationContext context) {
-        return this.dataSource.getAgents(context);
-    }
-    
-    public Map<String, Agent> getAgents(String realmId) {
-        return this.dataSource.getAgents(realmId);
-    }
-
-    public Map<String, Map<String, List<FileCredentialStorage>>> getCredentials(IdentityStoreInvocationContext context) {
-        return this.dataSource.getCredentials(context);
-    }
-
-    public void flushAgents(IdentityStoreInvocationContext context) {
-        this.dataSource.flushAgents(context);
-    }
-
-    public void flushRoles(IdentityStoreInvocationContext context) {
-        this.dataSource.flushRoles(context);
-    }
-
-    public void flushCredentials(IdentityStoreInvocationContext context) {
-        this.dataSource.flushCredentials(context);
-    }
-
-    public void flushGroups(IdentityStoreInvocationContext context) {
-        this.dataSource.flushGroups(context);
-    }
-
-    public void flushRelationships(IdentityStoreInvocationContext context) {
-        this.dataSource.flushRelationships(context);
-    }
-
     public void setDataSource(FileDataSource dataSource) {
         this.dataSource = dataSource;
     }
@@ -120,7 +69,4 @@ public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
         return this.dataSource;
     }
 
-    public Map<String, FilePartition> getPartitions() {
-        return getDataSource().getPartitions();
-    }
 }

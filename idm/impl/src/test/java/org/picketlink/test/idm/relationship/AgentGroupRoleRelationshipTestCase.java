@@ -30,6 +30,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
@@ -40,8 +41,20 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class AgentGroupRoleRelationshipTestCase extends AbstractIdentityManagerTestCase {
+public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends AbstractIdentityManagerTestCase {
 
+    protected T createIdentityType(String name, Partition partition) {
+        if (name == null) {
+            name = "someAgent";
+        }
+        
+        return (T) createAgent(name, partition);
+    }
+
+    protected T getIdentityType() {
+        return (T) getIdentityManager().getAgent("someAgent");
+    }
+    
     /**
      * <p>
      * Tests adding an {@link Agent} as a member of a {@link Group} with a specific {@link Role}.
@@ -51,8 +64,8 @@ public class AgentGroupRoleRelationshipTestCase extends AbstractIdentityManagerT
      */
     @Test
     public void testGrantGroupRole() throws Exception {
-        Agent developerAgent = createAgent("developerAgent");
-        Agent projectManagerAgent = createAgent("projectManagerAgent");
+        T developerAgent = createIdentityType("developerAgent", null);
+        T projectManagerAgent = createIdentityType("projectManagerAgent", null);
 
         Role managerRole = createRole("Manager");
         Role developerRole = createRole("Developer");
@@ -83,6 +96,15 @@ public class AgentGroupRoleRelationshipTestCase extends AbstractIdentityManagerT
 
         assertFalse(identityManager.hasGroupRole(developerAgent, managerRole, projectGroup));
         assertFalse(identityManager.hasGroupRole(projectManagerAgent, developerRole, projectGroup));
+        
+        assertTrue(identityManager.hasRole(developerAgent, developerRole));
+        assertTrue(identityManager.isMember(developerAgent, projectGroup));
+        assertFalse(identityManager.hasRole(developerAgent, managerRole));
+        
+        assertTrue(identityManager.hasRole(projectManagerAgent, managerRole));
+        assertTrue(identityManager.isMember(projectManagerAgent, projectGroup));
+        assertFalse(identityManager.hasRole(projectManagerAgent, developerRole));
+        
     }
 
     /**
@@ -94,7 +116,7 @@ public class AgentGroupRoleRelationshipTestCase extends AbstractIdentityManagerT
      */
     @Test
     public void testRevokeGroupRole() throws Exception {
-        Agent developerAgent = createAgent("developerAgent");
+        T developerAgent = createIdentityType("developerAgent", null);
 
         Role developerRole = createRole("Developer");
         Role employeeRole = createRole("Employee");
@@ -116,6 +138,11 @@ public class AgentGroupRoleRelationshipTestCase extends AbstractIdentityManagerT
         identityManager.revokeGroupRole(developerAgent, developerRole, projectGroup);
 
         assertFalse(identityManager.hasGroupRole(developerAgent, developerRole, projectGroup));
+        assertTrue(identityManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
+        
+        identityManager.revokeGroupRole(developerAgent, employeeRole, companyGroup);
+        
+        assertFalse(identityManager.hasGroupRole(developerAgent, employeeRole, companyGroup));
     }
 
 }

@@ -33,16 +33,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.common.properties.Property;
+import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
+import org.picketlink.common.properties.query.NamedPropertyCriteria;
+import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
-import org.picketlink.idm.internal.util.properties.Property;
-import org.picketlink.idm.internal.util.properties.query.AnnotatedPropertyCriteria;
-import org.picketlink.idm.internal.util.properties.query.NamedPropertyCriteria;
-import org.picketlink.idm.internal.util.properties.query.PropertyQueries;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -215,10 +215,14 @@ public class FileCredentialStore implements CredentialStore {
     }
 
     private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition() {
-        return getConfig().getCredentials(getContext());
+        return getDataSource().getCredentials(getContext().getRealm());
     }
 
     private void flushCredentials() {
-        getConfig().flushCredentials(getContext());
+        getDataSource().flushCredentials(getContext().getRealm());
+    }
+    
+    private FileDataSource getDataSource() {
+        return getConfig().getDataSource();
     }
 }

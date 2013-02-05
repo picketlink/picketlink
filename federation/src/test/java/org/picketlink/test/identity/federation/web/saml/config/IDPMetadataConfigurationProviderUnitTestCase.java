@@ -27,8 +27,8 @@ import static org.junit.Assert.assertNotNull;
 import java.io.InputStream;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.TrustType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.TrustType;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.web.config.IDPMetadataConfigurationProvider;
 

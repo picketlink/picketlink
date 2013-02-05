@@ -25,20 +25,27 @@ package org.picketlink.test.idm.basic;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
- * Test case for {@link Group} basic management operations.
+ * Test case for the {@link Group} basic management operations using only the default realm.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -50,8 +57,6 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     public void testCreate() throws Exception {
         Group newGroup = createGroup("someGroup", null);
 
-        assertNotNull(newGroup.getId());
-        
         IdentityManager identityManager = getIdentityManager();
 
         Group storedGroup = identityManager.getGroup(newGroup.getName());
@@ -111,6 +116,40 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         Group removedGroup = identityManager.getGroup(storedGroup.getName());
 
         assertNull(removedGroup);
+        
+        User anotherUser = createUser("user");
+        Role role = createRole("role");
+        Group group = createGroup("group", null);
+
+        identityManager.grantRole(anotherUser, role);
+        identityManager.addToGroup(anotherUser, group);
+        identityManager.grantGroupRole(anotherUser, role, group);
+
+        RelationshipQuery<?> relationshipQuery = identityManager.createRelationshipQuery(GroupMembership.class);
+
+        relationshipQuery.setParameter(GroupMembership.GROUP, group);
+
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+
+        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+
+        relationshipQuery.setParameter(GroupRole.GROUP, group);
+
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+
+        identityManager.remove(group);
+
+        relationshipQuery = identityManager.createRelationshipQuery(GroupMembership.class);
+
+        relationshipQuery.setParameter(GroupMembership.GROUP, group);
+
+        assertTrue(relationshipQuery.getResultList().isEmpty());
+
+        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+
+        relationshipQuery.setParameter(GroupRole.GROUP, group);
+
+        assertTrue(relationshipQuery.getResultList().isEmpty());
     }
 
     @Override

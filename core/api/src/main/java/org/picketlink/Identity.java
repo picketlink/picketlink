@@ -2,7 +2,6 @@ package org.picketlink;
 
 import java.io.Serializable;
 
-import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.idm.model.User;
 
 /**
@@ -47,6 +46,7 @@ public interface Identity extends Serializable
      * a LoginFailedEvent) however in these conditions it is the responsibility of the Authenticator
      * implementation to take over the authentication process, for example by redirecting the user to
      * a third party authentication service such as an OpenID provider.
+     * @throws SecurityException if login called on an already authenticated user
      */
     AuthenticationResult login();
 

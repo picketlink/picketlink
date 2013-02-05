@@ -34,10 +34,15 @@ import java.util.Set;
  * @author anil saldhana
  * @since Sep 7, 2012
  */
-public class LDAPCustomAttributes implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class LDAPCustomAttributes extends LDAPEntry {
+    
+    private static final long serialVersionUID = 3682970889889505951L;
+    
     private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
+
+    public LDAPCustomAttributes(String dnSuffix) {
+        super(dnSuffix);
+    }
 
     public void addAttribute(String key, Serializable value) {
         attributes.put(key, value);
@@ -56,7 +61,7 @@ public class LDAPCustomAttributes implements Serializable {
     }
 
     public void clear() {
-        Set<Entry<String, Object>> entrySet = new HashMap(this.attributes).entrySet();
+        Set<Entry<String, Object>> entrySet = new HashMap<String, Object>(this.attributes).entrySet();
         
         for (Entry<String, Object> entry : entrySet) {
             if (!entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED)

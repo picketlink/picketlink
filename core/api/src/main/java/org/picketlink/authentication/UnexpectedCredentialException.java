@@ -15,7 +15,6 @@ public class UnexpectedCredentialException extends AuthenticationException
         super(message);
     }
 
-    @SuppressWarnings("UnusedDeclaration")
     public UnexpectedCredentialException(String message, Throwable cause)
     {
         super(message, cause);

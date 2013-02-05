@@ -38,7 +38,12 @@ public class Realm implements Partition {
     public String getName() {
         return name;
     }
-
+    
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     @Override
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, name);

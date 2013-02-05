@@ -30,7 +30,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpSession;
 
-import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.config.federation.IDPType;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.impl.EmptyAttributeManager;

@@ -8,13 +8,13 @@ import static org.junit.Assert.assertTrue;
 import java.io.InputStream;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.config.STSType;
 import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.identity.federation.core.handler.config.Handlers;
-import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
+import org.picketlink.config.PicketLinkConfigParser;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.config.federation.STSType;
+import org.picketlink.config.federation.handler.Handlers;
 
 /**
  * Unit test to parse the Consolidated PicketLink Configuration in picketlink.xml

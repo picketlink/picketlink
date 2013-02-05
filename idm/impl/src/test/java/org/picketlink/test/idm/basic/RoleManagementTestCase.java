@@ -25,19 +25,25 @@ package org.picketlink.test.idm.basic;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
- * Test case for {@link Role} basic management operations.
+ * Test case for the {@link Role} basic management operations using only the default realm.
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -49,8 +55,6 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
     public void testCreate() throws Exception {
         Role newRole = createRole("someRole");
 
-        assertNotNull(newRole.getId());
-        
         IdentityManager identityManager = getIdentityManager();
 
         Role storedRole = identityManager.getRole(newRole.getName());
@@ -58,8 +62,6 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         assertNotNull(storedRole);
         assertEquals(newRole.getId(), storedRole.getId());
         assertEquals(newRole.getName(), storedRole.getName());
-        assertNotNull(storedRole.getPartition());
-        assertEquals(Realm.DEFAULT_REALM, storedRole.getPartition().getName());
         assertNotNull(storedRole.getPartition());
         assertEquals(Realm.DEFAULT_REALM, storedRole.getPartition().getName());
         assertTrue(storedRole.isEnabled());
@@ -79,6 +81,40 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         Role removedRole = identityManager.getRole(storedRole.getName());
 
         assertNull(removedRole);
+        
+        User anotherUser = createUser("user");
+        Role role = createRole("role");
+        Group group = createGroup("group", null);
+
+        identityManager.grantRole(anotherUser, role);
+        identityManager.addToGroup(anotherUser, group);
+        identityManager.grantGroupRole(anotherUser, role, group);
+
+        RelationshipQuery<?> relationshipQuery = identityManager.createRelationshipQuery(Grant.class);
+
+        relationshipQuery.setParameter(Grant.ROLE, role);
+
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+
+        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+
+        relationshipQuery.setParameter(GroupRole.ROLE, role);
+
+        assertFalse(relationshipQuery.getResultList().isEmpty());
+
+        identityManager.remove(role);
+
+        relationshipQuery = identityManager.createRelationshipQuery(Grant.class);
+
+        relationshipQuery.setParameter(Grant.ROLE, role);
+
+        assertTrue(relationshipQuery.getResultList().isEmpty());
+
+        relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
+
+        relationshipQuery.setParameter(GroupRole.ROLE, role);
+
+        assertTrue(relationshipQuery.getResultList().isEmpty());
     }
 
     @Override

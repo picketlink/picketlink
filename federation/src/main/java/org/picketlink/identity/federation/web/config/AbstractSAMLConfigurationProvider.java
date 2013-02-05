@@ -25,13 +25,13 @@ import java.io.InputStream;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.config.PicketLinkConfigParser;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.config.federation.parsers.SAMLConfigParser;
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.exceptions.ProcessingException;
-import org.picketlink.identity.federation.core.parsers.config.PicketLinkConfigParser;
-import org.picketlink.identity.federation.core.parsers.config.SAMLConfigParser;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;
 
 /**

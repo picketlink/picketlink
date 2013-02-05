@@ -24,11 +24,11 @@ package org.picketlink.idm.config.internal.resolver;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
-
-import org.picketlink.identity.federation.core.config.idm.ObjectType;
+ 
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
-import org.picketlink.idm.internal.util.reflection.Reflections;
+import org.picketlink.common.reflection.Reflections;
+import org.picketlink.config.idm.ObjectType;
 
 /**
  * Base class for resolvers, which are able to map simple String to expected java type

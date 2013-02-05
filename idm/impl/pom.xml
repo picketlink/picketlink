@@ -9,9 +9,7 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
-	<groupId>org.picketlink</groupId>
 	<artifactId>picketlink-idm-impl</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>PicketLink Identity Management Implementation</name>
 
@@ -75,6 +73,11 @@
             <version>${project.version}</version>
           </dependency>
 
+          <dependency>
+            <groupId>org.picketlink</groupId>
+            <artifactId>picketlink-config</artifactId>
+            <version>${project.version}</version>
+          </dependency>
 	<dependency>
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-idm-api</artifactId>
@@ -112,7 +115,6 @@
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
-			<version>1.0.1.Final</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

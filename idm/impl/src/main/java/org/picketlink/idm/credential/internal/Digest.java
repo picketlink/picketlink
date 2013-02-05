@@ -22,7 +22,7 @@
 
 package org.picketlink.idm.credential.internal;
 
-import org.picketlink.idm.internal.util.Base64;
+import org.picketlink.common.util.Base64;
 
 /**
  * <p>

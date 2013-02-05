@@ -139,15 +139,15 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     // Identity query
 
-    <T extends IdentityType> List<T> fetchQueryResults(IdentityQuery<T> identityQuery);
+    <V extends IdentityType> List<V> fetchQueryResults(IdentityQuery<V> identityQuery);
 
-    <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery);
+    <V extends IdentityType> int countQueryResults(IdentityQuery<V> identityQuery);
 
     // Relationship query
 
-    <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query);
+    <V extends Relationship> List<V> fetchQueryResults(RelationshipQuery<V> query);
 
-    <T extends Relationship> int countQueryResults(RelationshipQuery<T> query);
+    <V extends Relationship> int countQueryResults(RelationshipQuery<V> query);
 
     // Attributes
 
@@ -168,7 +168,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param attributeName
      * @return
      */
-    <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName);
+    <V extends Serializable> Attribute<V> getAttribute(IdentityType identityType, String attributeName);
 
     /**
      * Removes the specified Attribute value, for the specified IdentityType

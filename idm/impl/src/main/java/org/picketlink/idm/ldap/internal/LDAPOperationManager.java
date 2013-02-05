@@ -25,6 +25,7 @@ package org.picketlink.idm.ldap.internal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.Binding;
 import javax.naming.CommunicationException;
@@ -42,6 +43,8 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.picketlink.idm.IdentityManagementException;
+
 /**
  * <p>
  * This class provides a set of operations to manage LDAP trees.
@@ -58,14 +61,61 @@ public class LDAPOperationManager {
 
     private List<String> managedAttributes = new ArrayList<String>();
 
-    private Properties properties;
     private LdapContext context;
     private DirContext authenticationContext;
 
-    public LDAPOperationManager(Properties properties) throws NamingException {
-        this.context = new InitialLdapContext(properties, null);
-        this.authenticationContext = new InitialLdapContext(properties, null);
-        this.properties = properties;
+    private LDAPIdentityStoreConfiguration config;
+
+    public LDAPOperationManager(LDAPIdentityStoreConfiguration config) throws NamingException {
+        this.config = config;
+        this.context = constructContext();
+        this.authenticationContext = constructContext();
+    }
+
+    private LdapContext constructContext() {
+        Properties env = new Properties();
+        env.setProperty(Context.INITIAL_CONTEXT_FACTORY, this.config.getFactoryName());
+        env.setProperty(Context.SECURITY_AUTHENTICATION, this.config.getAuthType());
+
+        String protocol = this.config.getProtocol();
+        if (protocol != null) {
+            env.setProperty(Context.SECURITY_PROTOCOL, protocol);
+        }
+        String bindDN = this.config.getBindDN();
+        char[] bindCredential = null;
+
+        if (this.config.getBindCredential() != null) {
+            bindCredential = this.config.getBindCredential().toCharArray();
+        }
+
+        if (bindDN != null) {
+            env.setProperty(Context.SECURITY_PRINCIPAL, bindDN);
+            env.put(Context.SECURITY_CREDENTIALS, bindCredential);
+        }
+
+        String url = this.config.getLdapURL();
+        if (url == null) {
+            throw new RuntimeException("url");
+        }
+
+        env.setProperty(Context.PROVIDER_URL, url);
+
+        // Just dump the additional properties
+        Properties additionalProperties = this.config.getAdditionalProperties();
+        Set<Object> keys = additionalProperties.keySet();
+
+        for (Object key : keys) {
+            env.setProperty((String) key, additionalProperties.getProperty((String) key));
+        }
+        LdapContext context = null;
+
+        try {
+            context = new InitialLdapContext(env, null);
+        } catch (NamingException e) {
+            throw new IdentityManagementException("Error creating LDAP context.", e);
+        }
+
+        return context;
     }
 
     /**
@@ -83,7 +133,7 @@ public class LDAPOperationManager {
                 // Discard context and try to recover from LDAP server communication breakage
                 try {
                     context.close();
-                    context = new InitialLdapContext(properties, null);
+                    context = constructContext();
                     context.bind(dn, object);
                 } catch (NamingException e1) {
                     throw new RuntimeException(e1);
@@ -149,7 +199,7 @@ public class LDAPOperationManager {
                 // Discard context and try to recover from LDAP server communication breakage
                 try {
                     context.close();
-                    context = new InitialLdapContext(properties, null);
+                    context = constructContext();
                     context.rebind(dn, object);
                 } catch (NamingException e1) {
                     throw new RuntimeException(e1);
@@ -187,8 +237,7 @@ public class LDAPOperationManager {
      * @param attributesToSearch
      * @return
      */
-    public <T extends Object> List<T> searchByAttribute(String baseDN, String attributeName, String attributeValue,
-            LDAPSearchCallback<T> searchCallback) {
+    public <T extends Object> List<T> removeEntryById(String baseDN, String id) {
         List<T> result = new ArrayList<T>();
 
         NamingEnumeration<SearchResult> answer = null;
@@ -196,12 +245,13 @@ public class LDAPOperationManager {
         try {
             Attributes attributesToSearch = new BasicAttributes(true);
 
-            attributesToSearch.put(new BasicAttribute(attributeName, attributeValue));
+            attributesToSearch.put(new BasicAttribute(LDAPConstants.ENTRY_UUID, id));
 
-            answer = this.context.search(baseDN, attributesToSearch);
+            answer = getContext().search(baseDN, attributesToSearch);
 
             while (answer.hasMore()) {
-                result.add(searchCallback.processResult(answer.next()));
+                SearchResult sr = answer.next();
+                destroySubcontext(sr.getNameInNamespace());
             }
         } catch (NamingException e) {
             throw new RuntimeException(e);
@@ -219,22 +269,22 @@ public class LDAPOperationManager {
 
     /**
      * <p>
-     * Returns the entryUUID for a given entry.
+     * Returns the operational attributes for a given entry.
      * </p>
      * 
      * @param baseDN
      * @param attributesToSearch
      * @return
      */
-    public Attributes lookupOperationalAttributes(String baseDN, String filter) {
+    public Attributes lookupOperationalAttributes(String baseDN, String entryDN) {
         NamingEnumeration<SearchResult> answer = null;
 
         try {
             SearchControls controls = new SearchControls();
-            
-            controls.setReturningAttributes(new String[] { LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
-            
-            answer = this.context.search(baseDN, filter, controls);
+
+            controls.setReturningAttributes(new String[] { LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP });
+
+            answer = getContext().search(baseDN, entryDN, controls);
 
             if (answer.hasMore()) {
                 return answer.next().getAttributes();
@@ -252,40 +302,6 @@ public class LDAPOperationManager {
 
         return null;
     }
-    
-
-    
-    public String lookupCreateDate(String dn) {
-        NamingEnumeration<SearchResult> answer = null;
-
-        try {
-            SearchControls controls = new SearchControls();
-            
-            controls.setReturningAttributes(new String[] {LDAPConstants.CREATE_TIMESTAMP});
-            
-            answer = this.context.search(dn, "(objectClass=*)", controls);
-
-            if (answer.hasMore()) {
-                Attribute entryUUID = answer.next().getAttributes().get(LDAPConstants.CREATE_TIMESTAMP);
-
-                if (entryUUID != null) {
-                    return entryUUID.get().toString();
-                }
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (answer != null) {
-                try {
-                    answer.close();
-                } catch (NamingException e) {
-                }
-            }
-        }
-
-        return null;        
-    }
-
 
     /**
      * <p>
@@ -318,7 +334,7 @@ public class LDAPOperationManager {
     public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn,
             SearchControls searchControls) {
         try {
-            return this.context.search(baseDN, filter, attributesToReturn, searchControls);
+            return getContext().search(baseDN, filter, attributesToReturn, searchControls);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -331,18 +347,17 @@ public class LDAPOperationManager {
             cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
             cons.setReturningObjFlag(true);
 
-            return this.context.search(baseDN, filter, cons);
+            return getContext().search(baseDN, filter, cons);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
     }
-    
-    public NamingEnumeration<SearchResult> search(String baseDN, String filter, SearchControls controls) {
+
+    public NamingEnumeration<SearchResult> lookupById(String baseDN, String id) {
         try {
+            String filter = "(&(objectClass=*)(" + LDAPConstants.ENTRY_UUID + LDAPConstants.EQUAL + id + "))";
 
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-            return this.context.search(baseDN, filter, controls);
+            return getContext().search(baseDN, filter, new SearchControls());
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
@@ -367,7 +382,7 @@ public class LDAPOperationManager {
         NamingEnumeration<Binding> enumeration = null;
 
         try {
-            enumeration = this.context.listBindings(dn);
+            enumeration = getContext().listBindings(dn);
 
             while (enumeration.hasMore()) {
                 Binding binding = enumeration.next();
@@ -375,7 +390,7 @@ public class LDAPOperationManager {
 
                 destroyRecursively(name);
             }
-            this.context.unbind(dn);
+            getContext().unbind(dn);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         } finally {
@@ -460,7 +475,7 @@ public class LDAPOperationManager {
                 // Discard context and try to recover from LDAP server communication breakage
                 try {
                     context.close();
-                    context = new InitialLdapContext(properties, null);
+                    context = constructContext();
                     context.modifyAttributes(dn, mods);
                 } catch (NamingException e1) {
                     throw new RuntimeException(e1);
@@ -473,22 +488,14 @@ public class LDAPOperationManager {
 
     public void createSubContext(String name, Attributes attributes) {
         try {
-            this.context.createSubcontext(name, attributes);
+            getContext().createSubcontext(name, attributes);
         } catch (NamingException e) {
             throw new RuntimeException("Error creating subcontext [" + name + "]", e);
         }
     }
 
-    public LdapContext getContext() {
+    private LdapContext getContext() {
         return this.context;
-    }
-
-    public LdapContext createContext() {
-        try {
-            return new InitialLdapContext(properties, null);
-        } catch (NamingException e) {
-            throw new RuntimeException("Error creating context.", e);
-        }
     }
 
 }

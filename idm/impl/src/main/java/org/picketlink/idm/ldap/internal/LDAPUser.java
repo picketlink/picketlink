@@ -26,7 +26,6 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.SN;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 
 import org.picketlink.idm.model.User;
 
@@ -44,25 +43,8 @@ public class LDAPUser extends LDAPAgent implements User {
         super(dnSuffix);
     }
 
-    public LDAPUser() {
-        this((String) null);
-    }
-
-    public LDAPUser(String dnSuffix, Attributes attributes) {
-        this(dnSuffix);
-        addAllLDAPAttributes(attributes);
-    }
-
-    public LDAPUser(String dnSuffix, Attributes attributes, LDAPCustomAttributes customAttributes) {
-        this(dnSuffix, attributes);
-        setCustomAttributes(customAttributes);
-    }
-
-
-
     public LDAPUser(String loginName, String userDNSuffix) {
-        this(userDNSuffix);
-        setLoginName(loginName);
+        super(loginName, userDNSuffix);
     }
 
     @Override

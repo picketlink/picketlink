@@ -35,9 +35,9 @@ import junit.framework.TestCase;
 
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.common.ErrorCodes;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.ProviderType;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.common.SAMLDocumentHolder;

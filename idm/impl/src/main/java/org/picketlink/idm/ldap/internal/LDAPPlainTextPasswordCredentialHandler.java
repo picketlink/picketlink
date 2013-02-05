@@ -7,6 +7,7 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.internal.Password;
@@ -45,10 +46,10 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
             LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
-            LDAPUser ldapUser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
+            LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(LDAPUser.class, agent.getId());
             char[] password = usernamePassword.getPassword().getValue();
             
-            boolean isValid = ldapIdentityStore.getLdapManager().authenticate(ldapUser.getDN(), new String(password));
+            boolean isValid = ldapIdentityStore.getConfig().getLdapManager().authenticate(ldapUser.getDN(), new String(password));
             
             if (isValid) {
                 usernamePassword.setStatus(Status.VALID);
@@ -68,12 +69,11 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
         Password password = (Password) credential;
 
         LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
-        LDAPUser ldapuser = (LDAPUser) ldapIdentityStore.getUser(agent.getId());
+        LDAPUser ldapuser = ldapIdentityStore.lookupEntryById(LDAPUser.class, agent.getId());
         
         if (ldapIdentityStore.getConfig().isActiveDirectory()) {
             updateADPassword(ldapuser, new String(password.getValue()), ldapIdentityStore);
         } else {
-
             ModificationItem[] mods = new ModificationItem[1];
             
             try {
@@ -81,8 +81,9 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
                 mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
 
-                ldapIdentityStore.getLdapManager().modifyAttribute(ldapuser.getDN(), mod0);
+                ldapIdentityStore.getConfig().getLdapManager().modifyAttribute(ldapuser.getDN(), mod0);
             } catch (Exception e) {
+                throw new IdentityManagementException("Error updating password.", e);
             }
         }
     }
@@ -103,7 +104,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
             BasicAttribute unicodePwd = new BasicAttribute("unicodePwd", newUnicodePassword);
 
-            store.getLdapManager().modifyAttribute(user.getDN(), unicodePwd);
+            store.getConfig().getLdapManager().modifyAttribute(user.getDN(), unicodePwd);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

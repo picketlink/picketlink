@@ -87,28 +87,30 @@ public class FileIdentityQueryHelper {
         if (values != null) {
             Role currentRole = (Role) identityType;
 
-            List<FileRelationshipStorage> relationships = identityStore.getRelationshipsForCurrentPartition().get(
+            List<FileRelationship> relationships = identityStore.getRelationshipsForCurrentPartition().get(
                     Grant.class.getName());
 
             if (relationships == null) {
                 return false;
             }
-            
+
             int valuesMatchCount = values.length;
 
             for (Object object : values) {
                 Agent agent = (Agent) object;
 
                 if (agent != null) {
-                    for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                    for (FileRelationship storedRelationship : new ArrayList<FileRelationship>(relationships)) {
                         Grant grant = identityStore.convertToRelationship(storedRelationship);
 
-                        if (!grant.getRole().getId().equals(currentRole.getId())) {
-                            continue;
-                        }
+                        if (grant != null) {
+                            if (!grant.getRole().getId().equals(currentRole.getId())) {
+                                continue;
+                            }
 
-                        if (grant.getAssignee().getId().equals(agent.getId())) {
-                            valuesMatchCount--;
+                            if (grant.getAssignee().getId().equals(agent.getId())) {
+                                valuesMatchCount--;
+                            }
                         }
                     }
                 }
@@ -128,7 +130,7 @@ public class FileIdentityQueryHelper {
         if (values != null) {
             Group currentGroup = (Group) identityType;
 
-            List<FileRelationshipStorage> relationships = identityStore.getRelationshipsForCurrentPartition().get(
+            List<FileRelationship> relationships = identityStore.getRelationshipsForCurrentPartition().get(
                     GroupMembership.class.getName());
 
             if (relationships == null) {
@@ -139,15 +141,17 @@ public class FileIdentityQueryHelper {
             for (Object object : values) {
                 Agent agent = (Agent) object;
 
-                for (FileRelationshipStorage storedRelationship : new ArrayList<FileRelationshipStorage>(relationships)) {
+                for (FileRelationship storedRelationship : new ArrayList<FileRelationship>(relationships)) {
                     GroupMembership grant = identityStore.convertToRelationship(storedRelationship);
 
-                    if (!grant.getGroup().getId().equals(currentGroup.getId())) {
-                        continue;
-                    }
+                    if (grant != null) {
+                        if (!grant.getGroup().getId().equals(currentGroup.getId())) {
+                            continue;
+                        }
 
-                    if (grant.getMember().getId().equals(agent.getId())) {
-                        valuesMatchCount--;
+                        if (grant.getMember().getId().equals(agent.getId())) {
+                            valuesMatchCount--;
+                        }
                     }
                 }
 
@@ -264,40 +268,47 @@ public class FileIdentityQueryHelper {
      * @param parameters
      * @return
      */
-    public boolean matchAttributes(IdentityType identityType, Map<QueryParameter, Object[]> parameters) {
+    public boolean matchAttributes(IdentityType identityType) {
+        Map<QueryParameter, Object[]> attributeParameters = this.identityQuery
+                .getParameters(AttributedType.AttributeParameter.class);
+
         boolean match = false;
 
-        for (Entry<QueryParameter, Object[]> parameterEntry : parameters.entrySet()) {
-            AttributedType.AttributeParameter parameter = (AttributedType.AttributeParameter) parameterEntry.getKey();
-            Object[] parameterValues = parameterEntry.getValue();
+        if (!attributeParameters.isEmpty()) {
+            for (Entry<QueryParameter, Object[]> parameterEntry : attributeParameters.entrySet()) {
+                AttributedType.AttributeParameter parameter = (AttributedType.AttributeParameter) parameterEntry.getKey();
+                Object[] parameterValues = parameterEntry.getValue();
 
-            Attribute<Serializable> identityTypeAttribute = identityType.getAttribute(parameter.getName());
+                Attribute<Serializable> identityTypeAttribute = identityType.getAttribute(parameter.getName());
 
-            if (identityTypeAttribute != null && identityTypeAttribute.getValue() != null) {
-                int valuesMatchCount = parameterValues.length;
+                if (identityTypeAttribute != null && identityTypeAttribute.getValue() != null) {
+                    int valuesMatchCount = parameterValues.length;
 
-                for (Object value : parameterValues) {
-                    if (identityTypeAttribute.getValue().getClass().isArray()) {
-                        Object[] userValues = (Object[]) identityTypeAttribute.getValue();
+                    for (Object value : parameterValues) {
+                        if (identityTypeAttribute.getValue().getClass().isArray()) {
+                            Object[] userValues = (Object[]) identityTypeAttribute.getValue();
 
-                        for (Object object : userValues) {
-                            if (object.equals(value)) {
+                            for (Object object : userValues) {
+                                if (object.equals(value)) {
+                                    valuesMatchCount--;
+                                }
+                            }
+                        } else {
+                            if (value.equals(identityTypeAttribute.getValue())) {
                                 valuesMatchCount--;
                             }
                         }
-                    } else {
-                        if (value.equals(identityTypeAttribute.getValue())) {
-                            valuesMatchCount--;
-                        }
+                    }
+
+                    match = valuesMatchCount <= 0;
+
+                    if (!match) {
+                        return false;
                     }
                 }
-
-                match = valuesMatchCount <= 0;
-
-                if (!match) {
-                    return false;
-                }
             }
+        } else {
+            match = true;
         }
 
         return match;

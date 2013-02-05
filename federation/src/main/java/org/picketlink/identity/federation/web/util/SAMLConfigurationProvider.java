@@ -21,9 +21,9 @@
  */
 package org.picketlink.identity.federation.web.util;
 
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.common.exceptions.ProcessingException;
 
 /**

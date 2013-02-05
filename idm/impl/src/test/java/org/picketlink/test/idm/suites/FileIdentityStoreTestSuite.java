@@ -89,6 +89,8 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
         FileDataSource dataSource = new FileDataSource();
 
+        dataSource.setAlwaysCreateFiles(true);
+        
         addDefaultConfiguration(config, dataSource);
         addTestingRealmConfiguration(config, dataSource);
 

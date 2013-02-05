@@ -28,7 +28,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.namespace.QName;
 
-import org.picketlink.identity.federation.core.config.IDPType;
+import org.picketlink.config.federation.IDPType;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;

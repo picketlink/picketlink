@@ -40,7 +40,7 @@ import org.picketlink.identity.federation.core.SerializablePrincipal;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEvent;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditEventType;
 import org.picketlink.identity.federation.core.audit.PicketLinkAuditHelper;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;

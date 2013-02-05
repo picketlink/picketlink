@@ -37,7 +37,8 @@ import org.picketlink.idm.credential.internal.Password;
 import org.picketlink.idm.credential.internal.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.SimpleIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfiguration;
+import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.User;
@@ -81,7 +82,11 @@ public class OAuthServerUtil {
             identityManager = new DefaultIdentityManager();
             String storeType = context.getInitParameter("storeType");
             if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
-                LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
+
+                LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
+                LDAPIdentityStoreConfiguration ldapConfiguration = (LDAPIdentityStoreConfiguration) builder.build();
+
+                // LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
 
                 Properties properties = getProperties(context);
                 ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
@@ -270,17 +275,17 @@ public class OAuthServerUtil {
                 UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials();
                 usernamePasswordCredentials.setUsername(username);
                 usernamePasswordCredentials.setPassword(new Password(password.toCharArray()));
-                try{
+                try {
                     identityManager.validateCredentials(usernamePasswordCredentials);
-                }catch(Exception e){
+                } catch (Exception e) {
                     return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                             .setError(OAuthError.TokenResponse.INVALID_GRANT)
                             .setErrorDescription("invalid username or password").buildJSONMessage();
                 }
             } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.REFRESH_TOKEN.toString())) {
                 return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_GRANT).setErrorDescription("Refresh Token not yet supported")
-                        .buildJSONMessage();
+                        .setError(OAuthError.TokenResponse.INVALID_GRANT)
+                        .setErrorDescription("Refresh Token not yet supported").buildJSONMessage();
             }
 
             OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());

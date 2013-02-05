@@ -22,7 +22,7 @@
 
 package org.picketlink.idm.config.internal.resolver;
 
-import org.picketlink.identity.federation.core.config.idm.ObjectType;
+import org.picketlink.config.idm.ObjectType;
 import org.picketlink.idm.SecurityConfigurationException;
 
 /**

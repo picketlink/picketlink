@@ -27,8 +27,8 @@ import static org.junit.Assert.assertNotNull;
 import java.io.InputStream;
 
 import org.junit.Test;
-import org.picketlink.identity.federation.core.config.ProviderType;
-import org.picketlink.identity.federation.core.config.SPType;
+import org.picketlink.config.federation.ProviderType;
+import org.picketlink.config.federation.SPType;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;

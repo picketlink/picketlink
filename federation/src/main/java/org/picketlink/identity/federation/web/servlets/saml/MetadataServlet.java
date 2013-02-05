@@ -43,11 +43,6 @@ import org.apache.log4j.Logger;
 import org.picketlink.identity.federation.api.saml.v2.metadata.KeyDescriptorMetaDataBuilder;
 import org.picketlink.identity.federation.api.util.KeyUtil;
 import org.picketlink.common.ErrorCodes;
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.KeyProviderType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.MetadataProviderType;
-import org.picketlink.identity.federation.core.config.ProviderType;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.identity.federation.core.interfaces.IMetadataProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
@@ -61,6 +56,11 @@ import org.picketlink.identity.federation.saml.v2.metadata.EntityDescriptorType.
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.picketlink.identity.federation.saml.v2.metadata.RoleDescriptorType;
 import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.KeyProviderType;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.MetadataProviderType;
+import org.picketlink.config.federation.ProviderType;
 import org.picketlink.identity.federation.web.util.ConfigurationUtil;
 import org.w3c.dom.Element;
 

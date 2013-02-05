@@ -50,6 +50,11 @@ public class Tier implements Partition {
         return this.name;
     }
     
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     public String getDescription() {
         return description;
     }
@@ -57,10 +62,14 @@ public class Tier implements Partition {
     public Tier getParent() {
         return parent;
     }
-
+    
     @Override
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, name);
+    }
+
+    public void setParent(Tier parent) {
+        this.parent = parent;
     }
 
     // TODO implement hashCode() and equals() methods

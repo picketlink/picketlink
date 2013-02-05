@@ -35,22 +35,22 @@ import javax.xml.namespace.QName;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.config.AuthPropertyType;
-import org.picketlink.identity.federation.core.config.ClaimsProcessorType;
-import org.picketlink.identity.federation.core.config.ClaimsProcessorsType;
-import org.picketlink.identity.federation.core.config.KeyProviderType;
-import org.picketlink.identity.federation.core.config.KeyValueType;
-import org.picketlink.identity.federation.core.config.STSType;
-import org.picketlink.identity.federation.core.config.ServiceProviderType;
-import org.picketlink.identity.federation.core.config.ServiceProvidersType;
-import org.picketlink.identity.federation.core.config.TokenProviderType;
-import org.picketlink.identity.federation.core.config.TokenProvidersType;
 import org.picketlink.identity.federation.core.interfaces.SecurityTokenProvider;
 import org.picketlink.identity.federation.core.interfaces.TrustKeyManager;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.sts.STSCoreConfig;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
 import org.picketlink.common.constants.GeneralConstants;
+import org.picketlink.config.federation.AuthPropertyType;
+import org.picketlink.config.federation.ClaimsProcessorType;
+import org.picketlink.config.federation.ClaimsProcessorsType;
+import org.picketlink.config.federation.KeyProviderType;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.STSType;
+import org.picketlink.config.federation.ServiceProviderType;
+import org.picketlink.config.federation.ServiceProvidersType;
+import org.picketlink.config.federation.TokenProviderType;
+import org.picketlink.config.federation.TokenProvidersType;
 
 /**
  * <p>

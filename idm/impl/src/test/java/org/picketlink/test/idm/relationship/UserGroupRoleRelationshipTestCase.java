@@ -22,16 +22,10 @@
 
 package org.picketlink.test.idm.relationship;
 
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
-
-import org.junit.Test;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
-import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
  * <p>
@@ -40,82 +34,20 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class UserGroupRoleRelationshipTestCase extends AbstractIdentityManagerTestCase {
+public class UserGroupRoleRelationshipTestCase extends AgentGroupsRelationshipTestCase<User>{
 
-    /**
-     * <p>
-     * Tests adding an {@link User} as a member of a {@link Group} with a specific {@link Role}.
-     * </p>
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testGrantGroupRole() throws Exception {
-        User developerUser = createUser("developerUser");
-        User projectManagerUser = createUser("projectManagerUser");
-
-        Role managerRole = createRole("Manager");
-        Role developerRole = createRole("Developer");
-        Role employeeRole = createRole("Employee");
-
-        Group companyGroup = createGroup("Company Group", null);
-        Group projectGroup = createGroup("Project Group", null);
-
-        IdentityManager identityManager = getIdentityManager();
-
-        // developerUser is an employee at the company group
-        identityManager.grantGroupRole(developerUser, employeeRole, companyGroup);
-
-        // developerUser is a developer at the project group
-        identityManager.grantGroupRole(developerUser, developerRole, projectGroup);
-
-        // projectManagerUser is an employee at the company group
-        identityManager.grantGroupRole(projectManagerUser, employeeRole, companyGroup);
-
-        // projectManagerUser is the manager of the project group
-        identityManager.grantGroupRole(projectManagerUser, managerRole, projectGroup);
-
-        assertTrue(identityManager.hasGroupRole(developerUser, employeeRole, companyGroup));
-        assertTrue(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
-
-        assertTrue(identityManager.hasGroupRole(projectManagerUser, employeeRole, companyGroup));
-        assertTrue(identityManager.hasGroupRole(projectManagerUser, managerRole, projectGroup));
-
-        assertFalse(identityManager.hasGroupRole(developerUser, managerRole, projectGroup));
-        assertFalse(identityManager.hasGroupRole(projectManagerUser, developerRole, projectGroup));
+    @Override
+    protected User createIdentityType(String name, Partition partition) {
+        if (name == null) {
+            name = "someUser";
+        }
+        
+        return createUser(name, partition);
     }
 
-    /**
-     * <p>
-     * Tests revoking a {@link GroupRole}.
-     * </p>
-     *
-     * @throws Exception
-     */
-    @Test
-    public void testRevokeGroupRole() throws Exception {
-        User developerUser = createUser("developerUser");
-
-        Role developerRole = createRole("Developer");
-        Role employeeRole = createRole("Employee");
-
-        Group companyGroup = createGroup("Company Group", null);
-        Group projectGroup = createGroup("Project Group", null);
-
-        IdentityManager identityManager = getIdentityManager();
-
-        // developerUser is an employee at the company group
-        identityManager.grantGroupRole(developerUser, employeeRole, companyGroup);
-
-        // developerUser is a developer at the project group
-        identityManager.grantGroupRole(developerUser, developerRole, projectGroup);
-
-        assertTrue(identityManager.hasGroupRole(developerUser, employeeRole, companyGroup));
-        assertTrue(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
-
-        identityManager.revokeGroupRole(developerUser, developerRole, projectGroup);
-
-        assertFalse(identityManager.hasGroupRole(developerUser, developerRole, projectGroup));
+    @Override
+    protected User getIdentityType() {
+        return getIdentityManager().getUser("someUser");
     }
-
+    
 }

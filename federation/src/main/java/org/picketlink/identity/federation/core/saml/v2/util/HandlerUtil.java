@@ -29,10 +29,10 @@ import java.util.Set;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.config.KeyValueType;
 import org.picketlink.common.exceptions.ConfigurationException;
-import org.picketlink.identity.federation.core.handler.config.Handler;
-import org.picketlink.identity.federation.core.handler.config.Handlers;
+import org.picketlink.config.federation.KeyValueType;
+import org.picketlink.config.federation.handler.Handler;
+import org.picketlink.config.federation.handler.Handlers;
 import org.picketlink.identity.federation.core.saml.v2.impl.DefaultSAML2HandlerConfig;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2Handler;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerConfig;

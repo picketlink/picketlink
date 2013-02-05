@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.picketlink.identity.federation.core.config.idm.ObjectType;
+import org.picketlink.config.idm.ObjectType;
+
 
 /**
  * Mapper for resolvers. It's main purpose is to find correct resolver for type from XML configuration and map it to requested

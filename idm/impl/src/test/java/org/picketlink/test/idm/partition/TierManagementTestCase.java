@@ -23,6 +23,7 @@
 package org.picketlink.test.idm.partition;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -163,7 +164,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         
         assertNotNull(testingRole);
     }
-
+    
     @Test
     public void testCreateRoles() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
@@ -213,10 +214,10 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         testingRealmIdentityManager.grantRole(someUser, adminRole);
 
         assertTrue(testingRealmIdentityManager.hasRole(someUser, adminRole));
-        assertTrue(applicationTierIdentityManager.hasRole(someUser, adminRole));
+
+        // application tier is bound to the default realm. the user was created only for the testing realm.
+        assertFalse(applicationTierIdentityManager.hasRole(someUser, adminRole));
     }
-
-
 
     @Test
     public void testGroupsForTier() throws Exception {

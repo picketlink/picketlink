@@ -53,7 +53,7 @@ import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.common.util.StaxParserUtil;
 import org.picketlink.common.util.XMLEncryptionUtil;
-import org.picketlink.identity.federation.core.config.STSType;
+import org.picketlink.config.federation.STSType;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.wstrust.wrappers.Lifetime;
 import org.picketlink.identity.federation.core.wstrust.wrappers.RequestSecurityToken;

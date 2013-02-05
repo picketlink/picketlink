@@ -27,6 +27,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.picketlink.idm.IdentityManagementException;
+
 /**
  * @author Pedro Silva
  * 
@@ -50,6 +52,8 @@ public final class FileUtils {
             ois = new ObjectInputStream(fis);
 
             return (T) ois.readObject();
+        } catch (IdentityManagementException ime) {
+            throw ime;
         } catch (Exception e) {
         } finally {
             try {

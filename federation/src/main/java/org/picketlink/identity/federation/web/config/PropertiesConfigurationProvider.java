@@ -27,10 +27,10 @@ import java.util.Properties;
 
 import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
-import org.picketlink.identity.federation.core.config.IDPType;
-import org.picketlink.identity.federation.core.config.PicketLinkType;
-import org.picketlink.identity.federation.core.config.SPType;
-import org.picketlink.identity.federation.core.config.TrustType;
+import org.picketlink.config.federation.IDPType;
+import org.picketlink.config.federation.PicketLinkType;
+import org.picketlink.config.federation.SPType;
+import org.picketlink.config.federation.TrustType;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.identity.federation.web.util.SAMLConfigurationProvider;

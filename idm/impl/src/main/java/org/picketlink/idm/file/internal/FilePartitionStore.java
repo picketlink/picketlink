@@ -26,6 +26,7 @@ import static org.picketlink.idm.file.internal.FileUtils.delete;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.Partition;
@@ -67,23 +68,25 @@ public class FilePartitionStore implements PartitionStore {
                 throw new IdentityManagementException("A Tier with name [" + partition.getName() + "] already exists.");
             }
         }
-        
+
         partition.setId(getContext().getIdGenerator().generate());
 
-        FilePartition filePartition = getConfig().getDataSource().initPartition(partition.getId());
+        FilePartition filePartition = new FilePartition(partition);
 
-        filePartition.setPartition(partition);
+        getDataSource().getPartitions().put(filePartition.getId(), filePartition);
 
-        getConfig().getPartitions().put(partition.getId(), filePartition);
-        getConfig().getDataSource().flushPartitions();
+        getDataSource().initPartition(partition.getId());
+
+        getPartitions().put(partition.getId(), filePartition);
+        getDataSource().flushPartitions();
     }
 
     @Override
     public void removePartition(Partition partition) {
         String id = partition.getId();
 
-        if (getConfig().getPartitions().containsKey(partition.getId())) {
-            FilePartition filePartition = getConfig().getPartitions().get(partition.getId());
+        if (getPartitions().containsKey(partition.getId())) {
+            FilePartition filePartition = getDataSource().getPartition(partition.getId());
 
             if (!filePartition.getAgents().isEmpty() || !filePartition.getRoles().isEmpty()
                     || !filePartition.getGroups().isEmpty()) {
@@ -91,9 +94,9 @@ public class FilePartitionStore implements PartitionStore {
                         "Realm could not be removed. There IdentityTypes associated with it. Remove them first.");
             }
 
-            delete(new File(getConfig().getDataSource().getWorkingDir() + File.separator + partition.getId()));
-            getConfig().getPartitions().remove(partition.getId());
-            getConfig().getDataSource().flushPartitions();
+            delete(new File(getDataSource().getWorkingDir() + File.separator + partition.getId()));
+            getPartitions().remove(partition.getId());
+            getDataSource().flushPartitions();
         } else {
             throw new IdentityManagementException("No Partition found with the given id [" + id + "].");
         }
@@ -101,7 +104,7 @@ public class FilePartitionStore implements PartitionStore {
 
     @Override
     public Realm getRealm(String name) {
-        Collection<FilePartition> partitions = getConfig().getPartitions().values();
+        Collection<FilePartition> partitions = getPartitions().values();
         Realm realm = null;
 
         for (FilePartition partition : partitions) {
@@ -122,13 +125,19 @@ public class FilePartitionStore implements PartitionStore {
 
     @Override
     public Tier getTier(String name) {
-        Collection<FilePartition> partitions = getConfig().getPartitions().values();
+        Collection<FilePartition> partitions = getPartitions().values();
 
         for (FilePartition partition : partitions) {
             if (Tier.class.isInstance(partition.getPartition())) {
                 Tier tier = (Tier) partition.getPartition();
 
                 if (tier.getName().equals(name)) {
+                    if (tier.getParent() != null) {
+                        // during the unmarshalling the parent tier is only a reference to the real entry. We need to load the
+                        // real unmarshalled parent entry.
+                        tier.setParent(getTier(tier.getParent().getName()));
+                    }
+
                     return tier;
                 }
             }
@@ -145,4 +154,15 @@ public class FilePartitionStore implements PartitionStore {
         return this.identityStore.getContext();
     }
 
+    private FileDataSource getDataSource() {
+        return getConfig().getDataSource();
+    }
+
+    private Map<String, FilePartition> getPartitions() {
+        return getDataSource().getPartitions();
+    }
+
+    public Partition lookupById(String id) {
+        return getPartitions().get(id).getPartition();
+    }
 }
