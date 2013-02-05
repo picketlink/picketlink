@@ -19,7 +19,7 @@ public class IdentityManagerProducer {
 
     // FIXME basic implementation just to get started, we need to rewrite this with proper configuration
 
-    @Inject IdentityCache identityCache;
+   // @Inject IdentityCache identityCache;
 
     @Produces @ApplicationScoped
     public IdentityManager createIdentityManager() {

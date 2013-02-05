@@ -143,9 +143,9 @@
       <title>Getting Started</title>
       
       <para>
-        The <code>IdentityManager</code> interface provides access to the bulk of the IDM features supported by PicketLink.
+        The <code>org.picketlink.idm.IdentityManager</code> interface provides access to the bulk of the IDM features supported by PicketLink.
         To get access to the <code>IdentityManager</code> depends on which environment you are using. The following two
-        sections describe how to access the <code>IdentityManager</code> in both Java EE and Java SE.
+        sections describe how to access the <code>IdentityManager</code> in both Java EE and Java SE environments.
       </para>
       
       <section>
@@ -153,7 +153,7 @@
         
         <para>
           In a Java EE environment, the PicketLink Core module provides a producer method for <code>IdentityManager</code>, 
-          so getting a reference to it is as simply as injecting it into your beans, as follows:
+          so getting a reference to it is as simply as injecting it into your beans:
         </para>
       
         <programlisting language="JAVA"><![CDATA[@Inject IdentityManager identityManager;]]></programlisting>
@@ -352,9 +352,9 @@
         </mediaobject> 
         
         <para>
-          What this means, is that every single relationship is assigned and can be identified by, a unique identifier value.  
-          Also, arbitrary attribute values may be set for all relationship types, which is useful if you require additional 
-          metadata or any other type of information to be stored with a relationship.
+          What this means in practical terms, is that every single relationship is assigned and can be identified by, a unique 
+          identifier value.  Also, arbitrary attribute values may be set for all relationship types, which is useful if you 
+          require additional metadata or any other type of information to be stored with a relationship.
         </para>
         
         <section>
@@ -429,7 +429,7 @@
             A <code>Group</code> is typically used to form logical collections of users.  Within an organisation, groups are 
             often used to mirror the organisation's structure.  For example, a corporate structure might consist of a sales
             department, administration, management, etc.  This structure can be modelled in PicketLink by creating corresponding
-            groups such as <emphasis>sales</emphasis>, <emphasis>administration</emphasis>, and so forth.  Users (who may represent 
+            groups such as <emphasis>sales</emphasis>, <emphasis>administration</emphasis>, and so forth.  Users (who would represent 
             the employees in a corporate structure) may then be assigned group memberships corresponding to their place within 
             the company's organisational structure.  For example, an employee who works in the sales department 
             may be assigned to the <emphasis>sales</emphasis> group.
@@ -522,7 +522,7 @@
   User sally = identityManager.getUser("sally");
   Role admin = identityManager.getRole("administrator");
   GroupRole groupRole = new GroupRole(sally, doctors, admin);
-  identityManager.add(groupRole);]]></programlisting>\
+  identityManager.add(groupRole);]]></programlisting>
   
           <para>
             A group role can be revoked using the <code>revokeGroupRole()</code> method:
@@ -543,17 +543,83 @@
   boolean isSallyDoctorsAdmin = identityManager.hasGroupRole(sally, admin, doctors);]]></programlisting>
   
         </section>
-        
-        <section>
-          <title>Authorization</title>
-          
-          
-        </section>
+
       </section>
       
       <section>
         <title>Creating Custom Relationships</title>
+        
+        <para>
+          One of the strengths of PicketLink is its ability to support custom relationship types.  This extensibility allows you, the
+          developer to create specific relationship types between two or more identities to address the domain-specific requirements
+          of your own application.  
+        </para>
+        
+        <note>
+          <para>
+            Please note that custom relationship types are not supported by all <code>IdentityStore</code> implementations - 
+            see the Identity Store section above for more information.
+          </para>
+        </note>
+        
+        <para>
+          To create a custom relationship type, we start by creating a new class that implements the <code>Relationship</code> interface.
+          To save time, we also extend the <code>AbstractAttributedType</code> abstract class which takes care of the identifier and
+          attribute management methods for us:
+        </para>
+        
+        <programlisting><![CDATA[  public class Authorization extends AbstractAttributedType implements Relationship {
+        
+  }]]></programlisting>
+        
+        <para>
+          The next step is to define which identities participate in the relationship.  Once we create our identity property methods,
+          we also need to annotate them with the <code>org.picketlink.idm.model.annotation.RelationshipIdentity</code> annotation.  
+          This is done by creating a property for each identity type.
+        </para>
+        
+        <programlisting><![CDATA[  private User user;
+  private Agent application;
+  
+  @RelationshipIdentity
+  public User getUser() {
+    return user;
+  }
+  
+  public void setUser(User user) {
+    this.user = user;
+  }
+  
+  @RelationshipIdentity
+  public Agent getApplication() {
+    return application;
+  }
+  
+  public void setApplication(Agent application) {
+    this.application = application;
+  }]]></programlisting>
+          
+          <code>
+            We can also define some attribute properties, using the <code>@RelationshipAttribute</code> annotation:
+          </code>
+          
+          <programlisting><![CDATA[  private String accessToken;
+  
+  @RelationshipAttribute
+  public String getAccessToken() {
+    return accessToken;
+  }
+  
+  public void setAccessToken(String accessToken) {
+    this.accessToken = accessToken;
+  }]]></programlisting>
       </section>
+      
+    </section>
+    
+    <section>
+      <title>Credentials and Authentication</title>
+      
       
     </section>
     
