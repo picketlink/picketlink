@@ -229,7 +229,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
     }
 
     @Test
-    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class})
     public void testFindWithSorting() throws Exception {
         createRole("someRole");
         createRole("someAnotherRole");

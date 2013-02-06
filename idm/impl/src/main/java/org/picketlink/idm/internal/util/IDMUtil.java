@@ -92,4 +92,17 @@ public class IDMUtil {
         return true;
     }
 
+    /**
+     * Sleep given number of milliseconds
+     *
+     * @param ms
+     */
+    public static void sleep(int ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 }

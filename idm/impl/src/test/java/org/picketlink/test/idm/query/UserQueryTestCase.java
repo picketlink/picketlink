@@ -164,7 +164,7 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
     }
 
     @Test
-    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class})
     public void testFindWithPaginationAndSorting() throws Exception {
         createPopulatedUser("john", "John", "Anthony");
         createPopulatedUser("root", "Root", "Root");

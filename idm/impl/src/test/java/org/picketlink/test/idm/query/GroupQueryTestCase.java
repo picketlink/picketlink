@@ -236,7 +236,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
 
     @Test
-    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class })
     public void testFindWithSorting() throws Exception {
         createGroup("someGroup", null);
         createGroup("someAnotherGroup", null);
