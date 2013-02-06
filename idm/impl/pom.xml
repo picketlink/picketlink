@@ -73,19 +73,19 @@
             <version>${project.version}</version>
           </dependency>
 
-          <dependency>
+          <!--dependency>
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-config</artifactId>
             <version>${project.version}</version>
-          </dependency>
+          </dependency-->
 	<dependency>
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-idm-api</artifactId>
         </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>org.picketlink</groupId>
       <artifactId>picketlink-config</artifactId>
-    </dependency>
+    </dependency-->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
