@@ -345,7 +345,7 @@ public class JPACredentialStore implements CredentialStore {
     }
 
     private void checkCredentialClassProvided() {
-        if (getConfig().getClass() == null) {
+        if (getConfig().getCredentialClass() == null) {
             throw new IdentityManagementException("No class Entity class provided to store credentials.");
         }
     }
