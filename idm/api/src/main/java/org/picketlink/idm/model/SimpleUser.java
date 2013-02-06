@@ -32,6 +32,10 @@ public class SimpleUser extends SimpleAgent implements User {
     private String lastName;
     private String email;
 
+    public SimpleUser() {
+        super("");
+    }
+    
     public SimpleUser(String loginName) {
         super(loginName);
     }
