@@ -30,7 +30,6 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.User;
@@ -68,9 +67,9 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         
         Authorization authorized = new Authorization(robert, myOauthApp);
         
-        authorized.setAttribute(new Attribute<String>("authorizationCode", authorizationCode));
-        authorized.setAttribute(new Attribute<String>("accessToken", accessToken));
-        authorized.setAttribute(new Attribute<String>("refreshToken", refreshToken));
+        authorized.setAuthorizationCode(authorizationCode);
+        authorized.setAccessToken(accessToken);
+        authorized.setRefreshToken(refreshToken);
         
         identityManager.add(authorized);
         
@@ -89,7 +88,7 @@ public class ApplicationUserRelationshipTestCase extends AbstractIdentityManager
         
         assertNotNull(authorized.getUser());
         assertNotNull(authorized.getApplication());
-        assertNotNull(authorized.getAttribute("authorizationCode"));
+        assertNotNull(authorized.getAuthorizationCode());
         
         query = identityManager.createRelationshipQuery(Authorization.class);
         

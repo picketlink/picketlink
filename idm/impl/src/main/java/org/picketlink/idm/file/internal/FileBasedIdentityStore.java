@@ -78,6 +78,7 @@ import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.annotation.RelationshipAttribute;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -1123,6 +1124,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             toIdentityType.removeAttribute(attribute.getName());
         }
 
+        List<Property<Serializable>> attributeProperties = PropertyQueries.<Serializable> createQuery(fromIdentityType.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+
+        for (Property<Serializable> attributeProperty : attributeProperties) {
+            attributeProperty.setValue(toIdentityType, attributeProperty.getValue(fromIdentityType));
+        }
+        
         for (Attribute<? extends Serializable> attrib : fromIdentityType.getAttributes()) {
             toIdentityType.setAttribute(attrib);
         }

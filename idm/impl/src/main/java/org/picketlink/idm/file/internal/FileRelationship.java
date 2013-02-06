@@ -36,6 +36,7 @@ import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.annotation.RelationshipAttribute;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 
 /**
@@ -78,6 +79,14 @@ public class FileRelationship extends AbstractAttributedTypeEntry<Relationship> 
                 this.identityTypeIds.put(identityType.getId(), annotatedProperty.getName());
             }
         }
+        
+        List<Property<Serializable>> relationshipAttributeTypes = PropertyQueries
+                .<Serializable> createQuery(getEntry().getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+        
+        for (Property<Serializable> property : relationshipAttributeTypes) {
+            properties.put(property.getName(), property.getValue(getEntry()));
+        }
     }
 
     @Override
@@ -89,6 +98,21 @@ public class FileRelationship extends AbstractAttributedTypeEntry<Relationship> 
     @Override
     protected void doReadObject(ObjectInputStream s) throws Exception {
         this.identityTypeIds = (Map<String, String>) s.readObject();
+    }
+    
+    @Override
+    protected Relationship doPopulateEntry(Map<String, Serializable> properties) throws Exception {
+        Relationship relationship = super.doPopulateEntry(properties);
+        
+        List<Property<Serializable>> relationshipAttributeTypes = PropertyQueries
+                .<Serializable> createQuery(relationship.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+        
+        for (Property<Serializable> property : relationshipAttributeTypes) {
+            property.setValue(relationship, properties.get(property.getName()));
+        }
+        
+        return relationship;
     }
 
     public String getIdentityTypeId(String roleName) {
