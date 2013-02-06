@@ -31,12 +31,19 @@ public class SimpleRole extends AbstractIdentityType implements Role {
 
     private String name;
 
+    public SimpleRole() {
+    }
+
     public SimpleRole(String name) {
         this.name = name;
     }
 
     public String getName() {
         return name;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
     }
 
     @Override

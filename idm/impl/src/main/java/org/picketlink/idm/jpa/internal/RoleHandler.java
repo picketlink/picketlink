@@ -39,6 +39,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
+import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
@@ -49,6 +50,8 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
     public RoleHandler(JPAIdentityStoreConfiguration config) {
         super(config);
+
+        getSortParametersMapping().put(Role.NAME, PropertyType.IDENTITY_NAME);
     }
 
     @Override
@@ -71,6 +74,11 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
     @Override
     protected AbstractBaseEvent raiseDeletedEvent(Role fromIdentityType) {
         return new RoleDeletedEvent(fromIdentityType);
+    }
+
+    @Override
+    protected QueryParameter[] getDefaultSortingParameters() {
+        return new QueryParameter[] { Role.NAME };
     }
 
     @Override

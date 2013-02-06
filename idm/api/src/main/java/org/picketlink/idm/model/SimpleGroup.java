@@ -32,6 +32,9 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
     private String name;
     private Group parentGroup;
 
+    public SimpleGroup() {
+    }
+
     public SimpleGroup(String name) {
         if (name == null || name.isEmpty()) {
             throw new IllegalArgumentException("Error creating SimpleGroup - name cannot be null or empty");
@@ -52,7 +55,11 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
     public String getName() {
         return name;
     }
-
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
     @Override
     public Group getParentGroup() {
         return parentGroup;

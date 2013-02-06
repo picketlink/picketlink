@@ -17,6 +17,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -51,6 +52,7 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.annotation.RelationshipAttribute;
 import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -606,9 +608,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             CriteriaQuery<?> criteria = criteriaBuilder.getCriteria();
 
+            List<Order> orders = criteriaBuilder.getOrders();
+
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-            criteria.orderBy(criteriaBuilder.getBuilder().asc(
-                    criteriaBuilder.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName())));
+            criteria.orderBy(orders);
 
             TypedQuery<?> query = em.createQuery(criteria);
 
@@ -1197,6 +1200,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param identity
      */
     private void updateRelationshipAttributes(Relationship relationship, Object identity) {
+        List<Property<Serializable>> attributeProperties = PropertyQueries.<Serializable> createQuery(relationship.getClass())
+                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
+
+        for (Property<Serializable> attributeProperty : attributeProperties) {
+            relationship.setAttribute(new Attribute<Serializable>(attributeProperty.getName(), attributeProperty
+                    .getValue(relationship)));
+        }
+
         Collection<Attribute<? extends Serializable>> attributes = relationship.getAttributes();
 
         if (attributes != null && !attributes.isEmpty()) {
@@ -1301,7 +1312,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     /**
      * <p>
-     * Populates the given {@link IdentityType} instance with the attributes associated with the given entity.
+     * Populates the given {@link Relationship} instance with the attributes associated with the given entity.
      * </p>
      * 
      * @param relationshipType
@@ -1322,30 +1333,49 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                         String attribName = (String) attributeNameProperty.getValue(object);
                         Serializable attribValue = (Serializable) attributeValueProperty.getValue(object);
 
-                        Attribute<Serializable> identityTypeAttribute = relationshipType.getAttribute(attribName);
+                        List<Property<Serializable>> attributeProperties = PropertyQueries
+                                .<Serializable> createQuery(relationshipType.getClass())
+                                .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
 
-                        if (identityTypeAttribute == null) {
-                            identityTypeAttribute = new Attribute<Serializable>(attribName, attribValue);
-                            relationshipType.setAttribute(identityTypeAttribute);
+                        Property<Serializable> relationshipAttributeProperty = null;
+
+                        for (Property<Serializable> attributeProperty : attributeProperties) {
+                            String propertyName = attributeProperty.getName();
+
+                            if (propertyName.equals(attribName)) {
+                                relationshipAttributeProperty = attributeProperty;
+                                break;
+                            }
+                        }
+
+                        if (relationshipAttributeProperty != null) {
+                            relationshipAttributeProperty.setValue(relationshipType, attribValue);
                         } else {
-                            // if it is a multi-valued attribute
-                            if (identityTypeAttribute.getValue() != null) {
-                                String[] values = null;
+                            Attribute<Serializable> identityTypeAttribute = relationshipType.getAttribute(attribName);
 
-                                if (identityTypeAttribute.getValue().getClass().isArray()) {
-                                    values = (String[]) identityTypeAttribute.getValue();
-                                } else {
-                                    values = new String[1];
-                                    values[0] = identityTypeAttribute.getValue().toString();
-                                }
-
-                                String[] newValues = Arrays.copyOf(values, values.length + 1);
-
-                                newValues[newValues.length - 1] = attribValue.toString();
-
-                                identityTypeAttribute.setValue(newValues);
-
+                            if (identityTypeAttribute == null) {
+                                identityTypeAttribute = new Attribute<Serializable>(attribName, attribValue);
                                 relationshipType.setAttribute(identityTypeAttribute);
+                            } else {
+                                // if it is a multi-valued attribute
+                                if (identityTypeAttribute.getValue() != null) {
+                                    String[] values = null;
+
+                                    if (identityTypeAttribute.getValue().getClass().isArray()) {
+                                        values = (String[]) identityTypeAttribute.getValue();
+                                    } else {
+                                        values = new String[1];
+                                        values[0] = identityTypeAttribute.getValue().toString();
+                                    }
+
+                                    String[] newValues = Arrays.copyOf(values, values.length + 1);
+
+                                    newValues[newValues.length - 1] = attribValue.toString();
+
+                                    identityTypeAttribute.setValue(newValues);
+
+                                    relationshipType.setAttribute(identityTypeAttribute);
+                                }
                             }
                         }
                     }
