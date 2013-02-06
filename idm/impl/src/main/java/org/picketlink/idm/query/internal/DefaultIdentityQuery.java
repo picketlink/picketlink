@@ -26,6 +26,8 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private Class<T> identityType;
     private int offset;
     private int limit;
+    private QueryParameter[] sortParameters;
+    private boolean sortAscending = true;
     
     public DefaultIdentityQuery(Class<T> identityType, IdentityStore<?> identityStore) {
         this.identityStore = identityStore;
@@ -78,6 +80,22 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         return offset;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public QueryParameter[] getSortParameters() {
+        return sortParameters;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isSortAscending() {
+        return sortAscending;
+    }
+
     /*@Override
     public IdentityQuery<T> setParameter(QueryParameter param, Operator operator, Object value) {
         // TODO Auto-generated method stub
@@ -106,4 +124,18 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public IdentityQuery<T> setSortParameters(QueryParameter... sortParameters) {
+        this.sortParameters = sortParameters;
+        return this;
+    }
+
+    @Override
+    public IdentityQuery<T> setSortAscending(boolean sortAscending) {
+        this.sortAscending = sortAscending;
+        return this;
+    }
 }

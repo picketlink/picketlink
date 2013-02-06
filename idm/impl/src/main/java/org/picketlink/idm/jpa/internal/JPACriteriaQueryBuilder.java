@@ -28,13 +28,16 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -70,39 +73,23 @@ public class JPACriteriaQueryBuilder {
 
             predicates.addAll(identityTypeManager.getPredicate(this, identityStore));
         } else {
-            IdentityTypeHandler<IdentityType> identityTypeManager = new IdentityTypeHandler<IdentityType>(getConfig()) {
-
-                @Override
-                protected IdentityType doCreateIdentityType(Object identity, JPAIdentityStore store) {
-                    return null;
-                }
-
-                @Override
-                protected void doPopulateIdentityInstance(Object toIdentity, IdentityType fromIdentityType,
-                        JPAIdentityStore store) {
-
-                }
-
-                @Override
-                protected AbstractBaseEvent raiseCreatedEvent(IdentityType fromIdentityType) {
-                    return null;
-                }
-
-                @Override
-                protected AbstractBaseEvent raiseUpdatedEvent(IdentityType fromIdentityType) {
-                    return null;
-                }
-
-                @Override
-                protected AbstractBaseEvent raiseDeletedEvent(IdentityType fromIdentityType) {
-                    return null;
-                }
-            };
+            IdentityTypeHandler<IdentityType> identityTypeManager = new DefaultIdentityTypeHandler(getConfig());
 
             predicates.addAll(identityTypeManager.getPredicate(this, identityStore));
         }
 
         return predicates;
+    }
+
+    public List<Order> getOrders() {
+        IdentityTypeHandler<?> identityTypeManager;
+        if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
+            identityTypeManager = getConfig().getHandler(this.identityQuery.getIdentityType());
+        } else {
+            identityTypeManager = new DefaultIdentityTypeHandler(getConfig());
+        }
+
+        return identityTypeManager.getOrders(this);
     }
 
     protected CriteriaQuery<?> getCriteria() {
@@ -127,5 +114,43 @@ public class JPACriteriaQueryBuilder {
 
     private EntityManager getEntityManager() {
         return this.identityStore.getEntityManager();
+    }
+
+    private class DefaultIdentityTypeHandler extends IdentityTypeHandler<IdentityType> {
+
+        public DefaultIdentityTypeHandler(JPAIdentityStoreConfiguration config) {
+            super(config);
+        }
+
+        @Override
+        protected IdentityType doCreateIdentityType(Object identity, JPAIdentityStore store) {
+            return null;
+        }
+
+        @Override
+        protected void doPopulateIdentityInstance(Object toIdentity, IdentityType fromIdentityType,
+                                                  JPAIdentityStore store) {
+
+        }
+
+        @Override
+        protected AbstractBaseEvent raiseCreatedEvent(IdentityType fromIdentityType) {
+            return null;
+        }
+
+        @Override
+        protected AbstractBaseEvent raiseUpdatedEvent(IdentityType fromIdentityType) {
+            return null;
+        }
+
+        @Override
+        protected AbstractBaseEvent raiseDeletedEvent(IdentityType fromIdentityType) {
+            return null;
+        }
+
+        @Override
+        protected QueryParameter[] getDefaultSortingParameters() {
+            return new QueryParameter[] { IdentityType.ID };
+        }
     }
 }

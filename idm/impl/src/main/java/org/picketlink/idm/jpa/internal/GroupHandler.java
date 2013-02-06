@@ -42,6 +42,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
@@ -52,6 +53,9 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
     public GroupHandler(JPAIdentityStoreConfiguration config) {
         super(config);
+
+        getSortParametersMapping().put(Group.NAME, PropertyType.IDENTITY_NAME);
+        // TODO: Parameter for parent group should be likely added as well...
     }
 
     @Override
@@ -90,6 +94,11 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     @Override
     protected AbstractBaseEvent raiseDeletedEvent(Group fromIdentityType) {
         return new GroupDeletedEvent(fromIdentityType);
+    }
+
+    @Override
+    protected QueryParameter[] getDefaultSortingParameters() {
+        return new QueryParameter[] { Group.NAME };
     }
 
     /**
