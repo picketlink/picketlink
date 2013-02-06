@@ -35,6 +35,7 @@ import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.SimpleAgent;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -44,6 +45,8 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     public AgentHandler(JPAIdentityStoreConfiguration config) {
         super(config);
+
+        getSortParametersMapping().put(Agent.LOGIN_NAME, PropertyType.AGENT_LOGIN_NAME);
     }
 
     @Override
@@ -74,6 +77,11 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
         Agent agent = new SimpleAgent(loginName);
         
         return agent;
+    }
+
+    @Override
+    protected QueryParameter[] getDefaultSortingParameters() {
+        return new QueryParameter[] { Agent.LOGIN_NAME };
     }
     
     @Override

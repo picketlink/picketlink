@@ -34,10 +34,14 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
  * <p>
@@ -447,5 +451,38 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
         assertFalse(result.isEmpty());
         assertTrue(contains(result, agentType.getId()));
         assertFalse(contains(result, someagent.getId()));
+    }
+
+    @Test
+    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
+        createAgent("john");
+        createAgent("demo");
+        createAgent("root");
+        Agent mary = createAgent("mary");
+        mary.setEnabled(false);
+        getIdentityManager().update(mary);
+
+        // Default sorting (loginName)
+        IdentityQuery<Agent> agentQuery = getIdentityManager().createIdentityQuery(Agent.class);
+        List<Agent> agents = agentQuery.getResultList();
+
+        assertEquals(4, agents.size());
+        assertEquals(agents.get(0).getLoginName(), "demo");
+        assertEquals(agents.get(1).getLoginName(), "john");
+        assertEquals(agents.get(2).getLoginName(), "mary");
+        assertEquals(agents.get(3).getLoginName(), "root");
+
+        // Descending sorting by enablement and creationDate
+        agentQuery = getIdentityManager().createIdentityQuery(Agent.class);
+        agentQuery.setSortAscending(false);
+        agentQuery.setSortParameters(IdentityType.ENABLED, IdentityType.CREATED_DATE);
+        agents = agentQuery.getResultList();
+
+        assertEquals(4, agents.size());
+        assertEquals(agents.get(0).getLoginName(), "root");
+        assertEquals(agents.get(1).getLoginName(), "demo");
+        assertEquals(agents.get(2).getLoginName(), "john");
+        assertEquals(agents.get(3).getLoginName(), "mary");
     }
 }

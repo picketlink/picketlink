@@ -17,6 +17,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -606,9 +607,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             CriteriaQuery<?> criteria = criteriaBuilder.getCriteria();
 
+            List<Order> orders =  criteriaBuilder.getOrders();
+
             criteria.where(predicates.toArray(new Predicate[predicates.size()]));
-            criteria.orderBy(criteriaBuilder.getBuilder().asc(
-                    criteriaBuilder.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName())));
+            criteria.orderBy(orders);
 
             TypedQuery<?> query = em.createQuery(criteria);
 

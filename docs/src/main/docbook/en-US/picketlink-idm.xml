@@ -1,0 +1,644 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter version="5.0"
+         xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd http://www.w3.org/1999/xlink http://www.docbook.org/xml/5.0/xsd/xlink.xsd"
+         xml:base="../" xmlns="http://docbook.org/ns/docbook"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+         xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xi="http://www.w3.org/2001/XInclude"
+         xmlns:ns="http://docbook.org/ns/docbook">
+  <title>Identity Management</title>
+  
+    <section>
+      <title>Overview</title>
+      
+      <para>
+        PicketLink's Identity Management (IDM) feature provides a rich and extensible API for managing the users, groups and roles of
+        your applications and services. The <code>org.picketlink.idm.IdentityManager</code> interface declares all the methods required to
+        create, update and delete Identity objects and create relationships between them such as group and role memberships.
+      </para>
+      
+      <para>
+        Interaction with the backend store that provides the persistent identity state is performed by configuring one or more
+        <code>IdentityStore</code>s.  PicketLink provides a few built-in <code>IdentityStore</code> implementations for storing
+        identity state in a database, file system or LDAP directory server, and it is possible to provide your own custom
+        implementation to support storing your application's identity data in other backends, or extend the built-in implementations
+        to override their default behaviour.
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/identity_manager_stores.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/identity_manager_stores.png" align="center"/>
+        </imageobject>
+      </mediaobject> 
+      
+      <para>
+        Before PicketLink IDM can be used, it must first be configured.  See the configuration section below for details on
+        how to configure IDM for both Java EE and Java SE environments.
+      </para>
+    </section>
+    
+    <section>
+      <title>Identity Model</title>
+      
+      <para>
+        PicketLink's identity model consists of a number of core interfaces that define the fundamental identity types
+        upon which much of the Identity Management API is based.  The following class diagram shows the classes and interfaces
+        in the <code>org.picketlink.idm.model</code> package that form the base identity model.
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/identitymodel.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/identitymodel.png" align="center"/>
+        </imageobject>
+      </mediaobject>      
+      
+      <itemizedlist>
+        <listitem>
+          <para>
+            <code>AttributedType</code> is the base interface for the identity model.  It declares a number of methods for
+            managing a set of attribute values, plus <code>getId()</code> and <code>setId()</code> methods for setting a 
+            unique UUID value.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>Attribute</code> is used to represent an attribute value.  An attribute has a name and a (generically typed) value,
+            and may be marked as read-only.  Attribute values that are expensive to load (such as large binary data) may be lazy-loaded; 
+            the <code>isLoaded()</code> method may be used to determine whether the Attribute has been loaded or not.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>IdentityType</code> is the base interface for Identity objects.  It declares properties that indicate whether the
+            identity object is enabled or not, optional created and expiry dates, plus methods to read and set the owning 
+            <code>Partition</code>.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>Agent</code> represents a unique entity that may access the services secured by PicketLink.  In contrast to a user
+            which represents a human, <code>Agent</code> is intended to represent a third party non-human (i.e. machine to machine) 
+            process that may authenticate and interact with your application or services.  It declares methods for reading and setting
+            the <code>Agent</code>'s login name.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>User</code> represents a human user that accesses your application and services.  In addition to the login name
+            property defined by its parent interface <code>Agent</code>, the <code>User</code> interface declares a number of other
+            methods for managing the user's first name, last name and e-mail address.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>Group</code> is used to manage collections of identity types.  Each <code>Group</code> has a name and an optional
+            parent group.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            <code>Role</code> is used in various relationship types to designate authority to another identity type to perform
+            various operations within an application.  For example, a forum application may define a role called 
+            <emphasis>moderator</emphasis> which may be assigned to one or more <code>User</code>s or <code>Group</code>s to indicate 
+            that they are authorized to perform moderator functions.
+          </para>
+        </listitem>
+      
+      </itemizedlist>
+      
+      
+    </section>
+    
+    <section>
+      <title>Configuration</title>
+      
+      <para>
+        Since PicketLink Identity Management is supported in both Java EE and Java SE environments, configuration details 
+        has been split into the following two separate sections.
+      </para>
+      
+      <section>
+        <title>Java EE</title>
+        
+      </section>
+      
+      <section>
+        <title>Java SE</title>
+        
+      </section>
+    </section>
+    
+    <section>
+      <title>Getting Started</title>
+      
+      <para>
+        The <code>org.picketlink.idm.IdentityManager</code> interface provides access to the bulk of the IDM features supported by PicketLink.
+        To get access to the <code>IdentityManager</code> depends on which environment you are using. The following two
+        sections describe how to access the <code>IdentityManager</code> in both Java EE and Java SE environments.
+      </para>
+      
+      <section>
+        <title>Accessing the <code>IdentityManager</code> in Java EE</title>
+        
+        <para>
+          In a Java EE environment, the PicketLink Core module provides a producer method for <code>IdentityManager</code>, 
+          so getting a reference to it is as simply as injecting it into your beans:
+        </para>
+      
+        <programlisting language="JAVA"><![CDATA[@Inject IdentityManager identityManager;]]></programlisting>
+  
+      </section>
+      
+      <section>
+        <title>Accessing the <code>IdentityManager</code> in Java SE</title>
+        
+        <para>
+        
+        </para>
+      </section>
+    </section>
+    
+    <section>
+      <title>Managing Users, Groups and Roles</title>
+      
+      <para>
+        PicketLink IDM provides a number of basic implementations of the identity model interfaces for convenience, in the
+        <code>org.picketlink.idm.model</code> package.  The following sections provide examples that show these 
+        implementations in action.
+      </para>
+  
+      <section>
+        <title>Managing Users</title>
+        
+        <para>
+          The following code example demonstrates how to create a new user with username <emphasis>jsmith</emphasis>, first 
+          name of <emphasis>John</emphasis> and last name <emphasis>Smith</emphasis>, with e-mail address 
+          <emphasis>jsmith@acme.com</emphasis>.
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  User user = new SimpleUser("jsmith");
+  user.setFirstName("John");
+  user.setLastName("Smith");
+  user.setEmail("jsmith@acme.com");
+  identityManager.add(user);]]></programlisting>
+  
+        <para>
+          Once the <code>User</code> is created, it's possible to look it up using its login name:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");]]></programlisting>
+        
+        <para>
+          User properties can also be modified after the User has already been created.  The following example demonstrates how
+          to change the e-mail address of the user we created above:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");
+  user.setEmail("john@smith.com");
+  identityManager.update(user);]]></programlisting>
+  
+        <para>
+          Users may also be deleted.  The following example demonstrates how to delete the user previously created:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  User user = identityManager.getUser("jsmith");
+  identityManager.remove("jsmith");]]></programlisting>
+        
+      </section>
+      
+      <section>
+        <title>Managing Groups</title>
+        
+        <para>
+          The following example demonstrates how to create a new group called <emphasis>employees</emphasis>:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group employees = new SimpleGroup("employees");]]></programlisting>
+        
+        <para>
+          It is also possible to assign a parent group when creating a group.  The following example demonstrates how
+          to create a new group called <emphasis>managers</emphasis>, using the <emphasis>employees</emphasis> group 
+          created in the previous example as the parent group:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group managers = new SimpleGroup("managers", employees);]]></programlisting>
+        
+        <para>
+          To lookup an existing <code>Group</code>, the <code>getGroup()</code> method may be used.  If the group name
+          is unique, it can be passed as a single parameter:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");]]></programlisting>
+        
+        <para>
+          If the group name is not unique, the parent group must be passed as the second parameter (although it can still be
+          provided if the group name is unique):
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group managers = identityManager.getGroup("managers", employees);]]></programlisting>
+        
+        <para>
+          It is also possible to modify a <code>Group</code>'s name and other properties (besides its parent) after it has
+          been created.  The following example demonstrates how to disable the "employees" group we created above:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");
+  employees.setEnabled(false);
+  identityManager.update(employees);]]></programlisting>
+        
+        <para>
+          To remove an existing group, we can use the <code>remove()</code> method:
+        </para>
+        
+        <programlisting language="JAVA"><![CDATA[  Group employees = identityManager.getGroup("employees");
+  identityManager.remove(employees);]]></programlisting>
+
+      </section>
+    </section>
+    
+    <section>
+      <title>Managing Relationships</title>
+      
+      <para>
+        Relationships are used to model <emphasis>typed associations</emphasis> between two or more identities.  All 
+        concrete relationship types must implement the marker interface <code>org.picketlink.idm.model.Relationship</code>:
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/relationshipclassdiagram.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/relationshipclassdiagram.png" align="center"/>
+        </imageobject>
+      </mediaobject> 
+                    
+      <para>
+        The <code>IdentityManager</code> interface provides three standard methods for managing relationships:
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[  void add(Relationship relationship);
+  void update(Relationship relationship);
+  void remove(Relationship relationship);]]></programlisting>
+      
+      <itemizedlist>
+        <listitem>
+          <para>
+            The <code>add()</code> method is used to create a new relationship.
+          </para>
+        </listitem>
+        
+        <listitem>
+          <para>
+            The <code>update()</code> method is used to update an existing relationship.
+          </para>
+          
+          <note>
+            <para>
+              Please note that the identities that participate in a relationship cannot be updated themselves, 
+              however the attribute values of the relationship can be updated.  If you absolutely need to modify
+              the identities of a relationship, then delete the relationship and create it again.
+            </para>
+          </note>
+        </listitem>
+        
+        <listitem>
+          <para>
+            The <code>remove()</code> method is used to remove an existing relationship.
+          </para>
+        </listitem>
+      </itemizedlist>
+      
+      <note>
+        <para>
+          To search for existing relationships between identity objects, use the Relationship Query API described later
+          in this chapter.
+        </para>
+      </note>
+      
+      <para>
+        Besides the above methods, <code>IdentityManager</code> also provides a number of convenience methods for
+        managing many of the built-in relationship types.  See the next section for more details.
+      </para>
+            
+      <section>
+        <title>Built In Relationship Types</title>
+        
+        <para>
+          PicketLink provides a number of built-in relationship types, designed to address the most common requirements
+          of a typical application.  The following sections describe the built-in relationships and how they are intended
+          to be used.  Every built-in relationship type extends the <code>AbstractAttributedType</code> abstract class,
+          which provides the basic methods for setting a unique identifier value and managing a set of attribute values:
+        </para>
+        
+        <mediaobject>
+          <imageobject role="fo">
+            <imagedata fileref="diagrams/abstractattributedtype.png" align="center" scalefit="1"/>
+          </imageobject>
+          <imageobject role="html">
+            <imagedata fileref="diagrams/abstractattributedtype.png" align="center"/>
+          </imageobject>
+        </mediaobject> 
+        
+        <para>
+          What this means in practical terms, is that every single relationship is assigned and can be identified by, a unique 
+          identifier value.  Also, arbitrary attribute values may be set for all relationship types, which is useful if you 
+          require additional metadata or any other type of information to be stored with a relationship.
+        </para>
+        
+        <section>
+          <title>Grant</title>
+          
+          <para>
+            A <code>Grant</code> relationship is used to assign a <code>Role</code> to an identity type such as a <code>User</code>
+            or <code>Agent</code>.  It is typically used to represent an <emphasis>application role</emphasis>, in which an entity
+            is granted the privilege to perform certain restricted operations within the scope of an application or service.
+          </para>
+          
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/grant.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/grant.png" align="center"/>
+            </imageobject>
+          </mediaobject> 
+          
+          <para>
+            The <code>IdentityManager</code> interface provides methods for directly granting a role.  Here's a simple example:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
+  Role superuser = identityManager.getRole("superuser");
+  identityManager.grantRole(bob, superuser);]]></programlisting>
+          
+          <para>
+            The above code is equivalent to the following:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
+  Role superuser = identityManager.getRole("superuser");
+  Grant grant = new Grant(bob, superuser);
+  identityManager.add(grant);]]></programlisting>
+  
+          <para>
+            A granted role can also be revoked using the <code>revokeRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
+  Role superuser = identityManager.getRole("superuser");
+  identityManager.revokeRole(bob, superuser);]]></programlisting>
+  
+          <para>
+            To check whether an identity has a specific role granted to them, we can use the <code>hasRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User bob = identityManager.getUser("bob");
+  Role superuser = identityManager.getRole("superuser");
+  boolean isBobASuperUser = identityManager.hasRole(bob, superuser);]]></programlisting>
+        </section>
+        
+        <section>
+          <title>Group Membership</title>
+          
+          <para>
+            The <code>GroupMembership</code> relationship is used to represent an identity's membership of a <code>Group</code>.
+          </para>
+          
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/groupmembership.png" align="center" scalefit="0"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/groupmembership.png" align="center"/>
+            </imageobject>
+          </mediaobject>           
+          
+          <para>
+            A <code>Group</code> is typically used to form logical collections of users.  Within an organisation, groups are 
+            often used to mirror the organisation's structure.  For example, a corporate structure might consist of a sales
+            department, administration, management, etc.  This structure can be modelled in PicketLink by creating corresponding
+            groups such as <emphasis>sales</emphasis>, <emphasis>administration</emphasis>, and so forth.  Users (who would represent 
+            the employees in a corporate structure) may then be assigned group memberships corresponding to their place within 
+            the company's organisational structure.  For example, an employee who works in the sales department 
+            may be assigned to the <emphasis>sales</emphasis> group.
+            Specific application privileges can then be blanket assigned to the <emphasis>sales</emphasis> group, and anyone who 
+            is a member of the group is free to access the application's features that require those privileges.
+          </para>
+          
+          <para>
+            Let's start by looking at a simple example.  The following code demonstrates how we would create the hypothetical 
+            <emphasis>sales</emphasis> group described above, and assign group membership to user "janet":
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  Group sales = new SimpleGroup("sales");
+  identityManager.add(sales);
+  User janet = identityManager.getUser("janet");
+  identityManager.addToGroup(janet, sales);]]></programlisting>
+          
+          <para>
+            A <code>User</code> may also be a member of more than one <code>Group</code>; there are no built-in limitations on 
+            the number of groups that a <code>User</code> may be a member of.  
+          </para>
+          
+          <para>
+            We can use the <code>removeFromGroup()</code> method to remove the user from the group:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  Group sales = identityManager.getGroup("sales");
+  User janet = identityManager.getUser("janet");
+  identityManager.removeFromGroup(janet, sales);]]></programlisting>
+  
+          <para>
+            To check whether an identity is the member of a group we can use the <code>isMember()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  Group sales = identityManager.getGroup("sales");
+  User janet = identityManager.getUser("janet");
+  boolean isJanetInSales = identityManager.isMember(janet, sales);]]></programlisting>
+        </section>
+        
+        <section>
+          <title>Group Role</title>
+          
+          <para>
+            The <code>GroupRole</code> relationship type extends <code>GroupMembership</code> by adding a role property, and is
+            used to represent identities that have a specific role within the context of a group. 
+          </para>
+          
+          <mediaobject>
+            <imageobject role="fo">
+              <imagedata fileref="diagrams/grouprole.png" align="center" scalefit="1"/>
+            </imageobject>
+            <imageobject role="html">
+              <imagedata fileref="diagrams/grouprole.png" align="center"/>
+            </imageobject>
+          </mediaobject>   
+          
+          <note>
+            <para>
+              While the <code>GroupRole</code> relationship type extends <code>GroupMembership</code>, it does <emphasis>not</emphasis> 
+              mean that a member of a <code>GroupRole</code> automatically receives <code>GroupMembership</code> membership also.
+            </para>
+          </note>
+          
+          <para>
+            The <code>GroupRole</code> relationship type should be used when it is intended for an identity to perform a specific
+            role for a group, but not be an actual member of the group itself.  For example, an administrator of a group of doctors
+            may not be a doctor themselves, but have an administrative role to perform for them.  If the intent is for an individual
+            identity to both be a member of a group <emphasis>and</emphasis> have an assigned role in that group also, then the identity
+            should have both <code>GroupRole</code> and <code>GroupMembership</code> relationships for that group.
+          </para>
+          
+          <para>
+            The <code>IdentityManager</code> interface provides some convenience methods for managing group roles.  The following example
+            demonstrates how to assign a group role to a user:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  Group doctors = new SimpleGroup("doctors");
+  identityManager.add(doctors);
+  User sally = identityManager.getUser("sally");
+  Role admin = identityManager.getRole("administrator");
+  identityManager.grantGroupRole(sally, doctors, admin);]]></programlisting>
+  
+          <para>
+            The above code is equivalent to creating a <code>GroupRole</code> relationship manually, and adding it via the 
+            <code>add()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  Group doctors = new SimpleGroup("doctors");
+  identityManager.add(doctors);
+  User sally = identityManager.getUser("sally");
+  Role admin = identityManager.getRole("administrator");
+  GroupRole groupRole = new GroupRole(sally, doctors, admin);
+  identityManager.add(groupRole);]]></programlisting>
+  
+          <para>
+            A group role can be revoked using the <code>revokeGroupRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User sally = identityManager.getUser("sally");
+  Role admin = identityManager.getRole("administrator");
+  Group doctors = identityManager.getGroup("doctors");
+  identityManager.revokeGroupRole(sally, admin, doctors);]]></programlisting>
+  
+          <para>
+            To test whether an identity has a particular group role, you can use the <code>hasGroupRole()</code> method:
+          </para>
+          
+          <programlisting language="JAVA"><![CDATA[  User sally = identityManager.getUser("sally");
+  Role admin = identityManager.getRole("administrator");
+  Group doctors = identityManager.getGroup("doctors");
+  boolean isSallyDoctorsAdmin = identityManager.hasGroupRole(sally, admin, doctors);]]></programlisting>
+  
+        </section>
+
+      </section>
+      
+      <section>
+        <title>Creating Custom Relationships</title>
+        
+        <para>
+          One of the strengths of PicketLink is its ability to support custom relationship types.  This extensibility allows you, the
+          developer to create specific relationship types between two or more identities to address the domain-specific requirements
+          of your own application.  
+        </para>
+        
+        <note>
+          <para>
+            Please note that custom relationship types are not supported by all <code>IdentityStore</code> implementations - 
+            see the Identity Store section above for more information.
+          </para>
+        </note>
+        
+        <para>
+          To create a custom relationship type, we start by creating a new class that implements the <code>Relationship</code> interface.
+          To save time, we also extend the <code>AbstractAttributedType</code> abstract class which takes care of the identifier and
+          attribute management methods for us:
+        </para>
+        
+        <programlisting><![CDATA[  public class Authorization extends AbstractAttributedType implements Relationship {
+        
+  }]]></programlisting>
+        
+        <para>
+          The next step is to define which identities participate in the relationship.  Once we create our identity property methods,
+          we also need to annotate them with the <code>org.picketlink.idm.model.annotation.RelationshipIdentity</code> annotation.  
+          This is done by creating a property for each identity type.
+        </para>
+        
+        <programlisting><![CDATA[  private User user;
+  private Agent application;
+  
+  @RelationshipIdentity
+  public User getUser() {
+    return user;
+  }
+  
+  public void setUser(User user) {
+    this.user = user;
+  }
+  
+  @RelationshipIdentity
+  public Agent getApplication() {
+    return application;
+  }
+  
+  public void setApplication(Agent application) {
+    this.application = application;
+  }]]></programlisting>
+          
+          <code>
+            We can also define some attribute properties, using the <code>@RelationshipAttribute</code> annotation:
+          </code>
+          
+          <programlisting><![CDATA[  private String accessToken;
+  
+  @RelationshipAttribute
+  public String getAccessToken() {
+    return accessToken;
+  }
+  
+  public void setAccessToken(String accessToken) {
+    this.accessToken = accessToken;
+  }]]></programlisting>
+      </section>
+      
+    </section>
+    
+    <section>
+      <title>Credentials and Authentication</title>
+      
+      
+    </section>
+    
+    <section>
+      <title>Realms and Tiers</title>
+      
+      <para>
+        If you are using PicketLink in Standalone mode, or if your application follows the ASP (Application Service Provider) model
+        then you may wish to partition your users, groups and roles into Realms and Tiers.
+      </para>
+      
+      <mediaobject>
+        <imageobject role="fo">
+          <imagedata fileref="diagrams/realm_tier.png" align="center" scalefit="1"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata fileref="diagrams/realm_tier.png" align="center"/>
+        </imageobject>
+      </mediaobject>   
+    </section>
+
+</chapter>

@@ -32,6 +32,8 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
@@ -39,6 +41,7 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
@@ -223,6 +226,24 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         assertFalse(contains(result, someRole.getId()));
         assertTrue(contains(result, someAnotherRole.getId()));
         assertTrue(contains(result, someImportantRole.getId()));
+    }
+
+    @Test
+    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    public void testFindWithSorting() throws Exception {
+        createRole("someRole");
+        createRole("someAnotherRole");
+        createRole("someImportantRole");
+
+        // Descending sorting by roleName
+        IdentityQuery<Role> roleQuery = getIdentityManager().createIdentityQuery(Role.class);
+        roleQuery.setSortAscending(false);
+        List<Role> roles = roleQuery.getResultList();
+
+        assertEquals(3, roles.size());
+        assertEquals(roles.get(0).getName(), "someRole");
+        assertEquals(roles.get(1).getName(), "someImportantRole");
+        assertEquals(roles.get(2).getName(), "someAnotherRole");
     }
 
 }

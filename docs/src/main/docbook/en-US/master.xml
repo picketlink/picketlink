@@ -24,6 +24,7 @@
     </cover>
   </info>
 
-  <xi:include href="picketlink-gettingstarted.xml" />
+  <xi:include href="picketlink-overview.xml" />
+  <xi:include href="picketlink-idm.xml"/>
 
 </book>

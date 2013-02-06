@@ -32,13 +32,16 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
@@ -230,6 +233,34 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertTrue(contains(result, someGroup.getId()));
         assertTrue(contains(result, someAnotherGroup.getId()));
         assertTrue(contains(result, someImportantGroup.getId()));
+    }
+
+    @Test
+    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    public void testFindWithSorting() throws Exception {
+        createGroup("someGroup", null);
+        createGroup("someAnotherGroup", null);
+        createGroup("someImportantGroup", null);
+
+        // Default sorting by group name
+        IdentityQuery<Group> groupQuery = getIdentityManager().createIdentityQuery(Group.class);
+        List<Group> groups = groupQuery.getResultList();
+
+        assertEquals(3, groups.size());
+        assertEquals(groups.get(0).getName(), "someAnotherGroup");
+        assertEquals(groups.get(1).getName(), "someGroup");
+        assertEquals(groups.get(2).getName(), "someImportantGroup");
+
+        // Descending sorting by creationDate
+        groupQuery = getIdentityManager().createIdentityQuery(Group.class);
+        groupQuery.setSortAscending(false);
+        groupQuery.setSortParameters(IdentityType.ENABLED, IdentityType.CREATED_DATE);
+        groups = groupQuery.getResultList();
+
+        assertEquals(3, groups.size());
+        assertEquals(groups.get(0).getName(), "someImportantGroup");
+        assertEquals(groups.get(1).getName(), "someAnotherGroup");
+        assertEquals(groups.get(2).getName(), "someGroup");
     }
     
 }
