@@ -24,12 +24,14 @@ package org.picketlink.idm.jpa.internal;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
@@ -59,8 +61,17 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     private JPAIdentityStoreConfiguration config;
 
+    // Map queryParameters to actual names of properties in JPA tables
+    private Map<QueryParameter, PropertyType> sortParametersMapping = new HashMap<QueryParameter, PropertyType>();
+
     public IdentityTypeHandler(JPAIdentityStoreConfiguration config) {
         this.config = config;
+
+        sortParametersMapping.put(IdentityType.ID, PropertyType.IDENTITY_ID);
+        sortParametersMapping.put(IdentityType.PARTITION, PropertyType.IDENTITY_PARTITION);
+        sortParametersMapping.put(IdentityType.ENABLED, PropertyType.IDENTITY_ENABLED);
+        sortParametersMapping.put(IdentityType.CREATED_DATE, PropertyType.IDENTITY_CREATION_DATE);
+        sortParametersMapping.put(IdentityType.EXPIRY_DATE, PropertyType.IDENTITY_EXPIRY_DATE);
     }
 
     /**
@@ -177,6 +188,44 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         return predicates;
     }
+
+    /**
+     * Return list of {@link Order} instances to be used for sorting during the query execution.
+     *
+     * @param criteria criteria which encapsulate all the parameters and JPA builder
+     * @return list of orders to be used during identity query execution
+     */
+    public List<Order> getOrders(JPACriteriaQueryBuilder criteria) {
+        List<Order> orders = new ArrayList<Order>();
+
+        QueryParameter[] orderParameters = criteria.getIdentityQuery().getSortParameters();
+
+        // Use default sorting parameters for each identity Type
+        if (orderParameters == null || orderParameters.length == 0) {
+            orderParameters = getDefaultSortingParameters();
+        }
+
+        for (QueryParameter queryParam : orderParameters) {
+            PropertyType propertyType = getSortParametersMapping().get(queryParam);
+
+            if (propertyType != null) {
+                String propertyName = getConfig().getModelProperty(propertyType).getName();
+
+                Order orderToAdd;
+                if (criteria.getIdentityQuery().isSortAscending()) {
+                    orderToAdd = criteria.getBuilder().asc(criteria.getRoot().get(propertyName));
+                } else {
+                    orderToAdd = criteria.getBuilder().desc(criteria.getRoot().get(propertyName));
+                }
+
+                orders.add(orderToAdd);
+            } else {
+                throw new IdentityManagementException("Query parameter " + queryParam + " is not supported for sorting");
+            }
+        }
+
+        return orders;
+    }
     
     /**
      * <p>
@@ -205,6 +254,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     protected abstract AbstractBaseEvent raiseUpdatedEvent(T fromIdentityType);
 
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType);
+
+    protected abstract QueryParameter[] getDefaultSortingParameters();
 
     public void validate(T identityType, JPAIdentityStore store) {
 
@@ -512,7 +563,11 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     protected JPAIdentityStoreConfiguration getConfig() {
         return this.config;
     }
-    
+
+    protected Map<QueryParameter, PropertyType> getSortParametersMapping() {
+        return sortParametersMapping;
+    }
+
     private void populateAllowedTierIds(List<String> partitionIds, Tier currentPartition) {
         partitionIds.add(currentPartition.getId());
         

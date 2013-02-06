@@ -35,6 +35,7 @@ import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -44,6 +45,11 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
     public UserHandler(JPAIdentityStoreConfiguration config) {
         super(config);
+
+        getSortParametersMapping().put(User.LOGIN_NAME, PropertyType.AGENT_LOGIN_NAME);
+        getSortParametersMapping().put(User.FIRST_NAME, PropertyType.USER_FIRST_NAME);
+        getSortParametersMapping().put(User.LAST_NAME,  PropertyType.USER_LAST_NAME);
+        getSortParametersMapping().put(User.EMAIL, PropertyType.USER_EMAIL);
     }
 
     @Override
@@ -69,6 +75,11 @@ public class UserHandler extends IdentityTypeHandler<User>{
     @Override
     protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType) {
         return new UserDeletedEvent(fromIdentityType);
+    }
+
+    @Override
+    protected QueryParameter[] getDefaultSortingParameters() {
+        return new QueryParameter[] { User.LOGIN_NAME };
     }
     
     @Override

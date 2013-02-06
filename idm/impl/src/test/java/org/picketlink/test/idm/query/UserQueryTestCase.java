@@ -31,12 +31,13 @@ import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.GroupRole;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
  * <p>
@@ -162,4 +163,69 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    public void testFindWithPaginationAndSorting() throws Exception {
+        createPopulatedUser("john", "John", "Anthony");
+        createPopulatedUser("root", "Root", "Root");
+        createPopulatedUser("mary", "Mary", "Kelly");
+        createPopulatedUser("demo", "Demo", "Demo");
+        createPopulatedUser("mary2", "Mary", "Anthony");
+        createPopulatedUser("john2", "John", "Kelly");
+
+        // Page1 with default sorting (loginName)
+        IdentityQuery<User> userQuery = getIdentityManager().createIdentityQuery(User.class);
+        userQuery.setOffset(0);
+        userQuery.setLimit(5);
+        List<User> users = userQuery.getResultList();
+
+        assertEquals(5, users.size());
+        assertEquals(users.get(0).getLoginName(), "demo");
+        assertEquals(users.get(1).getLoginName(), "john");
+        assertEquals(users.get(2).getLoginName(), "john2");
+        assertEquals(users.get(3).getLoginName(), "mary");
+        assertEquals(users.get(4).getLoginName(), "mary2");
+
+        // Page2 with default sorting (loginName)
+        userQuery = getIdentityManager().createIdentityQuery(User.class);
+        userQuery.setOffset(5);
+        userQuery.setLimit(5);
+        users = userQuery.getResultList();
+
+        assertEquals(1, users.size());
+        assertEquals(users.get(0).getLoginName(), "root");
+
+        // Sorting by lastName and firstName
+        userQuery = getIdentityManager().createIdentityQuery(User.class);
+        userQuery.setOffset(0);
+        userQuery.setLimit(5);
+        userQuery.setSortParameters(User.LAST_NAME, User.FIRST_NAME);
+        users = userQuery.getResultList();
+
+        assertEquals(5, users.size());
+        assertEquals(users.get(0).getLoginName(), "john");
+        assertEquals(users.get(1).getLoginName(), "mary2");
+        assertEquals(users.get(2).getLoginName(), "demo");
+        assertEquals(users.get(3).getLoginName(), "john2");
+        assertEquals(users.get(4).getLoginName(), "mary");
+
+        // Sort by creation date
+        userQuery = getIdentityManager().createIdentityQuery(User.class);
+        userQuery.setOffset(0);
+        userQuery.setLimit(3);
+        userQuery.setSortParameters(IdentityType.CREATED_DATE);
+        users = userQuery.getResultList();
+
+        assertEquals(3, users.size());
+        assertEquals(users.get(0).getLoginName(), "john");
+        assertEquals(users.get(1).getLoginName(), "root");
+        assertEquals(users.get(2).getLoginName(), "mary");
+    }
+
+    private void createPopulatedUser(String username, String firstName, String lastName) {
+        User user = createUser(username);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        getIdentityManager().update(user);
+    }
 }
