@@ -1,17 +1,16 @@
 package org.jboss.picketlink.example.securityconsole.action;
 
-import java.util.Arrays;
-import java.util.List;
+import org.jboss.picketlink.example.securityconsole.model.Customer;
+import org.picketlink.permission.Permission;
+import org.picketlink.permission.PermissionManager;
 
 import javax.ejb.Stateful;
 import javax.enterprise.inject.Model;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import org.jboss.picketlink.cdi.permission.Permission;
-import org.jboss.picketlink.cdi.permission.PermissionManager;
-import org.jboss.picketlink.example.securityconsole.model.Customer;
+import java.util.Arrays;
+import java.util.List;
 
 @Stateful
 @Model

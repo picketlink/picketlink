@@ -1,27 +1,26 @@
 package org.jboss.picketlink.example.securityconsole.model;
 
-import java.io.Serializable;
+import org.picketlink.permission.annotations.ACLIdentifier;
+import org.picketlink.permission.annotations.ACLPermission;
+import org.picketlink.permission.annotations.ACLRecipient;
+import org.picketlink.permission.annotations.ACLStore;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import java.io.Serializable;
 
-import org.jboss.picketlink.cdi.permission.annotations.ACLIdentifier;
-import org.jboss.picketlink.cdi.permission.annotations.ACLPermission;
-import org.jboss.picketlink.cdi.permission.annotations.ACLRecipient;
-import org.jboss.picketlink.cdi.permission.annotations.ACLStore;
-
-@ACLStore(Customer.class)
+@ACLStore
 @Entity
-public class CustomerPermission implements Serializable
+public class ObjectPermission implements Serializable 
 {
-    private static final long serialVersionUID = 372174826909042844L;
+    private static final long serialVersionUID = 2386489292457994509L;
     
     @Id @GeneratedValue
     private Long id;
     
     @ACLIdentifier
-    private Long identifier;
+    private String identifier;
     
     @ACLRecipient
     private String recipient;
@@ -39,12 +38,12 @@ public class CustomerPermission implements Serializable
         this.id = id;
     }
     
-    public Long getIdentifier()
+    public String getIdentifier()
     {
         return identifier;
     }
     
-    public void setIdentifier(Long identifier)
+    public void setIdentifier(String identifier)
     {
         this.identifier = identifier;
     }
