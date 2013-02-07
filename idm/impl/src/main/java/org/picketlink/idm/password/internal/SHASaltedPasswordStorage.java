@@ -1,5 +1,7 @@
 package org.picketlink.idm.password.internal;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Date;
 
 import org.picketlink.idm.credential.spi.CredentialStorage;
@@ -16,6 +18,10 @@ public class SHASaltedPasswordStorage implements CredentialStorage {
     private Date expiryDate;
     private String encodedHash;
     private String salt;
+
+    public SHASaltedPasswordStorage() {
+        this.salt = generateSalt();
+    }
 
     @Override @Stored
     public Date getEffectiveDate() {
@@ -51,5 +57,23 @@ public class SHASaltedPasswordStorage implements CredentialStorage {
     
     public void setSalt(String salt) {
         this.salt = salt;
+    }
+
+    private String generateSalt() {
+        String salt = null;
+
+        SecureRandom pseudoRandom = null;
+        String algorithm = "SHA1PRNG";
+
+        try {
+            pseudoRandom = SecureRandom.getInstance(algorithm);
+            pseudoRandom.setSeed(1024);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
+        }
+
+        salt = String.valueOf(pseudoRandom.nextLong());
+
+        return salt;
     }
 }

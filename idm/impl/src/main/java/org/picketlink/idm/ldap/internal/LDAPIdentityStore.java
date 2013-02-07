@@ -94,6 +94,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         this.configuration = config;
         this.context = context;
 
+        if(context == null){
+            throw new IdentityManagementException("IdentityStoreInvocationContext is null.");
+        }
         if (this.context.getRealm() == null) {
             this.context.setRealm(new Realm(Realm.DEFAULT_REALM));
         }
@@ -907,7 +910,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         } catch (NamingException e) {
             throw new IdentityManagementException("Error looking up entry.", e);
         } catch (Exception e) {
-            throw new IdentityManagementException("Error creating instance for type [" + type.getClass().getName() + "].", e);
+            throw new IdentityManagementException("Error creating instance for type [" + type.getName() + "].", e);
         } finally {
             if (search != null) {
                 try {
@@ -918,7 +921,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         }
 
         if (identityType == null) {
-            throw new IdentityManagementException("No entry found for the given type [" + type.getClass().getName()
+            throw new IdentityManagementException("No entry found for the given type [" + type.getName()
                     + "] and id [" + id + "]");
         }
 

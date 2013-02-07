@@ -26,6 +26,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -36,21 +39,29 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.jpa.schema.CredentialObject;
+import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
+import org.picketlink.idm.jpa.schema.IdentityObject;
+import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
+import org.picketlink.idm.jpa.schema.PartitionObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
+import org.picketlink.idm.jpa.schema.RelationshipObject;
+import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
+import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.amber.oauth2.common.OAuth;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
 import org.picketlink.oauth.amber.oauth2.common.message.types.ParameterStyle;
 import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
 import org.picketlink.oauth.amber.oauth2.rs.request.OAuthAccessResourceRequest;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
-import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.IdentityQuery;
 
 /**
  * An instance of {@link Filter} that performs OAuth checks before allowing access to a resource
@@ -162,22 +173,49 @@ public class OAuthResourceFilter implements Filter {
             }
             identityManager = new DefaultIdentityManager();
             String storeType = context.getInitParameter("storeType");
-            if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
-                LDAPIdentityStore store = new LDAPIdentityStore();
+            if (storeType == null || "db".equals(storeType)) {
+
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("oauth-pu");
+                EntityManager entityManager = emf.createEntityManager();
+                entityManager.getTransaction().begin();
+
+                IdentityConfiguration identityConfig = new IdentityConfiguration();
+                JPAIdentityStoreConfiguration jpaStoreConfig = new JPAIdentityStoreConfiguration();
+
+                jpaStoreConfig.setRealm("default");
+
+                jpaStoreConfig.setIdentityClass(IdentityObject.class);
+                jpaStoreConfig.setAttributeClass(IdentityObjectAttribute.class);
+                jpaStoreConfig.setRelationshipClass(RelationshipObject.class);
+                jpaStoreConfig.setRelationshipIdentityClass(RelationshipIdentityObject.class);
+                jpaStoreConfig.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
+                jpaStoreConfig.setCredentialClass(CredentialObject.class);
+                jpaStoreConfig.setCredentialAttributeClass(CredentialObjectAttribute.class);
+                jpaStoreConfig.setPartitionClass(PartitionObject.class);
+
+                identityConfig.addStoreConfiguration(jpaStoreConfig);
+
+                DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
+                icf.setEntityManager(entityManager);
+                identityManager.bootstrap(identityConfig, icf);
+            }
+            if ("ldap".equalsIgnoreCase(storeType)) {
+                // LDAPIdentityStore store = new LDAPIdentityStore();
                 LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
                 LDAPIdentityStoreConfiguration ldapConfiguration = (LDAPIdentityStoreConfiguration) builder.build();
 
                 // LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
 
                 Properties properties = getProperties();
-                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
-                        properties.getProperty("bindCredential"));
+                ldapConfiguration.setBaseDN(properties.getProperty("baseDN")).setBindDN(properties.getProperty("bindDN"))
+                        .setBindCredential(properties.getProperty("bindCredential"));
                 ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
-                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
-                        properties.getProperty("roleDNSuffix"));
+                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix"))
+                        .setRoleDNSuffix(properties.getProperty("roleDNSuffix"))
+                        .setAgentDNSuffix(properties.getProperty("agentDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
 
-                store.setup(ldapConfiguration, null);
+                // store.setup(ldapConfiguration, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
 
                 // Create Identity Configuration
                 IdentityConfiguration config = new IdentityConfiguration();

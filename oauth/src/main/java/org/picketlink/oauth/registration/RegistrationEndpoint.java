@@ -35,10 +35,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.picketlink.idm.credential.internal.Password;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.User;
+import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
 import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
 import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.JSONHttpServletRequestWrapper;
@@ -60,7 +59,6 @@ public class RegistrationEndpoint extends BaseEndpoint {
     @POST
     @Consumes("application/json")
     @Produces("application/json")
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Response register(@Context HttpServletRequest request) {
         super.setup();
 
@@ -78,19 +76,30 @@ public class RegistrationEndpoint extends BaseEndpoint {
                 String generatedSecret = generateClientSecret();
 
                 // User user = identityManager.createUser(clientName);
-                User user = new SimpleUser(clientName);
-                user.setFirstName(clientName);
-                user.setLastName(" ");
 
-                user.setAttribute(new Attribute("url", clientURL));
+                Agent oauthApp = new SimpleAgent(clientName);
 
-                user.setAttribute(new Attribute("description", clientDescription));
-                user.setAttribute(new Attribute("redirectURI", clientRedirectURI));
-                user.setAttribute(new Attribute("clientID", generatedClientID));
+                oauthApp.setAttribute(new Attribute<String>("appURL", clientURL));
+                oauthApp.setAttribute(new Attribute<String>("appDesc", clientDescription));
+                oauthApp.setAttribute(new Attribute<String>("redirectURI", clientRedirectURI));
+                oauthApp.setAttribute(new Attribute<String>("clientID", generatedClientID));
+                oauthApp.setAttribute(new Attribute<String>("clientSecret", generatedSecret));
 
-                identityManager.add(user);
+                identityManager.add(oauthApp);
 
-                identityManager.updateCredential(user, new Password(generatedSecret.toCharArray()));
+                /*
+                 * User user = new SimpleUser(clientName); user.setFirstName(clientName); user.setLastName(" ");
+                 *
+                 * user.setAttribute(new Attribute("url", clientURL));
+                 *
+                 * user.setAttribute(new Attribute("description", clientDescription)); user.setAttribute(new
+                 * Attribute("redirectURI", clientRedirectURI)); user.setAttribute(new Attribute("clientID",
+                 * generatedClientID));
+                 *
+                 * identityManager.add(user);
+                 */
+
+                // identityManager.updateCredential(oauthApp, new Password(generatedSecret.toCharArray()));
 
                 OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
                         .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
