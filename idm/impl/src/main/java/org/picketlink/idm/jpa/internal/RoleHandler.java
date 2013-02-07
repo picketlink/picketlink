@@ -77,11 +77,6 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
     }
 
     @Override
-    protected QueryParameter[] getDefaultSortingParameters() {
-        return new QueryParameter[] { Role.NAME };
-    }
-
-    @Override
     protected Role doCreateIdentityType(Object identity, JPAIdentityStore store) {
         String name = getConfig().getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
 

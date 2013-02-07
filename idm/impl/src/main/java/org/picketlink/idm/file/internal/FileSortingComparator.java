@@ -25,6 +25,7 @@ package org.picketlink.idm.file.internal;
 import java.util.Comparator;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -51,7 +52,7 @@ public class FileSortingComparator<T extends IdentityType> implements Comparator
         QueryParameter[] params = identityQuery.getSortParameters();
 
         if (params == null || params.length == 0) {
-            params = getDefaultParams(o1);
+            params = IDMUtil.getDefaultParamsForSorting(o1.getClass());
         }
 
         int sortResult = 0;
@@ -116,18 +117,5 @@ public class FileSortingComparator<T extends IdentityType> implements Comparator
         }
 
         throw new IdentityManagementException("Unknown query parameter " + queryParameter + " for comparing objects " + o1 + " and " + o2);
-    }
-
-    // TODO: Sync default values of parameters with JPA to have it in single place
-    private QueryParameter[] getDefaultParams(T o1) {
-        if (o1 instanceof Agent) {
-            return new QueryParameter[] { Agent.LOGIN_NAME };
-        } else if (o1 instanceof Group) {
-            return new QueryParameter[] { Group.NAME };
-        } else if (o1 instanceof Role) {
-            return new QueryParameter[] { Role.NAME };
-        } else {
-            return new QueryParameter[] { IdentityType.ID };
-        }
     }
 }

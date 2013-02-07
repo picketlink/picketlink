@@ -76,11 +76,6 @@ public class UserHandler extends IdentityTypeHandler<User>{
     protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType) {
         return new UserDeletedEvent(fromIdentityType);
     }
-
-    @Override
-    protected QueryParameter[] getDefaultSortingParameters() {
-        return new QueryParameter[] { User.LOGIN_NAME };
-    }
     
     @Override
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {

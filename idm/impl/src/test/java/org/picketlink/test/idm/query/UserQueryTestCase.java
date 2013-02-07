@@ -31,6 +31,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.User;
@@ -167,10 +168,16 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
     @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class})
     public void testFindWithPaginationAndSorting() throws Exception {
         createPopulatedUser("john", "John", "Anthony");
+        // Sleep is needed to avoid same createdDate
+        IDMUtil.sleep(1);
         createPopulatedUser("root", "Root", "Root");
+        IDMUtil.sleep(1);
         createPopulatedUser("mary", "Mary", "Kelly");
+        IDMUtil.sleep(1);
         createPopulatedUser("demo", "Demo", "Demo");
+        IDMUtil.sleep(1);
         createPopulatedUser("mary2", "Mary", "Anthony");
+        IDMUtil.sleep(1);
         createPopulatedUser("john2", "John", "Kelly");
 
         // Page1 with default sorting (loginName)

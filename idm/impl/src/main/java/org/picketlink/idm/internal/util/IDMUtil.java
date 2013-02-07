@@ -26,6 +26,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.query.QueryParameter;
 
 /**
  * General purpose Util
@@ -50,6 +51,25 @@ public class IDMUtil {
 
     public static  boolean isAgentType(Class<? extends IdentityType> identityType) {
         return Agent.class.isAssignableFrom(identityType);
+    }
+
+
+    /**
+     * Return default criterias for sorting query results. Those are used by default if there are not sorting criterias specified by user
+     *
+     * @param clazz identity type
+     * @return default sorting criteria for particular identity type
+     */
+    public static QueryParameter[] getDefaultParamsForSorting(Class<? extends IdentityType> clazz) {
+        if (isAgentType(clazz)) {
+            return new QueryParameter[] { Agent.LOGIN_NAME };
+        } else if (isGroupType(clazz)) {
+            return new QueryParameter[] { Group.NAME };
+        } else if (isRoleType(clazz)) {
+            return new QueryParameter[] { Role.NAME };
+        } else {
+            return new QueryParameter[] { IdentityType.ID };
+        }
     }
 
     /**
