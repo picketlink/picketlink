@@ -1,4 +1,4 @@
-package org.jboss.picketlink.example.securityconsole.action;
+package org.picketlink.example.securityconsole.action;
 
 import javax.enterprise.inject.Model;
 

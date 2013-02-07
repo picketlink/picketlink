@@ -1,4 +1,4 @@
-package org.jboss.picketlink.example.securityconsole.model;
+package org.picketlink.example.securityconsole.model;
 
 import java.io.Serializable;
 

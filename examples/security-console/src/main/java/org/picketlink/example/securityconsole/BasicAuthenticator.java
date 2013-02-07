@@ -1,21 +1,18 @@
-package org.jboss.picketlink.example.securityconsole;
+package org.picketlink.example.securityconsole;
+
+import org.picketlink.authentication.BaseAuthenticator;
+import org.picketlink.credential.internal.DefaultLoginCredentials;
+import org.picketlink.idm.model.SimpleUser;
 
 import javax.inject.Inject;
 
-import org.jboss.picketlink.cdi.authentication.BaseAuthenticator;
-import org.jboss.picketlink.cdi.credential.LoginCredentials;
-import org.jboss.picketlink.idm.model.SimpleUser;
+public class BasicAuthenticator extends BaseAuthenticator {
+    @Inject
+    private DefaultLoginCredentials credentials;
 
-public class BasicAuthenticator extends BaseAuthenticator 
-{
-    @Inject 
-    private LoginCredentials credentials;
-
-    public void authenticate() 
-    {
+    public void authenticate() {
         if ("shane".equals(credentials.getUserId()) &&
-                "password".equals(credentials.getCredential().getValue()))
-        {
+                "password".equals(credentials.getCredential().toString())) {
             setUser(new SimpleUser("shane"));
             setStatus(AuthenticationStatus.SUCCESS);
         }
