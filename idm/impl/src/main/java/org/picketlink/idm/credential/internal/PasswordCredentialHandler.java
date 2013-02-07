@@ -82,7 +82,6 @@ public class PasswordCredentialHandler implements CredentialHandler {
         SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
         SHASaltedPasswordStorage hash = new SHASaltedPasswordStorage();
 
-        hash.setSalt(generateSalt());
         hash.setEncodedHash(encoder.encodePassword(hash.getSalt(), new String(password.getValue())));
         hash.setEffectiveDate(effectiveDate);
 
@@ -91,24 +90,6 @@ public class PasswordCredentialHandler implements CredentialHandler {
         }
 
         store.storeCredential(agent, hash);
-    }
-
-    private String generateSalt() {
-        String salt = null;
-
-        SecureRandom psuedoRng = null;
-        String algorithm = "SHA1PRNG";
-
-        try {
-            psuedoRng = SecureRandom.getInstance(algorithm);
-            psuedoRng.setSeed(1024);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
-        }
-
-        salt = String.valueOf(psuedoRng.nextLong());
-
-        return salt;
     }
 
     private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
