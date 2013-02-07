@@ -1,15 +1,15 @@
 package org.jboss.picketlink.example.securityconsole.model;
 
-import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.User;
-import org.picketlink.permission.Permission;
-import org.picketlink.permission.PermissionManager;
-
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
+import org.jboss.picketlink.cdi.permission.Permission;
+import org.jboss.picketlink.cdi.permission.PermissionManager;
+import org.jboss.picketlink.idm.model.SimpleUser;
+import org.jboss.picketlink.idm.model.User;
 
 /**
  * Populates the database with default values
@@ -21,8 +21,7 @@ public @Named class ModelPopulator
     @PersistenceContext
     private EntityManager em;
     
-    @Inject
-    private PermissionManager pm;
+    @Inject PermissionManager pm;
     
     public void populate()
     {

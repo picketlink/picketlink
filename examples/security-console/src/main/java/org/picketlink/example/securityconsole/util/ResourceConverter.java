@@ -1,11 +1,11 @@
 package org.jboss.picketlink.example.securityconsole.util;
 
-import org.jboss.picketlink.example.securityconsole.model.Customer;
-import org.omnifaces.converter.SelectItemsConverter;
-
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.convert.FacesConverter;
+
+import org.jboss.picketlink.example.securityconsole.model.Customer;
+import org.omnifaces.converter.SelectItemsConverter;
 
 @FacesConverter("resourceConverter")
 public class ResourceConverter extends SelectItemsConverter
