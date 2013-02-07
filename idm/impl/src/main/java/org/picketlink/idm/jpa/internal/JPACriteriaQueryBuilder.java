@@ -147,10 +147,5 @@ public class JPACriteriaQueryBuilder {
         protected AbstractBaseEvent raiseDeletedEvent(IdentityType fromIdentityType) {
             return null;
         }
-
-        @Override
-        protected QueryParameter[] getDefaultSortingParameters() {
-            return new QueryParameter[] { IdentityType.ID };
-        }
     }
 }

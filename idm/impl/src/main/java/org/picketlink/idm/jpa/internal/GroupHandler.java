@@ -96,11 +96,6 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         return new GroupDeletedEvent(fromIdentityType);
     }
 
-    @Override
-    protected QueryParameter[] getDefaultSortingParameters() {
-        return new QueryParameter[] { Group.NAME };
-    }
-
     /**
      * <p>
      * Disassociates the given {@link Group} from its children.

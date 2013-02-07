@@ -27,6 +27,7 @@ import static org.picketlink.idm.file.internal.FileIdentityQueryHelper.isQueryPa
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -492,7 +493,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<T> result = new ArrayList<T>();
 
         int typesCount = 0;
-
+        FileIdentityQueryHelper queryHelper = new FileIdentityQueryHelper(identityQuery, this);
         for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
             IdentityType storedEntry = (IdentityType) iterator.next();
 
@@ -560,8 +561,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 continue;
             }
 
-            FileIdentityQueryHelper queryHelper = new FileIdentityQueryHelper(identityQuery, this);
-
             if (!queryHelper.matchCreatedDateParameters(storedEntry)) {
                 continue;
             }
@@ -594,21 +593,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 continue;
             }
 
-            if (identityQuery.getLimit() > 0) {
-                if (result.size() == identityQuery.getLimit()) {
-                    return result;
-                }
-
-                if (identityQuery.getOffset() > 0) {
-                    if (typesCount <= identityQuery.getOffset()) {
-                        continue;
-                    }
-                }
-            }
-
             configurePartition(storedEntry);
             
             result.add((T) storedEntry);
+        }
+
+        // Apply sorting
+        Collections.sort(result, new FileSortingComparator<T>(identityQuery));
+
+        // Apply pagination
+        if (identityQuery.getLimit() > 0) {
+            int numberOfItems = Math.min(identityQuery.getLimit(), result.size() - identityQuery.getOffset());
+            result = result.subList(identityQuery.getOffset(), identityQuery.getOffset() + numberOfItems);
         }
 
         return result;

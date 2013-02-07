@@ -38,6 +38,7 @@ import javax.persistence.criteria.Subquery;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.Grant;
@@ -202,7 +203,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         // Use default sorting parameters for each identity Type
         if (orderParameters == null || orderParameters.length == 0) {
-            orderParameters = getDefaultSortingParameters();
+            orderParameters = IDMUtil.getDefaultParamsForSorting(criteria.getIdentityQuery().getIdentityType());
         }
 
         for (QueryParameter queryParam : orderParameters) {
@@ -254,8 +255,6 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     protected abstract AbstractBaseEvent raiseUpdatedEvent(T fromIdentityType);
 
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType);
-
-    protected abstract QueryParameter[] getDefaultSortingParameters();
 
     public void validate(T identityType, JPAIdentityStore store) {
 
