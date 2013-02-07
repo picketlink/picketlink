@@ -32,7 +32,7 @@ public class IdentityManagerProducer {
         identityManager.bootstrap(identityConfig, new DefaultIdentityStoreInvocationContextFactory(null, null));
     }
 
-    @Produces @ApplicationScoped
+    //@Produces @ApplicationScoped
     public IdentityManager createIdentityManager() {
         return identityManager;
     }
