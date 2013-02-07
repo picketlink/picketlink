@@ -31,6 +31,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
@@ -454,11 +455,15 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     }
 
     @Test
-    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class})
     public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
         createAgent("john");
+        // Sleep is needed to avoid same createdDate
+        IDMUtil.sleep(1);
         createAgent("demo");
+        IDMUtil.sleep(1);
         createAgent("root");
+        IDMUtil.sleep(1);
         Agent mary = createAgent("mary");
         mary.setEnabled(false);
         getIdentityManager().update(mary);

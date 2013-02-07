@@ -32,6 +32,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -236,10 +237,13 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
 
     @Test
-    @ExcludeTestSuite({FileIdentityStoreTestSuite.class, LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class })
     public void testFindWithSorting() throws Exception {
         createGroup("someGroup", null);
+        // Sleep is needed to avoid same createdDate
+        IDMUtil.sleep(1);
         createGroup("someAnotherGroup", null);
+        IDMUtil.sleep(1);
         createGroup("someImportantGroup", null);
 
         // Default sorting by group name
