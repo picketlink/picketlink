@@ -122,19 +122,12 @@
       	 <artifactId>picketlink-idm-impl</artifactId>
          <version>${project.version}</version>
       </dependency>
-      <!--
-      <dependency>
-         <groupId>org.picketlink</groupId>
-      	 <artifactId>picketlink-idm-api</artifactId>
-         <version>3.0-2012Oct30</version>
-      </dependency>
-      <dependency>
-         <groupId>org.picketlink</groupId>
-      	 <artifactId>picketlink-idm-impl</artifactId>
-         <version>3.0-2012Oct30</version>
-      </dependency>
-      -->
 
+      <dependency>
+         <groupId>org.picketlink</groupId>
+      	 <artifactId>picketlink-idm-schema</artifactId>
+         <version>${project.version}</version>
+      </dependency>
       <dependency>
          <groupId>org.codehaus.jettison</groupId>
          <artifactId>jettison</artifactId>
@@ -192,6 +185,24 @@
          <scope>provided</scope>
       </dependency>
 
+      <dependency>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-core</artifactId>
+         <version>4.1.9.Final</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.hibernate</groupId>
+         <artifactId>hibernate-entitymanager</artifactId>
+         <version>4.1.9.Final</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>com.h2database</groupId>
+         <artifactId>h2</artifactId>
+         <version>1.3.161</version>
+         <scope>test</scope>
+      </dependency>
       <dependency>
          <groupId>org.jboss.logging</groupId>
          <artifactId>jboss-logging-processor</artifactId>

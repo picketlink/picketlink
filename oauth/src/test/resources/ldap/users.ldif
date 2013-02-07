@@ -9,6 +9,11 @@ objectclass: top
 objectclass: organizationalUnit
 ou: People
 
+dn: ou=Agent,dc=jboss,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: Agent
+
 dn: uid=jduke,ou=People,dc=jboss,dc=org
 objectclass: top
 objectclass: uidObject
