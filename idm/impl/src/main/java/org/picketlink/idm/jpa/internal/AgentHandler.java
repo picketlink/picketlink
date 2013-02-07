@@ -78,11 +78,6 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
         
         return agent;
     }
-
-    @Override
-    protected QueryParameter[] getDefaultSortingParameters() {
-        return new QueryParameter[] { Agent.LOGIN_NAME };
-    }
     
     @Override
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
