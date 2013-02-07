@@ -1,71 +1,62 @@
-package org.jboss.picketlink.example.securityconsole.model;
+package org.picketlink.example.securityconsole.model;
 
-import java.io.Serializable;
+import org.picketlink.permission.annotations.ACLIdentifier;
+import org.picketlink.permission.annotations.ACLPermission;
+import org.picketlink.permission.annotations.ACLRecipient;
+import org.picketlink.permission.annotations.ACLStore;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-
-import org.jboss.picketlink.cdi.permission.annotations.ACLIdentifier;
-import org.jboss.picketlink.cdi.permission.annotations.ACLPermission;
-import org.jboss.picketlink.cdi.permission.annotations.ACLRecipient;
-import org.jboss.picketlink.cdi.permission.annotations.ACLStore;
+import java.io.Serializable;
 
 @ACLStore(Customer.class)
 @Entity
-public class CustomerPermission implements Serializable
-{
+public class CustomerPermission implements Serializable {
     private static final long serialVersionUID = 372174826909042844L;
-    
-    @Id @GeneratedValue
+
+    @Id
+    @GeneratedValue
     private Long id;
-    
+
     @ACLIdentifier
     private Long identifier;
-    
+
     @ACLRecipient
     private String recipient;
-    
+
     @ACLPermission
     private String permission;
-    
-    public Long getId()
-    {
+
+    public Long getId() {
         return id;
     }
-    
-    public void setId(Long id)
-    {
+
+    public void setId(Long id) {
         this.id = id;
     }
-    
-    public Long getIdentifier()
-    {
+
+    public Long getIdentifier() {
         return identifier;
     }
-    
-    public void setIdentifier(Long identifier)
-    {
+
+    public void setIdentifier(Long identifier) {
         this.identifier = identifier;
     }
-    
-    public String getRecipient()
-    {
+
+    public String getRecipient() {
         return recipient;
     }
-    
-    public void setRecipient(String recipient)
-    {
+
+    public void setRecipient(String recipient) {
         this.recipient = recipient;
     }
-    
-    public String getPermission()
-    {
+
+    public String getPermission() {
         return permission;
     }
-    
-    public void setPermission(String permission)
-    {
+
+    public void setPermission(String permission) {
         this.permission = permission;
     }
 }

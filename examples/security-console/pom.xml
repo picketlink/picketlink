@@ -4,16 +4,52 @@
 
     <parent>
         <groupId>org.picketlink</groupId>
-        <artifactId>picketlink-cdi-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <artifactId>picketlink-parent</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <groupId>org.picketlink.examples</groupId>
     <artifactId>security-console</artifactId>
-
     <name>PicketLink CDI Security Console Example</name>
-
     <packaging>war</packaging>
+
+    <properties>
+        <!-- Explicitly declaring the source encoding eliminates the following message: -->
+        <!-- [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent! -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Define the version of the JBoss BOMs we want to import. The
+            JBoss BOMs specify tested stacks. -->
+        <jboss.bom.version>1.0.3.Final</jboss.bom.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- JBoss distributes a complete set of Java EE 6 APIs including
+      a Bill of Materials (BOM). A BOM specifies the versions of a "stack" (or
+      a collection) of artifacts. We use this here so that we always get the correct
+      versions of artifacts. Here we use the jboss-javaee-6.0-with-tools stack
+      (you can read this as the JBoss stack of the Java EE 6 APIs, with some extras
+      tools for your project, such as Arquillian for testing) and the jboss-javaee-6.0-with-hibernate
+      stack you can read this as the JBoss stack of the Java EE 6 APIs, with extras
+      from the Hibernate family of projects) -->
+            <dependency>
+                <groupId>org.jboss.bom</groupId>
+                <artifactId>jboss-javaee-6.0-with-tools</artifactId>
+                <version>${jboss.bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.bom</groupId>
+                <artifactId>jboss-javaee-6.0-with-hibernate</artifactId>
+                <version>${jboss.bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
@@ -43,14 +79,22 @@
 
         <dependency>
             <groupId>org.picketlink</groupId>
-            <artifactId>picketlink-cdi-api</artifactId>
-            <scope>compile</scope>
+            <artifactId>picketlink-core-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.picketlink</groupId>
-            <artifactId>picketlink-cdi-impl</artifactId>
-            <scope>runtime</scope>
+            <artifactId>picketlink-core-impl</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.picketlink</groupId>
+            <artifactId>picketlink-idm-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.picketlink</groupId>
+            <artifactId>picketlink-idm-impl</artifactId>
         </dependency>
         
         <!-- Used for JSF entity converter features -->
