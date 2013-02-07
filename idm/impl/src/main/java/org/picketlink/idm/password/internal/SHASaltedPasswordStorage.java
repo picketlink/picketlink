@@ -62,17 +62,17 @@ public class SHASaltedPasswordStorage implements CredentialStorage {
     private String generateSalt() {
         String salt = null;
 
-        SecureRandom psuedoRng = null;
+        SecureRandom pseudoRandom = null;
         String algorithm = "SHA1PRNG";
 
         try {
-            psuedoRng = SecureRandom.getInstance(algorithm);
-            psuedoRng.setSeed(1024);
+            pseudoRandom = SecureRandom.getInstance(algorithm);
+            pseudoRandom.setSeed(1024);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException("Error getting SecureRandom instance: " + algorithm, e);
         }
 
-        salt = String.valueOf(psuedoRng.nextLong());
+        salt = String.valueOf(pseudoRandom.nextLong());
 
         return salt;
     }
