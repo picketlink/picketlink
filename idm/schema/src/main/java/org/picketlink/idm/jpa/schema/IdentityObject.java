@@ -82,8 +82,8 @@ public class IdentityObject {
     @IDMProperty(PropertyType.IDENTITY_EXPIRY_DATE)
     private Date expiryDate;
 
-    @IDMAttribute(name = "one-valued")
-    private String oneValued;
+    //@IDMAttribute(name = "one-valued")
+    //private String oneValued;
 
     @ManyToOne
     @IDMProperty(PropertyType.GROUP_PARENT)
@@ -193,12 +193,12 @@ public class IdentityObject {
         this.parent = parent;
     }
 
-    public String getOneValued() {
+   /* public String getOneValued() {
         return this.oneValued;
     }
 
     public void setOneValued(String oneValued) {
         this.oneValued = oneValued;
-    }
+    }*/
 
 }

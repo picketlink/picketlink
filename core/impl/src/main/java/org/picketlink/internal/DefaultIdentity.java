@@ -144,7 +144,7 @@ public class DefaultIdentity implements Identity
                 postAuthenticate(activeAuthenticator);
                 this.user = activeAuthenticator.getUser();
                 return true;
-            }
+            } 
         } 
         catch (Throwable ex) 
         {
