@@ -16,10 +16,6 @@ public enum PropertyType {
      */
     IDENTITY_DISCRIMINATOR,
     /**
-     * 
-     */
-    IDENTITY_KEY,
-    /**
      * The name of the identity.  For User identities, this will be the username, for Groups, the group name
      * and for Roles, the role name
      */

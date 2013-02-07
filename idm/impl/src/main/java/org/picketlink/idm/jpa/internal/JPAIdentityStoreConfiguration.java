@@ -329,7 +329,6 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     protected void configureIdentity() throws SecurityConfigurationException {
         configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, identityClass, null, 
                 "discriminator", "identityType", "identityTypeName", "typeName", "type");
-        configureModelProperty(PropertyType.IDENTITY_KEY, identityClass, null, "key");
         configureModelProperty(PropertyType.IDENTITY_ID, identityClass, null, "id", "identifier");
         configureModelProperty(PropertyType.IDENTITY_NAME, identityClass, null, "name");
         configureModelProperty(PropertyType.GROUP_PARENT, identityClass, null, "parentGroup", "parent");
