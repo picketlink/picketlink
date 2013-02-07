@@ -15,18 +15,27 @@ import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
  * 
  * @author Shane Bryzak
  */
+@ApplicationScoped
 public class IdentityManagerProducer {
 
+    private IdentityConfiguration identityConfig;
+    
+    private IdentityManager identityManager;
+    
     // FIXME basic implementation just to get started, we need to rewrite this with proper configuration
 
    // @Inject IdentityCache identityCache;
+    
+    public IdentityManagerProducer() {
+        identityConfig = new IdentityConfiguration();
+        
+        identityManager = new SecuredIdentityManager();
+        
+        identityManager.bootstrap(identityConfig, new DefaultIdentityStoreInvocationContextFactory(null, null));
+    }
 
     @Produces @ApplicationScoped
     public IdentityManager createIdentityManager() {
-        IdentityConfiguration identityConfig = new IdentityConfiguration();
-
-        IdentityManager identityManager = new DefaultIdentityManager();
-        identityManager.bootstrap(identityConfig, new DefaultIdentityStoreInvocationContextFactory(null, null));
         return identityManager;
     }
 
