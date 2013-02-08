@@ -1,0 +1,22 @@
+<PicketLink xmlns="urn:picketlink:identity-federation:config:2.1">
+
+  <!-- Start of IDM configuration -->
+  <PicketLinkIDM>
+
+    <IdentityConfiguration>
+      <IdentityStoreConfiguration ClassName="org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration">
+        <Property Name="baseDN">o=plidmtest,dc=example,dc=com</Property>
+        <Property Name="bindDN">cn=Directory Manager</Property>
+        <Property Name="bindCredential">password</Property>
+        <Property Name="ldapURL">ldap://localhost:1389</Property>
+        <Property Name="userDNSuffix">ou=People,o=plidmtest,dc=example,dc=com</Property>
+        <Property Name="roleDNSuffix">ou=Roles,o=plidmtest,dc=example,dc=com</Property>
+        <Property Name="groupDNSuffix">ou=Groups,o=plidmtest,dc=example,dc=com</Property>
+        <Property Name="agentDNSuffix">ou=Agent,o=plidmtest,dc=example,dc=com</Property>
+      </IdentityStoreConfiguration>
+    </IdentityConfiguration>
+
+  </PicketLinkIDM>
+
+</PicketLink>
+

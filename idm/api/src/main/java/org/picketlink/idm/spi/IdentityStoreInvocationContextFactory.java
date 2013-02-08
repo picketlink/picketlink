@@ -19,6 +19,4 @@ public interface IdentityStoreInvocationContextFactory {
      * @param store
      */
     void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore<?> store);
-
-    void initContextForStore(IdentityStoreInvocationContext context, PartitionStore store);
 }

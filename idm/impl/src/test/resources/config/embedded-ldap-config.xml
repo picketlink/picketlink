@@ -13,6 +13,7 @@
 
     <IdentityConfiguration>
       <IdentityStoreConfiguration ClassName="org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration">
+        <Property Name="baseDN">dc=jboss,dc=org</Property>
         <Property Name="bindDN">uid=admin,ou=system</Property>
         <Property Name="bindCredential">secret</Property>
         <Property Name="ldapURL">ldap://localhost:10389</Property>
@@ -31,4 +32,3 @@
   </PicketLinkIDM>
 
 </PicketLink>
-

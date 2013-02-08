@@ -1,11 +1,14 @@
 package org.picketlink.producer;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
 import javax.enterprise.inject.Produces;
+import javax.inject.Inject;
 
+import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.internal.EEIdentityStoreInvocationContextFactory;
 import org.picketlink.internal.SecuredIdentityManager;
 
 
@@ -15,26 +18,28 @@ import org.picketlink.internal.SecuredIdentityManager;
  */
 @ApplicationScoped
 public class IdentityManagerProducer {
-
     private IdentityConfiguration identityConfig;
 
     private IdentityManager identityManager;
+    
+    @Inject Event<IdentityConfigurationEvent> identityConfigEvent;
+    
+    @Inject EEIdentityStoreInvocationContextFactory icf;
 
-    // FIXME basic implementation just to get started, we need to rewrite this with proper configuration
-
-   // @Inject IdentityCache identityCache;
-
-    public IdentityManagerProducer() {
+    @Inject
+    public void init() {
         identityConfig = new IdentityConfiguration();
+        
+        identityConfigEvent.fire(new IdentityConfigurationEvent(identityConfig));
 
-        identityManager = new SecuredIdentityManager();
+        identityManager = new SecuredIdentityManager(null);
 
-        identityManager.bootstrap(identityConfig, new DefaultIdentityStoreInvocationContextFactory(null, null));
+        identityManager.bootstrap(identityConfig, icf);
     }
 
-    //@Produces @ApplicationScoped
+    @Produces 
     public IdentityManager createIdentityManager() {
         return identityManager;
     }
-
+    
 }

@@ -3,7 +3,6 @@ package org.picketlink.internal;
 import java.util.Date;
 
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.model.Agent;
@@ -16,8 +15,6 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
-import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * Extends the default IdentityManager implementation by providing secured identity management operations
@@ -27,6 +24,9 @@ import org.picketlink.idm.spi.StoreFactory;
  */
 public class SecuredIdentityManager extends DefaultIdentityManager implements IdentityManager {
 
+    // Poor man's @Veto
+    public SecuredIdentityManager(String foo) {}
+    
     @Override
     public void add(IdentityType value) {
        
@@ -72,169 +72,169 @@ public class SecuredIdentityManager extends DefaultIdentityManager implements Id
     @Override
     public User getUser(String id) {
         // TODO Auto-generated method stub
-        return null;
+        return super.getUser(id);
     }
 
     @Override
     public Group getGroup(String groupId) {
         // TODO Auto-generated method stub
-        return null;
+        return super.getGroup(groupId);
     }
 
     @Override
     public Group getGroup(String groupName, Group parent) {
         // TODO Auto-generated method stub
-        return null;
+        return super.getGroup(groupName, parent);
     }
 
     @Override
     public boolean isMember(IdentityType identityType, Group group) {
         // TODO Auto-generated method stub
-        return false;
+        return super.isMember(identityType, group);
     }
 
     @Override
     public void addToGroup(IdentityType identityType, Group group) {
         // TODO Auto-generated method stub
-        
+        super.addToGroup(identityType, group);
     }
 
     @Override
     public void removeFromGroup(IdentityType identityType, Group group) {
         // TODO Auto-generated method stub
-        
+        super.removeFromGroup(identityType, group);
     }
 
     @Override
     public Role getRole(String name) {
         // TODO Auto-generated method stub
-        return null;
+        return super.getRole(name);
     }
 
     @Override
     public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
         // TODO Auto-generated method stub
-        return false;
+        return super.hasGroupRole(identityType, role, group);
     }
 
     @Override
     public void grantGroupRole(IdentityType identityType, Role role, Group group) {
         // TODO Auto-generated method stub
-        
+        super.grantGroupRole(identityType, role, group);
     }
 
     @Override
     public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
         // TODO Auto-generated method stub
-        
+        super.revokeGroupRole(identityType, role, group);
     }
 
     @Override
     public boolean hasRole(IdentityType identityType, Role role) {
         // TODO Auto-generated method stub
-        return false;
+        return super.hasRole(identityType, role);
     }
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
         // TODO Auto-generated method stub
-        
+        super.grantRole(identityType, role);
     }
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
         // TODO Auto-generated method stub
-        
+        super.revokeRole(identityType, role);
     }
 
     @Override
     public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String value) {
         // TODO Auto-generated method stub
-        return null;
+        return super.lookupIdentityById(identityType, value);
     }
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
         // TODO Auto-generated method stub
-        return null;
+        return super.createIdentityQuery(identityType);
     }
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
         // TODO Auto-generated method stub
-        return null;
+        return super.createRelationshipQuery(relationshipType);
     }
 
     @Override
     public void validateCredentials(Credentials credentials) {
         // TODO Auto-generated method stub
-        
+        super.validateCredentials(credentials);
     }
 
     @Override
     public void updateCredential(Agent agent, Object value) {
         // TODO Auto-generated method stub
-        
+        super.updateCredential(agent, value);
     }
 
     @Override
     public void updateCredential(Agent agent, Object value, Date effectiveDate, Date expiryDate) {
         // TODO Auto-generated method stub
-        
+        super.updateCredential(agent, value, effectiveDate, expiryDate);
     }
 
     @Override
     public void loadAttribute(IdentityType identityType, String attributeName) {
         // TODO Auto-generated method stub
-        
+        super.loadAttribute(identityType, attributeName);
     }
 
     @Override
     public void createRealm(Realm realm) {
         // TODO Auto-generated method stub
-        
+        super.createRealm(realm);
     }
 
     @Override
     public void removeRealm(Realm realm) {
         // TODO Auto-generated method stub
-        
+        super.removeRealm(realm);
     }
 
     @Override
     public Realm getRealm(String name) {
         // TODO Auto-generated method stub
-        return null;
+        return super.getRealm(name);
     }
 
     @Override
     public void createTier(Tier tier) {
         // TODO Auto-generated method stub
-        
+        super.createTier(tier);
     }
 
     @Override
     public void removeTier(Tier tier) {
         // TODO Auto-generated method stub
-        
+        super.removeTier(tier);
     }
 
     @Override
     public Tier getTier(String id) {
         // TODO Auto-generated method stub
-        return null;
+        return super.getTier(id);
     }
 
     @Override
     public IdentityManager forRealm(Realm realm) {
         // TODO Auto-generated method stub
-        return null;
+        return super.forRealm(realm);
     }
 
     @Override
     public IdentityManager forTier(Tier tier) {
         // TODO Auto-generated method stub
-        return null;
+        return super.forTier(tier);
     }
 
 }

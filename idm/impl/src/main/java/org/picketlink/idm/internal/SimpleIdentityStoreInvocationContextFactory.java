@@ -53,8 +53,4 @@ public class SimpleIdentityStoreInvocationContextFactory implements IdentityStor
     public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
     }
 
-    @Override
-    public void initContextForStore(IdentityStoreInvocationContext context, PartitionStore store) {
-        
-    }
 }
