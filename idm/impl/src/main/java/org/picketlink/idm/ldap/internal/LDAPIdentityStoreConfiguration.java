@@ -21,7 +21,11 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.naming.NamingException;
 
@@ -55,7 +59,9 @@ public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private LDAPOperationManager ldapManager;
     private String agentDNSuffix;
     private String baseDN;
-
+    private Map<String, String> groupMapping = new HashMap<String, String>();
+    
+    
     @Override
     public void init() throws SecurityConfigurationException {
         this.featureSet.addSupportedFeature(Feature.all);
@@ -218,5 +224,21 @@ public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
 
     public String getBaseDN() {
         return this.baseDN;
+    }
+
+    public void addGroupMapping(String groupPath, String groupBaseDN) {
+        this.groupMapping.put(groupPath, groupBaseDN);
+    }
+    
+    public String getGroupMapping(String groupPath) {
+        Set<Entry<String, String>> entrySet = this.groupMapping.entrySet();
+        
+        for (Entry<String, String> entry : entrySet) {
+            if (groupPath.contains(entry.getKey())) {
+                return entry.getValue();
+            }
+        }
+        
+        return this.groupMapping.get(groupPath);
     }
 }

@@ -280,8 +280,6 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void remove(IdentityType identityType) {
-        checkIfIdentityTypeExists(identityType);
-
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();

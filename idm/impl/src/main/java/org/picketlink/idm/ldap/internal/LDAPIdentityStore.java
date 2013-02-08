@@ -214,7 +214,14 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 removeAgentRelationships((Agent) identityType);
             }
 
-            getLDAPManager().removeEntryById(getBaseDN(identityType.getClass()), identityType.getId());
+            String baseDN = getBaseDN(identityType.getClass());
+            
+            if (Group.class.isInstance(attributedType)) {
+                Group group = (Group) attributedType;
+                baseDN = getGroupBaseDN(group.getPath());
+            }
+            
+            getLDAPManager().removeEntryById(baseDN, identityType.getId());
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
@@ -280,10 +287,26 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @Override
-    public Group getGroup(String name) {
-        if (name != null) {
-            LDAPGroup ldapGroup = lookupGroup(name);
+    public Group getGroup(String groupPath) {
+        if (groupPath != null) {
+            LDAPGroup ldapGroup = lookupGroup(groupPath);
+            
+            if (ldapGroup != null) {
+                Group group = new SimpleGroup(ldapGroup.getName(), getParentGroup(ldapGroup));
 
+                populateIdentityType(ldapGroup, group);
+
+                return group;
+            }
+        }
+
+        return null;
+    }
+    
+    public Group getGroup(String groupPath, String baseDN) {
+        if (groupPath != null) {
+            LDAPGroup ldapGroup = lookupGroup(groupPath, baseDN);
+            
             if (ldapGroup != null) {
                 Group group = new SimpleGroup(ldapGroup.getName(), getParentGroup(ldapGroup));
 
@@ -298,7 +321,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public Group getGroup(String name, Group parent) {
-        Group group = getGroup(name);
+        Group group = getGroup(parent.getPath() + "/" + name);
 
         if (group.getParentGroup() == null || !group.getParentGroup().getName().equals(parent.getName())) {
             group = null;
@@ -354,7 +377,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         List<T> results = new ArrayList<T>();
 
         try {
-            answer = getLDAPManager().search(getBaseDN(identityQuery.getIdentityType()), searchFilter.toString());
+            String baseDN = getBaseDN(identityQuery.getIdentityType());
+            
+            if (identityQuery.getParameter(AttributedType.ID) != null) {
+                baseDN = getConfig().getBaseDN();
+            }
+            
+            answer = getLDAPManager().search(baseDN, searchFilter.toString());
 
             while (answer.hasMore()) {
                 SearchResult sr = (SearchResult) answer.next();
@@ -561,7 +590,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             }
 
             if (agent != null && group != null) {
-                LDAPGroup groupEntry = lookupGroup(group.getName());
+                LDAPGroup groupEntry = lookupGroup(group.getPath());
                 LDAPAgent agentEntry = lookupAgent(agent);
 
                 if (agentEntry != null && groupEntry.isMember(agentEntry)) {
@@ -931,7 +960,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     private <T extends LDAPIdentityType> T populateIdentityTypeEntry(T identityType) {
         String filter = "(&(objectClass=*)(" + identityType.getBidingName() + "))";
 
-        NamingEnumeration<SearchResult> search = getLDAPManager().search(getBaseDN(identityType.getClass()), filter);
+        NamingEnumeration<SearchResult> search = getLDAPManager().search(identityType.getDnSuffix(), filter);
 
         try {
             if (search.hasMore()) {
@@ -1028,20 +1057,24 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     private Group getParentGroup(LDAPGroup childGroup) {
         Attributes matchAttrs = new BasicAttributes(true);
 
+        String dnSuffix = childGroup.getDnSuffix();
         matchAttrs.put(new BasicAttribute(MEMBER, CN + EQUAL + childGroup.getName() + COMMA
-                + this.configuration.getGroupDNSuffix()));
+                + dnSuffix));
 
         NamingEnumeration<SearchResult> answer = null;
 
         // Search for objects with these matching attributes
         try {
-            answer = getLDAPManager().search(this.configuration.getGroupDNSuffix(), matchAttrs, new String[] { CN });
-
+            answer = getLDAPManager().search(dnSuffix, matchAttrs, new String[] { CN });
+            
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.nextElement();
                 Attributes attributes = sr.getAttributes();
                 String cn = (String) attributes.get(CN).get();
-                return getGroup(cn);
+                String nameInNamespace = sr.getNameInNamespace();
+                String str = CN + EQUAL + cn + COMMA;
+                String substring = nameInNamespace.substring(nameInNamespace.indexOf(str) + str.length());
+                return getGroup(cn, substring);
             }
         } catch (NamingException e) {
             throw new RuntimeException("Error looking parent group for [" + childGroup.getDN() + "]", e);
@@ -1062,23 +1095,22 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             throw new IdentityManagementException("No name was provided.");
         }
 
-        if (getGroup(newGroup.getName()) != null) {
+        if (getGroup(newGroup.getPath()) != null) {
             throw new IdentityManagementException("Group already exists with the given name [" + newGroup.getName()
                     + "] for the given Partition [" + getContext().getPartition().getName() + "]");
         }
 
-        LDAPGroup ldapGroup = new LDAPGroup(getConfig().getGroupDNSuffix());
+        LDAPGroup ldapGroup = new LDAPGroup(getGroupBaseDN(newGroup.getPath()));
 
         ldapGroup.setName(newGroup.getName());
 
         addIdentityType(newGroup, ldapGroup);
 
         if (newGroup.getParentGroup() != null) {
-            String parentName = newGroup.getParentGroup().getName();
-            LDAPGroup parentGroup = lookupGroup(parentName);
+            LDAPGroup parentGroup = lookupGroup(newGroup.getParentGroup().getPath());
 
             if (parentGroup == null) {
-                throw new RuntimeException("Parent group [" + parentName + "] does not exists.");
+                throw new RuntimeException("Parent group [" + newGroup.getParentGroup() + "] does not exists.");
             }
 
             parentGroup.addChildGroup(ldapGroup);
@@ -1087,6 +1119,19 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
             getLDAPManager().modifyAttribute(parentGroup.getDN(), parentGroup.getLDAPAttributes().get(MEMBER));
         }
+    }
+
+    private String getGroupBaseDN(String groupPath) {
+        if (!groupPath.startsWith("/")) {
+            groupPath = "/" + groupPath;
+        }
+        
+        String groupMappingDN = getConfig().getGroupMapping(groupPath);
+
+        if (groupMappingDN == null) {
+            groupMappingDN = getConfig().getGroupDNSuffix();
+        }
+        return groupMappingDN;
     }
 
     private void addRole(Role newRole) {
@@ -1351,8 +1396,40 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         return storedAgent;
     }
 
-    protected LDAPGroup lookupGroup(String name) {
-        return populateIdentityTypeEntry(new LDAPGroup(name, getConfig().getGroupDNSuffix()));
+    protected LDAPGroup lookupGroup(String groupPath) {
+        String name = null;
+        
+        if (!groupPath.startsWith("/")) {
+            groupPath = "/" + groupPath;
+        }
+        
+        String[] groupPaths = groupPath.split("/");
+        
+        name = groupPaths[groupPaths.length - 1];
+
+        LDAPGroup ldapGroup = new LDAPGroup(name, getGroupBaseDN(groupPath));
+        
+        ldapGroup.setPath(groupPath);
+        
+        return populateIdentityTypeEntry(ldapGroup);
+    }
+    
+    protected LDAPGroup lookupGroup(String groupPath, String baseDN) {
+        String name = null;
+        
+        if (!groupPath.startsWith("/")) {
+            groupPath = "/" + groupPath;
+        }
+        
+        String[] groupPaths = groupPath.split("/");
+        
+        name = groupPaths[groupPaths.length - 1];
+
+        LDAPGroup ldapGroup = new LDAPGroup(name, baseDN);
+        
+        ldapGroup.setPath(groupPath);
+        
+        return populateIdentityTypeEntry(ldapGroup);
     }
 
     private LDAPUser lookupUser(String loginName) {
@@ -1360,7 +1437,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void removeGroupRoleRelationship(GroupMembership groupMembership, GroupRole groupRole) {
-        LDAPGroup groupEntry = lookupGroup(groupRole.getGroup().getName());
+        LDAPGroup groupEntry = lookupGroup(groupRole.getGroup().getPath());
         LDAPAgent agentEntry = null;
 
         if (Agent.class.isInstance(groupMembership.getMember())) {
@@ -1381,7 +1458,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void removeGroupMembership(GroupMembership groupMembership) {
-        LDAPGroup groupEntry = lookupGroup(groupMembership.getGroup().getName());
+        LDAPGroup groupEntry = lookupGroup(groupMembership.getGroup().getPath());
         LDAPAgent agentEntry = null;
 
         if (Agent.class.isInstance(groupMembership.getMember())) {

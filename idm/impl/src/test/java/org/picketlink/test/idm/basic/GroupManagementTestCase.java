@@ -89,28 +89,56 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     public void testCreateWithSameName() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Group managerGroup = new SimpleGroup("managers");
-        
-        identityManager.add(managerGroup);
-        
-        Group qaGroup = new SimpleGroup("QA Group");
-        
-        identityManager.add(qaGroup);
-        
-        Group qaManagerGroup = new SimpleGroup("managers", qaGroup);
-        
-        identityManager.add(qaManagerGroup);
+        Group managerGroup = createGroup("managers", null); 
+                
+        // the QA Group was mapped to a different DN. See the LDAP test suite configuration.
+        Group qaManagerGroup = createGroup("managers", "QA Group");
         
         Group storedManagerGroup = identityManager.getGroup(managerGroup.getPath());
         
         assertNotNull(storedManagerGroup);
         assertEquals(managerGroup.getId(), storedManagerGroup.getId());
+        assertNull(storedManagerGroup.getParentGroup());
         
         Group storedQAManagerGroup = identityManager.getGroup(qaManagerGroup.getPath());
         
         assertNotNull(storedQAManagerGroup);
         assertEquals(qaManagerGroup.getId(), storedQAManagerGroup.getId());
+        assertEquals(qaManagerGroup.getPath(), storedQAManagerGroup.getPath());
         assertFalse(storedQAManagerGroup.getId().equals(storedManagerGroup.getId()));
+        assertNotNull(storedQAManagerGroup.getParentGroup());
+    }
+    
+    @Test
+    public void testCreateWithMultipleParentGroups() {
+        IdentityManager identityManager = getIdentityManager();
+        
+        Group groupA = createGroup("QA Group", null);
+        
+        Group groupB = new SimpleGroup("groupB", groupA);
+        
+        identityManager.add(groupB);
+        
+        Group groupC = new SimpleGroup("groupC", groupB);
+        
+        identityManager.add(groupC);
+        
+        Group groupD = new SimpleGroup("groupD", groupC);
+        
+        identityManager.add(groupD);
+        
+        Group storedGroupD = identityManager.getGroup("/QA Group/groupB/groupC/groupD");
+        
+        assertNotNull(storedGroupD);
+        
+        assertNotNull(storedGroupD.getParentGroup());
+        assertEquals(storedGroupD.getParentGroup().getId(), groupC.getId());
+        
+        assertNotNull(storedGroupD.getParentGroup().getParentGroup());
+        assertEquals(storedGroupD.getParentGroup().getParentGroup().getId(), groupB.getId());
+
+        assertNotNull(storedGroupD.getParentGroup().getParentGroup().getParentGroup());
+        assertEquals(storedGroupD.getParentGroup().getParentGroup().getParentGroup().getId(), groupA.getId());
     }
     
     @Test
@@ -136,22 +164,22 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         Group storedGroupD = identityManager.getGroup("/groupA/groupB/groupC/groupD");
         
         assertEquals(storedGroupD.getId(), groupD.getId());
-        assertEquals("/groupA/groupB/groupC/groupD", groupD.getPath());
+        assertEquals("/groupA/groupB/groupC/groupD", storedGroupD.getPath());
         
         Group storedGroupB = identityManager.getGroup("/groupA/groupB");
         
         assertEquals(storedGroupB.getId(), groupB.getId());
-        assertEquals("/groupA/groupB", groupB.getPath());
+        assertEquals("/groupA/groupB", storedGroupB.getPath());
         
         Group storedGroupA = identityManager.getGroup("/groupA");
         
         assertEquals(storedGroupA.getId(), groupA.getId());
-        assertEquals("/groupA", groupA.getPath());
+        assertEquals("/groupA", storedGroupA.getPath());
 
         storedGroupA = identityManager.getGroup("groupA");
         
         assertEquals(storedGroupA.getId(), groupA.getId());
-        assertEquals("/groupA", groupA.getPath());
+        assertEquals("/groupA", storedGroupA.getPath());
     }
 
     @Test

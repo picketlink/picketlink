@@ -135,9 +135,9 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         String name = getConfig().getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
         
         if (parentInstance != null) {
-            String parentId = getConfig().getModelPropertyValue(String.class, parentInstance, PropertyType.IDENTITY_NAME);
+            String groupPath = getConfig().getModelPropertyValue(String.class, parentInstance, PropertyType.GROUP_PATH);
 
-            group = new SimpleGroup(name, store.getGroup(parentId));
+            group = new SimpleGroup(name, store.getGroup(groupPath));
         } else {
             group = new SimpleGroup(name);
         }

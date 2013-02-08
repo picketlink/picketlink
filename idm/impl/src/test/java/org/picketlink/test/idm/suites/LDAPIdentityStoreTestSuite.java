@@ -134,7 +134,9 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)
                 .setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX)
                 .setGroupDNSuffix(GROUP_DN_SUFFIX);
-
+        
+        config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
+        
         return config;
     }
 

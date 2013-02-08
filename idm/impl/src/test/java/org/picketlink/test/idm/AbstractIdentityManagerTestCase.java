@@ -177,7 +177,20 @@ public class AbstractIdentityManagerTestCase {
     protected Group createGroup(String name, String parentGroupName) {
         Group parentGroup = getIdentityManager().getGroup(parentGroupName);
 
-        if (parentGroup != null && parentGroupName != null) {
+        String path = name;
+        
+        if (parentGroupName != null) {
+            path = "/" + parentGroupName + "/" + name;
+        }
+
+        Group group = getIdentityManager().getGroup(path);
+
+        if (group != null) {
+            getIdentityManager().remove(group);
+            group = null;
+        }
+
+        if (parentGroup != null) {
             getIdentityManager().remove(parentGroup);
             parentGroup = null;
         }
@@ -186,14 +199,7 @@ public class AbstractIdentityManagerTestCase {
             parentGroup = new SimpleGroup(parentGroupName);
             getIdentityManager().add(parentGroup);
         }
-
-        Group group = getIdentityManager().getGroup(name);
-
-        if (group != null) {
-            getIdentityManager().remove(group);
-            group = null;
-        }
-
+        
         if (group == null) {
             if (parentGroupName == null) {
                 group = new SimpleGroup(name);
