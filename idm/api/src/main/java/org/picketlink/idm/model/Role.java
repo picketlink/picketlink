@@ -34,9 +34,5 @@ public interface Role extends IdentityType, Serializable {
      */
     QueryParameter NAME = new QueryParameter() {};
 
-    String KEY_PREFIX = "ROLE://";
-
-    // Self
-
     String getName();
 }
