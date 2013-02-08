@@ -16,7 +16,7 @@ public enum PropertyType {
      */
     IDENTITY_DISCRIMINATOR,
     /**
-     * 
+     * The group path defines the name hierarchy for a specific group. eg.: /groupA/groupB
      */
     GROUP_PATH,
     /**

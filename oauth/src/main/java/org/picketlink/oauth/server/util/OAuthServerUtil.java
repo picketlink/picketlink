@@ -27,21 +27,34 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.internal.Password;
 import org.picketlink.idm.credential.internal.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.SimpleIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.jpa.schema.CredentialObject;
+import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
+import org.picketlink.idm.jpa.schema.IdentityObject;
+import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
+import org.picketlink.idm.jpa.schema.PartitionObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
+import org.picketlink.idm.jpa.schema.RelationshipObject;
+import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.oauth.amber.oauth2.as.issuer.MD5Generator;
 import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuer;
@@ -64,6 +77,8 @@ import org.picketlink.oauth.amber.oauth2.common.message.types.ResponseType;
  * @since Dec 12, 2012
  */
 public class OAuthServerUtil {
+    private static Logger log = Logger.getLogger(OAuthServerUtil.class);
+
     /**
      * Centralize the IDM setup
      *
@@ -81,27 +96,59 @@ public class OAuthServerUtil {
             // Need to handle IM
             identityManager = new DefaultIdentityManager();
             String storeType = context.getInitParameter("storeType");
-            if (storeType == null || "ldap".equalsIgnoreCase(storeType)) {
+            if (storeType == null || "db".equals(storeType)) {
 
+                EntityManagerFactory emf = Persistence.createEntityManagerFactory("oauth-pu");
+                EntityManager entityManager = emf.createEntityManager();
+
+                entityManager.getTransaction().begin();
+
+                IdentityConfiguration identityConfig = new IdentityConfiguration();
+                JPAIdentityStoreConfiguration jpaStoreConfig = new JPAIdentityStoreConfiguration();
+
+                jpaStoreConfig.setRealm("default");
+
+                jpaStoreConfig.setIdentityClass(IdentityObject.class);
+                jpaStoreConfig.setAttributeClass(IdentityObjectAttribute.class);
+                jpaStoreConfig.setRelationshipClass(RelationshipObject.class);
+                jpaStoreConfig.setRelationshipIdentityClass(RelationshipIdentityObject.class);
+                jpaStoreConfig.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
+                jpaStoreConfig.setCredentialClass(CredentialObject.class);
+                jpaStoreConfig.setCredentialAttributeClass(CredentialObjectAttribute.class);
+                jpaStoreConfig.setPartitionClass(PartitionObject.class);
+
+                identityConfig.addStoreConfiguration(jpaStoreConfig);
+
+                identityManager = new DefaultIdentityManager();
+                DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
+                icf.setEntityManager(entityManager);
+                identityManager.bootstrap(identityConfig, icf);
+                context.setAttribute("identityManager", identityManager);
+            }
+            if ("ldap".equalsIgnoreCase(storeType)) {
+
+                // LDAPIdentityStore store = new LDAPIdentityStore();
                 LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
                 LDAPIdentityStoreConfiguration ldapConfiguration = (LDAPIdentityStoreConfiguration) builder.build();
 
                 // LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
 
                 Properties properties = getProperties(context);
-                ldapConfiguration.setBindDN(properties.getProperty("bindDN")).setBindCredential(
-                        properties.getProperty("bindCredential"));
+                ldapConfiguration.setBaseDN(properties.getProperty("baseDN")).setBindDN(properties.getProperty("bindDN"))
+                        .setBindCredential(properties.getProperty("bindCredential"));
                 ldapConfiguration.setLdapURL(properties.getProperty("ldapURL"));
-                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix")).setRoleDNSuffix(
-                        properties.getProperty("roleDNSuffix"));
+                ldapConfiguration.setUserDNSuffix(properties.getProperty("userDNSuffix"))
+                        .setRoleDNSuffix(properties.getProperty("roleDNSuffix"))
+                        .setAgentDNSuffix(properties.getProperty("agentDNSuffix"));
                 ldapConfiguration.setGroupDNSuffix(properties.getProperty("groupDNSuffix"));
-                ldapConfiguration.setAdditionalProperties(properties);
+
+                // store.setup(ldapConfiguration, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
 
                 // Create Identity Configuration
                 IdentityConfiguration config = new IdentityConfiguration();
                 config.addStoreConfiguration(ldapConfiguration);
 
-                identityManager.bootstrap(config, new SimpleIdentityStoreInvocationContextFactory());
+                identityManager.bootstrap(config, DefaultIdentityStoreInvocationContextFactory.DEFAULT);
                 context.setAttribute("identityManager", identityManager);
             }
         }
@@ -130,27 +177,33 @@ public class OAuthServerUtil {
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null")
                         .buildJSONMessage();
             }
-            IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
-            userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
 
-            List<User> users = userQuery.getResultList();
-            if (users.size() == 0) {
+            IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
+            agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
+
+            List<Agent> agents = agentQuery.getResultList();
+            if (agents.size() == 0) {
+                log.error(passedClientID + " not found");
                 return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
                         .buildJSONMessage();
             }
-            if (users.size() > 1) {
+            if (agents.size() > 1) {
+                log.error(passedClientID + " multiple found");
                 return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Multiple client_id found")
                         .buildJSONMessage();
             }
 
-            User clientApp = users.get(0);
+            Agent clientApp = agents.get(0);
+
+            // User clientApp = users.get(0);
             Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
             String clientID = clientIDAttr.getValue();
 
             // check if clientid is valid
             if (!clientID.equals(passedClientID)) {
+                log.error(passedClientID + " not found");
                 return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
                         .buildJSONMessage();
@@ -176,6 +229,8 @@ public class OAuthServerUtil {
 
             return builder.location(redirectURI).buildQueryMessage();
         } catch (Exception e) {
+            e.printStackTrace();
+            log.error("Exception:", e);
             return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                     .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
                     .buildJSONMessage();
@@ -213,22 +268,24 @@ public class OAuthServerUtil {
                         .buildJSONMessage();
             }
 
-            IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
-            userQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
+            IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
+            agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
 
-            List<User> users = userQuery.getResultList();
-
-            if (users.size() == 0) {
+            List<Agent> agents = agentQuery.getResultList();
+            if (agents.size() == 0) {
+                log.error(passedClientID + " not found");
                 return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
                         .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
                         .buildJSONMessage();
             }
-
-            if (users.size() > 1) {
-                throw new RuntimeException("More than one user with the same client id");
+            if (agents.size() > 1) {
+                log.error(passedClientID + " multiple found");
+                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
+                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Multiple client_id found")
+                        .buildJSONMessage();
             }
 
-            User clientApp = users.get(0);
+            Agent clientApp = agents.get(0);
 
             // Get the values from DB
             Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
@@ -301,6 +358,30 @@ public class OAuthServerUtil {
         } catch (OAuthProblemException e) {
             return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e).buildJSONMessage();
         }
+    }
+
+    /**
+     * Validate the access token
+     *
+     * @param passedAccessToken
+     * @param identityManager
+     * @return
+     */
+    public static boolean validateAccessToken(String passedAccessToken, IdentityManager identityManager) {
+
+        IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
+        agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("accessToken"), passedAccessToken);
+
+        List<Agent> agents = agentQuery.getResultList();
+        int size = agents.size();
+
+        if (size == 0) {
+            return false;
+        }
+        if (size != 1) {
+            return false;
+        }
+        return true;
     }
 
     private static Properties getProperties(ServletContext context) throws IOException {

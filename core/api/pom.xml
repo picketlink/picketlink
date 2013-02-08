@@ -16,6 +16,12 @@
 
     <dependencies>
         <dependency>
+          <groupId>javax.enterprise</groupId>
+          <artifactId>cdi-api</artifactId>
+          <scope>provided</scope>
+        </dependency>
+
+        <dependency>
 	    <groupId>org.picketlink</groupId>
       	    <artifactId>picketlink-idm-api</artifactId>
       	</dependency>

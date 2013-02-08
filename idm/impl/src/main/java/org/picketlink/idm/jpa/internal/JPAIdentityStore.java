@@ -885,16 +885,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * Removes the store attributes not present in the {@link IdentityType} instance.
      * </p>
      * 
-     * @param relationship
+     * @param identityType
      * @param identity
      */
-    private void removeAttributes(IdentityType relationship, Object identity) {
+    private void removeAttributes(IdentityType identityType, Object identity) {
         List<?> storedAttributes = findAllIdentityTypeAttributes(identity);
 
         for (Object attribute : storedAttributes) {
             String attributeName = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getValue(attribute).toString();
 
-            if (relationship.getAttribute(attributeName) == null) {
+            if (identityType.getAttribute(attributeName) == null) {
                 getEntityManager().remove(attribute);
             }
         }
@@ -1202,6 +1202,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 }
             }
 
+            removeAttributes(identityType, entity);
+        } else {
             removeAttributes(identityType, entity);
         }
     }

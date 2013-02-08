@@ -29,7 +29,6 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
 import org.picketlink.idm.jpa.annotations.EntityType;
-import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
@@ -76,9 +75,6 @@ public class IdentityObject {
 
     @IDMProperty(PropertyType.IDENTITY_EXPIRY_DATE)
     private Date expiryDate;
-
-    @IDMAttribute(name = "one-valued")
-    private String oneValued;
 
     @ManyToOne
     @IDMProperty(PropertyType.GROUP_PARENT)
@@ -181,14 +177,6 @@ public class IdentityObject {
 
     public void setParent(IdentityObject parent) {
         this.parent = parent;
-    }
-
-    public String getOneValued() {
-        return this.oneValued;
-    }
-
-    public void setOneValued(String oneValued) {
-        this.oneValued = oneValued;
     }
 
 }
