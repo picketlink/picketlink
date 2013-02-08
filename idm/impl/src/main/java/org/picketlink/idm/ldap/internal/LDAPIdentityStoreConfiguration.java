@@ -230,11 +230,11 @@ public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
         this.groupMapping.put(groupPath, groupBaseDN);
     }
     
-    public String getGroupMapping(String groupPath) {
+    public String getGroupMappingDN(String groupPath) {
         Set<Entry<String, String>> entrySet = this.groupMapping.entrySet();
         
         for (Entry<String, String> entry : entrySet) {
-            if (groupPath.contains(entry.getKey())) {
+            if (groupPath.startsWith(entry.getKey())) {
                 return entry.getValue();
             }
         }

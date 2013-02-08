@@ -1126,7 +1126,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             groupPath = "/" + groupPath;
         }
         
-        String groupMappingDN = getConfig().getGroupMapping(groupPath);
+        String groupMappingDN = getConfig().getGroupMappingDN(groupPath);
 
         if (groupMappingDN == null) {
             groupMappingDN = getConfig().getGroupDNSuffix();
