@@ -109,13 +109,13 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
     // Group
 
     /**
-     * Returns the Group with the specified Group ID.
+     * <p>Returns the {@link Group} with the specified path. Eg.: /groupA/groupB/groupC.</p>
      * 
      * @param ctx
-     * @param groupId
+     * @param groupPath
      * @return
      */
-    Group getGroup(String groupId);
+    Group getGroup(String groupPath);
 
     /**
      * Returns the Group with the specified name and parent group

@@ -24,7 +24,6 @@ package org.picketlink.idm.jpa.schema;
 
 import java.util.Date;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -53,10 +52,6 @@ public class IdentityObject {
     @IDMProperty(PropertyType.IDENTITY_ID)
     @Id
     private String id;
-
-    @IDMProperty(PropertyType.IDENTITY_KEY)
-    @Column (name="_key")
-    private String key;
 
     @IDMProperty(PropertyType.AGENT_LOGIN_NAME)
     private String loginName;
@@ -88,6 +83,9 @@ public class IdentityObject {
     @ManyToOne
     @IDMProperty(PropertyType.GROUP_PARENT)
     private IdentityObject parent;
+    
+    @IDMProperty (PropertyType.GROUP_PATH)
+    private String groupPath;
 
     public String getDiscriminator() {
         return this.discriminator;
@@ -103,14 +101,6 @@ public class IdentityObject {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getKey() {
-        return getDiscriminator() + "://" + getId();
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public String getName() {

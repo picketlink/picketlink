@@ -31,6 +31,7 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
 
     private String name;
     private Group parentGroup;
+    private String path;
 
     public SimpleGroup() {
     }
@@ -41,6 +42,7 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
         }
 
         this.name = name;
+        this.path = getPath(this);
     }
 
     public SimpleGroup(String name, Group parentGroup) {
@@ -50,6 +52,7 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
 
         this.name = name;
         this.parentGroup = parentGroup;
+        this.path = getPath(this);
     }
 
     public String getName() {
@@ -60,6 +63,20 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
         this.name = name;
     }
     
+    public String getPath() {
+        return this.path;
+    }
+    
+    public String getPath(Group group) {
+        String name = "/" + group.getName();
+        
+        if (group.getParentGroup() != null) {
+            name = getPath(group.getParentGroup()) + name;
+        }
+        
+        return name;
+    }
+
     @Override
     public Group getParentGroup() {
         return parentGroup;

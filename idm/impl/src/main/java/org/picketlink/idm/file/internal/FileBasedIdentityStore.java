@@ -280,26 +280,51 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public Group getGroup(String groupName) {
-        Group group = lookupGroup(groupName, getCurrentPartition());
-
-        if (group != null && group.getParentGroup() != null) {
-            group.setParentGroup(getGroup(group.getParentGroup().getName()));
+    public Group getGroup(String groupPath) {
+        Group group = null;
+        
+        if (groupPath != null) {
+            if (groupPath.indexOf('/') == -1) {
+                groupPath = "/" + groupPath;
+            }
+            
+            group = lookupGroup(groupPath, getCurrentPartition());
+    
+            if (group != null && group.getParentGroup() != null) {
+                String parentPath = group.getParentGroup().getPath();
+                
+                String childSubpath = "/" + group.getParentGroup().getName() + "/" + group.getName();
+                
+                parentPath = groupPath.substring(0, groupPath.indexOf(childSubpath)) + "/" + group.getParentGroup().getName();
+                
+                group.setParentGroup(getGroup(parentPath));
+            }
         }
-
+        
         return group;
     }
 
     @Override
     public Group getGroup(String name, Group parent) {
-        Group group = getGroup(name);
-        Group parentGroup = group.getParentGroup();
-
-        if (parentGroup == null || !parentGroup.getName().equals(parent.getName())) {
-            group = null;
+        String path = "/" + name;
+        
+        if (parent != null) {
+            if (parent.getId() == null) {
+                throw new IdentityManagementException("No identifier specified for the parent group.");
+            }
+            
+            IdentityType identityType = lookupIdentityTypeById(parent.getId());
+            
+            if (!Group.class.isInstance(identityType)) {
+                throw new IdentityManagementException("No parent group found with the given id [" + parent.getId() + "]");
+            }
+            
+            Group parentGroup = (Group) identityType;
+            
+            path = parentGroup.getPath() + path;
         }
-
-        return group;
+        
+        return getGroup(path);
     }
 
     @Override
@@ -500,7 +525,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
                 continue;
             }
-            
+
             typesCount++;
 
             if (!isQueryParameterEquals(identityQuery, IdentityType.ID, storedEntry.getId())) {
@@ -594,7 +619,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             }
 
             configurePartition(storedEntry);
-            
+
             result.add((T) storedEntry);
         }
 
@@ -740,7 +765,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             throw new IdentityManagementException("No name was provided.");
         }
 
-        Group storedGroup = getGroup(group.getName());
+        Group storedGroup = getGroup(group.getPath());
 
         if (storedGroup == null) {
             throw new IdentityManagementException("No Group found with the given name [" + group.getName()
@@ -845,7 +870,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             throw new IdentityManagementException("No name was provided.");
         }
 
-        if (getGroup(group.getName()) != null) {
+        Group storedGroup = getGroup(group.getPath());
+
+        if (storedGroup != null) {
             throw new IdentityManagementException("Group already exists with the given name [" + group.getName()
                     + "] for the given Partition [" + getCurrentPartition().getName() + "]");
         }
@@ -876,7 +903,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void storeGroup(Group fileGroup) {
         FilePartition partition = getDataSource().getPartition(fileGroup.getPartition().getId());
 
-        partition.getGroups().put(fileGroup.getName(), new FileGroup(fileGroup));
+        partition.getGroups().put(fileGroup.getPath(), new FileGroup(fileGroup));
 
         getDataSource().flushGroups(partition);
     }
@@ -1120,13 +1147,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             toIdentityType.removeAttribute(attribute.getName());
         }
 
-        List<Property<Serializable>> attributeProperties = PropertyQueries.<Serializable> createQuery(fromIdentityType.getClass())
+        List<Property<Serializable>> attributeProperties = PropertyQueries
+                .<Serializable> createQuery(fromIdentityType.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
 
         for (Property<Serializable> attributeProperty : attributeProperties) {
             attributeProperty.setValue(toIdentityType, attributeProperty.getValue(fromIdentityType));
         }
-        
+
         for (Attribute<? extends Serializable> attrib : fromIdentityType.getAttributes()) {
             toIdentityType.setAttribute(attrib);
         }
@@ -1154,7 +1182,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
         }
-        
+
         configurePartition(role);
 
         return role;
@@ -1172,7 +1200,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Group lookupGroup(String groupName, Partition partition) {
         Group group = getGroupsForPartition(partition).get(groupName);
-
+        
         if (group == null) {
             if (Tier.class.isInstance(partition)) {
                 Tier tier = (Tier) partition;
@@ -1182,7 +1210,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 }
             }
         }
-        
+
         configurePartition(group);
 
         return group;
