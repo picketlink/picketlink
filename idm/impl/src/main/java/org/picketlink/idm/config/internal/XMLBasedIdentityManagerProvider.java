@@ -70,19 +70,22 @@ public class XMLBasedIdentityManagerProvider {
     public static final ClassLoader IDM_CLASSLOADER = IdentityManager.class.getClassLoader();
 
     public IdentityManager buildIdentityManager(InputStream inputStream) {
+        IDMType idmConfiguration = parseIDMType(inputStream);
+        return buildIdentityManager(idmConfiguration);
+    }
+
+    public IDMType parseIDMType(InputStream inputStream) {
         try {
             // TODO: Think about subclassing AbstractSAMLConfigurationProvider (if it's going to be decoupled from federation module)
             PicketLinkConfigParser parser = new PicketLinkConfigParser();
             PicketLinkType plType = (PicketLinkType)parser.parse(inputStream);
-            IDMType idmConfiguration = plType.getIdmType();
-            return buildIdentityManager(idmConfiguration);
+            return plType.getIdmType();
         } catch (ParsingException pe) {
             throw new SecurityConfigurationException("Could not parse picketlink configuration", pe);
         }
     }
 
-    protected IdentityManager buildIdentityManager(IDMType idmType) {
-        // TODO: implement
+    public IdentityManager buildIdentityManager(IDMType idmType) {
         String identityManagerClass = idmType.getIdentityManagerClass() != null ? idmType.getIdentityManagerClass() : DEFAULT_IDENTITY_MANAGER_CLASS;
         IdentityManager identityManager = (IdentityManager)instantiateComponent(identityManagerClass);
 
