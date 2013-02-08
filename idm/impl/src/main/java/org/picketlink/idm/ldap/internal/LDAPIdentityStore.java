@@ -288,19 +288,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public Group getGroup(String groupPath) {
-        if (groupPath != null) {
-            LDAPGroup ldapGroup = lookupGroup(groupPath);
-            
-            if (ldapGroup != null) {
-                Group group = new SimpleGroup(ldapGroup.getName(), getParentGroup(ldapGroup));
-
-                populateIdentityType(ldapGroup, group);
-
-                return group;
-            }
+        if (groupPath == null) {
+            return null;
         }
-
-        return null;
+        
+        return getGroup(groupPath, getGroupBaseDN(groupPath));
     }
     
     public Group getGroup(String groupPath, String baseDN) {
@@ -1397,21 +1389,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     protected LDAPGroup lookupGroup(String groupPath) {
-        String name = null;
-        
-        if (!groupPath.startsWith("/")) {
-            groupPath = "/" + groupPath;
-        }
-        
-        String[] groupPaths = groupPath.split("/");
-        
-        name = groupPaths[groupPaths.length - 1];
-
-        LDAPGroup ldapGroup = new LDAPGroup(name, getGroupBaseDN(groupPath));
-        
-        ldapGroup.setPath(groupPath);
-        
-        return populateIdentityTypeEntry(ldapGroup);
+        return lookupGroup(groupPath, getGroupBaseDN(groupPath));
     }
     
     protected LDAPGroup lookupGroup(String groupPath, String baseDN) {
