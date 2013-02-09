@@ -44,7 +44,7 @@ import org.picketlink.idm.spi.StoreFactory;
  * 
  * @author Shane Bryzak
  */
-public interface IdentityManager extends Serializable{
+public interface IdentityManager extends Serializable {
 
     /**
      * This method must be invoked to set up the IdentityManager instance before any identity management operations may be
@@ -61,7 +61,7 @@ public interface IdentityManager extends Serializable{
      */
     void setIdentityStoreFactory(StoreFactory factory);
 
-    // Identity CRUD methods 
+    // Identity CRUD methods
 
     void add(IdentityType value);
 
@@ -87,8 +87,26 @@ public interface IdentityManager extends Serializable{
 
     // Group
 
-    Group getGroup(String groupId);
+    /**
+     * <p>
+     * Returns the {@link Group} with the specified path. Eg.: /groupA/groupB/groupC.
+     * </p>
+     * 
+     * @param groupPath
+     * @return
+     */
+    Group getGroup(String groupPath);
 
+    /**
+     * <p>
+     * Returns a {@link Group} with the specified name and parent group. The parent group must be a valid/stored group with a
+     * valid identifier.
+     * </p>
+     * 
+     * @param groupName
+     * @param parent
+     * @return
+     */
     Group getGroup(String groupName, Group parent);
 
     boolean isMember(IdentityType identityType, Group group);
@@ -116,7 +134,7 @@ public interface IdentityManager extends Serializable{
     // Query API
 
     <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String value);
-    
+
     <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType);
 
     <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType);
@@ -126,6 +144,7 @@ public interface IdentityManager extends Serializable{
     void validateCredentials(Credentials credentials);
 
     void updateCredential(Agent agent, Object value);
+
     void updateCredential(Agent agent, Object value, Date effectiveDate, Date expiryDate);
 
     // Attributes

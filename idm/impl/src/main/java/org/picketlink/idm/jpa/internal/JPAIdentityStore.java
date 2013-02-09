@@ -401,19 +401,23 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public Group getGroup(String groupId) {
-        if (groupId == null) {
+    public Group getGroup(String groupPath) {
+        if (groupPath == null) {
             return null;
+        }
+        
+        if (groupPath.indexOf('/') == -1) {
+            groupPath = "/" + groupPath;
         }
 
         // Check the cache first
         Realm partition = context.getRealm();
-        Group group = getContext().getCache().lookupGroup(partition, groupId);
+        Group group = getContext().getCache().lookupGroup(partition, groupPath);
 
         if (group == null) {
             DefaultIdentityQuery<Group> defaultIdentityQuery = new DefaultIdentityQuery<Group>(Group.class, this);
 
-            defaultIdentityQuery.setParameter(Group.NAME, groupId);
+            defaultIdentityQuery.setParameter(Group.PATH, groupPath);
 
             List<Group> resultList = defaultIdentityQuery.getResultList();
 
@@ -432,14 +436,25 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (name == null || parent == null) {
             return null;
         }
-
-        Group group = getGroup(name);
-
-        if (group.getParentGroup() == null || !group.getParentGroup().getName().equals(parent.getName())) {
-            group = null;
+        
+        String path = "/" + name;
+        
+        if (parent != null) {
+            if (parent.getId() == null) {
+                throw new IdentityManagementException("No identifier specified for the parent group.");
+            }
+            
+            Object storedParent = lookupIdentityObjectById(parent.getId());
+            
+            if (storedParent == null || !getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(storedParent).equals(getConfig().getIdentityTypeGroup())) {
+                throw new IdentityManagementException("No parent group found with the given identifier [" + parent.getId() + "]");
+            }
+            
+            path = getConfig().getModelProperty(PropertyType.GROUP_PATH).getValue(storedParent) + path;
         }
 
-        return group;
+
+        return getGroup(path);
     }
 
     @Override
@@ -870,16 +885,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * Removes the store attributes not present in the {@link IdentityType} instance.
      * </p>
      * 
-     * @param relationship
+     * @param identityType
      * @param identity
      */
-    private void removeAttributes(IdentityType relationship, Object identity) {
+    private void removeAttributes(IdentityType identityType, Object identity) {
         List<?> storedAttributes = findAllIdentityTypeAttributes(identity);
 
         for (Object attribute : storedAttributes) {
             String attributeName = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getValue(attribute).toString();
 
-            if (relationship.getAttribute(attributeName) == null) {
+            if (identityType.getAttribute(attributeName) == null) {
                 getEntityManager().remove(attribute);
             }
         }
@@ -1187,6 +1202,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 }
             }
 
+            removeAttributes(identityType, entity);
+        } else {
             removeAttributes(identityType, entity);
         }
     }

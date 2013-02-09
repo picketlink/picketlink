@@ -332,6 +332,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         configureModelProperty(PropertyType.IDENTITY_ID, identityClass, null, "id", "identifier");
         configureModelProperty(PropertyType.IDENTITY_NAME, identityClass, null, "name");
         configureModelProperty(PropertyType.GROUP_PARENT, identityClass, null, "parentGroup", "parent");
+        configureModelProperty(PropertyType.GROUP_PATH, identityClass, null, "groupPath", "path");
         configureModelProperty(PropertyType.IDENTITY_ENABLED, identityClass, null, "enabled", "active");
         configureModelProperty(PropertyType.IDENTITY_CREATION_DATE, identityClass, null, false, "created", "creationDate");
         configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, identityClass, null, false, "expires", "expiryDate");

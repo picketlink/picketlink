@@ -36,6 +36,11 @@ public interface Group extends IdentityType, Serializable {
     QueryParameter NAME = new QueryParameter() {};
 
     /**
+     * A query parameter used to set the path.
+     */
+    QueryParameter PATH = new QueryParameter() {};
+
+    /**
      * A query parameter used to set the parent value.
      */
     QueryParameter PARENT = new QueryParameter() {};
@@ -53,6 +58,16 @@ public interface Group extends IdentityType, Serializable {
      */
     Group getParentGroup();
 
+    /**
+     * <p>Sets the parent group.</p>
+     * 
+     * @param group
+     */
     void setParentGroup(Group group);
+
+    /**
+     * @return group path (eg.: /parentGroup/childGroup.
+     */
+    String getPath();
 
 }

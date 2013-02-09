@@ -42,7 +42,6 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
@@ -63,6 +62,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
                 store.lookupPartitionObject(store.getCurrentPartition()), true);
         getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
+        getConfig().setModelPropertyValue(toIdentity, PropertyType.GROUP_PATH, fromGroup.getPath(), true);
 
         if (fromGroup.getParentGroup() != null) {
             Object parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
@@ -135,9 +135,9 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         String name = getConfig().getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
         
         if (parentInstance != null) {
-            String parentId = getConfig().getModelPropertyValue(String.class, parentInstance, PropertyType.IDENTITY_NAME);
+            String groupPath = getConfig().getModelPropertyValue(String.class, parentInstance, PropertyType.GROUP_PATH);
 
-            group = new SimpleGroup(name, store.getGroup(parentId));
+            group = new SimpleGroup(name, store.getGroup(groupPath));
         } else {
             group = new SimpleGroup(name);
         }
@@ -156,6 +156,14 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         if (parameterValues != null) {
             predicates.add(builder.equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
+                    parameterValues[0]));
+        }
+        
+        parameterValues = criteria.getIdentityQuery().getParameter(Group.PATH);
+
+        if (parameterValues != null) {
+            predicates.add(builder.equal(
+                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.GROUP_PATH).getName()),
                     parameterValues[0]));
         }
 
@@ -223,7 +231,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
             throw new IdentityManagementException("No name was provided.");
         }
         
-        if (store.getGroup(group.getName()) != null) {
+        if (store.getGroup(group.getPath()) != null) {
             throw new IdentityManagementException("Group already exists with the given loginName [" + group.getName() + "] for the given Partition [" + store.getCurrentPartition().getName() + "]");
         }
     }

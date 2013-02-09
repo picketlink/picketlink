@@ -46,6 +46,8 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
     private Group parent;
     private String groupName;
 
+    private String path;
+
     public LDAPGroup(String groupDNSuffix) {
         super(groupDNSuffix);
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
@@ -107,6 +109,15 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
         }
         
         memberAttribute.add(getDN(childGroup.getName()));
+    }
+
+    @Override
+    public String getPath() {
+        return this.path;
+    }
+
+    public void setPath(String groupPath) {
+        this.path = groupPath;
     }
 
 }

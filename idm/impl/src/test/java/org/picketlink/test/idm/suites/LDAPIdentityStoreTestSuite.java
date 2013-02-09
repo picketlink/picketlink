@@ -22,26 +22,13 @@
 
 package org.picketlink.test.idm.suites;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
-import org.picketlink.config.PicketLinkConfigParser;
-import org.picketlink.config.federation.PicketLinkType;
-import org.picketlink.config.idm.IDMType;
-import org.picketlink.config.idm.StoreConfigurationType;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
@@ -68,18 +55,19 @@ import org.picketlink.test.idm.relationship.UserRolesRelationshipTestCase;
  * <p>
  * Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.
  * </p>
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 @RunWith(IdentityManagerRunner.class)
 @SuiteClasses({ UserManagementTestCase.class, PasswordCredentialTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
         AgentManagementTestCase.class, AgentQueryTestCase.class, UserQueryTestCase.class, RoleQueryTestCase.class,
         GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class, AgentGroupsRelationshipTestCase.class,
         UserRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class
-})
+         })
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
+    private static final String BASE_DN = "dc=jboss,dc=org";
     private static LDAPIdentityStoreTestSuite instance;
 
     public static TestLifecycle init() throws Exception {
@@ -90,18 +78,18 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         return instance;
     }
 
-    private static final String DEFAULT_IDENTITY_CONFIG_FILE = "config/embedded-ldap-config.xml";
-
-    private String identityConfigFile;
+    private static final String LDAP_URL = "ldap://localhost:10389";
+    private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
+    private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
+    private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
+    private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
 
     @BeforeClass
     public static void onBeforeClass() {
         try {
             init();
             instance.setup();
-            instance.overrideProperties();
-            String ldifFile =  System.getProperty("plidm.ldif.file", "ldap/users.ldif");
-            instance.importLDIF(ldifFile);
+            instance.importLDIF("ldap/users.ldif");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,46 +104,6 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         }
     }
 
-    @Before
-    @Override
-    public void setup() throws Exception {
-        identityConfigFile = System.getProperty("plidm.xml.configuration", DEFAULT_IDENTITY_CONFIG_FILE);
-
-        // Setup and start Ldap only in case of embedded ApacheDS
-        if (DEFAULT_IDENTITY_CONFIG_FILE.equals(identityConfigFile)) {
-            super.setup();
-        }
-    }
-
-    @After
-    @Override
-    public void tearDown() throws Exception {
-        // Stop Ldap only in case of embedded ApacheDS
-        if (DEFAULT_IDENTITY_CONFIG_FILE.equals(identityConfigFile)) {
-            super.tearDown();
-        }
-    }
-
-    /**
-     * Override properties needed for LDIF import
-     */
-    private void overrideProperties() {
-        XMLBasedIdentityManagerProvider configProvider = new XMLBasedIdentityManagerProvider();
-        InputStream configStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(identityConfigFile);
-        IDMType idmType = configProvider.parseIDMType(configStream);
-        StoreConfigurationType storeType = idmType.getIdentityConfigurationType().getIdentityStoreConfigurations().get(0);
-
-        adminDN = (String)storeType.getProperty("bindDN");
-        adminPW = (String)storeType.getProperty("bindCredential");
-        dn = (String)storeType.getProperty("baseDN");
-
-        // Parse host and port from string like "ldap://localhost:1389"
-        String ldapURL = (String)storeType.getProperty("ldapURL");
-        String[] splits = ldapURL.split(":");
-        serverHost = splits[1].substring(2);
-        port = splits[2];
-    }
-
     @Override
     public void onInit() {
 
@@ -163,9 +111,15 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     @Override
     public IdentityManager createIdentityManager() {
-        XMLBasedIdentityManagerProvider configProvider = new XMLBasedIdentityManagerProvider();
-        InputStream configStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(identityConfigFile);
-        return configProvider.buildIdentityManager(configStream);
+        IdentityConfiguration config = new IdentityConfiguration();
+
+        config.addStoreConfiguration(getConfiguration());
+
+        IdentityManager identityManager = new DefaultIdentityManager();
+
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+
+        return identityManager;
     }
 
     @Override
@@ -173,12 +127,21 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
     }
 
+    public static LDAPIdentityStoreConfiguration getConfiguration() {
+        LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
+        LDAPIdentityStoreConfiguration config = (LDAPIdentityStoreConfiguration) builder.build();
+
+        config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)
+                .setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX)
+                .setGroupDNSuffix(GROUP_DN_SUFFIX);
+        
+        config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
+        
+        return config;
+    }
+
     @Override
     public void importLDIF(String fileName) throws Exception {
-        if (DEFAULT_IDENTITY_CONFIG_FILE.equals(identityConfigFile)) {
-            super.importLDIF(fileName);
-        } else {
-            // TODO: Find a way to perform LDIF import for non-embedded LDAP servers (CMD via Runtime.getRuntime ?)
-        }
+        super.importLDIF(fileName);
     }
 }
