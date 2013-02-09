@@ -182,10 +182,15 @@
         <title>Managing Users</title>
         
         <para>
-          The following code example demonstrates how to create a new user with username <emphasis>jsmith</emphasis>, first 
-          name of <emphasis>John</emphasis> and last name <emphasis>Smith</emphasis>, with e-mail address 
-          <emphasis>jsmith@acme.com</emphasis>.
+          The following code example demonstrates how to create a new user with the following properties:
         </para>
+        
+        <itemizedlist>
+          <listitem>Login name - <emphasis>jsmith</emphasis></listitem>
+          <listitem>First name - <emphasis>John</emphasis></listitem>
+          <listitem>Last name - <emphasis>Smith</emphasis></listitem>
+          <listitem>E-mail - <emphasis>jsmith@acme.com</emphasis></listitem>
+        </itemizedlist> 
         
         <programlisting language="JAVA"><![CDATA[  User user = new SimpleUser("jsmith");
   user.setFirstName("John");
@@ -568,7 +573,7 @@
           attribute management methods for us:
         </para>
         
-        <programlisting><![CDATA[  public class Authorization extends AbstractAttributedType implements Relationship {
+        <programlisting language="JAVA"><![CDATA[  public class Authorization extends AbstractAttributedType implements Relationship {
         
   }]]></programlisting>
         
@@ -578,7 +583,7 @@
           This is done by creating a property for each identity type.
         </para>
         
-        <programlisting><![CDATA[  private User user;
+        <programlisting language="JAVA"><![CDATA[  private User user;
   private Agent application;
   
   @RelationshipIdentity
@@ -603,7 +608,7 @@
             We can also define some attribute properties, using the <code>@RelationshipAttribute</code> annotation:
           </code>
           
-          <programlisting><![CDATA[  private String accessToken;
+          <programlisting language="JAVA"><![CDATA[  private String accessToken;
   
   @RelationshipAttribute
   public String getAccessToken() {
