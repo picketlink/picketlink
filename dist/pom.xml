@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.picketlink</groupId>
+  <artifactId>picketlink-bom</artifactId>
+  <packaging>pom</packaging>
+  <version>3.0.0-SNAPSHOT</version>
+  <name>PicketLink BOM</name>
+
+  <description>
+    PicketLink "Bill of Materials", specifying the PicketLink stack
+  </description>
+
+  <properties>
+    <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
+    <picketlink.version>3.0.0-SNAPSHOT</picketlink.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.jboss.spec</groupId>
+        <artifactId>jboss-javaee-6.0</artifactId>
+        <version>${jboss.javaee.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.spec</groupId>
+        <artifactId>jboss-javaee-6.0</artifactId>
+        <version>${jboss.javaee.version}</version>
+        <scope>provided</scope>
+        <type>pom</type>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-core-api</artifactId>
+        <version>${picketlink.version}</version>
+        <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-core-impl</artifactId>
+        <version>${picketlink.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-idm-api</artifactId>
+        <version>${picketlink.version}</version>
+        <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-idm-impl</artifactId>
+        <version>${picketlink.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-common</artifactId>
+        <version>${picketlink.version}</version>
+        <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-config</artifactId>
+        <version>${picketlink.version}</version>
+        <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-federation</artifactId>
+        <version>${picketlink.version}<version>
+        <scope>compile</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.2.1</version>
+        <configuration>
+          <arguments>-Drelease </arguments>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.6</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <version>2.3.1</version>
+      </plugin>
+
+      <plugin>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>nexus-maven-plugin</artifactId>
+        <version>1.7</version>
+        <configuration>
+          <auto>true</auto>
+          <nexusUrl>https://repository.jboss.org/nexus</nexusUrl>
+          <serverAuthId>jboss-releases-repository</serverAuthId>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>distribution</id>
+      <activation>
+        <property>
+          <name>release</name>
+        </property>
+      </activation>
+      <modules>
+
+      </modules>
+    </profile>
+  </profiles>
+
+  <scm>
+    <connection>scm:git:git://github.com/picketlink/picketlink.git</connection>
+    <developerConnection>scm:git:git@github.com:picketlink/picketlink.git</developerConnection>
+    <url>http://github.com/picketlink/picketlink<url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>jboss-releases-repository</id>
+      <name>JBoss Releases Repository</name>
+      <url>${jboss.releases.repo.url}</url>
+    </repository>
+
+    <snapshotRepository>
+      <id>jboss-snapshots-repository</id>
+      <name>JBoss Snapshots Repository</name>
+      <url>${jboss.snapshots.repo.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+</project>
+
