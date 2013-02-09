@@ -83,11 +83,18 @@
         <version>${picketlink.version}</version>
         <scope>compile</scope>
       </dependency>
+ 
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-social</artifactId>
+        <version>${picketlink.version}</version>
+        <scope>compile</scope>
+      </dependency>
 
       <dependency>
         <groupId>org.picketlink</groupId>
         <artifactId>picketlink-federation</artifactId>
-        <version>${picketlink.version}<version>
+        <version>${picketlink.version}</version>
         <scope>compile</scope>
       </dependency>
 
@@ -149,7 +156,7 @@
   <scm>
     <connection>scm:git:git://github.com/picketlink/picketlink.git</connection>
     <developerConnection>scm:git:git@github.com:picketlink/picketlink.git</developerConnection>
-    <url>http://github.com/picketlink/picketlink<url>
+    <url>http://github.com/picketlink/picketlink</url>
   </scm>
 
   <distributionManagement>

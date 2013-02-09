@@ -56,82 +56,83 @@
 	</modules>
 
 	<dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.picketlink</groupId>
-                <artifactId>picketlink-config</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+    <dependencies>
+      <dependency>
+          <groupId>org.picketlink</groupId>
+          <artifactId>picketlink-config</artifactId>
+          <version>${project.version}</version>
+      </dependency>
 
-            <dependency>
-                <groupId>org.picketlink</groupId>
-                <artifactId>picketlink-common</artifactId>
-                <version>${project.version}</version>
-                <scope>compile</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.picketlink</groupId>
-                <artifactId>picketlink-core-api</artifactId>
-                <version>${project.version}</version>
-                <scope>compile</scope>
-            </dependency>
+      <dependency>
+          <groupId>org.picketlink</groupId>
+          <artifactId>picketlink-common</artifactId>
+          <version>${project.version}</version>
+          <scope>compile</scope>
+      </dependency>
+      
+      <dependency>
+          <groupId>org.picketlink</groupId>
+          <artifactId>picketlink-core-api</artifactId>
+          <version>${project.version}</version>
+          <scope>compile</scope>
+      </dependency>
 
-            <dependency>
-                <groupId>org.picketlink</groupId>
-                <artifactId>picketlink-core-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+      <dependency>
+          <groupId>org.picketlink</groupId>
+          <artifactId>picketlink-core-impl</artifactId>
+          <version>${project.version}</version>
+      </dependency>
 
-            <dependency>
-                <groupId>org.picketlink</groupId>
-                <artifactId>picketlink-idm-api</artifactId>
-                <version>${project.version}</version>
-                <scope>compile</scope>
-            </dependency>
+      <dependency>
+          <groupId>org.picketlink</groupId>
+          <artifactId>picketlink-idm-api</artifactId>
+          <version>${project.version}</version>
+          <scope>compile</scope>
+      </dependency>
 
-            <dependency>
-                <groupId>org.picketlink</groupId>
-                <artifactId>picketlink-idm-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
+      <dependency>
+          <groupId>org.picketlink</groupId>
+          <artifactId>picketlink-idm-impl</artifactId>
+          <version>${project.version}</version>
+      </dependency>
 
-            <dependency>
-                <groupId>org.jboss.spec</groupId>
-                <artifactId>jboss-javaee-6.0</artifactId>
-                <version>${jboss.javaee.version}</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
+      <dependency>
+          <groupId>org.jboss.spec</groupId>
+          <artifactId>jboss-javaee-6.0</artifactId>
+          <version>${jboss.javaee.version}</version>
+          <scope>import</scope>
+          <type>pom</type>
+      </dependency>
 
-            <dependency>
-                <groupId>org.apache.deltaspike.core</groupId>
-                <artifactId>deltaspike-core-api</artifactId>
-                <version>${deltaspike.version}</version>
-                <scope>compile</scope>
-            </dependency>
+      <dependency>
+          <groupId>org.apache.deltaspike.core</groupId>
+          <artifactId>deltaspike-core-api</artifactId>
+          <version>${deltaspike.version}</version>
+          <scope>compile</scope>
+      </dependency>
 
-            <dependency>
-                <groupId>org.apache.deltaspike.core</groupId>
-                <artifactId>deltaspike-core-impl</artifactId>
-                <version>${deltaspike.version}</version>
-                <scope>runtime</scope>
-            </dependency>
+      <dependency>
+          <groupId>org.apache.deltaspike.core</groupId>
+          <artifactId>deltaspike-core-impl</artifactId>
+          <version>${deltaspike.version}</version>
+          <scope>runtime</scope>
+      </dependency>
 
-            <dependency>
-                <groupId>org.apache.deltaspike.modules</groupId>
-                <artifactId>deltaspike-security-module-api</artifactId>
-                <version>${deltaspike.version}</version>
-                <scope>compile</scope>
-            </dependency>
+      <dependency>
+          <groupId>org.apache.deltaspike.modules</groupId>
+          <artifactId>deltaspike-security-module-api</artifactId>
+          <version>${deltaspike.version}</version>
+          <scope>compile</scope>
+      </dependency>
 
-            <dependency>
-                <groupId>org.apache.deltaspike.modules</groupId>
-                <artifactId>deltaspike-security-module-impl</artifactId>
-                <version>${deltaspike.version}</version>
-                <scope>runtime</scope>
-            </dependency>
+      <dependency>
+          <groupId>org.apache.deltaspike.modules</groupId>
+          <artifactId>deltaspike-security-module-impl</artifactId>
+          <version>${deltaspike.version}</version>
+          <scope>runtime</scope>
+      </dependency>
 
-        </dependencies>
+    </dependencies>
 	</dependencyManagement>
 
 	<build>
@@ -190,6 +191,10 @@
 					<name>release</name>
 				</property>
 			</activation>
+			<modules>
+			  <module>docs</module>
+			  <module>dist</module>
+			</modules>
 		</profile>
 	</profiles>
 
