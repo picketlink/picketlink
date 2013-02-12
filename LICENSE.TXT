@@ -15,19 +15,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.model;
-
-
-
-
-/**
- * Represents a relationship between two or more {@link IdentityType}, which is also
- * capable of supporting multiple attribute values.
- * 
- * @author anil saldhana
- * @author Shane Bryzak
- * @since Dec 18, 2012
- */
-public interface Relationship extends AttributedType {
-
-}
