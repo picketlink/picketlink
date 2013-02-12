@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.internal.resolver;
+package org.picketlink.config.idm.resolver;
 
 import java.util.Map;
 import java.util.Properties;

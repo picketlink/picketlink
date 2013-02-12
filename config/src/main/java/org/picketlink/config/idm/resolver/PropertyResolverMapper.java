@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.internal.resolver;
+package org.picketlink.config.idm.resolver;
 
 import java.util.Map;
 import java.util.Properties;
@@ -44,9 +44,11 @@ public class PropertyResolverMapper {
     private final PropertyResolver<Object> DEFAULT_PRIMITIVE_RESOLVER = new PrimitivePropertyResolver.PropertyEditorDelegateResolver();
 
     // Default resolver for all types, which are configured in XML as 'Object'
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private final PropertyResolver<Object> DEFAULT_OBJECT_RESOLVER = new ObjectTypeResolver();
 
     // Map from types to resolvers. Key is java type. Value is resolver
+    @SuppressWarnings("rawtypes")
     private Map<Class<?>, PropertyResolver> propertyResolvers = new ConcurrentHashMap<Class<?>, PropertyResolver>();
 
     public static PropertyResolverMapper getInstance() {
@@ -77,6 +79,7 @@ public class PropertyResolverMapper {
         propertyResolvers.put(clazz, propertyResolver);
     }
 
+    @SuppressWarnings("unchecked")
     public <V> V resolveProperty(Object configurationType, Class<V> clazz) {
         // Find resolver in mapping first
         PropertyResolver<V> propertyResolver = propertyResolvers.get(clazz);

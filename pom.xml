@@ -97,6 +97,12 @@
       </dependency>
 
       <dependency>
+          <groupId>org.picketlink</groupId>
+          <artifactId>picketlink-idm-schema</artifactId>
+          <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
           <groupId>org.jboss.spec</groupId>
           <artifactId>jboss-javaee-6.0</artifactId>
           <version>${jboss.javaee.version}</version>
