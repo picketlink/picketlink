@@ -71,19 +71,23 @@
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-common</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
           </dependency>
 
          <dependency>
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-idm-api</artifactId>
+            <scope>test</scope>
         </dependency>
          <dependency>
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-idm-impl</artifactId>
+            <scope>test</scope>
         </dependency>
          <dependency>
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-idm-schema</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.picketlink</groupId>
