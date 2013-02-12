@@ -20,15 +20,15 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.internal.resolver;
+package org.picketlink.config.idm.resolver;
 
 import java.beans.PropertyEditor;
 import java.beans.PropertyEditorManager;
  
 import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
 import org.picketlink.common.reflection.Reflections;
 import org.picketlink.config.idm.ObjectType;
+import org.picketlink.config.idm.XMLBasedIdentityManagerProvider;
 
 /**
  * Base class for resolvers, which are able to map simple String to expected java type
@@ -58,8 +58,8 @@ public abstract class PrimitivePropertyResolver<V> extends BasePropertyResolver<
     /**
      * Class resolver will try to create class from passed String
      */
+    @SuppressWarnings("rawtypes")
     public static class ClassResolver extends PrimitivePropertyResolver<Class> {
-
         @Override
         protected Class resolvePropertyFromString(String propertyValue, Class<Class> propertyClass) {
             try {

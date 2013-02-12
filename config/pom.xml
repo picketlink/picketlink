@@ -24,6 +24,19 @@
          <version>${project.version}</version>
       </dependency>
 
+      <dependency>
+         <groupId>org.picketlink</groupId>
+         <artifactId>picketlink-idm-impl</artifactId>
+         <version>${project.version}</version>
+         <scope>compile</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.hibernate.javax.persistence</groupId>
+         <artifactId>hibernate-jpa-2.0-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

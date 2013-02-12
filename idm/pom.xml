@@ -20,6 +20,7 @@
         <module>api</module>
         <module>impl</module>
         <module>schema</module>
+        <module>tests</module>
     </modules>
 
 </project>
