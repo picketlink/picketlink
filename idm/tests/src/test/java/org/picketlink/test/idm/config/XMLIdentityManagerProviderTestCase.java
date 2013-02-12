@@ -32,8 +32,8 @@ import javax.naming.CommunicationException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.picketlink.config.idm.XMLBasedIdentityManagerProvider;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
 
 /**
  * Test case for configuring IDM via XML TODO: temporary. needs to be improved or deleted (in case that default tests will use XML)

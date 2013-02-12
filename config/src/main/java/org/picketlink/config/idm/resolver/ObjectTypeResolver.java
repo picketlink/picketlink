@@ -20,17 +20,17 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.internal.resolver;
+package org.picketlink.config.idm.resolver;
 
 import java.util.Map;
  
 import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.internal.XMLBasedIdentityManagerProvider;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.config.idm.ObjectType;
+import org.picketlink.config.idm.XMLBasedIdentityManagerProvider;
 
 /**
  * Base resolver for passed {@link ObjectType} values. This resolver will try to create it's object based on java beans of given type
@@ -39,6 +39,7 @@ import org.picketlink.config.idm.ObjectType;
  */
 class ObjectTypeResolver<V> extends BasePropertyResolver<V> {
 
+    @SuppressWarnings("unchecked")
     @Override
     protected V resolvePropertyFromObjectType(ObjectType objectType) {
         // TODO: this code is almost the same like XMLBasedIdentityManagerProvider.buildStoreConfiguration

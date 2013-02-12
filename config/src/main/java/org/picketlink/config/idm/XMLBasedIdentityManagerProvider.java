@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.internal;
+package org.picketlink.config.idm;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
@@ -35,7 +35,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
-import org.picketlink.idm.config.internal.resolver.PropertyResolverMapper;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
@@ -50,6 +49,7 @@ import org.picketlink.config.idm.IDMType;
 import org.picketlink.config.idm.IdentityConfigurationType;
 import org.picketlink.config.idm.IdentityStoreInvocationContextFactoryType;
 import org.picketlink.config.idm.StoreConfigurationType;
+import org.picketlink.config.idm.resolver.PropertyResolverMapper;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 

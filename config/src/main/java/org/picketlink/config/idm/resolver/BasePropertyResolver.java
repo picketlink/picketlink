@@ -20,7 +20,7 @@
  * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
  */
 
-package org.picketlink.idm.config.internal.resolver;
+package org.picketlink.config.idm.resolver;
 
 import org.picketlink.config.idm.ObjectType;
 import org.picketlink.idm.SecurityConfigurationException;
