@@ -1,3 +1,5 @@
+package org.picketlink.config.idm;
+
 /*
  * JBoss, Home of Professional Open Source
  *
@@ -14,7 +16,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */mport org.picketlink.idm.SecurityConfigurationException;
+ */
+
+import org.picketlink.common.exceptions.ParsingException;
+import org.picketlink.idm.IdGenerator;
+import org.picketlink.idm.IdentityCache;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.StoreConfiguration;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
@@ -27,13 +35,14 @@ import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.reflection.Reflections;
 import org.picketlink.config.PicketLinkConfigParser;
 import org.picketlink.config.federation.PicketLinkType;
-import org.picketlink.config.idm.IDMType;
-import org.picketlink.config.idm.IdentityConfigurationType;
-import org.picketlink.config.idm.IdentityStoreInvocationContextFactoryType;
-import org.picketlink.config.idm.StoreConfigurationType;
 import org.picketlink.config.idm.resolver.PropertyResolverMapper;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
+
+import javax.persistence.EntityManagerFactory;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.util.Map;
 
 /**
  * Creating IDM runtime from parsed XML configuration
