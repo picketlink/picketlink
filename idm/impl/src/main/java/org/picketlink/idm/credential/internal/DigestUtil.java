@@ -21,6 +21,8 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.picketlink.idm.credential.Digest;
+
 /**
  * Utility class to support Digest Credentials
  *

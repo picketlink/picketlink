@@ -23,6 +23,7 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.credential.X509Cert;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.common.util.Base64;

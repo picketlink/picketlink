@@ -27,9 +27,9 @@ import java.security.cert.X509Certificate;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.X509Cert;
+import org.picketlink.idm.credential.X509CertificateCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
-import org.picketlink.idm.credential.internal.X509Cert;
-import org.picketlink.idm.credential.internal.X509CertificateCredentials;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 

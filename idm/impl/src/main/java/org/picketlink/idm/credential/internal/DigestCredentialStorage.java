@@ -20,6 +20,7 @@ package org.picketlink.idm.credential.internal;
 
 import java.util.Date;
 
+import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 

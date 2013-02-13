@@ -16,9 +16,8 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential;
 
-import org.picketlink.idm.credential.AbstractBaseCredentials;
 
 
 /**

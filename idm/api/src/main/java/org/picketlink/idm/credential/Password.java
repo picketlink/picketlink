@@ -16,30 +16,32 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.internal;
-
-import org.picketlink.idm.credential.AbstractBaseCredentials;
+package org.picketlink.idm.credential;
 
 /**
- * <p>Represents a DIGEST based credential.</p>
+ * Represents a text-based password credential
  * 
- * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * @author Shane Bryzak
  */
-public class DigestCredentials extends AbstractBaseCredentials {
+public class Password {
 
-    private Digest digest;
-    
-    public DigestCredentials(Digest digest) {
-        this.digest = digest;
+    private char[] value;
+
+    public Password(char[] value) {
+        this.value = value;
     }
-    
-    @Override
-    public void invalidate() {
-        this.digest = null;
+    public Password(String str) {
+        this.value = str.toCharArray();
     }
 
-    public Digest getDigest() {
-        return this.digest;
+    public char[] getValue() {
+        return value;
+    }
+
+    public void clear() {
+        for (int i = 0; i < value.length; i++) {
+            value[i] = 0x00;
+        }
+        value = null;
     }
 }
