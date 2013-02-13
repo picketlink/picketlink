@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.picketlink</groupId>
-	<artifactId>picketlink-parent</artifactId>
-	<version>3.0.0-SNAPSHOT</version>
-	<packaging>pom</packaging>
+   <groupId>org.picketlink</groupId>
+   <artifactId>picketlink-parent</artifactId>
+   <version>3.0.0-SNAPSHOT</version>
+   <packaging>pom</packaging>
 
-	<name>PicketLink Parent</name>
+   <name>PicketLink Parent</name>
 
-	<description>
+   <description>
         PicketLink provides features for securing Java EE6 applications.
     </description>
 
-	<url>http://www.jboss.org/picketlink</url>
-	
-	<developers>
-		<developer>
-			<name>Shane Bryzak</name>
-		</developer>
-		<developer>
-			<name>Anil Saldhana</name>
-		</developer>
-		<developer>
-			<name>Pedro Silva</name>
-		</developer>
-	</developers>
-	
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<distribution>repo</distribution>
-			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
-		</license>
-	</licenses>
+   <url>http://www.jboss.org/picketlink</url>
+   
+   <developers>
+      <developer>
+         <name>Shane Bryzak</name>
+      </developer>
+      <developer>
+         <name>Anil Saldhana</name>
+      </developer>
+      <developer>
+         <name>Pedro Silva</name>
+      </developer>
+   </developers>
+   
+   <licenses>
+      <license>
+         <name>Apache License, Version 2.0</name>
+         <distribution>repo</distribution>
+         <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      </license>
+   </licenses>
 
-	<properties>
-		<jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
-		<deltaspike.version>0.3-incubating</deltaspike.version>
-		<jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
-		<jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
-		<maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
+   <properties>
+      <jboss.javaee.version>2.0.0.Final</jboss.javaee.version>
+      <deltaspike.version>0.3-incubating</deltaspike.version>
+      <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
+      <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
+      <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
         <pressgang.version>3.0.1-SNAPSHOT</pressgang.version>
-	</properties>
+   </properties>
 
-	<modules>
-		<module>common</module>
-		<module>config</module>
-		<module>idm</module>
-		<module>core</module>
-		<module>federation</module>
-		<module>social</module>
-		<!-- <module>oauth</module> -->
-	</modules>
+   <modules>
+      <module>common</module>
+      <module>config</module>
+      <module>idm</module>
+      <module>core</module>
+      <module>federation</module>
+      <module>social</module>
+      <!-- <module>oauth</module> -->
+   </modules>
 
-	<dependencyManagement>
+   <dependencyManagement>
     <dependencies>
       <dependency>
           <groupId>org.picketlink</groupId>
@@ -139,89 +139,89 @@
       </dependency>
 
     </dependencies>
-	</dependencyManagement>
+   </dependencyManagement>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.2.1</version>
-				<configuration>
-					<arguments>-Drelease </arguments>
-					<autoVersionSubmodules>true</autoVersionSubmodules>
-				</configuration>
-			</plugin>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>2.2.1</version>
+            <configuration>
+               <arguments>-Drelease </arguments>
+               <autoVersionSubmodules>true</autoVersionSubmodules>
+            </configuration>
+         </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.5.1</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>2.5.1</version>
+            <configuration>
+               <source>1.6</source>
+               <target>1.6</target>
+            </configuration>
+         </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-deploy-plugin</artifactId>
-				<version>2.6</version>
-			</plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <version>2.6</version>
+         </plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>2.3.1</version>
-			</plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-install-plugin</artifactId>
+            <version>2.3.1</version>
+         </plugin>
 
-			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-maven-plugin</artifactId>
-				<version>1.7</version>
-				<configuration>
-					<auto>true</auto>
-					<nexusUrl>https://repository.jboss.org/nexus</nexusUrl>
-					<serverAuthId>jboss-releases-repository</serverAuthId>
-				</configuration>
-			</plugin>
+         <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-maven-plugin</artifactId>
+            <version>1.7</version>
+            <configuration>
+               <auto>true</auto>
+               <nexusUrl>https://repository.jboss.org/nexus</nexusUrl>
+               <serverAuthId>jboss-releases-repository</serverAuthId>
+            </configuration>
+         </plugin>
 
-		</plugins>
-	</build>
+      </plugins>
+   </build>
 
-	<profiles>
-		<profile>
-			<id>distribution</id>
-			<activation>
-				<property>
-					<name>release</name>
-				</property>
-			</activation>
-			<modules>
-			  <module>docs</module>
-			  <module>dist</module>
-			</modules>
-		</profile>
-	</profiles>
+   <profiles>
+      <profile>
+         <id>distribution</id>
+         <activation>
+            <property>
+               <name>release</name>
+            </property>
+         </activation>
+         <modules>
+           <module>docs</module>
+           <module>dist</module>
+         </modules>
+      </profile>
+   </profiles>
 
-	<scm>
-		<connection>scm:git:git://github.com/picketlink/picketlink.git</connection>
-		<developerConnection>scm:git:git@github.com:picketlink/picketlink.git</developerConnection>
-		<url>http://github.com/picketlink/picketlink</url>
-	</scm>
+   <scm>
+      <connection>scm:git:git://github.com/picketlink/picketlink.git</connection>
+      <developerConnection>scm:git:git@github.com:picketlink/picketlink.git</developerConnection>
+      <url>http://github.com/picketlink/picketlink</url>
+   </scm>
 
-	<distributionManagement>
-		<repository>
-			<id>jboss-releases-repository</id>
-			<name>JBoss Releases Repository</name>
-			<url>${jboss.releases.repo.url}</url>
-		</repository>
+   <distributionManagement>
+      <repository>
+         <id>jboss-releases-repository</id>
+         <name>JBoss Releases Repository</name>
+         <url>${jboss.releases.repo.url}</url>
+      </repository>
 
-		<snapshotRepository>
-			<id>jboss-snapshots-repository</id>
-			<name>JBoss Snapshots Repository</name>
-			<url>${jboss.snapshots.repo.url}</url>
-		</snapshotRepository>
-	</distributionManagement>
+      <snapshotRepository>
+         <id>jboss-snapshots-repository</id>
+         <name>JBoss Snapshots Repository</name>
+         <url>${jboss.snapshots.repo.url}</url>
+      </snapshotRepository>
+   </distributionManagement>
 
 </project>
