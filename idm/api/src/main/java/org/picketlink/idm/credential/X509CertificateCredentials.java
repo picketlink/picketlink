@@ -16,15 +16,13 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.Principal;
 import java.util.Properties;
 
-import org.picketlink.idm.credential.AbstractBaseCredentials;
-import org.picketlink.idm.credential.Credentials;
 
 /**
  * A credential representing an X509 certificate for certificate-based authentication
