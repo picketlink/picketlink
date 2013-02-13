@@ -15,18 +15,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.idm.credential.internal;
+package org.picketlink.idm.credential;
+
 
 /**
- * Represents OTP token
+ * An extension of the {@link UsernamePasswordCredentials} that
+ * includes an OTP token
  * @author anil saldhana
  * @since Dec 31, 2012
  */
-public class OTPCredential extends Password {
-    public OTPCredential(char[] value) {
-        super(value);
+public class OTPCredentials extends UsernamePasswordCredentials {
+    private OTPCredential otpCredential;
+
+    public OTPCredential getOtpCredential() {
+        return otpCredential;
     }
-    public OTPCredential(String str) {
-        super(str);
+
+    public OTPCredentials setOtpCredential(OTPCredential otpCredential) {
+        this.otpCredential = otpCredential;
+        return this;
     }
 }

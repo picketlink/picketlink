@@ -23,6 +23,8 @@ import java.util.List;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Digest;
+import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
