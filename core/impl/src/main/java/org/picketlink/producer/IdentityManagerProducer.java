@@ -50,7 +50,7 @@ public class IdentityManagerProducer {
         
         identityConfigEvent.fire(new IdentityConfigurationEvent(identityConfig));
 
-        identityManager = new SecuredIdentityManager(null);
+        identityManager = new SecuredIdentityManager();
 
         identityManager.bootstrap(identityConfig, icf);
     }
