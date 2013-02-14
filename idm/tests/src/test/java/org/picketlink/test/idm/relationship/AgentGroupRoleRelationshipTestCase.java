@@ -28,6 +28,8 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.SimpleGroup;
+import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
@@ -100,7 +102,57 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
         assertTrue(identityManager.hasRole(projectManagerAgent, managerRole));
         assertTrue(identityManager.isMember(projectManagerAgent, projectGroup));
         assertFalse(identityManager.hasRole(projectManagerAgent, developerRole));
+    }
+
+    @Test
+    public void testGrantParentGroupRole() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
         
+        Group administratorsGroup = new SimpleGroup("Administrators");
+        
+        identityManager.add(administratorsGroup);
+        
+        Group systemAdministradorsGroup = new SimpleGroup("System Administrators", administratorsGroup);
+        
+        identityManager.add(systemAdministradorsGroup);
+        
+        Group databaseAdministratorsGroup = new SimpleGroup("Database Administrators", systemAdministradorsGroup);
+        
+        identityManager.add(databaseAdministratorsGroup);
+        
+        Role managerRole = new SimpleRole("Administrators Manager");
+        
+        identityManager.add(managerRole);
+        
+        T agent = createIdentityType("agent", null);
+        
+        identityManager.grantGroupRole(agent, managerRole, administratorsGroup);
+
+        assertTrue(identityManager.hasGroupRole(agent, managerRole, administratorsGroup));
+        assertTrue(identityManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
+        assertTrue(identityManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
+        
+        Role securityManager = new SimpleRole("Data Security Manager");
+        
+        identityManager.add(securityManager);
+        
+        identityManager.grantGroupRole(agent, securityManager, databaseAdministratorsGroup);
+
+        assertTrue(identityManager.hasGroupRole(agent, securityManager, databaseAdministratorsGroup));
+        assertFalse(identityManager.hasGroupRole(agent, securityManager, administratorsGroup));
+        assertFalse(identityManager.hasGroupRole(agent, securityManager, systemAdministradorsGroup));
+        
+        identityManager.revokeGroupRole(agent, managerRole, administratorsGroup);
+        
+        assertFalse(identityManager.hasGroupRole(agent, managerRole, administratorsGroup));
+        assertFalse(identityManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
+        assertFalse(identityManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
+        
+        identityManager.grantGroupRole(agent, managerRole, systemAdministradorsGroup);
+
+        assertTrue(identityManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
+        assertTrue(identityManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
+        assertFalse(identityManager.hasGroupRole(agent, managerRole, administratorsGroup));
     }
 
     /**

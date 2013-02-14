@@ -39,7 +39,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.picketlink.idm.IdentityManagementException;
 
 /**

@@ -106,11 +106,6 @@ public class IdentityManagerRunner extends Suite {
                     return false;
                 }
 
-                private boolean isExcludedSuite(Class<?> suiteClass) {
-                    // TODO Auto-generated method stub
-                    return false;
-                }
-
                 @Override
                 protected Object createTest() throws Exception {
                     Object createTest = super.createTest();
@@ -121,7 +116,7 @@ public class IdentityManagerRunner extends Suite {
 
                         identityManagerSetter.invoke(createTest, lifecycle.createIdentityManager());
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        throw e;
                     }
 
                     return createTest;
