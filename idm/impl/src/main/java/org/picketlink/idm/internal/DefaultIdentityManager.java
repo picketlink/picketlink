@@ -352,7 +352,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void addToGroup(IdentityType member, Group group) {
+    public void addToGroup(Agent member, Group group) {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
@@ -386,7 +386,7 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void grantGroupRole(IdentityType member, Role role, Group group) {
+    public void grantGroupRole(Agent member, Role role, Group group) {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
