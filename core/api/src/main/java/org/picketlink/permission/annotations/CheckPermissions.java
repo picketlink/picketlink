@@ -25,7 +25,7 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.picketlink.deltaspike.SecurityBindingType;
+import org.picketlink.deltaspike.security.SecurityBindingType;
 
 /**
  * 
