@@ -48,17 +48,10 @@ import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
  */
 public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
-    /**
-     * <p>
-     * Tests adding a {@link GroupMembership}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testCreate() throws Exception {
-        User someUser = getUser();
-        Group someGroup = getGroup();
+        User someUser = createUser();
+        Group someGroup = createGroup();
 
         GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
 
@@ -76,18 +69,11 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Assert.assertEquals(someGroup.getId(), groupMembership.getGroup().getId());
     }
 
-    /**
-     * <p>
-     * Tests updating a {@link GroupMembership}.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     @ExcludeTestSuite (LDAPIdentityStoreTestSuite.class)
     public void testUpdate() throws Exception {
-        User someUser = getUser();
-        Group someGroup = getGroup();
+        User someUser = createUser();
+        Group someGroup = createGroup();
 
         GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
 
@@ -124,13 +110,6 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Assert.assertEquals(3, groupMembership.<String[]> getAttribute("attribute2").getValue().length);
     }
 
-    /**
-     * <p>
-     * Tests adding an {@link User} as a member of a {@link Group} using the <code>IdentityManager.addToGroupMethod</code>.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testAddUserToGroup() throws Exception {
         User someUser = createUser("someUser");
@@ -225,6 +204,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         
         identityManager.add(anotherGroupB);
 
+        // group testing paths are: /a/b/c/QA Group/b and /a/b/c/d
         identityManager.addToGroup(someUser, anotherGroupB);
 
         assertTrue(identityManager.isMember(someUser, anotherGroupB));
@@ -232,11 +212,21 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(identityManager.isMember(someUser, groupB));
         assertFalse(identityManager.isMember(someUser, groupC));
         assertFalse(identityManager.isMember(someUser, groupD));
+        assertFalse(identityManager.isMember(someUser, qaGroup));
         
         identityManager.addToGroup(someUser, groupB);
         
         assertTrue(identityManager.isMember(someUser, groupB));
         assertTrue(identityManager.isMember(someUser, groupD));
+        assertTrue(identityManager.isMember(someUser, qaGroup));
+        assertTrue(identityManager.isMember(someUser, anotherGroupB));
+        
+        identityManager.removeFromGroup(someUser, anotherGroupB);
+        
+        assertTrue(identityManager.isMember(someUser, groupB));
+        assertTrue(identityManager.isMember(someUser, groupD));
+        assertTrue(identityManager.isMember(someUser, qaGroup));
+        assertTrue(identityManager.isMember(someUser, anotherGroupB));
     }
 
     @Test
@@ -253,13 +243,6 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(identityManager.isMember(someUser, someGroup));
     }
 
-    /**
-     * <p>
-     * Tests removing an {@link User} from a {@link Group} using the <code>IdentityManager.removeFromGroup</code> method.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testRemoveUserFromGroup() throws Exception {
         User someUser = createUser("someUser");
@@ -284,18 +267,11 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(identityManager.isMember(someUser, someAnotherGroup));
     }
 
-    /**
-     * <p>
-     * Tests querying using attributes..
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     @ExcludeTestSuite (LDAPIdentityStoreTestSuite.class)
     public void testFindByAttributes() throws Exception {
-        User someUser = getUser();
-        Group someGroup = getGroup();
+        User someUser = createUser();
+        Group someGroup = createGroup();
 
         GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
 
@@ -350,13 +326,6 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         Assert.assertFalse(result.isEmpty());
     }
 
-    /**
-     * <p>
-     * Finds all groups for a specific user.
-     * </p>
-     * 
-     * @throws Exception
-     */
     @Test
     public void testFindUserGroups() throws Exception {
         Group someGroup = createGroup("someGroup", null);
@@ -421,11 +390,11 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         assertTrue(contains(result, "someImportantGroup"));
     }
 
-    private Group getGroup() {
+    private Group createGroup() {
         return createGroup("someGroup", null);
     }
 
-    private User getUser() {
+    private User createUser() {
         return createUser("someUser");
     }
 

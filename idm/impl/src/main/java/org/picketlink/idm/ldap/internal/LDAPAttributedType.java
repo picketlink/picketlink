@@ -17,8 +17,6 @@
  */
 package org.picketlink.idm.ldap.internal;
 
-import static org.picketlink.idm.ldap.internal.LDAPConstants.ENTRY_UUID;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,10 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.naming.Name;
-import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 
 import org.picketlink.idm.model.AttributedType;
@@ -82,10 +76,7 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
 //        return null;
     }
 
-    @Override
-    public Attributes getAttributes(Name name, String[] ids) throws NamingException {
-        return getAttributes(name.toString(), ids);
-    }
+
 
     @Override
     public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {

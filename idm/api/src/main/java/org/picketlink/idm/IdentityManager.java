@@ -109,7 +109,7 @@ public interface IdentityManager extends Serializable {
 
     void addToGroup(Agent agent, Group group);
 
-    void removeFromGroup(IdentityType identityType, Group group);
+    void removeFromGroup(Agent member, Group group);
 
     // Roles
 
@@ -119,7 +119,7 @@ public interface IdentityManager extends Serializable {
 
     void grantGroupRole(Agent member, Role role, Group group);
 
-    void revokeGroupRole(IdentityType identityType, Role role, Group group);
+    void revokeGroupRole(Agent identityType, Role role, Group group);
 
     boolean hasRole(IdentityType identityType, Role role);
 

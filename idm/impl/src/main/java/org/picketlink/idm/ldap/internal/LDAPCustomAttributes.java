@@ -31,10 +31,19 @@ import java.util.Set;
  * @since Sep 7, 2012
  */
 public class LDAPCustomAttributes extends LDAPEntry {
-    
+
     private static final long serialVersionUID = 3682970889889505951L;
-    
+
     private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
+
+    /**
+     * <p>
+     * For serialization purposes. Usually, the constructor that expects a base DN should be used when manually creating
+     * instances.
+     * </p>
+     */
+    public LDAPCustomAttributes() {
+    }
 
     public LDAPCustomAttributes(String dnSuffix) {
         super(dnSuffix);
@@ -58,7 +67,7 @@ public class LDAPCustomAttributes extends LDAPEntry {
 
     public void clear() {
         Set<Entry<String, Object>> entrySet = new HashMap<String, Object>(this.attributes).entrySet();
-        
+
         for (Entry<String, Object> entry : entrySet) {
             if (!entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED)
                     && !entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {

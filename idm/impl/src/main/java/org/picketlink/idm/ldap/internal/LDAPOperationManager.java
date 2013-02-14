@@ -245,7 +245,7 @@ public class LDAPOperationManager {
 
             answer = getContext().search(baseDN, attributesToSearch);
 
-            while (answer.hasMore()) {
+            if (answer.hasMore()) {
                 SearchResult sr = answer.next();
                 destroySubcontext(sr.getNameInNamespace());
             }

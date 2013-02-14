@@ -177,6 +177,10 @@ public class AbstractIdentityManagerTestCase {
         
         if (parentGroupName != null) {
             path = "/" + parentGroupName + "/" + name;
+            
+            if (parentGroup != null) {
+                path = parentGroup.getPath() + "/" + name;
+            }
         }
 
         Group group = getIdentityManager().getGroup(path);

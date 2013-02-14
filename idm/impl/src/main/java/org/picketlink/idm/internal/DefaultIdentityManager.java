@@ -360,11 +360,11 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void removeFromGroup(IdentityType identityType, Group group) {
-        checkIfIdentityTypeExists(identityType);
+    public void removeFromGroup(Agent member, Group group) {
+        checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
-        GroupMembership groupMembership = getGroupMembership(identityType, group);
+        GroupMembership groupMembership = getGroupMembership(member, group);
 
         if (groupMembership != null) {
             getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(groupMembership);
@@ -397,8 +397,8 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
-        GroupRole groupRole = getGroupRole(identityType, role, group);
+    public void revokeGroupRole(Agent member, Role role, Group group) {
+        GroupRole groupRole = getGroupRole(member, role, group);
 
         if (groupRole != null) {
             getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(groupRole);

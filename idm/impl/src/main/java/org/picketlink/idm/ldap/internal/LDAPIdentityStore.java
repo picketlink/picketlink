@@ -38,8 +38,7 @@ import java.util.TimeZone;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
@@ -214,7 +213,14 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
             if (Group.class.isInstance(attributedType)) {
                 Group group = (Group) attributedType;
-                baseDN = getGroupBaseDN(group.getPath());
+                LDAPGroup groupEntry = (LDAPGroup) lookupEntry(group);
+                baseDN = groupEntry.getDnSuffix();
+                Group parentGroup = getParentGroup(groupEntry);
+
+                if (parentGroup != null) {
+                    LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
+                    removeMember(parentGroupEntry, groupEntry);
+                }
             }
 
             getLDAPManager().removeEntryById(baseDN, identityType.getId());
@@ -658,7 +664,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
                         for (Group parentGroup : parentGroups) {
                             LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
-                            
+
                             if (hasGroupRole(parentGroupEntry, roleEntry, agentEntry)) {
                                 results.add((T) new GroupRole(agent, group, role));
                                 break;
@@ -1082,16 +1088,19 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
      * @return
      */
     protected Group getParentGroup(LDAPGroup childGroup) {
-        Attributes matchAttrs = new BasicAttributes(true);
+        StringBuffer filter = new StringBuffer();
 
-        String dnSuffix = childGroup.getDnSuffix();
-        matchAttrs.put(new BasicAttribute(MEMBER, CN + EQUAL + childGroup.getName() + COMMA + dnSuffix));
+        filter.append("(" + MEMBER + EQUAL + childGroup.getDN() + ")");
 
         NamingEnumeration<SearchResult> answer = null;
 
         // Search for objects with these matching attributes
         try {
-            answer = getLDAPManager().search(dnSuffix, matchAttrs, new String[] { CN });
+            SearchControls controls = new SearchControls();
+
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+            answer = getLDAPManager().search(getConfig().getBaseDN(), filter.toString(), new String[] { CN }, controls);
 
             while (answer.hasMoreElements()) {
                 SearchResult sr = (SearchResult) answer.nextElement();
@@ -1099,8 +1108,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 String cn = (String) attributes.get(CN).get();
                 String nameInNamespace = sr.getNameInNamespace();
                 String str = CN + EQUAL + cn + COMMA;
-                String substring = nameInNamespace.substring(nameInNamespace.indexOf(str) + str.length());
-                return getGroup(cn, substring);
+                String baseDN = nameInNamespace.substring(nameInNamespace.indexOf(str) + str.length());
+                return getGroup(cn, baseDN);
             }
         } catch (NamingException e) {
             throw new RuntimeException("Error looking parent group for [" + childGroup.getDN() + "]", e);
