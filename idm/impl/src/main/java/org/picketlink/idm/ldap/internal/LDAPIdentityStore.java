@@ -89,9 +89,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         this.configuration = config;
         this.context = context;
 
-        if (context == null) {
-            throw new IdentityManagementException("IdentityStoreInvocationContext is null.");
-        }
         if (this.context.getRealm() == null) {
             this.context.setRealm(new Realm(Realm.DEFAULT_REALM));
         }
@@ -116,25 +113,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
             if (Agent.class.isInstance(attributedType)) {
                 Agent newAgent = (Agent) attributedType;
-
-                if (newAgent.getLoginName() == null) {
-                    throw new IdentityManagementException("No login name was provided.");
-                }
-
-                if (User.class.isInstance(attributedType)) {
-                    if (getUser(newAgent.getLoginName()) != null) {
-                        throw new IdentityManagementException("User already exists with the given login name ["
-                                + newAgent.getLoginName() + "] for the given Realm [" + getContext().getRealm().getName() + "]");
-                    }
-
+                
+                if (User.class.isInstance(newAgent)) {
                     User newUser = (User) attributedType;
                     addUser(newUser);
                 } else {
-                    if (getAgent(newAgent.getLoginName()) != null) {
-                        throw new IdentityManagementException("Agent already exists with the given login name ["
-                                + newAgent.getLoginName() + "] for the given Realm [" + getContext().getRealm().getName() + "]");
-                    }
-
                     addAgent(newAgent);
                 }
             } else if (Role.class.isInstance(attributedType)) {
@@ -201,10 +184,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
 
-            if (identityType.getId() == null) {
-                throw new IdentityManagementException("No identifier provided.");
-            }
-
             if (Agent.class.isInstance(identityType)) {
                 removeAgentRelationships((Agent) identityType);
             }
@@ -215,7 +194,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 Group group = (Group) attributedType;
                 LDAPGroup groupEntry = (LDAPGroup) lookupEntry(group);
                 baseDN = groupEntry.getDnSuffix();
-                Group parentGroup = getParentGroup(groupEntry);
+                Group parentGroup = getParentGroup(groupEntry, false);
 
                 if (parentGroup != null) {
                     LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
@@ -296,13 +275,39 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         return getGroup(groupPath, getGroupBaseDN(groupPath));
     }
+    
+    public Group getGroupById(String id) {
+        if (id == null) {
+            return null;
+        }
+
+        LDAPGroup ldapGroup = lookupEntryById(LDAPGroup.class, id);
+
+        if (ldapGroup != null) {
+            Group group = null;
+            Group parentGroup = getParentGroup(ldapGroup, false);
+            
+            if (parentGroup != null) {
+                group = new SimpleGroup(ldapGroup.getName(), getGroupById(parentGroup.getId()));                
+            } else {
+                group = new SimpleGroup(ldapGroup.getName());
+            }
+            
+            populateIdentityType(ldapGroup, group);
+
+            return group;
+        }
+
+        
+        return null;
+    }
 
     public Group getGroup(String groupPath, String baseDN) {
         if (groupPath != null) {
             LDAPGroup ldapGroup = lookupGroup(groupPath, baseDN);
 
             if (ldapGroup != null) {
-                Group group = new SimpleGroup(ldapGroup.getName(), getParentGroup(ldapGroup));
+                Group group = new SimpleGroup(ldapGroup.getName(), getParentGroup(ldapGroup, true));
 
                 populateIdentityType(ldapGroup, group);
 
@@ -396,7 +401,14 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     ldapEntry = (T) getRole(uid);
                 } else {
                     if (getConfig().isGroupNamespace(nameInNamespace)) {
-                        ldapEntry = (T) getGroup(uid);
+                        String groupDN = nameInNamespace.substring(nameInNamespace.indexOf(",") + 1);
+                        LDAPGroup ldapGroup = new LDAPGroup(groupDN);
+                        
+                        ldapGroup.setLDAPAttributes(sr.getAttributes());
+                        
+                        Attributes attributes = getConfig().getLdapManager().lookupOperationalAttributes(groupDN, ldapGroup.getBidingName());
+                        
+                        ldapEntry = (T) getGroupById(attributes.get(LDAPConstants.ENTRY_UUID).get().toString());
                     }
                 }
 
@@ -1087,7 +1099,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
      * @param childGroup
      * @return
      */
-    protected Group getParentGroup(LDAPGroup childGroup) {
+    protected Group getParentGroup(LDAPGroup childGroup, boolean loadAllHiearchy) {
         StringBuffer filter = new StringBuffer();
 
         filter.append("(" + MEMBER + EQUAL + childGroup.getDN() + ")");
@@ -1109,7 +1121,18 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 String nameInNamespace = sr.getNameInNamespace();
                 String str = CN + EQUAL + cn + COMMA;
                 String baseDN = nameInNamespace.substring(nameInNamespace.indexOf(str) + str.length());
-                return getGroup(cn, baseDN);
+                
+                if (loadAllHiearchy) {
+                    return getGroup(cn, baseDN);
+                } else {
+                    LDAPGroup parentEntry = new LDAPGroup(baseDN);
+                    SimpleGroup parentGroup = new SimpleGroup(cn);
+                    
+                    populateLDAPEntry(parentEntry, sr);
+                    populateIdentityType(parentEntry, parentGroup);
+                    
+                    return parentGroup;
+                }
             }
         } catch (NamingException e) {
             throw new RuntimeException("Error looking parent group for [" + childGroup.getDN() + "]", e);
@@ -1124,11 +1147,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         return null;
     }
+    
+
 
     protected List<Group> getParentGroups(LDAPGroup childGroup) {
         List<Group> result = new ArrayList<Group>();
 
-        Group parentGroup = getParentGroup(childGroup);
+        Group parentGroup = getParentGroup(childGroup, true);
 
         if (parentGroup == null) {
             return result;
@@ -1141,15 +1166,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void addGroup(Group newGroup) {
-        if (newGroup.getName() == null) {
-            throw new IdentityManagementException("No name was provided.");
-        }
-
-        if (getGroup(newGroup.getPath()) != null) {
-            throw new IdentityManagementException("Group already exists with the given name [" + newGroup.getName()
-                    + "] for the given Partition [" + getContext().getPartition().getName() + "]");
-        }
-
         LDAPGroup ldapGroup = new LDAPGroup(getGroupBaseDN(newGroup.getPath()));
 
         ldapGroup.setName(newGroup.getName());
@@ -1158,10 +1174,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         if (newGroup.getParentGroup() != null) {
             LDAPGroup parentGroup = lookupGroup(newGroup.getParentGroup().getPath());
-
-            if (parentGroup == null) {
-                throw new RuntimeException("Parent group [" + newGroup.getParentGroup() + "] does not exists.");
-            }
 
             parentGroup.addChildGroup(ldapGroup);
 
@@ -1181,19 +1193,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         if (groupMappingDN == null) {
             groupMappingDN = getConfig().getGroupDNSuffix();
         }
+        
         return groupMappingDN;
     }
 
     private void addRole(Role newRole) {
-        if (newRole.getName() == null) {
-            throw new IdentityManagementException("No name was provided.");
-        }
-
-        if (getRole(newRole.getName()) != null) {
-            throw new IdentityManagementException("Role already exists with the given name [" + newRole.getName()
-                    + "] for the given Partition [" + getContext().getPartition().getName() + "]");
-        }
-
         LDAPRole ldapRole = new LDAPRole(getConfig().getRoleDNSuffix());
 
         ldapRole.setName(newRole.getName());

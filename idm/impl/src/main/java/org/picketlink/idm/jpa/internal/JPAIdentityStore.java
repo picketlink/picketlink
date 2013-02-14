@@ -119,7 +119,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         this.partitionStore = new JPAPartitionStore(this);
         this.credentialStore = new JPACredentialStore(this);
-
+        
         if (this.context.getRealm() == null) {
             this.context.setRealm(getRealm(Realm.DEFAULT_REALM));
         }
@@ -334,11 +334,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             IdentityType identityType = (IdentityType) value;
 
             Object entity = lookupIdentityObjectById(identityType.getId());
-
-            if (entity == null) {
-                throw new IdentityManagementException("The specified identity object [" + identityType.getId()
-                        + "] does not exist.");
-            }
 
             EntityManager em = getEntityManager();
 

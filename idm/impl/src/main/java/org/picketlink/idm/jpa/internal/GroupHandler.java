@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -66,7 +65,6 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
             Object parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
 
             if (parentIdentity == null) {
-                store.add(fromGroup.getParentGroup());
                 parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
             }
 
@@ -262,15 +260,4 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         return parents;
     }
 
-    @Override
-    public void validate(Group group, JPAIdentityStore store) {
-        if (group.getName() == null) {
-            throw new IdentityManagementException("No name was provided.");
-        }
-
-        if (store.getGroup(group.getPath()) != null) {
-            throw new IdentityManagementException("Group already exists with the given loginName [" + group.getName()
-                    + "] for the given Partition [" + store.getCurrentPartition().getName() + "]");
-        }
-    }
 }

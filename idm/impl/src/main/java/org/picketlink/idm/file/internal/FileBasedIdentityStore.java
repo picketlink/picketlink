@@ -151,15 +151,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             if (IDMUtil.isAgentType(identityTypeClass)) {
                 Agent agent = (Agent) attributedType;
 
-                if (agent.getLoginName() == null) {
-                    throw new IdentityManagementException("No login name was provided.");
-                }
-
-                if (getAgent(agent.getLoginName()) != null) {
-                    throw new IdentityManagementException("Agent already exists with the given login name ["
-                            + agent.getLoginName() + "] for the given Realm [" + getContext().getRealm().getName() + "]");
-                }
-
                 if (IDMUtil.isUserType(identityTypeClass)) {
                     addUser((User) agent);
                 } else {
@@ -355,12 +346,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         throw createNotImplementedYetException();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
         return fetchQueryResults(query, false);
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query, boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
         Class<T> relationshipType = query.getRelationshipType();
@@ -553,16 +544,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         List<T> result = new ArrayList<T>();
 
-        int typesCount = 0;
         FileIdentityQueryHelper queryHelper = new FileIdentityQueryHelper(identityQuery, this);
+        
         for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
             IdentityType storedEntry = (IdentityType) iterator.next();
 
             if (!identityTypeClass.isAssignableFrom(storedEntry.getClass())) {
                 continue;
             }
-
-            typesCount++;
 
             if (!isQueryParameterEquals(identityQuery, IdentityType.ID, storedEntry.getId())) {
                 continue;
@@ -867,15 +856,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param role
      */
     private void addRole(Role role) {
-        if (role.getName() == null) {
-            throw new IdentityManagementException("No name was provided.");
-        }
-
-        if (getRole(role.getName()) != null) {
-            throw new IdentityManagementException("Role already exists with the given name [" + role.getName()
-                    + "] for the given Partition [" + getCurrentPartition().getName() + "]");
-        }
-
         Role fileRole = new SimpleRole(role.getName());
 
         fileRole.setPartition(getCurrentPartition());
@@ -902,28 +882,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param group
      */
     private void addGroup(Group group) {
-        if (group.getName() == null) {
-            throw new IdentityManagementException("No name was provided.");
-        }
-
-        Group storedGroup = getGroup(group.getPath());
-
-        if (storedGroup != null) {
-            throw new IdentityManagementException("Group already exists with the given name [" + group.getName()
-                    + "] for the given Partition [" + getCurrentPartition().getName() + "]");
-        }
-
         Group fileGroup = null;
 
         if (group.getParentGroup() != null) {
-            Group lookupGroup = lookupGroup(group.getParentGroup());
-
-            if (lookupGroup == null) {
-                throw new IdentityManagementException("No parent group found with the given name ["
-                        + group.getParentGroup().getName() + "].");
-            }
-
-            fileGroup = new SimpleGroup(group.getName(), lookupGroup);
+            fileGroup = new SimpleGroup(group.getName(), lookupGroup(group.getParentGroup()));
         } else {
             fileGroup = new SimpleGroup(group.getName());
         }

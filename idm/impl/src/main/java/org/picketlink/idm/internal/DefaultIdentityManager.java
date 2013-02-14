@@ -197,23 +197,73 @@ public class DefaultIdentityManager implements IdentityManager {
 
         IdentityStoreInvocationContext ctx = createContext();
 
-        if (User.class.isInstance(identityType)) {
-            feature = Feature.createUser;
-        } else if (Group.class.isInstance(identityType)) {
-            if (ctx.getRealm() != null && ctx.getTier() != null) {
-                throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the "
-                        + "scope of a Realm or a Tier, however both have been set.");
+        Realm realm = ctx.getRealm();
+        
+        if (realm == null) {
+            realm = new Realm(Realm.DEFAULT_REALM);
+        }
+        
+        Partition currentPartition = realm;
+        
+        if (ctx.getTier() != null) {
+            currentPartition = ctx.getTier();
+        }
+
+        if (Agent.class.isInstance(identityType)) {
+            feature = Feature.createAgent;
+            
+            Agent newAgent = (Agent) identityType;
+            
+            if (newAgent.getLoginName() == null) {
+                throw new IdentityManagementException("No login name was provided.");
             }
+
+            if (User.class.isInstance(newAgent)) {
+                feature = Feature.createUser;
+                
+                if (getUser(newAgent.getLoginName()) != null) {
+                    throw new IdentityManagementException("User already exists with the given login name ["
+                            + newAgent.getLoginName() + "] for the given Realm [" + realm.getName() + "]");
+                }
+            } else {
+                if (getAgent(newAgent.getLoginName()) != null) {
+                    throw new IdentityManagementException("Agent already exists with the given login name ["
+                            + newAgent.getLoginName() + "] for the given Realm [" + realm.getName() + "]");
+                }
+            }
+        } else if (Group.class.isInstance(identityType)) {
+            Group newGroup = (Group) identityType;
+            
+            if (newGroup.getName() == null) {
+                throw new IdentityManagementException("No name was provided.");
+            }
+
+            if (getGroup(newGroup.getPath()) != null) {
+                throw new IdentityManagementException("Group already exists with the given name [" + newGroup.getName()
+                        + "] for the given Partition [" + currentPartition.getName() + "]");
+            }
+
+            if (newGroup.getParentGroup() != null) {
+                if (lookupIdentityById(Group.class, newGroup.getParentGroup().getId()) == null) {
+                    throw new IdentityManagementException("No parent group found with the given id ["
+                            + newGroup.getParentGroup().getId() + "] for the given Partition [" + currentPartition.getName() + "].");
+                }
+            }
+            
             feature = Feature.createGroup;
         } else if (Role.class.isInstance(identityType)) {
-            if (ctx.getRealm() != null && ctx.getTier() != null) {
-                throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the "
-                        + "scope of a Realm or a Tier, however both have been set.");
+            Role newRole = (Role) identityType;
+            
+            if (newRole.getName() == null) {
+                throw new IdentityManagementException("No name was provided.");
+            }
+
+            if (getRole(newRole.getName()) != null) {
+                throw new IdentityManagementException("Role already exists with the given name [" + newRole.getName()
+                        + "] for the given Partition [" + currentPartition.getName() + "]");
             }
 
             feature = Feature.createRole;
-        } else if (Agent.class.isInstance(identityType)) {
-            feature = Feature.createAgent;
         } else if (Relationship.class.isInstance(identityType)) {
             feature = Feature.createRelationship;
         } else {
@@ -276,6 +326,14 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void remove(IdentityType identityType) {
+        if (identityType.getId() == null) {
+            throw new IdentityManagementException("No identifier provided.");
+        }
+
+        if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
+            throw new IdentityManagementException("No IdentityType found with the given id [" + identityType.getId() + "].");
+        }
+        
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();
@@ -326,10 +384,6 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public Group getGroup(String name) {
         IdentityStoreInvocationContext ctx = createContext();
-        if (ctx.getRealm() != null && ctx.getTier() != null) {
-            throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the "
-                    + "scope of a Realm or a Tier, however both have been set.");
-        }
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(name);
     }
 
@@ -606,7 +660,7 @@ public class DefaultIdentityManager implements IdentityManager {
     private PartitionStore getContextualPartitionStore() {
         @SuppressWarnings("unchecked")
         final IdentityStore<IdentityStoreConfiguration> store = (IdentityStore<IdentityStoreConfiguration>) getContextualStoreForFeature(
-                createContext(), Feature.managePartitions);
+                createPartitionContext(), Feature.managePartitions);
 
         if (PartitionStore.class.isInstance(store)) {
             return (PartitionStore) store;
@@ -677,6 +731,10 @@ public class DefaultIdentityManager implements IdentityManager {
         context.setTier(currentTier.get());
 
         return context;
+    }
+    
+    private IdentityStoreInvocationContext createPartitionContext() {
+        return this.contextFactory.createContext();
     }
 
     private void checkIfIdentityTypeExists(IdentityType identityType) {

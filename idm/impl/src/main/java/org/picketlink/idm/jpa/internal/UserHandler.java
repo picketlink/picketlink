@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
@@ -31,7 +30,6 @@ import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
-import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -124,16 +122,5 @@ public class UserHandler extends IdentityTypeHandler<User>{
         user.setEmail(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_EMAIL));
         
         return user;
-    }
-    
-    @Override
-    public void validate(User user, JPAIdentityStore store) {
-        if (user.getLoginName() == null) {
-            throw new IdentityManagementException("No login name was provided.");
-        }
-        
-        if (store.getUser(user.getLoginName()) != null) {
-            throw new IdentityManagementException("User already exists with the given loginName [" + user.getLoginName() + "] for the given Realm [" + store.getCurrentRealm().getName() + "]");
-        }
     }
 }

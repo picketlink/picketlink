@@ -166,7 +166,7 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public Realm getRealm() {
-        return realm;
+        return this.realm;
     }
 
     /**
