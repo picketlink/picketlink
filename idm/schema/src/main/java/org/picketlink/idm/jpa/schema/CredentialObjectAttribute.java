@@ -35,7 +35,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  *
  */
 @Entity
-@IDMEntity(EntityType.IDENTITY_ATTRIBUTE)
+@IDMEntity(EntityType.CREDENTIAL_ATTRIBUTE)
 public class CredentialObjectAttribute {
 
     @Id
