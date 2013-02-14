@@ -104,7 +104,7 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
             getLDAPAttributes().put(memberAttribute);
         }
         
-        memberAttribute.add(getDN(childGroup.getName()));
+        memberAttribute.add(childGroup.getDN());
     }
 
     @Override

@@ -115,9 +115,9 @@ public class SecuredIdentityManager extends DefaultIdentityManager implements Id
     }
 
     @Override
-    public void removeFromGroup(IdentityType identityType, Group group) {
+    public void removeFromGroup(Agent member, Group group) {
         // TODO Auto-generated method stub
-        super.removeFromGroup(identityType, group);
+        super.removeFromGroup(member, group);
     }
 
     @Override
@@ -139,9 +139,9 @@ public class SecuredIdentityManager extends DefaultIdentityManager implements Id
     }
 
     @Override
-    public void revokeGroupRole(IdentityType identityType, Role role, Group group) {
+    public void revokeGroupRole(Agent member, Role role, Group group) {
         // TODO Auto-generated method stub
-        super.revokeGroupRole(identityType, role, group);
+        super.revokeGroupRole(member, role, group);
     }
 
     @Override

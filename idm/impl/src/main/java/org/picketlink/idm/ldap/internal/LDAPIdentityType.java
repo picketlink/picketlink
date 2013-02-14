@@ -39,7 +39,7 @@ import org.picketlink.idm.model.Realm;
  * @author anil saldhana
  * @since Aug 30, 2012
  */
-public abstract class LDAPIdentityType extends LDAPAttributedType implements DirContext, IdentityType {
+public abstract class LDAPIdentityType extends LDAPAttributedType implements IdentityType {
 
     private static final long serialVersionUID = 1L;
 
