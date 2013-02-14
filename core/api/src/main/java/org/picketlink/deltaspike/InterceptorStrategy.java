@@ -16,19 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.picketlink.deltaspike;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.interceptor.InvocationContext;
+import java.io.Serializable;
 
 /**
- * This annotation is used to delegate a method as the provider for a specific authorization check
+ * Base interface for all interceptor strategies which allow to provide
+ * custom implementations for DeltaSpike interceptors.
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Secures 
+public interface InterceptorStrategy extends Serializable
 {
+    /**
+     * Method which will be invoked by the interceptor method annotated with {@link javax.interceptor.AroundInvoke}
+     * @param invocationContext current invocation-context
+     * @return result of the intercepted method
+     * @throws Exception exception which might be thrown by the intercepted method
+     */
+    Object execute(InvocationContext invocationContext) throws Exception;
 }

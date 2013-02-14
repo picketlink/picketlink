@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.picketlink.deltaspike;
+package org.picketlink.deltaspike.security;
 
 import java.io.Serializable;
 
