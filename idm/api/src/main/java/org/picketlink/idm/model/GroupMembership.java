@@ -46,14 +46,14 @@ public class GroupMembership extends AbstractAttributedType implements Relations
 
     private static final long serialVersionUID = 6851576454138812116L;
 
-    private IdentityType member;
+    private Agent member;
     private Group group;
 
     public GroupMembership() {
         
     }
     
-    public GroupMembership(IdentityType member, Group group) {
+    public GroupMembership(Agent member, Group group) {
         this.member = member;
         this.group = group;
     }
@@ -63,7 +63,7 @@ public class GroupMembership extends AbstractAttributedType implements Relations
         return member;
     }
     
-    public void setMember(IdentityType member) {
+    public void setMember(Agent member) {
         this.member = member;
     }
 

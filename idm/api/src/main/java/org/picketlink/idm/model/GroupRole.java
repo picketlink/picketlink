@@ -45,7 +45,7 @@ public class GroupRole extends GroupMembership implements Relationship {
         super();
     }
     
-    public GroupRole(IdentityType member, Group group, Role role) {
+    public GroupRole(Agent member, Group group, Role role) {
         super(member, group);
         this.role = role;
     }
