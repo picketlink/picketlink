@@ -21,7 +21,6 @@ package org.picketlink.test.idm.relationship;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
@@ -106,7 +105,6 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
     }
 
     @Test
-    @Ignore
     public void testGrantParentGroupRole() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         

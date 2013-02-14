@@ -366,7 +366,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         try {
             String baseDN = getBaseDN(identityQuery.getIdentityType());
-//            String baseDN = getConfig().getBaseDN();
+            // String baseDN = getConfig().getBaseDN();
 
             if (identityQuery.getParameter(AttributedType.ID) != null) {
                 baseDN = getConfig().getBaseDN();
@@ -651,26 +651,18 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 LDAPAgent agentEntry = lookupAgent(agent);
 
                 if (agentEntry != null && groupEntry != null && roleEntry != null) {
-                    LDAPGroupRole groupRoleEntry = null;
+                    if (hasGroupRole(groupEntry, roleEntry, agentEntry)) {
+                        results.add((T) new GroupRole(agent, group, role));
+                    } else {
+                        List<Group> parentGroups = getParentGroups(groupEntry);
 
-                    NamingEnumeration<SearchResult> groupRoleAttributes = lookupGroupRoleEntry(agentEntry, groupEntry);
-
-                    try {
-                        if (groupRoleAttributes.hasMore()) {
-                            groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
-
-                            groupRoleEntry.setLDAPAttributes(groupRoleAttributes.next().getAttributes());
-
-                            if (groupRoleEntry.isMember(roleEntry)) {
+                        for (Group parentGroup : parentGroups) {
+                            LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
+                            
+                            if (hasGroupRole(parentGroupEntry, roleEntry, agentEntry)) {
                                 results.add((T) new GroupRole(agent, group, role));
+                                break;
                             }
-                        }
-                    } catch (Exception e) {
-                        throw new IdentityManagementException(e);
-                    } finally {
-                        try {
-                            groupRoleAttributes.close();
-                        } catch (NamingException e) {
                         }
                     }
                 }
@@ -796,6 +788,31 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         }
 
         return results;
+    }
+
+    private boolean hasGroupRole(LDAPGroup groupEntry, LDAPRole roleEntry, LDAPAgent agentEntry) {
+        NamingEnumeration<SearchResult> groupRoleAttributes = lookupGroupRoleEntry(agentEntry, groupEntry);
+
+        try {
+            if (groupRoleAttributes.hasMore()) {
+                LDAPGroupRole groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
+
+                groupRoleEntry.setLDAPAttributes(groupRoleAttributes.next().getAttributes());
+
+                if (groupRoleEntry.isMember(roleEntry)) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            throw new IdentityManagementException(e);
+        } finally {
+            try {
+                groupRoleAttributes.close();
+            } catch (NamingException e) {
+            }
+        }
+
+        return false;
     }
 
     @Override
@@ -938,7 +955,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 SearchResult sr = search.next();
                 String nameInNamespace = sr.getNameInNamespace();
                 String baseDN = nameInNamespace.substring(nameInNamespace.indexOf(",") + 1);
-                
+
                 identityType = type.getConstructor(String.class).newInstance(baseDN);
 
                 populateLDAPEntry(identityType, sr);
@@ -998,7 +1015,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     private <T extends LDAPIdentityType> void populateLDAPEntry(T identityType, SearchResult sr) throws NamingException {
         identityType.setLDAPAttributes(sr.getAttributes());
         identityType.setCustomAttributes(getCustomAttributes(identityType));
-        
+
         populateLDAPOperationAttributes(identityType);
 
         // for now, the store is not supporting partitions. ldap does not provide a good attribute to hold such
