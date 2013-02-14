@@ -25,7 +25,7 @@
 	    <groupId>org.picketlink</groupId>
       	    <artifactId>picketlink-idm-api</artifactId>
       	</dependency>
-
+<!--
         <dependency>
             <groupId>org.apache.deltaspike.core</groupId>
             <artifactId>deltaspike-core-api</artifactId>
@@ -45,7 +45,7 @@
             <groupId>org.apache.deltaspike.modules</groupId>
             <artifactId>deltaspike-security-module-impl</artifactId>
         </dependency>       
-	
+-->	
     </dependencies>
 
 </project>
