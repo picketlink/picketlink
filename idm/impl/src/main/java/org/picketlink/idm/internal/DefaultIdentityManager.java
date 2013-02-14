@@ -347,7 +347,7 @@ public class DefaultIdentityManager implements IdentityManager {
     public boolean isMember(IdentityType identityType, Group group) {
         checkNotNull(identityType);
         checkNotNull(group);
-        
+
         return getGroupMembership(identityType, group) != null;
     }
 
@@ -355,10 +355,8 @@ public class DefaultIdentityManager implements IdentityManager {
     public void addToGroup(IdentityType member, Group group) {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
-        
-        if (getGroupMembership(member, group) == null) {
-            add(new GroupMembership(member, group));
-        }
+
+        add(new GroupMembership(member, group));
     }
 
     @Override
@@ -383,7 +381,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkNotNull(identityType);
         checkNotNull(role);
         checkNotNull(group);
-        
+
         return getGroupRole(identityType, role, group) != null;
     }
 
@@ -392,7 +390,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
-        
+
         if (getGroupRole(member, role, group) == null) {
             add(new GroupRole(member, group, role));
         }
@@ -411,7 +409,7 @@ public class DefaultIdentityManager implements IdentityManager {
     public boolean hasRole(IdentityType identityType, Role role) {
         checkNotNull(identityType);
         checkNotNull(role);
-        
+
         return getGrant(identityType, role) != null;
     }
 
@@ -481,17 +479,17 @@ public class DefaultIdentityManager implements IdentityManager {
         checkCreateNullPartitionName(realm);
         getContextualPartitionStore().createPartition(realm);
     }
-    
+
     @Override
     public <T extends IdentityType> T lookupIdentityById(Class<T> identityType, String id) {
         if (identityType == null) {
             throw new IdentityManagementException("You must provide the IdentityType class.");
         }
-        
+
         if (id == null) {
             throw new IdentityManagementException("Could not lookup with a null identifier.");
         }
-        
+
         IdentityQuery<T> query = createIdentityQuery(identityType);
 
         query.setParameter(IdentityType.ID, id);
@@ -516,11 +514,11 @@ public class DefaultIdentityManager implements IdentityManager {
         if (realm == null) {
             throw new IdentityManagementException("You must provide a non-nul Realm instance.");
         }
-        
+
         if (getRealm(realm.getName()) == null) {
             throw new IdentityManagementException("No Realm with the given name [" + realm.getName() + "] was found.");
         }
-        
+
         getContextualPartitionStore().removePartition(realm);
     }
 
@@ -541,7 +539,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (tier == null) {
             throw new IdentityManagementException("You must provide a non-nul Tier instance.");
         }
-        
+
         if (getTier(tier.getName()) == null) {
             throw new IdentityManagementException("No Tier with the given name [" + tier.getName() + "] was found.");
         }
@@ -575,7 +573,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
         return groupRole;
     }
-    
+
     private GroupMembership getGroupMembership(IdentityType identityType, Group group) {
         RelationshipQuery<GroupMembership> query = createRelationshipQuery(GroupMembership.class);
 
@@ -592,7 +590,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
         return groupMembership;
     }
-    
+
     private void checkCreateNullPartitionName(Partition partition) {
         if (partition.getName() == null) {
             throw new IdentityManagementException("Realm name must not be null");
@@ -604,9 +602,7 @@ public class DefaultIdentityManager implements IdentityManager {
             throw new IdentityManagementException("Partition must not be null.");
         }
     }
-    
 
-    
     private PartitionStore getContextualPartitionStore() {
         @SuppressWarnings("unchecked")
         final IdentityStore<IdentityStoreConfiguration> store = (IdentityStore<IdentityStoreConfiguration>) getContextualStoreForFeature(
@@ -682,12 +678,13 @@ public class DefaultIdentityManager implements IdentityManager {
 
         return context;
     }
-    
+
     private void checkIfIdentityTypeExists(IdentityType identityType) {
         checkNotNull(identityType);
-        
+
         if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
-            throw new IdentityManagementException("No IdentityType [" + identityType.getClass().getName() + "] found with the given id [" + identityType + "]");
+            throw new IdentityManagementException("No IdentityType [" + identityType.getClass().getName()
+                    + "] found with the given id [" + identityType + "]");
         }
     }
 

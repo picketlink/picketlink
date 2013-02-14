@@ -1042,7 +1042,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
      * @param childGroup
      * @return
      */
-    private Group getParentGroup(LDAPGroup childGroup) {
+    protected Group getParentGroup(LDAPGroup childGroup) {
         Attributes matchAttrs = new BasicAttributes(true);
 
         String dnSuffix = childGroup.getDnSuffix();
@@ -1076,6 +1076,21 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         }
 
         return null;
+    }
+    
+    protected List<Group> getParentGroups(LDAPGroup childGroup) {
+        List<Group> result = new ArrayList<Group>();
+        
+        Group parentGroup = getParentGroup(childGroup);
+        
+        if (parentGroup == null) {
+            return result;
+        }
+        
+        result.add(parentGroup);
+        result.addAll(getParentGroups((LDAPGroup) lookupEntry(parentGroup)));
+        
+        return result;
     }
 
     private void addGroup(Group newGroup) {

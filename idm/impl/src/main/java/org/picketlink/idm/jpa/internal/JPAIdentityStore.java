@@ -77,6 +77,7 @@ import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
+import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
@@ -187,6 +188,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     private void addRelationship(Relationship relationship) {
+        if (GroupMembership.class.isInstance(relationship)) {
+            GroupMembership groupMembership = (GroupMembership) relationship;
+
+            if (checkIfExists(groupMembership)) {
+                return;
+            }
+        }
+
         relationship.setId(getContext().getIdGenerator().generate());
 
         Object entity = null;
@@ -229,6 +238,24 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         updateRelationshipAttributes(relationship, entity);
+    }
+
+    private boolean checkIfExists(GroupMembership groupMembership) {
+        boolean has = false;
+
+        RelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, this);
+
+        query.setParameter(GroupMembership.MEMBER, groupMembership.getMember());
+        query.setParameter(GroupMembership.GROUP, groupMembership.getGroup());
+
+        List<GroupMembership> result = fetchQueryResults(query, true);
+
+        if (!result.isEmpty()) {
+            if (result.get(0).getClass().equals(groupMembership.getClass())) {
+                has = true;
+            }
+        }
+        return has;
     }
 
     @Override
@@ -423,7 +450,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (groupPath == null) {
             return null;
         }
-        
+
         if (groupPath.indexOf('/') == -1) {
             groupPath = "/" + groupPath;
         }
@@ -454,23 +481,25 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (name == null || parent == null) {
             return null;
         }
-        
+
         String path = "/" + name;
-        
+
         if (parent != null) {
             if (parent.getId() == null) {
                 throw new IdentityManagementException("No identifier specified for the parent group.");
             }
-            
+
             Object storedParent = lookupIdentityObjectById(parent.getId());
-            
-            if (storedParent == null || !getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(storedParent).equals(getConfig().getIdentityTypeGroup())) {
-                throw new IdentityManagementException("No parent group found with the given identifier [" + parent.getId() + "]");
+
+            if (storedParent == null
+                    || !getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(storedParent)
+                            .equals(getConfig().getIdentityTypeGroup())) {
+                throw new IdentityManagementException("No parent group found with the given identifier [" + parent.getId()
+                        + "]");
             }
-            
+
             path = getConfig().getModelProperty(PropertyType.GROUP_PATH).getValue(storedParent) + path;
         }
-
 
         return getGroup(path);
     }
@@ -539,6 +568,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
+        return fetchQueryResults(query, false);
+    }
+
+    private <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query, boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
 
         EntityManager em = getEntityManager();
@@ -571,20 +604,37 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                     if (identityType != null) {
                         Object identityObject = lookupIdentityObjectById(identityType.getId());
 
-                        Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityClass());
-                        Root fromProject = subquery.from(getConfig().getRelationshipIdentityClass());
-                        subquery.select(fromProject.get(relationshipProperty.getName()));
+                        if (identityObject != null) {
+                            List<Object> objects = new ArrayList<Object>();
 
-                        Predicate conjunction = builder.conjunction();
+                            objects.add(identityObject);
 
-                        conjunction.getExpressions().add(
-                                builder.equal(fromProject.get(descriptorProperty.getName()), identityTypeParameter.getName()));
-                        conjunction.getExpressions().add(
-                                builder.equal(fromProject.get(identityProperty.getName()), identityObject));
+                            if (Group.class.isInstance(identityType) && !matchExactGroup) {
+                                List<Group> groupParents = getParentGroups((Group) identityType);
 
-                        subquery.where(conjunction);
+                                for (Group group : groupParents) {
+                                    objects.add(this.lookupIdentityObjectById(group.getId()));
+                                }
+                            }
 
-                        predicates.add(builder.in(root).value(subquery));
+                            Subquery<?> subquery = criteria.subquery(getConfig().getRelationshipIdentityClass());
+                            Root fromProject = subquery.from(getConfig().getRelationshipIdentityClass());
+                            subquery.select(fromProject.get(relationshipProperty.getName()));
+
+                            Predicate conjunction = builder.conjunction();
+
+                            conjunction.getExpressions().add(
+                                    builder.equal(fromProject.get(descriptorProperty.getName()),
+                                            identityTypeParameter.getName()));
+                            conjunction.getExpressions().add(
+                                    builder.in(fromProject.get(identityProperty.getName())).value(objects));
+
+                            subquery.where(conjunction);
+
+                            predicates.add(builder.in(root).value(subquery));
+                        } else {
+                            return result;
+                        }
                     }
                 }
             }
@@ -625,6 +675,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         return result;
+    }
+
+    private List<Group> getParentGroups(Group identityType) {
+        DefaultIdentityQuery<Group> query = new DefaultIdentityQuery<Group>(Group.class, this);
+
+        query.setParameter(Group.HAS_MEMBER, identityType);
+
+        return query.getResultList();
     }
 
     @SuppressWarnings("unchecked")
