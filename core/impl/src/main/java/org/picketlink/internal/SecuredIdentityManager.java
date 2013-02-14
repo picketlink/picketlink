@@ -112,7 +112,7 @@ public class SecuredIdentityManager extends DefaultIdentityManager implements Id
     }
 
     @Override
-    public void addToGroup(IdentityType identityType, Group group) {
+    public void addToGroup(Agent identityType, Group group) {
         // TODO Auto-generated method stub
         super.addToGroup(identityType, group);
     }
@@ -136,7 +136,7 @@ public class SecuredIdentityManager extends DefaultIdentityManager implements Id
     }
 
     @Override
-    public void grantGroupRole(IdentityType identityType, Role role, Group group) {
+    public void grantGroupRole(Agent identityType, Role role, Group group) {
         // TODO Auto-generated method stub
         super.grantGroupRole(identityType, role, group);
     }
