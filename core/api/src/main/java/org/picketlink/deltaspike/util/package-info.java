@@ -16,27 +16,10 @@
  * limitations under the License.
  */
 
-package org.picketlink.permission.annotations;
-
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
-import org.picketlink.deltaspike.SecurityBindingType;
-
 /**
- * 
- * @author Shane Bryzak
- *
+ * Package contains classes forked from Apache Deltaspike 0.3 incubating snapshot.
+ * The idea is to retain the source headers and source code as is. When Apache
+ * Deltaspike has formal releases, we will bring Apache Deltaspike as a dependency
+ * and this package should be deleted.
  */
-@Target({ METHOD })
-@Retention(RUNTIME)
-@Documented
-@SecurityBindingType
-public @interface CheckPermissions
-{
-
-}
+package org.picketlink.deltaspike.util;

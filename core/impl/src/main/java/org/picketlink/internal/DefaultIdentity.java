@@ -25,7 +25,7 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.deltaspike.core.util.ExceptionUtils;
+import org.picketlink.deltaspike.util.ExceptionUtils;
 import org.picketlink.Identity;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.authentication.Authenticator;

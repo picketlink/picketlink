@@ -47,7 +47,7 @@
            <artifactId>hibernate-jpa-2.0-api</artifactId>
            <scope>provided</scope>
         </dependency>
-
+<!--
 	      <dependency>
 	          <groupId>org.apache.deltaspike.core</groupId>
 	          <artifactId>deltaspike-core-api</artifactId>
@@ -57,7 +57,7 @@
 	          <groupId>org.apache.deltaspike.core</groupId>
 	          <artifactId>deltaspike-core-impl</artifactId>
 	      </dependency>
-
+-->
     </dependencies>
 
 </project>
