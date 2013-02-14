@@ -20,6 +20,8 @@ package org.picketlink.internal;
 
 import java.util.Date;
 
+import javax.enterprise.inject.Typed;
+
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
@@ -40,6 +42,7 @@ import org.picketlink.idm.query.RelationshipQuery;
  * @author Shane Bryzak
  *
  */
+@Typed(SecuredIdentityManager.class)
 public class SecuredIdentityManager extends DefaultIdentityManager implements IdentityManager {
 
     @Override
