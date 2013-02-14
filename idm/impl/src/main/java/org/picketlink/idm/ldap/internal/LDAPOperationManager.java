@@ -39,6 +39,7 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.directory.shared.ldap.filter.SearchScope;
 import org.picketlink.idm.IdentityManagementException;
 
 /**
@@ -353,7 +354,12 @@ public class LDAPOperationManager {
         try {
             String filter = "(&(objectClass=*)(" + LDAPConstants.ENTRY_UUID + LDAPConstants.EQUAL + id + "))";
 
-            return getContext().search(baseDN, filter, new SearchControls());
+            SearchControls controls = new SearchControls();
+            
+            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            controls.setCountLimit(1);
+            
+            return getContext().search(baseDN, filter, controls);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
