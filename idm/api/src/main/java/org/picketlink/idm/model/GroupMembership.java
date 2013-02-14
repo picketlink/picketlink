@@ -59,7 +59,7 @@ public class GroupMembership extends AbstractAttributedType implements Relations
     }
 
     @RelationshipIdentity
-    public IdentityType getMember() {
+    public Agent getMember() {
         return member;
     }
     

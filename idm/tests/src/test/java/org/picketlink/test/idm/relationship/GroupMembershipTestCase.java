@@ -211,7 +211,17 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         
         identityManager.add(groupD);
         
-        Group anotherGroupB = new SimpleGroup("b", groupC);
+        Group qaGroup = identityManager.getGroup("QA Group");
+                
+        if (qaGroup != null) {
+            identityManager.remove(qaGroup);
+        }
+        
+        qaGroup = new SimpleGroup("QA Group", groupC);
+        
+        identityManager.add(qaGroup);
+
+        Group anotherGroupB = new SimpleGroup("b", qaGroup);
         
         identityManager.add(anotherGroupB);
 
