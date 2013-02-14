@@ -31,6 +31,7 @@ import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
@@ -120,11 +121,11 @@ public class LDAPQuery {
     private String createHasMemberFilter() {
         if (identityQuery.getParameters().containsKey(Group.HAS_MEMBER)) {
             Object[] values = identityQuery.getParameters().get(Group.HAS_MEMBER);
-            Agent[] agents = new Agent[values.length];
+            IdentityType[] agents = new IdentityType[values.length];
 
             for (int j = 0; j < values.length; j++) {
                 Object value = values[j];
-                agents[j] = (Agent) value;
+                agents[j] = (IdentityType) value;
             }
 
             return createMembersFilter(agents, getConfig().getGroupDNSuffix());
@@ -248,17 +249,27 @@ public class LDAPQuery {
      * @param baseDN
      * @return
      */
-    private String createMembersFilter(Agent[] members, String baseDN) {
+    private String createMembersFilter(IdentityType[] members, String baseDN) {
         String membersFilter = "";
-
-        for (Agent agent : members) {
-            if (agent != null) {
-                if (Agent.class.isInstance(agent)) {
-                    LDAPAgent ldapAgent = this.identityStore.lookupAgent(agent);
+        boolean isGroupMember = false;
+        
+        for (IdentityType identityType : members) {
+            if (identityType != null) {
+                if (Agent.class.isInstance(identityType)) {
+                    LDAPAgent ldapAgent = this.identityStore.lookupAgent((Agent) identityType);
 
                     if (ldapAgent != null) {
                         membersFilter = membersFilter + "(member=" + ldapAgent.getDN() + ")";
                     }
+                } else if (Group.class.isInstance(identityType)) {
+                    Group group = (Group) identityType;
+                    LDAPGroup ldapGroup = this.identityStore.lookupGroup(group.getPath());
+
+                    if (ldapGroup != null) {
+                        membersFilter = membersFilter + "(member=" + ldapGroup.getDN() + ")";
+                    }
+                    
+                    isGroupMember = true;
                 }
             }
         }
@@ -274,8 +285,19 @@ public class LDAPQuery {
                 while (search.hasMoreElements()) {
                     SearchResult searchResult = search.next();
                     String entryCN = searchResult.getAttributes().get(CN).get().toString();
-
+                    
                     parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL).append(entryCN).append(")");
+                    
+                    if (isGroupMember) {
+                        Attributes operationalAttributes = this.identityStore.getConfig().getLdapManager().lookupOperationalAttributes(baseDN, CN + LDAPConstants.EQUAL + entryCN);
+                        String id = operationalAttributes.get(LDAPConstants.ENTRY_UUID).get().toString();
+                        LDAPGroup childGroup = this.identityStore.lookupEntryById(LDAPGroup.class, id);
+                        List<Group> parentGroups = this.identityStore.getParentGroups(childGroup);
+                        
+                        for (Group parentGroup : parentGroups) {
+                            parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL).append(parentGroup.getName()).append(")");        
+                        }
+                    }
                 }
             } catch (Exception e) {
                 throw new IdentityManagementException(e);

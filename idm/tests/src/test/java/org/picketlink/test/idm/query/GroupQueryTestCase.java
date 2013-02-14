@@ -29,7 +29,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.internal.util.IDMUtil;
-import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -38,7 +37,6 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
@@ -159,6 +157,65 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         assertEquals(1, result.size());
         assertEquals(group.getId(), result.get(0).getId());
         assertEquals(group.getParentGroup().getId(), result.get(0).getParentGroup().getId());
+    }
+    
+    @Test
+    public void testFindGroupMembers() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        
+        Group groupA = new SimpleGroup("a");
+        
+        identityManager.add(groupA);
+        
+        Group groupB = new SimpleGroup("b", groupA);
+        
+        identityManager.add(groupB);
+        
+        Group groupC = new SimpleGroup("c", groupB);
+        
+        identityManager.add(groupC);
+
+        Group groupD = new SimpleGroup("d", groupC);
+        
+        identityManager.add(groupD);
+        
+        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
+        
+        query.setParameter(Group.HAS_MEMBER, groupA);
+        
+        List<Group> result = query.getResultList();
+        
+        assertTrue(result.isEmpty());
+
+        query = identityManager.createIdentityQuery(Group.class);
+        
+        query.setParameter(Group.HAS_MEMBER, groupB);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, groupA.getId()));
+        
+        query = identityManager.createIdentityQuery(Group.class);
+        
+        query.setParameter(Group.HAS_MEMBER, groupC);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, groupA.getId()));
+        assertTrue(contains(result, groupB.getId()));
+        
+        query = identityManager.createIdentityQuery(Group.class);
+        
+        query.setParameter(Group.HAS_MEMBER, groupD);
+        
+        result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        assertTrue(contains(result, groupA.getId()));
+        assertTrue(contains(result, groupB.getId()));
+        assertTrue(contains(result, groupC.getId()));
     }
 
     /**

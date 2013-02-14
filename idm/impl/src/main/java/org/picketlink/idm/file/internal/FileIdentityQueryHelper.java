@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -126,29 +127,49 @@ public class FileIdentityQueryHelper {
         if (values != null) {
             Group currentGroup = (Group) identityType;
 
-            List<FileRelationship> relationships = identityStore.getRelationshipsForCurrentPartition().get(
-                    GroupMembership.class.getName());
-
-            if (relationships == null) {
-                return false;
-            }
             int valuesMatchCount = values.length;
 
             for (Object object : values) {
-                Agent agent = (Agent) object;
+                if (Agent.class.isInstance(object)) {
+                    List<FileRelationship> relationships = identityStore.getRelationshipsForCurrentPartition().get(
+                            GroupMembership.class.getName());
 
-                for (FileRelationship storedRelationship : new ArrayList<FileRelationship>(relationships)) {
-                    GroupMembership grant = identityStore.convertToRelationship(storedRelationship);
+                    if (relationships == null) {
+                        return false;
+                    }
 
-                    if (grant != null) {
-                        if (!grant.getGroup().getId().equals(currentGroup.getId())) {
-                            continue;
-                        }
+                    Agent agent = (Agent) object;
+                    
+                    DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, this.identityStore);
+                    
+                    query.setParameter(GroupMembership.MEMBER, agent);
+                    
+                    List<GroupMembership> result = query.getResultList();
+                    
+                    for (GroupMembership groupMembership : result) {
+                        if (groupMembership != null) {
+                            if (!groupMembership.getGroup().getId().equals(currentGroup.getId())) {
+                                continue;
+                            }
 
-                        if (grant.getMember().getId().equals(agent.getId())) {
-                            valuesMatchCount--;
+                            if (groupMembership.getMember().getId().equals(agent.getId())) {
+                                valuesMatchCount--;
+                            }
                         }
                     }
+                } else if (Group.class.isInstance(object)) {
+                    Group group = (Group) object;
+                    
+                    if (group.getParentGroup() == null) {
+                        return false;
+                    }
+                    
+                    if (this.identityStore.hasParentGroup(group, currentGroup)) {
+                        valuesMatchCount--;
+                    }
+                } else {
+                    throw new IdentityManagementException(
+                            "Unsupported value type for Group.HAS_MEMBER query parameter. You should provide a Agent or Group instance.");
                 }
 
                 if (valuesMatchCount > 0) {
@@ -158,6 +179,11 @@ public class FileIdentityQueryHelper {
         }
 
         return true;
+    }
+
+    private List<Group> getParentGroups(Group group) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     public boolean matchHasGroupRole(IdentityType identityType) {

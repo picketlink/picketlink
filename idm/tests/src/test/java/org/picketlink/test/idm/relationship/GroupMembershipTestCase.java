@@ -19,6 +19,7 @@
 package org.picketlink.test.idm.relationship;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -148,7 +150,85 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
 
         assertTrue(identityManager.isMember(someUser, someAnotherGroup));
     }
-    
+
+    @Test
+    public void testAddUserToParentGroup() throws Exception {
+        User someUser = createUser("someUser");
+        Group groupB = createGroup("b", "a");
+        Group groupA = groupB.getParentGroup();
+        
+        assertNotNull(groupA);
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        identityManager.addToGroup(someUser, groupA);
+
+        assertTrue(identityManager.isMember(someUser, groupA));
+        assertTrue(identityManager.isMember(someUser, groupB));
+        
+        identityManager.remove(groupB);
+        identityManager.remove(groupA);
+        
+        // group testing path is /a/b 
+        assertFalse(identityManager.isMember(someUser, groupB));
+        
+        groupA = new SimpleGroup("a");
+        
+        identityManager.add(groupA);
+        
+        groupB = new SimpleGroup("b", groupA);
+        
+        identityManager.add(groupB);
+        
+        Group groupC = new SimpleGroup("c", groupB);
+        
+        identityManager.add(groupC);
+        
+        identityManager.addToGroup(someUser, groupA);
+        
+        // group testing path is /a/b/c
+        assertTrue(identityManager.isMember(someUser, groupA));
+        assertTrue(identityManager.isMember(someUser, groupB));
+        assertTrue(identityManager.isMember(someUser, groupC));
+
+        identityManager.remove(groupC);
+        identityManager.remove(groupB);
+        identityManager.remove(groupA);
+
+        groupA = new SimpleGroup("a");
+        
+        identityManager.add(groupA);
+        
+        groupB = new SimpleGroup("b", groupA);
+        
+        identityManager.add(groupB);
+        
+        groupC = new SimpleGroup("c", groupB);
+        
+        identityManager.add(groupC);
+        
+        Group groupD = new SimpleGroup("d", groupC);
+        
+        identityManager.add(groupD);
+        
+        Group anotherGroupB = new SimpleGroup("b", groupC);
+        
+        identityManager.add(anotherGroupB);
+
+        identityManager.addToGroup(someUser, anotherGroupB);
+
+        assertTrue(identityManager.isMember(someUser, anotherGroupB));
+        assertFalse(identityManager.isMember(someUser, groupA));
+        assertFalse(identityManager.isMember(someUser, groupB));
+        assertFalse(identityManager.isMember(someUser, groupC));
+        assertFalse(identityManager.isMember(someUser, groupD));
+        
+        identityManager.addToGroup(someUser, groupB);
+        
+        assertTrue(identityManager.isMember(someUser, groupB));
+        assertTrue(identityManager.isMember(someUser, groupD));
+    }
+
     @Test
     public void testRemoveUserWithRelationships() throws Exception {
         User someUser = createUser("someUser");

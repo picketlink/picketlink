@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -35,6 +36,7 @@ import org.picketlink.idm.event.GroupCreatedEvent;
 import org.picketlink.idm.event.GroupDeletedEvent;
 import org.picketlink.idm.event.GroupUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.SimpleGroup;
@@ -125,11 +127,11 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     @Override
     protected Group doCreateIdentityType(Object identity, JPAIdentityStore store) {
         SimpleGroup group = null;
-        
+
         Object parentInstance = getConfig().getModelPropertyValue(Object.class, identity, PropertyType.GROUP_PARENT);
 
         String name = getConfig().getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
-        
+
         if (parentInstance != null) {
             String groupPath = getConfig().getModelPropertyValue(String.class, parentInstance, PropertyType.GROUP_PATH);
 
@@ -154,13 +156,12 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
-        
+
         parameterValues = criteria.getIdentityQuery().getParameter(Group.PATH);
 
         if (parameterValues != null) {
-            predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.GROUP_PATH).getName()),
-                    parameterValues[0]));
+            predicates.add(builder.equal(criteria.getRoot()
+                    .get(getConfig().getModelProperty(PropertyType.GROUP_PATH).getName()), parameterValues[0]));
         }
 
         parameterValues = criteria.getIdentityQuery().getParameter(Group.PARENT);
@@ -177,43 +178,70 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
         if (parameterValues != null) {
             for (Object object : parameterValues) {
-                DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, store);
+                if (Agent.class.isInstance(object)) {
+                    DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
+                            GroupMembership.class, store);
 
-                query.setParameter(GroupMembership.MEMBER, object);
+                    query.setParameter(GroupMembership.MEMBER, object);
 
-                List<GroupMembership> resultList = query.getResultList();
+                    List<GroupMembership> resultList = query.getResultList();
 
-                if (!resultList.isEmpty()) {
-                    List<String> relIds = new ArrayList<String>();
+                    if (!resultList.isEmpty()) {
+                        List<String> relIds = new ArrayList<String>();
 
-                    for (GroupMembership memberships : resultList) {
-                        relIds.add(memberships.getId());
+                        for (GroupMembership memberships : resultList) {
+                            relIds.add(memberships.getId());
+                        }
+
+                        Subquery<?> subquery = criteria.getCriteria()
+                                .subquery(store.getConfig().getRelationshipIdentityClass());
+                        Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
+                        subquery.select(fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY)
+                                .getName()));
+                        Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
+                                PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
+
+                        List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
+
+                        subqueryPredicates.add(criteria.getBuilder().equal(
+                                fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
+                                GroupMembership.GROUP.getName()));
+                        subqueryPredicates.add(criteria.getBuilder().equal(
+                                fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
+                                criteria.getRoot()));
+                        subqueryPredicates.add(criteria.getBuilder()
+                                .in(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName()))
+                                .value(relIds));
+
+                        subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
+
+                        predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                    } else {
+                        predicates
+                                .add(criteria.getBuilder().equal(
+                                        criteria.getRoot()
+                                                .get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
                     }
+                } else if (Group.class.isInstance(object)) {
+                    Group childGroup = (Group) object;
 
-                    Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
-                    Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(getConfig().getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY).getName()));
-                    Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
+                    if (childGroup != null && childGroup.getParentGroup() != null) {
+                        Object childObject = store.lookupIdentityObjectById(childGroup.getId());
 
-                    List<Predicate> subqueryPredicates = new ArrayList<Predicate>();
+                        List<Object> parents = getParentGroups(criteria, store, builder, childObject);
 
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
-                            GroupMembership.GROUP.getName()));
-                    subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
-                            criteria.getRoot()));
-                    subqueryPredicates.add(criteria.getBuilder()
-                            .in(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
-
-                    subquery.where(subqueryPredicates.toArray(new Predicate[subqueryPredicates.size()]));
-
-                    predicates.add(criteria.getBuilder().in(criteria.getRoot()).value(subquery));
+                        predicates
+                                .add(criteria.getBuilder().in(
+                                        criteria.getRoot()).value(parents));
+                    } else {
+                        predicates
+                                .add(criteria.getBuilder().equal(
+                                        criteria.getRoot()
+                                                .get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
+                    }
                 } else {
-                    predicates.add(criteria.getBuilder().equal(
-                            criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
+                    throw new IdentityManagementException(
+                            "Unsupported value type for Group.HAS_MEMBER query parameter. You should provide a Agent or Group instance.");
                 }
             }
         }
@@ -221,14 +249,28 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         return predicates;
     }
 
+    private List<Object> getParentGroups(JPACriteriaQueryBuilder criteria, JPAIdentityStore store, CriteriaBuilder builder,
+            Object childGroup) {
+        List<Object> parents = new ArrayList<Object>();
+        Object parent = getConfig().getModelProperty(PropertyType.GROUP_PARENT).getValue(childGroup);
+
+        if (parent != null) {
+            parents.add(parent);
+            parents.addAll(getParentGroups(criteria, store, builder, parent));
+        }
+
+        return parents;
+    }
+
     @Override
     public void validate(Group group, JPAIdentityStore store) {
         if (group.getName() == null) {
             throw new IdentityManagementException("No name was provided.");
         }
-        
+
         if (store.getGroup(group.getPath()) != null) {
-            throw new IdentityManagementException("Group already exists with the given loginName [" + group.getName() + "] for the given Partition [" + store.getCurrentPartition().getName() + "]");
+            throw new IdentityManagementException("Group already exists with the given loginName [" + group.getName()
+                    + "] for the given Partition [" + store.getCurrentPartition().getName() + "]");
         }
     }
 }
