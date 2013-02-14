@@ -42,9 +42,6 @@ import org.picketlink.idm.query.RelationshipQuery;
  */
 public class SecuredIdentityManager extends DefaultIdentityManager implements IdentityManager {
 
-    // Poor man's @Veto
-    public SecuredIdentityManager(String foo) {}
-    
     @Override
     public void add(IdentityType value) {
        
