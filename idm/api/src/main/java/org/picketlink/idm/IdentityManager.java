@@ -107,7 +107,7 @@ public interface IdentityManager extends Serializable {
 
     boolean isMember(IdentityType identityType, Group group);
 
-    void addToGroup(IdentityType identityType, Group group);
+    void addToGroup(Agent agent, Group group);
 
     void removeFromGroup(IdentityType identityType, Group group);
 
@@ -117,7 +117,7 @@ public interface IdentityManager extends Serializable {
 
     boolean hasGroupRole(IdentityType identityType, Role role, Group group);
 
-    void grantGroupRole(IdentityType identityType, Role role, Group group);
+    void grantGroupRole(Agent member, Role role, Group group);
 
     void revokeGroupRole(IdentityType identityType, Role role, Group group);
 
