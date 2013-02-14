@@ -20,6 +20,8 @@ package org.picketlink.deltaspike;
 
 import java.util.Set;
 
+import org.picketlink.deltaspike.security.SecurityViolation;
+
 /**
  * Exception occurs in case of a security-violation.
  * It's aware of the reason for the violation as well as the error-view which should be used to display the restriction.
