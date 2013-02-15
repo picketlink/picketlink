@@ -376,6 +376,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 query.setParameter(Grant.ASSIGNEE, grant.getAssignee());
                 query.setParameter(Grant.ROLE, grant.getRole());
+            } else if (GroupRole.class.isInstance(relationship)) {
+                GroupRole groupRole = (GroupRole) relationship;
+
+                query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
+
+                query.setParameter(GroupRole.MEMBER, groupRole.getMember());
+                query.setParameter(GroupRole.GROUP, groupRole.getGroup());
+                query.setParameter(GroupRole.ROLE, groupRole.getRole());
             } else if (GroupMembership.class.isInstance(relationship)) {
                 GroupMembership groupMembership = (GroupMembership) relationship;
 
@@ -383,14 +391,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 query.setParameter(GroupMembership.MEMBER, groupMembership.getMember());
                 query.setParameter(GroupMembership.GROUP, groupMembership.getGroup());
-
-                if (GroupRole.class.isInstance(relationship)) {
-                    GroupRole groupRole = (GroupRole) groupMembership;
-
-                    query.setParameter(GroupRole.MEMBER, groupRole.getMember());
-                    query.setParameter(GroupRole.GROUP, groupRole.getGroup());
-                    query.setParameter(GroupRole.ROLE, groupRole.getRole());
-                }
             }
 
             @SuppressWarnings("unchecked")
@@ -404,7 +404,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             relationship = result.get(0);
         }
-        
+
         Object entity = lookupRelationshipObjectById(relationship.getId());
 
         if (entity == null) {

@@ -122,10 +122,6 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         
         IdentityManager identityManager = getIdentityManager();
         
-        identityManager.revokeRole(user, someRole);
-        identityManager.revokeRole(user, someAnotherRole);
-        identityManager.revokeRole(user, someImportantRole);
-        
         IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
         
         query.setParameter(Role.ROLE_OF, new Object[] {user});

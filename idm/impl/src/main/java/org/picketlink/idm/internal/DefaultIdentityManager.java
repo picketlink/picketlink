@@ -463,11 +463,11 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeGroupRole(Agent member, Role role, Group group) {
-        GroupRole groupRole = getGroupRole(member, role, group);
+        checkIfIdentityTypeExists(member);
+        checkIfIdentityTypeExists(role);
+        checkIfIdentityTypeExists(group);
 
-        if (groupRole != null) {
-            getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(groupRole);
-        }
+        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new GroupRole(member, group, role));
     }
 
     @Override
@@ -519,11 +519,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        Grant grant = getGrant(identityType, role);
-
-        if (grant != null) {
-            getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(grant);
-        }
+        checkIfIdentityTypeExists(identityType);
+        checkIfIdentityTypeExists(role);
+        
+        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new Grant(identityType, role));
     }
 
     @Override
