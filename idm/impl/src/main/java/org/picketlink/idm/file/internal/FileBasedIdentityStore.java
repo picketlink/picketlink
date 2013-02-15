@@ -136,10 +136,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return this.context;
     }
 
-    private Partition getCurrentPartition() {
-        return getContext().getPartition();
-    }
-
     @Override
     public void add(AttributedType attributedType) {
         attributedType.setId(getContext().getIdGenerator().generate());
@@ -236,19 +232,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         configurePartition(agent);
 
         return agent;
-    }
-
-    private void configurePartition(IdentityType identityType) {
-        if (identityType != null && identityType.getPartition() != null) {
-            Partition partition = this.partitionStore.lookupById(identityType.getPartition().getId());
-
-            if (partition == null) {
-                throw new IdentityManagementException("IdentityType is associated with a non-existent partition with id ["
-                        + identityType.getPartition().getId() + "]");
-            }
-
-            identityType.setPartition(partition);
-        }
     }
 
     @Override
@@ -349,146 +332,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query) {
         return fetchQueryResults(query, false);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query, boolean matchExactGroup) {
-        List<T> result = new ArrayList<T>();
-        Class<T> relationshipType = query.getRelationshipType();
-        List<FileRelationship> relationships = getRelationshipsForCurrentPartition().get(relationshipType.getName());
-
-        if (relationships == null) {
-            return result;
-        }
-
-        for (FileRelationship storedRelationship : relationships) {
-            boolean match = false;
-
-            if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
-                Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
-
-                for (Entry<QueryParameter, Object[]> entry : parameters) {
-                    QueryParameter queryParameter = entry.getKey();
-                    Object[] values = entry.getValue();
-
-                    if (queryParameter instanceof RelationshipQueryParameter) {
-                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
-                        match = matchIdentityType(storedRelationship, query, identityTypeParameter, matchExactGroup);
-                    }
-
-                    if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && values != null) {
-                        AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
-                        Attribute<Serializable> userAttribute = storedRelationship.getEntry().getAttribute(
-                                customParameter.getName());
-
-                        Serializable userAttributeValue = null;
-
-                        if (userAttribute != null) {
-                            userAttributeValue = userAttribute.getValue();
-                        }
-
-                        if (userAttributeValue != null) {
-                            int count = values.length;
-
-                            for (Object value : values) {
-                                if (userAttributeValue.getClass().isArray()) {
-                                    Object[] userValues = (Object[]) userAttributeValue;
-
-                                    for (Object object : userValues) {
-                                        if (object.equals(value)) {
-                                            count--;
-                                        }
-                                    }
-                                } else {
-                                    if (value.equals(userAttributeValue)) {
-                                        count--;
-                                    }
-                                }
-                            }
-
-                            match = count <= 0;
-                        }
-                    }
-
-                    if (!match) {
-                        break;
-                    }
-                }
-            }
-
-            if (match) {
-                result.add((T) convertToRelationship(storedRelationship));
-            }
-        }
-
-        return result;
-    }
-
-    private boolean matchIdentityType(FileRelationship storedRelationship, RelationshipQuery<?> query,
-            RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
-        Object[] values = query.getParameter(identityTypeParameter);
-        int valuesMathCount = values.length;
-
-        IdentityType identityTypeRel = lookupIdentityTypeById(storedRelationship.getIdentityTypeId(identityTypeParameter
-                .getName()));
-
-        boolean match = false;
-
-        if (identityTypeRel != null) {
-            for (Object object : values) {
-                IdentityType identityType = (IdentityType) object;
-
-                if (identityTypeRel.getClass().isInstance(identityType)) {
-                    if (identityTypeRel.getId().equals(identityType.getId())) {
-                        valuesMathCount--;
-                    } else {
-                        if (GroupMembership.class.isInstance(storedRelationship.getEntry()) && !matchExactGroup) {
-                            if (Group.class.isInstance(identityTypeRel)) {
-                                GroupMembership groupMembership = (GroupMembership) storedRelationship.getEntry();
-                                Group groupParameter = (Group) identityType;
-
-                                if (groupParameter.getPath().contains("/" + groupMembership.getGroup().getName())) {
-                                    if (hasParentGroup(groupParameter, groupMembership.getGroup())) {
-                                        valuesMathCount--;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-
-            match = valuesMathCount <= 0;
-        }
-
-        return match;
-    }
-
-    protected boolean hasParentGroup(Group childGroup, Group parentGroup) {
-        if (childGroup.getParentGroup() != null && parentGroup != null) {
-            if (childGroup.getParentGroup().getId().equals(parentGroup.getId())) {
-                return true;
-            }
-        } else {
-            return false;
-        }
-
-        return hasParentGroup(childGroup.getParentGroup(), parentGroup);
-    }
-
-    private IdentityType lookupIdentityTypeById(String identityTypeId) {
-        IdentityQuery<IdentityType> query = new DefaultIdentityQuery<IdentityType>(IdentityType.class, this);
-
-        query.setParameter(IdentityType.ID, identityTypeId);
-
-        List<IdentityType> results = query.getResultList();
-
-        if (results.isEmpty()) {
-            return null;
-        }
-
-        return results.get(0);
     }
 
     @Override
@@ -717,6 +560,29 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         }
 
         return cloneRelationship(fileRelationship, relationshipType);
+    }
+    
+    /**
+     * <p>
+     * Returns the stored {@link Relationship} instances for the current {@link Partition}.
+     * </p>
+     * 
+     * @return
+     */
+    protected Map<String, List<FileRelationship>> getRelationshipsForCurrentPartition() {
+        return getDataSource().getRelationships();
+    }
+    
+    protected boolean hasParentGroup(Group childGroup, Group parentGroup) {
+        if (childGroup.getParentGroup() != null && parentGroup != null) {
+            if (childGroup.getParentGroup().getId().equals(parentGroup.getId())) {
+                return true;
+            }
+        } else {
+            return false;
+        }
+
+        return hasParentGroup(childGroup.getParentGroup(), parentGroup);
     }
 
     @SuppressWarnings("unchecked")
@@ -1373,7 +1239,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         getContext().getEventBridge().raiseEvent(new AgentDeletedEvent(agent));
     }
 
-    public void removeRelationships(IdentityType identityType) {
+    private void removeRelationships(IdentityType identityType) {
         Set<Entry<String, List<FileRelationship>>> allRelationships = getDataSource().getRelationships().entrySet();
 
         for (Entry<String, List<FileRelationship>> entry : allRelationships) {
@@ -1425,16 +1291,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return getDataSource().getAgents(partition);
     }
 
-    /**
-     * <p>
-     * Returns the stored {@link Relationship} instances for the current {@link Partition}.
-     * </p>
-     * 
-     * @return
-     */
-    protected Map<String, List<FileRelationship>> getRelationshipsForCurrentPartition() {
-        return getDataSource().getRelationships();
-    }
+
 
     /**
      * <p>
@@ -1458,13 +1315,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return getDataSource().getGroups(getCurrentPartition());
     }
 
-    /**
-     * <p>
-     * Returns the stored {@link Agent} instances for the given {@link Partition}.
-     * </p>
-     * 
-     * @return
-     */
     private Map<String, Agent> getAgentsForCurrentRealm() {
         return getDataSource().getAgents(getContext().getRealm());
     }
@@ -1496,6 +1346,153 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     private FileDataSource getDataSource() {
         return getConfig().getDataSource();
+    }
+
+    private void configurePartition(IdentityType identityType) {
+        if (identityType != null && identityType.getPartition() != null) {
+            Partition partition = this.partitionStore.lookupById(identityType.getPartition().getId());
+
+            if (partition == null) {
+                throw new IdentityManagementException("IdentityType is associated with a non-existent partition with id ["
+                        + identityType.getPartition().getId() + "]");
+            }
+
+            identityType.setPartition(partition);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query, boolean matchExactGroup) {
+        List<T> result = new ArrayList<T>();
+        Class<T> relationshipType = query.getRelationshipType();
+        List<FileRelationship> relationships = getRelationshipsForCurrentPartition().get(relationshipType.getName());
+
+        if (relationships == null) {
+            return result;
+        }
+
+        for (FileRelationship storedRelationship : relationships) {
+            boolean match = false;
+
+            if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
+                Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
+
+                for (Entry<QueryParameter, Object[]> entry : parameters) {
+                    QueryParameter queryParameter = entry.getKey();
+                    Object[] values = entry.getValue();
+
+                    if (queryParameter instanceof RelationshipQueryParameter) {
+                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
+                        match = matchIdentityType(storedRelationship, query, identityTypeParameter, matchExactGroup);
+                    }
+
+                    if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && values != null) {
+                        AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
+                        Attribute<Serializable> userAttribute = storedRelationship.getEntry().getAttribute(
+                                customParameter.getName());
+
+                        Serializable userAttributeValue = null;
+
+                        if (userAttribute != null) {
+                            userAttributeValue = userAttribute.getValue();
+                        }
+
+                        if (userAttributeValue != null) {
+                            int count = values.length;
+
+                            for (Object value : values) {
+                                if (userAttributeValue.getClass().isArray()) {
+                                    Object[] userValues = (Object[]) userAttributeValue;
+
+                                    for (Object object : userValues) {
+                                        if (object.equals(value)) {
+                                            count--;
+                                        }
+                                    }
+                                } else {
+                                    if (value.equals(userAttributeValue)) {
+                                        count--;
+                                    }
+                                }
+                            }
+
+                            match = count <= 0;
+                        }
+                    }
+
+                    if (!match) {
+                        break;
+                    }
+                }
+            }
+
+            if (match) {
+                result.add((T) convertToRelationship(storedRelationship));
+            }
+        }
+
+        return result;
+    }
+
+    private boolean matchIdentityType(FileRelationship storedRelationship, RelationshipQuery<?> query,
+            RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
+        Object[] values = query.getParameter(identityTypeParameter);
+        int valuesMathCount = values.length;
+
+        IdentityType identityTypeRel = lookupIdentityTypeById(storedRelationship.getIdentityTypeId(identityTypeParameter
+                .getName()));
+
+        boolean match = false;
+
+        if (identityTypeRel != null) {
+            for (Object object : values) {
+                IdentityType identityType = (IdentityType) object;
+
+                if (identityTypeRel.getClass().isInstance(identityType)) {
+                    if (identityTypeRel.getId().equals(identityType.getId())) {
+                        valuesMathCount--;
+                    } else {
+                        if (GroupMembership.class.isInstance(storedRelationship.getEntry()) && !matchExactGroup) {
+                            if (Group.class.isInstance(identityTypeRel)) {
+                                GroupMembership groupMembership = (GroupMembership) storedRelationship.getEntry();
+                                Group groupParameter = (Group) identityType;
+
+                                if (groupParameter.getPath().contains("/" + groupMembership.getGroup().getName())) {
+                                    if (hasParentGroup(groupParameter, groupMembership.getGroup())) {
+                                        valuesMathCount--;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            match = valuesMathCount <= 0;
+        }
+
+        return match;
+    }
+
+
+
+    private IdentityType lookupIdentityTypeById(String identityTypeId) {
+        IdentityQuery<IdentityType> query = new DefaultIdentityQuery<IdentityType>(IdentityType.class, this);
+
+        query.setParameter(IdentityType.ID, identityTypeId);
+
+        List<IdentityType> results = query.getResultList();
+
+        if (results.isEmpty()) {
+            return null;
+        }
+
+        return results.get(0);
+    }
+
+    private Partition getCurrentPartition() {
+        return getContext().getPartition();
     }
 
 }

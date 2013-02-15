@@ -181,11 +181,6 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    private List<Group> getParentGroups(Group group) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     public boolean matchHasGroupRole(IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_GROUP_ROLE);
 
