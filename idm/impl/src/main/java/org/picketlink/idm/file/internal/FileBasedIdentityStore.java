@@ -207,12 +207,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public void remove(AttributedType attributedType) {
-        checkNotNulId(attributedType);
-
         @SuppressWarnings("unchecked")
         Class<? extends IdentityType> attributedTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
         if (IdentityType.class.isInstance(attributedType)) {
+            checkNotNulId(attributedType);
+
             if (IDMUtil.isAgentType(attributedTypeClass)) {
                 removeAgent((Agent) attributedType);
             } else if (IDMUtil.isGroupType(attributedTypeClass)) {
@@ -270,48 +270,48 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     @Override
     public Group getGroup(String groupPath) {
         Group group = null;
-        
+
         if (groupPath != null) {
             if (groupPath.indexOf('/') == -1) {
                 groupPath = "/" + groupPath;
             }
-            
+
             group = lookupGroup(groupPath, getCurrentPartition());
-    
+
             if (group != null && group.getParentGroup() != null) {
                 String parentPath = group.getParentGroup().getPath();
-                
+
                 String childSubpath = "/" + group.getParentGroup().getName() + "/" + group.getName();
-                
+
                 parentPath = groupPath.substring(0, groupPath.indexOf(childSubpath)) + "/" + group.getParentGroup().getName();
-                
+
                 group.setParentGroup(getGroup(parentPath));
             }
         }
-        
+
         return group;
     }
 
     @Override
     public Group getGroup(String name, Group parent) {
         String path = "/" + name;
-        
+
         if (parent != null) {
             if (parent.getId() == null) {
                 throw new IdentityManagementException("No identifier specified for the parent group.");
             }
-            
+
             IdentityType identityType = lookupIdentityTypeById(parent.getId());
-            
+
             if (!Group.class.isInstance(identityType)) {
                 throw new IdentityManagementException("No parent group found with the given id [" + parent.getId() + "]");
             }
-            
+
             Group parentGroup = (Group) identityType;
-            
+
             path = parentGroup.getPath() + path;
         }
-        
+
         return getGroup(path);
     }
 
@@ -424,15 +424,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return result;
     }
 
-    private boolean matchIdentityType(FileRelationship storedRelationship, RelationshipQuery<?> query, RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
+    private boolean matchIdentityType(FileRelationship storedRelationship, RelationshipQuery<?> query,
+            RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
         Object[] values = query.getParameter(identityTypeParameter);
         int valuesMathCount = values.length;
 
-        IdentityType identityTypeRel = lookupIdentityTypeById(storedRelationship
-                .getIdentityTypeId(identityTypeParameter.getName()));
+        IdentityType identityTypeRel = lookupIdentityTypeById(storedRelationship.getIdentityTypeId(identityTypeParameter
+                .getName()));
 
         boolean match = false;
-        
+
         if (identityTypeRel != null) {
             for (Object object : values) {
                 IdentityType identityType = (IdentityType) object;
@@ -445,22 +446,22 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                             if (Group.class.isInstance(identityTypeRel)) {
                                 GroupMembership groupMembership = (GroupMembership) storedRelationship.getEntry();
                                 Group groupParameter = (Group) identityType;
-                                
+
                                 if (groupParameter.getPath().contains("/" + groupMembership.getGroup().getName())) {
                                     if (hasParentGroup(groupParameter, groupMembership.getGroup())) {
-                                        valuesMathCount--;                
+                                        valuesMathCount--;
                                     }
                                 }
                             }
                         }
                     }
-                    
+
                 }
             }
 
             match = valuesMathCount <= 0;
         }
-        
+
         return match;
     }
 
@@ -472,7 +473,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         } else {
             return false;
         }
-        
+
         return hasParentGroup(childGroup.getParentGroup(), parentGroup);
     }
 
@@ -545,7 +546,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<T> result = new ArrayList<T>();
 
         FileIdentityQueryHelper queryHelper = new FileIdentityQueryHelper(identityQuery, this);
-        
+
         for (Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
             IdentityType storedEntry = (IdentityType) iterator.next();
 
@@ -963,12 +964,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void addRelationship(Relationship relationship) {
         if (GroupMembership.class.isInstance(relationship)) {
             GroupMembership groupMembership = (GroupMembership) relationship;
-            
+
             if (checkIfExists(groupMembership)) {
                 return;
             }
         }
-        
+
         if (relationship.getId() == null) {
             relationship.setId(getContext().getIdGenerator().generate());
         }
@@ -1224,7 +1225,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      */
     private Group lookupGroup(String groupName, Partition partition) {
         Group group = getGroupsForPartition(partition).get(groupName);
-        
+
         if (group == null) {
             if (Tier.class.isInstance(partition)) {
                 Tier tier = (Tier) partition;
@@ -1249,6 +1250,45 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param relationship
      */
     private void removeRelationship(Relationship relationship) {
+        if (relationship.getId() == null) {
+            DefaultRelationshipQuery<?> query = null;
+
+            if (Grant.class.isInstance(relationship)) {
+                Grant grant = (Grant) relationship;
+
+                query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
+
+                query.setParameter(Grant.ASSIGNEE, grant.getAssignee());
+                query.setParameter(Grant.ROLE, grant.getRole());
+            } else if (GroupMembership.class.isInstance(relationship)) {
+                GroupMembership groupMembership = (GroupMembership) relationship;
+
+                query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, this);
+
+                query.setParameter(GroupMembership.MEMBER, groupMembership.getMember());
+                query.setParameter(GroupMembership.GROUP, groupMembership.getGroup());
+
+                if (GroupRole.class.isInstance(relationship)) {
+                    GroupRole groupRole = (GroupRole) groupMembership;
+
+                    query.setParameter(GroupRole.MEMBER, groupRole.getMember());
+                    query.setParameter(GroupRole.GROUP, groupRole.getGroup());
+                    query.setParameter(GroupRole.ROLE, groupRole.getRole());
+                }
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Relationship> result = (List<Relationship>) fetchQueryResults(query, true);
+
+            if (result.isEmpty()) {
+                throw new IdentityManagementException("No relationship found to remove.");
+            } else if (result.size() > 1) {
+                throw new IdentityManagementException("Ambiguos relationship found.");
+            }
+
+            relationship = result.get(0);
+        }
+        
         List<FileRelationship> relationships = getDataSource().getRelationships().get(relationship.getClass().getName());
 
         for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(relationships)) {

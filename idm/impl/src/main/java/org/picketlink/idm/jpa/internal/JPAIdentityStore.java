@@ -119,7 +119,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         this.partitionStore = new JPAPartitionStore(this);
         this.credentialStore = new JPACredentialStore(this);
-        
+
         if (this.context.getRealm() == null) {
             this.context.setRealm(getRealm(Realm.DEFAULT_REALM));
         }
@@ -331,60 +331,106 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public void remove(AttributedType value) {
         if (value instanceof IdentityType) {
-            IdentityType identityType = (IdentityType) value;
-
-            Object entity = lookupIdentityObjectById(identityType.getId());
-
-            EntityManager em = getEntityManager();
-
-            IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
-
-            handler.remove(entity, identityType, this);
-
-            // Remove credentials
-            this.credentialStore.removeCredentials(entity);
-            // Remove attributes
-            removeIdentityTypeAttributes(entity);
-            // Remove relationships
-            removeIdentityTypeRelationships(entity);
-
-            // Remove the identity object itself
-            em.remove(entity);
-            em.flush();
-
-            AbstractBaseEvent event = handler.raiseDeletedEvent(identityType);
-            event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
-            getContext().getEventBridge().raiseEvent(event);
+            removeIdentityType(value);
         } else if (value instanceof Relationship) {
             Relationship relationship = (Relationship) value;
-
-            Object entity = lookupRelationshipObjectById(relationship.getId());
-
-            if (entity == null) {
-                throw new IdentityManagementException("The specified relationship object [" + relationship.getId()
-                        + "] does not exist.");
-            }
-
-            List<?> childRelationships = findChildRelationships(relationship);
-
-            EntityManager em = getEntityManager();
-
-            for (Object object : childRelationships) {
-                em.remove(object);
-            }
-
-            Object[] attributes = relationship.getAttributes().toArray();
-
-            for (Object object : attributes) {
-                Attribute<?> attribute = (Attribute<?>) object;
-                relationship.removeAttribute(attribute.getName());
-            }
-
-            removeAttributes(relationship, entity);
-
-            em.remove(entity);
-            em.flush();
+            removeRelationship(relationship);
         }
+    }
+
+    private void removeIdentityType(AttributedType value) {
+        IdentityType identityType = (IdentityType) value;
+
+        Object entity = lookupIdentityObjectById(identityType.getId());
+
+        EntityManager em = getEntityManager();
+
+        IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
+
+        handler.remove(entity, identityType, this);
+
+        // Remove credentials
+        this.credentialStore.removeCredentials(entity);
+        // Remove attributes
+        removeIdentityTypeAttributes(entity);
+        // Remove relationships
+        removeIdentityTypeRelationships(entity);
+
+        // Remove the identity object itself
+        em.remove(entity);
+        em.flush();
+
+        AbstractBaseEvent event = handler.raiseDeletedEvent(identityType);
+        event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
+        getContext().getEventBridge().raiseEvent(event);
+    }
+
+    private void removeRelationship(Relationship relationship) {
+        if (relationship.getId() == null) {
+            DefaultRelationshipQuery<?> query = null;
+
+            if (Grant.class.isInstance(relationship)) {
+                Grant grant = (Grant) relationship;
+
+                query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
+
+                query.setParameter(Grant.ASSIGNEE, grant.getAssignee());
+                query.setParameter(Grant.ROLE, grant.getRole());
+            } else if (GroupMembership.class.isInstance(relationship)) {
+                GroupMembership groupMembership = (GroupMembership) relationship;
+
+                query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, this);
+
+                query.setParameter(GroupMembership.MEMBER, groupMembership.getMember());
+                query.setParameter(GroupMembership.GROUP, groupMembership.getGroup());
+
+                if (GroupRole.class.isInstance(relationship)) {
+                    GroupRole groupRole = (GroupRole) groupMembership;
+
+                    query.setParameter(GroupRole.MEMBER, groupRole.getMember());
+                    query.setParameter(GroupRole.GROUP, groupRole.getGroup());
+                    query.setParameter(GroupRole.ROLE, groupRole.getRole());
+                }
+            }
+
+            @SuppressWarnings("unchecked")
+            List<Relationship> result = (List<Relationship>) fetchQueryResults(query, true);
+
+            if (result.isEmpty()) {
+                throw new IdentityManagementException("No relationship found to remove.");
+            } else if (result.size() > 1) {
+                throw new IdentityManagementException("Ambiguos relationship found.");
+            }
+
+            relationship = result.get(0);
+        }
+        
+        Object entity = lookupRelationshipObjectById(relationship.getId());
+
+        if (entity == null) {
+            throw new IdentityManagementException("The specified relationship object [" + relationship.getId()
+                    + "] does not exist.");
+        }
+
+        List<?> childRelationships = findChildRelationships(relationship);
+
+        EntityManager em = getEntityManager();
+
+        for (Object object : childRelationships) {
+            em.remove(object);
+        }
+
+        Object[] attributes = relationship.getAttributes().toArray();
+
+        for (Object object : attributes) {
+            Attribute<?> attribute = (Attribute<?>) object;
+            relationship.removeAttribute(attribute.getName());
+        }
+
+        removeAttributes(relationship, entity);
+
+        em.remove(entity);
+        em.flush();
     }
 
     /**

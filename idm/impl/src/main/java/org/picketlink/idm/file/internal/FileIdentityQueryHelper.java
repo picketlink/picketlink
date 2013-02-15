@@ -94,7 +94,7 @@ public class FileIdentityQueryHelper {
             int valuesMatchCount = values.length;
 
             for (Object object : values) {
-                Agent agent = (Agent) object;
+                IdentityType agent = (IdentityType) object;
 
                 if (agent != null) {
                     for (FileRelationship storedRelationship : new ArrayList<FileRelationship>(relationships)) {

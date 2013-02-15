@@ -198,29 +198,29 @@ public class DefaultIdentityManager implements IdentityManager {
         IdentityStoreInvocationContext ctx = createContext();
 
         Realm realm = ctx.getRealm();
-        
+
         if (realm == null) {
             realm = new Realm(Realm.DEFAULT_REALM);
         }
-        
+
         Partition currentPartition = realm;
-        
+
         if (ctx.getTier() != null) {
             currentPartition = ctx.getTier();
         }
 
         if (Agent.class.isInstance(identityType)) {
             feature = Feature.createAgent;
-            
+
             Agent newAgent = (Agent) identityType;
-            
+
             if (newAgent.getLoginName() == null) {
                 throw new IdentityManagementException("No login name was provided.");
             }
 
             if (User.class.isInstance(newAgent)) {
                 feature = Feature.createUser;
-                
+
                 if (getUser(newAgent.getLoginName()) != null) {
                     throw new IdentityManagementException("User already exists with the given login name ["
                             + newAgent.getLoginName() + "] for the given Realm [" + realm.getName() + "]");
@@ -233,7 +233,7 @@ public class DefaultIdentityManager implements IdentityManager {
             }
         } else if (Group.class.isInstance(identityType)) {
             Group newGroup = (Group) identityType;
-            
+
             if (newGroup.getName() == null) {
                 throw new IdentityManagementException("No name was provided.");
             }
@@ -246,14 +246,15 @@ public class DefaultIdentityManager implements IdentityManager {
             if (newGroup.getParentGroup() != null) {
                 if (lookupIdentityById(Group.class, newGroup.getParentGroup().getId()) == null) {
                     throw new IdentityManagementException("No parent group found with the given id ["
-                            + newGroup.getParentGroup().getId() + "] for the given Partition [" + currentPartition.getName() + "].");
+                            + newGroup.getParentGroup().getId() + "] for the given Partition [" + currentPartition.getName()
+                            + "].");
                 }
             }
-            
+
             feature = Feature.createGroup;
         } else if (Role.class.isInstance(identityType)) {
             Role newRole = (Role) identityType;
-            
+
             if (newRole.getName() == null) {
                 throw new IdentityManagementException("No name was provided.");
             }
@@ -333,7 +334,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
             throw new IdentityManagementException("No IdentityType found with the given id [" + identityType.getId() + "].");
         }
-        
+
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();
@@ -386,7 +387,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (name == null) {
             return null;
         }
-        
+
         IdentityStoreInvocationContext ctx = createContext();
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(name);
     }
@@ -396,18 +397,18 @@ public class DefaultIdentityManager implements IdentityManager {
         if (name == null || parent == null) {
             return null;
         }
-        
+
         if (lookupIdentityById(Group.class, parent.getId()) == null) {
             throw new IdentityManagementException("No parent group found with the given id [" + parent.getId() + "]");
         }
-        
+
         IdentityStoreInvocationContext ctx = createContext();
-        
+
         if (ctx.getRealm() != null && ctx.getTier() != null) {
             throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the "
                     + "scope of a Realm or a Tier, however both have been set.");
         }
-        
+
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(name, parent);
     }
 
@@ -432,11 +433,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
-        GroupMembership groupMembership = getGroupMembership(member, group);
-
-        if (groupMembership != null) {
-            getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(groupMembership);
-        }
+        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new GroupMembership(member, group));
     }
 
     @Override
@@ -502,19 +499,19 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!(Agent.class.isInstance(identityType) || Group.class.isInstance(identityType))) {
             throw new IdentityManagementException("Only Agent and Group types are supported for this relationship type.");
         }
-        
+
         if (lookupIdentityById(IdentityType.class, identityType.getId()) == null) {
             throw new IdentityManagementException("No IdentityType found with the given id [" + identityType.getId() + "]");
         }
-        
+
         if (role == null) {
             throw new IdentityManagementException("You must assign a role for this relationship type.");
         }
-        
+
         if (lookupIdentityById(Role.class, role.getId()) == null) {
             throw new IdentityManagementException("No Role was found with the given id [" + role.getId() + "]");
         }
-        
+
         if (getGrant(identityType, role) == null) {
             add(new Grant(identityType, role));
         }
@@ -762,7 +759,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
         return context;
     }
-    
+
     private IdentityStoreInvocationContext createPartitionContext() {
         return this.contextFactory.createContext();
     }
