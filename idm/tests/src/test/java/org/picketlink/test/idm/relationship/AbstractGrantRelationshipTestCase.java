@@ -26,6 +26,7 @@ import java.util.List;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.IdentityQuery;
@@ -38,19 +39,11 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class AgentRolesRelationshipTestCase<T extends Agent> extends AbstractIdentityManagerTestCase {
+public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> extends AbstractIdentityManagerTestCase {
     
-    protected T createIdentityType(String name, Partition partition) {
-        if (name == null) {
-            name = "someAgent";
-        }
-        
-        return (T) createAgent(name, partition);
-    }
+    protected abstract T createIdentityType(String name, Partition partition);
 
-    protected T getIdentityType() {
-        return (T) getIdentityManager().getAgent("someAgent");
-    }
+    protected abstract T getIdentityType();
     
     /**
      * <p>

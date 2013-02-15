@@ -137,14 +137,14 @@ public class LDAPQuery {
     private String createRoleOfFilter() {
         if (identityQuery.getParameters().containsKey(User.ROLE_OF)) {
             Object[] values = identityQuery.getParameters().get(Role.ROLE_OF);
-            Agent[] agents = new Agent[values.length];
+            IdentityType[] identityTypes = new IdentityType[values.length];
 
             for (int j = 0; j < values.length; j++) {
                 Object value = values[j];
-                agents[j] = (Agent) value;
+                identityTypes[j] = (IdentityType) value;
             }
 
-            return createMembersFilter(agents, getConfig().getRoleDNSuffix());
+            return createMembersFilter(identityTypes, getConfig().getRoleDNSuffix());
         }
         return "";
     }
@@ -255,20 +255,19 @@ public class LDAPQuery {
         
         for (IdentityType identityType : members) {
             if (identityType != null) {
-                if (Agent.class.isInstance(identityType)) {
-                    LDAPAgent ldapAgent = this.identityStore.lookupAgent((Agent) identityType);
+                LDAPEntry ldapEntry = null;
+                
+                try {
+                    ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(identityType);
+                } catch (IdentityManagementException ime) {
+                    return membersFilter;
+                }
 
-                    if (ldapAgent != null) {
-                        membersFilter = membersFilter + "(member=" + ldapAgent.getDN() + ")";
-                    }
-                } else if (Group.class.isInstance(identityType)) {
-                    Group group = (Group) identityType;
-                    LDAPGroup ldapGroup = this.identityStore.lookupGroup(group.getPath());
+                if (ldapEntry != null) {
+                    membersFilter = membersFilter + "(member=" + ldapEntry.getDN() + ")";
+                }
 
-                    if (ldapGroup != null) {
-                        membersFilter = membersFilter + "(member=" + ldapGroup.getDN() + ")";
-                    }
-                    
+                if (Group.class.isInstance(identityType)) {
                     isGroupMember = true;
                 }
             }

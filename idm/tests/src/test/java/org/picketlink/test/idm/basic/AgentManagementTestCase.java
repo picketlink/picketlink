@@ -154,12 +154,12 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
     @Override
     protected Agent getIdentityType() {
-        return getIdentityManager().getAgent("someAgent");
+        return getIdentityManager().getAgent("someSimpleAgent");
     }
 
     @Override
     protected Agent createIdentityType() {
-        return createAgent("someAgent");
+        return createAgent("someSimpleAgent");
     }
 
 }

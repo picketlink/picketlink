@@ -383,17 +383,31 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Group getGroup(String name) {
+        if (name == null) {
+            return null;
+        }
+        
         IdentityStoreInvocationContext ctx = createContext();
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(name);
     }
 
     @Override
     public Group getGroup(String name, Group parent) {
+        if (name == null || parent == null) {
+            return null;
+        }
+        
+        if (lookupIdentityById(Group.class, parent.getId()) == null) {
+            throw new IdentityManagementException("No parent group found with the given id [" + parent.getId() + "]");
+        }
+        
         IdentityStoreInvocationContext ctx = createContext();
+        
         if (ctx.getRealm() != null && ctx.getTier() != null) {
             throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the "
                     + "scope of a Realm or a Tier, however both have been set.");
         }
+        
         return getContextualStoreForFeature(ctx, Feature.readGroup).getGroup(name, parent);
     }
 
@@ -485,6 +499,22 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
+        if (!(Agent.class.isInstance(identityType) || Group.class.isInstance(identityType))) {
+            throw new IdentityManagementException("Only Agent and Group types are supported for this relationship type.");
+        }
+        
+        if (lookupIdentityById(IdentityType.class, identityType.getId()) == null) {
+            throw new IdentityManagementException("No IdentityType found with the given id [" + identityType.getId() + "]");
+        }
+        
+        if (role == null) {
+            throw new IdentityManagementException("You must assign a role for this relationship type.");
+        }
+        
+        if (lookupIdentityById(Role.class, role.getId()) == null) {
+            throw new IdentityManagementException("No Role was found with the given id [" + role.getId() + "]");
+        }
+        
         if (getGrant(identityType, role) == null) {
             add(new Grant(identityType, role));
         }

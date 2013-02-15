@@ -51,7 +51,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
     protected T createIdentityType(String name, Partition partition) {
         if (name == null) {
-            name = "someAgent";
+            name = "someSimpleAgent";
         }
         
         return (T) createAgent(name, partition);
@@ -59,7 +59,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     
     @Override
     protected T getIdentityType() {
-        return (T) getIdentityManager().getAgent("someAgent");
+        return (T) getIdentityManager().getAgent("someSimpleAgent");
     }
     
     @After
@@ -77,13 +77,13 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
     @Test
     public void testFindByLoginName() throws Exception {
-        T agentType = createIdentityType("someAgent", null);
+        T agentType = createIdentityType(null, null);
 
         IdentityManager identityManager = getIdentityManager();
 
         IdentityQuery<T> query = identityManager.<T> createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.LOGIN_NAME, "someAgent");
+        query.setParameter(Agent.LOGIN_NAME, agentType.getLoginName());
 
         List<T> result = query.getResultList();
 

@@ -111,22 +111,16 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         
         Group groupA = createGroup("QA Group", null);
         
-        Group groupB = new SimpleGroup("groupB", groupA);
+        Group groupB = createGroupWithParent("groupB", groupA);
         
-        identityManager.add(groupB);
+        Group groupC = createGroupWithParent("groupC", groupB);
         
-        Group groupC = new SimpleGroup("groupC", groupB);
-        
-        identityManager.add(groupC);
-        
-        Group groupD = new SimpleGroup("groupD", groupC);
-        
-        identityManager.add(groupD);
+        Group groupD = createGroupWithParent("groupD", groupC);
         
         Group storedGroupD = identityManager.getGroup("/QA Group/groupB/groupC/groupD");
         
         assertNotNull(storedGroupD);
-        
+        assertEquals(storedGroupD.getId(), groupD.getId());
         assertNotNull(storedGroupD.getParentGroup());
         assertEquals(storedGroupD.getParentGroup().getId(), groupC.getId());
         
@@ -141,21 +135,13 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     public void testGetGroupPath() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Group groupA = new SimpleGroup("groupA");
+        Group groupA = createGroup("groupA", null);
         
-        identityManager.add(groupA);
+        Group groupB = createGroupWithParent("groupB", groupA);
         
-        Group groupB = new SimpleGroup("groupB", groupA);
+        Group groupC = createGroupWithParent("groupC", groupB);
         
-        identityManager.add(groupB);
-        
-        Group groupC = new SimpleGroup("groupC", groupB);
-        
-        identityManager.add(groupC);
-        
-        Group groupD = new SimpleGroup("groupD", groupC);
-        
-        identityManager.add(groupD);
+        Group groupD = createGroupWithParent("groupD", groupC);
         
         Group storedGroupD = identityManager.getGroup("/groupA/groupB/groupC/groupD");
         

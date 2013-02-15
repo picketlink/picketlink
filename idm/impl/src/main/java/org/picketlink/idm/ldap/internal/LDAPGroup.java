@@ -96,7 +96,7 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
         return parent;
     }
 
-    public void addChildGroup(LDAPGroup childGroup) {
+    public void addMember(LDAPGroup childGroup) {
         Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
         
         if (memberAttribute == null) {

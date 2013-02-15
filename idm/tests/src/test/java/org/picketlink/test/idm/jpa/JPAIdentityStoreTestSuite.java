@@ -55,13 +55,14 @@ import org.picketlink.test.idm.query.AgentQueryTestCase;
 import org.picketlink.test.idm.query.GroupQueryTestCase;
 import org.picketlink.test.idm.query.RoleQueryTestCase;
 import org.picketlink.test.idm.query.UserQueryTestCase;
+import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
-import org.picketlink.test.idm.relationship.AgentRolesRelationshipTestCase;
 import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
+import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
+import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.relationship.UserRolesRelationshipTestCase;
 import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**
@@ -77,7 +78,7 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 @SuiteClasses({ CustomRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
     ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
     RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
-    UserRolesRelationshipTestCase.class, AgentRolesRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
+    UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class,
     AgentGroupRoleRelationshipTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, UserQueryTestCase.class,
     AgentQueryTestCase.class, PasswordCredentialTestCase.class, CertificateCredentialTestCase.class, DigestCredentialTestCase.class })
 public class JPAIdentityStoreTestSuite implements TestLifecycle {

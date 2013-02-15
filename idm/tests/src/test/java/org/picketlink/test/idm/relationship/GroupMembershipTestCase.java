@@ -30,7 +30,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
-import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -151,17 +150,11 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         // group testing path is /a/b 
         assertFalse(identityManager.isMember(someUser, groupB));
         
-        groupA = new SimpleGroup("a");
+        groupA = createGroup("a", null);
         
-        identityManager.add(groupA);
+        groupB = createGroupWithParent("b", groupA);
         
-        groupB = new SimpleGroup("b", groupA);
-        
-        identityManager.add(groupB);
-        
-        Group groupC = new SimpleGroup("c", groupB);
-        
-        identityManager.add(groupC);
+        Group groupC = createGroupWithParent("c", groupB);
         
         identityManager.addToGroup(someUser, groupA);
         
@@ -174,36 +167,18 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         identityManager.remove(groupB);
         identityManager.remove(groupA);
 
-        groupA = new SimpleGroup("a");
+        groupA = createGroup("a", null);
         
-        identityManager.add(groupA);
+        groupB = createGroupWithParent("b", groupA);
         
-        groupB = new SimpleGroup("b", groupA);
+        groupC = createGroupWithParent("c", groupB);
         
-        identityManager.add(groupB);
+        Group groupD = createGroupWithParent("d", groupC);
         
-        groupC = new SimpleGroup("c", groupB);
-        
-        identityManager.add(groupC);
-        
-        Group groupD = new SimpleGroup("d", groupC);
-        
-        identityManager.add(groupD);
-        
-        Group qaGroup = identityManager.getGroup("QA Group");
+        Group qaGroup = createGroupWithParent("QA Group", groupC);
                 
-        if (qaGroup != null) {
-            identityManager.remove(qaGroup);
-        }
+        Group anotherGroupB = createGroupWithParent("b", qaGroup);
         
-        qaGroup = new SimpleGroup("QA Group", groupC);
-        
-        identityManager.add(qaGroup);
-
-        Group anotherGroupB = new SimpleGroup("b", qaGroup);
-        
-        identityManager.add(anotherGroupB);
-
         // group testing paths are: /a/b/c/QA Group/b and /a/b/c/d
         identityManager.addToGroup(someUser, anotherGroupB);
 
