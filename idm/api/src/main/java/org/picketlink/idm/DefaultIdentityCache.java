@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
@@ -35,11 +36,12 @@ import org.picketlink.idm.model.User;
 public class DefaultIdentityCache implements IdentityCache {
 
     private Map<Partition, Map<String, Agent>> agentsCache = new HashMap<Partition, Map<String, Agent>>();
+    private Map<Partition, Map<String, Role>> rolesCache = new HashMap<Partition, Map<String, Role>>();
+    private Map<Partition, Map<String, Group>> groupsCache = new HashMap<Partition, Map<String, Group>>();
     
     @Override
     public User lookupUser(Realm realm, String loginName) {
-        Map<String, Agent> agents = agentsCache.get(realm);
-        Agent agent = agents.get(loginName);
+        Agent agent = lookupAgent(realm, loginName);
         
         if (User.class.isInstance(agent)) {
             return (User) agent;
@@ -49,50 +51,86 @@ public class DefaultIdentityCache implements IdentityCache {
     }
 
     @Override
-    public Group lookupGroup(Partition partition, String groupId) {
-        // TODO Auto-generated method stub
-        return null;
+    public Group lookupGroup(Partition partition, String groupPath) {
+        return getGroups(partition).get(groupPath);
     }
 
     @Override
     public Role lookupRole(Partition partition, String name) {
-        // TODO Auto-generated method stub
-        return null;
+        return getRoles(partition).get(name);
     }
 
     @Override
     public void putUser(Realm realm, User user) {
-        Map<String, Agent> agents = agentsCache.get(realm);
-        
-        if (agents == null) {
-            agents = new HashMap<String, Agent>();
-            
-            agents.put(user.getLoginName(), user);
-        }
-        
-        agentsCache.put(realm, agents);
+        putAgent(realm, user);
     }
 
     @Override
     public void putGroup(Partition partition, Group group) {
-        // TODO Auto-generated method stub
-        
+        getGroups(partition).get(group.getPath());
     }
 
     @Override
     public void putRole(Partition partition, Role role) {
-        // TODO Auto-generated method stub
-        
+        getRoles(partition).put(role.getName(), role);
     }
 
     @Override
-    public Agent lookupAgent(Realm realm, String id) {
-        return null;
+    public Agent lookupAgent(Realm realm, String loginName) {
+        return getAgents(realm).get(loginName);
     }
 
     @Override
     public void putAgent(Realm realm, Agent agent) {
-        
+        getAgents(realm).get(agent.getLoginName());
     }
 
+    @Override
+    public void invalidate(Partition partition, IdentityType identityType) {
+        if (Agent.class.isInstance(identityType)) {
+            Agent agent = (Agent) identityType;
+            getAgents((Realm) partition).remove(agent.getLoginName());
+        } else if (Role.class.isInstance(identityType)) {
+            Role role = (Role) identityType;
+            getRoles(partition).remove(role.getName());
+        } else if (Group.class.isInstance(identityType)) {
+            Group group = (Group) identityType;
+            getGroups(partition).remove(group.getPath());
+        }
+    }
+    
+    private Map<String, Agent> getAgents(Realm realm) {
+        Map<String, Agent> agents = this.agentsCache.get(realm);
+        
+        if (agents == null) {
+            agents = new HashMap<String, Agent>();
+            this.agentsCache.put(realm, agents);
+        }
+        
+        return agents;
+    }
+    
+    private Map<String, Role> getRoles(Partition partition) {
+        Map<String, Role> roles = this.rolesCache.get(partition);
+        
+        if (roles == null) {
+            roles = new HashMap<String, Role>();
+            this.rolesCache.put(partition, roles);
+        }
+        
+        return roles;
+    }
+ 
+    private Map<String, Group> getGroups(Partition partition) {
+        Map<String, Group> groups = this.groupsCache.get(partition);
+        
+        if (groups == null) {
+            groups = new HashMap<String, Group>();
+            this.groupsCache.put(partition, groups);
+        }
+        
+        return groups;
+    }
+ 
+ 
 }
