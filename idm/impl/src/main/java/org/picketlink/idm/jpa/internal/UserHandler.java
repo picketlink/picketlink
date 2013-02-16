@@ -48,12 +48,12 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
+        setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
+        setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
+        setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
+        setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
     }
 
     @Override

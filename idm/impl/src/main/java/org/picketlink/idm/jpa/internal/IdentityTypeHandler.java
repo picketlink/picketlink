@@ -112,9 +112,13 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         try {
             identity = getConfig().getIdentityClass().newInstance();
-            String id = store.getContext().getIdGenerator().generate();
-            getConfig().getModelProperty(PropertyType.IDENTITY_ID).setValue(identity, id);
-            fromIdentityType.setId(id);
+            
+            String newGeneratedId = store.getContext().getIdGenerator().generate();
+            
+            setModelPropertyValue(identity, PropertyType.IDENTITY_ID, newGeneratedId, true);
+            
+            fromIdentityType.setId(newGeneratedId);
+            
             populateEntity(identity, fromIdentityType, store);
         } catch (Exception e) {
             throw new IdentityManagementException("Error creating/populating Identity instance from IdentityType.", e);
@@ -136,10 +140,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         // populate the common properties from IdentityType
         String identityDiscriminator = getConfig().getIdentityDiscriminator(fromIdentityType.getClass());
 
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());
 
         doPopulateIdentityInstance(toIdentity, fromIdentityType, store);
     }
@@ -252,9 +256,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType);
 
-    public void validate(T identityType, JPAIdentityStore store) {
 
-    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void findByAttributes(JPACriteriaQueryBuilder criteria, List<Predicate> predicates) {
@@ -557,6 +559,14 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     
     protected JPAIdentityStoreConfiguration getConfig() {
         return this.config;
+    }
+    
+    protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value, boolean notNull) {
+        getConfig().setModelPropertyValue(identity, propertyType, value, notNull);
+    }
+    
+    protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value) {
+        getConfig().setModelPropertyValue(identity, propertyType, value);
     }
 
     protected Map<QueryParameter, PropertyType> getSortParametersMapping() {

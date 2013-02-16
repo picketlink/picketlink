@@ -141,34 +141,36 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         attributedType.setId(getContext().getIdGenerator().generate());
 
         if (IdentityType.class.isInstance(attributedType)) {
-            @SuppressWarnings("unchecked")
-            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
-
-            if (IDMUtil.isAgentType(identityTypeClass)) {
-                Agent agent = (Agent) attributedType;
-
-                if (IDMUtil.isUserType(identityTypeClass)) {
-                    addUser((User) agent);
+            try {
+                @SuppressWarnings("unchecked")
+                Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
+                
+                if (IDMUtil.isAgentType(identityTypeClass)) {
+                    Agent agent = (Agent) attributedType;
+                    
+                    if (IDMUtil.isUserType(identityTypeClass)) {
+                        addUser((User) agent);
+                    } else {
+                        addAgent(agent);
+                    }
+                } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                    addGroup((Group) attributedType);
+                } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                    addRole((Role) attributedType);
                 } else {
-                    addAgent(agent);
+                    throw createUnsupportedIdentityTypeException(identityTypeClass);
                 }
-            } else if (IDMUtil.isGroupType(identityTypeClass)) {
-                addGroup((Group) attributedType);
-            } else if (IDMUtil.isRoleType(identityTypeClass)) {
-                addRole((Role) attributedType);
-            } else {
-                throw createUnsupportedIdentityTypeException(identityTypeClass);
+            } catch (Exception e) {
+                throw new IdentityManagementException("Exception while creating IdentityType [" + attributedType + "].", e);
             }
+            
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            addRelationship(relationship);
-
-            if (GroupRole.class.isInstance(relationship)) {
-                GroupRole groupRole = (GroupRole) relationship;
-
-                addRelationship(new Grant(groupRole.getMember(), groupRole.getRole()));
-                addRelationship(new GroupMembership(groupRole.getMember(), groupRole.getGroup()));
+            try {
+                addRelationship(relationship);                
+            } catch (Exception e) {
+                throw new IdentityManagementException("Exception while creating Relationship [" + relationship + "].", e);
             }
         } else {
             throw createUnsupportedAttributedType(attributedType.getClass());

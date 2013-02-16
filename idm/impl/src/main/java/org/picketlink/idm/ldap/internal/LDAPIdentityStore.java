@@ -219,7 +219,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     GroupRole groupRole = (GroupRole) groupMembership;
 
                     removeGroupRoleRelationship(groupRole);
-                    removeGrantRelationship(new Grant(groupRole.getMember(), groupRole.getRole()));
                 }
             }
 
@@ -1301,8 +1300,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         }
 
         addMember(groupRoleEntry, roleEntry);
-        addGrantRelationship(new Grant(groupRole.getMember(), groupRole.getRole()));
-        addGroupMembership(new GroupMembership(groupRole.getMember(), groupRole.getGroup()));
     }
 
     private void addGroupMembership(GroupMembership groupMembership) {

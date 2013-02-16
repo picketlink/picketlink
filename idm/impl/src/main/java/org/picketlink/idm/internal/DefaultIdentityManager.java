@@ -193,6 +193,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void add(IdentityType identityType) {
+        if (identityType == null) {
+            throw new IdentityManagementException("You can not add a null IdentityType instance.");
+        }
+        
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();
@@ -327,14 +331,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void remove(IdentityType identityType) {
-        if (identityType.getId() == null) {
-            throw new IdentityManagementException("No identifier provided.");
-        }
-
-        if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
-            throw new IdentityManagementException("No IdentityType found with the given id [" + identityType.getId() + "].");
-        }
-
+        checkIfIdentityTypeExists(identityType);
+        
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();

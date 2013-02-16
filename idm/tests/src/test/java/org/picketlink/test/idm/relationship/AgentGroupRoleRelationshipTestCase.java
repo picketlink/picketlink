@@ -94,14 +94,6 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
 
         assertFalse(identityManager.hasGroupRole(developerAgent, managerRole, projectGroup));
         assertFalse(identityManager.hasGroupRole(projectManagerAgent, developerRole, projectGroup));
-        
-        assertTrue(identityManager.hasRole(developerAgent, developerRole));
-        assertTrue(identityManager.isMember(developerAgent, projectGroup));
-        assertFalse(identityManager.hasRole(developerAgent, managerRole));
-        
-        assertTrue(identityManager.hasRole(projectManagerAgent, managerRole));
-        assertTrue(identityManager.isMember(projectManagerAgent, projectGroup));
-        assertFalse(identityManager.hasRole(projectManagerAgent, developerRole));
     }
 
     @Test

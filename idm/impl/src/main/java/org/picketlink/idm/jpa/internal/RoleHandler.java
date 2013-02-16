@@ -50,9 +50,9 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
                 store.lookupPartitionObject(store.getCurrentPartition()), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 
     @Override

@@ -56,10 +56,10 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Group fromGroup, JPAIdentityStore store) {
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
                 store.lookupPartitionObject(store.getCurrentPartition()), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.GROUP_PATH, fromGroup.getPath(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
+        setModelPropertyValue(toIdentity, PropertyType.GROUP_PATH, fromGroup.getPath(), true);
 
         if (fromGroup.getParentGroup() != null) {
             Object parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
@@ -68,7 +68,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                 parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
             }
 
-            getConfig().setModelPropertyValue(toIdentity, PropertyType.GROUP_PARENT, parentIdentity, true);
+            setModelPropertyValue(toIdentity, PropertyType.GROUP_PARENT, parentIdentity, true);
         }
     }
 
