@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.test.idm;
+package org.picketlink.test.idm.basic;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -34,6 +34,7 @@ import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
  * <p>
