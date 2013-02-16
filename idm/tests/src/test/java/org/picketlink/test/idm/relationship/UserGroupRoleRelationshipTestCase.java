@@ -30,7 +30,7 @@ import org.picketlink.idm.model.User;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class UserGroupRoleRelationshipTestCase extends AgentGroupsRelationshipTestCase<User>{
+public class UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshipTestCase<User>{
 
     @Override
     protected User createIdentityType(String name, Partition partition) {

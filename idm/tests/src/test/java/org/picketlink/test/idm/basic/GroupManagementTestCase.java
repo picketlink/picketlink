@@ -37,7 +37,6 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
@@ -259,6 +258,18 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     @Override
     protected Group getIdentityType() {
         return getIdentityManager().getGroup("Test Group", getGroup("Test Parent Group"));
+    }
+
+    @Test
+    public void testEqualsMethod() {
+        Group instanceA = createGroup("groupA");
+        Group instanceB = createGroup("groupB");
+        
+        assertFalse(instanceA.equals(instanceB));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        assertTrue(instanceA.equals(identityManager.getGroup(instanceA.getPath())));
     }
 
 }

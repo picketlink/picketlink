@@ -35,7 +35,6 @@ import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
@@ -111,6 +110,18 @@ public class RoleManagementTestCase extends AbstractIdentityTypeTestCase<Role> {
         relationshipQuery.setParameter(GroupRole.ROLE, role);
 
         assertTrue(relationshipQuery.getResultList().isEmpty());
+    }
+
+    @Test
+    public void testEqualsMethod() {
+        Role instanceA = createRole("roleA");
+        Role instanceB = createRole("roleB");
+        
+        assertFalse(instanceA.equals(instanceB));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        assertTrue(instanceA.equals(identityManager.getRole(instanceA.getName())));
     }
 
     @Override

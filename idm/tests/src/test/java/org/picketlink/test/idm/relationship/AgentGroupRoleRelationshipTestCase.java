@@ -28,8 +28,6 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
 /**
@@ -94,27 +92,23 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
 
         assertFalse(identityManager.hasGroupRole(developerAgent, managerRole, projectGroup));
         assertFalse(identityManager.hasGroupRole(projectManagerAgent, developerRole, projectGroup));
+        
+        assertFalse(identityManager.isMember(developerAgent, projectGroup));
+        assertFalse(identityManager.isMember(developerAgent, companyGroup));
+        assertFalse(identityManager.hasRole(developerAgent, employeeRole));
     }
 
     @Test
     public void testGrantParentGroupRole() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Group administratorsGroup = new SimpleGroup("Administrators");
+        Group administratorsGroup = createGroup("Administrators", null);
         
-        identityManager.add(administratorsGroup);
+        Group systemAdministradorsGroup = createGroupWithParent("System Administrators", administratorsGroup);
         
-        Group systemAdministradorsGroup = new SimpleGroup("System Administrators", administratorsGroup);
+        Group databaseAdministratorsGroup = createGroupWithParent("Database Administrators", systemAdministradorsGroup);
         
-        identityManager.add(systemAdministradorsGroup);
-        
-        Group databaseAdministratorsGroup = new SimpleGroup("Database Administrators", systemAdministradorsGroup);
-        
-        identityManager.add(databaseAdministratorsGroup);
-        
-        Role managerRole = new SimpleRole("Administrators Manager");
-        
-        identityManager.add(managerRole);
+        Role managerRole = createRole("Administrators Manager");
         
         T agent = createIdentityType("agent", null);
         
@@ -124,9 +118,7 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
         assertTrue(identityManager.hasGroupRole(agent, managerRole, databaseAdministratorsGroup));
         assertTrue(identityManager.hasGroupRole(agent, managerRole, systemAdministradorsGroup));
         
-        Role securityManager = new SimpleRole("Data Security Manager");
-        
-        identityManager.add(securityManager);
+        Role securityManager = createRole("Data Security Manager");
         
         identityManager.grantGroupRole(agent, securityManager, databaseAdministratorsGroup);
 
