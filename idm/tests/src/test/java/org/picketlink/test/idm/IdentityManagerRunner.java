@@ -89,6 +89,8 @@ public class IdentityManagerRunner extends Suite {
                     
                     if (!isExcludedSuite(suiteClass, method)) {
                         super.runChild(method, notifier);    
+                    } else {
+                        notifier.fireTestIgnored(getDescription());
                     }
                     
                     lifecycle.onDestroy();
