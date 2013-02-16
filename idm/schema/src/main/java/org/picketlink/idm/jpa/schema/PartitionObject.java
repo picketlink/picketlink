@@ -22,6 +22,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 
+import org.picketlink.idm.jpa.annotations.EntityType;
+import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 
@@ -30,6 +32,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  * 
  */
 @Entity
+@IDMEntity(EntityType.PARTITION)
 public class PartitionObject {
 
     @Id

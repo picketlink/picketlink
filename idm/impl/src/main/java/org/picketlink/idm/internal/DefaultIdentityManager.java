@@ -702,7 +702,11 @@ public class DefaultIdentityManager implements IdentityManager {
         String realm = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
 
         if (!realmStores.containsKey(realm)) {
-            throw new SecurityException("The specified realm '" + realm + "' has not been configured.");
+            if (realmStores.isEmpty()) {
+                throw new SecurityException("No identity stores have been configured.");
+            } else {
+                throw new SecurityException("The specified realm '" + realm + "' has not been configured.");
+            }
         }
 
         IdentityStoreConfiguration config = null;

@@ -1,1 +1,2 @@
 org.picketlink.permission.internal.JPAPermissionStoreConfig
+org.picketlink.internal.JPAIdentityStoreAutoConfig

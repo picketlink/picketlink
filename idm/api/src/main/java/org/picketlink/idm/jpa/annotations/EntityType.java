@@ -35,11 +35,11 @@ public enum EntityType {
     /**
      * 
      */
-    IDENTITY_ATTRIBUTE,
+    CREDENTIAL_ATTRIBUTE,
     /**
      * 
      */
-    IDENTITY_ROLE_NAME, 
+    IDENTITY_ATTRIBUTE,
     /**
      * 
      */
@@ -51,5 +51,9 @@ public enum EntityType {
     /**
      * 
      */
-    RELATIONSHIP_ATTRIBUTE
+    RELATIONSHIP_ATTRIBUTE,
+    /**
+     * 
+     */
+    PARTITION
 }

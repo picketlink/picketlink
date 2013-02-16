@@ -27,6 +27,7 @@ import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.DefaultIdentityCache;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdGenerator;
@@ -65,7 +66,10 @@ public class EEIdentityStoreInvocationContextFactory implements IdentityStoreInv
     @Override
     public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore<?> store) {
         if (store instanceof JPAIdentityStore) {
-            if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
+            if (entityManagerInstance.isUnsatisfied()) {
+                throw new SecurityConfigurationException("To use JPAIdentityStore you must provide an EntityManager producer method " +
+                        "qualified with @org.picketlink.annotations.PicketLink.");
+            } else if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, entityManagerInstance.get());
             }
         }
