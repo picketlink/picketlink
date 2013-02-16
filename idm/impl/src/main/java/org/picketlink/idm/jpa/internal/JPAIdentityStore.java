@@ -332,8 +332,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     }
 
-
-
     @Override
     public void remove(AttributedType attributedType) {
         if (attributedType instanceof IdentityType) {
