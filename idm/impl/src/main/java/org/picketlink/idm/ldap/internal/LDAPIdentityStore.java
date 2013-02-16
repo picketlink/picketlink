@@ -137,15 +137,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             if (Grant.class.isInstance(relationship)) {
                 Grant grant = (Grant) relationship;
                 addGrantRelationship(grant);
+            } else if (GroupRole.class.isInstance(relationship)) {
+                GroupRole groupRole = (GroupRole) relationship;
+                addGroupRoleRelationship(groupRole);
             } else if (GroupMembership.class.isInstance(relationship)) {
                 GroupMembership groupMembership = (GroupMembership) relationship;
-
                 addGroupMembership(groupMembership);
-
-                if (GroupRole.class.isInstance(relationship)) {
-                    GroupRole groupRole = (GroupRole) relationship;
-                    addGroupRoleRelationship(groupRole);
-                }
             } else {
                 throw createUnsupportedRelationshipType(relationship.getClass());
             }
@@ -176,6 +173,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             } else {
                 throw createUnsupportedIdentityTypeException(identityType.getClass());
             }
+
+            cacheIdentityType(identityType);
         } else {
             throw createUnsupportedAttributedType(attributedType.getClass());
         }
@@ -205,23 +204,24 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             }
 
             getLDAPManager().removeEntryById(baseDN, identityType.getId());
+
+            invalidateCache(identityType);
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
             if (Grant.class.isInstance(relationship)) {
                 removeGrantRelationship((Grant) relationship);
+            } else if (GroupRole.class.isInstance(relationship)) {
+                GroupRole groupRole = (GroupRole) relationship;
+
+                removeGroupRoleRelationship(groupRole);
             } else if (GroupMembership.class.isInstance(relationship)) {
                 GroupMembership groupMembership = (GroupMembership) relationship;
 
                 removeGroupMembership(groupMembership);
-
-                if (GroupRole.class.isInstance(groupMembership)) {
-                    GroupRole groupRole = (GroupRole) groupMembership;
-
-                    removeGroupRoleRelationship(groupRole);
-                }
+            } else {
+                throw createUnsupportedRelationshipType(relationship.getClass());
             }
-
         }
     }
 
@@ -230,16 +230,24 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         Agent agent = null;
 
         if (loginName != null) {
-            LDAPAgent ldapAgent = lookupAgent(loginName);
+            agent = getContext().getCache().lookupAgent(getContext().getRealm(), loginName);
 
-            if (ldapAgent == null) {
-                agent = getUser(loginName);
-            } else {
-                agent = new SimpleAgent(ldapAgent.getLoginName());
+            if (agent == null) {
+                LDAPAgent ldapAgent = lookupAgent(loginName);
 
-                agent.setLoginName(ldapAgent.getLoginName());
+                if (ldapAgent == null) {
+                    agent = getUser(loginName);
+                } else {
+                    agent = new SimpleAgent(ldapAgent.getLoginName());
 
-                populateIdentityType(ldapAgent, agent);
+                    agent.setLoginName(ldapAgent.getLoginName());
+
+                    populateIdentityType(ldapAgent, agent);
+                }
+                
+                if (agent != null) {
+                    cacheIdentityType(agent);
+                }
             }
         }
 
@@ -248,24 +256,30 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public User getUser(String loginName) {
+        User user = null;
+
         if (loginName != null) {
-            LDAPUser ldapUser = lookupUser(loginName);
+            user = getContext().getCache().lookupUser(getContext().getRealm(), loginName);
 
-            if (ldapUser != null) {
-                User user = new SimpleUser(ldapUser.getLoginName());
+            if (user == null) {
+                LDAPUser ldapUser = lookupUser(loginName);
 
-                user.setLoginName(ldapUser.getLoginName());
-                user.setFirstName(ldapUser.getFirstName());
-                user.setLastName(ldapUser.getLastName());
-                user.setEmail(ldapUser.getEmail());
+                if (ldapUser != null) {
+                    user = new SimpleUser(ldapUser.getLoginName());
 
-                populateIdentityType(ldapUser, user);
+                    user.setLoginName(ldapUser.getLoginName());
+                    user.setFirstName(ldapUser.getFirstName());
+                    user.setLastName(ldapUser.getLastName());
+                    user.setEmail(ldapUser.getEmail());
 
-                return user;
+                    populateIdentityType(ldapUser, user);
+
+                    cacheIdentityType(user);
+                }
             }
         }
 
-        return null;
+        return user;
     }
 
     @Override
@@ -274,7 +288,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             return null;
         }
 
-        return getGroup(groupPath, getGroupBaseDN(groupPath));
+        Group group = getContext().getCache().lookupGroup(getContext().getPartition(), groupPath);
+
+        if (group == null) {
+            group = getGroup(groupPath, getGroupBaseDN(groupPath));
+        }
+
+        return group;
     }
 
     private Group getGroupById(String id) {
@@ -331,19 +351,25 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public Role getRole(String name) {
+        Role role = null;
+
         if (name != null) {
-            LDAPRole ldapRole = lookupRole(name);
+            role = getContext().getCache().lookupRole(getContext().getPartition(), name);
 
-            if (ldapRole != null) {
-                Role role = new SimpleRole(ldapRole.getName());
+            if (role == null) {
+                LDAPRole ldapRole = lookupRole(name);
 
-                populateIdentityType(ldapRole, role);
+                if (ldapRole != null) {
+                    role = new SimpleRole(ldapRole.getName());
 
-                return role;
+                    populateIdentityType(ldapRole, role);
+
+                    cacheIdentityType(role);
+                }
             }
         }
 
-        return null;
+        return role;
     }
 
     @SuppressWarnings("unchecked")
@@ -1495,5 +1521,25 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     private void removeMember(LDAPEntry parentEntry, LDAPEntry childEntry) {
         parentEntry.removeMember(childEntry);
         getLDAPManager().modifyAttribute(parentEntry.getDN(), parentEntry.getLDAPAttributes().get(MEMBER));
+    }
+
+    private void cacheIdentityType(IdentityType identityType) {
+        if (User.class.isInstance(identityType)) {
+            getContext().getCache().putUser((Realm) identityType.getPartition(), (User) identityType);
+        } else if (Agent.class.isInstance(identityType)) {
+            getContext().getCache().putAgent((Realm) identityType.getPartition(), (Agent) identityType);
+        } else if (Role.class.isInstance(identityType)) {
+            getContext().getCache().putRole(identityType.getPartition(), (Role) identityType);
+        } else if (Group.class.isInstance(identityType)) {
+            getContext().getCache().putGroup(identityType.getPartition(), (Group) identityType);
+        }
+    }
+
+    private void invalidateCache(IdentityType identityType) {
+        if (Agent.class.isInstance(identityType)) {
+            getContext().getCache().invalidate(getContext().getRealm(), identityType);
+        } else {
+            getContext().getCache().invalidate(getContext().getPartition(), identityType);
+        }
     }
 }

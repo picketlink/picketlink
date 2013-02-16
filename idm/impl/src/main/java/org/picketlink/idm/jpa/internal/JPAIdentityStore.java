@@ -286,7 +286,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 }
 
                 IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
-
+                
                 handler.populateEntity(entity, identityType, this);
 
                 updateIdentityTypeAttributes(identityType, entity);
@@ -295,7 +295,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 em.merge(entity);
                 em.flush();
-
+                
+                IdentityType updatedIdentityType = convertToIdentityType(entity);
+                
+                cacheIdentityType(updatedIdentityType);
+                
                 AbstractBaseEvent event = handler.raiseUpdatedEvent(identityType);
                 event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, identityType);
                 getContext().getEventBridge().raiseEvent(event);
@@ -327,6 +331,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
     }
+
+
 
     @Override
     public void remove(AttributedType attributedType) {
@@ -374,8 +380,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (!resultList.isEmpty()) {
                 user = resultList.get(0);
             }
-
-            getContext().getCache().putUser(realm, user);
         }
 
         return user;
@@ -405,8 +409,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (!resultList.isEmpty()) {
                 group = resultList.get(0);
             }
-
-            getContext().getCache().putGroup(partition, group);
         }
 
         return group;
@@ -460,8 +462,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (!resultList.isEmpty()) {
                 role = resultList.get(0);
             }
-
-            getContext().getCache().putRole(partition, role);
         }
 
         return role;
@@ -492,8 +492,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             } else {
                 agent = getUser(loginName);
             }
-
-            getContext().getCache().putAgent(partition, agent);
         }
 
         return agent;
@@ -536,7 +534,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             List<?> queryResult = query.getResultList();
 
             for (Object identity : queryResult) {
-                result.add((T) convertToIdentityType(identity));
+                T identityType = (T) convertToIdentityType(identity);
+                
+                cacheIdentityType(identityType);
+                
+                result.add(identityType);
             }
         } catch (Exception e) {
             throw new IdentityManagementException("Error executing query.", e);
@@ -1506,6 +1508,10 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         em.remove(entity);
         em.flush();
 
+        IdentityType removedIdentityType = handler.createIdentityType(entity, this);
+        
+        invalidateCache(removedIdentityType);
+        
         AbstractBaseEvent event = handler.raiseDeletedEvent(identityType);
         event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
         getContext().getEventBridge().raiseEvent(event);
@@ -2010,6 +2016,26 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 em.remove(credential);
             }
+        }
+    }
+    
+    private void cacheIdentityType(IdentityType updatedIdentityType) {
+        if (User.class.isInstance(updatedIdentityType)) {
+            getContext().getCache().putUser((Realm) updatedIdentityType.getPartition(), (User) updatedIdentityType);
+        } else if (Agent.class.isInstance(updatedIdentityType)) {
+            getContext().getCache().putAgent((Realm) updatedIdentityType.getPartition(), (Agent) updatedIdentityType);
+        } else if (Role.class.isInstance(updatedIdentityType)) {
+            getContext().getCache().putRole(updatedIdentityType.getPartition(), (Role) updatedIdentityType);
+        } else if (Group.class.isInstance(updatedIdentityType)) {
+            getContext().getCache().putGroup(updatedIdentityType.getPartition(), (Group) updatedIdentityType);
+        }
+    }
+    
+    private void invalidateCache(IdentityType identityType) {
+        if (Agent.class.isInstance(identityType)) {
+            getContext().getCache().invalidate(getContext().getRealm(), identityType);
+        } else {
+            getContext().getCache().invalidate(getContext().getPartition(), identityType);
         }
     }
 }

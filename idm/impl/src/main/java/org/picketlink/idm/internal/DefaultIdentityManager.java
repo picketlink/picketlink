@@ -201,17 +201,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
         IdentityStoreInvocationContext ctx = createContext();
 
-        Realm realm = ctx.getRealm();
-
-        if (realm == null) {
-            realm = new Realm(Realm.DEFAULT_REALM);
-        }
-
-        Partition currentPartition = realm;
-
-        if (ctx.getTier() != null) {
-            currentPartition = ctx.getTier();
-        }
+        Partition currentPartition = getCurrentPartition(ctx);
 
         if (Agent.class.isInstance(identityType)) {
             feature = Feature.createAgent;
@@ -227,12 +217,12 @@ public class DefaultIdentityManager implements IdentityManager {
 
                 if (getUser(newAgent.getLoginName()) != null) {
                     throw new IdentityManagementException("User already exists with the given login name ["
-                            + newAgent.getLoginName() + "] for the given Realm [" + realm.getName() + "]");
+                            + newAgent.getLoginName() + "] for the given Partition [" + currentPartition.getName() + "]");
                 }
             } else {
                 if (getAgent(newAgent.getLoginName()) != null) {
                     throw new IdentityManagementException("Agent already exists with the given login name ["
-                            + newAgent.getLoginName() + "] for the given Realm [" + realm.getName() + "]");
+                            + newAgent.getLoginName() + "] for the given Realm [" + currentPartition.getName() + "]");
                 }
             }
         } else if (Group.class.isInstance(identityType)) {
@@ -278,6 +268,8 @@ public class DefaultIdentityManager implements IdentityManager {
         getContextualStoreForFeature(ctx, feature).add(identityType);
     }
 
+
+
     @Override
     public void add(Relationship relationship) {
         Feature feature = Feature.createRelationship;
@@ -293,25 +285,13 @@ public class DefaultIdentityManager implements IdentityManager {
 
         Feature feature;
 
-        IdentityStoreInvocationContext ctx = createContext();
-
         if (User.class.isInstance(identityType)) {
             feature = Feature.updateUser;
         } else if (Agent.class.isInstance(identityType)) {
             feature = Feature.updateAgent;
         } else if (Group.class.isInstance(identityType)) {
-            if (ctx.getRealm() != null && ctx.getTier() != null) {
-                throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the "
-                        + "scope of a Realm or a Tier, however both have been set.");
-            }
-
             feature = Feature.updateGroup;
         } else if (Role.class.isInstance(identityType)) {
-            if (ctx.getRealm() != null && ctx.getTier() != null) {
-                throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the "
-                        + "scope of a Realm or a Tier, however both have been set.");
-            }
-
             feature = Feature.updateRole;
         } else {
             throw new IllegalArgumentException("Unsupported IdentityType");
@@ -478,21 +458,7 @@ public class DefaultIdentityManager implements IdentityManager {
         return getGrant(identityType, role) != null;
     }
 
-    private Grant getGrant(IdentityType identityType, Role role) {
-        RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
 
-        query.setParameter(Grant.ASSIGNEE, identityType);
-        query.setParameter(Grant.ROLE, role);
-
-        List<Grant> result = query.getResultList();
-
-        Grant grant = null;
-
-        if (!result.isEmpty()) {
-            grant = result.get(0);
-        }
-        return grant;
-    }
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
@@ -771,5 +737,36 @@ public class DefaultIdentityManager implements IdentityManager {
         if (identityType == null) {
             throw new IdentityManagementException("You must provide a non-null IdentityType.");
         }
+    }
+    
+    private Partition getCurrentPartition(IdentityStoreInvocationContext ctx) {
+        Realm realm = ctx.getRealm();
+
+        if (realm == null) {
+            realm = new Realm(Realm.DEFAULT_REALM);
+        }
+
+        Partition currentPartition = realm;
+
+        if (ctx.getTier() != null) {
+            currentPartition = ctx.getTier();
+        }
+        return currentPartition;
+    }
+    
+    private Grant getGrant(IdentityType identityType, Role role) {
+        RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
+
+        query.setParameter(Grant.ASSIGNEE, identityType);
+        query.setParameter(Grant.ROLE, role);
+
+        List<Grant> result = query.getResultList();
+
+        Grant grant = null;
+
+        if (!result.isEmpty()) {
+            grant = result.get(0);
+        }
+        return grant;
     }
 }

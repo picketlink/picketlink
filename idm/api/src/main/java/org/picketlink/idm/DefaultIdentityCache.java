@@ -30,6 +30,8 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
 /**
+ * <p>Default {@link IdentityCache} implementation.</p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
