@@ -240,6 +240,10 @@ public class AbstractIdentityManagerTestCase {
         return group;
     }
     
+    protected Group createGroup(String name) {
+        return createGroup(name, null);
+    }
+    
     protected Group createGroup(String name, String parentGroupName, Partition partition) {
         IdentityManager identityManager = getIdentityManagerForPartition(partition);
         Group parentGroup = identityManager.getGroup(parentGroupName);
