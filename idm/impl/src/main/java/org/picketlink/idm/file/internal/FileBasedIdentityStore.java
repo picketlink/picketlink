@@ -144,10 +144,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             try {
                 @SuppressWarnings("unchecked")
                 Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
-                
+
                 if (IDMUtil.isAgentType(identityTypeClass)) {
                     Agent agent = (Agent) attributedType;
-                    
+
                     if (IDMUtil.isUserType(identityTypeClass)) {
                         addUser((User) agent);
                     } else {
@@ -163,12 +163,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } catch (Exception e) {
                 throw new IdentityManagementException("Exception while creating IdentityType [" + attributedType + "].", e);
             }
-            
+
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
             try {
-                addRelationship(relationship);                
+                addRelationship(relationship);
             } catch (Exception e) {
                 throw new IdentityManagementException("Exception while creating Relationship [" + relationship + "].", e);
             }
@@ -229,9 +229,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Agent getAgent(String loginName) {
+        Realm realm = getContext().getRealm();
+
         Agent agent = getAgentsForCurrentRealm().get(loginName);
 
-        configurePartition(agent);
+        if (agent != null) {
+            configurePartition(agent);
+            getContext().getCache().putAgent(realm, agent);
+        }
 
         return agent;
     }
@@ -265,7 +270,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
             if (group != null) {
                 Group parentGroup = group.getParentGroup();
-                
+
                 if (parentGroup != null) {
                     group.setParentGroup(getGroup(parentGroup.getPath()));
                 }
@@ -561,7 +566,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         return cloneRelationship(fileRelationship, relationshipType);
     }
-    
+
     /**
      * <p>
      * Returns the stored {@link Relationship} instances for the current {@link Partition}.
@@ -572,7 +577,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     protected Map<String, List<FileRelationship>> getRelationshipsForCurrentPartition() {
         return getDataSource().getRelationships();
     }
-    
+
     protected boolean hasParentGroup(Group childGroup, Group parentGroup) {
         if (childGroup.getParentGroup() != null && parentGroup != null) {
             if (childGroup.getParentGroup().getId().equals(parentGroup.getId())) {
@@ -1128,7 +1133,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
             relationship = result.get(0);
         }
-        
+
         List<FileRelationship> relationships = getDataSource().getRelationships().get(relationship.getClass().getName());
 
         for (FileRelationship fileRelationship : new ArrayList<FileRelationship>(relationships)) {
@@ -1264,8 +1269,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private Map<String, Agent> getAgentsForPartition(Partition partition) {
         return getDataSource().getAgents(partition);
     }
-
-
 
     /**
      * <p>
@@ -1430,7 +1433,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                             if (Group.class.isInstance(identityTypeRel)) {
                                 Group groupParameter = (Group) identityType;
                                 Group groupFromRel = (Group) identityTypeRel;
-                                
+
                                 if (groupParameter.getPath().contains(groupFromRel.getPath())) {
                                     if (hasParentGroup(groupParameter, (Group) identityTypeRel)) {
                                         valuesMathCount--;
