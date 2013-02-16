@@ -63,7 +63,11 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
         return this.path;
     }
     
-    public String getPath(Group group) {
+    public void setPath(String path) {
+        this.path = path;
+    }
+    
+    private String getPath(Group group) {
         String name = "/" + group.getName();
         
         if (group.getParentGroup() != null) {

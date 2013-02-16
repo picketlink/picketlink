@@ -18,6 +18,9 @@
 
 package org.picketlink.idm;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;
@@ -31,8 +34,17 @@ import org.picketlink.idm.model.User;
  */
 public class DefaultIdentityCache implements IdentityCache {
 
+    private Map<Partition, Map<String, Agent>> agentsCache = new HashMap<Partition, Map<String, Agent>>();
+    
     @Override
-    public User lookupUser(Realm realm, String id) {
+    public User lookupUser(Realm realm, String loginName) {
+        Map<String, Agent> agents = agentsCache.get(realm);
+        Agent agent = agents.get(loginName);
+        
+        if (User.class.isInstance(agent)) {
+            return (User) agent;
+        }
+        
         return null;
     }
 
@@ -50,8 +62,15 @@ public class DefaultIdentityCache implements IdentityCache {
 
     @Override
     public void putUser(Realm realm, User user) {
-        // TODO Auto-generated method stub
+        Map<String, Agent> agents = agentsCache.get(realm);
         
+        if (agents == null) {
+            agents = new HashMap<String, Agent>();
+            
+            agents.put(user.getLoginName(), user);
+        }
+        
+        agentsCache.put(realm, agents);
     }
 
     @Override

@@ -358,7 +358,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         // Check the cache first
-        User user = getContext().getCache().lookupUser(context.getRealm(), loginName);
+        Realm realm = getContext().getRealm();
+        
+        User user = getContext().getCache().lookupUser(realm, loginName);
 
         // If the cache doesn't have a reference to the User, we have to look up it's identity object
         // and create a User instance based on it
@@ -373,7 +375,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 user = resultList.get(0);
             }
 
-            getContext().getCache().putUser(context.getRealm(), user);
+            getContext().getCache().putUser(realm, user);
         }
 
         return user;
@@ -385,12 +387,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             return null;
         }
 
-        if (groupPath.indexOf('/') == -1) {
+        if (!groupPath.startsWith("/")) {
             groupPath = "/" + groupPath;
         }
 
         // Check the cache first
-        Realm partition = context.getRealm();
+        Partition partition = getContext().getPartition();
         Group group = getContext().getCache().lookupGroup(partition, groupPath);
 
         if (group == null) {
@@ -425,9 +427,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             Object storedParent = lookupIdentityObjectById(parent.getId());
 
-            if (storedParent == null
-                    || !getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(storedParent)
-                            .equals(getConfig().getIdentityTypeGroup())) {
+            if (storedParent == null) {
                 throw new IdentityManagementException("No parent group found with the given identifier [" + parent.getId()
                         + "]");
             }
@@ -445,7 +445,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         // Check the cache first
-        Realm partition = context.getRealm();
+        Partition partition = getContext().getPartition();
         Role role = getContext().getCache().lookupRole(partition, name);
 
         // If the cache doesn't have a reference to the Role, we have to look up it's identity object
@@ -475,7 +475,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         // Check the cache first
-        Realm partition = context.getRealm();
+        Realm partition = getContext().getRealm();
         Agent agent = getContext().getCache().lookupAgent(partition, loginName);
 
         // If the cache doesn't have a reference to the User, we have to look up it's identity object
@@ -803,10 +803,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS);
 
+        final T relationshipType;
+        final Class<?> relationshipClass;
+        
         String typeName = typeProperty.getValue(relationshipObject).toString();
-        T relationshipType = null;
-        Class<?> relationshipClass = null;
-
+        
         try {
             relationshipClass = Class.forName(typeName);
             relationshipType = (T) relationshipClass.newInstance();
@@ -1541,13 +1542,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             @SuppressWarnings("unchecked")
             List<Relationship> result = (List<Relationship>) fetchQueryResults(query, true);
 
-            if (result.isEmpty()) {
-                throw new IdentityManagementException("No relationship found to remove.");
+            if (result.size() == 1) {
+                relationship = result.get(0);
             } else if (result.size() > 1) {
                 throw new IdentityManagementException("Ambiguos relationship found.");
             }
-
-            relationship = result.get(0);
         }
 
         Object entity = lookupRelationshipObjectById(relationship.getId());
@@ -1572,6 +1571,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             em.remove(entity);
             em.flush();
+        } else {
+            throw new IdentityManagementException("No relationship found to remove.");
         }
     }
 

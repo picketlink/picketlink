@@ -221,7 +221,6 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         Role role = createRole("role");
         Group group = createGroup("group", null);
 
-        identityManager.grantRole(anotherUser, role);
         identityManager.addToGroup(anotherUser, group);
         identityManager.grantGroupRole(anotherUser, role, group);
 

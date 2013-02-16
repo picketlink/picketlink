@@ -196,7 +196,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (identityType == null) {
             throw new IdentityManagementException("You can not add a null IdentityType instance.");
         }
-        
+
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();
@@ -332,7 +332,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void remove(IdentityType identityType) {
         checkIfIdentityTypeExists(identityType);
-        
+
         Feature feature;
 
         IdentityStoreInvocationContext ctx = createContext();
@@ -423,7 +423,9 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
-        add(new GroupMembership(member, group));
+        if (getGroupMembership(member, group) == null) {
+            add(new GroupMembership(member, group));
+        }
     }
 
     @Override
@@ -498,17 +500,8 @@ public class DefaultIdentityManager implements IdentityManager {
             throw new IdentityManagementException("Only Agent and Group types are supported for this relationship type.");
         }
 
-        if (lookupIdentityById(IdentityType.class, identityType.getId()) == null) {
-            throw new IdentityManagementException("No IdentityType found with the given id [" + identityType.getId() + "]");
-        }
-
-        if (role == null) {
-            throw new IdentityManagementException("You must assign a role for this relationship type.");
-        }
-
-        if (lookupIdentityById(Role.class, role.getId()) == null) {
-            throw new IdentityManagementException("No Role was found with the given id [" + role.getId() + "]");
-        }
+        checkIfIdentityTypeExists(identityType);
+        checkIfIdentityTypeExists(role);
 
         if (getGrant(identityType, role) == null) {
             add(new Grant(identityType, role));
@@ -519,7 +512,7 @@ public class DefaultIdentityManager implements IdentityManager {
     public void revokeRole(IdentityType identityType, Role role) {
         checkIfIdentityTypeExists(identityType);
         checkIfIdentityTypeExists(role);
-        
+
         getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new Grant(identityType, role));
     }
 
