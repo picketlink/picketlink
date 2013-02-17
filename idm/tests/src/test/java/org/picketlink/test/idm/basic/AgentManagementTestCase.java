@@ -37,7 +37,6 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
@@ -154,12 +153,24 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
 
     @Override
     protected Agent getIdentityType() {
-        return getIdentityManager().getAgent("someAgent");
+        return getIdentityManager().getAgent("someSimpleAgent");
     }
 
     @Override
     protected Agent createIdentityType() {
-        return createAgent("someAgent");
+        return createAgent("someSimpleAgent");
+    }
+
+    @Test
+    public void testEqualsMethod() {
+        Agent instanceA = createAgent("agentA");
+        Agent instanceB = createAgent("agentB");
+        
+        assertFalse(instanceA.equals(instanceB));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        assertTrue(instanceA.equals(identityManager.getAgent(instanceA.getLoginName())));
     }
 
 }

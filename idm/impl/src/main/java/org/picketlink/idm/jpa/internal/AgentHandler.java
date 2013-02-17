@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.AgentCreatedEvent;
 import org.picketlink.idm.event.AgentDeletedEvent;
@@ -31,7 +30,6 @@ import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -47,8 +45,8 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
+        setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
     }
 
     @Override
@@ -89,17 +87,6 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
         }
         
         return predicates;
-    }
-    
-    @Override
-    public void validate(Agent agent, JPAIdentityStore store) {
-        if (agent.getLoginName() == null) {
-            throw new IdentityManagementException("No login name was provided.");
-        }
-        
-        if (store.getAgent(agent.getLoginName()) != null) {
-            throw new IdentityManagementException("Agent already exists with the given loginName [" + agent.getLoginName() + "] for the given Realm [" + store.getCurrentRealm().getName() + "]");
-        }
     }
     
 }

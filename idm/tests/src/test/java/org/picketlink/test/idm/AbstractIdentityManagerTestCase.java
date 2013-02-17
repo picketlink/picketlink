@@ -170,6 +170,33 @@ public class AbstractIdentityManagerTestCase {
         return getIdentityManager().getRole(name);
     }
 
+    protected Group createGroupWithParent(String name, Group parentGroup) {
+        String path = name;
+        
+        if (parentGroup != null) {
+            path = parentGroup.getPath() + "/" + name;
+        }
+        
+        Group group = getIdentityManager().getGroup(path);
+
+        if (group != null) {
+            getIdentityManager().remove(group);
+            group = null;
+        }
+
+        if (group == null) {
+            if (parentGroup == null) {
+                group = new SimpleGroup(name);
+            } else {
+                group = new SimpleGroup(name, parentGroup);
+            }
+
+            getIdentityManager().add(group);
+        }
+
+        return group;
+    }
+    
     protected Group createGroup(String name, String parentGroupName) {
         Group parentGroup = getIdentityManager().getGroup(parentGroupName);
 
@@ -211,6 +238,10 @@ public class AbstractIdentityManagerTestCase {
         }
 
         return group;
+    }
+    
+    protected Group createGroup(String name) {
+        return createGroup(name, null);
     }
     
     protected Group createGroup(String name, String parentGroupName, Partition partition) {

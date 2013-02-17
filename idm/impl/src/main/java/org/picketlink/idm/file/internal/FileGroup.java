@@ -45,6 +45,7 @@ public class FileGroup extends AbstractIdentityTypeEntry<Group> {
         Group group = getEntry();
         
         properties.put("name", group.getName());
+        properties.put("path", group.getPath());
         
         if (group.getParentGroup() != null) {
             properties.put("parentId", group.getParentGroup().getId());
@@ -74,6 +75,7 @@ public class FileGroup extends AbstractIdentityTypeEntry<Group> {
             group = new SimpleGroup(name);
         }
         
+        group.setPath(properties.get("path").toString());
         
         return group;
     }

@@ -37,7 +37,6 @@ import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
@@ -111,22 +110,16 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         
         Group groupA = createGroup("QA Group", null);
         
-        Group groupB = new SimpleGroup("groupB", groupA);
+        Group groupB = createGroupWithParent("groupB", groupA);
         
-        identityManager.add(groupB);
+        Group groupC = createGroupWithParent("groupC", groupB);
         
-        Group groupC = new SimpleGroup("groupC", groupB);
-        
-        identityManager.add(groupC);
-        
-        Group groupD = new SimpleGroup("groupD", groupC);
-        
-        identityManager.add(groupD);
+        Group groupD = createGroupWithParent("groupD", groupC);
         
         Group storedGroupD = identityManager.getGroup("/QA Group/groupB/groupC/groupD");
         
         assertNotNull(storedGroupD);
-        
+        assertEquals(storedGroupD.getId(), groupD.getId());
         assertNotNull(storedGroupD.getParentGroup());
         assertEquals(storedGroupD.getParentGroup().getId(), groupC.getId());
         
@@ -141,21 +134,13 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     public void testGetGroupPath() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         
-        Group groupA = new SimpleGroup("groupA");
+        Group groupA = createGroup("groupA", null);
         
-        identityManager.add(groupA);
+        Group groupB = createGroupWithParent("groupB", groupA);
         
-        Group groupB = new SimpleGroup("groupB", groupA);
+        Group groupC = createGroupWithParent("groupC", groupB);
         
-        identityManager.add(groupB);
-        
-        Group groupC = new SimpleGroup("groupC", groupB);
-        
-        identityManager.add(groupC);
-        
-        Group groupD = new SimpleGroup("groupD", groupC);
-        
-        identityManager.add(groupD);
+        Group groupD = createGroupWithParent("groupD", groupC);
         
         Group storedGroupD = identityManager.getGroup("/groupA/groupB/groupC/groupD");
         
@@ -235,7 +220,6 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
         Role role = createRole("role");
         Group group = createGroup("group", null);
 
-        identityManager.grantRole(anotherUser, role);
         identityManager.addToGroup(anotherUser, group);
         identityManager.grantGroupRole(anotherUser, role, group);
 
@@ -274,6 +258,18 @@ public class GroupManagementTestCase extends AbstractIdentityTypeTestCase<Group>
     @Override
     protected Group getIdentityType() {
         return getIdentityManager().getGroup("Test Group", getGroup("Test Parent Group"));
+    }
+
+    @Test
+    public void testEqualsMethod() {
+        Group instanceA = createGroup("groupA");
+        Group instanceB = createGroup("groupB");
+        
+        assertFalse(instanceA.equals(instanceB));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        assertTrue(instanceA.equals(identityManager.getGroup(instanceA.getPath())));
     }
 
 }

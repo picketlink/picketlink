@@ -20,6 +20,7 @@ package org.picketlink.idm;
 
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
@@ -27,6 +28,9 @@ import org.picketlink.idm.model.User;
 
 /**
  * Storage for User, Group and Role instances to enable quick resolution of identity memberships.
+ * 
+ * TODO: dicuss if we can have only two methods here. put(IdentityType) and lookup/get(IdentityType).
+ * TODO: dicuss if we need cache capabilities when using stores like the the JPA that usually have its own cache mechanisms (eg.: hibernate second level cache).   
  * 
  * @author Shane Bryzak
  */
@@ -36,20 +40,20 @@ public interface IdentityCache {
      * not previously been cached, returns null.
      * 
      * @param realm
-     * @param id
+     * @param loginName
      * @return
      */
-    User lookupUser(Realm realm, String id);
+    User lookupUser(Realm realm, String loginName);
 
     /**
      * Returns the cached Group object with the specified group id, in the specified partition.  If the
      * Group has not previously been cached, returns null.
      * 
      * @param partition
-     * @param groupId
+     * @param groupPath
      * @return
      */
-    Group lookupGroup(Partition partition, String groupId);
+    Group lookupGroup(Partition partition, String groupPath);
 
     /**
      * Returns the cached Role object with the specified name, in the specified partition.  If the
@@ -90,10 +94,10 @@ public interface IdentityCache {
      * not previously been cached, returns null.
      * 
      * @param realm
-     * @param id
+     * @param loginName
      * @return
      */
-    Agent lookupAgent(Realm realm, String id);
+    Agent lookupAgent(Realm realm, String loginName);
 
     /**
      * Inserts the specified {@link Agent} into the cache, within the specified Partition.
@@ -107,5 +111,5 @@ public interface IdentityCache {
      * 
      * @param identity
      */
-    //void invalidate(IdentityType identity);
+    void invalidate(Partition partition, IdentityType identity);
 }

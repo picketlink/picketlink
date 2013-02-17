@@ -18,19 +18,18 @@
 
 package org.picketlink.test.idm.relationship;
 
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
 /**
  * <p>
- * Test case for the relationship between {@link User}, {@link Group} and {@link Role} types.
+ * Test case for the relationship between {@link User} and {@link Role} types.
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshipTestCase<User>{
+public class UserGrantRelationshipTestCase extends AbstractGrantRelationshipTestCase<User> {
 
     @Override
     protected User createIdentityType(String name, Partition partition) {
@@ -45,5 +44,4 @@ public class UserGroupRoleRelationshipTestCase extends AgentGroupRoleRelationshi
     protected User getIdentityType() {
         return getIdentityManager().getUser("someUser");
     }
-    
 }

@@ -235,10 +235,6 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         IdentityManager identityManager = getIdentityManager();
 
-        identityManager.removeFromGroup(user, someGroup);
-        identityManager.removeFromGroup(user, someAnotherGroup);
-        identityManager.removeFromGroup(user, someImportantGroup);
-
         IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
 
         query.setParameter(Group.HAS_MEMBER, new Object[] { user });

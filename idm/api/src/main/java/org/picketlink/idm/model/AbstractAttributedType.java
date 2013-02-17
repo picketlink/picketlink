@@ -61,4 +61,27 @@ public abstract class AbstractAttributedType implements AttributedType {
     public Collection<Attribute<? extends Serializable>> getAttributes() {
         return java.util.Collections.unmodifiableCollection(attributes.values());
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        AttributedType other = (AttributedType) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
+
 }

@@ -37,7 +37,6 @@ import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.test.idm.AbstractIdentityTypeTestCase;
 
 /**
  * <p>
@@ -180,6 +179,17 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         assertTrue(relationshipQuery.getResultList().isEmpty());
     }
 
+    @Test
+    public void testEqualsMethod() {
+        User instanceA = createUser("userA");
+        User instanceB = createUser("userB");
+        
+        assertFalse(instanceA.equals(instanceB));
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        assertTrue(instanceA.equals(identityManager.getUser(instanceA.getLoginName())));
+    }
     @Override
     protected User createIdentityType() {
         return createUser("admin");
@@ -189,5 +199,5 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     protected User getIdentityType() {
         return getIdentityManager().getUser("admin");
     }
-
+    
 }

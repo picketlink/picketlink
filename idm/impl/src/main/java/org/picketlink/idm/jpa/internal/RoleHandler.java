@@ -26,7 +26,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.RoleCreatedEvent;
 import org.picketlink.idm.event.RoleDeletedEvent;
@@ -35,7 +34,6 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
@@ -52,9 +50,9 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
                 store.lookupPartitionObject(store.getCurrentPartition()), true);
-        getConfig().setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
+        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 
     @Override
@@ -140,18 +138,5 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
         }
 
         return predicates;
-    }
-
-
-    
-    @Override
-    public void validate(Role role, JPAIdentityStore store) {
-        if (role.getName() == null) {
-            throw new IdentityManagementException("No name was provided.");
-        }
-        
-        if (store.getRole(role.getName()) != null) {
-            throw new IdentityManagementException("Role already exists with the given loginName [" + role.getName() + "] for the given Partition [" + store.getCurrentPartition().getName() + "]");
-        }
     }
 }

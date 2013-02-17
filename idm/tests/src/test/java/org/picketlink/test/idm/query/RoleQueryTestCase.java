@@ -28,8 +28,6 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.model.Group;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
@@ -37,7 +35,6 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 
 /**
@@ -158,10 +155,6 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         User user = createUser("someUser");
         
         IdentityManager identityManager = getIdentityManager();
-        
-        identityManager.revokeRole(user, someRole);
-        identityManager.revokeRole(user, someAnotherRole);
-        identityManager.revokeRole(user, someImportantRole);
         
         IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
         

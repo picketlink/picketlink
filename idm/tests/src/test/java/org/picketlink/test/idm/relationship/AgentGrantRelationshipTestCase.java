@@ -18,6 +18,7 @@
 
 package org.picketlink.test.idm.relationship;
 
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -29,12 +30,12 @@ import org.picketlink.idm.model.User;
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
-public class UserRolesRelationshipTestCase extends AgentRolesRelationshipTestCase<User> {
+public class AgentGrantRelationshipTestCase extends AbstractGrantRelationshipTestCase<Agent> {
 
     @Override
     protected User createIdentityType(String name, Partition partition) {
         if (name == null) {
-            name = "someUser";
+            name = "someAgent";
         }
         
         return createUser(name, partition);
@@ -42,6 +43,6 @@ public class UserRolesRelationshipTestCase extends AgentRolesRelationshipTestCas
 
     @Override
     protected User getIdentityType() {
-        return getIdentityManager().getUser("someUser");
+        return getIdentityManager().getUser("someAgent");
     }
 }
