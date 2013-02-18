@@ -51,7 +51,7 @@ public class DefaultAuthenticatorSelector implements AuthenticatorSelector
      * 1. If the user has specified an authenticatorClass property, use it to
      * locate the Authenticator with that exact type
      * 2. If the user has specified an authenticatorName property, use it to
-     * locate and return the Authenticator with that name
+     * locate and return the Authenticator with that bean name
      * 3. If the authenticatorClass and authenticatorName haven't been specified,
      * and the user has provided their own custom Authenticator, return that one
      * 4. If the user hasn't provided a custom Authenticator, return IdmAuthenticator
@@ -83,7 +83,7 @@ public class DefaultAuthenticatorSelector implements AuthenticatorSelector
         }
 
         Authenticator selectedAuth = null;
-        
+
         List<Authenticator> references = BeanProvider.getContextualReferences(Authenticator.class, true);
 
         for (Authenticator auth : references) 
@@ -93,6 +93,10 @@ public class DefaultAuthenticatorSelector implements AuthenticatorSelector
             {
                 selectedAuth = auth;
                 break;
+            }
+
+            if (IdmAuthenticator.class.isAssignableFrom(auth.getClass())) {
+                selectedAuth = auth;
             }
         }
 
