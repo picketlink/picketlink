@@ -25,7 +25,6 @@ import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.deltaspike.core.util.ExceptionUtils;
 import org.picketlink.Identity;
 import org.picketlink.authentication.AuthenticationException;
 import org.picketlink.authentication.Authenticator;
@@ -40,6 +39,7 @@ import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
 import org.picketlink.credential.internal.DefaultLoginCredentials;
+import org.picketlink.deltaspike.core.util.ExceptionUtils;
 import org.picketlink.idm.model.User;
 
 /**

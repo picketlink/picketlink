@@ -18,9 +18,9 @@
 
 package org.picketlink.authentication.internal;
 
-import org.apache.deltaspike.core.api.literal.NamedLiteral;
-import org.apache.deltaspike.core.api.provider.BeanProvider;
-import org.apache.deltaspike.core.util.StringUtils;
+import org.picketlink.deltaspike.core.api.literal.NamedLiteral;
+import org.picketlink.deltaspike.core.api.provider.BeanProvider;
+import org.picketlink.deltaspike.core.util.StringUtils;
 import org.picketlink.authentication.Authenticator;
 import org.picketlink.authentication.AuthenticatorSelector;
 

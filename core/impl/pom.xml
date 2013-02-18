@@ -15,48 +15,38 @@
     <name>PicketLink Core Implementation</name>
 
     <dependencies>
-        <dependency>
-            <groupId>org.picketlink</groupId>
-            <artifactId>picketlink-core-api</artifactId>
-        </dependency>
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-core-api</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>org.picketlink</groupId>
-            <artifactId>picketlink-common</artifactId>
-        </dependency>
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-common</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>org.picketlink</groupId>
-	          <artifactId>picketlink-idm-impl</artifactId>
-        </dependency>
-    
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-	          <artifactId>cdi-api</artifactId>
-	          <scope>provided</scope>
-        </dependency>
+      <dependency>
+        <groupId>org.picketlink</groupId>
+        <artifactId>picketlink-idm-impl</artifactId>
+      </dependency>
 
-	      <dependency>
-	          <groupId>org.jboss.spec.javax.ejb</groupId>
-	          <artifactId>jboss-ejb-api_3.1_spec</artifactId>
-	          <scope>provided</scope>
-	      </dependency>
-	      
-        <dependency>
-           <groupId>org.hibernate.javax.persistence</groupId>
-           <artifactId>hibernate-jpa-2.0-api</artifactId>
-           <scope>provided</scope>
-        </dependency>
+      <dependency>
+        <groupId>javax.enterprise</groupId>
+        <artifactId>cdi-api</artifactId>
+        <scope>provided</scope>
+      </dependency>
 
-	      <dependency>
-	          <groupId>org.apache.deltaspike.core</groupId>
-	          <artifactId>deltaspike-core-api</artifactId>
-	      </dependency>
+      <dependency>
+        <groupId>org.jboss.spec.javax.ejb</groupId>
+        <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+        <scope>provided</scope>
+      </dependency>
 
-	      <dependency>
-	          <groupId>org.apache.deltaspike.core</groupId>
-	          <artifactId>deltaspike-core-impl</artifactId>
-	      </dependency>
+      <dependency>
+        <groupId>org.hibernate.javax.persistence</groupId>
+        <artifactId>hibernate-jpa-2.0-api</artifactId>
+        <scope>provided</scope>
+      </dependency>
 
     </dependencies>
 
