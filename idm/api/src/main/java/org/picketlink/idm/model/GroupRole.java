@@ -26,36 +26,34 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
  * @author Boleslaw Dawidowicz
  * @author Shane Bryzak
  */
-public class GroupRole extends GroupMembership implements Relationship {
+public class GroupRole extends Grant implements Relationship {
 
     private static final long serialVersionUID = 2844617870858266637L;
 
-    public static final RelationshipQueryParameter ROLE = new RelationshipQueryParameter() {
-        
+    public static final RelationshipQueryParameter GROUP = new RelationshipQueryParameter() {
         @Override
         public String getName() {
-            return "role";
+            return "group";
         }
-    };;
+    };
 
-
-    private Role role;
+    private Group group;
 
     public GroupRole() {
         super();
     }
-    
-    public GroupRole(Agent member, Group group, Role role) {
-        super(member, group);
-        this.role = role;
+
+    public GroupRole(IdentityType assignee, Group group, Role role) {
+        super(assignee, role);
+        this.group = group;
     }
 
     @RelationshipIdentity
-    public Role getRole() {
-        return role;
+    public Group getGroup() {
+        return group;
     }
-    
-    public void setRole(Role role) {
-        this.role = role;
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

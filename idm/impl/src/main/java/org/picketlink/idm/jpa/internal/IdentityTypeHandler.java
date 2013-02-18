@@ -401,7 +401,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                 DefaultRelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, store);
 
-                query.setParameter(GroupRole.MEMBER, groupRole.getMember());
+                query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
                 query.setParameter(GroupRole.GROUP, groupRole.getGroup());
                 query.setParameter(GroupRole.ROLE, groupRole.getRole());
 
@@ -425,7 +425,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                     subqueryPredicates.add(criteria.getBuilder().equal(
                             fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
-                            GroupRole.MEMBER.getName()));
+                            GroupRole.ASSIGNEE.getName()));
                     subqueryPredicates.add(criteria.getBuilder().equal(
                             fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
                             criteria.getRoot()));

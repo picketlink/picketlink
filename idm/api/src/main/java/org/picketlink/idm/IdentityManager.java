@@ -115,11 +115,11 @@ public interface IdentityManager extends Serializable {
 
     Role getRole(String name);
 
-    boolean hasGroupRole(IdentityType identityType, Role role, Group group);
+    boolean hasGroupRole(IdentityType assignee, Role role, Group group);
 
-    void grantGroupRole(Agent member, Role role, Group group);
+    void grantGroupRole(IdentityType assignee, Role role, Group group);
 
-    void revokeGroupRole(Agent identityType, Role role, Group group);
+    void revokeGroupRole(IdentityType assignee, Role role, Group group);
 
     boolean hasRole(IdentityType identityType, Role role);
 

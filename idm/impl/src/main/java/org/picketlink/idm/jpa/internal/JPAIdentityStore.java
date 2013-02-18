@@ -1531,7 +1531,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
 
-                query.setParameter(GroupRole.MEMBER, groupRole.getMember());
+                query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
                 query.setParameter(GroupRole.GROUP, groupRole.getGroup());
                 query.setParameter(GroupRole.ROLE, groupRole.getRole());
             } else if (GroupMembership.class.isInstance(relationship)) {
@@ -1549,7 +1549,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (result.size() == 1) {
                 relationship = result.get(0);
             } else if (result.size() > 1) {
-                throw new IdentityManagementException("Ambiguos relationship found.");
+                throw new IdentityManagementException("Ambiguous relationship found.");
             }
         }
 

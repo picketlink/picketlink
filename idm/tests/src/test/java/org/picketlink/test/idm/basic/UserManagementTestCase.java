@@ -154,7 +154,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
 
-        relationshipQuery.setParameter(GroupRole.MEMBER, anotherUser);
+        relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherUser);
 
         assertFalse(relationshipQuery.getResultList().isEmpty());
 
@@ -174,7 +174,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
 
         relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
 
-        relationshipQuery.setParameter(GroupRole.MEMBER, anotherUser);
+        relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherUser);
 
         assertTrue(relationshipQuery.getResultList().isEmpty());
     }

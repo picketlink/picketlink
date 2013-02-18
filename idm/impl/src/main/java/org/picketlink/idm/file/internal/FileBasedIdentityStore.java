@@ -1110,7 +1110,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
                 query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
 
-                query.setParameter(GroupRole.MEMBER, groupRole.getMember());
+                query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
                 query.setParameter(GroupRole.GROUP, groupRole.getGroup());
                 query.setParameter(GroupRole.ROLE, groupRole.getRole());
             } else if (GroupMembership.class.isInstance(relationship)) {
@@ -1440,7 +1440,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                                     }
                                 }
                             }
-                        }
+                        } 
                     }
 
                 }

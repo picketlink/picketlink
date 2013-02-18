@@ -193,7 +193,7 @@ public class FileIdentityQueryHelper {
                 if (groupRole != null) {
                     RelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, identityStore);
 
-                    query.setParameter(GroupRole.MEMBER, identityType);
+                    query.setParameter(GroupRole.ASSIGNEE, identityType);
                     query.setParameter(GroupRole.GROUP, groupRole.getGroup());
                     query.setParameter(GroupRole.ROLE, groupRole.getRole());
 

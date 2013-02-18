@@ -160,7 +160,7 @@ public class LDAPQuery {
 
                 for (Object group : groupRoles) {
                     GroupRole groupRole = (GroupRole) group;
-                    Agent agent = (Agent) groupRole.getMember();
+                    Agent agent = (Agent) groupRole.getAssignee();
 
                     String agentDNSuffix = getConfig().getAgentDNSuffix();
 

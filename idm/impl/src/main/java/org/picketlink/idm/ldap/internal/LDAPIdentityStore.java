@@ -668,8 +668,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         } else if (GroupRole.class.equals(relationshipType)) {
             Agent agent = null;
 
-            if (query.getParameter(GroupRole.MEMBER) != null) {
-                agent = (Agent) query.getParameter(GroupRole.MEMBER)[0];
+            if (query.getParameter(GroupRole.ASSIGNEE) != null) {
+                agent = (Agent) query.getParameter(GroupRole.ASSIGNEE)[0];
             }
 
             Role role = null;
@@ -1301,7 +1301,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void addGroupRoleRelationship(GroupRole groupRole) {
-        LDAPAgent agentEntry = (LDAPAgent) lookupEntry(groupRole.getMember());
+        LDAPAgent agentEntry = (LDAPAgent) lookupEntry(groupRole.getAssignee());
         LDAPGroup groupEntry = (LDAPGroup) lookupEntry(groupRole.getGroup());
         LDAPRole roleEntry = (LDAPRole) lookupEntry(groupRole.getRole());
 
@@ -1444,7 +1444,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     private void removeGroupRoleRelationship(GroupRole groupRole) {
         LDAPGroup groupEntry = (LDAPGroup) lookupEntry(groupRole.getGroup());
-        LDAPAgent agentEntry = (LDAPAgent) lookupEntry(groupRole.getMember());
+        LDAPAgent agentEntry = (LDAPAgent) lookupEntry(groupRole.getAssignee());
         LDAPRole roleEntry = (LDAPRole) lookupEntry(groupRole.getRole());
 
         NamingEnumeration<SearchResult> search = lookupGroupRoleEntry(agentEntry, groupEntry);
@@ -1509,7 +1509,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         DefaultRelationshipQuery<GroupRole> groupRoleQuery = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
 
-        groupRoleQuery.setParameter(GroupRole.MEMBER, agent);
+        groupRoleQuery.setParameter(GroupRole.ASSIGNEE, agent);
 
         List<GroupRole> resultGroupRoless = groupRoleQuery.getResultList();
 

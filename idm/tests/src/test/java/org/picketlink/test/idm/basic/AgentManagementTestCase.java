@@ -126,7 +126,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         
         relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
         
-        relationshipQuery.setParameter(GroupRole.MEMBER, anotherAgent);
+        relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherAgent);
         
         assertFalse(relationshipQuery.getResultList().isEmpty());
         
@@ -146,7 +146,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
         
         relationshipQuery = identityManager.createRelationshipQuery(GroupRole.class);
         
-        relationshipQuery.setParameter(GroupRole.MEMBER, anotherAgent);
+        relationshipQuery.setParameter(GroupRole.ASSIGNEE, anotherAgent);
         
         assertTrue(relationshipQuery.getResultList().isEmpty());
     }

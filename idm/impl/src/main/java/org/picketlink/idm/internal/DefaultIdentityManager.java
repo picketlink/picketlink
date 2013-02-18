@@ -422,32 +422,32 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     @Override
-    public boolean hasGroupRole(IdentityType identityType, Role role, Group group) {
-        checkNotNull(identityType);
+    public boolean hasGroupRole(IdentityType assignee, Role role, Group group) {
+        checkNotNull(assignee);
         checkNotNull(role);
         checkNotNull(group);
 
-        return getGroupRole(identityType, role, group) != null;
+        return getGroupRole(assignee, role, group) != null;
     }
 
     @Override
-    public void grantGroupRole(Agent member, Role role, Group group) {
-        checkIfIdentityTypeExists(member);
+    public void grantGroupRole(IdentityType assignee, Role role, Group group) {
+        checkIfIdentityTypeExists(assignee);
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
 
-        if (getGroupRole(member, role, group) == null) {
-            add(new GroupRole(member, group, role));
+        if (getGroupRole(assignee, role, group) == null) {
+            add(new GroupRole(assignee, group, role));
         }
     }
 
     @Override
-    public void revokeGroupRole(Agent member, Role role, Group group) {
-        checkIfIdentityTypeExists(member);
+    public void revokeGroupRole(IdentityType assignee, Role role, Group group) {
+        checkIfIdentityTypeExists(assignee);
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
 
-        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new GroupRole(member, group, role));
+        getContextualStoreForFeature(createContext(), Feature.deleteRelationship).remove(new GroupRole(assignee, group, role));
     }
 
     @Override
@@ -457,8 +457,6 @@ public class DefaultIdentityManager implements IdentityManager {
 
         return getGrant(identityType, role) != null;
     }
-
-
 
     @Override
     public void grantRole(IdentityType identityType, Role role) {
@@ -597,7 +595,7 @@ public class DefaultIdentityManager implements IdentityManager {
     private GroupRole getGroupRole(IdentityType identityType, Role role, Group group) {
         RelationshipQuery<GroupRole> query = createRelationshipQuery(GroupRole.class);
 
-        query.setParameter(GroupRole.MEMBER, identityType);
+        query.setParameter(GroupRole.ASSIGNEE, identityType);
         query.setParameter(GroupRole.ROLE, role);
         query.setParameter(GroupRole.GROUP, group);
 
