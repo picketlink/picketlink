@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,11 +38,13 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 @Entity
 @IDMEntity(EntityType.IDENTITY_ATTRIBUTE)
-public class IdentityObjectAttribute {
+public class IdentityObjectAttribute implements Serializable {
+
+    private static final long serialVersionUID = 3072864795743589609L;
 
     @Id
     @GeneratedValue
-    private Integer attributeId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn
@@ -57,12 +61,12 @@ public class IdentityObjectAttribute {
     @IDMProperty(PropertyType.ATTRIBUTE_TYPE)
     private String type;
 
-    public Integer getAttributeId() {
-        return this.attributeId;
+    public Long getId() {
+        return this.id;
     }
 
-    public void setAttributeId(Integer attributeId) {
-        this.attributeId = attributeId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public IdentityObject getIdentityObject() {
@@ -97,4 +101,25 @@ public class IdentityObjectAttribute {
         this.type = type;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        IdentityObjectAttribute other = (IdentityObjectAttribute) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }

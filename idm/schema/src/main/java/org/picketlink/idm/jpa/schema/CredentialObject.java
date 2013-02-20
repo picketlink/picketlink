@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -38,11 +39,13 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 @Entity
 @IDMEntity(EntityType.IDENTITY_CREDENTIAL)
-public class CredentialObject {
+public class CredentialObject implements Serializable {
     
+    private static final long serialVersionUID = -5133066075760567565L;
+
     @Id
     @GeneratedValue
-    private long internalId;
+    private Long id;
     
     @IDMProperty (PropertyType.CREDENTIAL_TYPE)
     private String type;
@@ -62,12 +65,12 @@ public class CredentialObject {
     @ManyToOne
     private IdentityObject identityType;
 
-    public long getInternalId() {
-        return internalId;
+    public Long getId() {
+        return id;
     }
     
-    public void setInternalId(long internalId) {
-        this.internalId = internalId;
+    public void setId(Long id) {
+        this.id = id;
     }
     
     public String getType() {
@@ -109,5 +112,26 @@ public class CredentialObject {
     public void setIdentityType(IdentityObject identityType) {
         this.identityType = identityType;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
 
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        CredentialObject other = (CredentialObject) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }

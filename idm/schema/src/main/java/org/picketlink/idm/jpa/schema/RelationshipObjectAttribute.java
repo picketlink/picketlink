@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,11 +38,13 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 @Entity
 @IDMEntity(EntityType.RELATIONSHIP_ATTRIBUTE)
-public class RelationshipObjectAttribute {
+public class RelationshipObjectAttribute implements Serializable {
+
+    private static final long serialVersionUID = -2770921898981423153L;
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn
@@ -54,11 +58,11 @@ public class RelationshipObjectAttribute {
     @Column(length = 1024)
     private String value;
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -85,5 +89,26 @@ public class RelationshipObjectAttribute {
     public void setValue(String value) {
         this.value = value;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
 
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        RelationshipObjectAttribute other = (RelationshipObjectAttribute) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }

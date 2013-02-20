@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -32,7 +34,9 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 @IDMEntity(EntityType.RELATIONSHIP)
 @Entity
-public class RelationshipObject {
+public class RelationshipObject implements Serializable {
+
+    private static final long serialVersionUID = -7482143409681874546L;
 
     @Id
     @IDMProperty(PropertyType.RELATIONSHIP_ID)
@@ -57,4 +61,25 @@ public class RelationshipObject {
         this.type = type;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        RelationshipObject other = (RelationshipObject) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }

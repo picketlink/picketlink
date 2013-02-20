@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.persistence.Entity;
@@ -28,14 +29,19 @@ import org.picketlink.idm.jpa.annotations.EntityType;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
+import org.picketlink.idm.model.IdentityType;
 
 /**
+ * <p>JPA {@link Entity} that maps {@link IdentityType} instances.</p>
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
 @IDMEntity(EntityType.IDENTITY_TYPE)
 @Entity
-public class IdentityObject {
+public class IdentityObject implements Serializable {
+
+    private static final long serialVersionUID = -9155861474157098664L;
 
     @IDMProperty(PropertyType.IDENTITY_DISCRIMINATOR)
     private String discriminator;
@@ -174,5 +180,26 @@ public class IdentityObject {
     public void setParent(IdentityObject parent) {
         this.parent = parent;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
 
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        IdentityObject other = (IdentityObject) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }
