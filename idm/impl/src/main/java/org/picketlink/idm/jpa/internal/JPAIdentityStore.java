@@ -1519,14 +1519,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         if (relationship.getId() == null) {
             DefaultRelationshipQuery<?> query = null;
 
-            if (Grant.class.isInstance(relationship)) {
-                Grant grant = (Grant) relationship;
-
-                query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
-
-                query.setParameter(Grant.ASSIGNEE, grant.getAssignee());
-                query.setParameter(Grant.ROLE, grant.getRole());
-            } else if (GroupRole.class.isInstance(relationship)) {
+            if (GroupRole.class.isInstance(relationship)) {
                 GroupRole groupRole = (GroupRole) relationship;
 
                 query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
@@ -1534,7 +1527,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
                 query.setParameter(GroupRole.GROUP, groupRole.getGroup());
                 query.setParameter(GroupRole.ROLE, groupRole.getRole());
-            } else if (GroupMembership.class.isInstance(relationship)) {
+            } else if (Grant.class.isInstance(relationship)) {
+                Grant grant = (Grant) relationship;
+
+                query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
+
+                query.setParameter(Grant.ASSIGNEE, grant.getAssignee());
+                query.setParameter(Grant.ROLE, grant.getRole());
+            }  else if (GroupMembership.class.isInstance(relationship)) {
                 GroupMembership groupMembership = (GroupMembership) relationship;
 
                 query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, this);

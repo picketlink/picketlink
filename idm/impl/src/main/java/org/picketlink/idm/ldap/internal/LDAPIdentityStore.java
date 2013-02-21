@@ -134,13 +134,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            if (Grant.class.isInstance(relationship)) {
-                Grant grant = (Grant) relationship;
-                addGrantRelationship(grant);
-            } else if (GroupRole.class.isInstance(relationship)) {
+            if (GroupRole.class.isInstance(relationship)) {
                 GroupRole groupRole = (GroupRole) relationship;
                 addGroupRoleRelationship(groupRole);
-            } else if (GroupMembership.class.isInstance(relationship)) {
+            } else if (Grant.class.isInstance(relationship)) {
+                Grant grant = (Grant) relationship;
+                addGrantRelationship(grant);
+            }  else if (GroupMembership.class.isInstance(relationship)) {
                 GroupMembership groupMembership = (GroupMembership) relationship;
                 addGroupMembership(groupMembership);
             } else {
@@ -209,13 +209,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            if (Grant.class.isInstance(relationship)) {
-                removeGrantRelationship((Grant) relationship);
-            } else if (GroupRole.class.isInstance(relationship)) {
+            if (GroupRole.class.isInstance(relationship)) {
                 GroupRole groupRole = (GroupRole) relationship;
 
                 removeGroupRoleRelationship(groupRole);
-            } else if (GroupMembership.class.isInstance(relationship)) {
+            } else if (Grant.class.isInstance(relationship)) {
+                removeGrantRelationship((Grant) relationship);
+            }  else if (GroupMembership.class.isInstance(relationship)) {
                 GroupMembership groupMembership = (GroupMembership) relationship;
 
                 removeGroupMembership(groupMembership);

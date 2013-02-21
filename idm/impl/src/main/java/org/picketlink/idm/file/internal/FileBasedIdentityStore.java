@@ -1098,14 +1098,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         if (relationship.getId() == null) {
             DefaultRelationshipQuery<?> query = null;
 
-            if (Grant.class.isInstance(relationship)) {
-                Grant grant = (Grant) relationship;
-
-                query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
-
-                query.setParameter(Grant.ASSIGNEE, grant.getAssignee());
-                query.setParameter(Grant.ROLE, grant.getRole());
-            } else if (GroupRole.class.isInstance(relationship)) {
+            if (GroupRole.class.isInstance(relationship)) {
                 GroupRole groupRole = (GroupRole) relationship;
 
                 query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
@@ -1113,6 +1106,13 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
                 query.setParameter(GroupRole.GROUP, groupRole.getGroup());
                 query.setParameter(GroupRole.ROLE, groupRole.getRole());
+            } else if (Grant.class.isInstance(relationship)) {
+                Grant grant = (Grant) relationship;
+
+                query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
+
+                query.setParameter(Grant.ASSIGNEE, grant.getAssignee());
+                query.setParameter(Grant.ROLE, grant.getRole());
             } else if (GroupMembership.class.isInstance(relationship)) {
                 GroupMembership groupMembership = (GroupMembership) relationship;
 
@@ -1429,7 +1429,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     if (identityTypeRel.getId().equals(identityType.getId())) {
                         valuesMathCount--;
                     } else {
-                        if (GroupMembership.class.isInstance(storedRelationship.getEntry()) && !matchExactGroup) {
+                        if ((GroupMembership.class.isInstance(storedRelationship.getEntry())
+                                || GroupRole.class.isInstance(storedRelationship.getEntry())) && !matchExactGroup) {
                             if (Group.class.isInstance(identityTypeRel)) {
                                 Group groupParameter = (Group) identityType;
                                 Group groupFromRel = (Group) identityTypeRel;
@@ -1440,7 +1441,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                                     }
                                 }
                             }
-                        } 
+                        }
                     }
 
                 }

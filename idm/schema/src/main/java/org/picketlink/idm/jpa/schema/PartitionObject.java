@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
@@ -33,7 +35,9 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 @Entity
 @IDMEntity(EntityType.PARTITION)
-public class PartitionObject {
+public class PartitionObject implements Serializable {
+
+    private static final long serialVersionUID = 3488600508986507443L;
 
     @Id
     @IDMProperty(PropertyType.PARTITION_ID)
@@ -80,5 +84,26 @@ public class PartitionObject {
     public void setParent(PartitionObject parent) {
         this.parent = parent;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
 
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        PartitionObject other = (PartitionObject) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }

@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -34,11 +36,13 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 @IDMEntity(EntityType.RELATIONSHIP_IDENTITY)
 @Entity
-public class RelationshipIdentityObject {
+public class RelationshipIdentityObject implements Serializable {
+
+    private static final long serialVersionUID = 8957185191684867238L;
 
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
 
     @IDMProperty(PropertyType.RELATIONSHIP_DESCRIPTOR)
     private String descriptor;
@@ -51,11 +55,11 @@ public class RelationshipIdentityObject {
     @ManyToOne
     private RelationshipObject relationshipObject;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -82,5 +86,26 @@ public class RelationshipIdentityObject {
     public void setDescriptor(String descriptor) {
         this.descriptor = descriptor;
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
 
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        RelationshipIdentityObject other = (RelationshipIdentityObject) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }

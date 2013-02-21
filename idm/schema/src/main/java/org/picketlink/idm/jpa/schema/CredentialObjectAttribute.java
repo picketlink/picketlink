@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.schema;
 
+import java.io.Serializable;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -36,11 +38,13 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
  */
 @Entity
 @IDMEntity(EntityType.CREDENTIAL_ATTRIBUTE)
-public class CredentialObjectAttribute {
+public class CredentialObjectAttribute implements Serializable {
+
+    private static final long serialVersionUID = 1500299957446203938L;
 
     @Id
     @GeneratedValue
-    private Integer attributeId;
+    private Long id;
 
     @ManyToOne
     @JoinColumn
@@ -54,12 +58,12 @@ public class CredentialObjectAttribute {
     @Column (length=1024)
     private String value;
 
-    public Integer getAttributeId() {
-        return this.attributeId;
+    public Long getId() {
+        return this.id;
     }
 
-    public void setAttributeId(Integer attributeId) {
-        this.attributeId = attributeId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public CredentialObject getCredentialObject() {
@@ -86,4 +90,25 @@ public class CredentialObjectAttribute {
         this.value = value;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (!getClass().isInstance(obj)) {
+            return false;
+        }
+
+        CredentialObjectAttribute other = (CredentialObjectAttribute) obj;
+
+        return getId() != null && other.getId() != null && getId().equals(other.getId());
+    }
+    
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
+        return result;
+    }
 }
