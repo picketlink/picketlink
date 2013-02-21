@@ -30,7 +30,30 @@ import org.picketlink.common.util.Base64;
  */
 public class Digest {
 
-    private String username, password, realm, nonce, uri, qop, nc, cnonce, opaque, domain, stale, method;
+    private String username;
+
+    private String password;
+
+    private String realm;
+
+    private String nonce;
+
+    private String uri;
+
+    private String qop;
+
+    private String nonceCount;
+
+    private String clientNonce;
+
+    private String opaque;
+
+    private String domain;
+
+    private String stale;
+
+    private String method;
+
     private String digest;
 
     public Digest setUsername(String username) {
@@ -63,13 +86,13 @@ public class Digest {
         return this;
     }
 
-    public Digest setNc(String nc) {
-        this.nc = nc;
+    public Digest setNonceCount(String nc) {
+        this.nonceCount = nc;
         return this;
     }
 
-    public Digest setCnonce(String cnonce) {
-        this.cnonce = cnonce;
+    public Digest setClientNonce(String cnonce) {
+        this.clientNonce = cnonce;
         return this;
     }
 
@@ -81,7 +104,7 @@ public class Digest {
     public String getUsername() {
         return username;
     }
-    
+
     public String getPassword() {
         return this.password;
     }
@@ -102,12 +125,12 @@ public class Digest {
         return qop;
     }
 
-    public String getNc() {
-        return nc;
+    public String getNonceCount() {
+        return nonceCount;
     }
 
-    public String getCnonce() {
-        return cnonce;
+    public String getClientNonce() {
+        return clientNonce;
     }
 
     public String getOpaque() {
@@ -149,7 +172,7 @@ public class Digest {
         this.digest = digest;
         return this;
     }
-    
+
     public Digest setDigest(byte[] digest) {
         this.digest = Base64.encodeBytes(digest);
         return this;

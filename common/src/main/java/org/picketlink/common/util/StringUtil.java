@@ -199,4 +199,21 @@ public class StringUtil {
         }
         return maskedString;
     }
+
+    public static String[] split(String toSplit, String delimiter) {
+       if (delimiter.length() != 1) {
+           throw new IllegalArgumentException("Delimiter can only be one character in length");
+       }
+
+       int offset = toSplit.indexOf(delimiter);
+
+       if (offset < 0) {
+           return null;
+       }
+
+       String beforeDelimiter = toSplit.substring(0, offset);
+       String afterDelimiter = toSplit.substring(offset + 1);
+
+       return new String[] {beforeDelimiter, afterDelimiter};
+   } 
 }

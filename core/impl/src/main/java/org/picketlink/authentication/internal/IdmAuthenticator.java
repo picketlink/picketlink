@@ -3,7 +3,7 @@ package org.picketlink.authentication.internal;
 import javax.inject.Inject;
 
 import org.picketlink.authentication.BaseAuthenticator;
-import org.picketlink.credential.internal.DefaultLoginCredentials;
+import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Password;

@@ -21,7 +21,9 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.picketlink.common.util.Base64;
 import org.picketlink.idm.credential.Digest;
+import org.picketlink.idm.credential.DigestValidationException;
 
 /**
  * Utility class to support Digest Credentials
@@ -82,9 +84,9 @@ public class DigestUtil {
             messageDigest.update((byte) ':');
             messageDigest.update(digest.getNonce().getBytes(UTF8));
             messageDigest.update((byte) ':');
-            messageDigest.update(digest.getNc().getBytes(UTF8));
+            messageDigest.update(digest.getNonceCount().getBytes(UTF8));
             messageDigest.update((byte) ':');
-            messageDigest.update(digest.getCnonce().getBytes(UTF8));
+            messageDigest.update(digest.getClientNonce().getBytes(UTF8));
             messageDigest.update((byte) ':');
             messageDigest.update(digest.getQop().getBytes(UTF8));
             messageDigest.update((byte) ':');
@@ -106,9 +108,9 @@ public class DigestUtil {
             messageDigest.update((byte) ':');
             messageDigest.update(digest.getNonce().getBytes(UTF8));
             messageDigest.update((byte) ':');
-            messageDigest.update(digest.getNc().getBytes(UTF8));
+            messageDigest.update(digest.getNonceCount().getBytes(UTF8));
             messageDigest.update((byte) ':');
-            messageDigest.update(digest.getCnonce().getBytes(UTF8));
+            messageDigest.update(digest.getClientNonce().getBytes(UTF8));
             messageDigest.update((byte) ':');
             messageDigest.update(digest.getQop().getBytes(UTF8));
             messageDigest.update((byte) ':');
@@ -224,5 +226,63 @@ public class DigestUtil {
             }
         }
         return result;
+    }
+
+    public void validate(Digest digest, String systemRealm, String key) throws DigestValidationException {
+        // Check all required parameters were supplied (ie RFC 2069)
+        if (digest.getRealm() == null)
+            throw new DigestValidationException("Mandatory field 'realm' not specified");
+        if (digest.getNonce() == null)
+            throw new DigestValidationException("Mandatory field 'nonce' not specified");
+        if (digest.getUri() == null)
+            throw new DigestValidationException("Mandatory field 'uri' not specified");
+        if (digest.getClientNonce() == null)
+            throw new DigestValidationException("Mandatory field 'response' not specified");
+
+        // Check all required parameters for an "auth" qop were supplied (ie RFC
+        // 2617)
+        if ("auth".equals(digest.getQop())) {
+            if (digest.getNonceCount() == null) {
+                throw new DigestValidationException("Mandatory field 'nc' not specified");
+            }
+
+            if (digest.getClientNonce() == null) {
+                throw new DigestValidationException("Mandatory field 'cnonce' not specified");
+            }
+        }
+
+        String nonceAsText = new String(Base64.decode(digest.getNonce()));
+
+        String[] nonceTokens = nonceAsText.split(":");
+        if (nonceTokens.length != 2) {
+            throw new DigestValidationException("Nonce should provide two tokens - nonce received: " + digest.getNonce());
+        }
+
+        // Check realm name equals what we expected
+        if (!systemRealm.equals(digest.getRealm())) {
+            throw new DigestValidationException("Realm name [" + digest.getRealm() + "] does not match system realm name ["
+                    + systemRealm + "]");
+        }
+
+        long nonceExpiry = 0;
+        try {
+            nonceExpiry = new Long(nonceTokens[0]).longValue();
+        } catch (NumberFormatException nfe) {
+            throw new DigestValidationException("First nonce token should be numeric, but was: " + nonceTokens[0]);
+        }
+
+        // To get this far, the digest must have been valid
+        // Check the nonce has not expired
+        // We do this last so we can direct the user agent its nonce is stale
+        // but the request was otherwise appearing to be valid
+        if (nonceExpiry < System.currentTimeMillis()) {
+            throw new DigestValidationException("Nonce has expired", true);
+        }
+
+        String expectedNonceSignature = new String(md5(nonceExpiry + ":" + key));
+
+        if (!expectedNonceSignature.equals(nonceTokens[1])) {
+            throw new DigestValidationException("Nonce token invalid: " + nonceAsText);
+        }
     }
 }

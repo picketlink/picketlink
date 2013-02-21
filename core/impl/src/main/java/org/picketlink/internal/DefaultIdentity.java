@@ -38,7 +38,7 @@ import org.picketlink.authentication.event.PostAuthenticateEvent;
 import org.picketlink.authentication.event.PostLoggedOutEvent;
 import org.picketlink.authentication.event.PreAuthenticateEvent;
 import org.picketlink.authentication.event.PreLoggedOutEvent;
-import org.picketlink.credential.internal.DefaultLoginCredentials;
+import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.deltaspike.core.util.ExceptionUtils;
 import org.picketlink.idm.model.User;
 

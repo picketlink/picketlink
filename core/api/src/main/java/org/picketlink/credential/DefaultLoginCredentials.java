@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.credential.internal;
+package org.picketlink.credential;
 
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Observes;
