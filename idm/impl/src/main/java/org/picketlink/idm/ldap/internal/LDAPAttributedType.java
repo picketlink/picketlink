@@ -51,32 +51,12 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
 
     public void setId(String id) {
         this.id = id;
-//        Attribute theAttribute = getLDAPAttributes().get(ENTRY_UUID);
-//
-//        if (theAttribute == null) {
-//            getLDAPAttributes().put(ENTRY_UUID, id);
-//        } else {
-//            theAttribute.set(0, id);
-//        }
     }
 
     @Override
     public String getId() {
         return this.id;
-//        Attribute theAttribute = getLDAPAttributes().get(ENTRY_UUID);
-//
-//        if (theAttribute != null) {
-//            try {
-//                return (String) theAttribute.get();
-//            } catch (NamingException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//
-//        return null;
     }
-
-
 
     @Override
     public void setAttribute(org.picketlink.idm.model.Attribute<? extends Serializable> attribute) {
