@@ -98,6 +98,10 @@ public class DigestCredentialHandler implements CredentialHandler {
             } else if (CredentialUtils.isLastCredentialExpired(agent, credentialStore, DigestCredentialStorage.class)) {
                 digestCredential.setStatus(Status.EXPIRED);
             }
+            
+            if (digestCredential.getStatus().equals(Status.VALID)) {
+                digestCredential.setValidatedAgent(agent);
+            }
         }
     }
 
