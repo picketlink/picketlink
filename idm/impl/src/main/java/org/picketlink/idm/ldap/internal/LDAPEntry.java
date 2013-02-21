@@ -26,7 +26,6 @@ import static org.picketlink.idm.ldap.internal.LDAPConstants.SPACE_STRING;
 
 import java.io.Serializable;
 
-import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
@@ -37,7 +36,7 @@ import javax.naming.directory.BasicAttributes;
  * @author Pedro Silva
  * 
  */
-public class LDAPEntry implements Serializable {
+public abstract class LDAPEntry implements Serializable {
 
     private static final long serialVersionUID = -6220260371962877017L;
 
@@ -107,20 +106,6 @@ public class LDAPEntry implements Serializable {
 
             if (memberAttribute.size() == 0) {
                 memberAttribute.add(SPACE_STRING);
-            }
-        }
-    }
-
-    protected void addAllLDAPAttributes(Attributes theAttributes) {
-        if (theAttributes != null) {
-            NamingEnumeration<? extends Attribute> ne = theAttributes.getAll();
-            try {
-                while (ne.hasMore()) {
-                    Attribute att = ne.next();
-                    attributes.put(att);
-                }
-            } catch (NamingException e) {
-                throw new RuntimeException(e);
             }
         }
     }
