@@ -6,6 +6,8 @@ import org.picketlink.authentication.BaseAuthenticator;
 import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Digest;
+import org.picketlink.idm.credential.DigestCredentials;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.model.User;
@@ -25,13 +27,22 @@ public class IdmAuthenticator extends BaseAuthenticator {
 
     @Override
     public void authenticate() {
-        if (credentials.getPassword() == null) {
+        if (credentials.getCredential() == null) {
             setStatus(AuthenticationStatus.FAILURE);
             return;
         }
 
-        UsernamePasswordCredentials creds = new UsernamePasswordCredentials(credentials.getUserId(),
-                (Password) credentials.getCredential());
+        Credentials creds = null;
+        
+        if (Password.class.equals(credentials.getCredential().getClass())) {
+            creds = new UsernamePasswordCredentials(credentials.getUserId(),
+                    (Password) credentials.getCredential());
+        } else if (Digest.class.equals(credentials.getCredential().getClass())) {
+            creds = new DigestCredentials((Digest) credentials.getCredential());
+        } else {
+            throw new IllegalArgumentException("Unsupported credential type [" + credentials.getCredential() + "].");
+        }
+        
         identityManager.validateCredentials(creds);
 
 
