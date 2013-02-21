@@ -53,11 +53,7 @@ public class AuthenticationFilter implements Filter {
             this.realm = providedRealm;
         }
 
-        String providedAuthType = config.getInitParameter("authType");
-
-        if (providedAuthType != null) {
-            setAuthType(providedAuthType);
-        }
+        setAuthType(config.getInitParameter("authType"));
 
         this.authenticationSchemes.put(AuthType.DIGEST, new DigestAuthenticationScheme(this.realm));
         this.authenticationSchemes.put(AuthType.BASIC, new BasicAuthenticationScheme(this.realm));
@@ -123,9 +119,9 @@ public class AuthenticationFilter implements Filter {
         if (value == null) {
             throw new IllegalArgumentException("Null authentication type provided.");
         }
-        
+
         try {
-            this.authType = AuthType.valueOf(value);    
+            this.authType = AuthType.valueOf(value);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unsupported authentication type. Possible values are: BASIC and DIGEST.", e);
         }
