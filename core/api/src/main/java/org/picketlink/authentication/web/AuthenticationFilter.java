@@ -32,7 +32,7 @@ public class AuthenticationFilter implements Filter {
 
     @Inject
     Instance<Identity> identityInstance;
-
+    
     @Inject
     Instance<DefaultLoginCredentials> credentials;
 
@@ -94,11 +94,9 @@ public class AuthenticationFilter implements Filter {
         HTTPAuthenticationScheme authenticationScheme = this.authenticationSchemes.get(this.authType);
 
         if (!identity.isLoggedIn()) {
-            Object credential = authenticationScheme.extractCredential(request, response);
+            authenticationScheme.extractCredential(request, creds);
 
-            if (credential != null) {
-                creds.setUserId(authenticationScheme.extractUsername(request, response));
-                creds.setCredential(credential);
+            if (creds.getCredential() != null) {
                 identity.login();
             }
         }

@@ -23,15 +23,15 @@
 package org.picketlink.authentication.web;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Timer;
 
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
+import org.picketlink.credential.DefaultLoginCredentials;
+import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Digest;
 
 /**
@@ -42,54 +42,36 @@ import org.picketlink.idm.credential.Digest;
  */
 public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
 
-    private long nonceMaxValid = 3 * 60 * 1000;
+    private final Timer nonceCleanupTimer = new Timer("PicketLink_Digest_Nonce_Cache_Cleanup");
 
-    private static enum NONCE_VALIDATION_RESULT {
-        INVALID, STALE, VALID
-    }
-
-    private UUIDNonceGenerator nonceGenerator = new UUIDNonceGenerator();
-
-    private ConcurrentMap<String, List<String>> idVersusNonce = new ConcurrentHashMap<String, List<String>>();
+    private NonceCache nonceCache = new NonceCache();
 
     private String realm;
 
+    @Inject
+    Instance<DefaultLoginCredentials> credentials;
+
     public DigestAuthenticationScheme(String realm) {
         this.realm = realm;
+        this.nonceCleanupTimer
+                .schedule(this.nonceCache, this.nonceCache.getNonceMaxValid(), this.nonceCache.getNonceMaxValid());
     }
 
     @Override
-    public String extractUsername(HttpServletRequest request, HttpServletResponse response) {
-        Digest digestCredential = (Digest) extractCredential(request, response);
-
-        if (digestCredential != null) {
-            return digestCredential.getUsername();
-        }
-
-        return null;
-    }
-
-    @Override
-    public Object extractCredential(HttpServletRequest request, HttpServletResponse response) {
-        Digest credential = null;
-
+    public void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds) {
         if (isDigestAuthentication(request)) {
             String[] tokens = extractTokens(request);
 
             if (tokens.length > 0) {
-                credential = HTTPDigestUtil.digest(tokens);
+                Digest credential = HTTPDigestUtil.digest(tokens);
 
                 credential.setMethod(request.getMethod());
 
-                NONCE_VALIDATION_RESULT nonceStatus = validateNonce(credential, request);
-
-                if (nonceStatus != NONCE_VALIDATION_RESULT.VALID) {
-                    credential = null;
+                if (this.nonceCache.hasValidNonce(credential, request)) {
+                    creds.setCredential(credential);
                 }
             }
         }
-
-        return credential;
     }
 
     @Override
@@ -99,18 +81,7 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
         if (domain == null)
             domain = "/";
 
-        String newNonce = this.nonceGenerator.get();
-
-        HttpSession session = request.getSession();
-
-        List<String> storedNonces = this.idVersusNonce.get(session.getId());
-
-        if (storedNonces == null) {
-            storedNonces = new ArrayList<String>();
-            this.idVersusNonce.put(session.getId(), storedNonces);
-        }
-
-        storedNonces.add(newNonce);
+        String newNonce = this.nonceCache.generateAndCacheNonce(request);
 
         StringBuilder str = new StringBuilder("Digest realm=\"");
 
@@ -125,26 +96,6 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }
 
-    private NONCE_VALIDATION_RESULT validateNonce(Digest digest, HttpServletRequest request) {
-        String nonce = digest.getNonce();
-
-        List<String> storedNonces = this.idVersusNonce.get(request.getSession().getId());
-
-        if (storedNonces == null) {
-            return NONCE_VALIDATION_RESULT.INVALID;
-        }
-
-        if (storedNonces.contains(nonce) == false) {
-            return NONCE_VALIDATION_RESULT.INVALID;
-        }
-
-        if (this.nonceGenerator.hasExpired(nonce, this.nonceMaxValid)) {
-            return NONCE_VALIDATION_RESULT.STALE;
-        }
-
-        return NONCE_VALIDATION_RESULT.VALID;
-    }
-
     private String[] extractTokens(HttpServletRequest request) {
         String authorizationHeader = getAuthorizationHeader(request).substring(7).trim();
 
@@ -157,6 +108,8 @@ public class DigestAuthenticationScheme implements HTTPAuthenticationScheme {
     }
 
     private boolean isDigestAuthentication(HttpServletRequest request) {
-        return getAuthorizationHeader(request) != null && getAuthorizationHeader(request).startsWith("Digest ");
+        String authorizationHeader = getAuthorizationHeader(request);
+
+        return authorizationHeader != null && authorizationHeader.startsWith("Digest ");
     }
 }

@@ -24,11 +24,14 @@ package org.picketlink.authentication.web;
 
 import java.io.IOException;
 
+import javax.enterprise.inject.Instance;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.common.util.Base64;
 import org.picketlink.common.util.StringUtil;
+import org.picketlink.credential.DefaultLoginCredentials;
 import org.picketlink.idm.credential.Password;
 
 /**
@@ -41,19 +44,15 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
 
     private String realm;
 
+    @Inject
+    Instance<DefaultLoginCredentials> credentials;
+    
     public BasicAuthenticationScheme(String realm) {
         this.realm = realm;
     }
 
     @Override
-    public String extractUsername(HttpServletRequest request, HttpServletResponse response) {
-        return extractUsernameAndPassword(request)[0];
-    }
-
-    @Override
-    public Object extractCredential(HttpServletRequest request, HttpServletResponse response) {
-        Object credential = null;
-
+    public void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds) {
         if (isBasicAuthentication(request)) {
             String[] usernameAndPassword = extractUsernameAndPassword(request);
 
@@ -61,11 +60,10 @@ public class BasicAuthenticationScheme implements HTTPAuthenticationScheme {
             String password = usernameAndPassword[1];
 
             if (!(StringUtil.isNullOrEmpty(username) && StringUtil.isNullOrEmpty(password))) {
-                credential = new Password(password.toCharArray());
+                creds.setUserId(username);
+                creds.setCredential(new Password(password.toCharArray()));
             }
         }
-
-        return credential;
     }
 
     @Override

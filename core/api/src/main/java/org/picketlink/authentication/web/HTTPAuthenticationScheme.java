@@ -27,6 +27,8 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.picketlink.credential.DefaultLoginCredentials;
+
 
 /**
  * @author Pedro Silva
@@ -34,8 +36,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface HTTPAuthenticationScheme {
 
-    Object extractCredential(HttpServletRequest request, HttpServletResponse response);
-    String extractUsername(HttpServletRequest request, HttpServletResponse response);
+    void extractCredential(HttpServletRequest request, DefaultLoginCredentials creds);
     
     void challengeClient(HttpServletRequest request, HttpServletResponse response) throws IOException;
     
