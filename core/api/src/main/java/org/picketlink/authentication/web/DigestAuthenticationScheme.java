@@ -31,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.picketlink.credential.DefaultLoginCredentials;
-import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Digest;
 
 /**
