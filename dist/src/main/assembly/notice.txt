@@ -1,0 +1,7 @@
+ ===================================================================================
+ ==  NOTICE file corresponding to section 4d of the Apache License, Version 2.0,  ==
+ ==  in this case for the PicketLink distribution.                                ==
+ ===================================================================================
+
+ PicketLink
+ Copyright 2013 Red Hat, Inc., and individual contributors by the @authors tag
