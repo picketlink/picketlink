@@ -82,7 +82,7 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class })
+@SuiteClasses({ })
 public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     private static final String BASE_DN = "dc=jboss,dc=org";
