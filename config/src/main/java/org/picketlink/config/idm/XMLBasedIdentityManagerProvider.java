@@ -18,16 +18,13 @@ package org.picketlink.config.idm;
  * limitations under the License.
  */
 
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.util.Map;
+
+import javax.persistence.EntityManagerFactory;
+
 import org.picketlink.common.exceptions.ParsingException;
-import org.picketlink.idm.IdGenerator;
-import org.picketlink.idm.IdentityCache;
-import org.picketlink.idm.IdentityManager;
-import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.StoreConfiguration;
-import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
-import org.picketlink.idm.event.EventBridge;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
@@ -36,13 +33,17 @@ import org.picketlink.common.reflection.Reflections;
 import org.picketlink.config.PicketLinkConfigParser;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.idm.resolver.PropertyResolverMapper;
+import org.picketlink.idm.IdGenerator;
+import org.picketlink.idm.IdentityCache;
+import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
+import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
-
-import javax.persistence.EntityManagerFactory;
-import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.util.Map;
 
 /**
  * Creating IDM runtime from parsed XML configuration
@@ -144,21 +145,21 @@ public class XMLBasedIdentityManagerProvider {
         }
 
         if (identityConfigurationType.getPartitionStoreConfiguration() != null) {
-            StoreConfiguration partitionStoreConfig = buildStoreConfiguration(identityConfigurationType.getPartitionStoreConfiguration());
+            IdentityStoreConfiguration partitionStoreConfig = buildStoreConfiguration(identityConfigurationType.getPartitionStoreConfiguration());
             identityConfig.addStoreConfiguration(partitionStoreConfig);
         }
 
         return identityConfig;
     }
 
-    protected StoreConfiguration buildStoreConfiguration(StoreConfigurationType storeConfigType) {
+    protected IdentityStoreConfiguration buildStoreConfiguration(StoreConfigurationType storeConfigType) {
         String className = storeConfigType.getClassName();
 
         if (className == null) {
             throw new SecurityConfigurationException("Classname of all storeConfigurationTypes must be provided!");
         }
 
-        StoreConfiguration storeConfig = (StoreConfiguration)instantiateComponent(className);
+        IdentityStoreConfiguration storeConfig = (IdentityStoreConfiguration) instantiateComponent(className);
         Class<?> storeConfigClass = storeConfig.getClass();
 
         Map<String, Object> props = storeConfigType.getAllProperties();
