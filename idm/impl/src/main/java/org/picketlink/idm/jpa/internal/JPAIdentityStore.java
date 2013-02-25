@@ -798,7 +798,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     @SuppressWarnings("unchecked")
     private <T extends Relationship> T convertToRelationshipType(Object relationshipObject) {
-        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
+        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID);
         Property<Object> idProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID);
         Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
         Property<Object> typeProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS);
@@ -828,7 +828,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             List<Property<Object>> identityTypeProperty = PropertyQueries.createQuery(relationshipClass)
                     .addCriteria(new NamedPropertyCriteria(descriptor)).getResultList();
 
-            IdentityType identityType = convertToIdentityType(identityProperty.getValue(object));
+            IdentityType identityType = convertToIdentityType(lookupIdentityObjectById(identityProperty.getValue(object).toString()));
 
             identityTypeProperty.get(0).setValue(relationshipType, identityType);
         }
@@ -1173,8 +1173,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         CriteriaQuery<?> criteria = builder.createQuery(getConfig().getRelationshipIdentityClass());
         Root<?> root = criteria.from(getConfig().getRelationshipIdentityClass());
 
-        criteria.where(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
-                identityTypeEntity));
+        criteria.where(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).getName()),
+                getConfig().getModelPropertyValue(String.class, identityTypeEntity, PropertyType.IDENTITY_ID)));
 
         return em.createQuery(criteria).getResultList();
 
@@ -1473,8 +1473,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             IdentityType identityType = prop.getValue(relationship);
 
-            getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).setValue(relationshipIdentity,
-                    lookupIdentityObjectById(identityType.getId()));
+            getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).setValue(relationshipIdentity,
+                    identityType.getId());
             getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).setValue(relationshipIdentity, prop.getName());
             getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP)
                     .setValue(relationshipIdentity, entity);
@@ -1620,7 +1620,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_CLASS).getName()), query
                 .getRelationshipType().getName()));
 
-        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY);
+        Property<Object> identityProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID);
         Property<Object> descriptorProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR);
         Property<Object> relationshipProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
 
@@ -1642,13 +1642,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                         if (identityObject != null) {
                             List<Object> objects = new ArrayList<Object>();
 
-                            objects.add(identityObject);
+                            objects.add(getConfig().getModelPropertyValue(String.class, identityObject, PropertyType.IDENTITY_ID));
 
                             if (Group.class.isInstance(identityType) && !matchExactGroup) {
                                 List<Group> groupParents = getParentGroups((Group) identityType);
 
                                 for (Group group : groupParents) {
-                                    objects.add(this.lookupIdentityObjectById(group.getId()));
+                                    objects.add(group.getId());
                                 }
                             }
 

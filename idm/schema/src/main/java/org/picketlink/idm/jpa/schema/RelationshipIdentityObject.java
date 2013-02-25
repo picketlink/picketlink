@@ -47,9 +47,8 @@ public class RelationshipIdentityObject implements Serializable {
     @IDMProperty(PropertyType.RELATIONSHIP_DESCRIPTOR)
     private String descriptor;
 
-    @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY)
-    @ManyToOne
-    private IdentityObject identityObject;
+    @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY_ID)
+    private String identityObjectId;
 
     @IDMProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP)
     @ManyToOne
@@ -63,12 +62,12 @@ public class RelationshipIdentityObject implements Serializable {
         this.id = id;
     }
 
-    public IdentityObject getIdentityObject() {
-        return identityObject;
+    public String getIdentityObjectId() {
+        return identityObjectId;
     }
 
-    public void setIdentityObject(IdentityObject identityObject) {
-        this.identityObject = identityObject;
+    public void setIdentityObjectId(String identityObjectId) {
+        this.identityObjectId = identityObjectId;
     }
 
     public RelationshipObject getRelationshipObject() {

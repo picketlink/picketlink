@@ -112,7 +112,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
                     Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
                     Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
                     subquery.select(fromProject.get(getConfig().getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY).getName()));
+                            PropertyType.RELATIONSHIP_IDENTITY_ID).getName()));
                     Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
 
@@ -122,8 +122,8 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
                             fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).getName()),
                             Grant.ROLE.getName()));
                     subqueryPredicates.add(criteria.getBuilder().equal(
-                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).getName()),
-                            criteria.getRoot()));
+                            fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).getName()),
+                            criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName())));
                     subqueryPredicates.add(criteria.getBuilder()
                             .in(join.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).getName())).value(relIds));
 

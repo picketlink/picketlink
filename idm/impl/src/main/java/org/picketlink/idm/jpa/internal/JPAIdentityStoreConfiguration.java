@@ -381,7 +381,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         configureModelProperty(PropertyType.RELATIONSHIP_ID, relationshipClass, null, "id");
         configureModelProperty(PropertyType.RELATIONSHIP_CLASS, relationshipClass, null, "relationshipClass");
 
-        configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, relationshipIdentityClass, null, "identity");
+        configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID, relationshipIdentityClass, null, "identityTypeId");
         configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, relationshipIdentityClass, null, "descriptor");
         configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, relationshipIdentityClass, relationshipClass);
 

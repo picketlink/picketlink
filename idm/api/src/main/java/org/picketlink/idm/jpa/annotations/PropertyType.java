@@ -153,7 +153,7 @@ public enum PropertyType {
     /**
      * Represents an identity that participates in a relationship
      */
-    RELATIONSHIP_IDENTITY,
+    RELATIONSHIP_IDENTITY_ID,
     /**
      * Relates a relationship identity back to its owning relationship
      */
