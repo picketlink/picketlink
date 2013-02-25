@@ -45,7 +45,6 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
@@ -178,8 +177,7 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
     }
     
     public static LDAPIdentityStoreConfiguration getLDAPConfiguration() {
-        LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
-        LDAPIdentityStoreConfiguration config = (LDAPIdentityStoreConfiguration) builder.build();
+        LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
 
         config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)
                 .setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX)

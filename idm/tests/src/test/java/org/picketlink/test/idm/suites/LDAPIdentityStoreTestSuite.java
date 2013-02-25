@@ -29,7 +29,6 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.model.Grant;
@@ -130,8 +129,8 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     }
 
     public static LDAPIdentityStoreConfiguration getConfiguration() {
-        LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
-        LDAPIdentityStoreConfiguration config = (LDAPIdentityStoreConfiguration) builder.build();
+
+        LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
 
         config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)
                 .setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX)
