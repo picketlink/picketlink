@@ -19,48 +19,25 @@
 package org.picketlink.idm.file.internal;
 
 import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
-public class FileIdentityStoreConfiguration extends IdentityStoreConfiguration {
+public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
-    /**
-     * <p>
-     * Defines the feature set for this {@link IdentityStore}.
-     * </p>
-     */
-    private FeatureSet featureSet = new FeatureSet();
-    
     private FileDataSource dataSource = new FileDataSource();
 
     @Override
-    public void init() throws SecurityConfigurationException {
-        configureFeatureSet();
+    public void initConfig() throws SecurityConfigurationException {
         this.dataSource.init();
-    }
-    
-    /**
-     * <p>
-     * Configures the {@link Feature} set supported by this store.
-     * </p>
-     */
-    private void configureFeatureSet() {
-        this.featureSet.addSupportedFeature(Feature.all);
-    }
-
-    @Override
-    public FeatureSet getFeatureSet() {
-        return this.featureSet;
     }
 
     public void setDataSource(FileDataSource dataSource) {
         this.dataSource = dataSource;
     }
-    
+
     public FileDataSource getDataSource() {
         return this.dataSource;
     }

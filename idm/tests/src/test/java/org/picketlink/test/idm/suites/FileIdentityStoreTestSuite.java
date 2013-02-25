@@ -21,6 +21,7 @@ package org.picketlink.test.idm.suites;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.file.internal.FileDataSource;
@@ -108,9 +109,14 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
     private void addTestingRealmConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
         FileIdentityStoreConfiguration fileConfig = new FileIdentityStoreConfiguration();
 
-        fileConfig.setRealm("Testing");
+        fileConfig.addRealm("Testing");
 
         fileConfig.setDataSource(dataSource);
+
+        FeatureSet.addFeatureSupport(fileConfig.getFeatureSet());
+        FeatureSet.addRelationshipSupport(fileConfig.getFeatureSet());
+        fileConfig.getFeatureSet().setSupportsCustomRelationships(true);
+        fileConfig.getFeatureSet().setSupportsMultiRealm(true);
 
         config.addStoreConfiguration(fileConfig);
     }
@@ -128,6 +134,11 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
         defaultConfiguration.setDataSource(dataSource);
 
+        FeatureSet.addFeatureSupport(defaultConfiguration.getFeatureSet());
+        FeatureSet.addRelationshipSupport(defaultConfiguration.getFeatureSet());
+        defaultConfiguration.getFeatureSet().setSupportsCustomRelationships(true);
+        defaultConfiguration.getFeatureSet().setSupportsMultiRealm(true);
+
         config.addStoreConfiguration(defaultConfiguration);
     }
 
@@ -135,7 +146,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
     public void onInit() {
 
     }
-    
+
     @Override
     public void onDestroy() {
 

@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm.internal.util;
 
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
@@ -47,6 +48,20 @@ public class IDMUtil {
 
     public static  boolean isAgentType(Class<? extends IdentityType> identityType) {
         return Agent.class.isAssignableFrom(identityType);
+    }
+    
+    public static FeatureGroup getFeatureGroup(IdentityType identityType) {
+        if (Agent.class.isInstance(identityType)) {
+            return FeatureGroup.agent;
+        } else if (User.class.isInstance(identityType)) {
+            return FeatureGroup.user;
+        } else if (Group.class.isInstance(identityType)) {
+            return FeatureGroup.group;
+        } else if (Role.class.isInstance(identityType)) {
+            return FeatureGroup.role;
+        } else {
+            throw new IllegalArgumentException("Unsupported IdentityType");
+        }
     }
 
 

@@ -24,12 +24,16 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
+import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -132,9 +136,15 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)
                 .setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX)
                 .setGroupDNSuffix(GROUP_DN_SUFFIX);
-        
+
         config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
-        
+
+        FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, 
+                FeatureGroup.group, FeatureGroup.role, FeatureGroup.relationship, FeatureGroup.credential);
+        FeatureSet.addRelationshipSupport(config.getFeatureSet(), Grant.class, GroupMembership.class);
+        config.getFeatureSet().setSupportsCustomRelationships(false);
+        config.getFeatureSet().setSupportsMultiRealm(false);
+
         return config;
     }
 

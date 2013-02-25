@@ -26,9 +26,8 @@ import java.util.Set;
 import javax.naming.NamingException;
 
 import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.GroupMembership;
 
 /**
  * A {@link IdentityStoreConfiguration} for LDAP
@@ -37,7 +36,7 @@ import org.picketlink.idm.model.GroupMembership;
  * @since Sep 6, 2012
  */
 
-public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
+public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
     private String ldapURL;
     private String userDNSuffix;
@@ -51,21 +50,15 @@ public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
     private String standardAttributesFileName = "standardattributes.txt";
     private boolean isActiveDirectory = false;
     private Properties additionalProperties = new Properties();
-    private FeatureSet featureSet = new FeatureSet();
+
     private LDAPOperationManager ldapManager;
     private String agentDNSuffix;
     private String baseDN;
     private Map<String, String> groupMapping = new HashMap<String, String>();
-    
-    
+
     @Override
-    public void init() throws SecurityConfigurationException {
-        this.featureSet.addSupportedFeature(Feature.all);
-        this.featureSet.addSupportedRelationship(Grant.class);
-        this.featureSet.addSupportedRelationship(GroupMembership.class);
-        
-        getSupportedCredentialHandlers().add(LDAPPlainTextPasswordCredentialHandler.class);
-        
+    public void initConfig() throws SecurityConfigurationException {
+
         if (getUserDNSuffix() == null) {
             throw new SecurityConfigurationException("User baseDN not provided.");
         }
@@ -87,11 +80,6 @@ public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
         } catch (NamingException e) {
             throw new SecurityConfigurationException(e);
         }
-    }
-
-    @Override
-    public FeatureSet getFeatureSet() {
-        return this.featureSet;
     }
 
     public String getStandardAttributesFileName() {
@@ -228,13 +216,13 @@ public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
     
     public String getGroupMappingDN(String groupPath) {
         Set<Entry<String, String>> entrySet = this.groupMapping.entrySet();
-        
+
         for (Entry<String, String> entry : entrySet) {
             if (groupPath.contains(entry.getKey())) {
                 return entry.getValue();
             }
         }
-        
+
         return this.groupMapping.get(groupPath);
     }
 
@@ -244,7 +232,7 @@ public class LDAPIdentityStoreConfiguration extends IdentityStoreConfiguration {
         }
 
         Set<Entry<String, String>> entrySet = this.groupMapping.entrySet();
-        
+
         for (Entry<String, String> entry : entrySet) {
             if (nameInNamespace.endsWith(entry.getValue())) {
                 return true;

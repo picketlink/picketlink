@@ -27,13 +27,13 @@ import java.util.List;
  * @author Shane Bryzak
  */
 public class IdentityConfiguration {
-    private List<StoreConfiguration> configuredStores = new ArrayList<StoreConfiguration>();
+    private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
 
-    public List<StoreConfiguration> getConfiguredStores() {
+    public List<IdentityStoreConfiguration> getConfiguredStores() {
         return configuredStores;
     }
 
-    public void addStoreConfiguration(StoreConfiguration config) {
+    public void addStoreConfiguration(IdentityStoreConfiguration config) {
         configuredStores.add(config);
     }
 }

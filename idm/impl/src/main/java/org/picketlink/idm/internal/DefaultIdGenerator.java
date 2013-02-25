@@ -23,7 +23,7 @@ import java.util.UUID;
 import org.picketlink.idm.IdGenerator;
 
 /**
- * Default IdGenerator implementation
+ * Default IdGenerator implementation, used to generate unique identifier values for IdentityType implementations
  * 
  * @author Shane Bryzak
  *

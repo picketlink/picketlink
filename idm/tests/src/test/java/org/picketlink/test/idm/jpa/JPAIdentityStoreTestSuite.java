@@ -25,6 +25,8 @@ import javax.persistence.Persistence;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.FeatureSet;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
@@ -133,7 +135,7 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     private IdentityStoreConfiguration getTestingRealmConfiguration() {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
         
-        configuration.setRealm("Testing");
+        configuration.addRealm("Testing");
         
         configureJPAConfiguration(configuration);
         
@@ -149,6 +151,11 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         configuration.setCredentialClass(CredentialObject.class);
         configuration.setCredentialAttributeClass(CredentialObjectAttribute.class);
         configuration.setPartitionClass(PartitionObject.class);
+
+        FeatureSet.addFeatureSupport(configuration.getFeatureSet());
+        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
+        configuration.getFeatureSet().setSupportsCustomRelationships(true);
+        configuration.getFeatureSet().setSupportsMultiRealm(true);
     }
 
     @Override

@@ -18,8 +18,11 @@
 
 package org.picketlink.idm.config;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.picketlink.idm.SecurityConfigurationException;
 
 
 /**
@@ -27,32 +30,29 @@ import java.util.Map;
  * 
  * @author Shane Bryzak
  */
-public abstract class BaseAbstractStoreConfiguration implements StoreConfiguration {
+public abstract class BaseAbstractStoreConfiguration implements IdentityStoreConfiguration {
 
-    /**
-     * Defines arbitrary property values for the identity store
-     */
-    private final Map<String,String> properties = new HashMap<String,String>();
+    private final FeatureSet featureSet = new FeatureSet();
 
-    /**
-     * Sets a property value
-     * 
-     * @param name
-     * @param value
-     */
-    @Override
-    public void setProperty(String name, String value) {
-        properties.put(name, value);
+    private final Set<String> realms = new HashSet<String>();
+
+    public FeatureSet getFeatureSet() {
+        return featureSet;
     }
 
-    /**
-     * Returns the specified property value
-     * 
-     * @param name
-     * @return
-     */
-    @Override
-    public String getPropertyValue(String name) {
-        return properties.get(name);
+    public void addRealm(String name) {
+        realms.add(name);
     }
+
+    public Set<String> getRealms() {
+        return Collections.unmodifiableSet(realms);
+    }
+
+    @Override
+    public final void init() throws SecurityConfigurationException {
+        this.featureSet.lock();
+        initConfig();
+    }
+
+    public abstract void initConfig();
 }

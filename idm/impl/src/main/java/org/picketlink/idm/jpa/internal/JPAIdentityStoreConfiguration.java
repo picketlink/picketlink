@@ -24,9 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.common.properties.Property;
 import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
@@ -34,13 +31,15 @@ import org.picketlink.common.properties.query.PropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
+import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 
@@ -50,7 +49,7 @@ import org.picketlink.idm.model.User;
  * @author Shane Bryzak
  * 
  */
-public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
+public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
     // Discriminator constants
     private static final String DEFAULT_USER_IDENTITY_DISCRIMINATOR = "USER";
@@ -69,12 +68,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
      * types.
      * </p>
      */
-    private Map<String, IdentityTypeHandler<? extends IdentityType>> identityTypeStores = new HashMap<String, IdentityTypeHandler<? extends IdentityType>>();
-
-    /**
-     * Defines the feature set for this IdentityStore
-     */
-    private FeatureSet featureSet = new FeatureSet();
+    private Map<String, IdentityTypeHandler<? extends IdentityType>> identityTypeHandlers = new HashMap<String, IdentityTypeHandler<? extends IdentityType>>();
 
     /**
      * Model properties
@@ -113,11 +107,11 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public void setCredentialClass(Class<?> credentialClass) {
         this.credentialClass = credentialClass;
     }
-    
+
     public Class<?> getCredentialAttributeClass() {
         return this.credentialAttributeClass;
     }
-    
+
     public void setCredentialAttributeClass(Class<?> credentialAttributeClass) {
         this.credentialAttributeClass = credentialAttributeClass;
     }
@@ -125,7 +119,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public Class<?> getRelationshipClass() {
         return this.relationshipClass;
     }
-    
+
     public Class<?> getPartitionClass() {
         return this.partitionClass;
     }
@@ -133,7 +127,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public void setRelationshipClass(Class<?> relationshipClass) {
         this.relationshipClass = relationshipClass;
     }
-    
+
     public void setPartitionClass(Class<?> partitionClass) {
         this.partitionClass = partitionClass;
     }
@@ -270,7 +264,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     public Property<Object> getModelProperty(PropertyType propertyType) {
         return modelProperties.get(propertyType);
     }
-    
+
     protected <P> P getModelPropertyValue(Class<P> propertyClass, Object instance, PropertyType propertyType) {
         @SuppressWarnings("unchecked")
         Property<P> property = (Property<P>) getModelProperty(propertyType);
@@ -298,12 +292,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     @Override
-    public FeatureSet getFeatureSet() {
-        return featureSet;
-    }
-
-    @Override
-    public void init() throws SecurityConfigurationException {
+    public void initConfig() throws SecurityConfigurationException {
         if (identityClass == null) {
             throw new SecurityConfigurationException("Error initializing JpaIdentityStore - identityClass not set");
         }
@@ -315,17 +304,13 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
         configureRelationships();
         configureAttributes();
         configureCredentials();
-
-        this.featureSet.addSupportedFeature(Feature.all);
-        // Support all relationship types
-        this.featureSet.addSupportedRelationship(Relationship.class); 
     }
 
     private void configureIdentityTypeHandlers() {
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(User.class), new UserHandler(this));
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Agent.class), new AgentHandler(this));
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Role.class), new RoleHandler(this));
-        this.identityTypeStores.put(getIdentityTypeDiscriminator(Group.class), new GroupHandler(this));
+        this.identityTypeHandlers.put(getIdentityTypeDiscriminator(User.class), new UserHandler(this));
+        this.identityTypeHandlers.put(getIdentityTypeDiscriminator(Agent.class), new AgentHandler(this));
+        this.identityTypeHandlers.put(getIdentityTypeDiscriminator(Role.class), new RoleHandler(this));
+        this.identityTypeHandlers.put(getIdentityTypeDiscriminator(Group.class), new GroupHandler(this));
     }
 
     private void configureCredentials() {
@@ -483,8 +468,6 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
             discriminator = getIdentityTypeRole();
         } else if (Group.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeGroup();
-        } else if (Agent.class.isAssignableFrom(identityType)) {
-            discriminator = getIdentityTypeAgent();
         } else {
             throw new IdentityManagementException("No discriminator could be determined for type [" + identityType.getClass()
                     + "]");
@@ -494,7 +477,7 @@ public class JPAIdentityStoreConfiguration extends IdentityStoreConfiguration {
     }
 
     public Map<String, IdentityTypeHandler<? extends IdentityType>> getIdentityTypeStores() {
-        return identityTypeStores;
+        return identityTypeHandlers;
     }
 
     @SuppressWarnings("unchecked")
