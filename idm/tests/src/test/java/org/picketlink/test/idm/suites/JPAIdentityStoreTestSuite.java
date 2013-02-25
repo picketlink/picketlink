@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.test.idm.jpa;
+package org.picketlink.test.idm.suites;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
