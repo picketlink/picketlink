@@ -46,7 +46,6 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.ldap.internal.LDAPConfigurationBuilder;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
@@ -102,7 +101,7 @@ public class OAuthServerUtil {
                 IdentityConfiguration identityConfig = new IdentityConfiguration();
                 JPAIdentityStoreConfiguration jpaStoreConfig = new JPAIdentityStoreConfiguration();
 
-                jpaStoreConfig.setRealm("default");
+                jpaStoreConfig.addRealm("default");
 
                 jpaStoreConfig.setIdentityClass(IdentityObject.class);
                 jpaStoreConfig.setAttributeClass(IdentityObjectAttribute.class);
@@ -122,10 +121,7 @@ public class OAuthServerUtil {
                 context.setAttribute("identityManager", identityManager);
             }
             if ("ldap".equalsIgnoreCase(storeType)) {
-
-                // LDAPIdentityStore store = new LDAPIdentityStore();
-                LDAPConfigurationBuilder builder = new LDAPConfigurationBuilder();
-                LDAPIdentityStoreConfiguration ldapConfiguration = (LDAPIdentityStoreConfiguration) builder.build();
+                LDAPIdentityStoreConfiguration ldapConfiguration = new LDAPIdentityStoreConfiguration();
 
                 // LDAPConfiguration ldapConfiguration = new LDAPConfiguration();
 
