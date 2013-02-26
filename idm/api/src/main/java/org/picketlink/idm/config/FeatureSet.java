@@ -11,6 +11,7 @@ import java.util.Set;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.GroupMembership;
+import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Relationship;
 
 /**
@@ -78,6 +79,10 @@ public class FeatureSet {
 
     public void removeFeature(FeatureGroup feature, FeatureOperation operation) {
         getFeatureOperations(feature).remove(operation);
+    }
+    
+    public void removeFeature(FeatureGroup feature) {
+        this.supportedFeatures.remove(feature);
     }
 
     public boolean supports(FeatureGroup feature, FeatureOperation operation) {
@@ -152,7 +157,7 @@ public class FeatureSet {
             classes = new ArrayList<Class<? extends Relationship>>();
             classes.add(Grant.class);
             classes.add(GroupMembership.class);
-            classes.add(GroupMembership.class);
+            classes.add(GroupRole.class);
         }
 
         for (Class<? extends Relationship> cls : classes) {
