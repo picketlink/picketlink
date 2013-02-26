@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.spi;
 
+import org.picketlink.idm.IdentityManager;
+
 
 /**
  * Factory for creating and initializing IdentityStoreInvocationContext instances
@@ -29,7 +31,7 @@ public interface IdentityStoreInvocationContextFactory {
      * 
      * @return
      */
-    IdentityStoreInvocationContext createContext();
+    IdentityStoreInvocationContext createContext(IdentityManager identityManager);
 
     /**
      * 

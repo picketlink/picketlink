@@ -27,6 +27,7 @@ import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.DefaultIdentityCache;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
@@ -59,8 +60,8 @@ public class EEIdentityStoreInvocationContextFactory implements IdentityStoreInv
     }
 
     @Override
-    public IdentityStoreInvocationContext createContext() {
-        return new IdentityStoreInvocationContext(this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator);
+    public IdentityStoreInvocationContext createContext(IdentityManager identityManager) {
+        return new IdentityStoreInvocationContext(identityManager, this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator);
     }
 
     @Override

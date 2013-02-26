@@ -30,10 +30,10 @@ import java.util.Set;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
@@ -291,19 +291,17 @@ public class DefaultIdentityManager implements IdentityManager {
 
         IdentityStoreInvocationContext ctx = createContext();
 
-        if (FeatureGroup.group.equals(feature)) {
-            if (ctx.getRealm() != null && ctx.getTier() != null) {
-                throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the "
-                        + "scope of a Realm or a Tier, however both have been set.");
-            }
-        } else if (FeatureGroup.role.equals(feature)) {
-            if (ctx.getRealm() != null && ctx.getTier() != null) {
-                throw new IllegalStateException("Ambiguous context state - Role may only be managed in either the "
-                        + "scope of a Realm or a Tier, however both have been set.");
-            }
-        }
-
         getContextualStoreForFeature(ctx, feature, FeatureOperation.delete).remove(identityType);
+        
+        RelationshipQuery<Relationship> query = createRelationshipQuery(Relationship.class);
+        
+        query.setParameter(Relationship.IDENTITY, identityType);
+        
+        List<Relationship> relationships = query.getResultList();
+        
+        for (Relationship relationship : relationships) {
+            remove(relationship);
+        }
     }
 
     @Override
@@ -662,16 +660,12 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     private IdentityStoreInvocationContext createContext() {
-        IdentityStoreInvocationContext context = this.contextFactory.createContext();
+        IdentityStoreInvocationContext context = this.contextFactory.createContext(this);
 
         context.setRealm(currentRealm.get());
         context.setTier(currentTier.get());
 
         return context;
-    }
-
-    private IdentityStoreInvocationContext createPartitionContext() {
-        return this.contextFactory.createContext();
     }
 
     private void checkIfIdentityTypeExists(IdentityType identityType) {

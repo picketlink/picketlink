@@ -20,13 +20,13 @@ package org.picketlink.idm.internal;
 import org.picketlink.idm.DefaultIdentityCache;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
-import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * A simple implementation of {@link IdentityStoreInvocationContextFactory} that has no dependencies on JPA
@@ -40,8 +40,8 @@ public class SimpleIdentityStoreInvocationContextFactory implements IdentityStor
     private IdGenerator idGenerator = new DefaultIdGenerator();
     
     @Override
-    public IdentityStoreInvocationContext createContext() {
-        return new IdentityStoreInvocationContext(this.identityCache, eventBridge, credentialHandlerFactory, idGenerator);
+    public IdentityStoreInvocationContext createContext(IdentityManager identityManager) {
+        return new IdentityStoreInvocationContext(identityManager, this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator);
     }
 
     @SuppressWarnings("rawtypes")

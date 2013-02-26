@@ -23,10 +23,12 @@ import java.util.Map;
 
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
+import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
@@ -74,8 +76,11 @@ public class IdentityStoreInvocationContext {
      */
     private Map<String, Object> parameters = new HashMap<String, Object>();
 
-    public IdentityStoreInvocationContext(IdentityCache cache, EventBridge eventBridge, CredentialHandlerFactory factory,
+    private IdentityManager identityManager;
+
+    public IdentityStoreInvocationContext(IdentityManager identityManager, IdentityCache cache, EventBridge eventBridge, CredentialHandlerFactory factory,
             IdGenerator idGenerator) {
+        this.identityManager = identityManager;
         this.cache = cache;
         this.eventBridge = eventBridge;
         this.credentialHandlerFactory = factory;
@@ -212,5 +217,9 @@ public class IdentityStoreInvocationContext {
         }
 
         return partition;
+    }
+
+    public IdentityManager getIdentityManager() {
+        return this.identityManager;
     }
 }
