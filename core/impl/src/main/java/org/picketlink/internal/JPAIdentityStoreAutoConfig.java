@@ -9,6 +9,7 @@ import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.persistence.Entity;
 
 import org.picketlink.IdentityConfigurationEvent;
+import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
 
@@ -63,6 +64,10 @@ public class JPAIdentityStoreAutoConfig implements Extension {
 
     public void observesConfigurationEvent(@Observes IdentityConfigurationEvent event) {
         if (config.isConfigured()) {
+            FeatureSet.addFeatureSupport(config.getFeatureSet());
+            FeatureSet.addRelationshipSupport(config.getFeatureSet());
+            config.getFeatureSet().setSupportsCustomRelationships(true);
+            config.getFeatureSet().setSupportsMultiRealm(true);
             event.getConfig().addStoreConfiguration(config);
         }
     }
