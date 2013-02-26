@@ -40,6 +40,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
  * @author Pedro Silva
@@ -70,7 +71,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
     public void testPagination() throws Exception {
         T identityType = null;
         
@@ -153,7 +154,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 

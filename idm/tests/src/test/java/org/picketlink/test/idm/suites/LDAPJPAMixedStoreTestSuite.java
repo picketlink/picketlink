@@ -37,14 +37,13 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.jpa.schema.CredentialObject;
-import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
 import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
@@ -52,11 +51,7 @@ import org.picketlink.test.idm.basic.AgentManagementTestCase;
 import org.picketlink.test.idm.basic.GroupManagementTestCase;
 import org.picketlink.test.idm.basic.RoleManagementTestCase;
 import org.picketlink.test.idm.basic.UserManagementTestCase;
-import org.picketlink.test.idm.credential.CertificateCredentialTestCase;
-import org.picketlink.test.idm.credential.DigestCredentialTestCase;
 import org.picketlink.test.idm.credential.PasswordCredentialTestCase;
-import org.picketlink.test.idm.partition.RealmManagementTestCase;
-import org.picketlink.test.idm.partition.TierManagementTestCase;
 import org.picketlink.test.idm.query.AgentQueryTestCase;
 import org.picketlink.test.idm.query.GroupQueryTestCase;
 import org.picketlink.test.idm.query.RoleQueryTestCase;
@@ -69,19 +64,22 @@ import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
-import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
 
 /**
  * <p>
- * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore}. For each test is created a fresh
- * {@link IdentityManager} instance. Data is not preserved between tests.
+ * Test suite for the {@link IdentityManager} using a {@link JPAIdentityStore} in conjuction with a {@link LDAPIdentityStore}.
+ * This suite tests a common scenario where the LDAP is used to store IdentityTypes and the JPA is used for relationships.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ })
+@SuiteClasses({ CustomRelationshipTestCase.class, PasswordCredentialTestCase.class, UserManagementTestCase.class,
+        RoleManagementTestCase.class, GroupManagementTestCase.class, AgentManagementTestCase.class, AgentQueryTestCase.class,
+        UserQueryTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class,
+        AgentGroupsRelationshipTestCase.class, UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class,
+        GroupGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class })
 public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     private static final String BASE_DN = "dc=jboss,dc=org";
@@ -92,7 +90,7 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
     private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
 
     private static LDAPJPAMixedStoreTestSuite instance;
-    
+
     private EntityManagerFactory emf;
     private EntityManager entityManager;
 
@@ -103,7 +101,7 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
 
         return instance;
     }
-    
+
     @BeforeClass
     public static void onBeforeClass() {
         try {
@@ -114,7 +112,7 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
             e.printStackTrace();
         }
     }
-    
+
     @AfterClass
     public static void onDestroyClass() {
         try {
@@ -123,7 +121,7 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
             e.printStackTrace();
         }
     }
-    
+
     @Override
     public void onInit() {
         this.emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
@@ -137,7 +135,7 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
 
         config.addStoreConfiguration(getJPAConfiguration());
         config.addStoreConfiguration(getLDAPConfiguration());
-        
+
         IdentityManager identityManager = new DefaultIdentityManager();
         DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
         icf.setEntityManager(entityManager);
@@ -147,35 +145,27 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
     }
 
     /**
-     * <p>Returns a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.</p>
+     * <p>
+     * Returns a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.
+     * </p>
      * 
      * @return
      */
     private IdentityStoreConfiguration getJPAConfiguration() {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
 
-        configureJPAConfiguration(configuration);
-
-        return configuration;
-    }
-    
-
-
-    private void configureJPAConfiguration(JPAIdentityStoreConfiguration configuration) {
         configuration.setIdentityClass(IdentityObject.class);
         configuration.setAttributeClass(IdentityObjectAttribute.class);
         configuration.setRelationshipClass(RelationshipObject.class);
         configuration.setRelationshipIdentityClass(RelationshipIdentityObject.class);
         configuration.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
-        configuration.setCredentialClass(CredentialObject.class);
-        configuration.setCredentialAttributeClass(CredentialObjectAttribute.class);
         configuration.setPartitionClass(PartitionObject.class);
 
-        FeatureSet.addFeatureSupport(configuration.getFeatureSet(), FeatureGroup.credential, FeatureGroup.relationship);
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
-        configuration.getFeatureSet().setSupportsCustomRelationships(true);
+        FeatureSet.addFeatureSupport(configuration.getFeatureSet(), FeatureGroup.relationship);
+
+        return configuration;
     }
-    
+
     public static LDAPIdentityStoreConfiguration getLDAPConfiguration() {
         LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
 
@@ -185,8 +175,8 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
 
         config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
 
-        FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, 
-                FeatureGroup.group, FeatureGroup.role, FeatureGroup.credential);
+        FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
+                FeatureGroup.role, FeatureGroup.credential);
 
         return config;
     }

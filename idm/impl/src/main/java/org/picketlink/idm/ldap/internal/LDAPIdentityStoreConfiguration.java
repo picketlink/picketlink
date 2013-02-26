@@ -27,6 +27,7 @@ import javax.naming.NamingException;
 
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 
 /**
@@ -80,6 +81,9 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
         } catch (NamingException e) {
             throw new SecurityConfigurationException(e);
         }
+        
+        getFeatureSet().removeFeature(FeatureGroup.realm);
+        getFeatureSet().removeFeature(FeatureGroup.tier);
     }
 
     public String getStandardAttributesFileName() {

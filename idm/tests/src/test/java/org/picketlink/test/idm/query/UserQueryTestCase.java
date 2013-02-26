@@ -35,6 +35,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
  * <p>
@@ -161,7 +162,7 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
     public void testFindWithPaginationAndSorting() throws Exception {
         createPopulatedUser("john", "John", "Anthony");
         // Sleep is needed to avoid same createdDate

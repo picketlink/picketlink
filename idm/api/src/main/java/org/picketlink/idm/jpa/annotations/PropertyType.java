@@ -151,9 +151,14 @@ public enum PropertyType {
      */
     RELATIONSHIP_CLASS,
     /**
-     * Represents an identity that participates in a relationship
+     * Represents the UUID of an identity that participates in a relationship
      */
     RELATIONSHIP_IDENTITY_ID,
+    
+    /**
+     * Represents the identity that participates in a relationship
+     */
+    RELATIONSHIP_IDENTITY,
     /**
      * Relates a relationship identity back to its owning relationship
      */

@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.model;
 
+import org.picketlink.idm.query.QueryParameter;
+
 
 
 
@@ -30,4 +32,6 @@ package org.picketlink.idm.model;
  */
 public interface Relationship extends AttributedType {
 
+    QueryParameter IDENTITY = new QueryParameter() { };
+    
 }

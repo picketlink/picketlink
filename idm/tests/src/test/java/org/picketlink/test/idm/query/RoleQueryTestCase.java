@@ -36,6 +36,7 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
  * <p>
@@ -72,7 +73,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
     }
     
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
     public void testFindByTier() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -218,7 +219,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
     public void testFindWithSorting() throws Exception {
         createRole("someRole");
         createRole("someAnotherRole");

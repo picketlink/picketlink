@@ -39,6 +39,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
  * <p>
@@ -107,7 +108,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName());
+        query.setParameter(Agent.MEMBER_OF, administratorGroup);
 
         List<T> result = query.getResultList();
 
@@ -120,7 +121,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
+        query.setParameter(Agent.MEMBER_OF, administratorGroup, someGroup);
 
         result = query.getResultList();
 
@@ -144,7 +145,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_ROLE, administratorRole.getName());
+        query.setParameter(Agent.HAS_ROLE, administratorRole);
 
         List<T> result = query.getResultList();
 
@@ -157,7 +158,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(Agent.HAS_ROLE, administratorRole.getName(), someRole.getName());
+        query.setParameter(Agent.HAS_ROLE, administratorRole, someRole);
 
         result = query.getResultList();
 
@@ -217,7 +218,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.MEMBER_OF, "Administrators");
+        query.setParameter(User.MEMBER_OF, administratorGroup);
 
         List<T> result = query.getResultList();
 
@@ -227,7 +228,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.MEMBER_OF, "Administrators");
+        query.setParameter(User.MEMBER_OF, administratorGroup);
 
         result = query.getResultList();
 
@@ -251,7 +252,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.HAS_ROLE, "Administrators");
+        query.setParameter(User.HAS_ROLE, administratorRole);
 
         List<T> result = query.getResultList();
 
@@ -261,7 +262,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.HAS_ROLE, "Administrators");
+        query.setParameter(User.HAS_ROLE, administratorRole);
 
         result = query.getResultList();
 
@@ -289,7 +290,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup, someGroup);
 
         List<T> result = query.getResultList();
 
@@ -300,7 +301,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup, someGroup);
 
         result = query.getResultList();
 
@@ -308,7 +309,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.MEMBER_OF, administratorGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup);
 
         result = query.getResultList();
 
@@ -336,7 +337,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole);
 
         List<T> result = query.getResultList();
 
@@ -347,7 +348,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole, someRole);
 
         result = query.getResultList();
 
@@ -355,7 +356,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.HAS_ROLE, administratorRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole);
 
         result = query.getResultList();
 
@@ -385,7 +386,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.MEMBER_OF, administratorGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup);
 
         List<T> result = query.getResultList();
 
@@ -397,7 +398,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.MEMBER_OF, administratorGroup.getName(), someGroup.getName());
+        query.setParameter(User.MEMBER_OF, administratorGroup, someGroup);
 
         result = query.getResultList();
 
@@ -429,7 +430,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.HAS_ROLE, administratorRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole);
 
         List<T> result = query.getResultList();
 
@@ -441,7 +442,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
 
         query = identityManager.createIdentityQuery((Class<T>) agentType.getClass());
 
-        query.setParameter(User.HAS_ROLE, administratorRole.getName(), someRole.getName());
+        query.setParameter(User.HAS_ROLE, administratorRole, someRole);
 
         result = query.getResultList();
 
@@ -451,7 +452,7 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
     public void testFindByLoginNameAndCreationDateWithSorting() throws Exception {
         createAgent("john");
         // Sleep is needed to avoid same createdDate

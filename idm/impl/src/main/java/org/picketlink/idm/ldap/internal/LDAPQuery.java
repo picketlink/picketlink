@@ -19,7 +19,6 @@
 package org.picketlink.idm.ldap.internal;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 
 import java.util.ArrayList;
@@ -37,13 +36,16 @@ import javax.naming.directory.SearchResult;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
+import org.picketlink.idm.query.RelationshipQuery;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -119,6 +121,8 @@ public class LDAPQuery {
     }
 
     private String createHasMemberFilter() {
+        StringBuffer parentEntriesFilter = new StringBuffer();
+
         if (identityQuery.getParameters().containsKey(Group.HAS_MEMBER)) {
             Object[] values = identityQuery.getParameters().get(Group.HAS_MEMBER);
             IdentityType[] agents = new IdentityType[values.length];
@@ -128,25 +132,94 @@ public class LDAPQuery {
                 agents[j] = (IdentityType) value;
             }
 
-            return createMembersFilter(agents, getConfig().getGroupDNSuffix());
+            for (IdentityType identityType : agents) {
+                if (identityType != null) {
+
+                    if (Group.class.isInstance(identityType)) {
+                        parentEntriesFilter.append(createMembersFilter(identityType));
+                    } else if (Agent.class.isInstance(identityType)) {
+                        RelationshipQuery<GroupMembership> query = this.identityStore.getContext().getIdentityManager()
+                                .createRelationshipQuery(GroupMembership.class);
+
+                        query.setParameter(GroupMembership.MEMBER, identityType);
+
+                        List<GroupMembership> result = query.getResultList();
+
+                        for (GroupMembership groupMembership : result) {
+                            LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(groupMembership.getGroup());
+
+                            parentEntriesFilter.append("(").append(ldapEntry.getBidingName()).append(")");
+                        }
+                    } else {
+                        throw new IdentityManagementException(
+                                "Unsupported type for Group.HAS_MEMBER QueryParameter. You should specify a Agent or Group only.");
+                    }
+                }
+            }
+
+            if (parentEntriesFilter.length() > 0) {
+                parentEntriesFilter.insert(0, "(|");
+                parentEntriesFilter.append(")");
+            }
         }
 
-        return "";
+        return parentEntriesFilter.toString();
     }
 
     private String createRoleOfFilter() {
-        if (identityQuery.getParameters().containsKey(User.ROLE_OF)) {
-            Object[] values = identityQuery.getParameters().get(Role.ROLE_OF);
-            IdentityType[] identityTypes = new IdentityType[values.length];
+        StringBuffer filter = new StringBuffer();
 
-            for (int j = 0; j < values.length; j++) {
-                Object value = values[j];
-                identityTypes[j] = (IdentityType) value;
+        if (identityQuery.getParameters().containsKey(IdentityType.ROLE_OF)) {
+            Map<String, Integer> userCount = new HashMap<String, Integer>();
+            Object[] values = identityQuery.getParameters().get(IdentityType.ROLE_OF);
+
+            for (Object user : values) {
+                if (Agent.class.isInstance(user) || Group.class.isInstance(user)) {
+                    RelationshipQuery<Grant> query = this.identityStore.getContext().getIdentityManager()
+                            .createRelationshipQuery(Grant.class);
+
+                    query.setParameter(Grant.ASSIGNEE, user);
+
+                    List<Grant> result = query.getResultList();
+
+                    for (Grant grant : result) {
+                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(grant.getRole());
+                        String entryName = ldapEntry.getBidingName();
+                        
+                        filter.append("(").append(ldapEntry.getBidingName()).append(")");
+                        
+                        if (!userCount.containsKey(entryName)) {
+                            userCount.put(entryName, 1);
+                        } else {
+                            Integer count = userCount.get(entryName);
+                            userCount.put(entryName, count + 1);
+                        }
+                    }
+                } else {
+                    throw new IdentityManagementException(
+                            "Unsupported type for IdentityType.ROLE_OF QueryParameter. You should specify a Agent or a Group.");
+                }
             }
+            
+            Set<Entry<String, Integer>> entrySet = userCount.entrySet();
 
-            return createMembersFilter(identityTypes, getConfig().getRoleDNSuffix());
+            for (Entry<String, Integer> entry : entrySet) {
+                if (entry.getValue() != values.length) {
+                    String filterTmp = filter.toString();
+
+                    filterTmp = filterTmp.replaceAll("\\(" + entry.getKey() + "\\)", "");
+
+                    filter = new StringBuffer(filterTmp);
+                }
+            }
         }
-        return "";
+        
+        if (filter.length() > 0) {
+            filter.insert(0, "(|");
+            filter.append(")");
+        }
+
+        return filter.toString();
     }
 
     private String createGroupRoleFilter() {
@@ -160,29 +233,25 @@ public class LDAPQuery {
 
                 for (Object group : groupRoles) {
                     GroupRole groupRole = (GroupRole) group;
-                    Agent agent = (Agent) groupRole.getAssignee();
 
-                    String agentDNSuffix = getConfig().getAgentDNSuffix();
+                    RelationshipQuery<GroupRole> query = this.identityStore.getContext().getIdentityManager()
+                            .createRelationshipQuery(GroupRole.class);
 
-                    if (User.class.isInstance(agent)) {
-                        agentDNSuffix = getConfig().getUserDNSuffix();
-                    }
+                    query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
+                    query.setParameter(GroupRole.ROLE, groupRole.getRole());
+                    query.setParameter(GroupRole.GROUP, groupRole.getGroup());
 
-                    search = getLDAPManager().search(agentDNSuffix, "(" + CN + "=" + groupRole.getGroup().getName() + ")");
+                    List<GroupRole> result = query.getResultList();
 
-                    if (search.hasMoreElements()) {
-                        while (search.hasMoreElements()) {
-                            SearchResult searchResult = search.next();
-                            String[] nameInNamespace = searchResult.getNameInNamespace().split(",");
-                            String userId = nameInNamespace[1];
+                    for (GroupRole relationship : result) {
+                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(relationship.getAssignee());
 
-                            javax.naming.directory.Attribute member = searchResult.getAttributes().get(MEMBER);
-
-                            if (member.contains(CN + "=" + groupRole.getRole().getName() + COMMA
-                                    + getConfig().getRoleDNSuffix())) {
-                                groupRoleFilter.append("(").append(userId).append(")");
-                            }
+                        if (ldapEntry == null) {
+                            throw new IdentityManagementException("Relationship references a inexistent IdentityType ["
+                                    + relationship.getAssignee() + "]");
                         }
+
+                        groupRoleFilter.append("(").append(ldapEntry.getBidingName()).append(")");
                     }
                 }
             } catch (Exception e) {
@@ -203,41 +272,116 @@ public class LDAPQuery {
     }
 
     private String createHasRoleFilter() {
+        StringBuffer filter = new StringBuffer();
+
         if (identityQuery.getParameters().containsKey(User.HAS_ROLE)) {
-            Object[] roleNames = identityQuery.getParameters().get(User.HAS_ROLE);
-            LDAPEntry[] roles = new LDAPEntry[roleNames.length];
+            Object[] roles = identityQuery.getParameters().get(User.HAS_ROLE);
+            Map<String, Integer> memberCount = new HashMap<String, Integer>();
 
-            for (int i = 0; i < roleNames.length; i++) {
-                String name = (String) roleNames[i];
+            for (Object role : roles) {
+                if (Role.class.isInstance(role)) {
+                    RelationshipQuery<Grant> query = this.identityStore.getContext().getIdentityManager()
+                            .createRelationshipQuery(Grant.class);
 
-                if (name != null) {
-                    roles[i] = this.identityStore.lookupRole(name);
+                    query.setParameter(Grant.ROLE, role);
+
+                    List<Grant> result = query.getResultList();
+
+                    for (Grant grant : result) {
+                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntry(grant.getAssignee());
+                        String bindDN = ldapAgent.getBidingName();
+
+                        filter.append("(").append(bindDN).append(")");
+
+                        if (!memberCount.containsKey(bindDN)) {
+                            memberCount.put(bindDN, 1);
+                        } else {
+                            Integer count = memberCount.get(bindDN);
+                            memberCount.put(bindDN, count + 1);
+                        }
+                    }
+                } else {
+                    throw new IdentityManagementException(
+                            "Unsupported type for User.HAS_ROLE QueryParameter. You should specify a Role type only.");
                 }
             }
 
-            return createParentMembersFilter(roles);
+            Set<Entry<String, Integer>> entrySet = memberCount.entrySet();
+
+            for (Entry<String, Integer> entry : entrySet) {
+                if (entry.getValue() != roles.length) {
+                    String filterTmp = filter.toString();
+
+                    filterTmp = filterTmp.replaceAll("\\(" + entry.getKey() + "\\)", "");
+
+                    filter = new StringBuffer(filterTmp);
+                }
+            }
         }
 
-        return "";
+        if (filter.length() > 0) {
+            filter.insert(0, "(|");
+            filter.append(")");
+        }
+
+        return filter.toString();
     }
 
     private String createMemberOfFilter() {
+        StringBuffer filter = new StringBuffer();
+
         if (identityQuery.getParameters().containsKey(User.MEMBER_OF)) {
-            Object[] groupNames = identityQuery.getParameters().get(User.MEMBER_OF);
-            LDAPEntry[] groups = new LDAPEntry[groupNames.length];
+            Map<String, Integer> userCount = new HashMap<String, Integer>();
 
-            for (int i = 0; i < groupNames.length; i++) {
-                String name = (String) groupNames[i];
+            Object[] groups = identityQuery.getParameters().get(User.MEMBER_OF);
 
-                if (name != null) {
-                    groups[i] = this.identityStore.lookupGroup(name);
+            for (Object group : groups) {
+                if (Group.class.isInstance(group)) {
+                    RelationshipQuery<GroupMembership> query = this.identityStore.getContext().getIdentityManager()
+                            .createRelationshipQuery(GroupMembership.class);
+
+                    query.setParameter(GroupMembership.GROUP, group);
+
+                    List<GroupMembership> result = query.getResultList();
+
+                    for (GroupMembership groupMembership : result) {
+                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntry(groupMembership.getMember());
+                        String userId = ldapAgent.getBidingName();
+
+                        filter.append("(").append(userId).append(")");
+
+                        if (!userCount.containsKey(userId)) {
+                            userCount.put(userId, 1);
+                        } else {
+                            Integer count = userCount.get(userId);
+                            userCount.put(userId, count + 1);
+                        }
+                    }
+                } else {
+                    throw new IdentityManagementException(
+                            "Unsupported type for User.MEMBER_OF QueryParameter. You should specify a Group type.");
                 }
             }
 
-            return createParentMembersFilter(groups);
+            Set<Entry<String, Integer>> entrySet = userCount.entrySet();
+
+            for (Entry<String, Integer> entry : entrySet) {
+                if (entry.getValue() != groups.length) {
+                    String filterTmp = filter.toString();
+
+                    filterTmp = filterTmp.replaceAll("\\(" + entry.getKey() + "\\)", "");
+
+                    filter = new StringBuffer(filterTmp);
+                }
+            }
         }
 
-        return "";
+        if (filter.length() > 0) {
+            filter.insert(0, "(|");
+            filter.append(")");
+        }
+
+        return filter.toString();
     }
 
     /**
@@ -249,27 +393,25 @@ public class LDAPQuery {
      * @param baseDN
      * @return
      */
-    private String createMembersFilter(IdentityType[] members, String baseDN) {
+    private String createMembersFilter(IdentityType identityType) {
         String membersFilter = "";
         boolean isGroupMember = false;
-        
-        for (IdentityType identityType : members) {
-            if (identityType != null) {
-                LDAPEntry ldapEntry = null;
-                
-                try {
-                    ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(identityType);
-                } catch (IdentityManagementException ime) {
-                    return membersFilter;
-                }
 
-                if (ldapEntry != null) {
-                    membersFilter = membersFilter + "(member=" + ldapEntry.getDN() + ")";
-                }
+        if (identityType != null) {
+            LDAPEntry ldapEntry = null;
 
-                if (Group.class.isInstance(identityType)) {
-                    isGroupMember = true;
-                }
+            try {
+                ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(identityType);
+            } catch (IdentityManagementException ime) {
+                return membersFilter;
+            }
+
+            if (ldapEntry != null) {
+                membersFilter = membersFilter + "(member=" + ldapEntry.getDN() + ")";
+            }
+
+            if (Group.class.isInstance(identityType)) {
+                isGroupMember = true;
             }
         }
 
@@ -279,22 +421,26 @@ public class LDAPQuery {
             NamingEnumeration<SearchResult> search = null;
 
             try {
-                search = getLDAPManager().search(baseDN, membersFilter.toString());
+                search = getLDAPManager().search(getConfig().getBaseDN(), membersFilter.toString());
 
                 while (search.hasMoreElements()) {
                     SearchResult searchResult = search.next();
                     String entryCN = searchResult.getAttributes().get(CN).get().toString();
-                    
+
                     parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL).append(entryCN).append(")");
-                    
+
                     if (isGroupMember) {
-                        Attributes operationalAttributes = this.identityStore.getConfig().getLdapManager().lookupOperationalAttributes(baseDN, CN + LDAPConstants.EQUAL + entryCN);
+                        String nameInNamespace = searchResult.getNameInNamespace();
+                        String baseDN = nameInNamespace.substring(nameInNamespace.indexOf(LDAPConstants.COMMA) + 1);
+                        Attributes operationalAttributes = this.identityStore.getConfig().getLdapManager()
+                                .lookupOperationalAttributes(baseDN, CN + LDAPConstants.EQUAL + entryCN);
                         String id = operationalAttributes.get(LDAPConstants.ENTRY_UUID).get().toString();
                         LDAPGroup childGroup = this.identityStore.lookupEntryById(LDAPGroup.class, id);
                         List<Group> parentGroups = this.identityStore.getParentGroups(childGroup);
-                        
+
                         for (Group parentGroup : parentGroups) {
-                            parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL).append(parentGroup.getName()).append(")");        
+                            parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL)
+                                    .append(parentGroup.getName()).append(")");
                         }
                     }
                 }
@@ -316,71 +462,6 @@ public class LDAPQuery {
         }
 
         return parentEntriesFilter.toString();
-    }
-
-    private String createParentMembersFilter(LDAPEntry[] parents) {
-        StringBuffer additionalFilter = new StringBuffer();
-
-        Map<String, Integer> userCount = new HashMap<String, Integer>();
-
-        for (LDAPEntry ldapEntry : parents) {
-            javax.naming.directory.Attribute memberAttribute = null;
-
-            if (ldapEntry != null) {
-                memberAttribute = ldapEntry.getLDAPAttributes().get(MEMBER);
-
-                NamingEnumeration<?> members = null;
-
-                try {
-                    members = memberAttribute.getAll();
-
-                    while (members.hasMoreElements()) {
-                        String memberDN = (String) members.nextElement();
-
-                        if (!memberDN.trim().isEmpty()) {
-                            String userId = memberDN.split(",")[0];
-
-                            if (!userCount.containsKey(userId)) {
-                                userCount.put(userId, 1);
-                            } else {
-                                Integer count = userCount.get(userId);
-                                userCount.put(userId, count + 1);
-                            }
-
-                            additionalFilter.append("(").append(userId).append(")");
-                        }
-                    }
-                } catch (NamingException e) {
-                    throw new IdentityManagementException(e);
-                } finally {
-                    if (members != null) {
-                        try {
-                            members.close();
-                        } catch (NamingException e) {
-                        }
-                    }
-                }
-            }
-        }
-
-        Set<Entry<String, Integer>> entrySet = userCount.entrySet();
-
-        for (Entry<String, Integer> entry : entrySet) {
-            if (!entry.getValue().equals(parents.length)) {
-                String filterTmp = additionalFilter.toString();
-
-                filterTmp = filterTmp.replaceAll("\\(" + entry.getKey() + "\\)", "");
-
-                additionalFilter = new StringBuffer(filterTmp);
-            }
-        }
-
-        if (additionalFilter.length() > 0) {
-            additionalFilter.insert(0, "(|");
-            additionalFilter.append(")");
-        }
-
-        return additionalFilter.toString();
     }
 
     private String createChildGroupsFilter() {

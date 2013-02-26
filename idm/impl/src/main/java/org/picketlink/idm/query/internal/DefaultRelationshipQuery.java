@@ -81,7 +81,6 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     @Override
     public List<T> getResultList() {
         return this.identityStore.fetchQueryResults(this);
-
     }
 
     @Override

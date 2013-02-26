@@ -38,10 +38,12 @@ import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.AttributedType.AttributeParameter;
 import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
+import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
@@ -298,10 +300,14 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_ROLE);
 
         if (parameterValues != null) {
-            for (Object roleName : parameterValues) {
+            for (Object role : parameterValues) {
+                if (!Role.class.isInstance(role)) {
+                    throw new IdentityManagementException("Unsupported type for IdentityType.HAS_ROLE QueryParameter. You should specify a Role only.");
+                }
+
                 DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, store);
 
-                query.setParameter(Grant.ROLE, store.getRole(roleName.toString()));
+                query.setParameter(Grant.ROLE, role);
 
                 List<Grant> resultList = query.getResultList();
 
@@ -347,10 +353,14 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.MEMBER_OF);
 
         if (parameterValues != null) {
-            for (Object groupName : parameterValues) {
+            for (Object group : parameterValues) {
+                if (!Group.class.isInstance(group)) {
+                    throw new IdentityManagementException("Unsupported type for IdentityType.MEMBER_OF QueryParameter. You should specify a Group only.");
+                }
+                
                 DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, store);
 
-                query.setParameter(GroupMembership.GROUP, store.getGroup(groupName.toString()));
+                query.setParameter(GroupMembership.GROUP, group);
 
                 List<GroupMembership> resultList = query.getResultList();
 
@@ -397,6 +407,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         if (parameterValues != null) {
             for (Object object : parameterValues) {
+                if (!GroupRole.class.isInstance(object)) {
+                    throw new IdentityManagementException("Unsupported type for IdentityType.HAS_GROUP_ROLE QueryParameter. You should specify a GroupRole only.");
+                }
+
                 GroupRole groupRole = (GroupRole) object;
 
                 DefaultRelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, store);

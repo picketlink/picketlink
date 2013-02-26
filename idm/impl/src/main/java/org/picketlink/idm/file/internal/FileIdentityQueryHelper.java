@@ -219,9 +219,11 @@ public class FileIdentityQueryHelper {
         if (values != null) {
             int valuesMatchCount = values.length;
 
-            for (Object groupName : values) {
-                Group group = identityStore.getGroup(groupName.toString());
-
+            for (Object group : values) {
+                if (!Group.class.isInstance(group)) {
+                    throw new IdentityManagementException("Unsupported type for IdentityType.MEMBER_OF QueryParameter. You should specify a Group only.");
+                }
+                
                 if (group != null) {
                     RelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
                             GroupMembership.class, identityStore);
@@ -251,9 +253,11 @@ public class FileIdentityQueryHelper {
         if (values != null) {
             int valuesMatchCount = values.length;
 
-            for (Object roleName : values) {
-                Role role = identityStore.getRole(roleName.toString());
-
+            for (Object role : values) {
+                if (!Role.class.isInstance(role)) {
+                    throw new IdentityManagementException("Unsupported type for IdentityType.HAS_ROLE QueryParameter. You should specify a Role only.");
+                }
+                
                 if (role != null) {
                     RelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, identityStore);
 
