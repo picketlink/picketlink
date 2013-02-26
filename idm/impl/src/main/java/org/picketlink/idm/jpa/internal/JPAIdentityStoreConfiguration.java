@@ -34,6 +34,7 @@ import org.picketlink.common.properties.query.TypedPropertyCriteria;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
@@ -132,7 +133,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         this.partitionClass = partitionClass;
     }
 
-
     public Class<?> getRelationshipIdentityClass() {
         return relationshipIdentityClass;
     }
@@ -177,12 +177,12 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         }
     }
 
-    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass, 
+    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass,
             String... possibleNames) {
         configureModelProperty(propertyType, targetClass, propertyClass, false, possibleNames);
     }
 
-    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass, 
+    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass,
             boolean optional, String... possibleNames) {
         PropertyQuery<Object> query = PropertyQueries.createQuery(targetClass);
 
@@ -197,10 +197,10 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         List<Property<Object>> props = query.getResultList();
 
         if (props.size() == 1) {
-            modelProperties.put(propertyType,  props.get(0));
+            modelProperties.put(propertyType, props.get(0));
         } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous " + propertyType.name() + " property in identity class [" +
-                targetClass.getName() + "]");
+            throw new SecurityConfigurationException("Ambiguous " + propertyType.name() + " property in identity class ["
+                    + targetClass.getName() + "]");
         } else {
             if (possibleNames != null && possibleNames.length > 0) {
                 Property<Object> p = findNamedProperty(targetClass, possibleNames);
@@ -211,8 +211,8 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             }
 
             if (!optional) {
-                throw new SecurityConfigurationException("Error configuring JPAIdentityStore - no " + 
-                    propertyType.name() + " property found in identity class [" + targetClass.getName() + "]");
+                throw new SecurityConfigurationException("Error configuring JPAIdentityStore - no " + propertyType.name()
+                        + " property found in identity class [" + targetClass.getName() + "]");
             }
         }
     }
@@ -293,17 +293,14 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     @Override
     public void initConfig() throws SecurityConfigurationException {
-        if (identityClass == null) {
+        if (this.identityClass != null) {
+            configureIdentity();
+            configurePartitions();
+            configureRelationships();
+            configureCredentials();
+        } else {
             throw new SecurityConfigurationException("Error initializing JpaIdentityStore - identityClass not set");
         }
-
-        configureIdentityTypeHandlers();
-        configureIdentity();
-        configurePartitions();
-        configureUserProperties();
-        configureRelationships();
-        configureAttributes();
-        configureCredentials();
     }
 
     private void configureIdentityTypeHandlers() {
@@ -326,12 +323,15 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                 configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, credentialAttributeClass, null);
                 configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, credentialAttributeClass, credentialClass);
             }
+        } else {
+            getFeatureSet().removeFeature(FeatureGroup.credential);
         }
     }
 
     protected void configureIdentity() throws SecurityConfigurationException {
-        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, identityClass, null, 
-                "discriminator", "identityType", "identityTypeName", "typeName", "type");
+        configureIdentityTypeHandlers();
+        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, identityClass, null, "discriminator", "identityType",
+                "identityTypeName", "typeName", "type");
         configureModelProperty(PropertyType.IDENTITY_ID, identityClass, null, "id", "identifier");
         configureModelProperty(PropertyType.IDENTITY_NAME, identityClass, null, "name");
         configureModelProperty(PropertyType.GROUP_PARENT, identityClass, null, "parentGroup", "parent");
@@ -341,17 +341,20 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, identityClass, null, false, "expires", "expiryDate");
         configureModelProperty(PropertyType.IDENTITY_PARTITION, identityClass, null, false, "partition");
         configureModelProperty(PropertyType.AGENT_LOGIN_NAME, identityClass, null, "loginName", "login");
+        configureUserProperties();
+        configureAttributes();
     }
 
     protected void configurePartitions() {
-        if (partitionClass == null) {
-            return;
+        if (this.partitionClass != null) {
+            configureModelProperty(PropertyType.PARTITION_ID, partitionClass, null, "id", "id");
+            configureModelProperty(PropertyType.PARTITION_TYPE, partitionClass, null, "type", "partitionType");
+            configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
+            configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");
+        } else {
+            getFeatureSet().removeFeature(FeatureGroup.realm);
+            getFeatureSet().removeFeature(FeatureGroup.tier);
         }
-
-        configureModelProperty(PropertyType.PARTITION_ID, partitionClass, null, "id", "id");
-        configureModelProperty(PropertyType.PARTITION_TYPE, partitionClass, null, "type", "partitionType");
-        configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
-        configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");
     }
 
     /**
@@ -370,25 +373,30 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
      * relationshipClass property may be left as null in which case no configuration will occur.
      */
     protected void configureRelationships() throws SecurityConfigurationException {
-        if (relationshipClass == null) {
-            return;
-        } else if (relationshipIdentityClass == null || relationshipAttributeClass == null) {
-                throw new SecurityConfigurationException("Invalid JPAIdentityStoreConfiguration - " +
-                        "Both relationshipIdentityClass and relationshipAttributeClass properties must be set " +
-                        "if relationships are configured");
+        if (this.relationshipClass != null) {
+            if (this.relationshipIdentityClass == null || this.relationshipAttributeClass == null) {
+                throw new SecurityConfigurationException("Invalid JPAIdentityStoreConfiguration - "
+                        + "Both relationshipIdentityClass and relationshipAttributeClass properties must be set "
+                        + "if relationships are configured");
+            }
+
+            configureModelProperty(PropertyType.RELATIONSHIP_ID, relationshipClass, null, "id");
+            configureModelProperty(PropertyType.RELATIONSHIP_CLASS, relationshipClass, null, "relationshipClass");
+
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID, relationshipIdentityClass, null, "identityObjectId");
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, relationshipIdentityClass, null, "identityObject");
+            configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, relationshipIdentityClass, null, "descriptor");
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, relationshipIdentityClass,
+                    relationshipClass);
+
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME, relationshipAttributeClass, null, "attributeName",
+                    "name");
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE, relationshipAttributeClass, null,
+                    "attributeValue", "value");
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, relationshipAttributeClass, null);
+        } else {
+            getFeatureSet().removeFeature(FeatureGroup.relationship);
         }
-
-        configureModelProperty(PropertyType.RELATIONSHIP_ID, relationshipClass, null, "id");
-        configureModelProperty(PropertyType.RELATIONSHIP_CLASS, relationshipClass, null, "relationshipClass");
-
-        configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID, relationshipIdentityClass, null, "identityObjectId");
-        configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, relationshipIdentityClass, null, "identityObject");
-        configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, relationshipIdentityClass, null, "descriptor");
-        configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, relationshipIdentityClass, relationshipClass);
-
-        configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME, relationshipAttributeClass, null, "attributeName", "name");
-        configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE, relationshipAttributeClass, null, "attributeValue", "value");
-        configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, relationshipAttributeClass, null);
     }
 
     /**
