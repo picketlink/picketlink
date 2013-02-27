@@ -35,6 +35,8 @@ public class FacebookPrincipal implements Principal, Serializable {
 
     private String name;
 
+    private String username;
+
     private String firstName;
 
     private String lastName;
@@ -61,6 +63,14 @@ public class FacebookPrincipal implements Principal, Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirstName() {
@@ -121,7 +131,7 @@ public class FacebookPrincipal implements Principal, Serializable {
 
     @Override
     public String toString() {
-        return "FacebookPrincipal [id=" + id + ", name=" + name + ", firstName=" + firstName + ", lastName=" + lastName
-                + ", gender=" + gender + ", timezone=" + timezone + ", locale=" + locale + ", email=" + email + "]";
+        return "FacebookPrincipal [id=" + id + ", name=" + name + ", username=" + username + ", firstName=" + firstName +
+               ", lastName=" + lastName + ", gender=" + gender + ", timezone=" + timezone + ", locale=" + locale + ", email=" + email + "]";
     }
 }

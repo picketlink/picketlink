@@ -47,7 +47,7 @@ import org.json.JSONObject;
  * @since Sep 22, 2011
  */
 public class FacebookProcessor {
-    private static final String FB_AUTH_STATE_SESSION_ATTRIBUTE = "FB_AUTH_STATE_SESSION_ATTRIBUTE";
+    public static final String FB_AUTH_STATE_SESSION_ATTRIBUTE = "FB_AUTH_STATE_SESSION_ATTRIBUTE";
     protected static Logger log = Logger.getLogger(FacebookProcessor.class);
     protected boolean trace = log.isTraceEnabled();
 
@@ -67,7 +67,7 @@ public class FacebookProcessor {
     protected String clientID;
     protected String clientSecret;
     protected String scope;
-    private String returnURL;
+    protected String returnURL;
 
     public FacebookProcessor(String clientID, String clientSecret, String scope, String returnURL, List<String> requiredRoles) {
         super();
@@ -213,6 +213,7 @@ public class FacebookProcessor {
             facebookPrincipal.setAccessToken(accessToken);
             facebookPrincipal.setId(jsonObject.getString("id"));
             facebookPrincipal.setName(jsonObject.getString("name"));
+            facebookPrincipal.setUsername(jsonObject.getString("username"));
             facebookPrincipal.setFirstName(jsonObject.getString("first_name"));
             facebookPrincipal.setLastName(jsonObject.getString("last_name"));
             facebookPrincipal.setGender(jsonObject.getString("gender"));
