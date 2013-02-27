@@ -48,6 +48,7 @@ import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
@@ -1210,41 +1211,44 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param entity
      */
     private void updateIdentityTypeAttributes(IdentityType identityType, Object entity) {
-        Collection<Attribute<? extends Serializable>> attributes = identityType.getAttributes();
+        if (getConfig().getFeatureSet().supports(FeatureGroup.attribute)) {
+            Collection<Attribute<? extends Serializable>> attributes = identityType.getAttributes();
 
-        if (attributes != null) {
-            EntityManager em = getEntityManager();
+            if (attributes != null) {
+                EntityManager em = getEntityManager();
 
-            for (Attribute<? extends Serializable> attribute : attributes) {
-                try {
-                    MappedAttribute mappedAttribute = getConfig().getAttributeProperties().get(attribute.getName());
+                for (Attribute<? extends Serializable> attribute : attributes) {
+                    try {
+                        MappedAttribute mappedAttribute = getConfig().getAttributeProperties().get(attribute.getName());
 
-                    // if the attribute was mapped as a property of the identity class
-                    if (mappedAttribute != null) {
-                        for (String attribName : getConfig().getAttributeProperties().keySet()) {
-                            MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
+                        // if the attribute was mapped as a property of the identity class
+                        if (mappedAttribute != null) {
+                            for (String attribName : getConfig().getAttributeProperties().keySet()) {
+                                MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
 
-                            if (attribute.getName().equals(attribName)) {
-                                attrib.getAttributeProperty().setValue(entity, attribute.getValue());
+                                if (attribute.getName().equals(attribName)) {
+                                    attrib.getAttributeProperty().setValue(entity, attribute.getValue());
+                                }
                             }
-                        }
-                    } else {
-                        // remove the attributes to persist them again. Only the current attribute, not all.
-                        List<?> results = findIdentityTypeAttributes(identityType, attribute);
+                        } else {
+                            // remove the attributes to persist them again. Only the current attribute, not all.
+                            List<?> results = findIdentityTypeAttributes(identityType, attribute);
 
-                        for (Object object : results) {
-                            em.remove(object);
-                        }
+                            for (Object object : results) {
+                                em.remove(object);
+                            }
 
-                        storeIdentityTypeAttribute(entity, attribute);
+                            storeIdentityTypeAttribute(entity, attribute);
+                        }
+                    } catch (Exception e) {
+                        throw new IdentityManagementException("Error setting attribute [" + attribute + "] for [" + entity
+                                + "]", e);
                     }
-                } catch (Exception e) {
-                    throw new IdentityManagementException("Error setting attribute [" + attribute + "] for [" + entity + "]", e);
                 }
             }
-        }
 
-        removeAttributes(identityType, entity);
+            removeAttributes(identityType, entity);
+        }
     }
 
     /**
@@ -1476,19 +1480,23 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             IdentityType identityType = prop.getValue(relationship);
 
-            Object identityObject = lookupIdentityObjectById(identityType.getId());
-            
-            if (identityObject != null) {
-                getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).setValue(relationshipIdentity,
-                    identityObject);
-            } 
-            
-            getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).setValue(relationshipIdentity,
+            if (identityType != null) {
+
+                Object identityObject = lookupIdentityObjectById(identityType.getId());
+
+                if (identityObject != null) {
+                    getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY).setValue(relationshipIdentity,
+                            identityObject);
+                }
+
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID).setValue(relationshipIdentity,
                         identityType.getId());
-            
-            getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).setValue(relationshipIdentity, prop.getName());
-            getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP)
-                    .setValue(relationshipIdentity, entity);
+
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR).setValue(relationshipIdentity,
+                        prop.getName());
+                getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).setValue(relationshipIdentity,
+                        entity);
+            }
             
             em.persist(relationshipIdentity);
         }
@@ -1669,8 +1677,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                     for (Object object : values) {
                         IdentityType identityType = (IdentityType) object;
-                        
-                        identityType = getContext().getIdentityManager().lookupIdentityById(identityType.getClass(), identityType.getId());
+
+                        identityType = getContext().getIdentityManager().lookupIdentityById(identityType.getClass(),
+                                identityType.getId());
 
                         if (identityType != null) {
                             List<Object> objects = new ArrayList<Object>();

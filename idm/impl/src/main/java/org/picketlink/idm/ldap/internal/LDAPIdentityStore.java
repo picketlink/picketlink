@@ -68,7 +68,6 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
@@ -185,12 +184,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             IdentityType identityType = (IdentityType) attributedType;
             LDAPEntry ldapEntry = (LDAPEntry) lookupEntry(identityType);
 
-            if (Agent.class.isInstance(identityType)) {
-                removeAgentRelationships((Agent) identityType);
-            } else if (Role.class.isInstance(identityType)) {
-                removeRoleRelationships((Role) identityType);
-            }
-
             String baseDN = ldapEntry.getDnSuffix();
 
             if (Group.class.isInstance(identityType)) {
@@ -201,10 +194,18 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
                     removeMember(parentGroupEntry, groupEntry);
                 }
-
-                removeGroupRelationships((Group) identityType);
             }
 
+            RelationshipQuery<Relationship> query = getContext().getIdentityManager().createRelationshipQuery(Relationship.class);
+            
+            query.setParameter(Relationship.IDENTITY, identityType);
+            
+            List<Relationship> relationships = query.getResultList();
+            
+            for (Relationship relationship : relationships) {
+                remove(relationship);
+            }
+            
             getLDAPManager().removeEntryById(baseDN, identityType.getId());
 
             invalidateCache(identityType);
@@ -525,267 +526,463 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         List<T> results = new ArrayList<T>();
         Class<T> relationshipType = query.getRelationshipType();
 
-        if (Grant.class.equals(relationshipType)) {
-            IdentityType identityType = null;
+        Object[] identityQueryParameterValue = query.getParameter(Relationship.IDENTITY);
 
-            if (query.getParameter(Grant.ASSIGNEE) != null) {
-                identityType = (IdentityType) query.getParameter(Grant.ASSIGNEE)[0];
+        if (identityQueryParameterValue != null && identityQueryParameterValue.length > 0) {
+            Object identityParameterValue = identityQueryParameterValue[0];
+
+            IdentityType ldapEntry = null;
+            
+            if (IdentityType.class.isInstance(identityParameterValue)) {
+                ldapEntry = lookupEntry((IdentityType) identityParameterValue);
+            } else if (String.class.isInstance(identityParameterValue)) {
+                IdentityQuery<IdentityType> identityQuery = getContext().getIdentityManager().createIdentityQuery(IdentityType.class);
+                
+                identityQuery.setParameter(IdentityType.ID, identityParameterValue.toString());
+                
+                List<IdentityType> result = identityQuery.getResultList();
+                
+                if (!result.isEmpty()) {
+                    ldapEntry = result.get(0);                    
+                }
+            }
+            
+            if (ldapEntry == null) {
+                return results;
             }
 
-            Role role = null;
+            if (Agent.class.isInstance(ldapEntry)) {
+                Agent agent = (Agent) ldapEntry;
 
-            if (query.getParameter(Grant.ROLE) != null) {
-                role = (Role) query.getParameter(Grant.ROLE)[0];
+                RelationshipQuery<Grant> grantQuery = getContext().getIdentityManager().createRelationshipQuery(Grant.class);
+
+                grantQuery.setParameter(Grant.ASSIGNEE, agent);
+
+                List<Grant> resultList = grantQuery.getResultList();
+
+                for (Grant grant : resultList) {
+                    results.add((T) grant);
+                }
+
+                RelationshipQuery<GroupMembership> groupQuery = getContext().getIdentityManager().createRelationshipQuery(
+                        GroupMembership.class);
+
+                groupQuery.setParameter(GroupMembership.MEMBER, agent);
+
+                List<GroupMembership> resultGroups = groupQuery.getResultList();
+
+                for (GroupMembership groups : resultGroups) {
+                    results.add((T) groups);
+                }
+
+                RelationshipQuery<GroupRole> groupRoleQuery = getContext().getIdentityManager().createRelationshipQuery(
+                        GroupRole.class);
+
+                groupRoleQuery.setParameter(GroupRole.ASSIGNEE, agent);
+
+                List<GroupRole> resultGroupRoless = groupRoleQuery.getResultList();
+
+                for (GroupRole groupRole : resultGroupRoless) {
+                    results.add((T) groupRole);
+                }
+            } else if (Role.class.isInstance(ldapEntry)) {
+                Role role = (Role) ldapEntry;
+                RelationshipQuery<Grant> grantQuery = getContext().getIdentityManager().createRelationshipQuery(Grant.class);
+
+                grantQuery.setParameter(Grant.ROLE, role);
+
+                List<Grant> resultList = grantQuery.getResultList();
+
+                for (Grant grant : resultList) {
+                    results.add((T) grant);
+                }
+
+                RelationshipQuery<GroupRole> groupRoleQuery = getContext().getIdentityManager().createRelationshipQuery(
+                        GroupRole.class);
+
+                groupRoleQuery.setParameter(GroupRole.ROLE, role);
+
+                List<GroupRole> resultGroupRoless = groupRoleQuery.getResultList();
+
+                for (GroupRole groupRole : resultGroupRoless) {
+                    results.add((T) groupRole);
+                }
+            } else if (Group.class.isInstance(ldapEntry)) {
+                Group group = (Group) ldapEntry;
+                RelationshipQuery<GroupMembership> groupMembershipQuery = getContext().getIdentityManager().createRelationshipQuery(GroupMembership.class);
+
+                groupMembershipQuery.setParameter(GroupMembership.GROUP, group);
+
+                List<GroupMembership> resultList = groupMembershipQuery.getResultList();
+
+                for (GroupMembership groupMembership : resultList) {
+                    results.add((T) groupMembership);
+                }
+
+                RelationshipQuery<GroupRole> groupRoleQuery = getContext().getIdentityManager().createRelationshipQuery(
+                        GroupRole.class);
+
+                groupRoleQuery.setParameter(GroupRole.GROUP, group);
+
+                List<GroupRole> resultGroupRoless = groupRoleQuery.getResultList();
+
+                for (GroupRole groupRole : resultGroupRoless) {
+                    results.add((T) groupRole);
+                }
             }
+        } else {
 
-            if (identityType != null && role != null) {
-                LDAPEntry agentEntry = (LDAPEntry) lookupEntry(identityType);
-                LDAPRole roleEntry = (LDAPRole) lookupEntry(role);
+            if (Grant.class.equals(relationshipType)) {
+                IdentityType identityType = null;
 
-                if (roleEntry.isMember(agentEntry)) {
-                    results.add((T) new Grant(identityType, role));
-                }
-            } else if (identityType != null) {
-                String membersFilter = "";
-
-                LDAPEntry ldapEntry = null;
-
-                try {
-                    ldapEntry = (LDAPEntry) lookupEntry(identityType);
-                    membersFilter = "(member=" + ldapEntry.getDN() + ")";
-                } catch (IdentityManagementException ime) {
-                    return results;
+                if (query.getParameter(Grant.ASSIGNEE) != null) {
+                    identityType = (IdentityType) query.getParameter(Grant.ASSIGNEE)[0];
                 }
 
-                NamingEnumeration<SearchResult> search = null;
+                Role role = null;
 
-                try {
-                    search = getLDAPManager().search(getConfig().getRoleDNSuffix(), membersFilter.toString());
+                if (query.getParameter(Grant.ROLE) != null) {
+                    role = (Role) query.getParameter(Grant.ROLE)[0];
+                }
 
-                    while (search.hasMoreElements()) {
-                        SearchResult searchResult = search.next();
-                        String entryCN = searchResult.getAttributes().get(CN).get().toString();
-                        results.add((T) new Grant(identityType, getRole(entryCN)));
+                if (identityType != null && role != null) {
+                    LDAPEntry agentEntry = (LDAPEntry) lookupEntry(identityType);
+                    LDAPRole roleEntry = (LDAPRole) lookupEntry(role);
+
+                    if (roleEntry.isMember(agentEntry)) {
+                        results.add((T) new Grant(identityType, role));
                     }
-                } catch (Exception e) {
-                    throw new IdentityManagementException(e);
-                } finally {
-                    if (search != null) {
-                        try {
-                            search.close();
-                        } catch (NamingException e) {
+                } else if (identityType != null) {
+                    String membersFilter = "";
+
+                    LDAPEntry ldapEntry = null;
+
+                    try {
+                        ldapEntry = (LDAPEntry) lookupEntry(identityType);
+                        membersFilter = "(member=" + ldapEntry.getDN() + ")";
+                    } catch (IdentityManagementException ime) {
+                        return results;
+                    }
+
+                    NamingEnumeration<SearchResult> search = null;
+
+                    try {
+                        search = getLDAPManager().search(getConfig().getRoleDNSuffix(), membersFilter.toString());
+
+                        while (search.hasMoreElements()) {
+                            SearchResult searchResult = search.next();
+                            String entryCN = searchResult.getAttributes().get(CN).get().toString();
+                            results.add((T) new Grant(identityType, getRole(entryCN)));
                         }
-                    }
-                }
-            } else if (role != null) {
-                LDAPEntry ldapEntry = null;
-
-                try {
-                    ldapEntry = (LDAPEntry) lookupEntry(role);
-                } catch (IdentityManagementException ime) {
-                    return results;
-                }
-
-                NamingEnumeration<?> members = null;
-
-                try {
-                    members = ldapEntry.getLDAPAttributes().get(MEMBER).getAll();
-
-                    while (members.hasMoreElements()) {
-                        String memberDN = (String) members.nextElement();
-
-                        if (!memberDN.trim().isEmpty()) {
-                            String userBindingName = memberDN.split(COMMA)[0];
-                            String loginName = userBindingName.split(EQUAL)[1];
-
-                            Agent associatedAgent = getAgent(loginName);
-
-                            if (associatedAgent != null) {
-                                results.add((T) new Grant(associatedAgent, role));
+                    } catch (Exception e) {
+                        throw new IdentityManagementException(e);
+                    } finally {
+                        if (search != null) {
+                            try {
+                                search.close();
+                            } catch (NamingException e) {
                             }
                         }
                     }
-                } catch (NamingException e) {
-                    throw new IdentityManagementException(e);
-                } finally {
-                    if (members != null) {
-                        try {
-                            members.close();
-                        } catch (NamingException e) {
-                        }
+                } else if (role != null) {
+                    LDAPEntry ldapEntry = null;
+
+                    try {
+                        ldapEntry = (LDAPEntry) lookupEntry(role);
+                    } catch (IdentityManagementException ime) {
+                        return results;
                     }
-                }
-            }
-        } else if (GroupMembership.class.equals(relationshipType)) {
-            Agent agent = null;
 
-            if (query.getParameter(GroupMembership.MEMBER) != null) {
-                agent = (Agent) query.getParameter(GroupMembership.MEMBER)[0];
-            }
+                    NamingEnumeration<?> members = null;
 
-            Group group = null;
+                    try {
+                        members = ldapEntry.getLDAPAttributes().get(MEMBER).getAll();
 
-            if (query.getParameter(GroupMembership.GROUP) != null) {
-                group = (Group) query.getParameter(GroupMembership.GROUP)[0];
-            }
-
-            if (agent != null && group != null) {
-                LDAPGroup groupEntry = null;
-                LDAPAgent agentEntry = null;
-
-                try {
-                    groupEntry = (LDAPGroup) lookupEntry(group);
-                    agentEntry = (LDAPAgent) lookupEntry(agent);
-                } catch (IdentityManagementException ime) {
-                    return results;
-                }
-
-                boolean isMember = false;
-
-                if (groupEntry.isMember(agentEntry)) {
-                    isMember = true;
-                } else {
-                    List<Group> parentGroups = getParentGroups(groupEntry);
-
-                    for (Group parentGroup : parentGroups) {
-                        LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
-
-                        if (parentGroupEntry.isMember(agentEntry)) {
-                            isMember = true;
-                        }
-                    }
-                }
-
-                if (isMember) {
-                    results.add((T) new GroupMembership(agent, group));
-                }
-            } else if (agent != null) {
-                String membersFilter = "";
-
-                try {
-                    LDAPEntry ldapEntry = (LDAPEntry) lookupEntry(agent);
-                    membersFilter = "(" + MEMBER + "=" + ldapEntry.getDN() + ")";
-                } catch (IdentityManagementException ime) {
-                    return results;
-                }
-
-                NamingEnumeration<SearchResult> search = null;
-
-                try {
-                    search = getLDAPManager().search(getConfig().getBaseDN(), membersFilter.toString());
-
-                    while (search.hasMoreElements()) {
-                        SearchResult searchResult = search.next();
-                        String entryCN = searchResult.getAttributes().get(CN).get().toString();
-                        String nameInNamespace = searchResult.getNameInNamespace();
-                        String baseDN = nameInNamespace.substring(nameInNamespace.indexOf(LDAPConstants.COMMA) + 1);
-                        LDAPGroup ldapGroup = new LDAPGroup(baseDN);
-
-                        populateLDAPEntry(ldapGroup, searchResult);
-
-                        Group simpleGroup = new SimpleGroup(entryCN, getParentGroup(ldapGroup, true));
-
-                        populateIdentityType(ldapGroup, simpleGroup);
-
-                        results.add((T) new GroupMembership(agent, simpleGroup));
-                    }
-                } catch (Exception e) {
-                    throw new IdentityManagementException(e);
-                } finally {
-                    if (search != null) {
-                        try {
-                            search.close();
-                        } catch (NamingException e) {
-                        }
-                    }
-                }
-            } else if (group != null) {
-                LDAPEntry ldapEntry = null;
-
-                try {
-                    ldapEntry = (LDAPEntry) lookupEntry(group);
-                } catch (IdentityManagementException ime) {
-                    return results;
-                }
-
-                NamingEnumeration<?> members = null;
-
-                try {
-                    members = ldapEntry.getLDAPAttributes().get(MEMBER).getAll();
-
-                    while (members.hasMoreElements()) {
-                        String memberDN = (String) members.nextElement();
-
-                        if (memberDN.contains(getConfig().getUserDNSuffix())
-                                || memberDN.contains(getConfig().getAgentDNSuffix())) {
+                        while (members.hasMoreElements()) {
+                            String memberDN = (String) members.nextElement();
 
                             if (!memberDN.trim().isEmpty()) {
-                                String agentBindingName = memberDN.split(COMMA)[0];
-                                String loginName = agentBindingName.split(EQUAL)[1];
+                                String userBindingName = memberDN.split(COMMA)[0];
+                                String loginName = userBindingName.split(EQUAL)[1];
 
-                                results.add((T) new GroupMembership(getAgent(loginName), group));
+                                Agent associatedAgent = getAgent(loginName);
+
+                                if (associatedAgent != null) {
+                                    results.add((T) new Grant(associatedAgent, role));
+                                }
+                            }
+                        }
+                    } catch (NamingException e) {
+                        throw new IdentityManagementException(e);
+                    } finally {
+                        if (members != null) {
+                            try {
+                                members.close();
+                            } catch (NamingException e) {
                             }
                         }
                     }
-                } catch (NamingException e) {
-                    throw new IdentityManagementException(e);
-                } finally {
-                    if (members != null) {
+                }
+            } else if (GroupMembership.class.equals(relationshipType)) {
+                Agent agent = null;
+
+                if (query.getParameter(GroupMembership.MEMBER) != null) {
+                    agent = (Agent) query.getParameter(GroupMembership.MEMBER)[0];
+                }
+
+                Group group = null;
+
+                if (query.getParameter(GroupMembership.GROUP) != null) {
+                    group = (Group) query.getParameter(GroupMembership.GROUP)[0];
+                }
+
+                if (agent != null && group != null) {
+                    LDAPGroup groupEntry = null;
+                    LDAPAgent agentEntry = null;
+
+                    try {
+                        groupEntry = (LDAPGroup) lookupEntry(group);
+                        agentEntry = (LDAPAgent) lookupEntry(agent);
+                    } catch (IdentityManagementException ime) {
+                        return results;
+                    }
+
+                    boolean isMember = false;
+
+                    if (groupEntry.isMember(agentEntry)) {
+                        isMember = true;
+                    } else {
+                        List<Group> parentGroups = getParentGroups(groupEntry);
+
+                        for (Group parentGroup : parentGroups) {
+                            LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
+
+                            if (parentGroupEntry.isMember(agentEntry)) {
+                                isMember = true;
+                            }
+                        }
+                    }
+
+                    if (isMember) {
+                        results.add((T) new GroupMembership(agent, group));
+                    }
+                } else if (agent != null) {
+                    String membersFilter = "";
+
+                    try {
+                        LDAPEntry ldapEntry = (LDAPEntry) lookupEntry(agent);
+                        membersFilter = "(" + MEMBER + "=" + ldapEntry.getDN() + ")";
+                    } catch (IdentityManagementException ime) {
+                        return results;
+                    }
+
+                    NamingEnumeration<SearchResult> search = null;
+
+                    try {
+                        search = getLDAPManager().search(getConfig().getBaseDN(), membersFilter.toString());
+
+                        while (search.hasMoreElements()) {
+                            SearchResult searchResult = search.next();
+                            String entryCN = searchResult.getAttributes().get(CN).get().toString();
+                            String nameInNamespace = searchResult.getNameInNamespace();
+
+                            if (!getConfig().isGroupNamespace(nameInNamespace)) {
+                                continue;
+                            }
+                            
+                            String baseDN = nameInNamespace.substring(nameInNamespace.indexOf(LDAPConstants.COMMA) + 1);
+                            LDAPGroup ldapGroup = new LDAPGroup(baseDN);
+
+                            populateLDAPEntry(ldapGroup, searchResult);
+
+                            Group simpleGroup = new SimpleGroup(entryCN, getParentGroup(ldapGroup, true));
+
+                            populateIdentityType(ldapGroup, simpleGroup);
+
+                            results.add((T) new GroupMembership(agent, simpleGroup));
+                        }
+                    } catch (Exception e) {
+                        throw new IdentityManagementException(e);
+                    } finally {
+                        if (search != null) {
+                            try {
+                                search.close();
+                            } catch (NamingException e) {
+                            }
+                        }
+                    }
+                } else if (group != null) {
+                    LDAPEntry ldapEntry = null;
+
+                    try {
+                        ldapEntry = (LDAPEntry) lookupEntry(group);
+                    } catch (IdentityManagementException ime) {
+                        return results;
+                    }
+
+                    NamingEnumeration<?> members = null;
+
+                    try {
+                        members = ldapEntry.getLDAPAttributes().get(MEMBER).getAll();
+
+                        while (members.hasMoreElements()) {
+                            String memberDN = (String) members.nextElement();
+
+                            if (memberDN.contains(getConfig().getUserDNSuffix())
+                                    || memberDN.contains(getConfig().getAgentDNSuffix())) {
+
+                                if (!memberDN.trim().isEmpty()) {
+                                    String agentBindingName = memberDN.split(COMMA)[0];
+                                    String loginName = agentBindingName.split(EQUAL)[1];
+
+                                    results.add((T) new GroupMembership(getAgent(loginName), group));
+                                }
+                            }
+                        }
+                    } catch (NamingException e) {
+                        throw new IdentityManagementException(e);
+                    } finally {
+                        if (members != null) {
+                            try {
+                                members.close();
+                            } catch (NamingException e) {
+                            }
+                        }
+                    }
+                }
+            } else if (GroupRole.class.equals(relationshipType)) {
+                Agent agent = null;
+
+                if (query.getParameter(GroupRole.ASSIGNEE) != null) {
+                    agent = (Agent) query.getParameter(GroupRole.ASSIGNEE)[0];
+                }
+
+                Role role = null;
+
+                if (query.getParameter(GroupRole.ROLE) != null) {
+                    role = (Role) query.getParameter(GroupRole.ROLE)[0];
+                }
+
+                Group group = null;
+
+                if (query.getParameter(GroupRole.GROUP) != null) {
+                    group = (Group) query.getParameter(GroupRole.GROUP)[0];
+                }
+
+                if (agent != null && group != null && role != null) {
+                    LDAPGroup groupEntry = (LDAPGroup) lookupEntry(group);
+                    LDAPRole roleEntry = (LDAPRole) lookupEntry(role);
+                    LDAPAgent agentEntry = (LDAPAgent) lookupEntry(agent);
+
+                    if (hasGroupRole(groupEntry, roleEntry, agentEntry)) {
+                        results.add((T) new GroupRole(agent, group, role));
+                    } else {
+                        List<Group> parentGroups = getParentGroups(groupEntry);
+
+                        for (Group parentGroup : parentGroups) {
+                            LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
+
+                            if (hasGroupRole(parentGroupEntry, roleEntry, agentEntry)) {
+                                results.add((T) new GroupRole(agent, group, role));
+                                break;
+                            }
+                        }
+                    }
+                } else if (agent != null && role == null && group == null) {
+                    LDAPAgent agentEntry = lookupAgent(agent);
+
+                    if (agentEntry != null) {
+                        NamingEnumeration<SearchResult> search = getLDAPManager().search(agentEntry.getDN(),
+                                "(&(objectClass=*)(cn=*)(member=*))");
+
                         try {
-                            members.close();
-                        } catch (NamingException e) {
+                            while (search.hasMore()) {
+                                SearchResult next = search.next();
+                                String groupName = (String) next.getAttributes().get(CN).get();
+
+                                javax.naming.directory.Attribute members = next.getAttributes().get(MEMBER);
+
+                                if (members != null && members.size() > 0) {
+                                    NamingEnumeration<?> allRoles = members.getAll();
+
+                                    while (allRoles.hasMoreElements()) {
+                                        String roleDN = (String) allRoles.nextElement();
+                                        String roleName = roleDN.substring(roleDN.indexOf(EQUAL) + 1, roleDN.indexOf(COMMA));
+
+                                        Role associatedRole = getRole(roleName);
+                                        Group associatedGroup = getGroup(groupName);
+
+                                        if (associatedRole != null && associatedGroup != null) {
+                                            results.add((T) new GroupRole(agent, associatedGroup, associatedRole));
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            throw new IdentityManagementException(e);
+                        } finally {
+                            try {
+                                search.close();
+                            } catch (NamingException e) {
+                            }
                         }
                     }
-                }
-            }
-        } else if (GroupRole.class.equals(relationshipType)) {
-            Agent agent = null;
+                } else if (role != null) {
+                    LDAPRole roleEntry = null;
 
-            if (query.getParameter(GroupRole.ASSIGNEE) != null) {
-                agent = (Agent) query.getParameter(GroupRole.ASSIGNEE)[0];
-            }
+                    try {
+                        roleEntry = (LDAPRole) lookupEntry(role);
+                    } catch (IdentityManagementException ime) {
+                        return results;
+                    }
 
-            Role role = null;
+                    if (roleEntry != null) {
+                        NamingEnumeration<SearchResult> search = getLDAPManager().search(getConfig().getUserDNSuffix(),
+                                "(&(objectClass=*)(" + CN + EQUAL + "*)(" + MEMBER + EQUAL + roleEntry.getDN() + "))");
 
-            if (query.getParameter(GroupRole.ROLE) != null) {
-                role = (Role) query.getParameter(GroupRole.ROLE)[0];
-            }
+                        try {
+                            while (search.hasMore()) {
+                                SearchResult next = search.next();
+                                String nameInNamespace = next.getNameInNamespace();
+                                String userDN = nameInNamespace.substring(nameInNamespace.indexOf(UID));
+                                String userName = userDN.substring(userDN.indexOf(EQUAL) + 1, userDN.indexOf(COMMA));
+                                String groupName = (String) next.getAttributes().get(CN).get();
 
-            Group group = null;
+                                Role associatedRole = getRole(roleEntry.getName());
+                                Group associatedGroup = getGroup(groupName);
+                                Agent associatedAgent = getAgent(userName);
 
-            if (query.getParameter(GroupRole.GROUP) != null) {
-                group = (Group) query.getParameter(GroupRole.GROUP)[0];
-            }
-
-            if (agent != null && group != null && role != null) {
-                LDAPGroup groupEntry = (LDAPGroup) lookupEntry(group);
-                LDAPRole roleEntry = (LDAPRole) lookupEntry(role);
-                LDAPAgent agentEntry = (LDAPAgent) lookupEntry(agent);
-
-                if (hasGroupRole(groupEntry, roleEntry, agentEntry)) {
-                    results.add((T) new GroupRole(agent, group, role));
-                } else {
-                    List<Group> parentGroups = getParentGroups(groupEntry);
-
-                    for (Group parentGroup : parentGroups) {
-                        LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
-
-                        if (hasGroupRole(parentGroupEntry, roleEntry, agentEntry)) {
-                            results.add((T) new GroupRole(agent, group, role));
-                            break;
+                                if (associatedRole != null && associatedGroup != null && associatedAgent != null) {
+                                    results.add((T) new GroupRole(associatedAgent, associatedGroup, associatedRole));
+                                }
+                            }
+                        } catch (Exception e) {
+                            throw new IdentityManagementException(e);
+                        } finally {
+                            try {
+                                search.close();
+                            } catch (NamingException e) {
+                            }
                         }
                     }
-                }
-            } else if (agent != null && role == null && group == null) {
-                LDAPAgent agentEntry = lookupAgent(agent);
+                } else if (group != null) {
+                    LDAPGroup groupEntry = null;
 
-                if (agentEntry != null) {
-                    NamingEnumeration<SearchResult> search = getLDAPManager().search(agentEntry.getDN(),
-                            "(&(objectClass=*)(cn=*)(member=*))");
+                    try {
+                        groupEntry = (LDAPGroup) lookupEntry(group);
+                    } catch (IdentityManagementException ime) {
+                        return results;
+                    }
+
+                    String filter = "(&(objectClass=*)(" + groupEntry.getBidingName() + ")(" + MEMBER + EQUAL + "*))";
+                    NamingEnumeration<SearchResult> search = getLDAPManager().search(getConfig().getUserDNSuffix(), filter);
 
                     try {
                         while (search.hasMore()) {
                             SearchResult next = search.next();
+                            String nameInNamespace = next.getNameInNamespace();
+                            String userDN = nameInNamespace.substring(nameInNamespace.indexOf(UID));
+                            String userName = userDN.substring(userDN.indexOf(EQUAL) + 1, userDN.indexOf(COMMA));
                             String groupName = (String) next.getAttributes().get(CN).get();
 
                             javax.naming.directory.Attribute members = next.getAttributes().get(MEMBER);
@@ -799,9 +996,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
                                     Role associatedRole = getRole(roleName);
                                     Group associatedGroup = getGroup(groupName);
+                                    Agent associatedAgent = getAgent(userName);
 
-                                    if (associatedRole != null && associatedGroup != null) {
-                                        results.add((T) new GroupRole(agent, associatedGroup, associatedRole));
+                                    if (associatedRole != null && associatedGroup != null && associatedAgent != null) {
+                                        results.add((T) new GroupRole(associatedAgent, associatedGroup, associatedRole));
                                     }
                                 }
                             }
@@ -813,91 +1011,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                             search.close();
                         } catch (NamingException e) {
                         }
-                    }
-                }
-            } else if (role != null) {
-                LDAPRole roleEntry = null;
-
-                try {
-                    roleEntry = (LDAPRole) lookupEntry(role);
-                } catch (IdentityManagementException ime) {
-                    return results;
-                }
-
-                if (roleEntry != null) {
-                    NamingEnumeration<SearchResult> search = getLDAPManager().search(getConfig().getUserDNSuffix(),
-                            "(&(objectClass=*)(" + CN + EQUAL + "*)(" + MEMBER + EQUAL + roleEntry.getDN() + "))");
-
-                    try {
-                        while (search.hasMore()) {
-                            SearchResult next = search.next();
-                            String nameInNamespace = next.getNameInNamespace();
-                            String userDN = nameInNamespace.substring(nameInNamespace.indexOf(UID));
-                            String userName = userDN.substring(userDN.indexOf(EQUAL) + 1, userDN.indexOf(COMMA));
-                            String groupName = (String) next.getAttributes().get(CN).get();
-
-                            Role associatedRole = getRole(roleEntry.getName());
-                            Group associatedGroup = getGroup(groupName);
-                            Agent associatedAgent = getAgent(userName);
-
-                            if (associatedRole != null && associatedGroup != null && associatedAgent != null) {
-                                results.add((T) new GroupRole(associatedAgent, associatedGroup, associatedRole));
-                            }
-                        }
-                    } catch (Exception e) {
-                        throw new IdentityManagementException(e);
-                    } finally {
-                        try {
-                            search.close();
-                        } catch (NamingException e) {
-                        }
-                    }
-                }
-            } else if (group != null) {
-                LDAPGroup groupEntry = null;
-
-                try {
-                    groupEntry = (LDAPGroup) lookupEntry(group);
-                } catch (IdentityManagementException ime) {
-                    return results;
-                }
-
-                String filter = "(&(objectClass=*)(" + groupEntry.getBidingName() + ")(" + MEMBER + EQUAL + "*))";
-                NamingEnumeration<SearchResult> search = getLDAPManager().search(getConfig().getUserDNSuffix(), filter);
-
-                try {
-                    while (search.hasMore()) {
-                        SearchResult next = search.next();
-                        String nameInNamespace = next.getNameInNamespace();
-                        String userDN = nameInNamespace.substring(nameInNamespace.indexOf(UID));
-                        String userName = userDN.substring(userDN.indexOf(EQUAL) + 1, userDN.indexOf(COMMA));
-                        String groupName = (String) next.getAttributes().get(CN).get();
-
-                        javax.naming.directory.Attribute members = next.getAttributes().get(MEMBER);
-
-                        if (members != null && members.size() > 0) {
-                            NamingEnumeration<?> allRoles = members.getAll();
-
-                            while (allRoles.hasMoreElements()) {
-                                String roleDN = (String) allRoles.nextElement();
-                                String roleName = roleDN.substring(roleDN.indexOf(EQUAL) + 1, roleDN.indexOf(COMMA));
-
-                                Role associatedRole = getRole(roleName);
-                                Group associatedGroup = getGroup(groupName);
-                                Agent associatedAgent = getAgent(userName);
-
-                                if (associatedRole != null && associatedGroup != null && associatedAgent != null) {
-                                    results.add((T) new GroupRole(associatedAgent, associatedGroup, associatedRole));
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    throw new IdentityManagementException(e);
-                } finally {
-                    try {
-                        search.close();
-                    } catch (NamingException e) {
                     }
                 }
             }
@@ -1546,84 +1659,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     private NamingEnumeration<SearchResult> lookupGroupRoleEntry(LDAPAgent agentEntry, LDAPGroup groupEntry) {
         return getLDAPManager().search(agentEntry.getDN(), groupEntry.getBidingName());
-    }
-
-    private void removeAgentRelationships(Agent agent) {
-        DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
-
-        query.setParameter(Grant.ASSIGNEE, agent);
-
-        List<Grant> resultList = query.getResultList();
-
-        for (Grant grant : resultList) {
-            remove(grant);
-        }
-
-        DefaultRelationshipQuery<GroupMembership> groupQuery = new DefaultRelationshipQuery<GroupMembership>(
-                GroupMembership.class, this);
-
-        groupQuery.setParameter(GroupMembership.MEMBER, agent);
-
-        List<GroupMembership> resultGroups = groupQuery.getResultList();
-
-        for (GroupMembership groups : resultGroups) {
-            remove(groups);
-        }
-
-        DefaultRelationshipQuery<GroupRole> groupRoleQuery = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
-
-        groupRoleQuery.setParameter(GroupRole.ASSIGNEE, agent);
-
-        List<GroupRole> resultGroupRoless = groupRoleQuery.getResultList();
-
-        for (GroupRole groupRoles : resultGroupRoless) {
-            remove(groupRoles);
-        }
-    }
-
-    private void removeGroupRelationships(Group group) {
-        DefaultRelationshipQuery<GroupMembership> groupQuery = new DefaultRelationshipQuery<GroupMembership>(
-                GroupMembership.class, this);
-
-        groupQuery.setParameter(GroupMembership.GROUP, group);
-
-        List<GroupMembership> resultGroups = groupQuery.getResultList();
-
-        for (GroupMembership groups : resultGroups) {
-            remove(groups);
-        }
-
-        DefaultRelationshipQuery<GroupRole> groupRoleQuery = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
-
-        groupRoleQuery.setParameter(GroupRole.GROUP, group);
-
-        List<GroupRole> resultGroupRoless = groupRoleQuery.getResultList();
-
-        for (GroupRole groupRoles : resultGroupRoless) {
-            remove(groupRoles);
-        }
-    }
-
-    private void removeRoleRelationships(Role role) {
-        DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, this);
-
-        query.setParameter(Grant.ROLE, role);
-
-        List<Grant> resultList = query.getResultList();
-
-        for (Grant grant : resultList) {
-            remove(grant);
-        }
-
-        DefaultRelationshipQuery<GroupRole> groupRoleQuery = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, this);
-
-        groupRoleQuery.setParameter(GroupRole.ROLE, role);
-
-        List<GroupRole> resultGroupRoless = groupRoleQuery.getResultList();
-
-        for (GroupRole groupRoles : resultGroupRoless) {
-            remove(groupRoles);
-        }
     }
 
     private void removeMember(LDAPEntry parentEntry, LDAPEntry childEntry) {

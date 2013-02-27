@@ -59,9 +59,11 @@ import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
+import org.picketlink.test.idm.relationship.CustomRelationship;
 import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
+import org.picketlink.test.idm.relationship.RelationshipQueryTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 
@@ -75,7 +77,7 @@ import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ CustomRelationshipTestCase.class, PasswordCredentialTestCase.class, UserManagementTestCase.class,
+@SuiteClasses({ RelationshipQueryTestCase.class, CustomRelationshipTestCase.class, PasswordCredentialTestCase.class, UserManagementTestCase.class,
         RoleManagementTestCase.class, GroupManagementTestCase.class, AgentManagementTestCase.class, AgentQueryTestCase.class,
         UserQueryTestCase.class, RoleQueryTestCase.class, GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class,
         AgentGroupsRelationshipTestCase.class, UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class,
@@ -161,7 +163,9 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
         configuration.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
         configuration.setPartitionClass(PartitionObject.class);
 
-        FeatureSet.addFeatureSupport(configuration.getFeatureSet(), FeatureGroup.relationship);
+        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
+        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
+        configuration.getFeatureSet().setSupportsCustomRelationships(true);
 
         return configuration;
     }

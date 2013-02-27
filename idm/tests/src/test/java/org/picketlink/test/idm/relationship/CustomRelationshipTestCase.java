@@ -25,10 +25,10 @@ import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Relationship;
-import org.picketlink.idm.model.SimpleGroup;
-import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
+import org.picketlink.idm.model.Role;
+import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 
@@ -48,21 +48,15 @@ public class CustomRelationshipTestCase extends AbstractIdentityManagerTestCase 
 
         IdentityManager identityManager = getIdentityManager();
 
-        SimpleUser user = new SimpleUser("user");
-
-        identityManager.add(user);
+        User user = createUser("user");
 
         relationship.setIdentityTypeA(user);
 
-        SimpleRole role = new SimpleRole("role");
-
-        identityManager.add(role);
+        Role role = createRole("role");
 
         relationship.setIdentityTypeB(role);
 
-        SimpleGroup group = new SimpleGroup("group");
-
-        identityManager.add(group);
+        Group group = createGroup("group");
 
         relationship.setIdentityTypeC(group);
 

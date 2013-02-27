@@ -51,10 +51,10 @@ public class IDMUtil {
     }
     
     public static FeatureGroup getFeatureGroup(IdentityType identityType) {
-        if (Agent.class.isInstance(identityType)) {
-            return FeatureGroup.agent;
-        } else if (User.class.isInstance(identityType)) {
+        if (User.class.isInstance(identityType)) {
             return FeatureGroup.user;
+        } else if (Agent.class.isInstance(identityType)) {
+            return FeatureGroup.agent;
         } else if (Group.class.isInstance(identityType)) {
             return FeatureGroup.group;
         } else if (Role.class.isInstance(identityType)) {

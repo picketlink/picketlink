@@ -31,8 +31,6 @@ import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
-import org.picketlink.idm.model.Grant;
-import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -49,23 +47,25 @@ import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
+import org.picketlink.test.idm.relationship.RelationshipQueryTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 
 /**
  * <p>
- * Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}.
+ * Test suite for the {@link IdentityManager} using a {@link LDAPIdentityStore}. This suites uses a embedded Apache DS server
+ * during the tests. The same server instance is used by all test cases.
  * </p>
  * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ UserManagementTestCase.class, PasswordCredentialTestCase.class, RoleManagementTestCase.class, GroupManagementTestCase.class,
-        AgentManagementTestCase.class, AgentQueryTestCase.class, UserQueryTestCase.class, RoleQueryTestCase.class,
-        GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class, AgentGroupsRelationshipTestCase.class,
-        UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class
-         })
+@SuiteClasses({ RelationshipQueryTestCase.class, UserManagementTestCase.class, PasswordCredentialTestCase.class, RoleManagementTestCase.class,
+        GroupManagementTestCase.class, AgentManagementTestCase.class, AgentQueryTestCase.class, UserQueryTestCase.class,
+        RoleQueryTestCase.class, GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class,
+        AgentGroupsRelationshipTestCase.class, UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class,
+        GroupGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class })
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     private static final String BASE_DN = "dc=jboss,dc=org";
@@ -74,7 +74,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
     private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
     private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
-    
+
     private static LDAPIdentityStoreTestSuite instance;
 
     public static TestLifecycle init() throws Exception {
@@ -111,6 +111,11 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     }
 
     @Override
+    public void onDestroy() {
+
+    }
+
+    @Override
     public IdentityManager createIdentityManager() {
         IdentityConfiguration config = new IdentityConfiguration();
 
@@ -123,11 +128,6 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         return identityManager;
     }
 
-    @Override
-    public void onDestroy() {
-
-    }
-
     public static LDAPIdentityStoreConfiguration getConfiguration() {
 
         LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
@@ -138,9 +138,8 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
 
         config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
 
-        FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, 
-                FeatureGroup.group, FeatureGroup.role, FeatureGroup.relationship, FeatureGroup.credential);
-        FeatureSet.addRelationshipSupport(config.getFeatureSet(), Grant.class, GroupMembership.class);
+        FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
+                FeatureGroup.role, FeatureGroup.relationship, FeatureGroup.credential);
         config.getFeatureSet().setSupportsCustomRelationships(false);
         config.getFeatureSet().setSupportsMultiRealm(false);
 

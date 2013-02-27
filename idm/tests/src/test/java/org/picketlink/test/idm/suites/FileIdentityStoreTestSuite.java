@@ -28,6 +28,7 @@ import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.model.Authorization;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -46,9 +47,11 @@ import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
+import org.picketlink.test.idm.relationship.CustomRelationship;
 import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
+import org.picketlink.test.idm.relationship.RelationshipQueryTestCase;
 import org.picketlink.test.idm.relationship.UserGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
@@ -63,7 +66,7 @@ import org.picketlink.test.idm.usecases.ApplicationUserRelationshipTestCase;
  * 
  */
 @RunWith(IdentityManagerRunner.class)
-@SuiteClasses({ CustomRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
+@SuiteClasses({ RelationshipQueryTestCase.class, CustomRelationshipTestCase.class, RealmManagementTestCase.class, TierManagementTestCase.class, GroupMembershipTestCase.class,
         ApplicationUserRelationshipTestCase.class, UserManagementTestCase.class, AgentManagementTestCase.class,
         RoleManagementTestCase.class, GroupManagementTestCase.class, AgentGroupsRelationshipTestCase.class,
         UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class, GroupGrantRelationshipTestCase.class,UserGroupRoleRelationshipTestCase.class,
@@ -130,16 +133,18 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
      * @param dataSource
      */
     private void addDefaultConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
-        FileIdentityStoreConfiguration defaultConfiguration = new FileIdentityStoreConfiguration();
+        FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
 
-        defaultConfiguration.setDataSource(dataSource);
+        configuration.setDataSource(dataSource);
 
-        FeatureSet.addFeatureSupport(defaultConfiguration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(defaultConfiguration.getFeatureSet());
-        defaultConfiguration.getFeatureSet().setSupportsCustomRelationships(true);
-        defaultConfiguration.getFeatureSet().setSupportsMultiRealm(true);
+        FeatureSet.addFeatureSupport(configuration.getFeatureSet());
+        FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
+        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
+        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
+        configuration.getFeatureSet().setSupportsCustomRelationships(true);
+        configuration.getFeatureSet().setSupportsMultiRealm(true);
 
-        config.addStoreConfiguration(defaultConfiguration);
+        config.addStoreConfiguration(configuration);
     }
 
     @Override

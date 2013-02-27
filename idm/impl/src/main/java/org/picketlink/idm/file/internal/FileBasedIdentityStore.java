@@ -1342,63 +1342,96 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private <T extends Relationship> List<T> fetchQueryResults(RelationshipQuery<T> query, boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
         Class<T> relationshipType = query.getRelationshipType();
-        List<FileRelationship> relationships = getRelationshipsForCurrentPartition().get(relationshipType.getName());
+        List<FileRelationship> relationships = new ArrayList<FileRelationship>();
 
-        if (relationships == null) {
+        if (Relationship.class.equals(query.getRelationshipType())) {
+            Collection<List<FileRelationship>> allRelationships = getRelationshipsForCurrentPartition().values();
+
+            for (List<FileRelationship> partitionRelationships : allRelationships) {
+                relationships.addAll(partitionRelationships);
+            }
+        } else {
+            List<FileRelationship> currentRealmRelationships = getRelationshipsForCurrentPartition().get(
+                    relationshipType.getName());
+
+            if (currentRealmRelationships != null) {
+                relationships.addAll(currentRealmRelationships);
+            }
+        }
+
+        if (relationships.isEmpty()) {
             return result;
         }
 
         for (FileRelationship storedRelationship : relationships) {
             boolean match = false;
 
-            if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
-                Set<Entry<QueryParameter, Object[]>> parameters = query.getParameters().entrySet();
+            Object[] identityParameterValues = query.getParameter(Relationship.IDENTITY);
 
-                for (Entry<QueryParameter, Object[]> entry : parameters) {
-                    QueryParameter queryParameter = entry.getKey();
-                    Object[] values = entry.getValue();
+            if (identityParameterValues != null && identityParameterValues.length > 0) {
+                for (Object parameterValue : identityParameterValues) {
+                    String identityId = null;
 
-                    if (queryParameter instanceof RelationshipQueryParameter) {
-                        RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
-                        match = matchIdentityType(storedRelationship, query, identityTypeParameter, matchExactGroup);
+                    if (String.class.isInstance(parameterValue)) {
+                        identityId = (String) parameterValue;
+                    } else if (IdentityType.class.isInstance(parameterValue)) {
+                        IdentityType identityType = (IdentityType) parameterValue;
+                        identityId = identityType.getId();
+                    } else {
+                        throw new IdentityManagementException(
+                                "Unsupported type for QueryParameter Relationship.IDENTITY. You should specify the id or a IdentityType instance.");
                     }
 
-                    if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && values != null) {
-                        AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
-                        Attribute<Serializable> userAttribute = storedRelationship.getEntry().getAttribute(
-                                customParameter.getName());
+                    match = storedRelationship.hasIdentityType(identityId);
+                }
+            } else {
+                if (query.getRelationshipType().getName().equals(storedRelationship.getType())) {
+                    for (Entry<QueryParameter, Object[]> entry : query.getParameters().entrySet()) {
+                        QueryParameter queryParameter = entry.getKey();
+                        Object[] values = entry.getValue();
 
-                        Serializable userAttributeValue = null;
-
-                        if (userAttribute != null) {
-                            userAttributeValue = userAttribute.getValue();
+                        if (queryParameter instanceof RelationshipQueryParameter) {
+                            RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
+                            match = matchIdentityType(storedRelationship, query, identityTypeParameter, matchExactGroup);
                         }
 
-                        if (userAttributeValue != null) {
-                            int count = values.length;
+                        if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && values != null) {
+                            AttributedType.AttributeParameter customParameter = (AttributedType.AttributeParameter) queryParameter;
+                            Attribute<Serializable> userAttribute = storedRelationship.getEntry().getAttribute(
+                                    customParameter.getName());
 
-                            for (Object value : values) {
-                                if (userAttributeValue.getClass().isArray()) {
-                                    Object[] userValues = (Object[]) userAttributeValue;
+                            Serializable userAttributeValue = null;
 
-                                    for (Object object : userValues) {
-                                        if (object.equals(value)) {
+                            if (userAttribute != null) {
+                                userAttributeValue = userAttribute.getValue();
+                            }
+
+                            if (userAttributeValue != null) {
+                                int count = values.length;
+
+                                for (Object value : values) {
+                                    if (userAttributeValue.getClass().isArray()) {
+                                        Object[] userValues = (Object[]) userAttributeValue;
+
+                                        for (Object object : userValues) {
+                                            if (object.equals(value)) {
+                                                count--;
+                                            }
+                                        }
+                                    } else {
+                                        if (value.equals(userAttributeValue)) {
                                             count--;
                                         }
                                     }
-                                } else {
-                                    if (value.equals(userAttributeValue)) {
-                                        count--;
-                                    }
                                 }
+
+                                match = count <= 0;
                             }
-
-                            match = count <= 0;
                         }
-                    }
 
-                    if (!match) {
-                        break;
+                        if (!match) {
+                            break;
+                        }
                     }
                 }
             }
@@ -1429,8 +1462,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                     if (identityTypeRel.getId().equals(identityType.getId())) {
                         valuesMathCount--;
                     } else {
-                        if ((GroupMembership.class.isInstance(storedRelationship.getEntry())
-                                || GroupRole.class.isInstance(storedRelationship.getEntry())) && !matchExactGroup) {
+                        if ((GroupMembership.class.isInstance(storedRelationship.getEntry()) || GroupRole.class
+                                .isInstance(storedRelationship.getEntry())) && !matchExactGroup) {
                             if (Group.class.isInstance(identityTypeRel)) {
                                 Group groupParameter = (Group) identityType;
                                 Group groupFromRel = (Group) identityTypeRel;

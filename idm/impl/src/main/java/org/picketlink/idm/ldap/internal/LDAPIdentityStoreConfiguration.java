@@ -84,6 +84,8 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
         
         getFeatureSet().removeFeature(FeatureGroup.realm);
         getFeatureSet().removeFeature(FeatureGroup.tier);
+        getFeatureSet().setSupportsCustomRelationships(false);
+        getFeatureSet().setSupportsMultiRealm(false);
     }
 
     public String getStandardAttributesFileName() {
@@ -231,7 +233,7 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     }
 
     public boolean isGroupNamespace(String nameInNamespace) {
-        if (nameInNamespace.endsWith(nameInNamespace)) {
+        if (nameInNamespace.endsWith(getGroupDNSuffix())) {
             return true;
         }
 

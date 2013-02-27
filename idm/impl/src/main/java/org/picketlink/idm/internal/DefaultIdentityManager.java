@@ -37,6 +37,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
@@ -68,7 +69,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private static final long serialVersionUID = -2835518073812662628L;
 
-    private Map<String,Set<IdentityStoreConfiguration>> realmStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
+    private Map<String, Set<IdentityStoreConfiguration>> realmStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
 
     private StoreFactory storeFactory = new DefaultStoreFactory();
 
@@ -260,27 +261,27 @@ public class DefaultIdentityManager implements IdentityManager {
         getContextualStoreForFeature(ctx, feature, FeatureOperation.create).add(identityType);
     }
 
-
-
     @Override
     public void add(Relationship relationship) {
         IdentityStoreInvocationContext ctx = createContext();
 
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.create).add(relationship);
+        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.create, relationship.getClass()).add(
+                relationship);
     }
 
     @Override
     public void update(IdentityType identityType) {
         checkIfIdentityTypeExists(identityType);
 
-        getContextualStoreForFeature(createContext(), IDMUtil.getFeatureGroup(identityType), FeatureOperation.update).update(identityType);
+        getContextualStoreForFeature(createContext(), IDMUtil.getFeatureGroup(identityType), FeatureOperation.update).update(
+                identityType);
     }
 
     @Override
     public void update(Relationship relationship) {
         IdentityStoreInvocationContext ctx = createContext();
 
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.update).update(relationship);
+        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.update, relationship.getClass()).update(relationship);
     }
 
     @Override
@@ -292,22 +293,14 @@ public class DefaultIdentityManager implements IdentityManager {
         IdentityStoreInvocationContext ctx = createContext();
 
         getContextualStoreForFeature(ctx, feature, FeatureOperation.delete).remove(identityType);
-        
-        RelationshipQuery<Relationship> query = createRelationshipQuery(Relationship.class);
-        
-        query.setParameter(Relationship.IDENTITY, identityType);
-        
-        List<Relationship> relationships = query.getResultList();
-        
-        for (Relationship relationship : relationships) {
-            remove(relationship);
-        }
     }
 
     @Override
     public void remove(Relationship relationship) {
+        checkNotNull(relationship);
         IdentityStoreInvocationContext ctx = createContext();
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.delete).remove(relationship);
+        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.delete, relationship.getClass()).remove(
+                relationship);
     }
 
     public Agent getAgent(String loginName) {
@@ -372,7 +365,8 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(member);
         checkIfIdentityTypeExists(group);
 
-        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.delete).remove(new GroupMembership(member, group));
+        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.delete, GroupMembership.class).remove(
+                new GroupMembership(member, group));
     }
 
     @Override
@@ -406,7 +400,8 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(role);
         checkIfIdentityTypeExists(group);
 
-        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.delete).remove(new GroupRole(assignee, group, role));
+        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.delete, GroupRole.class).remove(
+                new GroupRole(assignee, group, role));
     }
 
     @Override
@@ -436,12 +431,14 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(identityType);
         checkIfIdentityTypeExists(role);
 
-        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.delete).remove(new Grant(identityType, role));
+        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.delete, Grant.class).remove(
+                new Grant(identityType, role));
     }
 
     @Override
     public void validateCredentials(Credentials credentials) {
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.credential, FeatureOperation.validate);
+        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.credential,
+                FeatureOperation.validate);
         store.validateCredentials(credentials);
     }
 
@@ -458,13 +455,14 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
-        return new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), FeatureGroup.user, FeatureOperation.read));
+        return new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), FeatureGroup.user,
+                FeatureOperation.read));
     }
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
         return new DefaultRelationshipQuery<T>(relationshipType, getContextualStoreForFeature(createContext(),
-                FeatureGroup.relationship, FeatureOperation.read));
+                FeatureGroup.relationship, FeatureOperation.read, relationshipType));
     }
 
     @Override
@@ -612,12 +610,13 @@ public class DefaultIdentityManager implements IdentityManager {
         }
     }
 
-    private IdentityStore<?> getContextualStoreForFeature(IdentityStoreInvocationContext ctx, FeatureGroup feature, FeatureOperation operation) {
+    private IdentityStore<?> getContextualStoreForFeature(IdentityStoreInvocationContext ctx, FeatureGroup feature,
+            FeatureOperation operation) {
         return getContextualStoreForFeature(ctx, feature, operation, null);
     }
 
-    private IdentityStore<?> getContextualStoreForFeature(final IdentityStoreInvocationContext ctx, FeatureGroup feature, FeatureOperation operation,
-            Class<? extends Relationship> relationshipClass) {
+    private IdentityStore<?> getContextualStoreForFeature(final IdentityStoreInvocationContext ctx, FeatureGroup feature,
+            FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
         String realm = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
 
         if (!realmStores.containsKey(realm)) {
@@ -631,22 +630,32 @@ public class DefaultIdentityManager implements IdentityManager {
         Set<IdentityStoreConfiguration> configs = realmStores.get(realm);
 
         IdentityStoreConfiguration config = null;
-
+        boolean supportedRelationshipClass = true;
+        
         for (IdentityStoreConfiguration cfg : configs) {
             if (relationshipClass != null) {
-                if (cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
-                    config = cfg;
-                    break;
+                if (cfg.getFeatureSet().supportsRelationship(relationshipClass)) {
+                    if (cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
+                        config = cfg;
+                        break;
+                    }
+                } else {
+                    supportedRelationshipClass = false;
                 }
             } else if (cfg.getFeatureSet().supports(feature, operation)) {
                 config = cfg;
                 break;
             }
         }
-
+        
         if (config == null) {
-            throw new SecurityConfigurationException("No identity store configuration found for requested operation [" + 
-                    feature.toString() + "." + operation.toString() + "]");
+            if (!supportedRelationshipClass) {
+                throw new SecurityConfigurationException("No identity store configuration found that supports the relationship type ["
+                        + relationshipClass.getName() + "]");
+            } else {
+                throw new SecurityConfigurationException("No identity store configuration found for requested operation ["
+                        + feature.toString() + "." + operation.toString() + "]");
+            }
         }
 
         @SuppressWarnings("unchecked")
@@ -677,12 +686,12 @@ public class DefaultIdentityManager implements IdentityManager {
         }
     }
 
-    private void checkNotNull(IdentityType identityType) {
-        if (identityType == null) {
-            throw new IdentityManagementException("You must provide a non-null IdentityType.");
+    private void checkNotNull(AttributedType relationship) {
+        if (relationship == null) {
+            throw new IdentityManagementException("You must provide a not null instance.");
         }
     }
-    
+
     private Partition getCurrentPartition(IdentityStoreInvocationContext ctx) {
         Realm realm = ctx.getRealm();
 
@@ -697,7 +706,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
         return currentPartition;
     }
-    
+
     private Grant getGrant(IdentityType identityType, Role role) {
         RelationshipQuery<Grant> query = createRelationshipQuery(Grant.class);
 

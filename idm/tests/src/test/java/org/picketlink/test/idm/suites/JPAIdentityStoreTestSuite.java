@@ -41,6 +41,7 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.model.Authorization;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -59,6 +60,7 @@ import org.picketlink.test.idm.query.UserQueryTestCase;
 import org.picketlink.test.idm.relationship.AgentGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupRoleRelationshipTestCase;
 import org.picketlink.test.idm.relationship.AgentGroupsRelationshipTestCase;
+import org.picketlink.test.idm.relationship.CustomRelationship;
 import org.picketlink.test.idm.relationship.CustomRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupGrantRelationshipTestCase;
 import org.picketlink.test.idm.relationship.GroupMembershipTestCase;
@@ -98,6 +100,13 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         this.entityManager = emf.createEntityManager();
         this.entityManager.getTransaction().begin();
     }
+    
+    @Override
+    public void onDestroy() {
+        this.entityManager.getTransaction().commit();
+        this.entityManager.close();
+        this.emf.close();
+    }
 
     @Override
     public IdentityManager createIdentityManager() {
@@ -106,11 +115,18 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         config.addStoreConfiguration(getDefaultConfiguration());
         config.addStoreConfiguration(getTestingRealmConfiguration());
         
-        IdentityManager identityManager = new DefaultIdentityManager();
-        DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
-        icf.setEntityManager(entityManager);
-        identityManager.bootstrap(config, icf);
+        return createIdentityManager(config);
+    }
 
+    private IdentityManager createIdentityManager(IdentityConfiguration config) {
+        IdentityManager identityManager = new DefaultIdentityManager();
+        
+        DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(this.emf);
+        
+        icf.setEntityManager(this.entityManager);
+        
+        identityManager.bootstrap(config, icf);
+        
         return identityManager;
     }
 
@@ -154,15 +170,10 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
 
         FeatureSet.addFeatureSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
+        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
+        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
         configuration.getFeatureSet().setSupportsCustomRelationships(true);
         configuration.getFeatureSet().setSupportsMultiRealm(true);
-    }
-
-    @Override
-    public void onDestroy() {
-        this.entityManager.getTransaction().commit();
-        this.entityManager.close();
-        this.emf.close();
     }
 
 }

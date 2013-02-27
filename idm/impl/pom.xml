@@ -56,6 +56,7 @@
                <disableXmlReport>false</disableXmlReport>
                <testFailureIgnore>false</testFailureIgnore>
                <includes>
+                  <include>org/picketlink/test/idm/config/**TestCase.java</include>
                   <include>**/**TestSuite.java</include>
                </includes>
                <forkMode>pertest</forkMode>

@@ -293,14 +293,18 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     @Override
     public void initConfig() throws SecurityConfigurationException {
-        if (this.identityClass != null) {
-            configureIdentity();
-            configurePartitions();
-            configureRelationships();
-            configureCredentials();
-        } else {
+        if (this.identityClass == null) {
             throw new SecurityConfigurationException("Error initializing JpaIdentityStore - identityClass not set");
         }
+
+        if (this.partitionClass == null) {
+            throw new SecurityConfigurationException("Error initializing JpaIdentityStore - partitionClass not set");
+        }
+
+        configureIdentity();
+        configurePartitions();
+        configureRelationships();
+        configureCredentials();
     }
 
     private void configureIdentityTypeHandlers() {
@@ -311,18 +315,16 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     }
 
     private void configureCredentials() {
-        if (this.credentialClass != null) {
+        if (this.credentialClass != null && this.credentialAttributeClass != null) {
             configureModelProperty(PropertyType.CREDENTIAL_TYPE, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_VALUE, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_IDENTITY, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE, credentialClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE, credentialClass, null);
 
-            if (this.credentialAttributeClass != null) {
-                configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME, credentialAttributeClass, String.class);
-                configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, credentialAttributeClass, null);
-                configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, credentialAttributeClass, credentialClass);
-            }
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME, credentialAttributeClass, String.class);
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, credentialAttributeClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, credentialAttributeClass, credentialClass);
         } else {
             getFeatureSet().removeFeature(FeatureGroup.credential);
         }
@@ -373,13 +375,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
      * relationshipClass property may be left as null in which case no configuration will occur.
      */
     protected void configureRelationships() throws SecurityConfigurationException {
-        if (this.relationshipClass != null) {
-            if (this.relationshipIdentityClass == null || this.relationshipAttributeClass == null) {
-                throw new SecurityConfigurationException("Invalid JPAIdentityStoreConfiguration - "
-                        + "Both relationshipIdentityClass and relationshipAttributeClass properties must be set "
-                        + "if relationships are configured");
-            }
-
+        if (this.relationshipClass != null && this.relationshipIdentityClass != null && this.relationshipAttributeClass != null) {
             configureModelProperty(PropertyType.RELATIONSHIP_ID, relationshipClass, null, "id");
             configureModelProperty(PropertyType.RELATIONSHIP_CLASS, relationshipClass, null, "relationshipClass");
 
