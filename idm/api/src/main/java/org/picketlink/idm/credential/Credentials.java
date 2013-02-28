@@ -20,21 +20,41 @@ package org.picketlink.idm.credential;
 
 import org.picketlink.idm.model.Agent;
 
-
 /**
- * Represents the credentials the current user will use to authenticate, in addition to
- * providing information about the current state of the validation process. 
+ * Represents the credentials the current user will use to authenticate, in addition to providing information about the current
+ * state of the validation process.
  * 
  * Only used during the authentication process
  * 
  * @author Shane Bryzak
  */
 public interface Credentials {
-    public enum Status {UNVALIDATED, IN_PROGRESS, INVALID, VALID, EXPIRED};
+    public enum Status {
+        UNVALIDATED, IN_PROGRESS, INVALID, VALID, EXPIRED
+    };
 
+    /**
+     * <p>
+     * Returns the {@link Agent} instance used to validate the credential.
+     * </p>
+     * 
+     * @return
+     */
     Agent getValidatedAgent();
 
+    /**
+     * <p>
+     * Returns the validation status.
+     * </p>
+     * 
+     * @return
+     */
     Status getStatus();
 
+    /**
+     * <p>
+     * Invalidates the credential.
+     * </p>
+     */
     void invalidate();
 }

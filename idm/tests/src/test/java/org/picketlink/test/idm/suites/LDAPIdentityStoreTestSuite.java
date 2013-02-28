@@ -129,7 +129,6 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     }
 
     public static LDAPIdentityStoreConfiguration getConfiguration() {
-
         LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
 
         config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)

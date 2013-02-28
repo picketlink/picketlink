@@ -23,8 +23,10 @@ import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
- * Represents a configuration for {@link IdentityStore}
- *
+ * <p>
+ * Represents a configuration for a specific {@link IdentityStore}.
+ * </p>
+ * 
  * @author Anil Saldhana
  * @author Shane Bryzak
  * @since Sep 6, 2012
@@ -32,27 +34,36 @@ import org.picketlink.idm.spi.IdentityStore;
 public interface IdentityStoreConfiguration {
 
     /**
-     * Initializes the store configuration with the specified FeatureSet
+     * <p>
+     * Initializes the store configuration with the specified {@link FeatureSet}.
+     * </p>
      * 
      * @throws SecurityConfigurationException
      */
     void init() throws SecurityConfigurationException;
 
     /**
-     * Sets the realm for this identity store
+     * <p>
+     * Sets the realm for this identity store.
+     * </p>
      * 
      * @param realm
      */
     void addRealm(String realm);
 
     /**
+     * <p>
+     * Returns all configured realms.
+     * </p>
      * 
      * @return
      */
     Set<String> getRealms();
 
     /**
-     * Returns a FeatureSet describing the features supported by this identity store configuration
+     * <p>
+     * Returns a {@link FeatureSet} describing the features supported by this identity store configuration.
+     * </p>
      * 
      * @return
      */
