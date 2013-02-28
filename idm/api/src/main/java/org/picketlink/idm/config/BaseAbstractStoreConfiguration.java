@@ -50,8 +50,8 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
 
     @Override
     public final void init() throws SecurityConfigurationException {
-        this.featureSet.lock();
         initConfig();
+        this.featureSet.lock();
     }
 
     public abstract void initConfig();

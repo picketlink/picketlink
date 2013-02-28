@@ -44,27 +44,33 @@ public class FeatureSet {
 
     private boolean locked = false;
 
-    private Set<FeatureOperation> getFeatureOperations(FeatureGroup group) {
-        if (!supportedFeatures.containsKey(group)) {
-            supportedFeatures.put(group, new HashSet<FeatureOperation>());
-        }
-        return supportedFeatures.get(group);
-    }
-
-    private Set<FeatureOperation> getRelationshipOperations(Class<? extends Relationship> relationshipClass) {
-        if (!supportedRelationships.containsKey(relationshipClass)) {
-            supportedRelationships.put(relationshipClass, new HashSet<FeatureOperation>());
-        }
-        return supportedRelationships.get(relationshipClass);
-    }
-
-    public void addFeature(FeatureGroup feature, FeatureOperation operation) {
+    /**
+     * <p>
+     * Adds the given {@link FeatureOperation} for the provided {@link FeatureGroup}.
+     * </p>
+     * 
+     * @param feature
+     * @param operation
+     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
+     */
+    public void addFeature(FeatureGroup feature, FeatureOperation operation) throws SecurityConfigurationException {
         checkIfFeatureSetIsLocked();
+
         getFeatureOperations(feature).add(operation);
     }
 
-    public void removeFeature(FeatureGroup feature, FeatureOperation operation) {
+    /**
+     * <p>
+     * Removes the given {@link FeatureOperation} for the provided {@link FeatureGroup} from the features set.
+     * </p>
+     * 
+     * @param feature
+     * @param operation
+     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
+     */
+    public void removeFeature(FeatureGroup feature, FeatureOperation operation) throws SecurityConfigurationException {
         checkIfFeatureSetIsLocked();
+
         getFeatureOperations(feature).remove(operation);
 
         if (FeatureGroup.relationship.equals(feature)) {
@@ -77,9 +83,17 @@ public class FeatureSet {
         }
     }
 
-    public void removeFeature(FeatureGroup feature) {
+    /**
+     * <p>
+     * Removes the given {@link FeatureGroup} and all supported {@link FeatureOperation} from the features set.
+     * </p>
+     * 
+     * @param feature
+     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
+     */
+    public void removeFeature(FeatureGroup feature) throws SecurityConfigurationException {
         checkIfFeatureSetIsLocked();
-        
+
         this.supportedFeatures.remove(feature);
 
         if (FeatureGroup.relationship.equals(feature)) {
@@ -87,44 +101,105 @@ public class FeatureSet {
         }
     }
 
+    /**
+     * <p>
+     * Check if the {@link FeatureGroup} and the given {@link FeatureOperation} are supported.
+     * </p>
+     * 
+     * @param feature
+     * @param operation
+     * @return
+     */
     public boolean supports(FeatureGroup feature, FeatureOperation operation) {
         return getFeatureOperations(feature).contains(operation);
     }
 
+    /**
+     * <p>
+     * Check if the {@link FeatureGroup} is supported.
+     * </p>
+     * 
+     * @param feature
+     * @param operation
+     * @return
+     */
     public boolean supports(FeatureGroup feature) {
         return !getFeatureOperations(feature).isEmpty();
     }
 
+    /**
+     * <p>
+     * Configures the given {@link FeatureOperation} for the provided {@link Relationship} type.
+     * </p>
+     * 
+     * @param feature
+     * @param operation
+     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
+     */
     public void addRelationshipFeature(Class<? extends Relationship> relationshipClass, FeatureOperation operation) {
         checkIfFeatureSetIsLocked();
         getRelationshipOperations(relationshipClass).add(operation);
     }
 
+    /**
+     * <p>
+     * Removes the given {@link FeatureOperation} related to the provided {@link Relationship} type from the feature set.
+     * </p>
+     * 
+     * @param feature
+     * @param operation
+     * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
+     */
     public void removeRelationshipFeature(Class<? extends Relationship> relationshipClass, FeatureOperation operation) {
         checkIfFeatureSetIsLocked();
-        
+
         if (!getDefaultRelationshipClasses().contains(relationshipClass) && !this.supportsCustomRelationships) {
             throw new SecurityConfigurationException(
-                    "Custom relationships are disabled. You can not add this FeatureOperation to relationship type [" + relationshipClass + "].");
+                    "Custom relationships are disabled. You can not add this FeatureOperation to relationship type ["
+                            + relationshipClass + "].");
         }
-        
+
         if (supportedRelationships.containsKey(relationshipClass)) {
             supportedRelationships.get(relationshipClass).remove(operation);
         }
     }
 
+    /**
+     * <p>
+     * Check if the given {@link FeatureOperation} is supported for the provided {@link Relationship} type.
+     * </p>
+     * 
+     * @param feature
+     * @param operation
+     * @return
+     */
     public boolean supportsRelationshipFeature(Class<? extends Relationship> relationshipClass, FeatureOperation operation) {
         return getRelationshipOperations(relationshipClass).contains(operation);
     }
 
+    /**
+     * <p>
+     * Check if the given {@link Relationship} type is supported.
+     * </p>
+     * 
+     * @param feature
+     * @return
+     */
     public boolean supportsRelationship(Class<? extends Relationship> relationshipClass) {
         if (getDefaultRelationshipClasses().contains(relationshipClass)) {
-            return this.supportedRelationships.containsKey(relationshipClass);            
+            return this.supportedRelationships.containsKey(relationshipClass);
         } else {
             return this.supportsCustomRelationships && this.supportedRelationships.containsKey(relationshipClass);
         }
     }
 
+    /**
+     * <p>
+     * Indicates if multi realms are supported or not.
+     * </p>
+     * 
+     * @return
+     */
     public boolean supportsMultiRealm() {
         return supportsMultiRealm;
     }
@@ -143,6 +218,14 @@ public class FeatureSet {
         locked = true;
     }
 
+    /**
+     * <p>
+     * Adds the given {@link FeatureGroup} values to the provided {@link FeatureSet}.
+     * </p>
+     * 
+     * @param featureSet
+     * @param groups
+     */
     public static void addFeatureSupport(FeatureSet featureSet, FeatureGroup... groups) {
         FeatureGroup[] features = (groups != null && groups.length > 0) ? groups : FeatureGroup.values();
 
@@ -181,13 +264,15 @@ public class FeatureSet {
         }
     }
 
-    private static void addBasicOperations(FeatureSet featureSet, FeatureGroup feature) {
-        featureSet.addFeature(feature, FeatureOperation.create);
-        featureSet.addFeature(feature, FeatureOperation.read);
-        featureSet.addFeature(feature, FeatureOperation.update);
-        featureSet.addFeature(feature, FeatureOperation.delete);
-    }
-
+    /**
+     * <p>
+     * Adds the given {@link Relationship} types to the provided {@link FeatureSet}. If you do not provide any class only the
+     * default ones will be added.
+     * </p>
+     * 
+     * @param featureSet
+     * @param relationshipClass
+     */
     public static void addRelationshipSupport(FeatureSet featureSet, Class<? extends Relationship>... relationshipClass) {
         List<Class<? extends Relationship>> classes;
 
@@ -205,12 +290,22 @@ public class FeatureSet {
         }
     }
 
+    /**
+     * <p>
+     * Removes the given {@link Relationship} types from the provided {@link FeatureSet}.
+     * </p>
+     * 
+     * @param featureSet
+     * @param relationshipClass
+     */
     public static void removeRelationshipSupport(FeatureSet featureSet, Class<? extends Relationship>... relationshipClasses) {
-        for (Class<? extends Relationship> relationshipClass : relationshipClasses) {
-            featureSet.removeRelationshipFeature(relationshipClass, FeatureOperation.create);
-            featureSet.removeRelationshipFeature(relationshipClass, FeatureOperation.read);
-            featureSet.removeRelationshipFeature(relationshipClass, FeatureOperation.update);
-            featureSet.removeRelationshipFeature(relationshipClass, FeatureOperation.delete);
+        if (relationshipClasses != null) {
+            for (Class<? extends Relationship> relationshipClass : relationshipClasses) {
+                featureSet.removeRelationshipFeature(relationshipClass, FeatureOperation.create);
+                featureSet.removeRelationshipFeature(relationshipClass, FeatureOperation.read);
+                featureSet.removeRelationshipFeature(relationshipClass, FeatureOperation.update);
+                featureSet.removeRelationshipFeature(relationshipClass, FeatureOperation.delete);
+            }
         }
     }
 
@@ -224,7 +319,28 @@ public class FeatureSet {
 
         return classes;
     }
-    
+
+    private static void addBasicOperations(FeatureSet featureSet, FeatureGroup feature) {
+        featureSet.addFeature(feature, FeatureOperation.create);
+        featureSet.addFeature(feature, FeatureOperation.read);
+        featureSet.addFeature(feature, FeatureOperation.update);
+        featureSet.addFeature(feature, FeatureOperation.delete);
+    }
+
+    private Set<FeatureOperation> getFeatureOperations(FeatureGroup group) {
+        if (!supportedFeatures.containsKey(group)) {
+            supportedFeatures.put(group, new HashSet<FeatureOperation>());
+        }
+        return supportedFeatures.get(group);
+    }
+
+    private Set<FeatureOperation> getRelationshipOperations(Class<? extends Relationship> relationshipClass) {
+        if (!supportedRelationships.containsKey(relationshipClass)) {
+            supportedRelationships.put(relationshipClass, new HashSet<FeatureOperation>());
+        }
+        return supportedRelationships.get(relationshipClass);
+    }
+
     private void checkIfFeatureSetIsLocked() {
         if (locked) {
             throw new SecurityConfigurationException(
