@@ -26,15 +26,15 @@ import java.security.KeyPairGenerator;
 
 import javax.xml.crypto.dsig.SignatureMethod;
 
-import org.apache.log4j.Logger;
+import org.jboss.logging.Logger;
 import org.junit.Test;
+import org.picketlink.common.constants.JBossSAMLURIConstants;
+import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.api.saml.v2.request.SAML2Request;
 import org.picketlink.identity.federation.api.saml.v2.response.SAML2Response;
 import org.picketlink.identity.federation.api.saml.v2.sig.SAML2Signature;
 import org.picketlink.identity.federation.core.saml.v2.common.IDGenerator;
-import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.holders.IssuerInfoHolder;
-import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.SignatureUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;

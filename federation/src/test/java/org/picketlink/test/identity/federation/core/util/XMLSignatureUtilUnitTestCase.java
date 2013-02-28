@@ -28,7 +28,7 @@ import java.security.interfaces.RSAPublicKey;
 import javax.xml.crypto.dsig.DigestMethod;
 import javax.xml.crypto.dsig.SignatureMethod;
 
-import org.apache.log4j.Logger;
+import org.jboss.logging.Logger;
 import org.junit.Test;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.util.DocumentUtil;

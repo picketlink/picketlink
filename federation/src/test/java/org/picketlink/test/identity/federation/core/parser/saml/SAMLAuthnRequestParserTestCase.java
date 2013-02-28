@@ -24,14 +24,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.jboss.logging.Logger;
 import org.junit.Test;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLRequestWriter;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.identity.federation.saml.v2.protocol.NameIDPolicyType;
 import org.w3c.dom.Document;

@@ -25,7 +25,7 @@ import java.util.TimerTask;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import org.apache.log4j.Logger;
+import org.jboss.logging.Logger;
 
 /**
  * <p>

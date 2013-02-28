@@ -52,11 +52,6 @@
          <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-         <version>1.2.14</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.santuario</groupId>
         <artifactId>xmlsec</artifactId>
         <version>1.5.1</version>
@@ -66,12 +61,6 @@
               <artifactId>servlet-api</artifactId>
            </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>commons-logging</groupId>
-        <artifactId>commons-logging-api</artifactId>
-        <version>1.0.3</version>
-         <optional>true</optional>
       </dependency>
       <dependency>
         <groupId>org.jboss.security</groupId>

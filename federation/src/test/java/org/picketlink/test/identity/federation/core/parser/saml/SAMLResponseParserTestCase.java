@@ -27,14 +27,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.jboss.logging.Logger;
 import org.junit.Test;
-import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StaxUtil;
+import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.saml.v2.writers.SAMLResponseWriter;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;

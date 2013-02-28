@@ -24,13 +24,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.jboss.logging.Logger;
 import org.junit.Test;
+import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.core.parsers.saml.SAML11ResponseParser;
 import org.picketlink.identity.federation.core.parsers.saml.SAMLParser;
 import org.picketlink.identity.federation.core.saml.v1.writers.SAML11ResponseWriter;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
-import org.picketlink.common.util.StaxUtil;
 import org.picketlink.identity.federation.saml.v1.assertion.SAML11AssertionType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11ResponseType;
 import org.picketlink.identity.federation.saml.v1.protocol.SAML11StatusCodeType;
