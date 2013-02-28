@@ -13,11 +13,12 @@
 	<url>http://labs.jboss.org/portal/picketlink/</url>
 	<description>PicketLink Common Code</description>
 	<licenses>
-		<license>
-			<name>lgpl</name>
-			<url>http://repository.jboss.com/licenses/lgpl.txt</url>
-		</license>
-	</licenses>
+      <license>
+         <name>Apache License, Version 2.0</name>
+         <distribution>repo</distribution>
+         <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+      </license>
+   </licenses>
 	<organization>
 		<name>JBoss Inc.</name>
 		<url>http://www.jboss.org</url>
