@@ -59,14 +59,12 @@ public class FeatureSet {
     }
 
     public void addFeature(FeatureGroup feature, FeatureOperation operation) {
-        if (locked) {
-            throw new SecurityConfigurationException(
-                    "Feature set has already been locked, no additional features may be added.");
-        }
+        checkIfFeatureSetIsLocked();
         getFeatureOperations(feature).add(operation);
     }
 
     public void removeFeature(FeatureGroup feature, FeatureOperation operation) {
+        checkIfFeatureSetIsLocked();
         getFeatureOperations(feature).remove(operation);
 
         if (FeatureGroup.relationship.equals(feature)) {
@@ -80,6 +78,8 @@ public class FeatureSet {
     }
 
     public void removeFeature(FeatureGroup feature) {
+        checkIfFeatureSetIsLocked();
+        
         this.supportedFeatures.remove(feature);
 
         if (FeatureGroup.relationship.equals(feature)) {
@@ -96,19 +96,12 @@ public class FeatureSet {
     }
 
     public void addRelationshipFeature(Class<? extends Relationship> relationshipClass, FeatureOperation operation) {
-        if (locked) {
-            throw new SecurityConfigurationException(
-                    "Feature set has already been locked, no additional features may be added.");
-        }
-        
+        checkIfFeatureSetIsLocked();
         getRelationshipOperations(relationshipClass).add(operation);
     }
 
     public void removeRelationshipFeature(Class<? extends Relationship> relationshipClass, FeatureOperation operation) {
-        if (locked) {
-            throw new SecurityConfigurationException(
-                    "Feature set has already been locked, no additional features may be added.");
-        }
+        checkIfFeatureSetIsLocked();
         
         if (!getDefaultRelationshipClasses().contains(relationshipClass) && !this.supportsCustomRelationships) {
             throw new SecurityConfigurationException(
@@ -137,22 +130,16 @@ public class FeatureSet {
     }
 
     public void setSupportsCustomRelationships(boolean value) {
-        if (locked && value) {
-            throw new SecurityConfigurationException(
-                    "Feature set has already been locked, no additional features may be added.");
-        }
+        checkIfFeatureSetIsLocked();
         this.supportsCustomRelationships = value;
     }
 
     public void setSupportsMultiRealm(boolean value) {
-        if (locked && value) {
-            throw new SecurityConfigurationException(
-                    "Feature set has already been locked, no additional features may be added.");
-        }
+        checkIfFeatureSetIsLocked();
         this.supportsMultiRealm = value;
     }
 
-    public void lock() {
+    protected void lock() {
         locked = true;
     }
 
@@ -236,5 +223,12 @@ public class FeatureSet {
         classes.add(GroupRole.class);
 
         return classes;
+    }
+    
+    private void checkIfFeatureSetIsLocked() {
+        if (locked) {
+            throw new SecurityConfigurationException(
+                    "Feature set has already been locked, no additional features may be added.");
+        }
     }
 }

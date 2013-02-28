@@ -19,10 +19,11 @@
 package org.picketlink.idm;
 
 /**
- * Generates unique identifier values
+ * <p>Generates unique identifier values.</p>
  * 
  * @author Shane Bryzak
  */
 public interface IdGenerator {
+    
     String generate();
 }
