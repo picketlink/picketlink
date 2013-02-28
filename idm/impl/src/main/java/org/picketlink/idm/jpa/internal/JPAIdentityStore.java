@@ -568,18 +568,98 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public void setAttribute(IdentityType identity, Attribute<? extends Serializable> providedAttrib) {
-        throw new UnsupportedOperationException();
+    public void setAttribute(IdentityType identity, Attribute<? extends Serializable> attribute) {
+        Object value = attribute.getValue();
+
+        if (value == null) {
+            return;
+        }
+
+        Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
+        Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY);
+        Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
+
+        List<?> storedAttributes = findIdentityTypeAttributes(identity, attribute.getName());
+
+        // store a new attribute
+        if (storedAttributes.isEmpty()) {
+            Object[] values = null;
+
+            if (value.getClass().isArray()) {
+                values = (Object[]) value;
+            } else {
+                values = new Object[] { value };
+            }
+
+            Object entity = lookupIdentityObjectById(identity.getId());
+
+            try {
+                for (Object attribValue : values) {
+                    Object newAttribute = getConfig().getAttributeClass().newInstance();
+
+                    attributeNameProperty.setValue(newAttribute, attribute.getName());
+                    attributeValueProperty.setValue(newAttribute, attribValue);
+                    attributeIdentityProperty.setValue(newAttribute, entity);
+
+                    getEntityManager().persist(newAttribute);
+                }
+            } catch (Exception e) {
+                throw new IdentityManagementException("Error creating attributes.", e);
+            }
+        } else {
+            removeAttribute(identity, attribute.getName());
+            setAttribute(identity, attribute);
+        }
     }
 
     @Override
     public void removeAttribute(IdentityType identity, String name) {
-        throw new UnsupportedOperationException();
+        List<?> storedAttributes = findIdentityTypeAttributes(identity, name);
+
+        for (Object storedAttribute : storedAttributes) {
+            getEntityManager().remove(storedAttribute);
+        }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
-        throw new UnsupportedOperationException();
+        List<?> attributes = findIdentityTypeAttributes(identityType, attributeName);
+
+        Attribute<T> attribute = null;
+
+        for (Object object : attributes) {
+            Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
+
+            T attribValue = (T) attributeValueProperty.getValue(object);
+
+            if (attribute == null) {
+                attribute = new Attribute<T>(attributeName, attribValue);
+            } else {
+                // if it is a multi-valued attribute
+                if (attribute != null) {
+                    String[] values = null;
+
+                    if (attribute.getValue().getClass().isArray()) {
+                        values = (String[]) attribute.getValue();
+                    } else {
+                        values = new String[1];
+                        values[0] = attribute.getValue().toString();
+                    }
+
+                    String[] newValues = Arrays.copyOf(values, values.length + 1);
+
+                    newValues[newValues.length - 1] = attribValue.toString();
+
+                    attribute.setValue((T) newValues);
+                    
+                }
+            }
+        }
+        
+        identityType.setAttribute(attribute);
+
+        return attribute;
     }
 
     @Override
@@ -766,10 +846,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), id));
 
-        List<String> partitionIds = new ArrayList<String>();
-
-        partitionIds.add(getCurrentRealm().getId());
-        partitionIds.add(getCurrentPartition().getId());
+        List<String> partitionIds = getAllowedPartitionIds(getCurrentPartition());
 
         predicates.add(builder.in(join.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(
                 partitionIds));
@@ -787,6 +864,30 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     protected Object lookupPartitionObject(Partition partition) {
         return getEntityManager().find(getConfig().getPartitionClass(), partition.getId());
+    }
+    
+    protected List<String> getAllowedPartitionIds(Partition currentPartition) {
+        List<String> partitionIds = new ArrayList<String>();
+
+        partitionIds.add(getCurrentRealm().getId());
+        
+        if (currentPartition == null) {
+            return partitionIds;
+        }
+        
+        partitionIds.add(currentPartition.getId());
+        
+        if (Tier.class.isInstance(currentPartition)) {
+            Tier tier = (Tier) currentPartition;
+            
+            partitionIds.add(currentPartition.getId());
+            
+            if (tier != null) {
+                partitionIds.addAll(getAllowedPartitionIds(tier.getParent()));
+            }
+        }
+        
+        return partitionIds;
     }
 
     /**
@@ -856,51 +957,9 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         @SuppressWarnings("unchecked")
         T identityType = (T) identityTypeManager.createIdentityType(entity, this);
 
-        populateIdentityTypeAttributes(identityType, entity);
+        populateIdentityTypeAttributes(identityType);
 
         return identityType;
-    }
-
-    /**
-     * <p>
-     * Stores the specified {@link Attribute} for the given {@link IdentityType} entity.
-     * </p>
-     * 
-     * @param entity
-     * @param attribute
-     */
-    private void storeIdentityTypeAttribute(Object entity, Attribute<? extends Serializable> attribute) {
-        Object value = attribute.getValue();
-
-        if (value == null) {
-            return;
-        }
-
-        Object[] values = null;
-
-        if (value.getClass().isArray()) {
-            values = (Object[]) value;
-        } else {
-            values = new Object[] { value };
-        }
-
-        Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
-        Property<Object> attributeIdentityProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY);
-        Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
-
-        try {
-            for (Object attribValue : values) {
-                Object newAttribute = getConfig().getAttributeClass().newInstance();
-
-                attributeNameProperty.setValue(newAttribute, attribute.getName());
-                attributeValueProperty.setValue(newAttribute, attribValue);
-                attributeIdentityProperty.setValue(newAttribute, entity);
-
-                getEntityManager().persist(newAttribute);
-            }
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error creating attributes.", e);
-        }
     }
 
     /**
@@ -988,10 +1047,21 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * </p>
      * 
      * @param identityType
-     * @param attribute
+     * @param name
      * @return
      */
-    private List<?> findIdentityTypeAttributes(IdentityType identityType, Attribute<? extends Serializable> attribute) {
+    private List<?> findIdentityTypeAttributes(IdentityType identityType, String name) {
+        if (identityType.getId() == null) {
+            throw new IdentityManagementException("No identifier provided for IdentityType.");
+        }
+
+        Object entity = lookupIdentityObjectById(identityType.getId());
+
+        if (entity == null) {
+            throw new IdentityManagementException("No IdentityType found with the tiven identifier [" + identityType.getId()
+                    + "]");
+        }
+
         EntityManager em = getEntityManager();
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -1005,8 +1075,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         predicates.add(builder.equal(join.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()),
                 identityType.getId()));
-        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getName()),
-                attribute.getName()));
+        predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME).getName()), name));
 
         criteria.where(predicates.toArray(new Predicate[predicates.size()]));
 
@@ -1215,35 +1284,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             Collection<Attribute<? extends Serializable>> attributes = identityType.getAttributes();
 
             if (attributes != null) {
-                EntityManager em = getEntityManager();
-
                 for (Attribute<? extends Serializable> attribute : attributes) {
-                    try {
-                        MappedAttribute mappedAttribute = getConfig().getAttributeProperties().get(attribute.getName());
-
-                        // if the attribute was mapped as a property of the identity class
-                        if (mappedAttribute != null) {
-                            for (String attribName : getConfig().getAttributeProperties().keySet()) {
-                                MappedAttribute attrib = getConfig().getAttributeProperties().get(attribName);
-
-                                if (attribute.getName().equals(attribName)) {
-                                    attrib.getAttributeProperty().setValue(entity, attribute.getValue());
-                                }
-                            }
-                        } else {
-                            // remove the attributes to persist them again. Only the current attribute, not all.
-                            List<?> results = findIdentityTypeAttributes(identityType, attribute);
-
-                            for (Object object : results) {
-                                em.remove(object);
-                            }
-
-                            storeIdentityTypeAttribute(entity, attribute);
-                        }
-                    } catch (Exception e) {
-                        throw new IdentityManagementException("Error setting attribute [" + attribute + "] for [" + entity
-                                + "]", e);
-                    }
+                    setAttribute(identityType, attribute);
                 }
             }
 
@@ -1301,7 +1343,14 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param identityType
      * @param entity
      */
-    private void populateIdentityTypeAttributes(IdentityType identityType, Object entity) {
+    private void populateIdentityTypeAttributes(IdentityType identityType) {
+        Object entity = lookupIdentityObjectById(identityType.getId());
+
+        if (entity == null) {
+            throw new IdentityManagementException("No IdentityType found with the tiven identifier [" + identityType.getId()
+                    + "]");
+        }
+
         try {
             for (MappedAttribute attrib : getConfig().getAttributeProperties().values()) {
                 if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(entity) == null) {
@@ -1326,43 +1375,12 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
 
             if (getConfig().getAttributeClass() != null) {
-                List<?> results = findAllIdentityTypeAttributes(entity);
+                for (Object object : findAllIdentityTypeAttributes(entity)) {
+                    Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
 
-                if (!results.isEmpty()) {
-                    for (Object object : results) {
-                        Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
-                        Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
-
-                        String attribName = (String) attributeNameProperty.getValue(object);
-                        Serializable attribValue = (Serializable) attributeValueProperty.getValue(object);
-
-                        Attribute<Serializable> identityTypeAttribute = identityType.getAttribute(attribName);
-
-                        if (identityTypeAttribute == null) {
-                            identityTypeAttribute = new Attribute<Serializable>(attribName, attribValue);
-                            identityType.setAttribute(identityTypeAttribute);
-                        } else {
-                            // if it is a multi-valued attribute
-                            if (identityTypeAttribute.getValue() != null) {
-                                String[] values = null;
-
-                                if (identityTypeAttribute.getValue().getClass().isArray()) {
-                                    values = (String[]) identityTypeAttribute.getValue();
-                                } else {
-                                    values = new String[1];
-                                    values[0] = identityTypeAttribute.getValue().toString();
-                                }
-
-                                String[] newValues = Arrays.copyOf(values, values.length + 1);
-
-                                newValues[newValues.length - 1] = attribValue.toString();
-
-                                identityTypeAttribute.setValue(newValues);
-
-                                identityType.setAttribute(identityTypeAttribute);
-                            }
-                        }
-                    }
+                    String attribName = (String) attributeNameProperty.getValue(object);
+                    
+                    identityType.setAttribute(getAttribute(identityType, attribName));
                 }
             }
         } catch (Exception e) {
@@ -1497,7 +1515,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).setValue(relationshipIdentity,
                         entity);
             }
-            
+
             em.persist(relationshipIdentity);
         }
 
@@ -2079,4 +2097,5 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             getContext().getCache().invalidate(getContext().getPartition(), identityType);
         }
     }
+    
 }

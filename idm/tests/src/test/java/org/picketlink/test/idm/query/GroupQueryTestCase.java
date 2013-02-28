@@ -87,7 +87,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         
         identityManager.forTier(someTier).add(someGroupTier);
         
-        IdentityQuery<Group> query = identityManager.createIdentityQuery(Group.class);
+        IdentityQuery<Group> query = identityManager.forTier(someTier).createIdentityQuery(Group.class);
         
         assertNotNull(someTier);
         
@@ -107,7 +107,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         
         identityManager.forTier(someAnotherTier).add(someGroupTestingTier);
         
-        query = identityManager.createIdentityQuery(Group.class);
+        query = identityManager.forTier(someAnotherTier).createIdentityQuery(Group.class);
         
         query.setParameter(Group.PARTITION, someAnotherTier);
         

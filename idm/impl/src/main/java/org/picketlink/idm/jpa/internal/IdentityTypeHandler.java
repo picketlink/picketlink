@@ -44,7 +44,6 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
@@ -548,13 +547,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     PropertyType.IDENTITY_PARTITION).getName());
             
             if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
-                List<String> partitionIds = new ArrayList<String>();
+                List<String> partitionIds = store.getAllowedPartitionIds(store.getCurrentPartition());
                 
                 partitionIds.add(store.getCurrentRealm().getId());
-                
-                if (Tier.class.isInstance(store.getCurrentPartition())) {
-                    populateAllowedTierIds(partitionIds, (Tier) store.getCurrentPartition());
-                }
                 
                 predicates.add(criteria.getBuilder().in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(partitionIds));
             }            
@@ -587,11 +582,4 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         return sortParametersMapping;
     }
 
-    private void populateAllowedTierIds(List<String> partitionIds, Tier currentPartition) {
-        partitionIds.add(currentPartition.getId());
-        
-        if (currentPartition.getParent() != null) {
-            populateAllowedTierIds(partitionIds, currentPartition.getParent());
-        }
-    }
 }

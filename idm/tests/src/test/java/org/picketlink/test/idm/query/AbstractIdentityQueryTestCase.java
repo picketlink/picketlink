@@ -183,7 +183,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         T someAnotherTypeTestingRealm = createIdentityType("someAnotherType", testingRealm);
 
-        query = identityManager.createIdentityQuery((Class<T>) someTypeDefaultRealm.getClass());
+        query = identityManager.forRealm(testingRealm).createIdentityQuery((Class<T>) someTypeDefaultRealm.getClass());
 
         query.setParameter(Agent.PARTITION, testingRealm);
 

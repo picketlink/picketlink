@@ -85,7 +85,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         
         identityManager.forTier(someTier).add(someRoleRealm);
         
-        IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
+        IdentityQuery<Role> query = identityManager.forTier(someTier).createIdentityQuery(Role.class);
         
         assertNotNull(someTier);
         
@@ -105,7 +105,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         
         identityManager.forTier(someAnotherTier).add(someRoleTestingTier);
         
-        query = identityManager.createIdentityQuery(Role.class);
+        query = identityManager.forTier(someAnotherTier).createIdentityQuery(Role.class);
         
         query.setParameter(Role.PARTITION, someAnotherTier);
         
