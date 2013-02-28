@@ -43,7 +43,7 @@ import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.XMLTimeUtil;
 import org.picketlink.identity.federation.core.util.JAXPValidationUtil;
 import org.picketlink.identity.federation.core.util.KeyStoreUtil;
-import org.picketlink.common.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType.ASTChoiceType;

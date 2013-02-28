@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.common.util;
+package org.picketlink.identity.federation.core.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
@@ -60,6 +60,9 @@ import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
+import org.picketlink.common.util.StringUtil;
+import org.picketlink.common.util.SystemPropertiesUtil;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

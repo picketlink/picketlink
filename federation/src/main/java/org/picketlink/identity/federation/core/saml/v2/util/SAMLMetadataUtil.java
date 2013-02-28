@@ -22,7 +22,7 @@ import java.security.cert.X509Certificate;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
-import org.picketlink.common.util.XMLSignatureUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.metadata.KeyDescriptorType;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

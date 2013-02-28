@@ -74,8 +74,8 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.util.HandlerUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
 import org.picketlink.identity.federation.core.util.CoreConfigUtil;
+import org.picketlink.identity.federation.core.util.XMLSignatureUtil;
 import org.picketlink.common.util.StringUtil;
-import org.picketlink.common.util.XMLSignatureUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.protocol.RequestAbstractType;
 import org.picketlink.identity.federation.saml.v2.protocol.StatusResponseType;

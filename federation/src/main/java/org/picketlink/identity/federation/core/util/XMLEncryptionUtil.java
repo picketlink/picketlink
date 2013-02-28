@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.common.util;
+package org.picketlink.identity.federation.core.util;
 
 import java.security.Key;
 import java.security.PrivateKey;
@@ -33,6 +33,7 @@ import org.picketlink.common.PicketLinkLogger;
 import org.picketlink.common.PicketLinkLoggerFactory;
 import org.picketlink.common.exceptions.ConfigurationException;
 import org.picketlink.common.exceptions.ProcessingException;
+import org.picketlink.common.util.DocumentUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

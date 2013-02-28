@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.picketlink.common.util;
+package org.picketlink.identity.federation.core.util;
 
 import java.security.KeyPair;
 

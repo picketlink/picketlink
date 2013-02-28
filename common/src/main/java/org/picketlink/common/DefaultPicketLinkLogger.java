@@ -31,7 +31,7 @@ import javax.xml.crypto.dsig.XMLSignatureException;
 import javax.xml.stream.Location;
 import javax.xml.ws.WebServiceException;
 
-import org.apache.log4j.Logger;
+import org.jboss.logging.Logger;
 import org.picketlink.common.constants.GeneralConstants;
 import org.picketlink.common.constants.WSTrustConstants;
 import org.picketlink.common.exceptions.ConfigurationException;

@@ -52,7 +52,7 @@ import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRe
 import org.picketlink.identity.federation.core.saml.v2.util.AssertionUtil;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.util.KeyStoreUtil;
-import org.picketlink.common.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.saml.v2.SAML2Object;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;

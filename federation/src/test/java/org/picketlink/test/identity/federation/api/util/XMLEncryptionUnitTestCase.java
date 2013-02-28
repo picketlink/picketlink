@@ -40,7 +40,7 @@ import org.picketlink.identity.federation.core.saml.v2.holders.SPInfoHolder;
 import org.picketlink.common.util.DocumentUtil;
 import org.picketlink.identity.federation.core.saml.v2.util.StatementUtil;
 import org.picketlink.identity.federation.core.sts.PicketLinkCoreSTS;
-import org.picketlink.common.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.saml.v2.assertion.AssertionType;
 import org.picketlink.identity.federation.saml.v2.assertion.AttributeStatementType;
 import org.picketlink.identity.federation.saml.v2.assertion.EncryptedAssertionType;

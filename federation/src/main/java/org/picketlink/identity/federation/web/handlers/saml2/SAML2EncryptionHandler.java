@@ -30,7 +30,7 @@ import org.picketlink.common.constants.JBossSAMLConstants;
 import org.picketlink.common.constants.JBossSAMLURIConstants;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerRequest;
 import org.picketlink.identity.federation.core.saml.v2.interfaces.SAML2HandlerResponse;
-import org.picketlink.common.util.XMLEncryptionUtil;
+import org.picketlink.identity.federation.core.util.XMLEncryptionUtil;
 import org.picketlink.identity.federation.core.wstrust.WSTrustUtil;
 import org.picketlink.identity.federation.saml.v2.protocol.AuthnRequestType;
 import org.picketlink.common.constants.GeneralConstants;
