@@ -41,7 +41,7 @@
       <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
       <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
       <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-        <pressgang.version>3.0.1-SNAPSHOT</pressgang.version>
+      <pressgang.version>3.0.1-SNAPSHOT</pressgang.version>
    </properties>
 
    <modules>
@@ -54,8 +54,6 @@
       <!--module>federation</module-->
       <!--module>social</module-->
       <!--module>oauth</module> -->
-
-      <module>maven-plugins/picketlink-jdocbook-style</module>
    </modules>
 
    <dependencyManagement>
