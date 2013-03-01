@@ -51,3 +51,5 @@ PutObjectStoreDirHere
 *.lock
 .checkstyle
 >>>>>>> 4f57b5ac814ef83c771544361f53e116da83e96c
+# Files produced by the Maven Release Plugin
+release.properties
