@@ -52,7 +52,7 @@
 
       <module>federation</module>
       <module>social</module>
-      <module>oauth</module>
+      <!--module>oauth</module-->
    </modules>
 
    <dependencyManagement>
