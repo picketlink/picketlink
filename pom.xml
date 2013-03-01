@@ -54,6 +54,8 @@
       <!--module>federation</module-->
       <!--module>social</module-->
       <!--module>oauth</module> -->
+
+      <module>maven-plugins/picketlink-jdocbook-style</module>
    </modules>
 
    <dependencyManagement>
