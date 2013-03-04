@@ -30,7 +30,6 @@ import java.util.Set;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
@@ -146,7 +145,7 @@ public class LDAPQuery {
                         List<GroupMembership> result = query.getResultList();
 
                         for (GroupMembership groupMembership : result) {
-                            LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(groupMembership.getGroup());
+                            LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(groupMembership.getGroup());
 
                             parentEntriesFilter.append("(").append(ldapEntry.getBidingName()).append(")");
                         }
@@ -183,7 +182,7 @@ public class LDAPQuery {
                     List<Grant> result = query.getResultList();
 
                     for (Grant grant : result) {
-                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(grant.getRole());
+                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(grant.getRole());
                         String entryName = ldapEntry.getBidingName();
                         
                         filter.append("(").append(ldapEntry.getBidingName()).append(")");
@@ -244,7 +243,7 @@ public class LDAPQuery {
                     List<GroupRole> result = query.getResultList();
 
                     for (GroupRole relationship : result) {
-                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(relationship.getAssignee());
+                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(relationship.getAssignee());
 
                         if (ldapEntry == null) {
                             throw new IdentityManagementException("Relationship references a inexistent IdentityType ["
@@ -288,7 +287,7 @@ public class LDAPQuery {
                     List<Grant> result = query.getResultList();
 
                     for (Grant grant : result) {
-                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntry(grant.getAssignee());
+                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(grant.getAssignee());
                         String bindDN = ldapAgent.getBidingName();
 
                         filter.append("(").append(bindDN).append(")");
@@ -345,7 +344,7 @@ public class LDAPQuery {
                     List<GroupMembership> result = query.getResultList();
 
                     for (GroupMembership groupMembership : result) {
-                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntry(groupMembership.getMember());
+                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(groupMembership.getMember());
                         String userId = ldapAgent.getBidingName();
 
                         filter.append("(").append(userId).append(")");
@@ -401,7 +400,7 @@ public class LDAPQuery {
             LDAPEntry ldapEntry = null;
 
             try {
-                ldapEntry = (LDAPEntry) this.identityStore.lookupEntry(identityType);
+                ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(identityType);
             } catch (IdentityManagementException ime) {
                 return membersFilter;
             }
@@ -430,11 +429,7 @@ public class LDAPQuery {
                     parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL).append(entryCN).append(")");
 
                     if (isGroupMember) {
-                        String nameInNamespace = searchResult.getNameInNamespace();
-                        String baseDN = nameInNamespace.substring(nameInNamespace.indexOf(LDAPConstants.COMMA) + 1);
-                        Attributes operationalAttributes = this.identityStore.getConfig().getLdapManager()
-                                .lookupOperationalAttributes(baseDN, CN + LDAPConstants.EQUAL + entryCN);
-                        String id = operationalAttributes.get(LDAPConstants.ENTRY_UUID).get().toString();
+                        String id = searchResult.getAttributes().get(LDAPConstants.ENTRY_UUID).get().toString();
                         LDAPGroup childGroup = this.identityStore.lookupEntryById(LDAPGroup.class, id);
                         List<Group> parentGroups = this.identityStore.getParentGroups(childGroup);
 

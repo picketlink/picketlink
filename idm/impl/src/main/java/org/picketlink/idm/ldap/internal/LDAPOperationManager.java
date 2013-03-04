@@ -265,59 +265,6 @@ public class LDAPOperationManager {
 
     /**
      * <p>
-     * Returns the operational attributes for a given entry.
-     * </p>
-     * 
-     * @param baseDN
-     * @param attributesToSearch
-     * @return
-     */
-    public Attributes lookupOperationalAttributes(String baseDN, String entryDN) {
-        NamingEnumeration<SearchResult> answer = null;
-
-        try {
-            SearchControls controls = new SearchControls();
-
-            controls.setReturningAttributes(new String[] { LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP });
-
-            answer = getContext().search(baseDN, entryDN, controls);
-
-            if (answer.hasMore()) {
-                return answer.next().getAttributes();
-            }
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (answer != null) {
-                try {
-                    answer.close();
-                } catch (NamingException e) {
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * <p>
-     * Searches the LDAP tree.
-     * </p>
-     * 
-     * @param baseDN
-     * @param attributesToSearch
-     * @return
-     */
-    public NamingEnumeration<SearchResult> search(String baseDN, Attributes attributesToSearch, String[] attributesToReturn) {
-        try {
-            return context.search(baseDN, attributesToSearch, attributesToReturn);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * <p>
      * Searches the LDAP tree.
      * </p>
      * 
@@ -329,6 +276,9 @@ public class LDAPOperationManager {
      */
     public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn,
             SearchControls searchControls) {
+        
+        searchControls.setReturningAttributes(new String[] {"*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
+        
         try {
             return getContext().search(baseDN, filter, attributesToReturn, searchControls);
         } catch (NamingException e) {
@@ -342,6 +292,7 @@ public class LDAPOperationManager {
 
             cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
             cons.setReturningObjFlag(true);
+            cons.setReturningAttributes(new String[] {"*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
 
             return getContext().search(baseDN, filter, cons);
         } catch (NamingException e) {
@@ -353,12 +304,14 @@ public class LDAPOperationManager {
         try {
             String filter = "(&(objectClass=*)(" + LDAPConstants.ENTRY_UUID + LDAPConstants.EQUAL + id + "))";
 
-            SearchControls controls = new SearchControls();
+            SearchControls cons = new SearchControls();
+
+            cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            cons.setReturningObjFlag(false);
+            cons.setCountLimit(1);
+            cons.setReturningAttributes(new String[] {"*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
             
-            controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            controls.setCountLimit(1);
-            
-            return getContext().search(baseDN, filter, controls);
+            return getContext().search(baseDN, filter, cons);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }

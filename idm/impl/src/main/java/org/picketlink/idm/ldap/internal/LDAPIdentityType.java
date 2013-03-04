@@ -20,13 +20,16 @@ package org.picketlink.idm.ldap.internal;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
@@ -45,10 +48,17 @@ public abstract class LDAPIdentityType extends LDAPAttributedType implements Ide
 
     private boolean enabled = true;
     private Date expirationDate;
-    private Date createDate = new Date();
+    private Date createDate;
 
     private Partition partition;
-
+    
+    private static SimpleDateFormat dateFormat;
+    
+    {
+        dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
+    
     public LDAPIdentityType(String dnSuffix) {
         super(dnSuffix);
     }
@@ -78,7 +88,7 @@ public abstract class LDAPIdentityType extends LDAPAttributedType implements Ide
     public Date getExpirationDate() {
         if (this.expirationDate == null) {
             LDAPCustomAttributes customAttributes = getCustomAttributes();
-            
+
             if (customAttributes != null) {
                 Object expiryDate = customAttributes.getAttribute(CUSTOM_ATTRIBUTE_EXPIRY_DATE);
 
@@ -104,6 +114,25 @@ public abstract class LDAPIdentityType extends LDAPAttributedType implements Ide
 
     @Override
     public Date getCreatedDate() {
+        if (this.createDate == null) {
+            if (getLDAPAttributes() != null && getLDAPAttributes().get(LDAPConstants.CREATE_TIMESTAMP) != null) {
+                try {
+                    String createdTimestamp = getLDAPAttributes().get(CREATE_TIMESTAMP).get().toString();
+                    long timeAdjust=11644473600000L;  // adjust factor for converting it to java
+                    
+                    try {
+                        this.createDate = dateFormat.parse(String.valueOf(Long.parseLong(createdTimestamp.substring(0, createdTimestamp.indexOf('Z')))/10000-timeAdjust));
+                    } catch (ParseException e) {
+                        throw new IdentityManagementException("Error parsing created date.", e);
+                    }
+                } catch (NamingException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                this.createDate = new Date();
+            }
+        }
+        
         return this.createDate;
     }
 
@@ -114,11 +143,11 @@ public abstract class LDAPIdentityType extends LDAPAttributedType implements Ide
         }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-        
+
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         getLDAPAttributes().put(new BasicAttribute(CREATE_TIMESTAMP, sdf.format(createdDate)));
-        
+
         this.createDate = createdDate;
     }
 

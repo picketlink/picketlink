@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import static org.picketlink.idm.ldap.internal.LDAPConstants.ENTRY_UUID;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
 import org.picketlink.idm.model.AttributedType;
@@ -55,6 +58,16 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
 
     @Override
     public String getId() {
+        if (this.id == null) {
+            if (getLDAPAttributes() != null && getLDAPAttributes().get(LDAPConstants.ENTRY_UUID) != null) {
+                try {
+                    this.id = getLDAPAttributes().get(ENTRY_UUID).get().toString();
+                } catch (NamingException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
         return this.id;
     }
 

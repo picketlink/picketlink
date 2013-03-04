@@ -19,15 +19,11 @@ package org.picketlink.idm.ldap.internal;
 
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.CREATE_TIMESTAMP;
-import static org.picketlink.idm.ldap.internal.LDAPConstants.ENTRY_UUID;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TimeZone;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -182,7 +177,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     public void remove(AttributedType attributedType) {
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
-            LDAPEntry ldapEntry = (LDAPEntry) lookupEntry(identityType);
+            LDAPEntry ldapEntry = (LDAPEntry) lookupEntryById(identityType);
 
             String baseDN = ldapEntry.getDnSuffix();
 
@@ -191,7 +186,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 Group parentGroup = getParentGroup(groupEntry, false);
 
                 if (parentGroup != null) {
-                    LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
+                    LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntryById(parentGroup);
                     removeMember(parentGroupEntry, groupEntry);
                 }
             }
@@ -398,10 +393,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
                     ldapGroup.setLDAPAttributes(sr.getAttributes());
 
-                    Attributes attributes = getConfig().getLdapManager().lookupOperationalAttributes(groupDN,
-                            ldapGroup.getBidingName());
-
-                    ldapEntry = (T) getGroupById(attributes.get(LDAPConstants.ENTRY_UUID).get().toString());
+                    ldapEntry = (T) getGroupById(sr.getAttributes().get(LDAPConstants.ENTRY_UUID).get().toString());
                 } else {
                     throw new IdentityManagementException("Unknown Base DN. IdentityType could not be identified.");
                 }
@@ -534,7 +526,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             IdentityType ldapEntry = null;
             
             if (IdentityType.class.isInstance(identityParameterValue)) {
-                ldapEntry = lookupEntry((IdentityType) identityParameterValue);
+                ldapEntry = lookupEntryById((IdentityType) identityParameterValue);
             } else if (String.class.isInstance(identityParameterValue)) {
                 IdentityQuery<IdentityType> identityQuery = getContext().getIdentityManager().createIdentityQuery(IdentityType.class);
                 
@@ -646,8 +638,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
 
                 if (identityType != null && role != null) {
-                    LDAPEntry agentEntry = (LDAPEntry) lookupEntry(identityType);
-                    LDAPRole roleEntry = (LDAPRole) lookupEntry(role);
+                    LDAPEntry agentEntry = (LDAPEntry) lookupEntryById(identityType);
+                    LDAPRole roleEntry = (LDAPRole) lookupEntryById(role);
 
                     if (roleEntry.isMember(agentEntry)) {
                         results.add((T) new Grant(identityType, role));
@@ -658,7 +650,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     LDAPEntry ldapEntry = null;
 
                     try {
-                        ldapEntry = (LDAPEntry) lookupEntry(identityType);
+                        ldapEntry = (LDAPEntry) lookupEntryById(identityType);
                         membersFilter = "(member=" + ldapEntry.getDN() + ")";
                     } catch (IdentityManagementException ime) {
                         return results;
@@ -688,7 +680,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     LDAPEntry ldapEntry = null;
 
                     try {
-                        ldapEntry = (LDAPEntry) lookupEntry(role);
+                        ldapEntry = (LDAPEntry) lookupEntryById(role);
                     } catch (IdentityManagementException ime) {
                         return results;
                     }
@@ -741,8 +733,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     LDAPAgent agentEntry = null;
 
                     try {
-                        groupEntry = (LDAPGroup) lookupEntry(group);
-                        agentEntry = (LDAPAgent) lookupEntry(agent);
+                        groupEntry = (LDAPGroup) lookupEntryById(group);
+                        agentEntry = (LDAPAgent) lookupEntryById(agent);
                     } catch (IdentityManagementException ime) {
                         return results;
                     }
@@ -755,7 +747,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                         List<Group> parentGroups = getParentGroups(groupEntry);
 
                         for (Group parentGroup : parentGroups) {
-                            LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
+                            LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntryById(parentGroup);
 
                             if (parentGroupEntry.isMember(agentEntry)) {
                                 isMember = true;
@@ -770,7 +762,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     String membersFilter = "";
 
                     try {
-                        LDAPEntry ldapEntry = (LDAPEntry) lookupEntry(agent);
+                        LDAPEntry ldapEntry = (LDAPEntry) lookupEntryById(agent);
                         membersFilter = "(" + MEMBER + "=" + ldapEntry.getDN() + ")";
                     } catch (IdentityManagementException ime) {
                         return results;
@@ -815,7 +807,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     LDAPEntry ldapEntry = null;
 
                     try {
-                        ldapEntry = (LDAPEntry) lookupEntry(group);
+                        ldapEntry = (LDAPEntry) lookupEntryById(group);
                     } catch (IdentityManagementException ime) {
                         return results;
                     }
@@ -870,9 +862,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
 
                 if (agent != null && group != null && role != null) {
-                    LDAPGroup groupEntry = (LDAPGroup) lookupEntry(group);
-                    LDAPRole roleEntry = (LDAPRole) lookupEntry(role);
-                    LDAPAgent agentEntry = (LDAPAgent) lookupEntry(agent);
+                    LDAPGroup groupEntry = (LDAPGroup) lookupEntryById(group);
+                    LDAPRole roleEntry = (LDAPRole) lookupEntryById(role);
+                    LDAPAgent agentEntry = (LDAPAgent) lookupEntryById(agent);
 
                     if (hasGroupRole(groupEntry, roleEntry, agentEntry)) {
                         results.add((T) new GroupRole(agent, group, role));
@@ -880,7 +872,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                         List<Group> parentGroups = getParentGroups(groupEntry);
 
                         for (Group parentGroup : parentGroups) {
-                            LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntry(parentGroup);
+                            LDAPGroup parentGroupEntry = (LDAPGroup) lookupEntryById(parentGroup);
 
                             if (hasGroupRole(parentGroupEntry, roleEntry, agentEntry)) {
                                 results.add((T) new GroupRole(agent, group, role));
@@ -931,7 +923,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     LDAPRole roleEntry = null;
 
                     try {
-                        roleEntry = (LDAPRole) lookupEntry(role);
+                        roleEntry = (LDAPRole) lookupEntryById(role);
                     } catch (IdentityManagementException ime) {
                         return results;
                     }
@@ -969,7 +961,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     LDAPGroup groupEntry = null;
 
                     try {
-                        groupEntry = (LDAPGroup) lookupEntry(group);
+                        groupEntry = (LDAPGroup) lookupEntryById(group);
                     } catch (IdentityManagementException ime) {
                         return results;
                     }
@@ -1101,8 +1093,24 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         getLDAPManager().createSubContext(ldapIdentityType.getDN(), ldapIdentityType.getLDAPAttributes());
         getLDAPManager().rebind(getCustomAttributesDN(ldapIdentityType.getDN()), ldapIdentityType.getCustomAttributes());
 
-        populateOperationalAttributes(ldapIdentityType);
-
+        NamingEnumeration<SearchResult> search = getLDAPManager().search(ldapIdentityType.getDnSuffix(), "(&(objectClass=*)(" + ldapIdentityType.getBidingName() + "))");
+        
+        try {
+            if (search.hasMore()) {
+                ldapIdentityType.setLDAPAttributes(search.next().getAttributes());            
+            } else {
+                throw new IdentityManagementException("New entry not found.");
+            }
+        } catch (NamingException ne) {
+            throw new IdentityManagementException("Could not fetch new entry attributes.", ne);
+        } finally {
+            try {
+                search.close();
+            } catch (NamingException e) {
+                e.printStackTrace();
+            }
+        }
+        
         newIdentityType.setId(ldapIdentityType.getId());
     }
 
@@ -1213,15 +1221,13 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private <T extends LDAPIdentityType> T populateIdentityTypeEntry(T identityType) {
-        String filter = "(&(objectClass=*)(" + identityType.getBidingName() + "))";
+        String filter = "(&(objectClass=*)(" + identityType.getBidingName() + ")) ";
 
         NamingEnumeration<SearchResult> search = getLDAPManager().search(identityType.getDnSuffix(), filter);
 
         try {
             if (search.hasMore()) {
-                SearchResult sr = search.next();
-
-                populateLDAPEntry(identityType, sr);
+                populateLDAPEntry(identityType, search.next());
             } else {
                 identityType = null;
             }
@@ -1243,36 +1249,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         identityType.setLDAPAttributes(sr.getAttributes());
         identityType.setCustomAttributes(getCustomAttributes(identityType));
 
-        populateOperationalAttributes(identityType);
-
         // for now, the store is not supporting partitions. ldap does not provide a good attribute to hold such
         // information.
         // maybe in this case we should mix stores.
         identityType.setPartition(new Realm(Realm.DEFAULT_REALM));
         identityType.setCustomAttributes(getCustomAttributes(identityType));
-    }
-
-    private <T extends LDAPIdentityType> void populateOperationalAttributes(T identityType) {
-        try {
-            Attributes operationalAttributes = getLDAPManager().lookupOperationalAttributes(identityType.getDnSuffix(),
-                    identityType.getBidingName());
-
-            identityType.setId(operationalAttributes.get(ENTRY_UUID).get().toString());
-
-            String createdTimeStamp = operationalAttributes.get(CREATE_TIMESTAMP).get().toString();
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-            try {
-                identityType.setCreatedDate(sdf.parse(createdTimeStamp));
-            } catch (ParseException e) {
-                throw new IdentityManagementException("Error parsing created date.", e);
-            }
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error populating operational attributes.", e);
-        }
     }
 
     /**
@@ -1367,7 +1348,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         }
 
         result.add(parentGroup);
-        result.addAll(getParentGroups((LDAPGroup) lookupEntry(parentGroup)));
+        result.addAll(getParentGroups((LDAPGroup) lookupEntryById(parentGroup)));
 
         return result;
     }
@@ -1429,25 +1410,25 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void updateGroup(Group updatedGroup) {
-        LDAPGroup groupEntry = (LDAPGroup) lookupEntry(updatedGroup);
+        LDAPGroup groupEntry = (LDAPGroup) lookupEntryById(updatedGroup);
 
         updateIdentityType(updatedGroup, groupEntry);
     }
 
     private void updateRole(Role updatedRole) {
-        LDAPRole roleEntry = (LDAPRole) lookupEntry(updatedRole);
+        LDAPRole roleEntry = (LDAPRole) lookupEntryById(updatedRole);
 
         updateIdentityType(updatedRole, roleEntry);
     }
 
     private void updateAgent(Agent updatedAgent) {
-        LDAPAgent agentEntry = (LDAPAgent) lookupEntry(updatedAgent);
+        LDAPAgent agentEntry = (LDAPAgent) lookupEntryById(updatedAgent);
 
         updateIdentityType(updatedAgent, agentEntry);
     }
 
     private void updateUser(User updatedUser) {
-        LDAPUser userEntry = (LDAPUser) lookupEntry(updatedUser);
+        LDAPUser userEntry = (LDAPUser) lookupEntryById(updatedUser);
 
         userEntry.setFirstName(updatedUser.getFirstName());
         userEntry.setLastName(updatedUser.getLastName());
@@ -1476,9 +1457,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void addGroupRoleRelationship(GroupRole groupRole) {
-        LDAPAgent agentEntry = (LDAPAgent) lookupEntry(groupRole.getAssignee());
-        LDAPGroup groupEntry = (LDAPGroup) lookupEntry(groupRole.getGroup());
-        LDAPRole roleEntry = (LDAPRole) lookupEntry(groupRole.getRole());
+        LDAPAgent agentEntry = (LDAPAgent) lookupEntryById(groupRole.getAssignee());
+        LDAPGroup groupEntry = (LDAPGroup) lookupEntryById(groupRole.getGroup());
+        LDAPRole roleEntry = (LDAPRole) lookupEntryById(groupRole.getRole());
 
         LDAPGroupRole groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
 
@@ -1504,15 +1485,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void addGroupMembership(GroupMembership groupMembership) {
-        LDAPGroup groupEntry = (LDAPGroup) lookupEntry(groupMembership.getGroup());
-        LDAPAgent memberEntry = (LDAPAgent) lookupEntry(groupMembership.getMember());
+        LDAPGroup groupEntry = (LDAPGroup) lookupEntryById(groupMembership.getGroup());
+        LDAPAgent memberEntry = (LDAPAgent) lookupEntryById(groupMembership.getMember());
 
         addMember(groupEntry, memberEntry);
     }
 
     private void addGrantRelationship(Grant grant) {
-        LDAPRole roleEntry = (LDAPRole) lookupEntry(grant.getRole());
-        LDAPEntry assigneeEntry = (LDAPEntry) lookupEntry(grant.getAssignee());
+        LDAPRole roleEntry = (LDAPRole) lookupEntryById(grant.getRole());
+        LDAPEntry assigneeEntry = (LDAPEntry) lookupEntryById(grant.getAssignee());
 
         addMember(roleEntry, assigneeEntry);
     }
@@ -1523,7 +1504,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends IdentityType> T lookupEntry(T identityType) throws IdentityManagementException {
+    protected <T extends IdentityType> T lookupEntryById(T identityType) throws IdentityManagementException {
         T identityTypeEntry = null;
 
         if (Agent.class.isInstance(identityType)) {
@@ -1618,9 +1599,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void removeGroupRoleRelationship(GroupRole groupRole) {
-        LDAPGroup groupEntry = (LDAPGroup) lookupEntry(groupRole.getGroup());
-        LDAPAgent agentEntry = (LDAPAgent) lookupEntry(groupRole.getAssignee());
-        LDAPRole roleEntry = (LDAPRole) lookupEntry(groupRole.getRole());
+        LDAPGroup groupEntry = (LDAPGroup) lookupEntryById(groupRole.getGroup());
+        LDAPAgent agentEntry = (LDAPAgent) lookupEntryById(groupRole.getAssignee());
+        LDAPRole roleEntry = (LDAPRole) lookupEntryById(groupRole.getRole());
 
         NamingEnumeration<SearchResult> search = lookupGroupRoleEntry(agentEntry, groupEntry);
 
@@ -1643,15 +1624,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private void removeGroupMembership(GroupMembership groupMembership) {
-        LDAPGroup groupEntry = (LDAPGroup) lookupEntry(groupMembership.getGroup());
-        LDAPAgent agentEntry = (LDAPAgent) lookupEntry(groupMembership.getMember());
+        LDAPGroup groupEntry = (LDAPGroup) lookupEntryById(groupMembership.getGroup());
+        LDAPAgent agentEntry = (LDAPAgent) lookupEntryById(groupMembership.getMember());
 
         removeMember(groupEntry, agentEntry);
     }
 
     private void removeGrantRelationship(Grant grant) {
-        LDAPRole roleEntry = (LDAPRole) lookupEntry(grant.getRole());
-        LDAPEntry agentEntry = (LDAPEntry) lookupEntry(grant.getAssignee());
+        LDAPRole roleEntry = (LDAPRole) lookupEntryById(grant.getRole());
+        LDAPEntry agentEntry = (LDAPEntry) lookupEntryById(grant.getAssignee());
 
         removeMember(roleEntry, agentEntry);
     }
