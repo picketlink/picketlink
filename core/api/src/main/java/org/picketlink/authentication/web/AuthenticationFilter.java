@@ -72,7 +72,7 @@ public class AuthenticationFilter implements Filter {
         // Force session creation
         request.getSession();
 
-        Identity identity = null;
+        Identity identity;
 
         try {
             identity = identityInstance.get();
@@ -81,7 +81,7 @@ public class AuthenticationFilter implements Filter {
                     e);
         }
 
-        DefaultLoginCredentials creds = null;
+        DefaultLoginCredentials creds;
 
         try {
             creds = credentials.get();
@@ -113,7 +113,7 @@ public class AuthenticationFilter implements Filter {
         // TODO Auto-generated method stub
     }
 
-    public void setAuthType(String value) {
+    private void setAuthType(String value) {
         if (value == null) {
             throw new IllegalArgumentException("Null authentication type provided.");
         }
@@ -124,17 +124,4 @@ public class AuthenticationFilter implements Filter {
             throw new IllegalArgumentException("Unsupported authentication type. Possible values are: BASIC and DIGEST.", e);
         }
     }
-
-    public String getAuthType() {
-        return this.authType.toString();
-    }
-
-    public String getRealm() {
-        return this.realm;
-    }
-
-    public void setRealm(String realm) {
-        this.realm = realm;
-    }
-
 }
