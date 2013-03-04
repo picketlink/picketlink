@@ -22,6 +22,8 @@
 
 package org.picketlink.test.idm.config;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -33,9 +35,13 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Grant;
+import org.picketlink.idm.model.Group;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
@@ -50,6 +56,101 @@ import org.picketlink.test.idm.relationship.CustomRelationship;
  */
 public abstract class AbstractFeaturesSetConfigurationTestCase<T extends IdentityStoreConfiguration> {
 
+    @Test
+    public void testMinimalConfigurationForIdentityTypeOperations() {
+        IdentityConfiguration config = new IdentityConfiguration();
+
+        T jpaConfig = createMinimalConfiguration();
+
+        config.addStoreConfiguration(jpaConfig);
+
+        IdentityManager identityManager = createIdentityManager(config);
+
+        User user = new SimpleUser("someUser");
+
+        performGetCreateRemoveIdentityType(user, identityManager);
+
+        Role role = new SimpleRole("someRole");
+
+        performGetCreateRemoveIdentityType(role, identityManager);
+
+        Group group = new SimpleGroup("someGroup");
+
+        performGetCreateRemoveIdentityType(group, identityManager);
+    }
+
+    @Test
+    public void testMinimalConfigurationForRelationships() {
+        IdentityConfiguration config = new IdentityConfiguration();
+
+        T jpaConfig = createMinimalConfiguration();
+
+        config.addStoreConfiguration(jpaConfig);
+
+        IdentityManager identityManager = createIdentityManager(config);
+
+        User user = identityManager.getUser("someUser");
+        
+        if (user != null) {
+            identityManager.remove(user);
+        }
+
+        user = new SimpleUser("someUser");
+        
+        identityManager.add(user);
+
+        Role role = identityManager.getRole("someRole");
+        
+        if (role != null) {
+            identityManager.remove(role);
+        }
+
+        role = new SimpleRole("someRole");
+        
+        identityManager.add(role);
+
+        Group group = identityManager.getGroup("someGroup");
+        
+        if (group != null) {
+            identityManager.remove(group);
+        }
+
+        group = new SimpleGroup("someGroup");
+        
+        identityManager.add(group);
+
+        identityManager.grantRole(user, role);
+        identityManager.grantGroupRole(user, role, group);
+        identityManager.addToGroup(user, group);
+    }
+
+    @Test
+    public void testMinimalConfigurationForCredentials() {
+        IdentityConfiguration config = new IdentityConfiguration();
+
+        T jpaConfig = createMinimalConfiguration();
+
+        config.addStoreConfiguration(jpaConfig);
+
+        IdentityManager identityManager = createIdentityManager(config);
+
+        User user = identityManager.getUser("someUser");
+        
+        if (user != null) {
+            identityManager.remove(user);
+        }
+
+        user = new SimpleUser("someUser");
+        
+        identityManager.add(user);
+
+        Password password = new Password("123");
+
+        identityManager.updateCredential(user, password);
+
+        identityManager.validateCredentials(new UsernamePasswordCredentials(user.getLoginName(), password));
+    }
+    
     @Test
     public void failFeatureNotSupportedUserRead() {
         IdentityConfiguration config = new IdentityConfiguration();
@@ -66,8 +167,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.getUser("someUser");
 
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[user.read]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.user));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -86,11 +188,12 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(config);
 
-            identityManager.add(new SimpleUser("someUser"));
+            performGetCreateRemoveIdentityType(new SimpleUser("someUser"), identityManager);
 
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[user.create]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.user));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
         } catch (Exception e) {
             fail();
         }
@@ -115,8 +218,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.remove(user);
 
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[user.delete]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.user));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.delete));
         } catch (Exception e) {
             fail();
         }
@@ -138,8 +242,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.getRole("someRole");
 
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[role.read]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.role));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -158,13 +263,14 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(config);
 
-            identityManager.add(new SimpleRole("someRole"));
+            performGetCreateRemoveIdentityType(new SimpleRole("someRole"), identityManager);
             
             fail();
-        } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().toLowerCase().contains("[role.create]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.role));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
         } catch (Exception e) {
-            Assert.fail();
+            fail();
         }
     }
     
@@ -181,17 +287,14 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(config);
 
-            SimpleRole role = new SimpleRole("someRole");
-            
-            identityManager.add(role);
-            
-            identityManager.remove(role);
+            performGetCreateRemoveIdentityType(new SimpleRole("someRole"), identityManager);
             
             fail();
-        } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().toLowerCase().contains("[role.delete]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.role));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.delete));
         } catch (Exception e) {
-            Assert.fail();
+            fail();
         }
     }
     
@@ -211,8 +314,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.getGroup("someGroup");
 
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[group.read]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.group));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -231,13 +335,14 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(config);
 
-            identityManager.add(new SimpleGroup("someGroup"));
+            performGetCreateRemoveIdentityType(new SimpleGroup("someGroup"), identityManager);
             
             fail();
-        } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().toLowerCase().contains("[group.create]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.group));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
         } catch (Exception e) {
-            Assert.fail();
+            fail();
         }
     }
     
@@ -254,17 +359,16 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(config);
 
-            SimpleGroup role = new SimpleGroup("someGroup");
+            SimpleGroup group = new SimpleGroup("someGroup");
             
-            identityManager.add(role);
-            
-            identityManager.remove(role);
+            performGetCreateRemoveIdentityType(group, identityManager);
             
             fail();
-        } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().toLowerCase().contains("[group.delete]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.group));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.delete));
         } catch (Exception e) {
-            Assert.fail();
+            fail();
         }
     }
     
@@ -284,8 +388,9 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.createRelationshipQuery(Relationship.class);
 
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[relationship.read]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.relationship));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.read));
         } catch (Exception e) {
             fail();
         }
@@ -304,21 +409,22 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(config);
 
-            User user = new SimpleUser();
+            User user = new SimpleUser("someUser");
 
-            identityManager.add(user);
+            performGetCreateRemoveIdentityType(user, identityManager);
 
             Role role = new SimpleRole("someRole");
 
-            identityManager.add(role);
+            performGetCreateRemoveIdentityType(role, identityManager);
             
             identityManager.add(new Grant(user, role));
             
             fail();
-        } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().toLowerCase().contains("[relationship.create]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.relationship));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
         } catch (Exception e) {
-            Assert.fail();
+            fail();
         }
     }
     
@@ -334,7 +440,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         IdentityManager identityManager = createIdentityManager(config);
 
-        User user = new SimpleUser();
+        User user = new SimpleUser("someUser");
 
         identityManager.add(user);
 
@@ -371,12 +477,12 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.add(customRelationship);
             
             fail();
-        } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().contains("[relationship.create]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.relationship));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.create));
         } catch (Exception e) {
-            Assert.fail();
+            fail();
         }
-
     }
     
     @Test
@@ -392,7 +498,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(config);
 
-            User user = new SimpleUser();
+            User user = new SimpleUser("someUser");
 
             identityManager.add(user);
 
@@ -407,10 +513,11 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             identityManager.remove(grant);
             
             fail();
-        } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().toLowerCase().contains("[relationship.delete]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.relationship));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.delete));
         } catch (Exception e) {
-            Assert.fail();
+            fail();
         }
     }
 
@@ -426,17 +533,20 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         IdentityManager identityManager = createIdentityManager(config);
 
-        User user = new SimpleUser();
+        User user = new SimpleUser("someUser");
 
-        identityManager.add(user);
+        performGetCreateRemoveIdentityType(user, identityManager);
 
         Password password = new Password("123");
 
         try {
             identityManager.updateCredential(user, password);
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[credential.update]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.update));
+        } catch (Exception e) {
+            fail();
         }
     }
 
@@ -452,8 +562,14 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
 
         IdentityManager identityManager = createIdentityManager(config);
 
-        User user = new SimpleUser();
+        User user = new SimpleUser("someUser");
 
+        User storedType = identityManager.getUser(user.getLoginName());
+        
+        if (storedType != null) {
+            identityManager.remove(storedType);
+        }
+        
         identityManager.add(user);
 
         Password password = new Password("123");
@@ -463,11 +579,58 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             identityManager.validateCredentials(new UsernamePasswordCredentials(user.getLoginName(), password));
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[credential.validate]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.validate));
+        } catch (Exception e) {
+            fail();
         }
     }
     
     protected abstract T createMinimalConfiguration();
     
-    protected abstract IdentityManager createIdentityManager(IdentityConfiguration config);}
+    protected abstract IdentityManager createIdentityManager(IdentityConfiguration config);
+
+    protected void performGetCreateRemoveIdentityType(IdentityType identityType, IdentityManager identityManager) {
+        IdentityType storedType = getIdentityType(identityType, identityManager);
+        
+        if (storedType != null) {
+            identityManager.remove(storedType);
+        }
+        
+        identityManager.add(identityType);
+
+        storedType = getIdentityType(identityType, identityManager);
+        
+        assertNotNull(storedType);
+        assertNotNull(storedType.getId());
+
+        identityManager.remove(storedType);
+
+        storedType = getIdentityType(storedType, identityManager);
+
+        assertNull(storedType);
+    }
+
+    protected IdentityType getIdentityType(IdentityType identityType, IdentityManager identityManager) {
+        if (User.class.isInstance(identityType)) {
+            User user = (User) identityType;
+
+            identityType = identityManager.getUser(user.getLoginName());
+        } else if (Agent.class.isInstance(identityType)) {
+            Agent agent = (Agent) identityType;
+
+            identityType = identityManager.getAgent(agent.getLoginName());
+        } else if (Role.class.isInstance(identityType)) {
+            Role role = (Role) identityType;
+
+            identityType = identityManager.getRole(role.getName());
+        } else if (Group.class.isInstance(identityType)) {
+            Group group = (Group) identityType;
+
+            identityType = identityManager.getGroup(group.getName());
+        }
+        
+        return identityType;
+    }
+}

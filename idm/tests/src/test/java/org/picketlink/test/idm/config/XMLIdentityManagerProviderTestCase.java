@@ -27,6 +27,7 @@ import java.io.InputStream;
 import javax.naming.CommunicationException;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.picketlink.config.idm.XMLBasedIdentityManagerProvider;
 import org.picketlink.idm.IdentityManager;
@@ -53,6 +54,7 @@ public class XMLIdentityManagerProviderTestCase {
     }
 
     @Test
+    @Ignore
     public void testParseFileConfiguration() {
             IdentityManager identityManager = createIdentityConfiguration("config/embedded-file-config.xml");
             assertNotNull(identityManager);
