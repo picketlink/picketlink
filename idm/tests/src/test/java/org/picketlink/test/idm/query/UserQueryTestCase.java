@@ -33,7 +33,6 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
-import org.picketlink.test.idm.suites.FileIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
