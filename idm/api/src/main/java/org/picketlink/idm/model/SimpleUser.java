@@ -29,7 +29,7 @@ public class SimpleUser extends SimpleAgent implements User {
     private String email;
 
     public SimpleUser() {
-        super("");
+        super(null);
     }
     
     public SimpleUser(String loginName) {
