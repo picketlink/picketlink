@@ -1096,7 +1096,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     private void addIdentityType(IdentityType newIdentityType, LDAPIdentityType ldapIdentityType) {
         ldapIdentityType.setEnabled(newIdentityType.isEnabled());
-        ldapIdentityType.setCreatedDate(newIdentityType.getCreatedDate());
         ldapIdentityType.setExpirationDate(newIdentityType.getExpirationDate());
 
         getLDAPManager().createSubContext(ldapIdentityType.getDN(), ldapIdentityType.getLDAPAttributes());
