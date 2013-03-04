@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
@@ -34,6 +35,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
+import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
@@ -83,13 +85,13 @@ public class DefaultIdentityManager implements IdentityManager {
         if (realm == null) {
             throw new IdentityManagementException("You can not create a contextual IdentityManager with a null Realm.");
         }
-        
+
         final Realm storedRealm = getRealm(realm.getName());
-        
+
         if (storedRealm == null) {
             throw new IdentityManagementException("You can not create a contextual IdentityManager with a null Realm.");
         }
-        
+
         final DefaultIdentityManager proxied = this;
         final Tier tier = currentTier.get();
         return (IdentityManager) Proxy.newProxyInstance(this.getClass().getClassLoader(),
@@ -124,9 +126,9 @@ public class DefaultIdentityManager implements IdentityManager {
         if (tier == null) {
             throw new IdentityManagementException("You can not create a contextual IdentityManager with a null Tier.");
         }
-        
+
         final Tier storedTier = getTier(tier.getName());
-        
+
         if (storedTier == null) {
             throw new IdentityManagementException("You can not create a contextual IdentityManager with a null Tier.");
         }
@@ -221,7 +223,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
             Agent newAgent = (Agent) identityType;
 
-            if (newAgent.getLoginName() == null) {
+            if (StringUtil.isNullOrEmpty(newAgent.getLoginName())) {
                 throw new IdentityManagementException("No login name was provided.");
             }
 
@@ -241,7 +243,7 @@ public class DefaultIdentityManager implements IdentityManager {
         } else if (Group.class.isInstance(identityType)) {
             Group newGroup = (Group) identityType;
 
-            if (newGroup.getName() == null) {
+            if (StringUtil.isNullOrEmpty(newGroup.getName())) {
                 throw new IdentityManagementException("No name was provided.");
             }
 
@@ -262,7 +264,7 @@ public class DefaultIdentityManager implements IdentityManager {
         } else if (Role.class.isInstance(identityType)) {
             Role newRole = (Role) identityType;
 
-            if (newRole.getName() == null) {
+            if (StringUtil.isNullOrEmpty(newRole.getName())) {
                 throw new IdentityManagementException("No name was provided.");
             }
 
@@ -283,9 +285,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void add(Relationship relationship) {
-        IdentityStoreInvocationContext ctx = createContext();
-
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.create, relationship.getClass()).add(
+        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.create, relationship.getClass()).add(
                 relationship);
     }
 
@@ -299,9 +299,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void update(Relationship relationship) {
-        IdentityStoreInvocationContext ctx = createContext();
-
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.update, relationship.getClass()).update(
+        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.update, relationship.getClass()).update(
                 relationship);
     }
 
@@ -311,16 +309,14 @@ public class DefaultIdentityManager implements IdentityManager {
 
         FeatureGroup feature = IDMUtil.getFeatureGroup(identityType);
 
-        IdentityStoreInvocationContext ctx = createContext();
-
-        getContextualStoreForFeature(ctx, feature, FeatureOperation.delete).remove(identityType);
+        getContextualStoreForFeature(createContext(), feature, FeatureOperation.delete).remove(identityType);
     }
 
     @Override
     public void remove(Relationship relationship) {
         checkNotNull(relationship);
-        IdentityStoreInvocationContext ctx = createContext();
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.delete, relationship.getClass()).remove(
+        
+        getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.delete, relationship.getClass()).remove(
                 relationship);
     }
 
@@ -335,17 +331,16 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public Group getGroup(String name) {
-        if (name == null) {
+        if (StringUtil.isNullOrEmpty(name)) {
             return null;
         }
 
-        IdentityStoreInvocationContext ctx = createContext();
-        return getContextualStoreForFeature(ctx, FeatureGroup.group, FeatureOperation.read).getGroup(name);
+        return getContextualStoreForFeature(createContext(), FeatureGroup.group, FeatureOperation.read).getGroup(name);
     }
 
     @Override
     public Group getGroup(String name, Group parent) {
-        if (name == null || parent == null) {
+        if (StringUtil.isNullOrEmpty(name) || parent == null) {
             return null;
         }
 
@@ -353,14 +348,7 @@ public class DefaultIdentityManager implements IdentityManager {
             throw new IdentityManagementException("No parent group found with the given id [" + parent.getId() + "]");
         }
 
-        IdentityStoreInvocationContext ctx = createContext();
-
-        if (ctx.getRealm() != null && ctx.getTier() != null) {
-            throw new IllegalStateException("Ambiguous context state - Group may only be managed in either the "
-                    + "scope of a Realm or a Tier, however both have been set.");
-        }
-
-        return getContextualStoreForFeature(ctx, FeatureGroup.group, FeatureOperation.read).getGroup(name, parent);
+        return getContextualStoreForFeature(createContext(), FeatureGroup.group, FeatureOperation.read).getGroup(name, parent);
     }
 
     @Override
@@ -516,6 +504,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkCreateNullPartitionName(realm);
 
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.realm, FeatureOperation.create);
+        
         if (store != null) {
             ((PartitionStore) store).createPartition(realm);
         }
@@ -561,6 +550,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.realm, FeatureOperation.delete);
+
         if (store != null) {
             ((PartitionStore) store).removePartition(realm);
         }
@@ -569,6 +559,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public Realm getRealm(String name) {
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.realm, FeatureOperation.read);
+
         return store != null ? ((PartitionStore) store).getRealm(name) : null;
     }
 
@@ -576,7 +567,9 @@ public class DefaultIdentityManager implements IdentityManager {
     public void createTier(Tier tier) {
         checkCreateNullPartition(tier);
         checkCreateNullPartitionName(tier);
+
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.tier, FeatureOperation.create);
+
         if (store != null) {
             ((PartitionStore) store).createPartition(tier);
         }
@@ -593,15 +586,17 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.tier, FeatureOperation.delete);
+
         if (store != null) {
             ((PartitionStore) store).removePartition(tier);
         }
     }
 
     @Override
-    public Tier getTier(String id) {
+    public Tier getTier(String name) {
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.tier, FeatureOperation.read);
-        return store != null ? ((PartitionStore) store).getTier(id) : null;
+
+        return store != null ? ((PartitionStore) store).getTier(name) : null;
     }
 
     @Override
@@ -665,11 +660,7 @@ public class DefaultIdentityManager implements IdentityManager {
         String realm = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
 
         if (!realmStores.containsKey(realm)) {
-            if (realmStores.isEmpty()) {
-                throw new SecurityException("No identity stores have been configured.");
-            } else {
-                throw new SecurityException("The specified realm '" + realm + "' has not been configured.");
-            }
+            throw new SecurityException("The specified realm '" + realm + "' has not been configured.");
         }
 
         Set<IdentityStoreConfiguration> configs = realmStores.get(realm);
@@ -699,8 +690,8 @@ public class DefaultIdentityManager implements IdentityManager {
                         "No identity store configuration found that supports the relationship type ["
                                 + relationshipClass.getName() + "]");
             } else {
-                throw new SecurityConfigurationException("No identity store configuration found for requested operation ["
-                        + feature.toString() + "." + operation.toString() + "]");
+                throw new OperationNotSupportedException("No identity store configuration found for requested operation ["
+                        + feature.toString() + "." + operation.toString() + "]", feature, operation);
             }
         }
 
