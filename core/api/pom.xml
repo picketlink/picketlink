@@ -29,9 +29,22 @@
         </dependency>
 
         <dependency>
-	    <groupId>org.picketlink</groupId>
-      	    <artifactId>picketlink-idm-api</artifactId>
-      	</dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.picketlink</groupId>
+            <artifactId>picketlink-idm-api</artifactId>
+        </dependency>
 
     </dependencies>
 
