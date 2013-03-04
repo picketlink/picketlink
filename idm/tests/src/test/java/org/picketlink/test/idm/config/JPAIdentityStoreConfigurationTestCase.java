@@ -22,8 +22,6 @@
 
 package org.picketlink.test.idm.config;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -38,9 +36,10 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
@@ -51,12 +50,10 @@ import org.picketlink.idm.jpa.schema.PartitionObject;
 import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
-import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
@@ -93,77 +90,6 @@ public class JPAIdentityStoreConfigurationTestCase extends
     }
 
     @Test
-    public void testMinimalConfigurationForIdentityTypeOperations() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
-
-        config.addStoreConfiguration(jpaConfig);
-
-        IdentityManager identityManager = createIdentityManager(config);
-
-        User user = new SimpleUser();
-
-        performGetCreateRemoveIdentityType(user, identityManager);
-
-        Role role = new SimpleRole("someRole");
-
-        performGetCreateRemoveIdentityType(role, identityManager);
-
-        Group group = new SimpleGroup("someGroup");
-
-        performGetCreateRemoveIdentityType(group, identityManager);
-    }
-
-    @Test
-    public void testMinimalConfigurationForRelationships() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
-
-        config.addStoreConfiguration(jpaConfig);
-
-        IdentityManager identityManager = createIdentityManager(config);
-
-        User user = new SimpleUser();
-
-        identityManager.add(user);
-
-        Role role = new SimpleRole("someRole");
-
-        identityManager.add(role);
-
-        Group group = new SimpleGroup("someGroup");
-
-        identityManager.add(group);
-
-        identityManager.grantRole(user, role);
-        identityManager.grantGroupRole(user, role, group);
-        identityManager.addToGroup(user, group);
-    }
-
-    @Test
-    public void testMinimalConfigurationForCredentials() {
-        IdentityConfiguration config = new IdentityConfiguration();
-
-        JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
-
-        config.addStoreConfiguration(jpaConfig);
-
-        IdentityManager identityManager = createIdentityManager(config);
-
-        User user = new SimpleUser();
-
-        identityManager.add(user);
-
-        Password password = new Password("123");
-
-        identityManager.updateCredential(user, password);
-
-        identityManager.validateCredentials(new UsernamePasswordCredentials(user.getLoginName(), password));
-    }
-    
-    @Test
     public void failFeatureNotSupportedWhenEntityClassesNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
 
@@ -177,7 +103,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
         IdentityManager identityManager = createIdentityManager(config);
 
-        User user = new SimpleUser();
+        User user = new SimpleUser("someUser");
 
         identityManager.add(user);
 
@@ -236,7 +162,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
         IdentityManager identityManager = createIdentityManager(config);
 
-        User user = new SimpleUser();
+        User user = new SimpleUser("someUser");
 
         identityManager.add(user);
 
@@ -263,8 +189,11 @@ public class JPAIdentityStoreConfigurationTestCase extends
         try {
             identityManager.updateCredential(user, password);
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().toLowerCase().contains("[credential.update]"));
+        } catch (OperationNotSupportedException one) {
+            assertTrue(one.getFeatureGroup().equals(FeatureGroup.credential));
+            assertTrue(one.getFeatureOperation().equals(FeatureOperation.update));
+        } catch (Exception e) {
+            fail();
         }
     }
 
@@ -352,42 +281,6 @@ public class JPAIdentityStoreConfigurationTestCase extends
         identityManager.bootstrap(config, icf);
 
         return identityManager;
-    }
-
-    private void performGetCreateRemoveIdentityType(IdentityType identityType, IdentityManager identityManager) {
-        identityManager.add(identityType);
-
-        identityType = getIdentityType(identityType, identityManager);
-
-        assertNotNull(identityType);
-        assertNotNull(identityType.getId());
-
-        identityManager.remove(identityType);
-
-        identityType = getIdentityType(identityType, identityManager);
-
-        assertNull(identityType);
-    }
-
-    private IdentityType getIdentityType(IdentityType identityType, IdentityManager identityManager) {
-        if (User.class.isInstance(identityType)) {
-            User user = (User) identityType;
-
-            identityType = identityManager.getUser(user.getLoginName());
-        } else if (Agent.class.isInstance(identityType)) {
-            Agent agent = (Agent) identityType;
-
-            identityType = identityManager.getAgent(agent.getLoginName());
-        } else if (Role.class.isInstance(identityType)) {
-            Role role = (Role) identityType;
-
-            identityType = identityManager.getRole(role.getName());
-        } else if (Group.class.isInstance(identityType)) {
-            Group group = (Group) identityType;
-
-            identityType = identityManager.getGroup(group.getName());
-        }
-        return identityType;
     }
 
 }
