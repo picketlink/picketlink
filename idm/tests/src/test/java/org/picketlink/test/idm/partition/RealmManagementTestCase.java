@@ -77,7 +77,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         defaultIdentityManager.createRealm(null);
     }
     
-    @Test (expected=InstantiationError.class)
+    @Test (expected=IdentityManagementException.class)
     public void testCreateWithNullName() throws Exception {
         IdentityManager defaultIdentityManager = getIdentityManager();
         

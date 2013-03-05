@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.file.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.file.internal.FileUtils.delete;
 
 import java.io.File;
@@ -159,6 +160,12 @@ public class FilePartitionStore implements PartitionStore {
     }
 
     public Partition lookupById(String id) {
-        return getPartitions().get(id).getPartition();
+        FilePartition filePartition = getPartitions().get(id);
+
+        if (filePartition == null) {
+            throw MESSAGES.partitionNotFoundWithId(id);
+        }
+
+        return filePartition.getPartition();
     }
 }

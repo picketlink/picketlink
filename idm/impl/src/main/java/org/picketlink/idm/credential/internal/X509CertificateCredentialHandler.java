@@ -18,19 +18,21 @@
 
 package org.picketlink.idm.credential.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.io.ByteArrayInputStream;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.X509Cert;
 import org.picketlink.idm.credential.X509CertificateCredentials;
-import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.common.util.Base64;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
@@ -46,13 +48,10 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override
     public void validate(Credentials credentials, IdentityStore<?> identityStore) {
-        if (!CredentialStore.class.isInstance(identityStore)) {
-            throw new IdentityManagementException("Provided IdentityStore [" + identityStore + "] is not an instance of CredentialStore.");
-        }
+        validateCredentialStore(identityStore);
 
         if (!X509CertificateCredentials.class.isInstance(credentials)) {
-            throw new IllegalArgumentException("Credentials class [" + 
-                    credentials.getClass().getName() + "] not supported by this handler.");
+            throw MESSAGES.unsupportedCredentialType(credentials.getClass());
         }
 
         X509CertificateCredentials certCredentials = (X509CertificateCredentials) credentials;
@@ -90,13 +89,10 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
-        if (!CredentialStore.class.isInstance(identityStore)) {
-            throw new IdentityManagementException("Provided IdentityStore [" + identityStore + "] is not an instance of CredentialStore.");
-        }
+        validateCredentialStore(identityStore);
 
         if (!X509Cert.class.isInstance(credential)) {
-            throw new IllegalArgumentException("Credential class [" + 
-                    credential.getClass().getName() + "] not supported by this handler.");
+            throw MESSAGES.unsupportedCredentialType(credential.getClass());
         }
 
         X509Cert certificate = (X509Cert) credential;
@@ -105,6 +101,12 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         CredentialStore store = (CredentialStore) identityStore;
         
         store.storeCredential(agent, storage);
+    }
+
+    private void validateCredentialStore(IdentityStore<?> identityStore) {
+        if (!CredentialStore.class.isInstance(identityStore)) {
+            throw MESSAGES.invalidCredentialStoreType(identityStore.getClass());
+        }
     }
 
 }

@@ -10,7 +10,7 @@
 
    <artifactId>picketlink-idm-tests</artifactId>
    <packaging>jar</packaging>
-   <name>PicketLink Identity Management Implementation</name>
+   <name>PicketLink Identity Management Tests</name>
 
    <build>
       <plugins>

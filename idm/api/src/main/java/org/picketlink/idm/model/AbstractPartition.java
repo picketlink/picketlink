@@ -36,10 +36,6 @@ public abstract class AbstractPartition implements Partition {
     private String name;
 
     public AbstractPartition(String name) {
-        if (name == null) {
-            throw new InstantiationError("Partition name must not be null");
-        }
-        
         this.name = name;
     }
 

@@ -18,15 +18,15 @@
 
 package org.picketlink.idm.credential.internal;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentialExpired;
+
 import java.util.Date;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
@@ -56,8 +56,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         CredentialStore store = validateCredentialStore(identityStore);
 
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
-            throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
-                    + "] not supported by this handler.");
+            throw MESSAGES.unsupportedCredentialType(credentials.getClass());
         }
 
         UsernamePasswordCredentials usernamePassword = (UsernamePasswordCredentials) credentials;
@@ -72,7 +71,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
-                if (!CredentialUtils.isCredentialExpired(hash)) {
+                if (!isCredentialExpired(hash)) {
                     SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
                     String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword()
                             .getValue()));
@@ -93,8 +92,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         CredentialStore store = validateCredentialStore(identityStore);
 
         if (!Password.class.isInstance(credential)) {
-            throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
-                    + "] not supported by this handler.");
+            throw MESSAGES.unsupportedCredentialType(credential.getClass());
         }
 
         Password password = (Password) credential;
@@ -114,8 +112,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
     private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
         if (!CredentialStore.class.isInstance(identityStore)) {
-            throw new IdentityManagementException("Provided IdentityStore [" + identityStore.getClass().getName()
-                    + "] is not an instance of CredentialStore.");
+            throw MESSAGES.invalidCredentialStoreType(identityStore.getClass());
         } else {
             return (CredentialStore) identityStore;
         }

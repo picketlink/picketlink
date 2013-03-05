@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.GroupMembership;
@@ -343,8 +344,7 @@ public class FeatureSet {
 
     private void checkIfFeatureSetIsLocked() {
         if (locked) {
-            throw new SecurityConfigurationException(
-                    "Feature set has already been locked, no additional features may be added.");
+            throw IDMMessages.MESSAGES.lockedFeatureSet();
         }
     }
 }

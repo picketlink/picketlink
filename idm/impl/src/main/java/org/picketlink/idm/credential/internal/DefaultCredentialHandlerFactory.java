@@ -18,10 +18,11 @@
 
 package org.picketlink.idm.credential.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
@@ -85,9 +86,7 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
                 handler = handlerClass.newInstance();
                 handlerInstances.put(handlerClass, handler);
             } catch (Exception ex) {
-                throw new SecurityConfigurationException(
-                        "Error creating instance for CredentialHandler [" + handlerClass.getName() + "]",
-                        ex);
+                throw MESSAGES.failInstantiateCredentialHandler(handlerClass, ex);
             }
         } else {
             handler = handlerInstances.get(handlerClass);

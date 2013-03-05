@@ -18,10 +18,13 @@
 
 package org.picketlink.idm.file.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
@@ -53,7 +56,7 @@ public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends 
         } else if (partitionType.equals(Tier.class.getName())) { 
             partition = new Tier(properties.get("partitionName").toString());
         } else {
-            throw new IdentityManagementException("Unsupported partition type [" + partitionType + "].");
+            MESSAGES.unsupportedPartitionType(partitionType);
         } 
 
         partition.setId(properties.get("partitionId").toString());
