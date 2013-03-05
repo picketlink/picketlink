@@ -51,7 +51,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         validateCredentialStore(identityStore);
 
         if (!X509CertificateCredentials.class.isInstance(credentials)) {
-            throw MESSAGES.unsupportedCredentialType(credentials.getClass());
+            throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
         }
 
         X509CertificateCredentials certCredentials = (X509CertificateCredentials) credentials;
@@ -92,7 +92,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         validateCredentialStore(identityStore);
 
         if (!X509Cert.class.isInstance(credential)) {
-            throw MESSAGES.unsupportedCredentialType(credential.getClass());
+            throw MESSAGES.credentialUnsupportedType(credential.getClass(), this);
         }
 
         X509Cert certificate = (X509Cert) credential;
@@ -105,7 +105,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
 
     private void validateCredentialStore(IdentityStore<?> identityStore) {
         if (!CredentialStore.class.isInstance(identityStore)) {
-            throw MESSAGES.invalidCredentialStoreType(identityStore.getClass());
+            throw MESSAGES.credentialInvalidCredentialStoreType(identityStore.getClass());
         }
     }
 

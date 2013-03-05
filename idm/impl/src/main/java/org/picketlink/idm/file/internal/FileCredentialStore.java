@@ -148,7 +148,7 @@ public class FileCredentialStore implements CredentialStore {
         try {
             storage = storageClass.newInstance();
         } catch (Exception e) {
-            throw MESSAGES.failInstantiateCredentialStorage(storageClass, e);
+            throw MESSAGES.instantiationError(storageClass.getName(), e);
         }
 
         Set<Entry<String, Serializable>> storedFields = fileCredentialStorage.getStoredFields().entrySet();

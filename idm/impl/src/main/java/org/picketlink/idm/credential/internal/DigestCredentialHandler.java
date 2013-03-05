@@ -62,7 +62,7 @@ public class DigestCredentialHandler implements CredentialHandler {
         CredentialStore credentialStore = validateCredentialStore(identityStore);
 
         if (!DigestCredentials.class.isInstance(credentials)) {
-            throw MESSAGES.unsupportedCredentialType(credentials.getClass());
+            throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
         }
 
         DigestCredentials digestCredential = (DigestCredentials) credentials;
@@ -116,17 +116,17 @@ public class DigestCredentialHandler implements CredentialHandler {
         CredentialStore credentialStore = validateCredentialStore(identityStore);
 
         if (!Digest.class.isInstance(credential)) {
-            throw MESSAGES.unsupportedCredentialType(credential.getClass());
+            throw MESSAGES.credentialUnsupportedType(credential.getClass(), this);
         }
 
         Digest digestCredential = (Digest) credential;
 
         if (isNullOrEmpty(digestCredential.getRealm())) {
-            throw MESSAGES.invalidRealm();
+            throw MESSAGES.credentialDigestInvalidRealm();
         }
 
         if (StringUtil.isNullOrEmpty(digestCredential.getPassword())) {
-            throw MESSAGES.invalidPassword();
+            throw MESSAGES.credentialInvalidPassword();
         }
 
         byte[] ha1 = DigestUtil.calculateA1(agent.getLoginName(), digestCredential.getRealm(), digestCredential.getPassword()
@@ -142,7 +142,7 @@ public class DigestCredentialHandler implements CredentialHandler {
 
     private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
         if (!CredentialStore.class.isInstance(identityStore)) {
-            throw MESSAGES.invalidCredentialStoreType(identityStore.getClass());
+            throw MESSAGES.credentialInvalidCredentialStoreType(identityStore.getClass());
         } else {
             return (CredentialStore) identityStore;
         }

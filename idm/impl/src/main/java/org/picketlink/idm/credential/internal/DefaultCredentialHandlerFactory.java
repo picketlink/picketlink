@@ -86,7 +86,7 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
                 handler = handlerClass.newInstance();
                 handlerInstances.put(handlerClass, handler);
             } catch (Exception ex) {
-                throw MESSAGES.failInstantiateCredentialHandler(handlerClass, ex);
+                throw MESSAGES.credentialCredentialHandlerInstantiationError(handlerClass, ex);
             }
         } else {
             handler = handlerInstances.get(handlerClass);

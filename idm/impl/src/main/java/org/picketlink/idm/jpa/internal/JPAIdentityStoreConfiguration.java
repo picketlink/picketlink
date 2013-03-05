@@ -201,7 +201,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         if (props.size() == 1) {
             modelProperties.put(propertyType, props.get(0));
         } else if (props.size() > 1) {
-            throw MESSAGES.ambiguosPropertyForClass(propertyType.name(), targetClass);
+            throw MESSAGES.jpaConfigAmbiguosPropertyForClass(propertyType.name(), targetClass);
         } else {
             if (possibleNames != null && possibleNames.length > 0) {
                 Property<Object> p = findNamedProperty(targetClass, possibleNames);

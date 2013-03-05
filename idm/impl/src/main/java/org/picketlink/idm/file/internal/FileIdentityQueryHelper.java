@@ -169,7 +169,7 @@ public class FileIdentityQueryHelper {
                         valuesMatchCount--;
                     }
                 } else {
-                    throw MESSAGES.unsupportedQueryParameterValue("Group.HAS_MEMBER", object);
+                    throw MESSAGES.queryUnsupportedParameterValue("Group.HAS_MEMBER", object);
                 }
 
                 if (valuesMatchCount > 0) {
@@ -221,7 +221,7 @@ public class FileIdentityQueryHelper {
 
             for (Object group : values) {
                 if (!Group.class.isInstance(group)) {
-                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.MEMBER_OF", group);
+                    throw MESSAGES.queryUnsupportedParameterValue("IdentityType.MEMBER_OF", group);
                 }
                 
                 if (group != null) {
@@ -255,7 +255,7 @@ public class FileIdentityQueryHelper {
 
             for (Object role : values) {
                 if (!Role.class.isInstance(role)) {
-                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.HAS_ROLE", role);
+                    throw MESSAGES.queryUnsupportedParameterValue("IdentityType.HAS_ROLE", role);
                 }
                 
                 if (role != null) {

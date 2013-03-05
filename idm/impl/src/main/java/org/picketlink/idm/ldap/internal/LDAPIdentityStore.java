@@ -122,7 +122,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 Group newGroup = (Group) attributedType;
                 addGroup(newGroup);
             } else {
-                throw MESSAGES.unsupportedIdentityType(identityType.getClass());
+                throw MESSAGES.identityTypeUnsupportedType(identityType.getClass());
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
@@ -137,10 +137,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 GroupMembership groupMembership = (GroupMembership) relationship;
                 addGroupMembership(groupMembership);
             } else {
-                throw MESSAGES.unsupportedRelationshipType(relationship.getClass());
+                throw MESSAGES.storeConfigUnsupportedRelationshipType(relationship.getClass());
             }
         } else {
-            throw MESSAGES.unsupportedAttributedType(attributedType.getClass());
+            throw MESSAGES.attributedTypeUnsupportedType(attributedType.getClass());
         }
     }
 
@@ -164,12 +164,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 Group updatedGroup = (Group) identityType;
                 updateGroup(updatedGroup);
             } else {
-                throw MESSAGES.unsupportedIdentityType(identityType.getClass());
+                throw MESSAGES.identityTypeUnsupportedType(identityType.getClass());
             }
 
             cacheIdentityType(identityType);
         } else {
-            throw MESSAGES.unsupportedAttributedType(attributedType.getClass());
+            throw MESSAGES.attributedTypeUnsupportedType(attributedType.getClass());
         }
     }
 
@@ -219,7 +219,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
                 removeGroupMembership(groupMembership);
             } else {
-                throw MESSAGES.unsupportedRelationshipType(relationship.getClass());
+                throw MESSAGES.storeConfigUnsupportedRelationshipType(relationship.getClass());
             }
         }
     }
@@ -1187,7 +1187,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             }
 
             if (search.hasMore()) {
-                throw MESSAGES.ambiguosIdentityTypeFoundWithId(id);
+                throw MESSAGES.identityTypeAmbiguosFoundWithId(id);
             }
         } catch (NamingException e) {
             throw MESSAGES.ldapStoreSearchFailed(e);

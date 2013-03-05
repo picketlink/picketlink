@@ -142,39 +142,30 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         attributedType.setId(getContext().getIdGenerator().generate());
 
         if (IdentityType.class.isInstance(attributedType)) {
-            try {
-                @SuppressWarnings("unchecked")
-                Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
+            @SuppressWarnings("unchecked")
+            Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();
 
-                if (IDMUtil.isAgentType(identityTypeClass)) {
-                    Agent agent = (Agent) attributedType;
+            if (IDMUtil.isAgentType(identityTypeClass)) {
+                Agent agent = (Agent) attributedType;
 
-                    if (IDMUtil.isUserType(identityTypeClass)) {
-                        addUser((User) agent);
-                    } else {
-                        addAgent(agent);
-                    }
-                } else if (IDMUtil.isGroupType(identityTypeClass)) {
-                    addGroup((Group) attributedType);
-                } else if (IDMUtil.isRoleType(identityTypeClass)) {
-                    addRole((Role) attributedType);
+                if (IDMUtil.isUserType(identityTypeClass)) {
+                    addUser((User) agent);
                 } else {
-                    throw MESSAGES.unsupportedIdentityType(identityTypeClass);
+                    addAgent(agent);
                 }
-            } catch (Exception e) {
-                throw MESSAGES.failToAddAttributedType(attributedType, e);
+            } else if (IDMUtil.isGroupType(identityTypeClass)) {
+                addGroup((Group) attributedType);
+            } else if (IDMUtil.isRoleType(identityTypeClass)) {
+                addRole((Role) attributedType);
+            } else {
+                throw MESSAGES.identityTypeUnsupportedType(identityTypeClass);
             }
-
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
-            try {
-                addRelationship(relationship);
-            } catch (Exception e) {
-                throw MESSAGES.failToAddAttributedType(relationship, e);
-            }
+            addRelationship(relationship);
         } else {
-            throw MESSAGES.unsupportedAttributedType(attributedType.getClass());
+            throw MESSAGES.attributedTypeUnsupportedType(attributedType.getClass());
         }
     }
 
@@ -193,12 +184,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else if (IDMUtil.isRoleType(identityTypeClass)) {
                 updateRole((Role) attributedType);
             } else {
-                throw MESSAGES.unsupportedIdentityType(identityTypeClass);
+                throw MESSAGES.identityTypeUnsupportedType(identityTypeClass);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             updateRelationship((Relationship) attributedType);
         } else {
-            throw MESSAGES.unsupportedAttributedType(attributedType.getClass());
+            throw MESSAGES.attributedTypeUnsupportedType(attributedType.getClass());
         }
     }
 
@@ -215,12 +206,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             } else if (IDMUtil.isRoleType(attributedTypeClass)) {
                 removeRole((Role) attributedType);
             } else {
-                throw MESSAGES.unsupportedIdentityType(attributedTypeClass);
+                throw MESSAGES.identityTypeUnsupportedType(attributedTypeClass);
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             removeRelationship((Relationship) attributedType);
         } else {
-            throw MESSAGES.unsupportedAttributedType(attributedTypeClass);
+            throw MESSAGES.attributedTypeUnsupportedType(attributedTypeClass);
         }
     }
 
@@ -283,7 +274,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         if (parent != null) {
             Group parentGroup = (Group) lookupIdentityTypeById(parent.getId());
-            
+
             path = parentGroup.getPath() + path;
         }
 
@@ -375,7 +366,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 entries = getGroupsForPartition(partition).values();
             }
         } else {
-            throw MESSAGES.unsupportedIdentityType(identityTypeClass);
+            throw MESSAGES.identityTypeUnsupportedType(identityTypeClass);
         }
 
         List<T> result = new ArrayList<T>();
@@ -548,7 +539,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         try {
             relationshipType = (Class<T>) Class.forName(fileRelationship.getType());
         } catch (Exception e) {
-            throw MESSAGES.couldNotFindClass(fileRelationship.getType());
+            throw MESSAGES.classNotFound(fileRelationship.getType());
         }
 
         return cloneRelationship(fileRelationship, relationshipType);
@@ -585,7 +576,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         try {
             clonedRelationship = (T) relationshipType.newInstance();
         } catch (Exception e) {
-            throw MESSAGES.failInstantiateRelationshipType(relationshipType.getName(), e);
+            throw MESSAGES.instantiationError(relationshipType.getName(), e);
         }
 
         Relationship storedRelationship = fileRelationship.getEntry();
@@ -735,7 +726,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         try {
             newRelationship = relationship.getClass().newInstance();
         } catch (Exception e) {
-            MESSAGES.failInstantiateRelationshipType(relationship.getClass().getName(), e);
+            MESSAGES.instantiationError(relationship.getClass().getName(), e);
         }
 
         newRelationship.setId(relationship.getId());
@@ -1020,9 +1011,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
             if (!result.isEmpty()) {
                 if (result.size() > 1) {
-                    throw MESSAGES.ambiguosRelationshipFound(relationship);
+                    throw MESSAGES.relationshipAmbiguosFound(relationship);
                 }
-                
+
                 relationship = result.get(0);
             } else {
                 return;
@@ -1198,7 +1189,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private void configurePartition(IdentityType identityType) {
         if (identityType != null && identityType.getPartition() != null) {
             Partition partition = this.partitionStore.lookupById(identityType.getPartition().getId());
-            
+
             identityType.setPartition(partition);
         }
     }
@@ -1243,7 +1234,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                         IdentityType identityType = (IdentityType) parameterValue;
                         identityId = identityType.getId();
                     } else {
-                        throw MESSAGES.unsupportedQueryParameterValue("Relationship.IDENTITY", parameterValue);
+                        throw MESSAGES.queryUnsupportedParameterValue("Relationship.IDENTITY", parameterValue);
                     }
 
                     match = storedRelationship.hasIdentityType(identityId);
@@ -1313,7 +1304,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         Object[] values = query.getParameter(identityTypeParameter);
         int valuesMathCount = values.length;
         boolean match = false;
-        
+
         try {
             IdentityType identityTypeRel = lookupIdentityTypeById(storedRelationship.getIdentityTypeId(identityTypeParameter
                     .getName()));

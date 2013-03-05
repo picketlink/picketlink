@@ -344,7 +344,7 @@ public class FeatureSet {
 
     private void checkIfFeatureSetIsLocked() {
         if (locked) {
-            throw IDMMessages.MESSAGES.lockedFeatureSet();
+            throw IDMMessages.MESSAGES.storeConfigLockedFeatureSet();
         }
     }
 }

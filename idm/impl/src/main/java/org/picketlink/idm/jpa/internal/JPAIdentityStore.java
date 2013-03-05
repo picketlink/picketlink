@@ -184,7 +184,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         try {
             partitionObject = partitionClass.newInstance();
         } catch (Exception e) {
-            throw MESSAGES.failInstantiatePartitionClass(partitionClass, e);
+            throw MESSAGES.instantiationError(partitionClass.getName(), e);
         }
 
         partition.setId(getContext().getIdGenerator().generate());
@@ -238,13 +238,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         List<?> associatedIdentityTypes = getIdentityTypesForPartition(partitionObject);
 
         if (!associatedIdentityTypes.isEmpty()) {
-            throw MESSAGES.couldNotRemovePartitionWithIdentityTypes(partition);
+            throw MESSAGES.partitionCouldNotRemoveWithIdentityTypes(partition);
         }
 
         List<?> childPartitions = getChildPartitions(partitionObject);
 
         if (!childPartitions.isEmpty()) {
-            throw MESSAGES.couldNotRemovePartitionWithChilds(partition);
+            throw MESSAGES.partitionCouldNotRemoveWithChilds(partition);
         }
 
         entityManager.remove(partitionObject);
@@ -544,7 +544,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 try {
                     newAttribute = getConfig().getAttributeClass().newInstance();
                 } catch (Exception e) {
-                    throw MESSAGES.failInstantiateAttributeClass(getConfig().getAttributeClass(), e);
+                    throw MESSAGES.instantiationError(getConfig().getAttributeClass().getName(), e);
                 }
 
                 attributeNameProperty.setValue(newAttribute, attribute.getName());
@@ -658,7 +658,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         try {
             newCredential = getConfig().getCredentialClass().newInstance();
         } catch (Exception e) {
-            throw MESSAGES.failInstantiateCredentialClass(getConfig().getCredentialClass(), e);
+            throw MESSAGES.instantiationError(getConfig().getCredentialClass().getName(), e);
         }
 
         Date effectiveDate = storage.getEffectiveDate();
@@ -695,7 +695,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             try {
                 newCredentialAttribute = this.getConfig().getCredentialAttributeClass().newInstance();
             } catch (Exception e) {
-                throw MESSAGES.failInstantiateCredentialAttributeClass(getConfig().getCredentialAttributeClass(), e);
+                throw MESSAGES.instantiationError(getConfig().getCredentialAttributeClass().getName(), e);
             }
 
             attributeName.setValue(newCredentialAttribute, property.getName());
@@ -742,7 +742,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         } else if (Tier.class.getName().equals(type)) {
             partition = convertPartitionEntityToTier(partitionObject);
         } else {
-            throw MESSAGES.unsupportedPartitionType(type);
+            throw MESSAGES.partitionUnsupportedType(type);
         }
 
         return partition;
@@ -758,7 +758,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     protected EntityManager getEntityManager() {
         if (!getContext().isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
-            throw MESSAGES.couldNotGetEntityManagerFromStoreContext();
+            throw MESSAGES.jpaStoreCouldNotGetEntityManagerFromStoreContext();
         }
 
         return (EntityManager) getContext().getParameter(INVOCATION_CTX_ENTITY_MANAGER);
@@ -855,7 +855,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             relationshipClass = Class.forName(typeName);
             relationshipType = (T) relationshipClass.newInstance();
         } catch (Exception e) {
-            throw MESSAGES.failInstantiateRelationshipType(typeName, e);
+            throw MESSAGES.instantiationError(typeName, e);
         }
 
         List<Property<Object>> identityTypeIdProperty = PropertyQueries.createQuery(relationshipClass)
@@ -932,7 +932,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             try {
                 newInstance = getConfig().getRelationshipAttributeClass().newInstance();
             } catch (Exception e) {
-                throw MESSAGES.failInstantiateRelationshipAttributeClass(getConfig().getRelationshipAttributeClass(), e);
+                throw MESSAGES.instantiationError(getConfig().getRelationshipAttributeClass().getName(), e);
             }
 
             attributeNameProperty.setValue(newInstance, userAttribute.getName());
@@ -1395,7 +1395,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         try {
             entity = getConfig().getRelationshipClass().newInstance();
         } catch (Exception e) {
-            throw MESSAGES.failInstantiateRelationshipClass(getConfig().getRelationshipClass(), e);
+            throw MESSAGES.instantiationError(getConfig().getRelationshipClass().getName(), e);
         }
 
         getConfig().getModelProperty(PropertyType.RELATIONSHIP_ID).setValue(entity, relationship.getId());
@@ -1414,7 +1414,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             try {
                 relationshipIdentity = getConfig().getRelationshipIdentityClass().newInstance();
             } catch (Exception e) {
-                throw MESSAGES.failInstantiateRelationshipIdentityClass(getConfig().getRelationshipIdentityClass(), e);
+                throw MESSAGES.instantiationError(getConfig().getRelationshipIdentityClass().getName(), e);
             }
 
             IdentityType identityType = prop.getValue(relationship);
@@ -1513,7 +1513,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             if (result.size() == 1) {
                 relationship = result.get(0);
             } else if (result.size() > 1) {
-                throw MESSAGES.ambiguosRelationshipFound(relationship);
+                throw MESSAGES.relationshipAmbiguosFound(relationship);
             }
         }
 
@@ -1585,7 +1585,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                     IdentityType identityType = (IdentityType) parameterValue;
                     identityId = identityType.getId();
                 } else {
-                    throw MESSAGES.unsupportedQueryParameterValue("Relationship.IDENTITY", parameterValue);
+                    throw MESSAGES.queryUnsupportedParameterValue("Relationship.IDENTITY", parameterValue);
                 }
 
                 queryResult = findIdentityTypeRelationships(identityId);
@@ -1817,7 +1817,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             try {
                 storage = storageClass.newInstance();
             } catch (Exception e) {
-                throw MESSAGES.failInstantiateCredentialStorage(storageClass, e);
+                throw MESSAGES.instantiationError(storageClass.getName(), e);
             }
 
             Property<Object> effectiveProperty = getConfig().getModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE);

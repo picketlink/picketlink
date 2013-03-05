@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
@@ -122,7 +123,15 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public List<T> getResultList() {
-        return this.identityStore.fetchQueryResults(this);
+        List<T> result = null;
+        
+        try {
+            result = this.identityStore.fetchQueryResults(this);
+        } catch (Exception e) {
+            throw IDMMessages.MESSAGES.identityTypeQueryFailed(this, e);
+        }
+        
+        return result;
     }
 
     @Override

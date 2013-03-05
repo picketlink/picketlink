@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.query.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +82,15 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
     @Override
     public List<T> getResultList() {
-        return this.identityStore.fetchQueryResults(this);
+        List<T> result = null;
+        
+        try {
+            result = this.identityStore.fetchQueryResults(this);
+        } catch (Exception e) {
+            throw MESSAGES.relationshipQueryFailed(this, e);
+        }
+        
+        return result;
     }
 
     @Override

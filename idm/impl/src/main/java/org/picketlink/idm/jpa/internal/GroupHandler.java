@@ -239,7 +239,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                                                 .get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
                     }
                 } else {
-                    throw MESSAGES.unsupportedQueryParameterValue("Group.HAS_MEMBER", object);
+                    throw MESSAGES.queryUnsupportedParameterValue("Group.HAS_MEMBER", object);
                 }
             }
         }

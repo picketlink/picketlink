@@ -54,7 +54,7 @@ public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends 
         } else if (partitionType.equals(Tier.class.getName())) { 
             partition = new Tier(properties.get("partitionName").toString());
         } else {
-            MESSAGES.unsupportedPartitionType(partitionType);
+            MESSAGES.partitionUnsupportedType(partitionType);
         } 
 
         partition.setId(properties.get("partitionId").toString());

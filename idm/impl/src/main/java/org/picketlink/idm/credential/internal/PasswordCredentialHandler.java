@@ -56,7 +56,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         CredentialStore store = validateCredentialStore(identityStore);
 
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
-            throw MESSAGES.unsupportedCredentialType(credentials.getClass());
+            throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
         }
 
         UsernamePasswordCredentials usernamePassword = (UsernamePasswordCredentials) credentials;
@@ -92,7 +92,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
         CredentialStore store = validateCredentialStore(identityStore);
 
         if (!Password.class.isInstance(credential)) {
-            throw MESSAGES.unsupportedCredentialType(credential.getClass());
+            throw MESSAGES.credentialUnsupportedType(credential.getClass(), this);
         }
 
         Password password = (Password) credential;
@@ -112,7 +112,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
     private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
         if (!CredentialStore.class.isInstance(identityStore)) {
-            throw MESSAGES.invalidCredentialStoreType(identityStore.getClass());
+            throw MESSAGES.credentialInvalidCredentialStoreType(identityStore.getClass());
         } else {
             return (CredentialStore) identityStore;
         }

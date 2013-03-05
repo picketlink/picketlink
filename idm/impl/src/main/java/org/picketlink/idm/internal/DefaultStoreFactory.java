@@ -65,12 +65,12 @@ public class DefaultStoreFactory implements StoreFactory {
                 try {
                     return (IdentityStore<?>) identityStoreClass.newInstance();
                 } catch (Exception e) {
-                    throw MESSAGES.failInstantiateIdentityStore(identityStoreClass, e);
+                    throw MESSAGES.instantiationError(identityStoreClass.getName(), e);
                 }
             }
         }
 
-        throw MESSAGES.unsupportedStoreConfiguration();
+        throw MESSAGES.storeConfigUnsupportedConfiguration(config);
     }
 
     @Override

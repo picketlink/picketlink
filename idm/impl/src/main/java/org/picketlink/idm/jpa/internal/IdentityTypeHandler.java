@@ -117,7 +117,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         try {
             identity = getConfig().getIdentityClass().newInstance();            
         } catch (Exception e) {
-            throw MESSAGES.failInstantiateIdentityClass(getConfig().getIdentityClass(), e);
+            throw MESSAGES.instantiationError(getConfig().getIdentityClass().getName(), e);
         }
 
         String newGeneratedId = store.getContext().getIdGenerator().generate();
@@ -302,7 +302,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         if (parameterValues != null) {
             for (Object role : parameterValues) {
                 if (!Role.class.isInstance(role)) {
-                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.HAS_ROLE", role);
+                    throw MESSAGES.queryUnsupportedParameterValue("IdentityType.HAS_ROLE", role);
                 }
 
                 DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, store);
@@ -355,7 +355,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         if (parameterValues != null) {
             for (Object group : parameterValues) {
                 if (!Group.class.isInstance(group)) {
-                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.MEMBER_OF", group);
+                    throw MESSAGES.queryUnsupportedParameterValue("IdentityType.MEMBER_OF", group);
                 }
 
                 DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
@@ -409,7 +409,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         if (parameterValues != null) {
             for (Object object : parameterValues) {
                 if (!GroupRole.class.isInstance(object)) {
-                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.HAS_GROUP_ROLE", object);
+                    throw MESSAGES.queryUnsupportedParameterValue("IdentityType.HAS_GROUP_ROLE", object);
                 }
 
                 GroupRole groupRole = (GroupRole) object;

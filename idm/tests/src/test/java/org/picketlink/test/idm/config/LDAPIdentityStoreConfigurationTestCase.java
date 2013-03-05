@@ -22,14 +22,15 @@
 
 package org.picketlink.test.idm.config;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.AfterClass;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet;
@@ -122,10 +123,16 @@ public class LDAPIdentityStoreConfigurationTestCase extends
             identityManager.add(customRelationship);
 
             fail();
-        } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));
+        } catch (IdentityManagementException ime) {
+            if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
+                SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
+                
+                assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));   
+            } else {
+                fail();
+            }
         } catch (Exception e) {
-            Assert.fail();
+            fail();
         }
     }
 
