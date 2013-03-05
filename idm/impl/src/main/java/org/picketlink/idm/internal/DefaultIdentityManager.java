@@ -79,6 +79,44 @@ public class DefaultIdentityManager implements IdentityManager {
     private ThreadLocal<Tier> currentTier = new ThreadLocal<Tier>();
 
     @Override
+    public void bootstrap(IdentityConfiguration identityConfig, IdentityStoreInvocationContextFactory contextFactory) {
+        if (identityConfig == null) {
+            throw MESSAGES.nullArgument("IdentityConfiguration");
+        }
+
+        if (contextFactory == null) {
+            throw MESSAGES.nullArgument("IdentityStoreInvocationContextFactory");
+        }
+
+        for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
+
+            config.init();
+
+            Set<IdentityStoreConfiguration> configs;
+
+            Set<String> realms = new HashSet<String>();
+
+            if (config.getRealms().isEmpty()) {
+                realms.add(Realm.DEFAULT_REALM);
+            } else {
+                realms.addAll(config.getRealms());
+            }
+
+            for (String realm : realms) {
+                if (realmStores.containsKey(realm)) {
+                    configs = realmStores.get(realm);
+                } else {
+                    configs = new HashSet<IdentityStoreConfiguration>();
+                    realmStores.put(realm, configs);
+                }
+                configs.add(config);
+            }
+        }
+
+        this.contextFactory = contextFactory;
+    }
+    
+    @Override
     public IdentityManager forRealm(Realm realm) {
         if (realm != null) {
             final Realm storedRealm = getRealm(realm.getName());
@@ -156,44 +194,6 @@ public class DefaultIdentityManager implements IdentityManager {
         }
         
         throw MESSAGES.couldNotCreateContextualIdentityManager(Tier.class);
-    }
-
-    @Override
-    public void bootstrap(IdentityConfiguration identityConfig, IdentityStoreInvocationContextFactory contextFactory) {
-        if (identityConfig == null) {
-            throw MESSAGES.nullArgument("IdentityConfiguration");
-        }
-
-        if (contextFactory == null) {
-            throw MESSAGES.nullArgument("IdentityStoreInvocationContextFactory");
-        }
-
-        for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
-
-            config.init();
-
-            Set<IdentityStoreConfiguration> configs;
-
-            Set<String> realms = new HashSet<String>();
-
-            if (config.getRealms().isEmpty()) {
-                realms.add(Realm.DEFAULT_REALM);
-            } else {
-                realms.addAll(config.getRealms());
-            }
-
-            for (String realm : realms) {
-                if (realmStores.containsKey(realm)) {
-                    configs = realmStores.get(realm);
-                } else {
-                    configs = new HashSet<IdentityStoreConfiguration>();
-                    realmStores.put(realm, configs);
-                }
-                configs.add(config);
-            }
-        }
-
-        this.contextFactory = contextFactory;
     }
 
     @Override
