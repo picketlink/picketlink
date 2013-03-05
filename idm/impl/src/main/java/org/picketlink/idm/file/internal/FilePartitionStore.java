@@ -54,18 +54,6 @@ public class FilePartitionStore implements PartitionStore {
 
     @Override
     public void createPartition(Partition partition) {
-        if (Realm.class.isInstance(partition)) {
-            if (getRealm(partition.getName()) != null) {
-                throw new IdentityManagementException("A Realm with name [" + partition.getName() + "] already exists.");
-            }
-        }
-
-        if (Tier.class.isInstance(partition)) {
-            if (getTier(partition.getName()) != null) {
-                throw new IdentityManagementException("A Tier with name [" + partition.getName() + "] already exists.");
-            }
-        }
-
         partition.setId(getContext().getIdGenerator().generate());
 
         FilePartition filePartition = new FilePartition(partition);
@@ -83,14 +71,6 @@ public class FilePartitionStore implements PartitionStore {
         String id = partition.getId();
 
         if (getPartitions().containsKey(partition.getId())) {
-            FilePartition filePartition = getDataSource().getPartition(partition.getId());
-
-            if (!filePartition.getAgents().isEmpty() || !filePartition.getRoles().isEmpty()
-                    || !filePartition.getGroups().isEmpty()) {
-                throw new IdentityManagementException(
-                        "Realm could not be removed. There IdentityTypes associated with it. Remove them first.");
-            }
-
             delete(new File(getDataSource().getWorkingDir() + File.separator + partition.getId()));
             getPartitions().remove(partition.getId());
             getDataSource().flushPartitions();
@@ -159,7 +139,7 @@ public class FilePartitionStore implements PartitionStore {
         return getDataSource().getPartitions();
     }
 
-    public Partition lookupById(String id) {
+    protected Partition lookupById(String id) {
         FilePartition filePartition = getPartitions().get(id);
 
         if (filePartition == null) {

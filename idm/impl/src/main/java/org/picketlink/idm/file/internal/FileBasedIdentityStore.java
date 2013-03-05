@@ -180,10 +180,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public void update(AttributedType attributedType) {
-        if (attributedType.getId() == null) {
-            throw MESSAGES.nullArgument("AttributedType identifier.");
-        }
-
         if (IdentityType.class.isInstance(attributedType)) {
             @SuppressWarnings("unchecked")
             Class<? extends IdentityType> identityTypeClass = (Class<? extends IdentityType>) attributedType.getClass();

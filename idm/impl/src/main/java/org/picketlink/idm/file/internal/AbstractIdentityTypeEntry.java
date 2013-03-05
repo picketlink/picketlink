@@ -24,8 +24,6 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 
-import org.picketlink.idm.IDMMessages;
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;

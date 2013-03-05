@@ -503,6 +503,12 @@ public class DefaultIdentityManager implements IdentityManager {
         checkCreateNullPartition(realm);
         checkCreateNullPartitionName(realm);
 
+        if (Realm.class.isInstance(realm)) {
+            if (getRealm(realm.getName()) != null) {
+                throw new IdentityManagementException("A Realm with name [" + realm.getName() + "] already exists.");
+            }
+        }
+
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.realm, FeatureOperation.create);
         
         if (store != null) {
@@ -545,10 +551,21 @@ public class DefaultIdentityManager implements IdentityManager {
             throw new IdentityManagementException("You must provide a non-nul Realm instance.");
         }
 
-        if (getRealm(realm.getName()) == null) {
+        Realm storedRealm = getRealm(realm.getName());
+        
+        if (storedRealm == null) {
             throw new IdentityManagementException("No Realm with the given name [" + realm.getName() + "] was found.");
         }
-
+        
+        IdentityQuery<IdentityType> query = createIdentityQuery(IdentityType.class);
+        
+        query.setParameter(IdentityType.PARTITION, storedRealm);
+        
+        if (!query.getResultList().isEmpty()) {
+            throw new IdentityManagementException(
+                    "Realm could not be removed. There IdentityTypes associated with it. Remove them first.");
+        }
+        
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.realm, FeatureOperation.delete);
 
         if (store != null) {
@@ -568,6 +585,12 @@ public class DefaultIdentityManager implements IdentityManager {
         checkCreateNullPartition(tier);
         checkCreateNullPartitionName(tier);
 
+        if (Tier.class.isInstance(tier)) {
+            if (getTier(tier.getName()) != null) {
+                throw new IdentityManagementException("A Tier with name [" + tier.getName() + "] already exists.");
+            }
+        }
+        
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.tier, FeatureOperation.create);
 
         if (store != null) {
@@ -581,10 +604,21 @@ public class DefaultIdentityManager implements IdentityManager {
             throw new IdentityManagementException("You must provide a non-nul Tier instance.");
         }
 
-        if (getTier(tier.getName()) == null) {
+        Tier storedTier = getTier(tier.getName());
+        
+        if (storedTier == null) {
             throw new IdentityManagementException("No Tier with the given name [" + tier.getName() + "] was found.");
         }
 
+        IdentityQuery<IdentityType> query = createIdentityQuery(IdentityType.class);
+        
+        query.setParameter(IdentityType.PARTITION, storedTier);
+        
+        if (!query.getResultList().isEmpty()) {
+            throw new IdentityManagementException(
+                    "Tier could not be removed. There IdentityTypes associated with it. Remove them first.");
+        }
+        
         IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.tier, FeatureOperation.delete);
 
         if (store != null) {

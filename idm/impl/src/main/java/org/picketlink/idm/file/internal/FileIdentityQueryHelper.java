@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.file.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -25,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -168,8 +169,7 @@ public class FileIdentityQueryHelper {
                         valuesMatchCount--;
                     }
                 } else {
-                    throw new IdentityManagementException(
-                            "Unsupported value type for Group.HAS_MEMBER query parameter. You should provide a Agent or Group instance.");
+                    throw MESSAGES.unsupportedQueryParameterValue("Group.HAS_MEMBER", object);
                 }
 
                 if (valuesMatchCount > 0) {
@@ -221,7 +221,7 @@ public class FileIdentityQueryHelper {
 
             for (Object group : values) {
                 if (!Group.class.isInstance(group)) {
-                    throw new IdentityManagementException("Unsupported type for IdentityType.MEMBER_OF QueryParameter. You should specify a Group only.");
+                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.MEMBER_OF", group);
                 }
                 
                 if (group != null) {
@@ -255,7 +255,7 @@ public class FileIdentityQueryHelper {
 
             for (Object role : values) {
                 if (!Role.class.isInstance(role)) {
-                    throw new IdentityManagementException("Unsupported type for IdentityType.HAS_ROLE QueryParameter. You should specify a Role only.");
+                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.HAS_ROLE", role);
                 }
                 
                 if (role != null) {
