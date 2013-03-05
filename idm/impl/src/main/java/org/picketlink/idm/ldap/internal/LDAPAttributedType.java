@@ -29,6 +29,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.AttributedType;
 
 /**
@@ -63,7 +64,7 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
                 try {
                     this.id = getLDAPAttributes().get(ENTRY_UUID).get().toString();
                 } catch (NamingException e) {
-                    e.printStackTrace();
+                    IDMMessages.MESSAGES.ldapStoreFailToRetrieveAttribute(ENTRY_UUID, e);
                 }
             }
         }

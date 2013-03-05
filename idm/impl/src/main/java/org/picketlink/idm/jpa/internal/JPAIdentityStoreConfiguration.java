@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -199,8 +201,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         if (props.size() == 1) {
             modelProperties.put(propertyType, props.get(0));
         } else if (props.size() > 1) {
-            throw new SecurityConfigurationException("Ambiguous " + propertyType.name() + " property in identity class ["
-                    + targetClass.getName() + "]");
+            throw MESSAGES.jpaConfigAmbiguosPropertyForClass(propertyType.name(), targetClass);
         } else {
             if (possibleNames != null && possibleNames.length > 0) {
                 Property<Object> p = findNamedProperty(targetClass, possibleNames);
@@ -279,7 +280,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         if (isModelPropertySet(propertyType)) {
             getModelProperty(propertyType).setValue(instance, value);
         } else if (required) {
-            throw new IdentityManagementException("Model property [" + propertyType.name() + "] has not been configured.");
+            throw MESSAGES.jpaConfigModelPropertyNotConfigured(propertyType.name());
         }
     }
 
@@ -294,11 +295,11 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     @Override
     public void initConfig() throws SecurityConfigurationException {
         if (this.identityClass == null) {
-            throw new SecurityConfigurationException("Error initializing JpaIdentityStore - identityClass not set");
+            throw MESSAGES.jpaConfigIdentityClassNotProvided();
         }
 
         if (this.partitionClass == null) {
-            throw new SecurityConfigurationException("Error initializing JpaIdentityStore - partitionClass not set");
+            throw MESSAGES.jpaConfigPartitionClassNotProvided();
         }
 
         configureIdentity();
@@ -421,9 +422,8 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             if (attributeProperties.containsKey(attribName)) {
                 Property<Object> other = attributeProperties.get(attribName).getAttributeProperty();
 
-                throw new SecurityConfigurationException("Multiple properties defined for attribute [" + attribName + "] - "
-                        + "Property: " + other.getDeclaringClass().getName() + "." + other.getAnnotatedElement().toString()
-                        + ", Property: " + p.getDeclaringClass().getName() + "." + p.getAnnotatedElement().toString());
+                throw MESSAGES.jpaConfigMultiplePropertiesForAttribute(attribName, other.getDeclaringClass(),
+                        other.getAnnotatedElement(), p.getDeclaringClass(), p.getAnnotatedElement());
             }
 
             attributeProperties.put(attribName, new MappedAttribute(null, p));

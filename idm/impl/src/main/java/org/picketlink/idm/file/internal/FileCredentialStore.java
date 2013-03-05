@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.file.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.credential.internal.CredentialUtils.getCurrentCredential;
 
 import java.io.Serializable;
@@ -34,7 +35,6 @@ import org.picketlink.common.properties.query.AnnotatedPropertyCriteria;
 import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
@@ -61,10 +61,9 @@ public class FileCredentialStore implements CredentialStore {
 
     public void validateCredentials(Credentials credentials) {
         CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this.identityStore);
+        
         if (handler == null) {
-            throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
+            throw MESSAGES.credentialHandlerNotFoundForCredentialType(credentials.getClass());
         }
 
         handler.validate(credentials, this.identityStore);
@@ -72,11 +71,11 @@ public class FileCredentialStore implements CredentialStore {
 
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this.identityStore);
+        
         if (handler == null) {
-            throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
+            throw MESSAGES.credentialHandlerNotFoundForCredentialType(credential.getClass());
         }
+        
         handler.update(agent, credential, this.identityStore, effectiveDate, expiryDate);
     }
 
@@ -149,8 +148,7 @@ public class FileCredentialStore implements CredentialStore {
         try {
             storage = storageClass.newInstance();
         } catch (Exception e) {
-            throw new IdentityManagementException("Could not create CredentialStorage instance for class ["
-                    + storageClass.getName() + "].", e);
+            throw MESSAGES.instantiationError(storageClass.getName(), e);
         }
 
         Set<Entry<String, Serializable>> storedFields = fileCredentialStorage.getStoredFields().entrySet();

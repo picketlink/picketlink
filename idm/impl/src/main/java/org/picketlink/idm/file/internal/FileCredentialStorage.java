@@ -31,12 +31,15 @@ import org.picketlink.idm.credential.spi.CredentialStorage;
  */
 public class FileCredentialStorage implements CredentialStorage, Serializable {
 
+    private static final String EXPIRY_DATE_ATTRIBUTE_NAME = "expiryDate";
+    private static final String EFFECTIVE_DATE_ATTRIBUTE_NAME = "effectiveDate";
+
     private static final long serialVersionUID = -349640861496483678L;
 
     private Map<String, Serializable> storedFields = new HashMap<String, Serializable>();
 
     public Map<String, Serializable> getStoredFields() {
-        return storedFields;
+        return this.storedFields;
     }
 
     public void setStoredFields(Map<String, Serializable> storedFields) {
@@ -45,23 +48,19 @@ public class FileCredentialStorage implements CredentialStorage, Serializable {
 
     @Override
     public Date getEffectiveDate() {
-        Date effectiveDate = (Date) getStoredFields().get("effectiveDate");
-
-        return effectiveDate;
+        return (Date) getStoredFields().get(EFFECTIVE_DATE_ATTRIBUTE_NAME);
     }
 
     public void setEffectiveDate(Date effectiveDate) {
-        getStoredFields().put("effectiveDate", effectiveDate);
+        getStoredFields().put(EFFECTIVE_DATE_ATTRIBUTE_NAME, effectiveDate);
     }
 
     @Override
     public Date getExpiryDate() {
-        Date expiryDate = (Date) getStoredFields().get("expiryDate");
-
-        return expiryDate;
+        return (Date) getStoredFields().get(EXPIRY_DATE_ATTRIBUTE_NAME);
     }
     
     public void setExpiryDate(Date expiryDate) {
-        getStoredFields().put("expiryDate", expiryDate);
+        getStoredFields().put(EXPIRY_DATE_ATTRIBUTE_NAME, expiryDate);
     }
 }

@@ -32,6 +32,7 @@ import javax.persistence.Persistence;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet;
@@ -118,22 +119,40 @@ public class JPAIdentityStoreConfigurationTestCase extends
         try {
             identityManager.add(new Grant(user, role));
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().contains("[" + Grant.class.getName() + "]"));
+        } catch (IdentityManagementException ime) {
+            if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
+                SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
+                
+                assertTrue(sce.getMessage().contains(Grant.class.getName()));    
+            } else {
+                fail();
+            }
         }
 
         try {
             identityManager.add(new GroupRole(user, group, role));
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().contains("[" + GroupRole.class.getName() + "]"));
+        } catch (IdentityManagementException ime) {
+            if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
+                SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
+                
+                assertTrue(sce.getMessage().contains(GroupRole.class.getName()));    
+            } else {
+                fail();
+            }
         }
 
         try {
             identityManager.add(new GroupMembership(user, group));
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().contains("[" + GroupMembership.class.getName() + "]"));
+        } catch (IdentityManagementException ime) {
+            if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
+                SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
+                
+                assertTrue(sce.getMessage().contains(GroupMembership.class.getName()));    
+            } else {
+                fail();
+            }
         }
 
         try {
@@ -145,8 +164,16 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
             identityManager.add(customRelationship);
             fail();
-        } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().contains("[" + CustomRelationship.class.getName() + "]"));
+        } catch (IdentityManagementException ime) {
+            if (SecurityConfigurationException.class.isInstance(ime.getCause())) {
+                SecurityConfigurationException sce = (SecurityConfigurationException) ime.getCause();
+                
+                assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));    
+            } else {
+                fail();
+            }
+        } catch (Exception e) {
+            fail();
         }
     }
 

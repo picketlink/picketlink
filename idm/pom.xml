@@ -9,13 +9,23 @@
       	<relativePath>../pom.xml</relativePath>
     </parent>
 
-    <groupId>org.picketlink</groupId>
     <artifactId>picketlink-idm-parent</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>PicketLink IDM Parent</name>
-
+	
+	<properties>
+		<jboss.logging.processor.version>1.0.0.Final</jboss.logging.processor.version>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging-processor</artifactId>
+            <version>${jboss.logging.processor.version}</version>
+        </dependency>
+	</dependencies>
+	
     <modules>
         <module>api</module>
         <module>impl</module>

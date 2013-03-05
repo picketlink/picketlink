@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +31,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.GroupCreatedEvent;
 import org.picketlink.idm.event.GroupDeletedEvent;
@@ -238,8 +239,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                                                 .get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), "-1"));
                     }
                 } else {
-                    throw new IdentityManagementException(
-                            "Unsupported value type for Group.HAS_MEMBER query parameter. You should provide a Agent or Group instance.");
+                    throw MESSAGES.queryUnsupportedParameterValue("Group.HAS_MEMBER", object);
                 }
             }
         }

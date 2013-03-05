@@ -18,7 +18,8 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.io.EOFException;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
@@ -67,7 +68,7 @@ public abstract class AbstractFileEntry<T> implements Serializable {
             
             doWriteObject(s);
         } catch (Exception e) {
-            throw new IdentityManagementException("Error marshalling file entry.", e);
+            throw MESSAGES.marshallingError(e);
         }
     }
 
@@ -85,9 +86,8 @@ public abstract class AbstractFileEntry<T> implements Serializable {
             this.properties = (Map<String, Serializable>) s.readObject();
             doReadObject(s);
             this.loadedObject = doPopulateEntry(this.properties);
-        } catch (EOFException eof) {
         } catch (Exception e) {
-            throw new IdentityManagementException("Error unmarshalling file entry.", e);
+            throw MESSAGES.unmarshallingError(e);
         }
     }
 

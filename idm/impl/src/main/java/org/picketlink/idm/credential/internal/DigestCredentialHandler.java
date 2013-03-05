@@ -18,17 +18,24 @@
 
 package org.picketlink.idm.credential.internal;
 
+import static org.picketlink.common.util.StringUtil.isNullOrEmpty;
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.credential.internal.CredentialUtils.isCurrentCredential;
+import static org.picketlink.idm.credential.internal.CredentialUtils.isLastCredentialExpired;
+import static org.picketlink.idm.credential.internal.DigestUtil.calculateA2;
+import static org.picketlink.idm.credential.internal.DigestUtil.calculateDigest;
+
 import java.util.Date;
 import java.util.List;
 
-import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.common.util.Base64;
+import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.DigestCredentials;
-import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
-import org.picketlink.common.util.Base64;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
@@ -55,8 +62,7 @@ public class DigestCredentialHandler implements CredentialHandler {
         CredentialStore credentialStore = validateCredentialStore(identityStore);
 
         if (!DigestCredentials.class.isInstance(credentials)) {
-            throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
-                    + "] not supported by this handler.");
+            throw MESSAGES.credentialUnsupportedType(credentials.getClass(), this);
         }
 
         DigestCredentials digestCredential = (DigestCredentials) credentials;
@@ -71,7 +77,7 @@ public class DigestCredentialHandler implements CredentialHandler {
             DigestCredentialStorage currentCredential = null;
 
             for (DigestCredentialStorage storage : storages) {
-                if (storage.getRealm().equals(digest.getRealm()) && CredentialUtils.isCurrentCredential(storage)) {
+                if (storage.getRealm().equals(digest.getRealm()) && isCurrentCredential(storage)) {
                     currentCredential = storage;
                     break;
                 }
@@ -80,9 +86,9 @@ public class DigestCredentialHandler implements CredentialHandler {
             if (currentCredential != null) {
                 if (digest.getMethod() != null && digest.getUri() != null) {
                     byte[] storedHA1 = currentCredential.getHa1();
-                    byte[] ha2 = DigestUtil.calculateA2(digest.getMethod(), digest.getUri());
+                    byte[] ha2 = calculateA2(digest.getMethod(), digest.getUri());
 
-                    String calculateDigest = DigestUtil.calculateDigest(digest, storedHA1, ha2);
+                    String calculateDigest = calculateDigest(digest, storedHA1, ha2);
 
                     if (calculateDigest.equals(digest.getDigest())) {
                         digestCredential.setStatus(Status.VALID);
@@ -95,7 +101,7 @@ public class DigestCredentialHandler implements CredentialHandler {
                         digestCredential.setStatus(Status.VALID);
                     }
                 }
-            } else if (CredentialUtils.isLastCredentialExpired(agent, credentialStore, DigestCredentialStorage.class)) {
+            } else if (isLastCredentialExpired(agent, credentialStore, DigestCredentialStorage.class)) {
                 digestCredential.setStatus(Status.EXPIRED);
             }
             
@@ -110,18 +116,17 @@ public class DigestCredentialHandler implements CredentialHandler {
         CredentialStore credentialStore = validateCredentialStore(identityStore);
 
         if (!Digest.class.isInstance(credential)) {
-            throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
-                    + "] not supported by this handler.");
+            throw MESSAGES.credentialUnsupportedType(credential.getClass(), this);
         }
 
         Digest digestCredential = (Digest) credential;
 
-        if (digestCredential.getRealm() == null || "".equals(digestCredential.getRealm().trim())) {
-            throw new IdentityManagementException("You must specify a Realm when updating a Digest credential.");
+        if (isNullOrEmpty(digestCredential.getRealm())) {
+            throw MESSAGES.credentialDigestInvalidRealm();
         }
 
-        if (digestCredential.getPassword() == null || "".equals(digestCredential.getPassword().trim())) {
-            throw new IdentityManagementException("You must specify a password when updating a Digest credential.");
+        if (StringUtil.isNullOrEmpty(digestCredential.getPassword())) {
+            throw MESSAGES.credentialInvalidPassword();
         }
 
         byte[] ha1 = DigestUtil.calculateA1(agent.getLoginName(), digestCredential.getRealm(), digestCredential.getPassword()
@@ -137,8 +142,7 @@ public class DigestCredentialHandler implements CredentialHandler {
 
     private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {
         if (!CredentialStore.class.isInstance(identityStore)) {
-            throw new IdentityManagementException("Provided IdentityStore [" + identityStore.getClass().getName()
-                    + "] is not an instance of CredentialStore.");
+            throw MESSAGES.credentialInvalidCredentialStoreType(identityStore.getClass());
         } else {
             return (CredentialStore) identityStore;
         }

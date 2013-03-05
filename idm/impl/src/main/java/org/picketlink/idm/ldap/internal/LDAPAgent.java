@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.ldap.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.UID;
 
@@ -56,7 +57,7 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
         this(agentDNSuffix);
         
         if (loginName == null) {
-            throw new IllegalArgumentException("You must provide a name.");
+            throw MESSAGES.nullArgument("Login name.");
         }
         
         setLoginName(loginName);

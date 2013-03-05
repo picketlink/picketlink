@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.COMMA;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.EQUAL;
@@ -39,7 +40,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
@@ -122,7 +122,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 Group newGroup = (Group) attributedType;
                 addGroup(newGroup);
             } else {
-                throw createUnsupportedIdentityTypeException(identityType.getClass());
+                throw MESSAGES.identityTypeUnsupportedType(identityType.getClass());
             }
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
@@ -137,10 +137,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 GroupMembership groupMembership = (GroupMembership) relationship;
                 addGroupMembership(groupMembership);
             } else {
-                throw createUnsupportedRelationshipType(relationship.getClass());
+                throw MESSAGES.storeConfigUnsupportedRelationshipType(relationship.getClass());
             }
         } else {
-            throw createUnsupportedAttributedType(attributedType.getClass());
+            throw MESSAGES.attributedTypeUnsupportedType(attributedType.getClass());
         }
     }
 
@@ -164,12 +164,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 Group updatedGroup = (Group) identityType;
                 updateGroup(updatedGroup);
             } else {
-                throw createUnsupportedIdentityTypeException(identityType.getClass());
+                throw MESSAGES.identityTypeUnsupportedType(identityType.getClass());
             }
 
             cacheIdentityType(identityType);
         } else {
-            throw createUnsupportedAttributedType(attributedType.getClass());
+            throw MESSAGES.attributedTypeUnsupportedType(attributedType.getClass());
         }
     }
 
@@ -191,16 +191,17 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
             }
 
-            RelationshipQuery<Relationship> query = getContext().getIdentityManager().createRelationshipQuery(Relationship.class);
-            
+            RelationshipQuery<Relationship> query = getContext().getIdentityManager().createRelationshipQuery(
+                    Relationship.class);
+
             query.setParameter(Relationship.IDENTITY, identityType);
-            
+
             List<Relationship> relationships = query.getResultList();
-            
+
             for (Relationship relationship : relationships) {
                 remove(relationship);
             }
-            
+
             getLDAPManager().removeEntryById(baseDN, identityType.getId());
 
             invalidateCache(identityType);
@@ -218,7 +219,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
                 removeGroupMembership(groupMembership);
             } else {
-                throw createUnsupportedRelationshipType(relationship.getClass());
+                throw MESSAGES.storeConfigUnsupportedRelationshipType(relationship.getClass());
             }
         }
     }
@@ -393,9 +394,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
                     ldapGroup.setLDAPAttributes(sr.getAttributes());
 
-                    ldapEntry = (T) getGroupById(sr.getAttributes().get(LDAPConstants.ENTRY_UUID).get().toString());
+                    ldapEntry = (T) getGroupById(ldapGroup.getId());
                 } else {
-                    throw new IdentityManagementException("Unknown Base DN. IdentityType could not be identified.");
+                    throw MESSAGES.ldapStoreUnknownBaseDNForIdentityType(nameInNamespace);
                 }
 
                 if (identityQuery.getParameters().containsKey(IdentityType.ENABLED)) {
@@ -493,8 +494,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     results.add(ldapEntry);
                 }
             }
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error during query execution.", e);
+        } catch (NamingException nme) {
+            throw MESSAGES.ldapStoreSearchFailed(nme);
         } finally {
             if (answer != null) {
                 try {
@@ -509,7 +510,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public <T extends IdentityType> int countQueryResults(IdentityQuery<T> identityQuery) {
-        throw new RuntimeException("Not implemented yet.");
+        throw MESSAGES.notImplentedYet();
     }
 
     @SuppressWarnings("unchecked")
@@ -524,21 +525,22 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             Object identityParameterValue = identityQueryParameterValue[0];
 
             IdentityType ldapEntry = null;
-            
+
             if (IdentityType.class.isInstance(identityParameterValue)) {
                 ldapEntry = lookupEntryById((IdentityType) identityParameterValue);
             } else if (String.class.isInstance(identityParameterValue)) {
-                IdentityQuery<IdentityType> identityQuery = getContext().getIdentityManager().createIdentityQuery(IdentityType.class);
-                
+                IdentityQuery<IdentityType> identityQuery = getContext().getIdentityManager().createIdentityQuery(
+                        IdentityType.class);
+
                 identityQuery.setParameter(IdentityType.ID, identityParameterValue.toString());
-                
+
                 List<IdentityType> result = identityQuery.getResultList();
-                
+
                 if (!result.isEmpty()) {
-                    ldapEntry = result.get(0);                    
+                    ldapEntry = result.get(0);
                 }
             }
-            
+
             if (ldapEntry == null) {
                 return results;
             }
@@ -601,7 +603,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
             } else if (Group.class.isInstance(ldapEntry)) {
                 Group group = (Group) ldapEntry;
-                RelationshipQuery<GroupMembership> groupMembershipQuery = getContext().getIdentityManager().createRelationshipQuery(GroupMembership.class);
+                RelationshipQuery<GroupMembership> groupMembershipQuery = getContext().getIdentityManager()
+                        .createRelationshipQuery(GroupMembership.class);
 
                 groupMembershipQuery.setParameter(GroupMembership.GROUP, group);
 
@@ -623,7 +626,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
             }
         } else {
-
             if (Grant.class.equals(relationshipType)) {
                 IdentityType identityType = null;
 
@@ -666,8 +668,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                             String entryCN = searchResult.getAttributes().get(CN).get().toString();
                             results.add((T) new Grant(identityType, getRole(entryCN)));
                         }
-                    } catch (Exception e) {
-                        throw new IdentityManagementException(e);
+                    } catch (NamingException nme) {
+                        throw MESSAGES.ldapStoreSearchFailed(nme);
                     } finally {
                         if (search != null) {
                             try {
@@ -705,7 +707,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                             }
                         }
                     } catch (NamingException e) {
-                        throw new IdentityManagementException(e);
+                        throw MESSAGES.ldapStoreSearchFailed(e);
                     } finally {
                         if (members != null) {
                             try {
@@ -781,7 +783,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                             if (!getConfig().isGroupNamespace(nameInNamespace)) {
                                 continue;
                             }
-                            
+
                             String baseDN = nameInNamespace.substring(nameInNamespace.indexOf(LDAPConstants.COMMA) + 1);
                             LDAPGroup ldapGroup = new LDAPGroup(baseDN);
 
@@ -793,8 +795,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
                             results.add((T) new GroupMembership(agent, simpleGroup));
                         }
-                    } catch (Exception e) {
-                        throw new IdentityManagementException(e);
+                    } catch (NamingException e) {
+                        throw MESSAGES.ldapStoreSearchFailed(e);
                     } finally {
                         if (search != null) {
                             try {
@@ -832,7 +834,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                             }
                         }
                     } catch (NamingException e) {
-                        throw new IdentityManagementException(e);
+                        throw MESSAGES.ldapStoreSearchFailed(e);
                     } finally {
                         if (members != null) {
                             try {
@@ -910,8 +912,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                                     }
                                 }
                             }
-                        } catch (Exception e) {
-                            throw new IdentityManagementException(e);
+                        } catch (NamingException e) {
+                            throw MESSAGES.ldapStoreSearchFailed(e);
                         } finally {
                             try {
                                 search.close();
@@ -948,8 +950,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                                     results.add((T) new GroupRole(associatedAgent, associatedGroup, associatedRole));
                                 }
                             }
-                        } catch (Exception e) {
-                            throw new IdentityManagementException(e);
+                        } catch (NamingException e) {
+                            throw MESSAGES.ldapStoreSearchFailed(e);
                         } finally {
                             try {
                                 search.close();
@@ -996,8 +998,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                                 }
                             }
                         }
-                    } catch (Exception e) {
-                        throw new IdentityManagementException(e);
+                    } catch (NamingException e) {
+                        throw MESSAGES.ldapStoreSearchFailed(e);
                     } finally {
                         try {
                             search.close();
@@ -1024,8 +1026,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     return true;
                 }
             }
-        } catch (Exception e) {
-            throw new IdentityManagementException(e);
+        } catch (NamingException e) {
+            throw MESSAGES.ldapStoreSearchFailed(e);
         } finally {
             try {
                 groupRoleAttributes.close();
@@ -1038,26 +1040,22 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public <T extends Relationship> int countQueryResults(RelationshipQuery<T> query) {
-        // TODO Auto-generated method stub
-        return 0;
+        throw MESSAGES.notImplentedYet();
     }
 
     @Override
     public void setAttribute(IdentityType identityType, Attribute<? extends Serializable> attribute) {
-        // TODO Auto-generated method stub
-
+        throw MESSAGES.notImplentedYet();
     }
 
     @Override
     public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
-        // TODO Auto-generated method stub
-        return null;
+        throw MESSAGES.notImplentedYet();
     }
 
     @Override
     public void removeAttribute(IdentityType identityType, String attributeName) {
-        // TODO Auto-generated method stub
-
+        throw MESSAGES.notImplentedYet();
     }
 
     @Override
@@ -1065,9 +1063,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this);
 
         if (handler == null) {
-            throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for validating Credentials of type [" + credentials.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
+            throw MESSAGES.credentialHandlerNotFoundForCredentialType(credentials.getClass());
         }
 
         handler.validate(credentials, this);
@@ -1078,9 +1074,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this);
 
         if (handler == null) {
-            throw new SecurityConfigurationException(
-                    "No suitable CredentialHandler available for updating Credentials of type [" + credential.getClass()
-                            + "] for IdentityStore [" + this.getClass() + "]");
+            throw MESSAGES.credentialHandlerNotFoundForCredentialType(credential.getClass());
         }
 
         handler.update(agent, credential, this, effectiveDate, expiryDate);
@@ -1093,24 +1087,20 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         getLDAPManager().createSubContext(ldapIdentityType.getDN(), ldapIdentityType.getLDAPAttributes());
         getLDAPManager().rebind(getCustomAttributesDN(ldapIdentityType.getDN()), ldapIdentityType.getCustomAttributes());
 
-        NamingEnumeration<SearchResult> search = getLDAPManager().search(ldapIdentityType.getDnSuffix(), "(&(objectClass=*)(" + ldapIdentityType.getBidingName() + "))");
-        
+        NamingEnumeration<SearchResult> search = getLDAPManager().search(ldapIdentityType.getDnSuffix(),
+                "(&(objectClass=*)(" + ldapIdentityType.getBidingName() + "))");
+
         try {
-            if (search.hasMore()) {
-                ldapIdentityType.setLDAPAttributes(search.next().getAttributes());            
-            } else {
-                throw new IdentityManagementException("New entry not found.");
-            }
+            ldapIdentityType.setLDAPAttributes(search.next().getAttributes());
         } catch (NamingException ne) {
-            throw new IdentityManagementException("Could not fetch new entry attributes.", ne);
+            throw MESSAGES.ldapStoreSearchFailed(ne);
         } finally {
             try {
                 search.close();
             } catch (NamingException e) {
-                e.printStackTrace();
             }
         }
-        
+
         newIdentityType.setId(ldapIdentityType.getId());
     }
 
@@ -1197,10 +1187,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             }
 
             if (search.hasMore()) {
-                throw new IdentityManagementException("Ambiguous entry found with the given id [" + id + "]");
+                throw MESSAGES.identityTypeAmbiguosFoundWithId(id);
             }
         } catch (NamingException e) {
-            throw new IdentityManagementException("Error looking up entry.", e);
+            throw MESSAGES.ldapStoreSearchFailed(e);
         } catch (Exception e) {
             throw new IdentityManagementException("Error creating instance for type [" + type.getName() + "].", e);
         } finally {
@@ -1213,8 +1203,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         }
 
         if (identityType == null) {
-            throw new IdentityManagementException("No entry found for the given type [" + type.getName() + "] and id [" + id
-                    + "]");
+            throw MESSAGES.attributedTypeNotFoundWithId(type, id, getContext().getPartition());
         }
 
         return identityType;
@@ -1232,7 +1221,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 identityType = null;
             }
         } catch (NamingException e) {
-            throw new IdentityManagementException("Error looking up entry.", e);
+            throw MESSAGES.ldapStoreSearchFailed(e);
         } finally {
             if (search != null) {
                 try {
@@ -1325,7 +1314,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
             }
         } catch (NamingException e) {
-            throw new RuntimeException("Error looking parent group for [" + childGroup.getDN() + "]", e);
+            throw MESSAGES.ldapStoreSearchFailed(e);
         } finally {
             if (answer != null) {
                 try {
@@ -1470,8 +1459,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             if (!search.hasMore()) {
                 getLDAPManager().createSubContext(groupRoleEntry.getDN(), groupRoleEntry.getLDAPAttributes());
             }
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error creating GroupRole relationship.", e);
+        } catch (NamingException e) {
+            throw MESSAGES.ldapStoreCouldNotCreateGroupRoleEntry(e);
         } finally {
             if (search != null) {
                 try {
@@ -1540,18 +1529,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         return idAttribute;
     }
 
-    private IdentityManagementException createUnsupportedIdentityTypeException(Class<? extends IdentityType> identityTypeClass) {
-        return new IdentityManagementException("Unsupported IdentityType [" + identityTypeClass.getName() + "].");
-    }
-
-    private IdentityManagementException createUnsupportedAttributedType(Class<? extends AttributedType> type) {
-        return new IdentityManagementException("Unsupported AttributedType [" + type.getName() + "].");
-    }
-
-    private IdentityManagementException createUnsupportedRelationshipType(Class<? extends Relationship> type) {
-        return new IdentityManagementException("Unsupported Relationship type [" + type.getName() + "].");
-    }
-
     protected LDAPRole lookupRole(String name) {
         return populateIdentityTypeEntry(new LDAPRole(name, getConfig().getRoleDNSuffix()));
     }
@@ -1618,8 +1595,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
             }
 
-        } catch (Exception e) {
-            throw new IdentityManagementException("Error removing GroupRole relationship.", e);
+        } catch (NamingException e) {
+            throw MESSAGES.ldapStoreCouldNotRemoveGroupRoleEntry(e);
         }
     }
 

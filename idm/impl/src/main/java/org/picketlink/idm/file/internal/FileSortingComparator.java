@@ -39,7 +39,7 @@ public class FileSortingComparator<T extends IdentityType> implements Comparator
 
     private IdentityQuery<T> identityQuery;
 
-    public FileSortingComparator(IdentityQuery identityQuery) {
+    public FileSortingComparator(IdentityQuery<T> identityQuery) {
         this.identityQuery = identityQuery;
     }
 
