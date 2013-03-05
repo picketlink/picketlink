@@ -119,21 +119,21 @@ public class JPAIdentityStoreConfigurationTestCase extends
             identityManager.add(new Grant(user, role));
             fail();
         } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().contains("[" + Grant.class.getName() + "]"));
+            assertTrue(sce.getMessage().contains(Grant.class.getName()));
         }
 
         try {
             identityManager.add(new GroupRole(user, group, role));
             fail();
         } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().contains("[" + GroupRole.class.getName() + "]"));
+            assertTrue(sce.getMessage().contains(GroupRole.class.getName()));
         }
 
         try {
             identityManager.add(new GroupMembership(user, group));
             fail();
         } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().contains("[" + GroupMembership.class.getName() + "]"));
+            assertTrue(sce.getMessage().contains(GroupMembership.class.getName()));
         }
 
         try {
@@ -146,7 +146,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
             identityManager.add(customRelationship);
             fail();
         } catch (SecurityConfigurationException sce) {
-            assertTrue(sce.getMessage().contains("[" + CustomRelationship.class.getName() + "]"));
+            assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));
         }
     }
 

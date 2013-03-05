@@ -25,7 +25,6 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
@@ -68,14 +67,12 @@ public class FilePartitionStore implements PartitionStore {
 
     @Override
     public void removePartition(Partition partition) {
-        String id = partition.getId();
-
         if (getPartitions().containsKey(partition.getId())) {
             delete(new File(getDataSource().getWorkingDir() + File.separator + partition.getId()));
             getPartitions().remove(partition.getId());
             getDataSource().flushPartitions();
         } else {
-            throw new IdentityManagementException("No Partition found with the given id [" + id + "].");
+            throw MESSAGES.partitionNotFoundWithId(partition.getId());
         }
     }
 

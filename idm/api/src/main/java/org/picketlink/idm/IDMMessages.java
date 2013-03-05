@@ -26,6 +26,10 @@ import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
 import org.jboss.logging.Messages;
+import org.jboss.logging.Param;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.AttributedType;
@@ -67,22 +71,22 @@ public interface IDMMessages {
     @Message(id = 8, value = "Error marshalling object.")
     IdentityManagementException marshallingError(@Cause Throwable t);
 
-    @Message (id = 9, value="Unsupported partition type [%s].")
+    @Message(id = 9, value = "Unsupported partition type [%s].")
     IdentityManagementException unsupportedPartitionType(String typeName);
 
-    @Message (id = 10, value="Unsupported IdentityType [%s].")
+    @Message(id = 10, value = "Unsupported IdentityType [%s].")
     IdentityManagementException unsupportedIdentityType(Class<? extends IdentityType> type);
 
-    @Message (id = 11, value="Could not add AttributedType [%s].")
+    @Message(id = 11, value = "Could not add AttributedType [%s].")
     IdentityManagementException failToAddAttributedType(AttributedType attributedType, @Cause Throwable t);
 
-    @Message (id = 12, value="Unsupported AttributedType [%s].")
+    @Message(id = 12, value = "Unsupported AttributedType [%s].")
     IdentityManagementException unsupportedAttributedType(Class<? extends AttributedType> type);
 
-    @Message (id = 13, value="Could not find AttributedType with the given identifier [%s] for Partition [%s]")
+    @Message(id = 13, value = "Could not find AttributedType with the given identifier [%s] for Partition [%s]")
     IdentityManagementException attributedTypeNotFoundWithId(String id, Partition partition);
 
-    @Message (id = 14, value="Method not implemented, yet.")
+    @Message(id = 14, value = "Method not implemented, yet.")
     RuntimeException notImplentedYet();
 
     @Message(id = 15, value = "Error creating instance for Relationship type [%s].")
@@ -94,22 +98,59 @@ public interface IDMMessages {
     @Message(id = 17, value = "Null argument: [%s].")
     IdentityManagementException nullArgument(String description);
 
-    @Message (id = 18, value="No Group found with the given name [%s] for Partition [%s].")
+    @Message(id = 18, value = "No Group found with the given path [%s] for Partition [%s].")
     IdentityManagementException groupNotFoundWithPath(String path, Partition partition);
 
-    @Message (id = 19, value="Ambiguos relationship found [%s].")
+    @Message(id = 19, value = "Ambiguos relationship found [%s].")
     IdentityManagementException ambiguosRelationshipFound(Relationship relationship);
 
-    @Message (id = 20, value="Partition not found with id [%s].")
+    @Message(id = 20, value = "Partition not found with id [%s].")
     IdentityManagementException partitionNotFoundWithId(String id);
 
-    @Message (id = 21, value="Unsupported value for Query Parameter [%s]. Value: %s")
+    @Message(id = 21, value = "Unsupported value for Query Parameter [%s]. Value: %s.")
     IdentityManagementException unsupportedQueryParameterValue(String parameterName, Object parameterValue);
 
-    @Message (id = 22, value="No suitable CredentialHandler available for validating Credentials of type [%s].")
+    @Message(id = 22, value = "No suitable CredentialHandler available for validating Credentials of type [%s].")
     IdentityManagementException credentialHandlerNotFoundForCredentialType(Class<?> class1);
 
     @Message(id = 23, value = "Error creating instance for CredentialStorage [%s].")
     SecurityConfigurationException failInstantiateCredentialStorage(Class<? extends CredentialStorage> type, @Cause Throwable t);
 
+    @Message(id = 24, value = "Could not create contextual IdentityManager for Partition [%s]. Partition not found or it was null.")
+    IdentityManagementException couldNotCreateContextualIdentityManager(Class<? extends Partition> type);
+
+    @Message(id = 25, value = "IdentityType [%s] already exists with the given identifier [%s] for the given Partition [%s].")
+    IdentityManagementException identityTypeAlreadyExists(Class<? extends IdentityType> type, String identifier,
+            Partition partition);
+
+    @Message(id = 26, value = "No Parent Group found with the given id [%s] for Partition [%s].")
+    IdentityManagementException groupParentNotFoundWithId(String id, Partition partition);
+
+    @Message(id = 27, value = "Unsupported IdentityType. Group members are only Agent or Group instances. You provided [%s].")
+    IdentityManagementException unsupportedGroupMemberType(IdentityType identityType);
+
+    @Message(id = 28, value = "Unsupported type for the Grant assignee. Roles are granted for Agent and Group only. You provided [%s].")
+    IdentityManagementException unsupportedGrantAssigneeType(IdentityType identityType);
+
+    @Message(id = 29, value = "A Partition [%s] with name [%s] already exists.")
+    IdentityManagementException partitionAlreadyExistsWithName(Class<? extends Partition> type, String name);
+
+    @Message(id = 30, value = "Ambiguous IdentityType found with identifier [%s].")
+    IdentityManagementException ambiguosIdentityTypeFoundWithId(String id);
+
+    @Message(id = 31, value = "Partition [%s] not found with the given name [%s].")
+    IdentityManagementException partitionNotFoundWithName(Class<? extends Partition> type, String name);
+
+    @Message(id = 32, value = "Partition [%s] could not be removed. There are IdentityTypes associated with it. Remove them first.")
+    IdentityManagementException couldNotRemovePartitionWithIdentityTypes(Partition partition);
+
+    @Message(id = 33, value = "The specified realm [%s] has not been configured.")
+    SecurityConfigurationException realmNotConfigured(String realmName);
+
+    @Message(id = 34, value = "No identity store configuration found that supports the relationship type [%s].")
+    SecurityConfigurationException unsupportedRelationshipType(Class<? extends Relationship> type);
+
+    @Message(id = 35, value = "No identity store configuration found for requested operation [%s.%s].")
+    OperationNotSupportedException operationNotSupported(@Param FeatureGroup feature, @Param FeatureOperation operation,
+            FeatureGroup featureToDisplay, FeatureOperation operationToDisplay);
 }

@@ -123,7 +123,7 @@ public class LDAPIdentityStoreConfigurationTestCase extends
 
             fail();
         } catch (SecurityConfigurationException sce) {
-            Assert.assertTrue(sce.getMessage().contains("[" + CustomRelationship.class.getName() + "]"));
+            Assert.assertTrue(sce.getMessage().contains(CustomRelationship.class.getName()));
         } catch (Exception e) {
             Assert.fail();
         }
