@@ -773,7 +773,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
-            throw MESSAGES.attributedTypeNotFoundWithId(identityType.getId(), ctx.getPartition());
+            throw MESSAGES.attributedTypeNotFoundWithId(identityType.getClass(), identityType.getId(), ctx.getPartition());
         }
     }
 

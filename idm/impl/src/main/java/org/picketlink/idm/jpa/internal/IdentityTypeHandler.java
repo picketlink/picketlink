@@ -18,6 +18,8 @@
 
 package org.picketlink.idm.jpa.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,7 +34,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.jpa.annotations.PropertyType;
@@ -94,8 +95,10 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         identityType.setPartition(partition);
 
-        identityType.setExpirationDate(getConfig().getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_EXPIRY_DATE));
-        identityType.setCreatedDate(getConfig().getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_CREATION_DATE));
+        identityType.setExpirationDate(getConfig().getModelPropertyValue(Date.class, identity,
+                PropertyType.IDENTITY_EXPIRY_DATE));
+        identityType.setCreatedDate(getConfig()
+                .getModelPropertyValue(Date.class, identity, PropertyType.IDENTITY_CREATION_DATE));
 
         return identityType;
     }
@@ -112,18 +115,18 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         Object identity = null;
 
         try {
-            identity = getConfig().getIdentityClass().newInstance();
-            
-            String newGeneratedId = store.getContext().getIdGenerator().generate();
-            
-            setModelPropertyValue(identity, PropertyType.IDENTITY_ID, newGeneratedId, true);
-            
-            fromIdentityType.setId(newGeneratedId);
-            
-            populateEntity(identity, fromIdentityType, store);
+            identity = getConfig().getIdentityClass().newInstance();            
         } catch (Exception e) {
-            throw new IdentityManagementException("Error creating/populating Identity instance from IdentityType.", e);
+            throw MESSAGES.failInstantiateIdentityClass(getConfig().getIdentityClass(), e);
         }
+
+        String newGeneratedId = store.getContext().getIdGenerator().generate();
+
+        setModelPropertyValue(identity, PropertyType.IDENTITY_ID, newGeneratedId, true);
+
+        fromIdentityType.setId(newGeneratedId);
+
+        populateEntity(identity, fromIdentityType, store);
 
         return identity;
     }
@@ -193,7 +196,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     /**
      * Return list of {@link Order} instances to be used for sorting during the query execution.
-     *
+     * 
      * @param criteria criteria which encapsulate all the parameters and JPA builder
      * @return list of orders to be used during identity query execution
      */
@@ -222,13 +225,13 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                 orders.add(orderToAdd);
             } else {
-                throw new IdentityManagementException("Query parameter " + queryParam + " is not supported for sorting");
+                throw MESSAGES.notSortableQueryParameter(queryParam);
             }
         }
 
         return orders;
     }
-    
+
     /**
      * <p>
      * Subclasses should override this method to create a specific {@link IdentityType} given the provided Identity Class
@@ -257,22 +260,20 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     protected abstract AbstractBaseEvent raiseDeletedEvent(T fromIdentityType);
 
-
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void findByAttributes(JPACriteriaQueryBuilder criteria, List<Predicate> predicates) {
-        Map<QueryParameter, Object[]> parameters = criteria.getIdentityQuery().getParameters(IdentityType.AttributeParameter.class);
-        
+        Map<QueryParameter, Object[]> parameters = criteria.getIdentityQuery().getParameters(
+                IdentityType.AttributeParameter.class);
+
         Set<Entry<QueryParameter, Object[]>> entrySet = parameters.entrySet();
-        
+
         for (Entry<QueryParameter, Object[]> entry : entrySet) {
             AttributeParameter customParameter = (AttributeParameter) entry.getKey();
-            Object[] attributeValues = entry.getValue(); 
-                    
+            Object[] attributeValues = entry.getValue();
+
             Subquery<?> subquery = criteria.getCriteria().subquery(getConfig().getAttributeClass());
             Root fromProject = subquery.from(getConfig().getAttributeClass());
-            subquery.select(fromProject.get(getConfig().getModelProperty(
-                    PropertyType.ATTRIBUTE_IDENTITY).getName()));
+            subquery.select(fromProject.get(getConfig().getModelProperty(PropertyType.ATTRIBUTE_IDENTITY).getName()));
 
             Predicate conjunction = criteria.getBuilder().conjunction();
 
@@ -301,7 +302,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         if (parameterValues != null) {
             for (Object role : parameterValues) {
                 if (!Role.class.isInstance(role)) {
-                    throw new IdentityManagementException("Unsupported type for IdentityType.HAS_ROLE QueryParameter. You should specify a Role only.");
+                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.HAS_ROLE", role);
                 }
 
                 DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, store);
@@ -319,8 +320,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                     Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
                     Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(getConfig().getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY_ID).getName()));
+                    subquery.select(fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID)
+                            .getName()));
                     Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
 
@@ -354,10 +355,11 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         if (parameterValues != null) {
             for (Object group : parameterValues) {
                 if (!Group.class.isInstance(group)) {
-                    throw new IdentityManagementException("Unsupported type for IdentityType.MEMBER_OF QueryParameter. You should specify a Group only.");
+                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.MEMBER_OF", group);
                 }
-                
-                DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, store);
+
+                DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
+                        GroupMembership.class, store);
 
                 query.setParameter(GroupMembership.GROUP, group);
 
@@ -372,8 +374,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                     Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
                     Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(getConfig().getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY_ID).getName()));
+                    subquery.select(fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID)
+                            .getName()));
                     Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
 
@@ -407,7 +409,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         if (parameterValues != null) {
             for (Object object : parameterValues) {
                 if (!GroupRole.class.isInstance(object)) {
-                    throw new IdentityManagementException("Unsupported type for IdentityType.HAS_GROUP_ROLE QueryParameter. You should specify a GroupRole only.");
+                    throw MESSAGES.unsupportedQueryParameterValue("IdentityType.HAS_GROUP_ROLE", object);
                 }
 
                 GroupRole groupRole = (GroupRole) object;
@@ -429,8 +431,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                     Subquery<?> subquery = criteria.getCriteria().subquery(store.getConfig().getRelationshipIdentityClass());
                     Root fromProject = subquery.from(store.getConfig().getRelationshipIdentityClass());
-                    subquery.select(fromProject.get(getConfig().getModelProperty(
-                            PropertyType.RELATIONSHIP_IDENTITY_ID).getName()));
+                    subquery.select(fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID)
+                            .getName()));
                     Join<Object, Object> join = fromProject.join(getConfig().getModelProperty(
                             PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP).getName());
 
@@ -524,7 +526,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     private void findByEnabled(JPACriteriaQueryBuilder criteria, List<Predicate> predicates) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.ENABLED);
-        
+
         if (parameterValues != null) {
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_ENABLED).getName()),
@@ -543,16 +545,18 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
                     store.lookupPartitionObject(partition)));
         } else {
-            Join<Object, Object> joinPartition = criteria.getRoot().join(getConfig().getModelProperty(
-                    PropertyType.IDENTITY_PARTITION).getName());
-            
+            Join<Object, Object> joinPartition = criteria.getRoot().join(
+                    getConfig().getModelProperty(PropertyType.IDENTITY_PARTITION).getName());
+
             if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
                 List<String> partitionIds = store.getAllowedPartitionIds(store.getCurrentPartition());
-                
+
                 partitionIds.add(store.getCurrentRealm().getId());
-                
-                predicates.add(criteria.getBuilder().in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(partitionIds));
-            }            
+
+                predicates.add(criteria.getBuilder()
+                        .in(joinPartition.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName()))
+                        .value(partitionIds));
+            }
         }
     }
 
@@ -565,15 +569,15 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     parameterValues[0]));
         }
     }
-    
+
     protected JPAIdentityStoreConfiguration getConfig() {
         return this.config;
     }
-    
+
     protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value, boolean notNull) {
         getConfig().setModelPropertyValue(identity, propertyType, value, notNull);
     }
-    
+
     protected void setModelPropertyValue(Object identity, PropertyType propertyType, Object value) {
         getConfig().setModelPropertyValue(identity, propertyType, value);
     }

@@ -22,6 +22,8 @@
 
 package org.picketlink.idm;
 
+import java.lang.reflect.AnnotatedElement;
+
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageBundle;
@@ -36,6 +38,7 @@ import org.picketlink.idm.model.AttributedType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
 
 /**
@@ -83,14 +86,14 @@ public interface IDMMessages {
     @Message(id = 12, value = "Unsupported AttributedType [%s].")
     IdentityManagementException unsupportedAttributedType(Class<? extends AttributedType> type);
 
-    @Message(id = 13, value = "Could not find AttributedType with the given identifier [%s] for Partition [%s]")
-    IdentityManagementException attributedTypeNotFoundWithId(String id, Partition partition);
+    @Message(id = 13, value = "Could not find AttributedType [%s] with the given identifier [%s] for Partition [%s]")
+    IdentityManagementException attributedTypeNotFoundWithId(Class<? extends AttributedType> type, String id, Partition partition);
 
     @Message(id = 14, value = "Method not implemented, yet.")
     RuntimeException notImplentedYet();
 
     @Message(id = 15, value = "Error creating instance for Relationship type [%s].")
-    IdentityManagementException failInstantiateRelationshipType(Class<? extends Relationship> type, @Cause Throwable t);
+    IdentityManagementException failInstantiateRelationshipType(String type, @Cause Throwable t);
 
     @Message(id = 16, value = "Could not find class [%s].")
     IdentityManagementException couldNotFindClass(String type);
@@ -153,4 +156,59 @@ public interface IDMMessages {
     @Message(id = 35, value = "No identity store configuration found for requested operation [%s.%s].")
     OperationNotSupportedException operationNotSupported(@Param FeatureGroup feature, @Param FeatureOperation operation,
             FeatureGroup featureToDisplay, FeatureOperation operationToDisplay);
+
+    @Message(id = 36, value = "Exception while creating new IdentityStore instance [%s].")
+    SecurityConfigurationException failInstantiateIdentityStore(Class<? extends IdentityStore<?>> identityStoreClass, @Cause Throwable t);
+
+    @Message (id = 37, value="The IdentityStoreConfiguration specified is not supported by this IdentityStoreFactory implementation.")
+    SecurityConfigurationException unsupportedStoreConfiguration();
+
+    @Message (id = 38, value="Could not instantiate IdentityType class [%s].")
+    IdentityManagementException failInstantiateIdentityClass(Class<?> identityClass, @Cause Throwable t);
+
+    @Message (id = 39, value="QueryParameter [%s] is not supported for sorting.")
+    IdentityManagementException notSortableQueryParameter(QueryParameter queryParam);
+
+    @Message (id = 40, value="Could not instantiate Partition class [%s].")
+    IdentityManagementException failInstantiatePartitionClass(Class<?> partitionClass, @Cause Throwable t);
+
+    @Message (id = 41, value="Partition [%s] could not be removed. There are child partitions associated with it. Remove them first.")
+    IdentityManagementException couldNotRemovePartitionWithChilds(Partition partition);
+
+    @Message (id = 42, value="Could not instantiate Attribute class [%s].")
+    IdentityManagementException failInstantiateAttributeClass(Class<?> attributeClass, @Cause Throwable t);
+    
+    @Message (id = 43, value="Could not instantiate Credential class [%s].")
+    IdentityManagementException failInstantiateCredentialClass(Class<?> credentialClass, @Cause Throwable t);
+
+    @Message (id = 44, value="Could not instantiate Credential Attribute class [%s].")
+    IdentityManagementException failInstantiateCredentialAttributeClass(Class<?> attributeClass, @Cause Throwable t);
+
+    @Message (id = 45, value="Error while trying to determine EntityManager - context parameter not set.")
+    IdentityManagementException couldNotGetEntityManagerFromStoreContext();
+
+    @Message (id = 46, value="Could not instantiate Relationship Attribute class [%s].")
+    IdentityManagementException failInstantiateRelationshipAttributeClass(Class<?> attributeClass, @Cause Throwable t);
+
+    @Message (id = 47, value="Could not instantiate Relationship class [%s].")
+    IdentityManagementException failInstantiateRelationshipClass(Class<?> relationshipClass, @Cause Throwable t);
+    
+    @Message (id = 48, value="Could not instantiate Relationship Identity class [%s].")
+    IdentityManagementException failInstantiateRelationshipIdentityClass(Class<?> relationshipIdentityClass, @Cause Throwable t);
+
+    @Message (id = 49, value="Ambiguous property [%s] property in class [%s]")
+    SecurityConfigurationException ambiguosPropertyForClass(String name, Class<?> targetClass);
+
+    @Message (id = 50, value="Model property [%s] has not been configured.")
+    IdentityManagementException jpaConfigModelPropertyNotConfigured(String name);
+
+    @Message (id = 51, value="Error initializing JpaIdentityStore - identityClass not set.")
+    SecurityConfigurationException jpaConfigIdentityClassNotProvided();
+
+    @Message (id = 52, value="Error initializing JpaIdentityStore - partitionClass not set.")
+    SecurityConfigurationException jpaConfigPartitionClassNotProvided();
+
+    @Message (id = 53, value="Multiple properties defined for attribute [%s] - Property: %s.%s, Property: %s.%s")
+    SecurityConfigurationException jpaConfigMultiplePropertiesForAttribute(String attribName, Class<?> property, AnnotatedElement annotatedElement, Class<?> anotherProperty, AnnotatedElement anotherAnnotatedElement);
+    
 }

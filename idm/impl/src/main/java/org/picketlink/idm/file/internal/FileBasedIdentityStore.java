@@ -585,7 +585,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         try {
             clonedRelationship = (T) relationshipType.newInstance();
         } catch (Exception e) {
-            throw MESSAGES.failInstantiateRelationshipType(relationshipType, e);
+            throw MESSAGES.failInstantiateRelationshipType(relationshipType.getName(), e);
         }
 
         Relationship storedRelationship = fileRelationship.getEntry();
@@ -735,7 +735,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         try {
             newRelationship = relationship.getClass().newInstance();
         } catch (Exception e) {
-            MESSAGES.failInstantiateRelationshipType(relationship.getClass(), e);
+            MESSAGES.failInstantiateRelationshipType(relationship.getClass().getName(), e);
         }
 
         newRelationship.setId(relationship.getId());
@@ -1363,7 +1363,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         List<IdentityType> results = query.getResultList();
 
         if (results.isEmpty()) {
-            throw MESSAGES.attributedTypeNotFoundWithId(identityTypeId, getContext().getPartition());
+            throw MESSAGES.attributedTypeNotFoundWithId(IdentityType.class, identityTypeId, getContext().getPartition());
         }
 
         return results.get(0);
