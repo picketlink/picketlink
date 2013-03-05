@@ -17,6 +17,8 @@
  */
 package org.picketlink.idm.ldap.internal;
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -61,19 +63,19 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     public void initConfig() throws SecurityConfigurationException {
 
         if (getUserDNSuffix() == null) {
-            throw new SecurityConfigurationException("User baseDN not provided.");
+            throw MESSAGES.ldapConfigUserDNNotProvided();
         }
 
         if (getRoleDNSuffix() == null) {
-            throw new SecurityConfigurationException("Role baseDN not provided.");
+            throw MESSAGES.ldapConfigRoleDNNotProvided();
         }
 
         if (getGroupDNSuffix() == null) {
-            throw new SecurityConfigurationException("Group baseDN not provided.");
+            throw MESSAGES.ldapConfigGroupDNNotProvided();
         }
 
         if (getAgentDNSuffix() == null) {
-            throw new SecurityConfigurationException("Agent baseDN not provided.");
+            setAgentDNSuffix(getUserDNSuffix());
         }
 
         try {

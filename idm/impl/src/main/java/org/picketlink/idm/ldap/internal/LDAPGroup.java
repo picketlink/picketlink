@@ -18,6 +18,7 @@
 package org.picketlink.idm.ldap.internal;
 
 
+import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.CN;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.MEMBER;
 import static org.picketlink.idm.ldap.internal.LDAPConstants.OBJECT_CLASS;
@@ -56,7 +57,7 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
         this(groupDNSuffix);
         
         if (name == null) {
-            throw new IllegalArgumentException("You must provide a name.");
+            throw MESSAGES.nullArgument("Name");
         }
         
         setName(name);

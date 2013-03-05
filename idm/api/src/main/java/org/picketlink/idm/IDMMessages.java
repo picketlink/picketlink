@@ -22,7 +22,10 @@
 
 package org.picketlink.idm;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.AnnotatedElement;
+
+import javax.naming.NamingException;
 
 import org.jboss.logging.Cause;
 import org.jboss.logging.Message;
@@ -210,5 +213,32 @@ public interface IDMMessages {
 
     @Message (id = 53, value="Multiple properties defined for attribute [%s] - Property: %s.%s, Property: %s.%s")
     SecurityConfigurationException jpaConfigMultiplePropertiesForAttribute(String attribName, Class<?> property, AnnotatedElement annotatedElement, Class<?> anotherProperty, AnnotatedElement anotherAnnotatedElement);
-    
+
+    @Message (id = 54, value="Could not retrieve LDAP attribute [%s]")
+    IdentityManagementException ldapStoreFailToRetrieveAttribute(String entryUuid, @Cause Throwable t);
+
+    @Message (id = 55, value="Unknown Base DN [%s] for IdentityType.")
+    IdentityManagementException ldapStoreUnknownBaseDNForIdentityType(String nameInNamespace);
+
+    @Message (id = 56, value="Could not execute search on server.")
+    IdentityManagementException ldapStoreSearchFailed(@Cause NamingException nme);
+
+    @Message (id = 57, value="Could not create GroupRole entry.")
+    IdentityManagementException ldapStoreCouldNotCreateGroupRoleEntry(@Cause NamingException e);
+
+    @Message (id = 58, value="Could not remove GroupRole entry.")
+    IdentityManagementException ldapStoreCouldNotRemoveGroupRoleEntry(@Cause NamingException e);
+
+    @Message (id = 59, value="User baseDN not provided.")
+    SecurityConfigurationException ldapConfigUserDNNotProvided();
+
+    @Message (id = 60, value="Role baseDN not provided.")
+    SecurityConfigurationException ldapConfigRoleDNNotProvided();
+
+    @Message (id = 61, value="Group baseDN not provided.")
+    SecurityConfigurationException ldapConfigGroupDNNotProvided();
+
+    @Message (id = 62, value="Could not encode password.")
+    IdentityManagementException credentialCouldNotEncodePassword(@Cause UnsupportedEncodingException e);
+
 }

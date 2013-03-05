@@ -32,7 +32,7 @@ import org.picketlink.idm.model.Role;
  * @author anil saldhana
  * @since Sep 7, 2012
  */
-public class LDAPGroupRole extends LDAPIdentityType /*implements GroupRole*/ {
+public class LDAPGroupRole extends LDAPIdentityType {
 
     private static final long serialVersionUID = 1L;
     
@@ -68,17 +68,14 @@ public class LDAPGroupRole extends LDAPIdentityType /*implements GroupRole*/ {
         return "cn=" + this.group.getName() + LDAPConstants.COMMA + this.agent.getDN(); 
     }
     
-    //@Override
     public IdentityType getMember() {
         return this.agent;
     }
 
-    //@Override
     public Group getGroup() {
         return this.group;
     }
 
-    //@Override
     public Role getRole() {
         return this.role;
     }
