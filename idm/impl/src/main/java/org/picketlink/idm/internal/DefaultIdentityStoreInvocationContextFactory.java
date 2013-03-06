@@ -32,7 +32,6 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
-import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * A default implementation of IdentityStoreInvocationContextFactory.

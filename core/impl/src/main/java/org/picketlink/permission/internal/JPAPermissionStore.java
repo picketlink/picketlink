@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.picketlink.annotations.PicketLink;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.permission.Permission;
@@ -46,7 +47,7 @@ import org.picketlink.permission.spi.PermissionStore;
 @ApplicationScoped
 public class JPAPermissionStore implements PermissionStore
 {   
-    @Inject 
+    @Inject @PicketLink
     private Instance<EntityManager> entityManagerInstance;
     
     @Inject
