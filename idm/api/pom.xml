@@ -15,10 +15,6 @@
 
 	<name>PicketLink Identity Management API</name>
 
-	<properties>
-		<jboss.logging.processor.version>1.0.0.Final</jboss.logging.processor.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>

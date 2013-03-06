@@ -14,15 +14,10 @@
 
     <name>PicketLink IDM Parent</name>
 	
-	<properties>
-		<jboss.logging.processor.version>1.0.0.Final</jboss.logging.processor.version>
-	</properties>
-	
 	<dependencies>
 		<dependency>
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging-processor</artifactId>
-            <version>${jboss.logging.processor.version}</version>
         </dependency>
 	</dependencies>
 	
