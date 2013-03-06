@@ -80,5 +80,9 @@ public abstract class AbstractPartition implements Partition {
         result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
     }
-
+    
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

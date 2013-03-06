@@ -142,7 +142,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      */
     protected void populateEntity(Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
         // populate the common properties from IdentityType
-        String identityDiscriminator = getConfig().getIdentityDiscriminator(fromIdentityType.getClass());
+        String identityDiscriminator = getConfig().getIdentityTypeDiscriminator(fromIdentityType.getClass());
 
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_DISCRIMINATOR, identityDiscriminator, true);
         setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ENABLED, fromIdentityType.isEnabled(), true);

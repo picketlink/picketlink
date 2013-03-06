@@ -2,6 +2,7 @@ package org.picketlink.idm.config;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -213,6 +214,14 @@ public class FeatureSet {
     public void setSupportsMultiRealm(boolean value) {
         checkIfFeatureSetIsLocked();
         this.supportsMultiRealm = value;
+    }
+    
+    public Map<FeatureGroup, Set<FeatureOperation>> getSupportedFeatures() {
+        return Collections.unmodifiableMap(this.supportedFeatures);
+    }
+    
+    public Map<Class<? extends Relationship>, Set<FeatureOperation>> getSupportedRelationships() {
+        return Collections.unmodifiableMap(this.supportedRelationships);
     }
 
     protected void lock() {
