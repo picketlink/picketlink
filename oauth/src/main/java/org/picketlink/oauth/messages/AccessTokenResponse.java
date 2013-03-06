@@ -31,6 +31,7 @@ import org.picketlink.oauth.common.OAuthConstants;
  * @since Mar 5, 2013
  */
 public class AccessTokenResponse extends OAuthResponse {
+    private static final long serialVersionUID = -9064571507653000060L;
 
     public enum TokenType {
         BEARER, MAC
@@ -96,7 +97,24 @@ public class AccessTokenResponse extends OAuthResponse {
     }
 
     public String asQueryParams() {
-        return null;
+        String AMP = "&";
+        String EQ = "=";
+        StringBuilder builder = new StringBuilder();
+
+        // private String responseType, clientId, redirectURI, scope, state, location;
+        if (accessToken != null) {
+            builder.append(OAuthConstants.ACCESS_TOKEN).append(EQ).append(encode(accessToken)).append(AMP);
+        }
+        if (tokenType != null) {
+            builder.append(OAuthConstants.TOKEN_TYPE).append(EQ).append(encode(tokenType.name())).append(AMP);
+        }
+        builder.append(OAuthConstants.EXPIRES_IN).append(EQ).append(encode(expires + "")).append(AMP);
+
+        if (refreshToken != null) {
+            builder.append(OAuthConstants.CODE).append(EQ).append(encode(refreshToken)).append(AMP);
+        }
+
+        return builder.toString();
     }
 
     @Override
@@ -112,7 +130,8 @@ public class AccessTokenResponse extends OAuthResponse {
             map.put(OAuthConstants.REFRESH_TOKEN, refreshToken);
         }
         // TODO: parameters
-        ObjectMapper mapper = new ObjectMapper();
+
+        ObjectMapper mapper = getObjectMapper();
         try {
             mapper.writeValue(sw, map);
         } catch (Exception e) {

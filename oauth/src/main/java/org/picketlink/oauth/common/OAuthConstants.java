@@ -47,6 +47,14 @@ public interface OAuthConstants {
         String JSON = "application/json";
     }
 
+    // Registration
+    String CLIENT_NAME = "client_name";
+    String CLIENT_DESCRIPTION = "client_description";
+    String CLIENT_ICON = "client_icon";
+    String CLIENT_URL = "client_url";
+    String CLIENT_REDIRECT_URL = "client_redirecturl";
+
+    String AUTHORIZATION_CODE = "authorization_code";
     String RESPONSE_TYPE = "response_type";
     String CLIENT_ID = "client_id";
     String CLIENT_SECRET = "client_secret";

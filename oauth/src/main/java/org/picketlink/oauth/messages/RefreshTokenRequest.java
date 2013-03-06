@@ -23,7 +23,8 @@ package org.picketlink.oauth.messages;
  * @author anil saldhana
  * @since Mar 5, 2013
  */
-public class RefreshTokenRequest {
+public class RefreshTokenRequest extends OAuthRequest {
+    private static final long serialVersionUID = 8487545851197134924L;
     private String grantType;
     private String refreshToken;
 
@@ -54,5 +55,15 @@ public class RefreshTokenRequest {
     public RefreshTokenRequest setScope(String scope) {
         this.scope = scope;
         return this;
+    }
+
+    @Override
+    public String asJSON() {
+        return null;
+    }
+
+    @Override
+    public String asQueryParams() {
+        return null;
     }
 }

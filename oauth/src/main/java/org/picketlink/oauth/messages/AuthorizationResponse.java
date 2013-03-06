@@ -27,7 +27,8 @@ import java.net.URLEncoder;
  * @since Mar 5, 2013
  */
 public class AuthorizationResponse extends OAuthResponse {
-    private String code, state;
+    private static final long serialVersionUID = 53914271397926560L;
+    private String code, state, responseMessage;
 
     public String getCode() {
         return code;
@@ -44,6 +45,15 @@ public class AuthorizationResponse extends OAuthResponse {
 
     public AuthorizationResponse setState(String state) {
         this.state = state;
+        return this;
+    }
+
+    public String getResponseMessage() {
+        return responseMessage;
+    }
+
+    public AuthorizationResponse setResponseMessage(String responseMessage) {
+        this.responseMessage = responseMessage;
         return this;
     }
 

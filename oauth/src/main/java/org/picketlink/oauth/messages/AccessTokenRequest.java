@@ -17,15 +17,22 @@
  */
 package org.picketlink.oauth.messages;
 
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.picketlink.oauth.common.OAuthConstants;
+
 /**
  * OAuth2 Access Token Request
  *
  * @author anil saldhana
  * @since Mar 5, 2013
- *
  */
-public class AccessTokenRequest {
-    private String grantType, code, redirectURI, clientID;
+public class AccessTokenRequest extends OAuthRequest {
+    private static final long serialVersionUID = 5069340399891368370L;
+    private String grantType, code, redirectUri, clientId, location;
 
     public String getGrantType() {
         return grantType;
@@ -45,21 +52,81 @@ public class AccessTokenRequest {
         return this;
     }
 
-    public String getRedirectURI() {
-        return redirectURI;
+    public String getRedirectUri() {
+        return redirectUri;
     }
 
-    public AccessTokenRequest setRedirectURI(String redirectURI) {
-        this.redirectURI = redirectURI;
+    public AccessTokenRequest setRedirectUri(String redirectURI) {
+        this.redirectUri = redirectURI;
         return this;
     }
 
-    public String getClientID() {
-        return clientID;
+    public String getClientId() {
+        return clientId;
     }
 
-    public AccessTokenRequest setClientID(String clientID) {
-        this.clientID = clientID;
+    public AccessTokenRequest setClientId(String clientID) {
+        this.clientId = clientID;
         return this;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public AccessTokenRequest setLocation(String location) {
+        this.location = location;
+        return this;
+    }
+
+    @Override
+    public String asJSON() {
+        StringWriter sw = new StringWriter();
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (grantType != null) {
+            map.put(OAuthConstants.GRANT_TYPE, encode(grantType));
+        }
+        if (clientId != null) {
+            map.put(OAuthConstants.CLIENT_ID, encode(clientId));
+        }
+        if (redirectUri != null) {
+            map.put(OAuthConstants.REDIRECT_URI, encode(redirectUri));
+        }
+        if (code != null) {
+            map.put(OAuthConstants.CODE, encode(code));
+        }
+
+        // TODO: parameters
+
+        ObjectMapper mapper = getObjectMapper();
+        try {
+            mapper.writeValue(sw, map);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sw.toString();
+    }
+
+    @Override
+    public String asQueryParams() {
+        String AMP = "&";
+        String EQ = "=";
+        StringBuilder builder = new StringBuilder();
+
+        // private String responseType, clientId, redirectURI, scope, state, location;
+        if (grantType != null) {
+            builder.append(OAuthConstants.GRANT_TYPE).append(EQ).append(encode(grantType)).append(AMP);
+        }
+        if (clientId != null) {
+            builder.append(OAuthConstants.CLIENT_ID).append(EQ).append(encode(clientId)).append(AMP);
+        }
+        if (redirectUri != null) {
+            builder.append(OAuthConstants.REDIRECT_URI).append(EQ).append(encode(redirectUri)).append(AMP);
+        }
+        if (code != null) {
+            builder.append(OAuthConstants.CODE).append(EQ).append(encode(code)).append(AMP);
+        }
+
+        return builder.toString();
     }
 }

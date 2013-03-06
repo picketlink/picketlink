@@ -17,14 +17,17 @@
  */
 package org.picketlink.oauth.messages;
 
+import org.picketlink.oauth.common.OAuthConstants;
+
 /**
  * OAuth2 Authorization Request
  *
  * @author anil saldhana
  * @since Mar 5, 2013
  */
-public class AuthorizationRequest {
-    private String responseType, clientId, redirectURI, scope, state;
+public class AuthorizationRequest extends OAuthRequest {
+    private static final long serialVersionUID = 2046706058742396970L;
+    private String responseType, clientId, redirectUri, scope, state, location;
 
     public String getResponseType() {
         return responseType;
@@ -44,12 +47,12 @@ public class AuthorizationRequest {
         return this;
     }
 
-    public String getRedirectURI() {
-        return redirectURI;
+    public String getRedirectUri() {
+        return redirectUri;
     }
 
-    public AuthorizationRequest setRedirectURI(String redirectURI) {
-        this.redirectURI = redirectURI;
+    public AuthorizationRequest setRedirectUri(String redirectURI) {
+        this.redirectUri = redirectURI;
         return this;
     }
 
@@ -69,5 +72,45 @@ public class AuthorizationRequest {
     public AuthorizationRequest setState(String state) {
         this.state = state;
         return this;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public AuthorizationRequest setLocation(String location) {
+        this.location = location;
+        return this;
+    }
+
+    @Override
+    public String asJSON() {
+        return null;
+    }
+
+    @Override
+    public String asQueryParams() {
+        String AMP = "&";
+        String EQ = "=";
+        StringBuilder builder = new StringBuilder();
+
+        // private String responseType, clientId, redirectURI, scope, state, location;
+        if (responseType != null) {
+            builder.append(OAuthConstants.RESPONSE_TYPE).append(EQ).append(encode(responseType)).append(AMP);
+        }
+        if (clientId != null) {
+            builder.append(OAuthConstants.CLIENT_ID).append(EQ).append(encode(clientId)).append(AMP);
+        }
+        if (redirectUri != null) {
+            builder.append(OAuthConstants.REDIRECT_URI).append(EQ).append(encode(redirectUri)).append(AMP);
+        }
+        if (scope != null) {
+            builder.append(OAuthConstants.SCOPE).append(EQ).append(encode(scope)).append(AMP);
+        }
+        if (state != null) {
+            builder.append(OAuthConstants.STATE).append(EQ).append(encode(state)).append(AMP);
+        }
+
+        return builder.toString();
     }
 }

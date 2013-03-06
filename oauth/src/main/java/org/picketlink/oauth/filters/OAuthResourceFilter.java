@@ -51,9 +51,9 @@ import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.oauth.amber.oauth2.common.message.types.ParameterStyle;
-import org.picketlink.oauth.amber.oauth2.rs.request.OAuthAccessResourceRequest;
 import org.picketlink.oauth.common.OAuthConstants;
+import org.picketlink.oauth.messages.ResourceAccessRequest;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
  * An instance of {@link Filter} that performs OAuth checks before allowing access to a resource
@@ -84,22 +84,23 @@ public class OAuthResourceFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         try {
 
-            // Get the OAuth Request out of this request and validate it
-            OAuthAccessResourceRequest oauthRequest = new OAuthAccessResourceRequest(httpRequest, ParameterStyle.BODY);
-
+            ResourceAccessRequest resourceAccessRequest = OAuthServerUtil.parseResourceRequest((HttpServletRequest) request);
             // Get the access token
             String passedClientID = httpRequest.getParameter(OAuthConstants.CLIENT_ID);
-            String accessToken = oauthRequest.getAccessToken();
+            String accessToken = resourceAccessRequest.getAccessToken();
+
+            /*
+             * // Get the OAuth Request out of this request and validate it OAuthAccessResourceRequest oauthRequest = new
+             * OAuthAccessResourceRequest(httpRequest, ParameterStyle.BODY);
+             *
+             * // Get the access token String passedClientID = httpRequest.getParameter(OAuthConstants.CLIENT_ID); String
+             * accessToken = oauthRequest.getAccessToken();
+             */
 
             IdentityQuery<User> userQuery = identityManager.createIdentityQuery(User.class);
             userQuery.setParameter(User.ID, passedClientID);
 
             List<User> users = userQuery.getResultList();
-
-            /*
-             * UserQuery userQuery = identityManager.createQ.createUserQuery().setAttributeFilter("clientID", new String[] {
-             * passedClientID }); List<User> users = userQuery.executeQuery();
-             */
 
             if (users.size() == 0) {
                 httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "client_id not found");

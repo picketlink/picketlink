@@ -19,21 +19,18 @@
  * limitations under the License.
  */
 
-package org.picketlink.oauth.amber.oauth2.common.utils;
+package org.picketlink.oauth;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -42,10 +39,7 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.picketlink.oauth.amber.oauth2.common.OAuth;
-import org.picketlink.oauth.amber.oauth2.common.error.OAuthError;
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
+import org.picketlink.oauth.common.OAuthConstants;
 
 /**
  * Common OAuth Utils class.
@@ -62,7 +56,7 @@ public final class OAuthUtils {
     private static final String PARAMETER_SEPARATOR = "&";
     private static final String NAME_VALUE_SEPARATOR = "=";
 
-    public static final String AUTH_SCHEME = OAuth.OAUTH_HEADER_NAME;
+    public static final String AUTH_SCHEME = OAuthConstants.HEADER_NAME;
 
     private static final Pattern OAUTH_HEADER = Pattern.compile("\\s*(\\w*)\\s+(.*)");
     private static final Pattern NVP = Pattern.compile("(\\S*)\\s*\\=\\s*\"([^\"]*)\"");
@@ -148,48 +142,6 @@ public final class OAuthUtils {
     }
 
     /**
-     * Creates invalid_request exception with given message
-     *
-     * @param message error message
-     * @return OAuthException
-     */
-    public static OAuthProblemException handleOAuthProblemException(String message) {
-        return OAuthProblemException.error(OAuthError.TokenResponse.INVALID_REQUEST).description(message);
-    }
-
-    /**
-     * Creates OAuthProblemException that contains set of missing oauth parameters
-     *
-     * @param missingParams missing oauth parameters
-     * @return OAuthProblemException with user friendly message about missing oauth parameters
-     */
-
-    public static OAuthProblemException handleMissingParameters(Set<String> missingParams) {
-        StringBuffer sb = new StringBuffer("Missing parameters: ");
-        if (!OAuthUtils.isEmpty(missingParams)) {
-            for (String missingParam : missingParams) {
-                sb.append(missingParam).append(" ");
-            }
-        }
-        return handleOAuthProblemException(sb.toString().trim());
-    }
-
-    public static OAuthProblemException handleBadContentTypeException(String expectedContentType) {
-        StringBuilder errorMsg = new StringBuilder("Bad request content type. Expecting: ").append(expectedContentType);
-        return handleOAuthProblemException(errorMsg.toString());
-    }
-
-    public static OAuthProblemException handleNotAllowedParametersOAuthException(List<String> notAllowedParams) {
-        StringBuffer sb = new StringBuffer("Not allowed parameters: ");
-        if (notAllowedParams != null) {
-            for (String notAllowed : notAllowedParams) {
-                sb.append(notAllowed).append(" ");
-            }
-        }
-        return handleOAuthProblemException(sb.toString().trim());
-    }
-
-    /**
      * Parse a form-urlencoded document.
      */
     public static Map<String, Object> decodeForm(String form) {
@@ -223,7 +175,7 @@ public final class OAuthUtils {
         if (semi >= 0) {
             contentType = contentType.substring(0, semi);
         }
-        return OAuth.ContentType.URL_ENCODED.equalsIgnoreCase(contentType.trim());
+        return OAuthConstants.ContentType.URL_ENCODED.equalsIgnoreCase(contentType.trim());
     }
 
     public static String decodePercent(String s) {
@@ -277,43 +229,6 @@ public final class OAuthUtils {
         return false;
     }
 
-    public static <T> T instantiateClass(Class<T> clazz) throws OAuthSystemException {
-        try {
-            return (T) clazz.newInstance();
-        } catch (Exception e) {
-            throw new OAuthSystemException(e);
-        }
-    }
-
-    public static Object instantiateClassWithParameters(Class clazz, Class[] paramsTypes, Object[] paramValues)
-            throws OAuthSystemException {
-
-        try {
-            if (paramsTypes != null && paramValues != null) {
-                if (!(paramsTypes.length == paramValues.length)) {
-                    throw new IllegalArgumentException("Number of types and values must be equal");
-                }
-
-                if (paramsTypes.length == 0 && paramValues.length == 0) {
-                    return clazz.newInstance();
-                }
-                Constructor clazzConstructor = clazz.getConstructor(paramsTypes);
-                return clazzConstructor.newInstance(paramValues);
-            }
-            return clazz.newInstance();
-
-        } catch (NoSuchMethodException e) {
-            throw new OAuthSystemException(e);
-        } catch (InstantiationException e) {
-            throw new OAuthSystemException(e);
-        } catch (IllegalAccessException e) {
-            throw new OAuthSystemException(e);
-        } catch (InvocationTargetException e) {
-            throw new OAuthSystemException(e);
-        }
-
-    }
-
     public static String getAuthHeaderField(String authHeader) {
 
         if (authHeader != null) {
@@ -354,7 +269,7 @@ public final class OAuthUtils {
      */
     public static String encodeOAuthHeader(Map<String, Object> entries) {
         StringBuffer sb = new StringBuffer();
-        sb.append(OAuth.OAUTH_HEADER_NAME).append(" ");
+        sb.append(OAuthConstants.HEADER_NAME).append(" ");
         for (Map.Entry<String, Object> entry : entries.entrySet()) {
             String value = entry.getValue() == null ? null : String.valueOf(entry.getValue());
             if (!OAuthUtils.isEmpty(entry.getKey()) && !OAuthUtils.isEmpty(value)) {

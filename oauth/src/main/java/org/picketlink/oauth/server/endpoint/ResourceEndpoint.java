@@ -27,11 +27,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
-import org.picketlink.oauth.amber.oauth2.common.message.types.ParameterStyle;
-import org.picketlink.oauth.amber.oauth2.rs.request.OAuthAccessResourceRequest;
 import org.picketlink.oauth.messages.ErrorResponse;
 import org.picketlink.oauth.messages.ErrorResponse.ErrorResponseCode;
+import org.picketlink.oauth.messages.ResourceAccessRequest;
 import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
@@ -47,21 +45,11 @@ public class ResourceEndpoint extends BaseEndpoint {
     @POST
     @Consumes("application/x-www-form-urlencoded")
     @Produces("application/html")
-    public Response authorize(@Context HttpServletRequest request) throws URISyntaxException, OAuthSystemException {
+    public Response authorize(@Context HttpServletRequest request) throws URISyntaxException {
         super.setup();
 
-        OAuthAccessResourceRequest oauthRequest = null;
-        try {
-            oauthRequest = new OAuthAccessResourceRequest(request, ParameterStyle.BODY);
-        } catch (Exception ope) {
-            ErrorResponse errorResponse = new ErrorResponse();
-            errorResponse.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
-            errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found");
-            return Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build();
-        }
-
-        // Get the access token
-        String accessToken = oauthRequest.getAccessToken();
+        ResourceAccessRequest resourceAccessRequest = OAuthServerUtil.parseResourceRequest(request);
+        String accessToken = resourceAccessRequest.getAccessToken();
         boolean validateAccessToken = OAuthServerUtil.validateAccessToken(accessToken, identityManager);
 
         // TODO: Deal with scope
@@ -73,5 +61,21 @@ public class ResourceEndpoint extends BaseEndpoint {
             errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found");
             return Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build();
         }
+
+        /*
+         * OAuthAccessResourceRequest oauthRequest = null; try { oauthRequest = new OAuthAccessResourceRequest(request,
+         * ParameterStyle.BODY); } catch (Exception ope) { ErrorResponse errorResponse = new ErrorResponse();
+         * errorResponse.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+         * errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found"); return
+         * Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build(); }
+         *
+         * // Get the access token String accessToken = oauthRequest.getAccessToken(); boolean validateAccessToken =
+         * OAuthServerUtil.validateAccessToken(accessToken, identityManager);
+         *
+         * // TODO: Deal with scope if (validateAccessToken) { return Response.ok().entity("I am a Resource").build(); } else {
+         * ErrorResponse errorResponse = new ErrorResponse(); errorResponse.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+         * errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found"); return
+         * Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build(); }
+         */
     }
 }

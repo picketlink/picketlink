@@ -29,6 +29,9 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet;
@@ -61,6 +64,8 @@ import org.picketlink.oauth.messages.AuthorizationRequest;
 import org.picketlink.oauth.messages.ErrorResponse;
 import org.picketlink.oauth.messages.ErrorResponse.ErrorResponseCode;
 import org.picketlink.oauth.messages.OAuthResponse;
+import org.picketlink.oauth.messages.RegistrationRequest;
+import org.picketlink.oauth.messages.ResourceAccessRequest;
 
 /**
  * Utility
@@ -280,7 +285,7 @@ public class OAuthServerUtil {
             oauthResponse = grant.authorizationResponse();
             oauthResponse.setStatusCode(HttpServletResponse.SC_FOUND);
 
-            String redirectURI = authorizationRequest.getRedirectURI();
+            String redirectURI = authorizationRequest.getRedirectUri();
 
             // String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
 
@@ -361,7 +366,7 @@ public class OAuthServerUtil {
         PasswordAccessTokenRequest accessTokenRequest = parsePasswordAccessTokenRequest(request);
         grant.setAccessTokenRequest(accessTokenRequest);
 
-        String passedClientID = accessTokenRequest.getClientID();
+        String passedClientID = accessTokenRequest.getClientId();
         if (passedClientID == null) {
 
             ErrorResponse errorResponse = new ErrorResponse();
@@ -408,7 +413,7 @@ public class OAuthServerUtil {
         AccessTokenRequest accessTokenRequest = parseAccessTokenRequest(request);
         grant.setAccessTokenRequest(accessTokenRequest);
 
-        String passedClientID = accessTokenRequest.getClientID();
+        String passedClientID = accessTokenRequest.getClientId();
         if (passedClientID == null) {
 
             ErrorResponse errorResponse = new ErrorResponse();
@@ -600,6 +605,26 @@ public class OAuthServerUtil {
         return true;
     }
 
+    public static ResourceAccessRequest parseResourceRequest(HttpServletRequest request) {
+        ResourceAccessRequest resourceAccessRequest = new ResourceAccessRequest();
+        resourceAccessRequest.setAccessToken(request.getParameter(OAuthConstants.ACCESS_TOKEN));
+        return resourceAccessRequest;
+    }
+
+    public static RegistrationRequest parseRegistrationRequest(HttpServletRequest request) {
+        // Read JSON from request
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+
+        try {
+            return mapper.readValue(request.getInputStream(), RegistrationRequest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
     private static Properties getProperties(ServletContext context) throws IOException {
         Properties properties = new Properties();
         InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
@@ -611,7 +636,7 @@ public class OAuthServerUtil {
         AuthorizationRequest authorizationRequest = new AuthorizationRequest();
 
         authorizationRequest.setClientId(request.getParameter(OAuthConstants.CLIENT_ID))
-                .setRedirectURI(request.getParameter(OAuthConstants.REDIRECT_URI))
+                .setRedirectUri(request.getParameter(OAuthConstants.REDIRECT_URI))
                 .setResponseType(request.getParameter(OAuthConstants.RESPONSE_TYPE));
 
         return authorizationRequest;
@@ -621,9 +646,9 @@ public class OAuthServerUtil {
         AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
 
         accessTokenRequest.setCode(request.getParameter(OAuthConstants.CODE))
-                .setRedirectURI(request.getParameter(OAuthConstants.REDIRECT_URI))
+                .setRedirectUri(request.getParameter(OAuthConstants.REDIRECT_URI))
                 .setGrantType(request.getParameter(OAuthConstants.GRANT_TYPE))
-                .setClientID(request.getParameter(OAuthConstants.CLIENT_ID));
+                .setClientId(request.getParameter(OAuthConstants.CLIENT_ID));
 
         return accessTokenRequest;
     }
@@ -636,9 +661,9 @@ public class OAuthServerUtil {
         accessTokenRequest.setUsername(request.getParameter(OAuthConstants.USERNAME));
 
         accessTokenRequest.setCode(request.getParameter(OAuthConstants.CODE))
-                .setRedirectURI(request.getParameter(OAuthConstants.REDIRECT_URI))
+                .setRedirectUri(request.getParameter(OAuthConstants.REDIRECT_URI))
                 .setGrantType(request.getParameter(OAuthConstants.GRANT_TYPE))
-                .setClientID(request.getParameter(OAuthConstants.CLIENT_ID));
+                .setClientId(request.getParameter(OAuthConstants.CLIENT_ID));
 
         return accessTokenRequest;
     }

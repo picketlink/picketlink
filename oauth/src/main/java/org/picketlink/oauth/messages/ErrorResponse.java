@@ -31,6 +31,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @since Mar 5, 2013
  */
 public class ErrorResponse extends OAuthResponse {
+    private static final long serialVersionUID = -225455700169771043L;
 
     private ErrorResponseCode error;
 
@@ -79,7 +80,7 @@ public class ErrorResponse extends OAuthResponse {
     public String asJSON() {
         StringWriter sw = new StringWriter();
         try {
-            ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = getObjectMapper();
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("error", error.name());
             if (errorDescription != null) {

@@ -17,35 +17,10 @@
  */
 package org.picketlink.oauth.messages;
 
-/**
- * Represents an OAuth Response
- *
- * @author anil saldhana
- * @since Mar 5, 2013
- */
-public abstract class OAuthResponse extends OAuthMessage {
-    private static final long serialVersionUID = -9221133444410418472L;
-    protected String location;
-    protected int statusCode;
-
-    public int getStatusCode() {
-        return statusCode;
-    }
-
-    public OAuthResponse setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-        return this;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public abstract String asQueryParams();
+public abstract class OAuthRequest extends OAuthMessage {
+    private static final long serialVersionUID = -4109315250160325181L;
 
     public abstract String asJSON();
+
+    public abstract String asQueryParams();
 }

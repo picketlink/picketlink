@@ -34,12 +34,10 @@ import javax.ws.rs.core.Response;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.SimpleAgent;
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
-import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
-import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.JSONHttpServletRequestWrapper;
-import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.request.OAuthServerRegistrationRequest;
-import org.picketlink.oauth.amber.oauth2.ext.dynamicreg.server.response.OAuthServerRegistrationResponse;
+import org.picketlink.oauth.messages.RegistrationRequest;
+import org.picketlink.oauth.messages.RegistrationResponse;
 import org.picketlink.oauth.server.endpoint.BaseEndpoint;
+import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
  * Endpoint used in registration of OAuth Client Applications
@@ -59,55 +57,65 @@ public class RegistrationEndpoint extends BaseEndpoint {
         super.setup();
 
         try {
-            OAuthServerRegistrationRequest oauthRequest = null;
-            try {
-                oauthRequest = new OAuthServerRegistrationRequest(new JSONHttpServletRequestWrapper(request));
-                oauthRequest.discover();
-                String clientName = oauthRequest.getClientName();
-                String clientURL = oauthRequest.getClientUrl();
-                String clientDescription = oauthRequest.getClientDescription();
-                String clientRedirectURI = oauthRequest.getRedirectURI();
+            RegistrationRequest registrationRequest = OAuthServerUtil.parseRegistrationRequest(request);
 
-                String generatedClientID = generateClientID();
-                String generatedSecret = generateClientSecret();
+            String clientName = registrationRequest.getClientName();
+            String clientURL = registrationRequest.getClientURL();
+            String clientDescription = registrationRequest.getClientDescription();
+            String clientRedirectURI = registrationRequest.getClientRedirectURI();
 
-                // User user = identityManager.createUser(clientName);
+            String generatedClientID = generateClientID();
+            String generatedSecret = generateClientSecret();
 
-                Agent oauthApp = new SimpleAgent(clientName);
+            // User user = identityManager.createUser(clientName);
 
-                oauthApp.setAttribute(new Attribute<String>("appURL", clientURL));
-                oauthApp.setAttribute(new Attribute<String>("appDesc", clientDescription));
-                oauthApp.setAttribute(new Attribute<String>("redirectURI", clientRedirectURI));
-                oauthApp.setAttribute(new Attribute<String>("clientID", generatedClientID));
-                oauthApp.setAttribute(new Attribute<String>("clientSecret", generatedSecret));
+            Agent oauthApp = new SimpleAgent(clientName);
 
-                identityManager.add(oauthApp);
+            oauthApp.setAttribute(new Attribute<String>("appURL", clientURL));
+            oauthApp.setAttribute(new Attribute<String>("appDesc", clientDescription));
+            oauthApp.setAttribute(new Attribute<String>("redirectURI", clientRedirectURI));
+            oauthApp.setAttribute(new Attribute<String>("clientID", generatedClientID));
+            oauthApp.setAttribute(new Attribute<String>("clientSecret", generatedSecret));
 
-                /*
-                 * User user = new SimpleUser(clientName); user.setFirstName(clientName); user.setLastName(" ");
-                 *
-                 * user.setAttribute(new Attribute("url", clientURL));
-                 *
-                 * user.setAttribute(new Attribute("description", clientDescription)); user.setAttribute(new
-                 * Attribute("redirectURI", clientRedirectURI)); user.setAttribute(new Attribute("clientID",
-                 * generatedClientID));
-                 *
-                 * identityManager.add(user);
-                 */
+            identityManager.add(oauthApp);
 
-                // identityManager.updateCredential(oauthApp, new Password(generatedSecret.toCharArray()));
+            RegistrationResponse response = new RegistrationResponse();
+            response.setStatusCode(HttpServletResponse.SC_OK);
+            response.setClientID(generatedClientID).setClientSecret(generatedSecret).setExpiresIn(3600L)
+                    .setIssued(getCurrentTime() + "");
 
-                OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
-                        .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
-                        .setExpiresIn("3600").buildJSONMessage();
-                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            return Response.status(response.getStatusCode()).entity(response.asJSON()).build();
 
-            } catch (OAuthProblemException e) {
-                e.printStackTrace();
-                OAuthResponse response = OAuthServerRegistrationResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .error(e).buildJSONMessage();
-                return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-            }
+            /*
+             * OAuthServerRegistrationRequest oauthRequest = null; try { oauthRequest = new OAuthServerRegistrationRequest(new
+             * JSONHttpServletRequestWrapper(request)); oauthRequest.discover(); String clientName =
+             * oauthRequest.getClientName(); String clientURL = oauthRequest.getClientUrl(); String clientDescription =
+             * oauthRequest.getClientDescription(); String clientRedirectURI = oauthRequest.getRedirectURI();
+             *
+             * String generatedClientID = generateClientID(); String generatedSecret = generateClientSecret();
+             *
+             * // User user = identityManager.createUser(clientName);
+             *
+             * Agent oauthApp = new SimpleAgent(clientName);
+             *
+             * oauthApp.setAttribute(new Attribute<String>("appURL", clientURL)); oauthApp.setAttribute(new
+             * Attribute<String>("appDesc", clientDescription)); oauthApp.setAttribute(new Attribute<String>("redirectURI",
+             * clientRedirectURI)); oauthApp.setAttribute(new Attribute<String>("clientID", generatedClientID));
+             * oauthApp.setAttribute(new Attribute<String>("clientSecret", generatedSecret));
+             *
+             * identityManager.add(oauthApp);
+             *
+             *
+             *
+             * OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
+             * .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
+             * .setExpiresIn("3600").buildJSONMessage(); return
+             * Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+             *
+             * } catch (OAuthProblemException e) { e.printStackTrace(); OAuthResponse response =
+             * OAuthServerRegistrationResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST) .error(e).buildJSONMessage();
+             * return Response.status(response.getResponseStatus()).entity(response.getBody()).build(); }
+             */
         } catch (Exception e) {
             log.log(Level.SEVERE, "OAuth Server Registration Processing:", e);
             return Response.serverError().build();
