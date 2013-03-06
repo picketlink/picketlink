@@ -20,6 +20,9 @@ package org.picketlink.social.standalone.fb;
 import java.io.Serializable;
 import java.security.Principal;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * An instance of {@link Principal} representing a facebook user
  *
@@ -40,6 +43,8 @@ public class FacebookPrincipal implements Principal, Serializable {
     private String firstName;
 
     private String lastName;
+
+    private JSONObject jsonObject;
 
     private String gender;
 
@@ -127,6 +132,30 @@ public class FacebookPrincipal implements Principal, Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public JSONObject getJsonObject() {
+        return jsonObject;
+    }
+
+    public void setJsonObject(JSONObject jsonObject) {
+        this.jsonObject = jsonObject;
+    }
+
+    public String getAttribute(String attributeName) {
+        if (jsonObject == null) {
+            return null;
+        } else {
+            try {
+                return jsonObject.getString(attributeName);
+            } catch (JSONException jsonEx) {
+                if (jsonEx.getMessage() != null && jsonEx.getMessage().contains("not found")) {
+                    return null;
+                } else {
+                    throw new RuntimeException(jsonEx);
+                }
+            }
+        }
     }
 
     @Override

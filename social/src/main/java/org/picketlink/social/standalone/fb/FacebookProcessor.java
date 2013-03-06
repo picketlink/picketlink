@@ -139,8 +139,6 @@ public class FacebookProcessor {
         if (facebookPrincipal == null)
             return null;
 
-        request.getSession().setAttribute("PRINCIPAL", facebookPrincipal);
-
         return facebookPrincipal;
     }
 
@@ -219,6 +217,7 @@ public class FacebookProcessor {
             facebookPrincipal.setGender(jsonObject.getString("gender"));
             facebookPrincipal.setTimezone(jsonObject.getString("timezone"));
             facebookPrincipal.setLocale(jsonObject.getString("locale"));
+            facebookPrincipal.setJsonObject(jsonObject);
             if (jsonObject.getString("email") != null) {
                 facebookPrincipal.setName(jsonObject.getString("email"));
                 facebookPrincipal.setEmail(jsonObject.getString("email"));
