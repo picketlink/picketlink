@@ -29,6 +29,7 @@ import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.model.Authorization;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -94,34 +95,12 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         dataSource.setAlwaysCreateFiles(true);
         
         addDefaultConfiguration(config, dataSource);
-        addTestingRealmConfiguration(config, dataSource);
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
         identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
 
         return identityManager;
-    }
-
-    /**
-     * <p>Configure a specific {@link FileIdentityStoreConfiguration} for the Testing Realm.</p>
-     * 
-     * @param config
-     * @param dataSource
-     */
-    private void addTestingRealmConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
-        FileIdentityStoreConfiguration fileConfig = new FileIdentityStoreConfiguration();
-
-        fileConfig.addRealm("Testing");
-
-        fileConfig.setDataSource(dataSource);
-
-        FeatureSet.addFeatureSupport(fileConfig.getFeatureSet());
-        FeatureSet.addRelationshipSupport(fileConfig.getFeatureSet());
-        fileConfig.getFeatureSet().setSupportsCustomRelationships(true);
-        fileConfig.getFeatureSet().setSupportsMultiRealm(true);
-
-        config.addStoreConfiguration(fileConfig);
     }
 
     /**
@@ -135,6 +114,10 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
     private void addDefaultConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
         FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
 
+        // add the realms that should be supported by the file store
+        configuration.addRealm(Realm.DEFAULT_REALM);
+        configuration.addRealm("Testing");
+        
         configuration.setDataSource(dataSource);
 
         FeatureSet.addFeatureSupport(configuration.getFeatureSet());

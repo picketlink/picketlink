@@ -22,7 +22,7 @@ import javax.naming.directory.SearchResult;
 
 /**
  * <p>Callback interface for processing LDAP search results.</p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
@@ -30,10 +30,10 @@ public interface LDAPSearchCallback<T> {
 
     /**
      * <p>Process the results.</p>
-     * 
+     *
      * @param sr
      * @return
      */
     T processResult(SearchResult sr);
-    
+
 }

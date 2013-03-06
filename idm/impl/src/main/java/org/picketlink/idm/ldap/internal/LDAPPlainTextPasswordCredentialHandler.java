@@ -43,13 +43,13 @@ import org.picketlink.idm.spi.IdentityStore;
  */
 @SupportsCredentials({UsernamePasswordCredentials.class, Password.class})
 public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler {
-    
+
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
-    
+
     @Override
     public void validate(Credentials credentials, IdentityStore<?> identityStore) {
         checkIdentityStoreInstance(identityStore);
-        
+
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
             throw new IllegalArgumentException("Credentials class [" + credentials.getClass().getName()
                     + "] not supported by this handler.");
@@ -66,9 +66,9 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
             LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
             LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(LDAPUser.class, agent.getId());
             char[] password = usernamePassword.getPassword().getValue();
-            
+
             boolean isValid = ldapIdentityStore.getConfig().getLdapManager().authenticate(ldapUser.getDN(), new String(password));
-            
+
             if (isValid) {
                 usernamePassword.setStatus(Status.VALID);
             }
@@ -78,7 +78,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
     @Override
     public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         checkIdentityStoreInstance(identityStore);
-        
+
         if (!Password.class.isInstance(credential)) {
             throw new IllegalArgumentException("Credential class [" + credential.getClass().getName()
                     + "] not supported by this handler.");
@@ -88,12 +88,12 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
         LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
         LDAPUser ldapuser = ldapIdentityStore.lookupEntryById(LDAPUser.class, agent.getId());
-        
+
         if (ldapIdentityStore.getConfig().isActiveDirectory()) {
             updateADPassword(ldapuser, new String(password.getValue()), ldapIdentityStore);
         } else {
             ModificationItem[] mods = new ModificationItem[1];
-            
+
             try {
                 Attribute mod0 = new BasicAttribute(USER_PASSWORD_ATTRIBUTE, new String(password.getValue()));
 
@@ -108,11 +108,11 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
     private void checkIdentityStoreInstance(IdentityStore<?> store) {
         if (!LDAPIdentityStore.class.isInstance(store)) {
-            throw new IllegalArgumentException("IdentityStore class [" + 
+            throw new IllegalArgumentException("IdentityStore class [" +
                     store.getClass() + "] not supported by this handler.");
         }
     }
-    
+
     private void updateADPassword(LDAPUser user, String password, LDAPIdentityStore store) {
         try {
             // Replace the "unicdodePwd" attribute with a new value

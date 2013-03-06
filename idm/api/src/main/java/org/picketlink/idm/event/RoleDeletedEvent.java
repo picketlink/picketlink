@@ -22,7 +22,7 @@ import org.picketlink.idm.model.Role;
 
 /**
  * This event is raised when a Role is deleted
- *  
+ *
  * @author Shane Bryzak
  */
 public class RoleDeletedEvent extends AbstractBaseEvent {

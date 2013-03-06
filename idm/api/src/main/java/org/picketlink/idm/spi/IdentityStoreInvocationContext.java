@@ -28,51 +28,50 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
-import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
 
 /**
  * Used to pass contextual state to an IdentityStore during an identity management operation.
- * 
+ *
  * @author Shane Bryzak
- * 
+ *
  */
 public class IdentityStoreInvocationContext {
 
     /**
-     * 
+     *
      */
     private IdentityCache cache;
 
     /**
-     * 
+     *
      */
     private EventBridge eventBridge;
 
     /**
-     * 
+     *
      */
     private Realm realm;
 
     /**
-     * 
+     *
      */
     private Tier tier;
 
     /**
-     * 
+     *
      */
     private CredentialHandlerFactory credentialHandlerFactory;
 
     /**
-     * 
+     *
      */
     private IdGenerator idGenerator;
 
     /**
-     * 
+     *
      */
     private Map<String, Object> parameters = new HashMap<String, Object>();
 
@@ -90,7 +89,7 @@ public class IdentityStoreInvocationContext {
     /**
      * Returns a CredentialHandler instance capable of validating a credential of the specified Credentials class, for the
      * specified IdentityStore class
-     * 
+     *
      * @param credentialsClass
      * @param identityStoreClass
      * @return
@@ -102,7 +101,7 @@ public class IdentityStoreInvocationContext {
     /**
      * Returns a CredentialHandler instance capable of updating a credential of the specified Credentials class, for the
      * specified IdentityStore class
-     * 
+     *
      * @param credentialClass
      * @param identityStoreClass
      * @return
@@ -113,7 +112,7 @@ public class IdentityStoreInvocationContext {
 
     /**
      * Returns the cache for this invocation context.
-     * 
+     *
      * @return
      */
     public IdentityCache getCache() {
@@ -122,7 +121,7 @@ public class IdentityStoreInvocationContext {
 
     /**
      * Returns the parameter value with the specified name
-     * 
+     *
      * @return
      */
     public Object getParameter(String paramName) {
@@ -131,7 +130,7 @@ public class IdentityStoreInvocationContext {
 
     /**
      * Returns a boolean indicating whether the parameter with the specified name has been set
-     * 
+     *
      * @param paramName
      * @return
      */
@@ -141,7 +140,7 @@ public class IdentityStoreInvocationContext {
 
     /**
      * Sets a parameter value
-     * 
+     *
      * @param paramName
      * @param value
      */
@@ -150,7 +149,7 @@ public class IdentityStoreInvocationContext {
     }
 
     /**
-     * 
+     *
      * @return
      */
     public EventBridge getEventBridge() {
@@ -158,7 +157,7 @@ public class IdentityStoreInvocationContext {
     }
 
     /**
-     * 
+     *
      * @return
      */
     public IdGenerator getIdGenerator() {
@@ -167,7 +166,7 @@ public class IdentityStoreInvocationContext {
 
     /**
      * Return the active Realm for this context
-     * 
+     *
      * @return
      */
     public Realm getRealm() {
@@ -176,7 +175,7 @@ public class IdentityStoreInvocationContext {
 
     /**
      * Sets the active Realm for this context
-     * 
+     *
      * @param realm
      */
     public void setRealm(Realm realm) {
@@ -185,7 +184,7 @@ public class IdentityStoreInvocationContext {
 
     /**
      * Return the active Tier for this context
-     * 
+     *
      * @return
      */
     public Tier getTier() {
@@ -194,7 +193,7 @@ public class IdentityStoreInvocationContext {
 
     /**
      * Sets the active Tier for this context
-     * 
+     *
      * @param tier
      */
     public void setTier(Tier tier) {
@@ -206,7 +205,7 @@ public class IdentityStoreInvocationContext {
      * Returns the current {@link Partition}. It can be a {@link Realm} or a {@link Tier}. If the {@link Tier} is setted it will
      * be returned otherwise the {@link Realm}.
      * </p>
-     * 
+     *
      * @return
      */
     public Partition getPartition() {

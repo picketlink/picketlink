@@ -18,8 +18,6 @@
 
 package org.picketlink.idm.password;
 
-import org.picketlink.idm.model.User;
-
 /**
  * <p>
  * Represents different forms to encode user passwords.
@@ -32,7 +30,7 @@ public interface PasswordEncoder {
 
     /**
      * <p>
-     * Encode the password for the given {@link User}.
+     * Encode the password for the given User.
      * </p>
      *
      * @param user

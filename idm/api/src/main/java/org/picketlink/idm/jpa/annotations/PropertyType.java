@@ -20,13 +20,13 @@ package org.picketlink.idm.jpa.annotations;
 
 /**
  * This enum is used in conjunction with the @IDMProperty annotation to mark an entity bean
- * property for the storage of Identity Management related state. 
- * 
+ * property for the storage of Identity Management related state.
+ *
  * @author Shane Bryzak
  */
 public enum PropertyType {
     /**
-     * The unique identifier of an identity 
+     * The unique identifier of an identity
      */
     IDENTITY_ID,
     /**
@@ -154,7 +154,7 @@ public enum PropertyType {
      * Represents the UUID of an identity that participates in a relationship
      */
     RELATIONSHIP_IDENTITY_ID,
-    
+
     /**
      * Represents the identity that participates in a relationship
      */

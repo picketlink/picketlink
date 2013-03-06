@@ -35,7 +35,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
 
 /**
  * A default implementation of IdentityStoreInvocationContextFactory.
- * 
+ *
  * @author Shane Bryzak
  * @author Anil Saldhana
  */
@@ -68,12 +68,12 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
         this();
         this.emf = emf;
     }
-    
+
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf) {
         this(emf);
         this.credentialHandlerFactory = chf;
     }
-    
+
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf, IdentityCache identityCache) {
         this(emf, chf);
         this.identityCache = identityCache;

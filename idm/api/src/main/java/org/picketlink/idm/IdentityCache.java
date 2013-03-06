@@ -28,17 +28,17 @@ import org.picketlink.idm.model.User;
 
 /**
  * Storage for User, Group and Role instances to enable quick resolution of identity memberships.
- * 
+ *
  * TODO: dicuss if we can have only two methods here. put(IdentityType) and lookup/get(IdentityType).
- * TODO: dicuss if we need cache capabilities when using stores like the the JPA that usually have its own cache mechanisms (eg.: hibernate second level cache).   
- * 
+ * TODO: dicuss if we need cache capabilities when using stores like the the JPA that usually have its own cache mechanisms (eg.: hibernate second level cache).
+ *
  * @author Shane Bryzak
  */
 public interface IdentityCache {
     /**
      * Returns the cached User object for the specified id, in the specified Realm.  If the User has
      * not previously been cached, returns null.
-     * 
+     *
      * @param realm
      * @param loginName
      * @return
@@ -48,7 +48,7 @@ public interface IdentityCache {
     /**
      * Returns the cached Group object with the specified group id, in the specified partition.  If the
      * Group has not previously been cached, returns null.
-     * 
+     *
      * @param partition
      * @param groupPath
      * @return
@@ -58,7 +58,7 @@ public interface IdentityCache {
     /**
      * Returns the cached Role object with the specified name, in the specified partition.  If the
      * Role has not previously been cached, returns null.
-     *  
+     *
      * @param partition
      * @param name
      * @return
@@ -67,7 +67,7 @@ public interface IdentityCache {
 
     /**
      * Inserts the specified user into the cache, for the specified Realm.
-     * 
+     *
      * @param realm
      * @param user
      */
@@ -75,7 +75,7 @@ public interface IdentityCache {
 
     /**
      * Inserts the specified group into the cache, within the specified Partition.
-     * 
+     *
      * @param partition
      * @param group
      */
@@ -83,7 +83,7 @@ public interface IdentityCache {
 
     /**
      * Inserts the specified role into the cache, within the specified Partition.
-     * 
+     *
      * @param partition
      * @param role
      */
@@ -92,7 +92,7 @@ public interface IdentityCache {
     /**
      * Returns the cached {@link Agent} object for the specified id, in the specified Realm.  If the {@link Agent} has
      * not previously been cached, returns null.
-     * 
+     *
      * @param realm
      * @param loginName
      * @return
@@ -101,14 +101,14 @@ public interface IdentityCache {
 
     /**
      * Inserts the specified {@link Agent} into the cache, within the specified Partition.
-     * 
+     *
      * @param partition
      * @param role
      */
     void putAgent(Realm realm, Agent agent);
 
     /**
-     * 
+     *
      * @param identity
      */
     void invalidate(Partition partition, IdentityType identity);

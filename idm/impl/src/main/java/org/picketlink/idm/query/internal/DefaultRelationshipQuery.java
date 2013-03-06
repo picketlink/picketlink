@@ -31,7 +31,7 @@ import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * Default IdentityQuery implementation.
- * 
+ *
  * @author Shane Bryzak
  *
  * @param <T>
@@ -43,18 +43,18 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     private Class<T> relationshipType;
     private int offset;
     private int limit;
-    
+
     public DefaultRelationshipQuery(Class<T> relationshipType, IdentityStore<?> identityStore) {
         this.identityStore = identityStore;
         this.relationshipType = relationshipType;
     }
-    
+
     @Override
     public RelationshipQuery<T> setParameter(QueryParameter param, Object... value) {
         parameters.put(param, value);
         return this;
     }
-    
+
     @Override
     public Class<T> getRelationshipType() {
         return relationshipType;
@@ -64,7 +64,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     public Map<QueryParameter, Object[]> getParameters() {
         return parameters;
     }
-    
+
     @Override
     public Object[] getParameter(QueryParameter queryParameter) {
         return this.parameters.get(queryParameter);
@@ -83,13 +83,13 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
     @Override
     public List<T> getResultList() {
         List<T> result = null;
-        
+
         try {
             result = this.identityStore.fetchQueryResults(this);
         } catch (Exception e) {
             throw MESSAGES.relationshipQueryFailed(this, e);
         }
-        
+
         return result;
     }
 

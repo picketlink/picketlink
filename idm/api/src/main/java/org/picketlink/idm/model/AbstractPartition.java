@@ -24,14 +24,14 @@ package org.picketlink.idm.model;
 
 /**
  * <p>Base class for {@link Partition} implementations.</p>
- * 
+ *
  * @author Pedro Silva
  *
  */
 public abstract class AbstractPartition implements Partition {
 
     private static final long serialVersionUID = -6899014824481928333L;
-    
+
     private String id;
     private String name;
 
@@ -73,7 +73,7 @@ public abstract class AbstractPartition implements Partition {
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
-    
+
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;
@@ -81,4 +81,8 @@ public abstract class AbstractPartition implements Partition {
         return result;
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

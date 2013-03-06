@@ -14,27 +14,6 @@
 
    <build>
       <plugins>
-         <!-- Enable checkstyle execution -->
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-            <version>2.9.1</version>
-            <configuration>
-               <configLocation>../checkstyle.xml</configLocation>
-               <consoleOutput>true</consoleOutput>
-               <failsOnError>true</failsOnError>
-               <useFile />
-            </configuration>
-            <executions>
-               <execution>
-                  <id>check-style</id>
-                  <phase>compile</phase>
-                  <goals>
-                     <goal>checkstyle</goal>
-                  </goals>
-               </execution>
-            </executions>
-         </plugin>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jar-plugin</artifactId>
@@ -67,13 +46,6 @@
       </plugins>
    </build>
    <dependencies>
-          <dependency>
-            <groupId>org.picketlink</groupId>
-            <artifactId>picketlink-common</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-          </dependency>
-
          <dependency>
             <groupId>org.picketlink</groupId>
             <artifactId>picketlink-idm-api</artifactId>
@@ -100,6 +72,7 @@
          <version>4.8.1</version>
          <scope>test</scope>
       </dependency>
+      <!-- LDAP Identity Store Dependencies -->
       <dependency>
          <groupId>org.picketbox</groupId>
          <artifactId>picketbox-ldap</artifactId>
@@ -147,6 +120,12 @@
          <groupId>commons-lang</groupId>
          <artifactId>commons-lang</artifactId>
          <version>2.6</version>
+      </dependency>
+      <dependency>
+      	<groupId>org.jboss.logging</groupId>
+      	<artifactId>jboss-logging-log4j</artifactId>
+      	<version>2.1.0.GA</version>
+      	<scope>test</scope>
       </dependency>
    </dependencies>
 </project>

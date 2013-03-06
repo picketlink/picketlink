@@ -44,7 +44,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * Passwords can be encoded or not. This behavior is configured by setting the <code>encodedPassword</code> property of the
  * {@link Password}.
  * </p>
- * 
+ *
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */

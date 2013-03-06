@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * This annotation denotes a property of a Class implementing the CredentialStorage
  * interface as being persistent.  Properties annotated with @Stored must be
  * Serializable.
- * 
+ *
  * @author Shane Bryzak
  */
 @Target({FIELD, METHOD})

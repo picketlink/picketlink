@@ -34,7 +34,7 @@ public interface IdentityType extends AttributedType {
      * A query parameter used to set the {@link Partition} value
      */
     QueryParameter PARTITION = new QueryParameter() {};
-    
+
     /**
      * A query parameter used to set the enabled value.
      */
@@ -71,7 +71,7 @@ public interface IdentityType extends AttributedType {
     QueryParameter EXPIRY_BEFORE = new QueryParameter() {};
 
     /**
-     * Used to specify either a realm or tier-specific role.  The query should only 
+     * Used to specify either a realm or tier-specific role.  The query should only
      * return IdentityType instances that have been granted the specified role
      */
     QueryParameter HAS_ROLE = new QueryParameter() {};
@@ -109,56 +109,56 @@ public interface IdentityType extends AttributedType {
 
     /**
      * Indicates the current enabled status of this IdentityType.
-     * 
+     *
      * @return A boolean value indicating whether this IdentityType is enabled.
      */
     boolean isEnabled();
 
     /**
      * <p>Sets the current enabled status of this {@link IdentityType}.</p>
-     * 
+     *
      * @param enabled
      */
     void setEnabled(boolean enabled);
 
     /**
      * Returns the date that this IdentityType instance was created.
-     * 
+     *
      * @return Date value representing the creation date
      */
     Date getCreatedDate();
 
     /**
      * <p>Sets the date that this {@link IdentityType} was created.</p>
-     * 
+     *
      * @param expirationDate
      */
     void setCreatedDate(Date createdDate);
 
     /**
      * Returns the date that this IdentityType expires, or null if there is no expiry date.
-     * 
+     *
      * @return
      */
     Date getExpirationDate();
 
     /**
      * <p>Sets the date that this {@link IdentityType} expires.</p>
-     * 
+     *
      * @param expirationDate
      */
     void setExpirationDate(Date expirationDate);
 
     /**
      * Returns the owning Partition for this identity object.
-     * 
+     *
      * @return
      */
     Partition getPartition();
 
     /**
      * <p>Sets the {@link Partition} for this object.</p>
-     * 
+     *
      * @param partition
      */
     void setPartition(Partition partition);

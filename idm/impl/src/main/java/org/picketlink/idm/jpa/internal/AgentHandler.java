@@ -69,15 +69,15 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
         String loginName = getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
 
         Agent agent = new SimpleAgent(loginName);
-        
+
         return agent;
     }
-    
+
     @Override
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
-        
+
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(Agent.LOGIN_NAME);
 
         if (parameterValues != null) {
@@ -85,8 +85,8 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
                     parameterValues[0]));
         }
-        
+
         return predicates;
     }
-    
+
 }

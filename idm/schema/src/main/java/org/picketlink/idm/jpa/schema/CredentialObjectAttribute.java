@@ -104,7 +104,7 @@ public class CredentialObjectAttribute implements Serializable {
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
-    
+
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;

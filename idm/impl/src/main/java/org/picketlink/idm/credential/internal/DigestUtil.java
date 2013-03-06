@@ -35,7 +35,7 @@ public class DigestUtil {
 
     private static final String UTF8 = "UTF-8";
     private static final String MD5_ALGORITHM = "MD5";
-    
+
     /**
      * @param token
      * @return
@@ -47,7 +47,7 @@ public class DigestUtil {
 
         return extract(token, "username=");
     }
-    
+
     /**
      * Determine the message digest
      *
@@ -75,9 +75,9 @@ public class DigestUtil {
     public static String calculate(Digest digest, char[] password) {
         try {
             MessageDigest messageDigest = getMessageDigest();
-            
+
             byte[] ha1 = calculateA1(digest.getUsername(), digest.getRealm(), password);
-            
+
             byte[] ha2 = calculateA2(digest.getMethod(), digest.getUri());
 
             messageDigest.update(convertBytesToHex(ha1).getBytes(UTF8));
@@ -91,7 +91,7 @@ public class DigestUtil {
             messageDigest.update(digest.getQop().getBytes(UTF8));
             messageDigest.update((byte) ':');
             messageDigest.update(convertBytesToHex(ha2).getBytes(UTF8));
-            
+
             byte[] digestedValue = messageDigest.digest();
 
             return convertBytesToHex(digestedValue);
@@ -99,11 +99,11 @@ public class DigestUtil {
             throw new RuntimeException(e);
         }
     }
-    
+
     public static String calculateDigest(Digest digest, byte[] ha1, byte[] ha2) {
         try {
             MessageDigest messageDigest = getMessageDigest();
-            
+
             messageDigest.update(convertBytesToHex(ha1).getBytes(UTF8));
             messageDigest.update((byte) ':');
             messageDigest.update(digest.getNonce().getBytes(UTF8));
@@ -115,7 +115,7 @@ public class DigestUtil {
             messageDigest.update(digest.getQop().getBytes(UTF8));
             messageDigest.update((byte) ':');
             messageDigest.update(convertBytesToHex(ha2).getBytes(UTF8));
-            
+
             return convertBytesToHex(messageDigest.digest());
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -129,7 +129,7 @@ public class DigestUtil {
     public static byte[] calculateA1(String userName, String realm, char[] password) {
         // A1 digest
         MessageDigest messageDigest = null;
-        
+
         try {
             messageDigest = getMessageDigest();
 
@@ -143,17 +143,17 @@ public class DigestUtil {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Unsupported encoding.", e);
         }
-        
+
         return messageDigest.digest();
     }
-    
+
     public static byte[] calculateA2(String method, String uri) {
         // A1 digest
         MessageDigest messageDigest = null;
-        
+
         try {
             messageDigest = getMessageDigest();
-            
+
             messageDigest.update(method.getBytes(UTF8));
             messageDigest.update((byte) ':');
             messageDigest.update(uri.getBytes(UTF8));
@@ -162,7 +162,7 @@ public class DigestUtil {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("Unsupported encoding.", e);
         }
-        
+
         return messageDigest.digest();
     }
 
@@ -203,7 +203,7 @@ public class DigestUtil {
         }
         return buf.toString();
     }
-    
+
     /**
      * Given a digest token, extract the value
      *

@@ -27,7 +27,7 @@ import org.picketlink.idm.model.User;
 
 /**
  * LDAP Representation of an {@link User}
- * 
+ *
  * @author anil saldhana
  * @since Aug 30, 2012
  */
@@ -46,7 +46,7 @@ public class LDAPUser extends LDAPAgent implements User {
     @Override
     public String getFirstName() {
         Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.GIVENNAME);
-        
+
         return getAttributeValue(theAttribute);
     }
 
@@ -54,7 +54,7 @@ public class LDAPUser extends LDAPAgent implements User {
         if (attribute == null) {
             return null;
         }
-        
+
         Object value = null;
 
         try {
@@ -79,7 +79,7 @@ public class LDAPUser extends LDAPAgent implements User {
         if (firstName == null) {
             firstName = " ";
         }
-        
+
         getLDAPAttributes().put(LDAPConstants.GIVENNAME, firstName);
     }
 
@@ -122,15 +122,15 @@ public class LDAPUser extends LDAPAgent implements User {
         if (email == null) {
             email = " ";
         }
-        
+
         getLDAPAttributes().put(LDAPConstants.EMAIL, email);
     }
-    
+
     /**
      * <p>
      * Returns the user CN attribute value. The CN is composed of user's first and last name.
      * </p>
-     * 
+     *
      * @param ldapUser
      * @return
      */
@@ -140,7 +140,7 @@ public class LDAPUser extends LDAPAgent implements User {
         if (getLastName() != null) {
             fullName = fullName + " " + getLastName();
         }
-        
+
         return fullName;
     }
 

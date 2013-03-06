@@ -27,7 +27,7 @@ import org.picketlink.idm.credential.spi.CredentialStorage;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class FileCredentialStorage implements CredentialStorage, Serializable {
 
@@ -59,7 +59,7 @@ public class FileCredentialStorage implements CredentialStorage, Serializable {
     public Date getExpiryDate() {
         return (Date) getStoredFields().get(EXPIRY_DATE_ATTRIBUTE_NAME);
     }
-    
+
     public void setExpiryDate(Date expiryDate) {
         getStoredFields().put(EXPIRY_DATE_ATTRIBUTE_NAME, expiryDate);
     }

@@ -64,15 +64,15 @@ public class EndpointTestBase extends EmbeddedWebServerBase {
         // WebAppContext context = new WebAppContext(warUrlString, CONTEXTPATH);
 
         WebAppContext context = createWebApp(CONTEXTPATH, warUrlString);
-        
+
         context.setExtraClasspath(warUrlString + "/..");
 
         context.setContextPath("/");
         ServletHolder servletHolder = new ServletHolder(new HttpServletDispatcher());
         servletHolder.setInitParameter("javax.ws.rs.Application", PicketLinkOAuthApplication.class.getName());
         context.addServlet(servletHolder, "/*");
-        
-        //context.setParentLoaderPriority(true);
+
+        // context.setParentLoaderPriority(true);
 
         server.setHandler(context);
         if (needLDAP()) {

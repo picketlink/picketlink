@@ -19,18 +19,17 @@
 package org.picketlink.idm.credential.internal;
 
 import java.security.cert.CertificateEncodingException;
-import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.X509Cert;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
-import org.picketlink.common.util.Base64;
 
 /**
- * <p> {@link CredentialStorage} for {@link X509Certificate} credentials.</p>
- * 
+ * <p> {@link CredentialStorage} for X509 Certificates credentials.</p>
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */

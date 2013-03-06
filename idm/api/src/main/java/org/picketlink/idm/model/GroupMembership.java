@@ -23,13 +23,13 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
  * A Relationship that represents an identity's membership in a Group
- * 
+ *
  * @author Shane Bryzak
  */
 public class GroupMembership extends AbstractAttributedType implements Relationship {
-    
+
     public static final RelationshipQueryParameter MEMBER = new RelationshipQueryParameter() {
-        
+
         @Override
         public String getName() {
             return "member";
@@ -37,7 +37,7 @@ public class GroupMembership extends AbstractAttributedType implements Relations
     };;
 
     public static final RelationshipQueryParameter GROUP = new RelationshipQueryParameter() {
-        
+
         @Override
         public String getName() {
             return "group";
@@ -50,9 +50,9 @@ public class GroupMembership extends AbstractAttributedType implements Relations
     private Group group;
 
     public GroupMembership() {
-        
+
     }
-    
+
     public GroupMembership(Agent member, Group group) {
         this.member = member;
         this.group = group;
@@ -62,7 +62,7 @@ public class GroupMembership extends AbstractAttributedType implements Relations
     public Agent getMember() {
         return member;
     }
-    
+
     public void setMember(Agent member) {
         this.member = member;
     }
@@ -71,7 +71,7 @@ public class GroupMembership extends AbstractAttributedType implements Relations
     public Group getGroup() {
         return group;
     }
-    
+
     public void setGroup(Group group) {
         this.group = group;
     }

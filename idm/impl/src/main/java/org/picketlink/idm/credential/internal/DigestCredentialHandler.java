@@ -50,7 +50,7 @@ import org.picketlink.idm.spi.IdentityStore;
  * This is done in two ways, if the credential has the method and uri setted the H(A2) will also be calculated and used to
  * calcutate the final digest as KD ( H(A1), unq(nonce-value) ":" nc-value ":" unq(cnonce-value) ":" unq(qop-value) ":" H(A2) ).
  * </p>
- * 
+ *
  * @author Shane Bryzak
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
@@ -104,7 +104,7 @@ public class DigestCredentialHandler implements CredentialHandler {
             } else if (isLastCredentialExpired(agent, credentialStore, DigestCredentialStorage.class)) {
                 digestCredential.setStatus(Status.EXPIRED);
             }
-            
+
             if (digestCredential.getStatus().equals(Status.VALID)) {
                 digestCredential.setValidatedAgent(agent);
             }

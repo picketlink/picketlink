@@ -30,14 +30,12 @@ import javax.persistence.criteria.Root;
 
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
-import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class JPACriteriaQueryBuilder {
 
@@ -50,7 +48,7 @@ public class JPACriteriaQueryBuilder {
     public JPACriteriaQueryBuilder(JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
         this.identityStore = identityStore;
         this.identityQuery = identityQuery;
-        
+
         this.builder = getEntityManager().getCriteriaBuilder();
         this.criteria = builder.createQuery(getConfig().getIdentityClass());
         this.root = criteria.from(getConfig().getIdentityClass());
@@ -103,7 +101,7 @@ public class JPACriteriaQueryBuilder {
     protected IdentityQuery<?> getIdentityQuery() {
         return this.identityQuery;
     }
-    
+
     private JPAIdentityStoreConfiguration getConfig() {
         return this.identityStore.getConfig();
     }

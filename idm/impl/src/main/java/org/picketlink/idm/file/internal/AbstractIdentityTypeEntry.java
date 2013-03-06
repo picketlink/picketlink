@@ -31,7 +31,7 @@ import org.picketlink.idm.model.Tier;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends AbstractAttributedTypeEntry<T> {
 
@@ -46,16 +46,16 @@ public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends 
         T identityType = super.doPopulateEntry(properties);
 
         String partitionType = properties.get("partitionType").toString();
-        
+
         Partition partition = null;
-        
+
         if (partitionType.equals(Realm.class.getName())) {
             partition = new Realm(properties.get("partitionName").toString());
-        } else if (partitionType.equals(Tier.class.getName())) { 
+        } else if (partitionType.equals(Tier.class.getName())) {
             partition = new Tier(properties.get("partitionName").toString());
         } else {
             MESSAGES.partitionUnsupportedType(partitionType);
-        } 
+        }
 
         partition.setId(properties.get("partitionId").toString());
 
@@ -71,7 +71,7 @@ public abstract class AbstractIdentityTypeEntry<T extends IdentityType> extends 
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         super.doPopulateProperties(properties);
-        
+
         T identityType = getEntry();
 
         properties.put("partitionName", identityType.getPartition().getName());

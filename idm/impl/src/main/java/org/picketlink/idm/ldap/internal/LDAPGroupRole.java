@@ -35,7 +35,7 @@ import org.picketlink.idm.model.Role;
 public class LDAPGroupRole extends LDAPIdentityType {
 
     private static final long serialVersionUID = 1L;
-    
+
     private LDAPAgent agent;
     private LDAPGroup group;
     private LDAPRole role;
@@ -48,13 +48,13 @@ public class LDAPGroupRole extends LDAPIdentityType {
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
         oc.add("top");
         oc.add(LDAPConstants.GROUP_OF_NAMES);
-        
+
         getLDAPAttributes().put(oc);
-        
+
         getLDAPAttributes().put(LDAPConstants.MEMBER, this.role.getDN());
-        
+
         Attribute theAttribute = getLDAPAttributes().get(LDAPConstants.CN);
-        
+
         if (theAttribute == null) {
             getLDAPAttributes().put(LDAPConstants.CN, this.group.getName());
         } else {
@@ -62,12 +62,12 @@ public class LDAPGroupRole extends LDAPIdentityType {
         }
 
     }
-    
+
     @Override
     public String getDN() {
-        return "cn=" + this.group.getName() + LDAPConstants.COMMA + this.agent.getDN(); 
+        return "cn=" + this.group.getName() + LDAPConstants.COMMA + this.agent.getDN();
     }
-    
+
     public IdentityType getMember() {
         return this.agent;
     }

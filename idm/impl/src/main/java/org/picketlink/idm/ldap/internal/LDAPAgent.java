@@ -47,7 +47,7 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
         oc.add("extensibleObject");
 
         getLDAPAttributes().put(oc);
-        
+
         getLDAPAttributes().put(LDAPConstants.CN, " ");
         getLDAPAttributes().put(LDAPConstants.SN, " ");
         getLDAPAttributes().put(LDAPConstants.GIVENNAME, " ");
@@ -55,11 +55,11 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
 
     public LDAPAgent(String loginName, String agentDNSuffix) {
         this(agentDNSuffix);
-        
+
         if (loginName == null) {
             throw MESSAGES.nullArgument("Login name.");
         }
-        
+
         setLoginName(loginName);
     }
 
@@ -67,11 +67,11 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
     protected String getAttributeForBinding() {
         return UID;
     }
-    
+
     @Override
     public String getLoginName() {
         Attribute theAttribute = getLDAPAttributes().get(UID);
-        
+
         if (theAttribute != null) {
             try {
                 return (String) theAttribute.get();
@@ -79,14 +79,14 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
                 throw new RuntimeException(e);
             }
         }
-        
+
         return null;
     }
-    
+
     @Override
     public void setLoginName(String loginName) {
         Attribute theAttribute = getLDAPAttributes().get(UID);
-        
+
         if (theAttribute == null) {
             getLDAPAttributes().put(UID, loginName);
         } else {
@@ -94,5 +94,5 @@ public class LDAPAgent extends LDAPIdentityType implements Agent {
             theAttribute.add(0, loginName);
         }
     }
-    
+
 }

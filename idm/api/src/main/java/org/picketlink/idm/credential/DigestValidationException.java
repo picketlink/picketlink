@@ -1,7 +1,7 @@
 package org.picketlink.idm.credential;
 
 /**
- * 
+ *
  * @author Shane Bryzak
  */
 public class DigestValidationException extends SecurityException {

@@ -23,15 +23,10 @@
 		<url>http://www.jboss.org</url>
 	</organization>
 
-	<properties>
-		<jboss.logging.version>3.1.0.GA</jboss.logging.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.jboss.logging</groupId>
 			<artifactId>jboss-logging</artifactId>
-			<version>${jboss.logging.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.enterprise</groupId>

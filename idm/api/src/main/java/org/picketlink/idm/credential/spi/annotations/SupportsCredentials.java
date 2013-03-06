@@ -27,9 +27,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * This annotation is used to declare which credential types are supported by a 
- * particular CredentialHandler implementation 
- *  
+ * This annotation is used to declare which credential types are supported by a
+ * particular CredentialHandler implementation
+ *
  * @author Shane Bryzak
  */
 @Target({TYPE})

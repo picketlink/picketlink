@@ -56,9 +56,9 @@ import org.picketlink.idm.spi.IdentityStore;
  * identity store configuration. The LockedFeatureSet is a short description for the message itself.
  * </p>
  * <p>General messages may not have a [Context].</p>
- * 
+ *
  * @author Pedro Silva
- * 
+ *
  */
 @MessageBundle(projectCode = "PLIDM")
 public interface IDMMessages {
@@ -80,7 +80,7 @@ public interface IDMMessages {
 
     @Message (id = 53, value = "Could not remove IdentityType [%s].")
     IdentityManagementException identityTypeRemoveFailed(IdentityType identityType, @Cause Throwable t);
-    
+
     @Message (id = 54, value = "Could not update IdentityType [%s].")
     IdentityManagementException identityTypeUpdateFailed(IdentityType identityType, @Cause Throwable t);
 
@@ -177,7 +177,7 @@ public interface IDMMessages {
 
     @Message (id = 57, value = "Could not remove Relationship [%s].")
     IdentityManagementException relationshipRemoveFailed(Relationship relationship, @Cause Throwable t);
-    
+
     @Message (id = 58, value = "Could not update Relationship [%s].")
     IdentityManagementException relationshipUpdateFailed(Relationship relationship, @Cause Throwable t);
 
@@ -247,5 +247,11 @@ public interface IDMMessages {
 
     @Message(id = 51, value = "Group baseDN not provided.")
     SecurityConfigurationException ldapConfigGroupDNNotProvided();
+
+    @Message(id = 60, value = "Could not initialize filesystem.")
+    SecurityConfigurationException fileConfigFailedToInitializeFilesystem(@Cause Throwable t);
+
+    @Message(id = 61, value = "No discriminator could be determined for type [%s].")
+    SecurityConfigurationException jpaConfigDiscriminatorNotFoundForIdentityType(Class<? extends IdentityType> type);
 
 }

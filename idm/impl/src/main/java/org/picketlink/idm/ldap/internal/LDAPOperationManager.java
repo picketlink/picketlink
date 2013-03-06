@@ -49,7 +49,7 @@ import org.picketlink.idm.IdentityManagementException;
  * A different {@link DirContext} is used to perform authentication. The reason is that while managing the ldap tree information
  * bindings are not allowed. Also, instead of creating a new {@link DirContext} each time we reuse it.
  * </p>
- * 
+ *
  * @author Anil Saldhana
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  */
@@ -118,7 +118,7 @@ public class LDAPOperationManager {
      * <p>
      * Binds a {@link Object} to the LDAP tree.
      * </p>
-     * 
+     *
      * @param ldapUser
      */
     public void bind(String dn, Object object) {
@@ -144,7 +144,7 @@ public class LDAPOperationManager {
      * <p>
      * Modifies the given {@link Attribute} instance using the given DN. This method performs a REPLACE_ATTRIBUTE operation.
      * </p>
-     * 
+     *
      * @param dn
      * @param attribute
      */
@@ -157,7 +157,7 @@ public class LDAPOperationManager {
      * <p>
      * Removes the given {@link Attribute} instance using the given DN. This method performs a REMOVE_ATTRIBUTE operation.
      * </p>
-     * 
+     *
      * @param dn
      * @param attribute
      */
@@ -170,7 +170,7 @@ public class LDAPOperationManager {
      * <p>
      * Adds the given {@link Attribute} instance using the given DN. This method performs a ADD_ATTRIBUTE operation.
      * </p>
-     * 
+     *
      * @param dn
      * @param attribute
      */
@@ -183,7 +183,7 @@ public class LDAPOperationManager {
      * <p>
      * Re-binds a {@link Object} to the LDAP tree.
      * </p>
-     * 
+     *
      * @param dn
      * @param object
      */
@@ -210,7 +210,7 @@ public class LDAPOperationManager {
      * <p>
      * Looks up a entry on the LDAP tree with the given DN.
      * </p>
-     * 
+     *
      * @param dn
      * @return
      * @throws NamingException
@@ -228,7 +228,7 @@ public class LDAPOperationManager {
      * <p>
      * Searches the LDAP tree.
      * </p>
-     * 
+     *
      * @param baseDN
      * @param attributesToSearch
      * @return
@@ -267,7 +267,7 @@ public class LDAPOperationManager {
      * <p>
      * Searches the LDAP tree.
      * </p>
-     * 
+     *
      * @param baseDN
      * @param filter
      * @param attributesToReturn
@@ -276,9 +276,9 @@ public class LDAPOperationManager {
      */
     public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn,
             SearchControls searchControls) {
-        
+
         searchControls.setReturningAttributes(new String[] {"*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
-        
+
         try {
             return getContext().search(baseDN, filter, attributesToReturn, searchControls);
         } catch (NamingException e) {
@@ -310,7 +310,7 @@ public class LDAPOperationManager {
             cons.setReturningObjFlag(false);
             cons.setCountLimit(1);
             cons.setReturningAttributes(new String[] {"*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
-            
+
             return getContext().search(baseDN, filter, cons);
         } catch (NamingException e) {
             throw new RuntimeException(e);
@@ -321,7 +321,7 @@ public class LDAPOperationManager {
      * <p>
      * Destroys a subcontext with the given DN from the LDAP tree.
      * </p>
-     * 
+     *
      * @param dn
      */
     public void destroySubcontext(String dn) {
@@ -360,7 +360,7 @@ public class LDAPOperationManager {
      * Checks if the attribute with the given name is a managed attributes. Managed attributes are the ones defined in the
      * underlying schema or those defined in the managed attribute list.
      * </p>
-     * 
+     *
      * @param attributeName
      * @return
      */
@@ -381,7 +381,7 @@ public class LDAPOperationManager {
      * <p>
      * Ask the ldap server for the schema for the attribute.
      * </p>
-     * 
+     *
      * @param attributeName
      * @return
      */
@@ -404,7 +404,7 @@ public class LDAPOperationManager {
      * <p>
      * Performs a simple authentication using the ginve DN and password to bind to the authentication context.
      * </p>
-     * 
+     *
      * @param dn
      * @param password
      * @return

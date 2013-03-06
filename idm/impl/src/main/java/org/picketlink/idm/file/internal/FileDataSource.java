@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.file.internal;
 
+import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.file.internal.FileUtils.createFileIfNotExists;
 import static org.picketlink.idm.file.internal.FileUtils.delete;
 import static org.picketlink.idm.file.internal.FileUtils.readObject;
@@ -74,7 +75,7 @@ public class FileDataSource {
     private Map<String, List<FileRelationship>> relationships = new HashMap<String, List<FileRelationship>>();
 
     private boolean initialized;
-    
+
     /**
      * <p>
      * Initializes the working directory.
@@ -89,11 +90,14 @@ public class FileDataSource {
 
         if (workingDirectoryFile.exists()) {
             if (isAlwaysCreateFiles()) {
+                LOGGER.fileConfigAlwaysCreateWorkingDir(workingDirectoryFile.getPath());
                 delete(workingDirectoryFile);
             }
         }
 
         workingDirectoryFile.mkdirs();
+
+        LOGGER.fileConfigUsingWorkingDir(workingDirectoryFile.getPath());
     }
 
     public void init() {
@@ -114,6 +118,8 @@ public class FileDataSource {
                 this.relationships = new HashMap<String, List<FileRelationship>>();
             }
 
+            LOGGER.debug("Loaded Relationships");
+
             this.initialized = true;
         }
     }
@@ -122,6 +128,7 @@ public class FileDataSource {
         this.partitions = FileUtils.readObject(partitionsFile);
 
         if (this.partitions == null) {
+            LOGGER.debugf("No partitions to load from %s", partitionsFile.getPath());
             this.partitions = new HashMap<String, FilePartition>();
         } else {
             Set<Entry<String, FilePartition>> entrySet = this.partitions.entrySet();
@@ -131,10 +138,12 @@ public class FileDataSource {
             }
         }
     }
-    
+
     protected void initPartition(String partitionId) {
         FilePartition filePartition = this.partitions.get(partitionId);
-        
+
+        LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getName(), partitionId);
+
         String agentsPath = getWorkingDir() + File.separator + partitionId + File.separator + AGENTS_FILE_NAME;
 
         File agentsFile = createFileIfNotExists(new File(agentsPath));
@@ -146,6 +155,8 @@ public class FileDataSource {
         }
 
         filePartition.setAgents(agents);
+
+        LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getName());
 
         String rolesPath = getWorkingDir() + File.separator + partitionId + File.separator + ROLES_FILE_NAME;
 
@@ -159,6 +170,8 @@ public class FileDataSource {
 
         filePartition.setRoles(roles);
 
+        LOGGER.debugf("Loaded Roles for Partition [%s].", filePartition.getName());
+
         String groupsPath = getWorkingDir() + File.separator + partitionId + File.separator + GROUPS_FILE_NAME;
 
         File groupsFile = createFileIfNotExists(new File(groupsPath));
@@ -171,6 +184,8 @@ public class FileDataSource {
 
         filePartition.setGroups(groups);
 
+        LOGGER.debugf("Loaded Groups for Partition [%s].", filePartition.getName());
+
         String credentialsPath = getWorkingDir() + File.separator + partitionId + File.separator + CREDENTIALS_FILE_NAME;
 
         File credentialsFile = createFileIfNotExists(new File(credentialsPath));
@@ -182,6 +197,8 @@ public class FileDataSource {
         }
 
         filePartition.setCredentials(credentials);
+
+        LOGGER.debugf("Loaded Credentials for Partition [%s].", filePartition.getName());
     }
 
     protected void flushAgents(FilePartition partition) {
@@ -234,7 +251,7 @@ public class FileDataSource {
             throw new IdentityManagementException("Error flushing changes to file system.", e);
         }
     }
-    
+
     protected Map<String, Agent> getAgents(Partition partition) {
         Map<String, FileAgent> fileAgents = getPartition(partition.getId()).getAgents();
 

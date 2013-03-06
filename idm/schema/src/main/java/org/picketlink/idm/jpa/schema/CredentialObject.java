@@ -35,32 +35,32 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 @Entity
 @IDMEntity(EntityType.IDENTITY_CREDENTIAL)
 public class CredentialObject implements Serializable {
-    
+
     private static final long serialVersionUID = -5133066075760567565L;
 
     @Id
     @GeneratedValue
     private Long id;
-    
+
     @IDMProperty (PropertyType.CREDENTIAL_TYPE)
     private String type;
-    
+
     @IDMProperty (PropertyType.CREDENTIAL_VALUE)
     private String credential;
-    
+
     @IDMProperty (PropertyType.CREDENTIAL_EFFECTIVE_DATE)
     @Temporal (TemporalType.TIMESTAMP)
     private Date effectiveDate;
-    
+
     @IDMProperty (PropertyType.CREDENTIAL_EXPIRY_DATE)
     @Temporal (TemporalType.TIMESTAMP)
     private Date expiryDate;
-    
+
     @IDMProperty (PropertyType.CREDENTIAL_IDENTITY)
     @ManyToOne
     private IdentityObject identityType;
@@ -68,11 +68,11 @@ public class CredentialObject implements Serializable {
     public Long getId() {
         return id;
     }
-    
+
     public void setId(Long id) {
         this.id = id;
     }
-    
+
     public String getType() {
         return type;
     }
@@ -112,7 +112,7 @@ public class CredentialObject implements Serializable {
     public void setIdentityType(IdentityObject identityType) {
         this.identityType = identityType;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -127,7 +127,7 @@ public class CredentialObject implements Serializable {
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
-    
+
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;

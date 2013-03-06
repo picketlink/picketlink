@@ -43,7 +43,7 @@ import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public class FileIdentityQueryHelper {
 
@@ -140,13 +140,13 @@ public class FileIdentityQueryHelper {
                     }
 
                     Agent agent = (Agent) object;
-                    
+
                     DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, this.identityStore);
-                    
+
                     query.setParameter(GroupMembership.MEMBER, agent);
-                    
+
                     List<GroupMembership> result = query.getResultList();
-                    
+
                     for (GroupMembership groupMembership : result) {
                         if (groupMembership != null) {
                             if (!groupMembership.getGroup().getId().equals(currentGroup.getId())) {
@@ -160,11 +160,11 @@ public class FileIdentityQueryHelper {
                     }
                 } else if (Group.class.isInstance(object)) {
                     Group group = (Group) object;
-                    
+
                     if (group.getParentGroup() == null) {
                         return false;
                     }
-                    
+
                     if (this.identityStore.hasParentGroup(group, currentGroup)) {
                         valuesMatchCount--;
                     }
@@ -223,7 +223,7 @@ public class FileIdentityQueryHelper {
                 if (!Group.class.isInstance(group)) {
                     throw MESSAGES.queryUnsupportedParameterValue("IdentityType.MEMBER_OF", group);
                 }
-                
+
                 if (group != null) {
                     RelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
                             GroupMembership.class, identityStore);
@@ -257,7 +257,7 @@ public class FileIdentityQueryHelper {
                 if (!Role.class.isInstance(role)) {
                     throw MESSAGES.queryUnsupportedParameterValue("IdentityType.HAS_ROLE", role);
                 }
-                
+
                 if (role != null) {
                     RelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, identityStore);
 
@@ -284,7 +284,7 @@ public class FileIdentityQueryHelper {
      * <p>
      * Checks if the
      * </p>
-     * 
+     *
      * @param identityType
      * @param parameters
      * @return

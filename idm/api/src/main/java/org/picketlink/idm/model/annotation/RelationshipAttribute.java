@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a property of a Relationship as being an attribute of that Relationship.
- * 
+ *
  * @author Shane Bryzak
  *
  */

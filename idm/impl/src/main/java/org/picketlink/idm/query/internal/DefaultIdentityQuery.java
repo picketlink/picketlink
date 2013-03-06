@@ -33,7 +33,7 @@ import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * Default IdentityQuery implementation.
- * 
+ *
  * @author Shane Bryzak
  *
  * @param <T>
@@ -47,12 +47,12 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private int limit;
     private QueryParameter[] sortParameters;
     private boolean sortAscending = true;
-    
+
     public DefaultIdentityQuery(Class<T> identityType, IdentityStore<?> identityStore) {
         this.identityStore = identityStore;
         this.identityType = identityType;
     }
-    
+
     @Override
     public IdentityQuery<T> setParameter(QueryParameter param, Object... value) {
         parameters.put(param, value);
@@ -68,24 +68,24 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     public Map<QueryParameter, Object[]> getParameters() {
         return parameters;
     }
-    
+
     @Override
     public Object[] getParameter(QueryParameter queryParameter) {
         return this.parameters.get(queryParameter);
     }
-    
+
     @Override
     public Map<QueryParameter, Object[]> getParameters(Class<?> type) {
         Map<QueryParameter, Object[]> typedParameters = new HashMap<QueryParameter, Object[]>();
-        
+
         Set<Entry<QueryParameter, Object[]>> entrySet = this.parameters.entrySet();
-        
+
         for (Entry<QueryParameter, Object[]> entry : entrySet) {
             if (type.isInstance(entry.getKey())) {
                 typedParameters.put(entry.getKey(), entry.getValue());
             }
         }
-        
+
         return typedParameters;
     }
 
@@ -124,13 +124,13 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     @Override
     public List<T> getResultList() {
         List<T> result = null;
-        
+
         try {
             result = this.identityStore.fetchQueryResults(this);
         } catch (Exception e) {
             throw IDMMessages.MESSAGES.identityTypeQueryFailed(this, e);
         }
-        
+
         return result;
     }
 

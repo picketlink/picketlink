@@ -42,6 +42,7 @@ import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
 import org.picketlink.idm.jpa.schema.RelationshipObject;
 import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Authorization;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.test.idm.IdentityManagerRunner;
 import org.picketlink.test.idm.TestLifecycle;
 import org.picketlink.test.idm.basic.AgentManagementTestCase;
@@ -113,7 +114,6 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         IdentityConfiguration config = new IdentityConfiguration();
 
         config.addStoreConfiguration(getDefaultConfiguration());
-        config.addStoreConfiguration(getTestingRealmConfiguration());
         
         return createIdentityManager(config);
     }
@@ -138,27 +138,9 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     private IdentityStoreConfiguration getDefaultConfiguration() {
         JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
 
-        configureJPAConfiguration(configuration);
-
-        return configuration;
-    }
-    
-    /**
-     * <p>Returns a specific {@link FileIdentityStoreConfiguration} for the Testing Realm.</p>
-     * 
-     * @return
-     */
-    private IdentityStoreConfiguration getTestingRealmConfiguration() {
-        JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
-        
+        configuration.addRealm(Realm.DEFAULT_REALM);
         configuration.addRealm("Testing");
         
-        configureJPAConfiguration(configuration);
-        
-        return configuration;
-    }
-
-    private void configureJPAConfiguration(JPAIdentityStoreConfiguration configuration) {
         configuration.setIdentityClass(IdentityObject.class);
         configuration.setAttributeClass(IdentityObjectAttribute.class);
         configuration.setRelationshipClass(RelationshipObject.class);
@@ -174,6 +156,8 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
         configuration.getFeatureSet().setSupportsCustomRelationships(true);
         configuration.getFeatureSet().setSupportsMultiRealm(true);
+
+        return configuration;
     }
 
 }

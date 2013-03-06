@@ -26,7 +26,7 @@ import org.picketlink.idm.model.SimpleRole;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public class FileRole extends AbstractIdentityTypeEntry<Role> {
 
@@ -41,16 +41,16 @@ public class FileRole extends AbstractIdentityTypeEntry<Role> {
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         super.doPopulateProperties(properties);
-        
+
         Role role = getEntry();
-        
+
         properties.put("name", role.getName());
     }
 
     @Override
     protected Role doCreateInstance(Map<String, Serializable> properties) throws Exception {
-        String name = properties.get("name").toString(); 
+        String name = properties.get("name").toString();
         return new SimpleRole(name);
     }
-    
+
 }

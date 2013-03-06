@@ -26,7 +26,7 @@ import org.picketlink.idm.model.User;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public class FileAgent extends AbstractIdentityTypeEntry<Agent> {
 
@@ -41,14 +41,14 @@ public class FileAgent extends AbstractIdentityTypeEntry<Agent> {
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         super.doPopulateProperties(properties);
-        
+
         Agent agent = getEntry();
-        
+
         properties.put("loginName", agent.getLoginName());
-        
+
         if (User.class.isInstance(agent)) {
             User user = (User) agent;
-            
+
             properties.put("firstName", user.getFirstName());
             properties.put("lastName", user.getLastName());
             properties.put("email", user.getEmail());
@@ -57,36 +57,36 @@ public class FileAgent extends AbstractIdentityTypeEntry<Agent> {
 
     @Override
     protected Agent doCreateInstance(Map<String, Serializable> properties) throws Exception {
-        String loginName = properties.get("loginName").toString(); 
+        String loginName = properties.get("loginName").toString();
         return (Agent) Class.forName(getType()).getConstructor(String.class).newInstance(loginName);
     }
-    
+
     @Override
     protected Agent doPopulateEntry(Map<String, Serializable> properties) throws Exception {
         Agent agent = super.doPopulateEntry(properties);
-        
+
         if (User.class.isInstance(agent)) {
             User user = (User) agent;
 
             Serializable firstName = properties.get("firstName");
-            
+
             if (firstName != null) {
-                user.setFirstName(firstName.toString());                
+                user.setFirstName(firstName.toString());
             }
 
             Serializable lastName = properties.get("lastName");
-            
+
             if (lastName != null) {
-                user.setLastName(lastName.toString());                
+                user.setLastName(lastName.toString());
             }
 
             Serializable email = properties.get("email");
-            
+
             if (email != null) {
-                user.setEmail(email.toString());                
+                user.setEmail(email.toString());
             }
         }
-        
+
         return agent;
     }
 }

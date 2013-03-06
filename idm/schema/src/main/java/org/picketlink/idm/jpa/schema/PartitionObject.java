@@ -31,7 +31,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 @Entity
 @IDMEntity(EntityType.PARTITION)
@@ -84,7 +84,7 @@ public class PartitionObject implements Serializable {
     public void setParent(PartitionObject parent) {
         this.parent = parent;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -99,7 +99,7 @@ public class PartitionObject implements Serializable {
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
-    
+
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;

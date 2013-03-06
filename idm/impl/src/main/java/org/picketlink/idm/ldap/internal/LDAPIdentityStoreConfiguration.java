@@ -30,11 +30,10 @@ import javax.naming.NamingException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 
 /**
- * A {@link IdentityStoreConfiguration} for LDAP
- * 
+ * A {@link BaseAbstractStoreConfiguration} for the LDAP store.
+ *
  * @author anil saldhana
  * @since Sep 6, 2012
  */
@@ -83,7 +82,7 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
         } catch (NamingException e) {
             throw new SecurityConfigurationException(e);
         }
-        
+
         getFeatureSet().removeFeature(FeatureGroup.realm);
         getFeatureSet().removeFeature(FeatureGroup.tier);
         getFeatureSet().setSupportsCustomRelationships(false);
@@ -221,7 +220,7 @@ public class LDAPIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     public void addGroupMapping(String groupPath, String groupBaseDN) {
         this.groupMapping.put(groupPath, groupBaseDN);
     }
-    
+
     public String getGroupMappingDN(String groupPath) {
         Set<Entry<String, String>> entrySet = this.groupMapping.entrySet();
 

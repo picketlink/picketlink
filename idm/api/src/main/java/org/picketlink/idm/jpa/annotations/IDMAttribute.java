@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a property of an entity bean as containing an Identity Management attribute
- *  
+ *
  * @author Shane Bryzak
  */
 @Target({METHOD, FIELD})

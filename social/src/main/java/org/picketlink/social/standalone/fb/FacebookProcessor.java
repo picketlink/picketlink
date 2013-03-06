@@ -47,7 +47,7 @@ import org.json.JSONObject;
  * @since Sep 22, 2011
  */
 public class FacebookProcessor {
-    private static final String FB_AUTH_STATE_SESSION_ATTRIBUTE = "FB_AUTH_STATE_SESSION_ATTRIBUTE";
+    public static final String FB_AUTH_STATE_SESSION_ATTRIBUTE = "FB_AUTH_STATE_SESSION_ATTRIBUTE";
     protected static Logger log = Logger.getLogger(FacebookProcessor.class);
     protected boolean trace = log.isTraceEnabled();
 
@@ -67,7 +67,7 @@ public class FacebookProcessor {
     protected String clientID;
     protected String clientSecret;
     protected String scope;
-    private String returnURL;
+    protected String returnURL;
 
     public FacebookProcessor(String clientID, String clientSecret, String scope, String returnURL, List<String> requiredRoles) {
         super();
@@ -134,7 +134,7 @@ public class FacebookProcessor {
         }
     }
 
-    public Principal getPrincipal(HttpServletRequest request, HttpServletResponse response) { 
+    public Principal getPrincipal(HttpServletRequest request, HttpServletResponse response) {
         Principal facebookPrincipal = handleAuthenticationResponse(request, response);
         if (facebookPrincipal == null)
             return null;
@@ -144,7 +144,7 @@ public class FacebookProcessor {
         return facebookPrincipal;
     }
 
-    protected Principal handleAuthenticationResponse(HttpServletRequest request, HttpServletResponse response) {
+    public Principal handleAuthenticationResponse(HttpServletRequest request, HttpServletResponse response) {
         String error = request.getParameter(OAuthConstants.ERROR_PARAMETER);
         if (error != null) {
             throw new RuntimeException("error:" + error);
@@ -213,11 +213,13 @@ public class FacebookProcessor {
             facebookPrincipal.setAccessToken(accessToken);
             facebookPrincipal.setId(jsonObject.getString("id"));
             facebookPrincipal.setName(jsonObject.getString("name"));
+            facebookPrincipal.setUsername(jsonObject.getString("username"));
             facebookPrincipal.setFirstName(jsonObject.getString("first_name"));
             facebookPrincipal.setLastName(jsonObject.getString("last_name"));
             facebookPrincipal.setGender(jsonObject.getString("gender"));
             facebookPrincipal.setTimezone(jsonObject.getString("timezone"));
             facebookPrincipal.setLocale(jsonObject.getString("locale"));
+            facebookPrincipal.setJsonObject(jsonObject);
             if (jsonObject.getString("email") != null) {
                 facebookPrincipal.setName(jsonObject.getString("email"));
                 facebookPrincipal.setEmail(jsonObject.getString("email"));

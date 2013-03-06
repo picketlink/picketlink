@@ -22,7 +22,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 
 /**
  * Creates IdentityStore instances based on a provided configuration
- * 
+ *
  * @author Shane Bryzak
  *
  */
@@ -30,7 +30,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 public interface StoreFactory {
     /**
      * Creates an instance of an IdentityStore using the provided configuration
-     * 
+     *
      * @param config
      * @return
      */
@@ -39,11 +39,11 @@ public interface StoreFactory {
     /**
      * Maps specific implementations of IdentityStoreConfiguration to a corresponding
      * IdentityStore implementation.
-     * 
+     *
      * @param configClass
      * @param storeClass
      */
-    void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass, 
+    void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
             Class<? extends IdentityStore<?>> storeClass);
 
 }

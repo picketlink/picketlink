@@ -22,7 +22,7 @@ import org.picketlink.idm.model.User;
 
 /**
  * This event is raised when a user is deleted
- * 
+ *
  * @author Shane Bryzak
  */
 public class UserDeletedEvent extends AbstractBaseEvent {

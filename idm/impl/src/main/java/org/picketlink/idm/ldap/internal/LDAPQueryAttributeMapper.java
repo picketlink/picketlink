@@ -38,7 +38,7 @@ public class LDAPQueryAttributeMapper {
 
     private static final Map<QueryParameter, String> customAttributeMap = new HashMap<QueryParameter, String>();
     private static final Map<QueryParameter, String> ldapAttributeMap = new HashMap<QueryParameter, String>();
-    
+
     static {
         ldapAttributeMap.put(User.ID, LDAPConstants.ENTRY_UUID);
         ldapAttributeMap.put(User.LOGIN_NAME, LDAPConstants.UID);
@@ -51,20 +51,20 @@ public class LDAPQueryAttributeMapper {
         ldapAttributeMap.put(User.CREATED_DATE, LDAPConstants.CREATE_TIMESTAMP);
         ldapAttributeMap.put(User.CREATED_BEFORE, LDAPConstants.CREATE_TIMESTAMP);
         ldapAttributeMap.put(User.CREATED_AFTER, LDAPConstants.CREATE_TIMESTAMP);
-        
+
         customAttributeMap.put(User.EXPIRY_DATE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(User.EXPIRY_BEFORE, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(User.EXPIRY_AFTER, LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE);
         customAttributeMap.put(IdentityType.ENABLED, LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED);
     }
-    
+
     public static Attribute map(QueryParameter parameter) {
         String attribute = ldapAttributeMap.get(parameter);
-        
+
         if (attribute == null) {
             return null;
         }
-        
+
         return new BasicAttribute(attribute);
     }
 
@@ -72,8 +72,8 @@ public class LDAPQueryAttributeMapper {
         if (customAttributeMap.get(queryParameter) == null) {
             return null;
         }
-        
+
         return new BasicAttribute(customAttributeMap.get(queryParameter));
     }
-    
+
 }

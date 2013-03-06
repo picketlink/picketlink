@@ -20,7 +20,7 @@ package org.picketlink.idm;
 
 /**
  * This exception is thrown if there is an error during an identity management operation.
- * 
+ *
  * @author Shane Bryzak
  */
 public class IdentityManagementException extends SecurityException {

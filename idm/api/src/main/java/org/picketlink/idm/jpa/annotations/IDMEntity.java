@@ -27,8 +27,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Denotes an entity bean as storing Identity Management state 
- * 
+ * Denotes an entity bean as storing Identity Management state
+ *
  * @author Shane Bryzak
  */
 @Target({TYPE})

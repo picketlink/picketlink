@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marks the property of a Relationship as an identity that participates in the relationship.
- * 
+ *
  * @author Shane Bryzak
  *
  */

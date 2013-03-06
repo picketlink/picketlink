@@ -26,7 +26,7 @@ import org.picketlink.idm.model.SimpleGroup;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public class FileGroup extends AbstractIdentityTypeEntry<Group> {
 
@@ -41,43 +41,43 @@ public class FileGroup extends AbstractIdentityTypeEntry<Group> {
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         super.doPopulateProperties(properties);
-        
+
         Group group = getEntry();
-        
+
         properties.put("name", group.getName());
         properties.put("path", group.getPath());
-        
+
         if (group.getParentGroup() != null) {
             properties.put("parentId", group.getParentGroup().getId());
             properties.put("parentName", group.getParentGroup().getName());
         }
     }
-    
+
 
 
     @Override
     protected Group doCreateInstance(Map<String, Serializable> properties) throws Exception {
         Group parent = null;
-        
+
         if (properties.get("parentId") != null) {
             parent = new SimpleGroup(properties.get("parentName").toString());
-            
+
             parent.setId(properties.get("parentId").toString());
         }
 
         SimpleGroup group = null;
-        
+
         String name = properties.get("name").toString();
-        
+
         if (parent != null) {
             group = new SimpleGroup(name, parent);
         } else {
             group = new SimpleGroup(name);
         }
-        
+
         group.setPath(properties.get("path").toString());
-        
+
         return group;
     }
-    
+
 }

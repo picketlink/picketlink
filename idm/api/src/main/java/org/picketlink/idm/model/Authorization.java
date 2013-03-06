@@ -24,9 +24,9 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
  * Models an oAuth authorization
- * 
+ *
  * @author Shane Bryzak
- * 
+ *
  */
 public class Authorization extends AbstractAttributedType implements Relationship {
 
@@ -50,7 +50,7 @@ public class Authorization extends AbstractAttributedType implements Relationshi
 
     private User user;
     private Agent application;
-    
+
     private String authorizationCode;
     private String accessToken;
     private String refreshToken;

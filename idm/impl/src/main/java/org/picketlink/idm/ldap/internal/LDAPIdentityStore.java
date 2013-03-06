@@ -68,7 +68,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
- * 
+ *
  * @author Shane Bryzak
  * @author Anil Saldhana
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -1112,7 +1112,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
      * <p>
      * Returns a DN for the custom attributes entry.
      * </p>
-     * 
+     *
      * @param parentDN
      * @return
      */
@@ -1249,7 +1249,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
      * <p>
      * Returns the custom attributes for the given parent DN.
      * </p>
-     * 
+     *
      * @param parentDN
      * @return
      */
@@ -1274,7 +1274,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
      * <p>
      * Returns the parent group for the given child group.
      * </p>
-     * 
+     *
      * @param childGroup
      * @return
      */

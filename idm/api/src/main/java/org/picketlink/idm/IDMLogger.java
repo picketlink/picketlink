@@ -22,17 +22,61 @@
 
 package org.picketlink.idm;
 
+import java.util.Set;
+
 import org.jboss.logging.BasicLogger;
+import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
+import org.jboss.logging.Logger.Level;
+import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 @MessageLogger(projectCode = "PLIDM")
 public interface IDMLogger extends BasicLogger {
 
     IDMLogger LOGGER = Logger.getMessageLogger(IDMLogger.class, IDMLogger.class.getPackage().getName());
+
+    @LogMessage(level = Level.INFO)
+    @Message(id = 100, value = "Bootstrapping PicketLink Identity Manager")
+    void identityManagerBootstrapping();
+
+    @LogMessage(level = Level.INFO)
+    @Message(id = 101, value = "Initializing Identity Store Configuration [%s] for Realms [%s]")
+    void identityManagerInitConfigForRealms(IdentityStoreConfiguration config, Set<String> realms);
+
+    @LogMessage(level = Level.INFO)
+    @Message(id = 102, value = "Using working directory [%s].")
+    void fileConfigUsingWorkingDir(String path);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 103, value = "Working directory [%s] is marked to be always created. All your existing data will be lost.")
+    void fileConfigAlwaysCreateWorkingDir(String path);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 104, value = "No suitable configuration found for Feature [%s.%s]. Could find an IdentityStore to perform the requested operation.")
+    void identityManagerUnsupportedOperation(FeatureGroup feature, FeatureOperation operation);
+
+    @LogMessage(level = Level.ERROR)
+    @Message(id = 105, value = "No configuration found for the given Realm [%s].")
+    void identityManagerRealmNotConfigured(String realmName);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 106, value = "Partition features are disabled. Did you provide a JPA Entity class to store partitions ?")
+    void jpaConfigDisablingPartitionFeatures();
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 107, value = "Relationship features are disabled. Did you provide a JPA Entity class to store relationships ?")
+    void jpaConfigDisablingRelationshipFeatures();
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 108, value = "Credential features are disabled. Did you provide a JPA Entity class to store credentials ?")
+    void jpaConfigDisablingCredentialFeatures();
 
 }

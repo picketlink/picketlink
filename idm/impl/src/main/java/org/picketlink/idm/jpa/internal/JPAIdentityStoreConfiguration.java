@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.jpa.internal;
 
+import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.lang.reflect.Field;
@@ -33,7 +34,6 @@ import org.picketlink.common.properties.query.PropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.properties.query.PropertyQuery;
 import org.picketlink.common.properties.query.TypedPropertyCriteria;
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
@@ -48,9 +48,9 @@ import org.picketlink.idm.model.User;
 
 /**
  * This interface defines the configuration parameters for a JPA based IdentityStore implementation.
- * 
+ *
  * @author Shane Bryzak
- * 
+ *
  */
 public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
@@ -235,7 +235,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     /**
      * Maps attributes to properties that are spread across the object model
-     * 
+     *
      */
     public class MappedAttribute {
         /**
@@ -327,6 +327,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, credentialAttributeClass, null);
             configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, credentialAttributeClass, credentialClass);
         } else {
+            LOGGER.jpaConfigDisablingCredentialFeatures();
             getFeatureSet().removeFeature(FeatureGroup.credential);
         }
     }
@@ -355,6 +356,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
             configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
             configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");
         } else {
+            LOGGER.jpaConfigDisablingPartitionFeatures();
             getFeatureSet().removeFeature(FeatureGroup.realm);
             getFeatureSet().removeFeature(FeatureGroup.tier);
         }
@@ -362,7 +364,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     /**
      * Scan for various optional user properties, such as first name, last name and e-mail address.
-     * 
+     *
      * @throws SecurityConfigurationException
      */
     protected void configureUserProperties() throws SecurityConfigurationException {
@@ -392,13 +394,14 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
                     "attributeValue", "value");
             configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, relationshipAttributeClass, null);
         } else {
+            LOGGER.jpaConfigDisablingRelationshipFeatures();
             getFeatureSet().removeFeature(FeatureGroup.relationship);
         }
     }
 
     /**
      * Configures the identity store for reading and writing attribute values
-     * 
+     *
      * @throws SecurityConfigurationException
      */
     protected void configureAttributes() throws SecurityConfigurationException {
@@ -474,8 +477,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         } else if (Group.class.isAssignableFrom(identityType)) {
             discriminator = getIdentityTypeGroup();
         } else {
-            throw new IdentityManagementException("No discriminator could be determined for type [" + identityType.getClass()
-                    + "]");
+            throw MESSAGES.jpaConfigDiscriminatorNotFoundForIdentityType(identityType);
         }
 
         return discriminator;
@@ -488,17 +490,8 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     @SuppressWarnings("unchecked")
     IdentityTypeHandler<IdentityType> getHandler(Class<? extends IdentityType> identityTypeClass) {
         IdentityTypeHandler<IdentityType> identityTypeManager = (IdentityTypeHandler<IdentityType>) getIdentityTypeStores()
-                .get(getIdentityDiscriminator(identityTypeClass));
+                .get(getIdentityTypeDiscriminator(identityTypeClass));
         return identityTypeManager;
-    }
-
-    @SuppressWarnings("unchecked")
-    IdentityTypeHandler<IdentityType> getHandler(String discriminator) {
-        return (IdentityTypeHandler<IdentityType>) getIdentityTypeStores().get(discriminator);
-    }
-
-    String getIdentityDiscriminator(Class<? extends IdentityType> identityType) {
-        return getIdentityTypeDiscriminator(identityType);
     }
 
 }

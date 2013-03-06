@@ -25,7 +25,7 @@ import org.picketlink.idm.model.IdentityType;
 
 /**
  * Unified identity query API
- * 
+ *
  * @author Shane Bryzak
  */
 public interface IdentityQuery<T extends IdentityType> {
@@ -67,9 +67,9 @@ public interface IdentityQuery<T extends IdentityType> {
     Class<T> getIdentityType();
 
     Map<QueryParameter, Object[]> getParameters();
-    
+
     Object[] getParameter(QueryParameter queryParameter);
-    
+
     Map<QueryParameter, Object[]> getParameters(Class<?> type);
 
     int getOffset();

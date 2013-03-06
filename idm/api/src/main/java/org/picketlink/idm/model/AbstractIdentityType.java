@@ -21,7 +21,7 @@ import java.util.Date;
 
 /**
  * Abstract base class for IdentityType implementations
- * 
+ *
  * @author Shane Bryzak
  */
 public abstract class AbstractIdentityType extends AbstractAttributedType implements IdentityType {

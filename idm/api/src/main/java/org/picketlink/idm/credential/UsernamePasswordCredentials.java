@@ -21,8 +21,8 @@ package org.picketlink.idm.credential;
 
 
 /**
- * Represents the credentials typically used by standard username/password authentication. 
- * 
+ * Represents the credentials typically used by standard username/password authentication.
+ *
  * @author Shane Bryzak
  */
 public class UsernamePasswordCredentials extends AbstractBaseCredentials {
@@ -32,14 +32,14 @@ public class UsernamePasswordCredentials extends AbstractBaseCredentials {
     private Password password;
 
     public UsernamePasswordCredentials() {
-        
+
     }
-    
+
     public UsernamePasswordCredentials(String userName, Password password) {
         this.username = userName;
         this.password = password;
     }
-    
+
     public String getUsername() {
         return username;
     }

@@ -47,9 +47,9 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
  * <p>
  * {@link CredentialStore} implementation that stored the credentials using the {@link FileBasedIdentityStore}.
  * </p>
- * 
+ *
  * @author Pedro Silva
- * 
+ *
  */
 public class FileCredentialStore implements CredentialStore {
 
@@ -61,7 +61,7 @@ public class FileCredentialStore implements CredentialStore {
 
     public void validateCredentials(Credentials credentials) {
         CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this.identityStore);
-        
+
         if (handler == null) {
             throw MESSAGES.credentialHandlerNotFoundForCredentialType(credentials.getClass());
         }
@@ -71,11 +71,11 @@ public class FileCredentialStore implements CredentialStore {
 
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
         CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this.identityStore);
-        
+
         if (handler == null) {
             throw MESSAGES.credentialHandlerNotFoundForCredentialType(credential.getClass());
         }
-        
+
         handler.update(agent, credential, this.identityStore, effectiveDate, expiryDate);
     }
 
@@ -122,7 +122,7 @@ public class FileCredentialStore implements CredentialStore {
      * <p>
      * Remove all stored credentials for the given {@link Agent}.
      * </p>
-     * 
+     *
      * @param agent
      */
     public void removeCredentials(Agent agent) {
@@ -136,7 +136,7 @@ public class FileCredentialStore implements CredentialStore {
      * <p>
      * Converts a {@link FileCredentialStorage} to a specific {@link CredentialStorage} instance.
      * </p>
-     * 
+     *
      * @param storageClass
      * @param fileCredentialStorage
      * @return
@@ -175,7 +175,7 @@ public class FileCredentialStore implements CredentialStore {
      * <p>
      * Returns the stored credentials for the given {@link Agent}.
      * </p>
-     * 
+     *
      * @param agent
      * @param storageType
      * @return
@@ -215,7 +215,7 @@ public class FileCredentialStore implements CredentialStore {
     private void flushCredentials() {
         getDataSource().flushCredentials(getContext().getRealm());
     }
-    
+
     private FileDataSource getDataSource() {
         return getConfig().getDataSource();
     }

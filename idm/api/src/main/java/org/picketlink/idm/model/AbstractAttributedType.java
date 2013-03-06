@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * Abstract base class for all AttributedType implementations
- * 
+ *
  * @author Shane Bryzak
  *
  */
@@ -34,7 +34,7 @@ public abstract class AbstractAttributedType implements AttributedType {
 
     private String id;
 
-    private Map<String, Attribute<? extends Serializable>> attributes = 
+    private Map<String, Attribute<? extends Serializable>> attributes =
             new HashMap<String, Attribute<? extends Serializable>>();
 
     public String getId() {
@@ -61,7 +61,7 @@ public abstract class AbstractAttributedType implements AttributedType {
     public Collection<Attribute<? extends Serializable>> getAttributes() {
         return java.util.Collections.unmodifiableCollection(attributes.values());
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -76,7 +76,7 @@ public abstract class AbstractAttributedType implements AttributedType {
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
-    
+
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;

@@ -94,9 +94,9 @@ import org.picketlink.idm.spi.PartitionStore;
  * File based {@link IdentityStore} implementation. By default, each new instance recreate the data files. This behavior can be
  * changed by configuring the <code>alwaysCreateFiles</code> property to false.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
 public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore, PartitionStore {
@@ -549,7 +549,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Returns the stored {@link Relationship} instances for the current {@link Partition}.
      * </p>
-     * 
+     *
      * @return
      */
     protected Map<String, List<FileRelationship>> getRelationshipsForCurrentPartition() {
@@ -606,7 +606,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Persists the given {@link Role} instance.
      * </p>
-     * 
+     *
      * @param role
      */
     private void addRole(Role role) {
@@ -632,7 +632,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Persists the given {@link Group} instance.
      * </p>
-     * 
+     *
      * @param group
      */
     private void addGroup(Group group) {
@@ -666,7 +666,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Persists the given {@link User} instance.
      * </p>
-     * 
+     *
      * @param user
      */
     private void addUser(User user) {
@@ -687,7 +687,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Persists the given {@link Agent} instance.
      * </p>
-     * 
+     *
      * @param agent
      */
     private void addAgent(Agent agent) {
@@ -713,7 +713,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Persists the given {@link Relationship} instance.
      * </p>
-     * 
+     *
      * @param relationship
      */
     private void addRelationship(Relationship relationship) {
@@ -761,7 +761,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Updates a previously stored {@link Role}.
      * </p>
-     * 
+     *
      * @param updatedRole
      * @return
      */
@@ -780,7 +780,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Updates a previously stored {@link Group}.
      * </p>
-     * 
+     *
      * @param updatedGroup
      */
     private void updateGroup(Group updatedGroup) {
@@ -798,7 +798,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Updates a previously stored {@link User}.
      * </p>
-     * 
+     *
      * @param updatedUser
      * @return
      */
@@ -821,7 +821,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Updates a previously stored {@link Agent}.
      * </p>
-     * 
+     *
      * @param updatedAgent
      * @return
      */
@@ -840,7 +840,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Updates the given {@link Relationship} instance.
      * </p>
-     * 
+     *
      * @param relationship
      */
     private void updateRelationship(Relationship relationship) {
@@ -869,7 +869,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Update the common properties for a specific {@link IdentityType} instance from another instance.
      * </p>
-     * 
+     *
      * @param fromIdentityType
      * @param toIdentityType
      */
@@ -888,7 +888,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Update the common properties for a specific {@link IdentityType} instance from another instance.
      * </p>
-     * 
+     *
      * @param fromIdentityType
      * @param toIdentityType
      */
@@ -919,7 +919,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * Recursively lookup for a {@link Group} with the given name considering the given {@link Partition}. If {@link Partition}
      * is a {@link Tier} instance the parent tier will also be considered during the lookup.
      * </p>
-     * 
+     *
      * @param roleName
      * @param partition
      * @return
@@ -947,7 +947,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * Recursively lookup for a {@link Group} with the given name considering the given {@link Partition}. If {@link Partition}
      * is a {@link Tier} instance the parent tier will also be considered during the lookup.
      * </p>
-     * 
+     *
      * @param groupPath
      * @param partition
      * @return
@@ -974,7 +974,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Removes the given {@link Relationship}.
      * </p>
-     * 
+     *
      * @param attributedTypeClass
      * @param relationship
      */
@@ -1038,7 +1038,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Removes the given {@link Role}.
      * </p>
-     * 
+     *
      * @param role
      * @return
      */
@@ -1060,7 +1060,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Removes the given {@link Group}.
      * </p>
-     * 
+     *
      * @param group
      * @return
      */
@@ -1082,7 +1082,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Removes the given {@link Agent}.
      * </p>
-     * 
+     *
      * @param agent
      */
     private void removeAgent(Agent agent) {
@@ -1124,7 +1124,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Returns the stored {@link Group} instances for the given {@link Partition}.
      * </p>
-     * 
+     *
      * @param partition
      * @return
      */
@@ -1136,7 +1136,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Returns the stored {@link Role} instances for the given {@link Partition}.
      * </p>
-     * 
+     *
      * @param partition
      * @return
      */
@@ -1148,7 +1148,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Returns the stored {@link Agent} instances for the given {@link Partition}.
      * </p>
-     * 
+     *
      * @param partition
      * @return
      */
@@ -1160,7 +1160,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Returns the stored {@link Role} instances for the given {@link Partition}.
      * </p>
-     * 
+     *
      * @return
      */
     private Map<String, Role> getRolesForCurrentPartition() {
@@ -1171,7 +1171,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * <p>
      * Returns the stored {@link Group} instances for the given {@link Partition}.
      * </p>
-     * 
+     *
      * @return
      */
     private Map<String, Group> getGroupsForCurrentPartition() {

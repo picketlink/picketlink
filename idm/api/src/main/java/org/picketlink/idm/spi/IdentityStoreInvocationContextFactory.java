@@ -23,18 +23,18 @@ import org.picketlink.idm.IdentityManager;
 
 /**
  * Factory for creating and initializing IdentityStoreInvocationContext instances
- *  
+ *
  * @author Shane Bryzak
  */
 public interface IdentityStoreInvocationContextFactory {
     /**
-     * 
+     *
      * @return
      */
     IdentityStoreInvocationContext createContext(IdentityManager identityManager);
 
     /**
-     * 
+     *
      * @param ctx
      * @param store
      */

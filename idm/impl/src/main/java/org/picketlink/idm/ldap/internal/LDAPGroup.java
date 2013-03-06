@@ -39,7 +39,7 @@ import org.picketlink.idm.model.Group;
 public class LDAPGroup extends LDAPIdentityType implements Group {
 
     private static final long serialVersionUID = 1L;
-    
+
     private Group parent;
     private String groupName;
 
@@ -55,11 +55,11 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
 
     public LDAPGroup(String name, String groupDNSuffix) {
         this(groupDNSuffix);
-        
+
         if (name == null) {
             throw MESSAGES.nullArgument("Name");
         }
-        
+
         setName(name);
     }
 
@@ -99,12 +99,12 @@ public class LDAPGroup extends LDAPIdentityType implements Group {
 
     public void addMember(LDAPGroup childGroup) {
         Attribute memberAttribute = getLDAPAttributes().get(MEMBER);
-        
+
         if (memberAttribute == null) {
             memberAttribute = new BasicAttribute(MEMBER);
             getLDAPAttributes().put(memberAttribute);
         }
-        
+
         memberAttribute.add(childGroup.getDN());
     }
 

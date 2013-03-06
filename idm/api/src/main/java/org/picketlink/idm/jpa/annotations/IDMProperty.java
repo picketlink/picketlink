@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a property of an entity bean as storing a particular type of Identity Management state.
- * 
+ *
  * @author Shane Bryzak
  */
 @Target({METHOD, FIELD})

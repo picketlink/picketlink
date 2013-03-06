@@ -44,7 +44,7 @@ import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class GroupHandler extends IdentityTypeHandler<Group> {
 
@@ -97,7 +97,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
      * <p>
      * Disassociates the given {@link Group} from its children.
      * </p>
-     * 
+     *
      * @param group
      */
     private void disassociateChildren(Group group, JPAIdentityStore store) {

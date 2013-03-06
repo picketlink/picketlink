@@ -34,7 +34,7 @@ import javax.naming.directory.BasicAttributes;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public abstract class LDAPEntry implements Serializable {
 
@@ -45,9 +45,9 @@ public abstract class LDAPEntry implements Serializable {
     private String dnSuffix;
 
     public LDAPEntry() {
-        
+
     }
-    
+
     public LDAPEntry(String dnSuffix) {
         this.dnSuffix = dnSuffix;
     }

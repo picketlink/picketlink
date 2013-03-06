@@ -27,7 +27,7 @@ import org.picketlink.idm.IdentityManagementException;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public final class FileUtils {
 
@@ -35,7 +35,7 @@ public final class FileUtils {
      * <p>
      * Read the specified {@link File} instance and try to read a {@link Object} with the given parametrized type.
      * </p>
-     * 
+     *
      * @param file
      * @return
      */
@@ -67,7 +67,7 @@ public final class FileUtils {
      * <p>
      * Check if the specified {@link File} exists. If not create it.
      * </p>
-     * 
+     *
      * @param file
      * @return
      */
@@ -88,7 +88,7 @@ public final class FileUtils {
      * Delete the specified {@link File} instance from the filesystem. If the instance is a directory it will be deleted
      * recursively, otherwise only the file will be deleted.
      * </p>
-     * 
+     *
      * @param file
      */
     public static void delete(File file) {

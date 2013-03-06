@@ -38,7 +38,7 @@ public class SimpleIdentityStoreInvocationContextFactory implements IdentityStor
     private CredentialHandlerFactory credentialHandlerFactory = new DefaultCredentialHandlerFactory();
     private IdentityCache identityCache = new DefaultIdentityCache();
     private IdGenerator idGenerator = new DefaultIdGenerator();
-    
+
     @Override
     public IdentityStoreInvocationContext createContext(IdentityManager identityManager) {
         return new IdentityStoreInvocationContext(identityManager, this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator);
