@@ -20,6 +20,9 @@ package org.picketlink.social.standalone.fb;
 import java.io.Serializable;
 import java.security.Principal;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * An instance of {@link Principal} representing a facebook user
  *
@@ -35,9 +38,13 @@ public class FacebookPrincipal implements Principal, Serializable {
 
     private String name;
 
+    private String username;
+
     private String firstName;
 
     private String lastName;
+
+    private JSONObject jsonObject;
 
     private String gender;
 
@@ -61,6 +68,14 @@ public class FacebookPrincipal implements Principal, Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirstName() {
@@ -119,9 +134,33 @@ public class FacebookPrincipal implements Principal, Serializable {
         this.email = email;
     }
 
+    public JSONObject getJsonObject() {
+        return jsonObject;
+    }
+
+    public void setJsonObject(JSONObject jsonObject) {
+        this.jsonObject = jsonObject;
+    }
+
+    public String getAttribute(String attributeName) {
+        if (jsonObject == null) {
+            return null;
+        } else {
+            try {
+                return jsonObject.getString(attributeName);
+            } catch (JSONException jsonEx) {
+                if (jsonEx.getMessage() != null && jsonEx.getMessage().contains("not found")) {
+                    return null;
+                } else {
+                    throw new RuntimeException(jsonEx);
+                }
+            }
+        }
+    }
+
     @Override
     public String toString() {
-        return "FacebookPrincipal [id=" + id + ", name=" + name + ", firstName=" + firstName + ", lastName=" + lastName
-                + ", gender=" + gender + ", timezone=" + timezone + ", locale=" + locale + ", email=" + email + "]";
+        return "FacebookPrincipal [id=" + id + ", name=" + name + ", username=" + username + ", firstName=" + firstName +
+               ", lastName=" + lastName + ", gender=" + gender + ", timezone=" + timezone + ", locale=" + locale + ", email=" + email + "]";
     }
 }
