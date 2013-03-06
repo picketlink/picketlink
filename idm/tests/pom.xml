@@ -93,6 +93,7 @@
          <version>4.8.1</version>
          <scope>test</scope>
       </dependency>
+      <!-- LDAP Identity Store Dependencies -->
       <dependency>
          <groupId>org.picketbox</groupId>
          <artifactId>picketbox-ldap</artifactId>

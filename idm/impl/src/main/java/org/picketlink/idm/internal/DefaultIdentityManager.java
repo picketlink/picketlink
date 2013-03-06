@@ -19,6 +19,7 @@ package org.picketlink.idm.internal;
 
 import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
+import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -37,7 +38,6 @@ import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
-import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
@@ -204,15 +204,11 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.nullArgument("IdentityType");
         }
 
-        FeatureGroup feature;
-
         IdentityStoreInvocationContext ctx = createContext();
 
         Partition currentPartition = getCurrentPartition(ctx);
 
         if (Agent.class.isInstance(identityType)) {
-            feature = FeatureGroup.agent;
-
             Agent newAgent = (Agent) identityType;
 
             if (StringUtil.isNullOrEmpty(newAgent.getLoginName())) {
@@ -220,8 +216,6 @@ public class DefaultIdentityManager implements IdentityManager {
             }
 
             if (User.class.isInstance(newAgent)) {
-                feature = FeatureGroup.user;
-
                 if (getUser(newAgent.getLoginName()) != null) {
                     throw MESSAGES.identityTypeAlreadyExists(newAgent.getClass(), newAgent.getLoginName(), currentPartition);
                 }
@@ -246,8 +240,6 @@ public class DefaultIdentityManager implements IdentityManager {
                     throw MESSAGES.groupParentNotFoundWithId(newGroup.getParentGroup().getId(), currentPartition);
                 }
             }
-
-            feature = FeatureGroup.group;
         } else if (Role.class.isInstance(identityType)) {
             Role newRole = (Role) identityType;
 
@@ -258,14 +250,10 @@ public class DefaultIdentityManager implements IdentityManager {
             if (getRole(newRole.getName()) != null) {
                 throw MESSAGES.identityTypeAlreadyExists(newRole.getClass(), newRole.getName(), currentPartition);
             }
-
-            feature = FeatureGroup.role;
-        } else {
-            throw MESSAGES.identityTypeUnsupportedType(identityType.getClass());
         }
         
         try {
-            getContextualStoreForFeature(ctx, feature, FeatureOperation.create).add(identityType);            
+            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.create).add(identityType);            
         } catch (Exception e) {
             throw MESSAGES.identityTypeAddFailed(identityType, e);
         }
@@ -288,7 +276,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(identityType, ctx);
 
         try {
-            getContextualStoreForFeature(ctx, IDMUtil.getFeatureGroup(identityType), FeatureOperation.update).update(identityType);    
+            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.update).update(identityType);    
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -310,10 +298,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
         checkIfIdentityTypeExists(identityType, ctx);
 
-        FeatureGroup feature = IDMUtil.getFeatureGroup(identityType);
-
         try {
-            getContextualStoreForFeature(ctx, feature, FeatureOperation.delete).remove(identityType);            
+            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.delete).remove(identityType);            
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -737,6 +723,7 @@ public class DefaultIdentityManager implements IdentityManager {
         String realmName = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
 
         if (!realmStores.containsKey(realmName)) {
+            LOGGER.identityManagerRealmNotConfigured(realmName);
             throw MESSAGES.storeConfigRealmNotConfigured(realmName);
         }
 
@@ -762,6 +749,8 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         if (config == null) {
+            LOGGER.identityManagerUnsupportedOperation(feature, operation);
+            
             if (!supportedRelationshipClass) {
                 throw MESSAGES.storeConfigUnsupportedRelationshipType(relationshipClass);
             } else {
@@ -776,6 +765,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
         store.setup(config, ctx);
 
+        LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation, store, ctx.getPartition());
+        
         return store;
     }
 
@@ -810,6 +801,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (ctx.getTier() != null) {
             currentPartition = ctx.getTier();
         }
+        
         return currentPartition;
     }
 
@@ -826,6 +818,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!result.isEmpty()) {
             grant = result.get(0);
         }
+        
         return grant;
     }
 }

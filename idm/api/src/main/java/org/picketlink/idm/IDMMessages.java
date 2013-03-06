@@ -251,4 +251,7 @@ public interface IDMMessages {
     @Message(id = 60, value = "Could not initialize filesystem.")
     SecurityConfigurationException fileConfigFailedToInitializeFilesystem(@Cause Throwable t);
 
+    @Message(id = 61, value = "No discriminator could be determined for type [%s].")
+    SecurityConfigurationException jpaConfigDiscriminatorNotFoundForIdentityType(Class<? extends IdentityType> type);
+
 }
