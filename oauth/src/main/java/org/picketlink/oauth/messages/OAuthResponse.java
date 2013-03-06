@@ -44,8 +44,4 @@ public abstract class OAuthResponse extends OAuthMessage {
     public void setLocation(String location) {
         this.location = location;
     }
-
-    public abstract String asQueryParams();
-
-    public abstract String asJSON();
 }

@@ -190,6 +190,7 @@ public final class OAuthUtils {
     /**
      * Construct a &-separated list of the given values, percentEncoded.
      */
+    @SuppressWarnings("rawtypes")
     public static String percentEncode(Iterable values) {
         StringBuilder p = new StringBuilder();
         for (Object v : values) {
@@ -222,6 +223,7 @@ public final class OAuthUtils {
         return (from == null) ? null : from.toString();
     }
 
+    @SuppressWarnings("unused")
     private static boolean isEmpty(Set<String> missingParams) {
         if (missingParams == null || missingParams.size() == 0) {
             return true;
