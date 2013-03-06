@@ -84,7 +84,7 @@ public abstract class EmbeddedWebServerBase {
         WebAppContext webapp = new WebAppContext();
         webapp.setContextPath(contextPath);
         webapp.setWar(warURLString);
-        
+
         Thread.currentThread().setContextClassLoader(webapp.getClassLoader());
         return webapp;
     }
