@@ -17,6 +17,7 @@
  */
 
 /**
+ * Package contains the messages that flow between client and server
  * @author anil saldhana
  * @since Mar 5, 2013
  */

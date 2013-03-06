@@ -85,37 +85,6 @@ public class RegistrationEndpoint extends BaseEndpoint {
                     .setIssued(getCurrentTime() + "");
 
             return Response.status(response.getStatusCode()).entity(response.asJSON()).build();
-
-            /*
-             * OAuthServerRegistrationRequest oauthRequest = null; try { oauthRequest = new OAuthServerRegistrationRequest(new
-             * JSONHttpServletRequestWrapper(request)); oauthRequest.discover(); String clientName =
-             * oauthRequest.getClientName(); String clientURL = oauthRequest.getClientUrl(); String clientDescription =
-             * oauthRequest.getClientDescription(); String clientRedirectURI = oauthRequest.getRedirectURI();
-             *
-             * String generatedClientID = generateClientID(); String generatedSecret = generateClientSecret();
-             *
-             * // User user = identityManager.createUser(clientName);
-             *
-             * Agent oauthApp = new SimpleAgent(clientName);
-             *
-             * oauthApp.setAttribute(new Attribute<String>("appURL", clientURL)); oauthApp.setAttribute(new
-             * Attribute<String>("appDesc", clientDescription)); oauthApp.setAttribute(new Attribute<String>("redirectURI",
-             * clientRedirectURI)); oauthApp.setAttribute(new Attribute<String>("clientID", generatedClientID));
-             * oauthApp.setAttribute(new Attribute<String>("clientSecret", generatedSecret));
-             *
-             * identityManager.add(oauthApp);
-             *
-             *
-             *
-             * OAuthResponse response = OAuthServerRegistrationResponse.status(HttpServletResponse.SC_OK)
-             * .setClientId(generatedClientID).setClientSecret(generatedSecret).setIssuedAt(getCurrentTime() + "")
-             * .setExpiresIn("3600").buildJSONMessage(); return
-             * Response.status(response.getResponseStatus()).entity(response.getBody()).build();
-             *
-             * } catch (OAuthProblemException e) { e.printStackTrace(); OAuthResponse response =
-             * OAuthServerRegistrationResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST) .error(e).buildJSONMessage();
-             * return Response.status(response.getResponseStatus()).entity(response.getBody()).build(); }
-             */
         } catch (Exception e) {
             log.log(Level.SEVERE, "OAuth Server Registration Processing:", e);
             return Response.serverError().build();

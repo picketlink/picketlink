@@ -25,8 +25,28 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.PropertyNamingStrategy;
 
+/**
+ * Base class for OAuth Request and Response messages
+ *
+ * @author anil saldhana
+ * @since Mar 6, 2013
+ */
 public abstract class OAuthMessage implements Serializable {
     private static final long serialVersionUID = 5685834408814739226L;
+
+    /**
+     * Represent the message as JSON
+     *
+     * @return
+     */
+    public abstract String asJSON();
+
+    /**
+     * Represent the message as Query Parameters
+     *
+     * @return
+     */
+    public abstract String asQueryParams();
 
     protected String encode(String elem) {
         try {

@@ -45,13 +45,7 @@ import org.picketlink.test.oauth.server.endpoint.EndpointTestBase;
  * @author anil saldhana
  * @since Sep 13, 2012
  */
-// @Ignore
 public class OAuthWorkflowTestCase extends EndpointTestBase {
-
-    /*
-     * @Override protected boolean needLDAP() { return true; }
-     */
-
     private String registrationEndpoint = "http://localhost:11080/oauth/register";
 
     private String appName = "Sample Application";

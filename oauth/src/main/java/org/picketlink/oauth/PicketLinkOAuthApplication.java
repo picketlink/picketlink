@@ -27,6 +27,12 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
 import org.picketlink.oauth.server.endpoint.ResourceEndpoint;
 import org.picketlink.oauth.server.endpoint.TokenEndpoint;
 
+/**
+ * A JAXRS Application for OAuth
+ *
+ * @author anil saldhana
+ * @since Sep 23, 2012
+ */
 @SuppressWarnings(value = { "unchecked", "rawtypes" })
 public class PicketLinkOAuthApplication extends Application {
     private static Set services = new HashSet();

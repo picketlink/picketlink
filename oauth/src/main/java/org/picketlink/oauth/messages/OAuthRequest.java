@@ -17,10 +17,12 @@
  */
 package org.picketlink.oauth.messages;
 
+/**
+ * Base class for OAuth Requests
+ *
+ * @author anil saldhana
+ * @since Mar 6, 2013
+ */
 public abstract class OAuthRequest extends OAuthMessage {
     private static final long serialVersionUID = -4109315250160325181L;
-
-    public abstract String asJSON();
-
-    public abstract String asQueryParams();
 }
