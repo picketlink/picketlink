@@ -61,21 +61,5 @@ public class ResourceEndpoint extends BaseEndpoint {
             errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found");
             return Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build();
         }
-
-        /*
-         * OAuthAccessResourceRequest oauthRequest = null; try { oauthRequest = new OAuthAccessResourceRequest(request,
-         * ParameterStyle.BODY); } catch (Exception ope) { ErrorResponse errorResponse = new ErrorResponse();
-         * errorResponse.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
-         * errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found"); return
-         * Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build(); }
-         *
-         * // Get the access token String accessToken = oauthRequest.getAccessToken(); boolean validateAccessToken =
-         * OAuthServerUtil.validateAccessToken(accessToken, identityManager);
-         *
-         * // TODO: Deal with scope if (validateAccessToken) { return Response.ok().entity("I am a Resource").build(); } else {
-         * ErrorResponse errorResponse = new ErrorResponse(); errorResponse.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
-         * errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found"); return
-         * Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build(); }
-         */
     }
 }

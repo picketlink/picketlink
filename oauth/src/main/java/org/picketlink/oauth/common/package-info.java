@@ -17,8 +17,9 @@
  */
 
 /**
+ * Package contains classes that are common
+ * for client and server side
  * @author anil saldhana
  * @since Mar 5, 2013
- *
  */
 package org.picketlink.oauth.common;

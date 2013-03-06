@@ -169,7 +169,6 @@ public class OAuthServerUtil {
 
         AuthorizationCodeGrant grant = new AuthorizationCodeGrant();
 
-        // OAuthAuthzRequest oauthRequest = null;
         try {
             // Let us parse the authorization request
             AuthorizationRequest authorizationRequest = parseAuthorizationRequest(request);
@@ -187,22 +186,12 @@ public class OAuthServerUtil {
 
             String passedClientID = authorizationRequest.getClientId();
 
-            // oauthRequest = new OAuthAuthzRequest(request);
-
-            // String passedClientID = oauthRequest.getClientId();
-
             if (passedClientID == null) {
                 ErrorResponse errorResponse = new ErrorResponse();
                 errorResponse.setErrorDescription("client_id is null").setError(ErrorResponseCode.invalid_client)
                         .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
 
                 return errorResponse;
-
-                /*
-                 * return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                 * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null")
-                 * .buildJSONMessage();
-                 */
             }
 
             IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
@@ -217,12 +206,6 @@ public class OAuthServerUtil {
                         .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
 
                 return errorResponse;
-
-                /*
-                 * return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                 * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                 * .buildJSONMessage();
-                 */
             }
             if (agents.size() > 1) {
                 log.error(passedClientID + " multiple found");
@@ -231,12 +214,6 @@ public class OAuthServerUtil {
                         .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
 
                 return errorResponse;
-
-                /*
-                 * return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                 * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Multiple client_id found")
-                 * .buildJSONMessage();
-                 */
             }
 
             Agent clientApp = agents.get(0);
@@ -253,26 +230,9 @@ public class OAuthServerUtil {
                         .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
 
                 return errorResponse;
-
-                /*
-                 * return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                 * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                 * .buildJSONMessage();
-                 */
             }
 
-            // build response according to response_type
-            // String responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE);
-
-            /*
-             * OAuthASResponse.OAuthAuthorizationResponseBuilder builder = OAuthASResponse.authorizationResponse(request,
-             * HttpServletResponse.SC_FOUND);
-             */
-
             OAuthResponse oauthResponse = null;
-
-            // OAuthIssuerImpl oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
-            // String authorizationCode = oauthIssuerImpl.authorizationCode();
 
             String authorizationCode = grant.getValueGenerator().value();
             grant.setAuthorizationCode(authorizationCode);
@@ -280,16 +240,10 @@ public class OAuthServerUtil {
             clientApp.setAttribute(new Attribute<String>("authorizationCode", authorizationCode));
             identityManager.update(clientApp);
 
-            // builder.setCode(authorizationCode);
-
             oauthResponse = grant.authorizationResponse();
             oauthResponse.setStatusCode(HttpServletResponse.SC_FOUND);
 
             String redirectURI = authorizationRequest.getRedirectUri();
-
-            // String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
-
-            // return builder.location(redirectURI).buildQueryMessage();
 
             oauthResponse.setLocation(redirectURI + "?" + oauthResponse.asQueryParams());
             return oauthResponse;
@@ -300,12 +254,6 @@ public class OAuthServerUtil {
                     .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
 
             return errorResponse;
-
-            /*
-             * return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-             * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-             * .buildJSONMessage();
-             */
         }
     }
 
@@ -496,89 +444,6 @@ public class OAuthServerUtil {
         oauthResponse.setStatusCode(HttpServletResponse.SC_FOUND);
 
         return oauthResponse;
-
-        /*
-         * OAuthTokenRequest oauthRequest = null;
-         *
-         * try { oauthRequest = new OAuthTokenRequest(request);
-         *
-         * String passedClientID = oauthRequest.getClientId(); String passedClientSecret = oauthRequest.getClientSecret();
-         * Set<String> scopes = oauthRequest.getScopes();
-         *
-         * if (passedClientID == null) {
-         *
-         * ErrorResponse errorResponse = new ErrorResponse();
-         * errorResponse.setErrorDescription("client_id is null").setError(ErrorResponseCode.invalid_client)
-         * .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
-         *
-         * return errorResponse;
-         *
-         * return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-         * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null") .buildJSONMessage(); }
-         *
-         * if (passedClientSecret == null) { return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-         * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_secret is null") .buildJSONMessage();
-         * }
-         *
-         * IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
-         * agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
-         *
-         * List<Agent> agents = agentQuery.getResultList(); if (agents.size() == 0) { log.error(passedClientID + " not found");
-         * return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-         * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found") .buildJSONMessage(); }
-         * if (agents.size() > 1) { log.error(passedClientID + " multiple found"); return
-         * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-         * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Multiple client_id found")
-         * .buildJSONMessage(); }
-         *
-         * Agent clientApp = agents.get(0);
-         *
-         * // Get the values from DB Attribute<String> clientIDAttr = clientApp.getAttribute("clientID"); String clientID =
-         * clientIDAttr.getValue(); Attribute<String> authorizationCodeAttr = clientApp.getAttribute("authorizationCode"); if
-         * (authorizationCodeAttr == null) { return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-         * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("authorization code is null")
-         * .buildJSONMessage(); } String authorizationCode = authorizationCodeAttr.getValue();
-         *
-         * String username = oauthRequest.getUsername(); String password = oauthRequest.getPassword();
-         *
-         * // check if clientid is valid if (!clientID.equals(passedClientID)) { return
-         * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-         * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found") .buildJSONMessage(); }
-         *
-         * // Validate client secret UsernamePasswordCredentials upc = new UsernamePasswordCredentials();
-         * upc.setUsername(clientApp.getId()); upc.setPassword(new Password(passedClientSecret.toCharArray()));
-         *
-         * try { identityManager.validateCredentials(upc); } catch (SecurityException se) { return
-         * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-         * .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Client secret mismatch") .buildJSONMessage();
-         * }
-         *
-         * // do checking for different grant types if
-         * (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.AUTHORIZATION_CODE.toString())) { if
-         * (!authorizationCode.equals(oauthRequest.getParam(OAuth.OAUTH_CODE))) { return
-         * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-         * .setError(OAuthError.TokenResponse.INVALID_GRANT).setErrorDescription("invalid authorization code")
-         * .buildJSONMessage(); } } else if
-         * (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) { UsernamePasswordCredentials
-         * usernamePasswordCredentials = new UsernamePasswordCredentials(); usernamePasswordCredentials.setUsername(username);
-         * usernamePasswordCredentials.setPassword(new Password(password.toCharArray())); try {
-         * identityManager.validateCredentials(usernamePasswordCredentials); } catch (Exception e) { return
-         * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST) .setError(OAuthError.TokenResponse.INVALID_GRANT)
-         * .setErrorDescription("invalid username or password").buildJSONMessage(); } } else if
-         * (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.REFRESH_TOKEN.toString())) { return
-         * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST) .setError(OAuthError.TokenResponse.INVALID_GRANT)
-         * .setErrorDescription("Refresh Token not yet supported").buildJSONMessage(); }
-         *
-         * OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator()); String accessToken =
-         * oauthIssuerImpl.accessToken(); clientApp.setAttribute(new Attribute<String>("accessToken", accessToken));
-         *
-         * // Let us store the scopes also clientApp.setAttribute(new Attribute<String>("scopes", scopes.toString()));
-         * identityManager.update(clientApp);
-         *
-         * return OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setExpiresIn("3600")
-         * .buildJSONMessage(); } catch (OAuthProblemException e) { return
-         * OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e).buildJSONMessage(); }
-         */
     }
 
     /**

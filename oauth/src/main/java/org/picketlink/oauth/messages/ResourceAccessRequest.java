@@ -65,8 +65,6 @@ public class ResourceAccessRequest extends OAuthRequest {
         String AMPER = "&";
         String EQ = "=";
 
-        // String clientName, clientURL, clientDescription, clientRedirectURI, icon, location;
-
         StringBuilder builder = new StringBuilder();
         if (accessToken != null) {
             builder.append(OAuthConstants.ACCESS_TOKEN).append(EQ).append(encode(accessToken)).append(AMPER);

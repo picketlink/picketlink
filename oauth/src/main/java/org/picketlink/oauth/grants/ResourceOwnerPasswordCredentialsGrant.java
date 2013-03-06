@@ -58,8 +58,13 @@ public class ResourceOwnerPasswordCredentialsGrant extends OAuthGrant {
         }
     }
 
+    /**
+     * A special {@link AccessTokenRequest} that is used for passing password
+     *
+     * @author anil saldhana
+     */
     public class PasswordAccessTokenRequest extends AccessTokenRequest {
-
+        private static final long serialVersionUID = -5439167033982907992L;
         private String username, password;
 
         public String getUsername() {
