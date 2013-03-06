@@ -22,9 +22,15 @@
 
 package org.picketlink.idm;
 
+import java.util.Set;
+
 import org.jboss.logging.BasicLogger;
+import org.jboss.logging.LogMessage;
 import org.jboss.logging.Logger;
+import org.jboss.logging.Logger.Level;
+import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
+import org.picketlink.idm.config.IdentityStoreConfiguration;
 
 /**
  * @author Pedro Silva
@@ -34,5 +40,21 @@ import org.jboss.logging.MessageLogger;
 public interface IDMLogger extends BasicLogger {
 
     IDMLogger LOGGER = Logger.getMessageLogger(IDMLogger.class, IDMLogger.class.getPackage().getName());
+
+    @LogMessage(level = Level.INFO)
+    @Message(id = 100, value = "Bootstrapping PicketLink Identity Manager")
+    void identityManagerBootstrapping();
+
+    @LogMessage(level = Level.INFO)
+    @Message(id = 101, value = "Initializing Identity Store Configuration [%s] for Realms [%s]")
+    void identityManagerInitConfigForRealms(IdentityStoreConfiguration config, Set<String> realms);
+
+    @LogMessage(level = Level.INFO)
+    @Message(id = 102, value = "Using working directory [%s].")
+    void fileConfigUsingWorkingDir(String path);
+
+    @LogMessage(level = Level.WARN)
+    @Message(id = 103, value = "Working directory [%s] is marked to be always created. All your existing data will be lost.")
+    void fileConfigAlwaysCreateWorkingDir(String path);
 
 }

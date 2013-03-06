@@ -18,6 +18,7 @@
 
 package org.picketlink.idm.file.internal;
 
+import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 
@@ -31,7 +32,11 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
 
     @Override
     public void initConfig() throws SecurityConfigurationException {
-        this.dataSource.init();
+        try {
+            this.dataSource.init();            
+        } catch (Exception e) {
+            throw IDMMessages.MESSAGES.fileConfigFailedToInitializeFilesystem(e);
+        }
     }
 
     public void setDataSource(FileDataSource dataSource) {

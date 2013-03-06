@@ -18,11 +18,18 @@
 
 package org.picketlink.idm.config;
 
+import static org.picketlink.idm.IDMLogger.LOGGER;
+
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.model.Realm;
+import org.picketlink.idm.model.Relationship;
 
 
 /**
@@ -45,13 +52,35 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
     }
 
     public Set<String> getRealms() {
-        return Collections.unmodifiableSet(realms);
+        if (this.realms.isEmpty()) {
+            this.realms.add(Realm.DEFAULT_REALM);
+        }
+
+        return Collections.unmodifiableSet(this.realms);
     }
 
     @Override
     public final void init() throws SecurityConfigurationException {
         initConfig();
         this.featureSet.lock();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debugf("FeatureSet for %s", this);
+            LOGGER.debug("Features [");
+            
+            for (Entry<FeatureGroup, Set<FeatureOperation>> entry : this.featureSet.getSupportedFeatures().entrySet()) {
+                LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
+            }
+            
+            LOGGER.debug("]");
+            
+            LOGGER.debug("Relationships [");
+            
+            for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : this.featureSet.getSupportedRelationships().entrySet()) {
+                LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
+            }
+            
+            LOGGER.debug("]");
+        }
     }
 
     public abstract void initConfig();

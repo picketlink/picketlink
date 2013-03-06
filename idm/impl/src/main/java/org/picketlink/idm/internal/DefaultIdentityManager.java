@@ -17,6 +17,7 @@
  */
 package org.picketlink.idm.internal;
 
+import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.lang.reflect.InvocationHandler;
@@ -88,27 +89,23 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.nullArgument("IdentityStoreInvocationContextFactory");
         }
 
+        LOGGER.identityManagerBootstrapping();
+
         for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
+            LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
 
             config.init();
-
-            Set<IdentityStoreConfiguration> configs;
-
-            Set<String> realms = new HashSet<String>();
-
-            if (config.getRealms().isEmpty()) {
-                realms.add(Realm.DEFAULT_REALM);
-            } else {
-                realms.addAll(config.getRealms());
-            }
-
-            for (String realm : realms) {
-                if (realmStores.containsKey(realm)) {
+            
+            for (String realm : config.getRealms()) {
+                Set<IdentityStoreConfiguration> configs;
+                
+                if (this.realmStores.containsKey(realm)) {
                     configs = realmStores.get(realm);
                 } else {
                     configs = new HashSet<IdentityStoreConfiguration>();
-                    realmStores.put(realm, configs);
+                    this.realmStores.put(realm, configs);
                 }
+                
                 configs.add(config);
             }
         }
