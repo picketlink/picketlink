@@ -27,16 +27,16 @@ import java.util.Date;
 import java.util.Map;
 
 import org.junit.Test;
-import org.picketlink.oauth.amber.oauth2.common.OAuth;
-import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
+import org.picketlink.oauth.OAuthUtils;
 import org.picketlink.oauth.client.ClientOAuth;
 import org.picketlink.oauth.client.ClientOAuth.AccessTokenClient;
-import org.picketlink.oauth.client.ClientOAuth.AccessTokenResponse;
 import org.picketlink.oauth.client.ClientOAuth.AuthorizationClient;
-import org.picketlink.oauth.client.ClientOAuth.AuthorizationResponse;
 import org.picketlink.oauth.client.ClientOAuth.RegistrationClient;
-import org.picketlink.oauth.client.ClientOAuth.RegistrationResponse;
 import org.picketlink.oauth.client.ClientOAuth.ResourceClient;
+import org.picketlink.oauth.common.OAuthConstants;
+import org.picketlink.oauth.messages.AccessTokenResponse;
+import org.picketlink.oauth.messages.AuthorizationResponse;
+import org.picketlink.oauth.messages.RegistrationResponse;
 import org.picketlink.test.oauth.server.endpoint.EndpointTestBase;
 
 /**
@@ -48,10 +48,9 @@ import org.picketlink.test.oauth.server.endpoint.EndpointTestBase;
 // @Ignore
 public class OAuthWorkflowTestCase extends EndpointTestBase {
 
-    /*@Override
-    protected boolean needLDAP() {
-        return true;
-    }*/
+    /*
+     * @Override protected boolean needLDAP() { return true; }
+     */
 
     private String registrationEndpoint = "http://localhost:11080/oauth/register";
 
@@ -71,14 +70,14 @@ public class OAuthWorkflowTestCase extends EndpointTestBase {
                 .setAppURL(appURL).setAppDescription(appDescription).setAppIcon(appIcon).setAppRedirectURL(appRedirectURL)
                 .build().execute();
 
-        String clientID = registrationResponse.getClientId();
+        String clientID = registrationResponse.getClientID();
         assertNotNull(clientID);
         String clientSecret = registrationResponse.getClientSecret();
         assertNotNull(clientSecret);
         if (registrationResponse.getExpiresIn() != 3600L) {
             fail("expires");
         }
-        long parsedIssuedAt = Long.parseLong(registrationResponse.getIssuedAt());
+        long parsedIssuedAt = Long.parseLong(registrationResponse.getIssued());
         assertTrue(parsedIssuedAt - (new Date()).getTime() < 50L);
 
         String authorizationEndpoint = "http://localhost:11080/oauth/authz";
@@ -95,7 +94,7 @@ public class OAuthWorkflowTestCase extends EndpointTestBase {
         String subString = msg.substring(index + authzRedirectURL.length() + 1);
         Map<String, Object> map = OAuthUtils.decodeForm(subString);
 
-        String authorizationCode = (String) map.get(OAuth.OAUTH_CODE);
+        String authorizationCode = (String) map.get(OAuthConstants.CODE);
         assertNotNull(authorizationCode);
 
         String tokenEndpoint = "http://localhost:11080/oauth/token";
@@ -108,7 +107,7 @@ public class OAuthWorkflowTestCase extends EndpointTestBase {
                 .execute();
 
         String accessToken = tokenResponse.getAccessToken();
-        long expiresIn = tokenResponse.getExpiresIn();
+        long expiresIn = tokenResponse.getExpires();
 
         assertNotNull("Validate access token is null?", accessToken);
         assertNotNull("Validate expires is null?", expiresIn);

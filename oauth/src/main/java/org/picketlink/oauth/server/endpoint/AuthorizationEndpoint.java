@@ -28,8 +28,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
-import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
+import org.picketlink.oauth.messages.ErrorResponse;
+import org.picketlink.oauth.messages.OAuthResponse;
 import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
@@ -63,16 +63,34 @@ public class AuthorizationEndpoint extends BaseEndpoint {
         OAuthResponse response = null;
         try {
             response = OAuthServerUtil.authorizationCodeRequest(request, identityManager);
-        } catch (OAuthSystemException e) {
+        } catch (Exception e) {
             log.log(Level.SEVERE, "OAuth Server Authorization Processing:", e);
             return Response.serverError().build();
         }
-        // Check for successful processing
-        String location = response.getLocationUri();
-        if (location != null && location.isEmpty() == false) {
-            return Response.status(response.getResponseStatus()).location(URI.create(location)).build();
-        } else { // We have error
-            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+
+        if (response instanceof ErrorResponse) {
+            // We have an error
+            ErrorResponse errorResponse = (ErrorResponse) response;
+            return Response.status(response.getStatusCode()).entity(errorResponse.asJSON()).build();
         }
+
+        String location = response.getLocation();
+
+        return Response.status(response.getStatusCode()).location(URI.create(location)).build();
+
+        /*
+         * // Check for successful processing String location = response.getLocationUri(); if (location != null &&
+         * location.isEmpty() == false) { return
+         * Response.status(response.getStatusCode()).location(URI.create(location)).build(); } else { // We have error
+         * ErrorResponse errorResponse = (ErrorResponse) response; return
+         * Response.status(response.getStatusCode()).entity(errorResponse.asJSON()).build(); }
+         */
+
+        /*
+         * // Check for successful processing String location = response.getLocationUri(); if (location != null &&
+         * location.isEmpty() == false) { return
+         * Response.status(response.getResponseStatus()).location(URI.create(location)).build(); } else { // We have error
+         * return Response.status(response.getResponseStatus()).entity(response.getBody()).build(); }
+         */
     }
 }
