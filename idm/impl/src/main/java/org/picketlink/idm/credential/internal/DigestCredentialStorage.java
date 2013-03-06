@@ -20,30 +20,29 @@ package org.picketlink.idm.credential.internal;
 
 import java.util.Date;
 
-import org.picketlink.idm.credential.Digest;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 
 /**
  * <p>
- * {@link CredentialStorage} for {@link Digest} credentials.
+ * {@link CredentialStorage} for Digest credentials.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class DigestCredentialStorage implements CredentialStorage {
 
     private Date effectiveDate;
     private Date expiryDate;
-    
+
     private String realm;
     private byte[] ha1;
 
     public DigestCredentialStorage() {
-        
+
     }
-    
+
     public DigestCredentialStorage(byte[] ha1, String realm) {
         this.ha1 = ha1;
         this.realm = realm;
@@ -86,5 +85,5 @@ public class DigestCredentialStorage implements CredentialStorage {
     public void setRealm(String realm) {
         this.realm = realm;
     }
-    
+
 }

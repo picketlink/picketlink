@@ -32,7 +32,7 @@ import org.picketlink.idm.jpa.annotations.PropertyType;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 @IDMEntity(EntityType.RELATIONSHIP_IDENTITY)
 @Entity
@@ -97,7 +97,7 @@ public class RelationshipIdentityObject implements Serializable {
     public void setDescriptor(String descriptor) {
         this.descriptor = descriptor;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -112,7 +112,7 @@ public class RelationshipIdentityObject implements Serializable {
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
-    
+
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;

@@ -27,7 +27,6 @@ import java.util.TimeZone;
 
 import javax.naming.NamingException;
 import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.model.IdentityType;
@@ -36,9 +35,9 @@ import org.picketlink.idm.model.Realm;
 
 /**
  * <p>
- * An adaptor class that provides barebones implementation of the {@link DirContext}.
+ * Base class for LDAP {@link IdentityType} entries.
  * </p>
- * 
+ *
  * @author anil saldhana
  * @since Aug 30, 2012
  */
@@ -51,14 +50,14 @@ public abstract class LDAPIdentityType extends LDAPAttributedType implements Ide
     private Date createDate;
 
     private Partition partition;
-    
+
     private static SimpleDateFormat dateFormat;
-    
+
     {
         dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
-    
+
     public LDAPIdentityType(String dnSuffix) {
         super(dnSuffix);
     }
@@ -119,7 +118,7 @@ public abstract class LDAPIdentityType extends LDAPAttributedType implements Ide
                 try {
                     String createdTimestamp = getLDAPAttributes().get(CREATE_TIMESTAMP).get().toString();
                     long timeAdjust=11644473600000L;  // adjust factor for converting it to java
-                    
+
                     try {
                         this.createDate = dateFormat.parse(String.valueOf(Long.parseLong(createdTimestamp.substring(0, createdTimestamp.indexOf('Z')))/10000-timeAdjust));
                     } catch (ParseException e) {
@@ -132,7 +131,7 @@ public abstract class LDAPIdentityType extends LDAPAttributedType implements Ide
                 this.createDate = new Date();
             }
         }
-        
+
         return this.createDate;
     }
 

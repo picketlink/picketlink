@@ -37,17 +37,17 @@ import org.picketlink.idm.spi.StoreFactory;
 /**
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in
  * IdentityStore implementations based on the corresponding IdentityStoreConfiguration:
- * 
- * JPAIdentityStore - JPAIdentityStoreConfiguration 
+ *
+ * JPAIdentityStore - JPAIdentityStoreConfiguration
  * LDAPIdentityStore - LDAPConfiguration
  * FileBasedIdentityStore - FileIdentityStoreConfiguration
- * 
- * 
+ *
+ *
  * @author Shane Bryzak
  */
 public class DefaultStoreFactory implements StoreFactory {
 
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = 
+    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap =
             new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
 
     public DefaultStoreFactory() {

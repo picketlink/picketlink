@@ -37,12 +37,12 @@ import org.picketlink.idm.model.Role;
 public class LDAPRole extends LDAPIdentityType implements Role {
 
     private static final long serialVersionUID = 1L;
-    
+
     private String roleName;
 
     public LDAPRole(String roleDNSuffix) {
         super(roleDNSuffix);
-        
+
         Attribute oc = new BasicAttribute(OBJECT_CLASS);
         oc.add("top");
         oc.add(LDAPConstants.GROUP_OF_NAMES);
@@ -51,11 +51,11 @@ public class LDAPRole extends LDAPIdentityType implements Role {
 
     public LDAPRole(String name, String roleDNSuffix) {
         this(roleDNSuffix);
-        
+
         if (name == null) {
             throw new IllegalArgumentException("You must provide a name.");
         }
-        
+
         setName(name);
     }
 
@@ -83,5 +83,5 @@ public class LDAPRole extends LDAPIdentityType implements Role {
         }
         return roleName;
     }
-    
+
 }

@@ -35,9 +35,9 @@ import org.picketlink.idm.spi.PartitionStore;
  * <p>
  * {@link PartitionStore} implementation that persists {@link Partition} instances using the {@link FileBasedIdentityStore}.
  * </p>
- * 
+ *
  * @author Pedro Silva
- * 
+ *
  */
 public class FilePartitionStore implements PartitionStore {
 

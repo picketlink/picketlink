@@ -27,7 +27,7 @@ import org.picketlink.idm.credential.spi.annotations.Stored;
 
 /**
  * Represents the encoded hash value stored by an IdentityStore
- *  
+ *
  * @author Shane Bryzak
  */
 public class SHASaltedPasswordStorage implements CredentialStorage {
@@ -67,12 +67,12 @@ public class SHASaltedPasswordStorage implements CredentialStorage {
     public void setEncodedHash(String encodedHash) {
         this.encodedHash = encodedHash;
     }
-    
+
     @Stored
     public String getSalt() {
         return this.salt;
     }
-    
+
     public void setSalt(String salt) {
         this.salt = salt;
     }

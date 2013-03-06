@@ -62,7 +62,7 @@ import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * Default implementation of the IdentityManager interface
- * 
+ *
  * @author Shane Bryzak
  * @author anil saldhana
  */
@@ -95,24 +95,24 @@ public class DefaultIdentityManager implements IdentityManager {
             LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
 
             config.init();
-            
+
             for (String realm : config.getRealms()) {
                 Set<IdentityStoreConfiguration> configs;
-                
+
                 if (this.realmStores.containsKey(realm)) {
                     configs = realmStores.get(realm);
                 } else {
                     configs = new HashSet<IdentityStoreConfiguration>();
                     this.realmStores.put(realm, configs);
                 }
-                
+
                 configs.add(config);
             }
         }
 
         this.contextFactory = contextFactory;
     }
-    
+
     @Override
     public IdentityManager forRealm(Realm realm) {
         if (realm != null) {
@@ -189,7 +189,7 @@ public class DefaultIdentityManager implements IdentityManager {
                         });
             }
         }
-        
+
         throw MESSAGES.couldNotCreateContextualIdentityManager(Tier.class);
     }
 
@@ -251,9 +251,9 @@ public class DefaultIdentityManager implements IdentityManager {
                 throw MESSAGES.identityTypeAlreadyExists(newRole.getClass(), newRole.getName(), currentPartition);
             }
         }
-        
+
         try {
-            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.create).add(identityType);            
+            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.create).add(identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeAddFailed(identityType, e);
         }
@@ -276,7 +276,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(identityType, ctx);
 
         try {
-            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.update).update(identityType);    
+            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.update).update(identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -299,7 +299,7 @@ public class DefaultIdentityManager implements IdentityManager {
         checkIfIdentityTypeExists(identityType, ctx);
 
         try {
-            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.delete).remove(identityType);            
+            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.delete).remove(identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -344,11 +344,11 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         IdentityStoreInvocationContext ctx = createContext();
-        
+
         if (lookupIdentityById(Group.class, parent.getId()) == null) {
             throw MESSAGES.groupParentNotFoundWithId(parent.getId(), ctx.getPartition());
         }
-        
+
         return getContextualStoreForFeature(ctx, FeatureGroup.group, FeatureOperation.read).getGroup(name, parent);
     }
 
@@ -626,7 +626,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (tier.getName() == null) {
             throw MESSAGES.nullArgument("Tier name");
         }
-        
+
         if (Tier.class.isInstance(tier)) {
             if (getTier(tier.getName()) != null) {
                 throw MESSAGES.partitionAlreadyExistsWithName(tier.getClass(), tier.getName());
@@ -750,7 +750,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
         if (config == null) {
             LOGGER.identityManagerUnsupportedOperation(feature, operation);
-            
+
             if (!supportedRelationshipClass) {
                 throw MESSAGES.storeConfigUnsupportedRelationshipType(relationshipClass);
             } else {
@@ -766,7 +766,7 @@ public class DefaultIdentityManager implements IdentityManager {
         store.setup(config, ctx);
 
         LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation, store, ctx.getPartition());
-        
+
         return store;
     }
 
@@ -801,7 +801,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (ctx.getTier() != null) {
             currentPartition = ctx.getTier();
         }
-        
+
         return currentPartition;
     }
 
@@ -818,7 +818,7 @@ public class DefaultIdentityManager implements IdentityManager {
         if (!result.isEmpty()) {
             grant = result.get(0);
         }
-        
+
         return grant;
     }
 }

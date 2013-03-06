@@ -19,9 +19,9 @@ import org.picketlink.idm.model.Relationship;
 
 /**
  * Defines the feature set for an IdentityStore implementation
- * 
+ *
  * @author Shane Bryzak
- * 
+ *
  */
 public class FeatureSet {
 
@@ -50,7 +50,7 @@ public class FeatureSet {
      * <p>
      * Adds the given {@link FeatureOperation} for the provided {@link FeatureGroup}.
      * </p>
-     * 
+     *
      * @param feature
      * @param operation
      * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
@@ -65,7 +65,7 @@ public class FeatureSet {
      * <p>
      * Removes the given {@link FeatureOperation} for the provided {@link FeatureGroup} from the features set.
      * </p>
-     * 
+     *
      * @param feature
      * @param operation
      * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
@@ -89,7 +89,7 @@ public class FeatureSet {
      * <p>
      * Removes the given {@link FeatureGroup} and all supported {@link FeatureOperation} from the features set.
      * </p>
-     * 
+     *
      * @param feature
      * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
      */
@@ -107,7 +107,7 @@ public class FeatureSet {
      * <p>
      * Check if the {@link FeatureGroup} and the given {@link FeatureOperation} are supported.
      * </p>
-     * 
+     *
      * @param feature
      * @param operation
      * @return
@@ -120,7 +120,7 @@ public class FeatureSet {
      * <p>
      * Check if the {@link FeatureGroup} is supported.
      * </p>
-     * 
+     *
      * @param feature
      * @param operation
      * @return
@@ -133,7 +133,7 @@ public class FeatureSet {
      * <p>
      * Configures the given {@link FeatureOperation} for the provided {@link Relationship} type.
      * </p>
-     * 
+     *
      * @param feature
      * @param operation
      * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
@@ -147,7 +147,7 @@ public class FeatureSet {
      * <p>
      * Removes the given {@link FeatureOperation} related to the provided {@link Relationship} type from the feature set.
      * </p>
-     * 
+     *
      * @param feature
      * @param operation
      * @throws SecurityConfigurationException If this instance is locked and changes are no more allowed.
@@ -170,7 +170,7 @@ public class FeatureSet {
      * <p>
      * Check if the given {@link FeatureOperation} is supported for the provided {@link Relationship} type.
      * </p>
-     * 
+     *
      * @param feature
      * @param operation
      * @return
@@ -183,7 +183,7 @@ public class FeatureSet {
      * <p>
      * Check if the given {@link Relationship} type is supported.
      * </p>
-     * 
+     *
      * @param feature
      * @return
      */
@@ -199,7 +199,7 @@ public class FeatureSet {
      * <p>
      * Indicates if multi realms are supported or not.
      * </p>
-     * 
+     *
      * @return
      */
     public boolean supportsMultiRealm() {
@@ -215,11 +215,11 @@ public class FeatureSet {
         checkIfFeatureSetIsLocked();
         this.supportsMultiRealm = value;
     }
-    
+
     public Map<FeatureGroup, Set<FeatureOperation>> getSupportedFeatures() {
         return Collections.unmodifiableMap(this.supportedFeatures);
     }
-    
+
     public Map<Class<? extends Relationship>, Set<FeatureOperation>> getSupportedRelationships() {
         return Collections.unmodifiableMap(this.supportedRelationships);
     }
@@ -232,7 +232,7 @@ public class FeatureSet {
      * <p>
      * Adds the given {@link FeatureGroup} values to the provided {@link FeatureSet}.
      * </p>
-     * 
+     *
      * @param featureSet
      * @param groups
      */
@@ -279,7 +279,7 @@ public class FeatureSet {
      * Adds the given {@link Relationship} types to the provided {@link FeatureSet}. If you do not provide any class only the
      * default ones will be added.
      * </p>
-     * 
+     *
      * @param featureSet
      * @param relationshipClass
      */
@@ -304,7 +304,7 @@ public class FeatureSet {
      * <p>
      * Removes the given {@link Relationship} types from the provided {@link FeatureSet}.
      * </p>
-     * 
+     *
      * @param featureSet
      * @param relationshipClass
      */

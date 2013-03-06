@@ -22,23 +22,21 @@
 
 package org.picketlink.idm.config;
 
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * <p>
  * An <code>OperationNotSupportedException</code> is thrown to indicate that a {@link FeatureGroup} or {@link FeatureOperation}
- * is not supported by the underlying {@link IdentityStore} configured for a specific {@link IdentityManager} instance.
+ * is not supported by the underlying IdentityStore configured for a specific IdentityManager instance.
  * </p>
  * <p>
- * You should check the {@link IdentityStoreConfiguration} for individual features supported by a {@link IdentityStore}.
+ * You should check the {@link IdentityStoreConfiguration} for individual features supported by a IdentityStore.
  * </p>
- * 
+ *
  * @author Pedro Silva
- * 
+ *
  */
 public class OperationNotSupportedException extends SecurityConfigurationException {
 
@@ -46,7 +44,7 @@ public class OperationNotSupportedException extends SecurityConfigurationExcepti
 
     private FeatureGroup featureGroup;
     private FeatureOperation featureOperation;
-    
+
     public OperationNotSupportedException(String message, FeatureGroup feature, FeatureOperation operation) {
         super(message);
         this.featureGroup = feature;
@@ -60,6 +58,6 @@ public class OperationNotSupportedException extends SecurityConfigurationExcepti
     public FeatureOperation getFeatureOperation() {
         return this.featureOperation;
     }
-    
-    
+
+
 }

@@ -31,7 +31,7 @@ import org.picketlink.idm.model.User;
 
 /**
  * <p>Default {@link IdentityCache} implementation.</p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
@@ -40,15 +40,15 @@ public class DefaultIdentityCache implements IdentityCache {
     private Map<Partition, Map<String, Agent>> agentsCache = new HashMap<Partition, Map<String, Agent>>();
     private Map<Partition, Map<String, Role>> rolesCache = new HashMap<Partition, Map<String, Role>>();
     private Map<Partition, Map<String, Group>> groupsCache = new HashMap<Partition, Map<String, Group>>();
-    
+
     @Override
     public User lookupUser(Realm realm, String loginName) {
         Agent agent = lookupAgent(realm, loginName);
-        
+
         if (User.class.isInstance(agent)) {
             return (User) agent;
         }
-        
+
         return null;
     }
 
@@ -100,39 +100,39 @@ public class DefaultIdentityCache implements IdentityCache {
             getGroups(partition).remove(group.getPath());
         }
     }
-    
+
     private Map<String, Agent> getAgents(Realm realm) {
         Map<String, Agent> agents = this.agentsCache.get(realm);
-        
+
         if (agents == null) {
             agents = new HashMap<String, Agent>();
             this.agentsCache.put(realm, agents);
         }
-        
+
         return agents;
     }
-    
+
     private Map<String, Role> getRoles(Partition partition) {
         Map<String, Role> roles = this.rolesCache.get(partition);
-        
+
         if (roles == null) {
             roles = new HashMap<String, Role>();
             this.rolesCache.put(partition, roles);
         }
-        
+
         return roles;
     }
- 
+
     private Map<String, Group> getGroups(Partition partition) {
         Map<String, Group> groups = this.groupsCache.get(partition);
-        
+
         if (groups == null) {
             groups = new HashMap<String, Group>();
             this.groupsCache.put(partition, groups);
         }
-        
+
         return groups;
     }
- 
- 
+
+
 }

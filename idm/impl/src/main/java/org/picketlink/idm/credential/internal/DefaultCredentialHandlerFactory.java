@@ -32,17 +32,17 @@ import org.picketlink.idm.spi.IdentityStore;
 
 /**
  * A basic implementation of CredentialHandlerFactory that is pre-configured with the built-in
- * CredentialHandlers, and allows registration of additional handlers. 
- *  
+ * CredentialHandlers, and allows registration of additional handlers.
+ *
  * @author Shane Bryzak
  */
 public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory {
 
-    Map<Class<? extends CredentialHandler>, CredentialHandler> handlerInstances = 
+    Map<Class<? extends CredentialHandler>, CredentialHandler> handlerInstances =
             new HashMap<Class<? extends CredentialHandler>, CredentialHandler>();
 
     @Override
-    public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass, 
+    public CredentialHandler getCredentialValidator(Class<? extends Credentials> credentialsClass,
             Class<? extends IdentityStore> identityStoreClass) {
 
         CredentialHandlers handlers = identityStoreClass.getAnnotation(CredentialHandlers.class);
@@ -52,7 +52,7 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
                 if (!handlerInstances.containsKey(handlerClass)) {
                     return createHandlerInstance(handlerClass);
                 } else {
-                    return handlerInstances.get(handlerClass);    
+                    return handlerInstances.get(handlerClass);
                 }
             }
         }
@@ -61,7 +61,7 @@ public class DefaultCredentialHandlerFactory implements CredentialHandlerFactory
     }
 
     @Override
-    public CredentialHandler getCredentialUpdater(Class<?> credentialClass, 
+    public CredentialHandler getCredentialUpdater(Class<?> credentialClass,
             Class<? extends IdentityStore> identityStoreClass) {
 
         CredentialHandlers handlers = identityStoreClass.getAnnotation(CredentialHandlers.class);

@@ -70,12 +70,12 @@ public class UserHandler extends IdentityTypeHandler<User>{
     protected AbstractBaseEvent raiseDeletedEvent(User fromIdentityType) {
         return new UserDeletedEvent(fromIdentityType);
     }
-    
+
     @Override
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
-        
+
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(User.LOGIN_NAME);
 
         if (parameterValues != null) {
@@ -83,7 +83,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
                     parameterValues[0]));
         }
-        
+
         parameterValues = criteria.getIdentityQuery().getParameter(User.FIRST_NAME);
 
         if (parameterValues != null) {
@@ -107,20 +107,20 @@ public class UserHandler extends IdentityTypeHandler<User>{
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.USER_EMAIL).getName()),
                     parameterValues[0]));
         }
-        
+
         return predicates;
     }
 
     @Override
     protected User doCreateIdentityType(Object identity, JPAIdentityStore store) {
         String loginName = getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
-        
+
         User user = new SimpleUser(loginName);
 
         user.setFirstName(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_FIRST_NAME));
         user.setLastName(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_LAST_NAME));
         user.setEmail(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_EMAIL));
-        
+
         return user;
     }
 }

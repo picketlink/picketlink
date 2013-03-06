@@ -31,7 +31,7 @@ import org.picketlink.idm.query.QueryParameter;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class LDAPQueryParameter {
 
@@ -88,20 +88,20 @@ public class LDAPQueryParameter {
         for (Object value : getValues()) {
             if (Date.class.isInstance(value)) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss'Z'");
-                
+
                 sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-                
+
                 value = sdf.format(((Date) value));
             }
-            
+
             if (this.queryParameter.equals(IdentityType.CREATED_AFTER)) {
                 filter = filter + "(" + getMappedTo().getID() + ">=" + value.toString() + ")";
             } else if (this.queryParameter.equals(IdentityType.CREATED_BEFORE)) {
                 filter = filter + "(" + getMappedTo().getID() + "<=" + value.toString() + ")";
             } else {
-                filter = filter + "(" + getMappedTo().getID() + "=" + value.toString() + ")";    
+                filter = filter + "(" + getMappedTo().getID() + "=" + value.toString() + ")";
             }
-            
+
         }
 
         filter = filter + ")";

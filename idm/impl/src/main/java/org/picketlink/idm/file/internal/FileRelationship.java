@@ -39,9 +39,9 @@ import org.picketlink.idm.model.annotation.RelationshipIdentity;
  * <p>
  * {@link Serializable} class used to store {@link Relationship} metadata.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class FileRelationship extends AbstractAttributedTypeEntry<Relationship> {
 
@@ -70,16 +70,16 @@ public class FileRelationship extends AbstractAttributedTypeEntry<Relationship> 
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
             IdentityType identityType = annotatedProperty.getValue(getEntry());
-            
+
             if (identityType != null) {
                 this.identityTypeIds.put(identityType.getId(), annotatedProperty.getName());
             }
         }
-        
+
         List<Property<Serializable>> relationshipAttributeTypes = PropertyQueries
                 .<Serializable> createQuery(getEntry().getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
-        
+
         for (Property<Serializable> property : relationshipAttributeTypes) {
             properties.put(property.getName(), property.getValue(getEntry()));
         }
@@ -95,19 +95,19 @@ public class FileRelationship extends AbstractAttributedTypeEntry<Relationship> 
     protected void doReadObject(ObjectInputStream s) throws Exception {
         this.identityTypeIds = (Map<String, String>) s.readObject();
     }
-    
+
     @Override
     protected Relationship doPopulateEntry(Map<String, Serializable> properties) throws Exception {
         Relationship relationship = super.doPopulateEntry(properties);
-        
+
         List<Property<Serializable>> relationshipAttributeTypes = PropertyQueries
                 .<Serializable> createQuery(relationship.getClass())
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipAttribute.class)).getResultList();
-        
+
         for (Property<Serializable> property : relationshipAttributeTypes) {
             property.setValue(relationship, properties.get(property.getName()));
         }
-        
+
         return relationship;
     }
 

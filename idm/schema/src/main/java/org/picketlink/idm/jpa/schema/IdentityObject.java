@@ -29,11 +29,10 @@ import org.picketlink.idm.jpa.annotations.EntityType;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
 import org.picketlink.idm.jpa.annotations.IDMProperty;
 import org.picketlink.idm.jpa.annotations.PropertyType;
-import org.picketlink.idm.model.IdentityType;
 
 /**
- * <p>JPA {@link Entity} that maps {@link IdentityType} instances.</p>
- * 
+ * <p>JPA {@link Entity} that maps IdentityType instances.</p>
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
  *
  */
@@ -45,7 +44,7 @@ public class IdentityObject implements Serializable {
 
     @IDMProperty(PropertyType.IDENTITY_DISCRIMINATOR)
     private String discriminator;
-    
+
     @ManyToOne
     @IDMProperty (PropertyType.IDENTITY_PARTITION)
     private PartitionObject partition;
@@ -56,7 +55,7 @@ public class IdentityObject implements Serializable {
 
     @IDMProperty(PropertyType.AGENT_LOGIN_NAME)
     private String loginName;
-    
+
     @IDMProperty(PropertyType.IDENTITY_NAME)
     private String name;
 
@@ -81,7 +80,7 @@ public class IdentityObject implements Serializable {
     @ManyToOne
     @IDMProperty(PropertyType.GROUP_PARENT)
     private IdentityObject parent;
-    
+
     @IDMProperty (PropertyType.GROUP_PATH)
     private String groupPath;
 
@@ -180,7 +179,7 @@ public class IdentityObject implements Serializable {
     public void setParent(IdentityObject parent) {
         this.parent = parent;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {
@@ -195,7 +194,7 @@ public class IdentityObject implements Serializable {
 
         return getId() != null && other.getId() != null && getId().equals(other.getId());
     }
-    
+
     @Override
     public int hashCode() {
         int result = getId() != null ? getId().hashCode() : 0;

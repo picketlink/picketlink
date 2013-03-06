@@ -28,7 +28,7 @@ import org.picketlink.idm.model.Tier;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public class FilePartition extends AbstractFileEntry<Partition> {
 
@@ -92,7 +92,7 @@ public class FilePartition extends AbstractFileEntry<Partition> {
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         Partition partition = getPartition();
-        
+
         properties.put("id", partition.getId());
         properties.put("name", partition.getName());
 
@@ -129,7 +129,7 @@ public class FilePartition extends AbstractFileEntry<Partition> {
                 tier.setParent(parentTier);
             }
         }
-        
+
         return partition;
     }
 }

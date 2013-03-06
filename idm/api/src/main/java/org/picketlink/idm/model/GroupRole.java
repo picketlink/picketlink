@@ -22,7 +22,7 @@ import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
  * GroupRole is a Relationship type that assigns a role within a group to an identity (either a User or Group).
- * 
+ *
  * @author Boleslaw Dawidowicz
  * @author Shane Bryzak
  */

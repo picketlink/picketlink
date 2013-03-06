@@ -22,9 +22,9 @@ import java.io.Serializable;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
- * This interface represents a User; a human or non-human agent that may 
+ * This interface represents a User; a human or non-human agent that may
  * consume the services provided by an application.
- * 
+ *
  * @author Shane Bryzak
  */
 public interface User extends Agent, Serializable {

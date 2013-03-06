@@ -22,7 +22,7 @@ import java.io.Serializable;
 
 /**
  * Represents an attribute value, a type of metadata that can be associated with an IdentityType
- * 
+ *
  * @author Shane Bryzak
  *
  * @param <T>
@@ -82,13 +82,13 @@ public class Attribute<T extends Serializable> implements Serializable {
     }
 
     /**
-     * Sets the value for this attribute.  If the Attribute value is readOnly, a RuntimeException is thrown. 
-     * 
+     * Sets the value for this attribute.  If the Attribute value is readOnly, a RuntimeException is thrown.
+     *
      * @param value
      */
     public void setValue(T value) {
         if (readOnly) {
-            throw new RuntimeException("Error setting Attribute value [" + name + " ] - value is read only."); 
+            throw new RuntimeException("Error setting Attribute value [" + name + " ] - value is read only.");
         }
         this.value = value;
     }

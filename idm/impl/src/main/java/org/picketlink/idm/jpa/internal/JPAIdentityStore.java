@@ -93,10 +93,10 @@ import org.picketlink.idm.spi.PartitionStore;
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
  * generally created once per request, and is provided references to a (heavyweight) configuration and invocation context.
- * 
+ *
  * @author Shane Bryzak
  * @author Pedro Silva
- * 
+ *
  */
 @CredentialHandlers({ PasswordCredentialHandler.class, X509CertificateCredentialHandler.class, DigestCredentialHandler.class })
 public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfiguration>, CredentialStore, PartitionStore {
@@ -768,7 +768,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Lookup a stored {@link IdentityType} using the id.
      * </p>
-     * 
+     *
      * @param id
      * @return
      */
@@ -835,7 +835,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Converts the given object to an instance of its corresponding {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param relationshipObject
      * @return
      */
@@ -886,7 +886,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Converts the given object to an instance of its corresponding {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param entity
      * @return
      */
@@ -907,7 +907,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Stores the specified {@link Attribute} for the given {@link IdentityType} entity.
      * </p>
-     * 
+     *
      * @param identity
      * @param userAttribute
      */
@@ -947,7 +947,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Removes the store attributes not present in the {@link Relationship} instance.
      * </p>
-     * 
+     *
      * @param relationship
      * @param identity
      */
@@ -968,7 +968,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Removes the store attributes not present in the {@link IdentityType} instance.
      * </p>
-     * 
+     *
      * @param identityType
      * @param identity
      */
@@ -988,7 +988,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Returns all stored attributes for the given {@link IdentityType} that matchs the {@link Attribute} name.
      * </p>
-     * 
+     *
      * @param identityType
      * @param name
      * @return
@@ -1022,7 +1022,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Returns all stored attributes for the given {@link Relationship} that matchs the {@link Attribute} name.
      * </p>
-     * 
+     *
      * @param relationship
      * @param idValue
      * @param attribute
@@ -1057,7 +1057,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Returns all stored attributes for the given {@link IdentityType} entity.
      * </p>
-     * 
+     *
      * @param object
      * @return
      */
@@ -1083,7 +1083,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Returns all stored attributes for the given {@link IdentityType} entity.
      * </p>
-     * 
+     *
      * @param object
      * @return
      */
@@ -1109,7 +1109,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Lookup a stored {@link Relationship} using the id.
      * </p>
-     * 
+     *
      * @param id
      * @return
      */
@@ -1142,7 +1142,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Removes all relationships associated with the given {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param entity
      */
     private void removeIdentityTypeRelationships(Object entity) {
@@ -1163,7 +1163,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Returns all relationships associated with the given {@link IdentityType} using its identifier.
      * </p>
-     * 
+     *
      * @param identityTypeEntity
      * @return
      */
@@ -1193,7 +1193,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Removes all attributes for given {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param object
      */
     private void removeIdentityTypeAttributes(Object object) {
@@ -1211,7 +1211,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Updates the attributes for the given {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param identityType
      * @param entity
      */
@@ -1233,7 +1233,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Updates the attributes for the given {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param relationship
      * @param identity
      */
@@ -1270,7 +1270,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Populates the given {@link IdentityType} instance with the attributes associated with the given entity.
      * </p>
-     * 
+     *
      * @param identityType
      * @param entity
      */
@@ -1319,7 +1319,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Populates the given {@link Relationship} instance with the attributes associated with the given entity.
      * </p>
-     * 
+     *
      * @param relationshipType
      * @param relationship
      */
@@ -1544,7 +1544,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * <p>
      * Finds all child relationships for the given {@link Relationship}.
      * </p>
-     * 
+     *
      * @param relationship
      * @return
      */
@@ -1880,7 +1880,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * Returns the last stored credential for the given {@link Agent} considering the given storageClass. The last credential is
      * the one which the effectiveDate is more close to the current date.
      * </p>
-     * 
+     *
      * @param agent
      * @param storageClass
      * @return

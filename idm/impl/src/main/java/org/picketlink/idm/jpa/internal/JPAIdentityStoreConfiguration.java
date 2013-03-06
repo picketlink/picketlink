@@ -48,9 +48,9 @@ import org.picketlink.idm.model.User;
 
 /**
  * This interface defines the configuration parameters for a JPA based IdentityStore implementation.
- * 
+ *
  * @author Shane Bryzak
- * 
+ *
  */
 public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
@@ -235,7 +235,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     /**
      * Maps attributes to properties that are spread across the object model
-     * 
+     *
      */
     public class MappedAttribute {
         /**
@@ -364,7 +364,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     /**
      * Scan for various optional user properties, such as first name, last name and e-mail address.
-     * 
+     *
      * @throws SecurityConfigurationException
      */
     protected void configureUserProperties() throws SecurityConfigurationException {
@@ -401,7 +401,7 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     /**
      * Configures the identity store for reading and writing attribute values
-     * 
+     *
      * @throws SecurityConfigurationException
      */
     protected void configureAttributes() throws SecurityConfigurationException {

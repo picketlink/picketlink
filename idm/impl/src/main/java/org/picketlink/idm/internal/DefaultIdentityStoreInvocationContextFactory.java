@@ -32,11 +32,10 @@ import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
-import org.picketlink.idm.spi.PartitionStore;
 
 /**
  * A default implementation of IdentityStoreInvocationContextFactory.
- * 
+ *
  * @author Shane Bryzak
  * @author Anil Saldhana
  */
@@ -69,12 +68,12 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
         this();
         this.emf = emf;
     }
-    
+
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf) {
         this(emf);
         this.credentialHandlerFactory = chf;
     }
-    
+
     public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf, IdentityCache identityCache) {
         this(emf, chf);
         this.identityCache = identityCache;

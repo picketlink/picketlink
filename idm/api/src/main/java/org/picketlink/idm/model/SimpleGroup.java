@@ -19,7 +19,7 @@ package org.picketlink.idm.model;
 
 /**
  * Simple implementation of the Group interface
- * 
+ *
  */
 public class SimpleGroup extends AbstractIdentityType implements Group {
 
@@ -54,26 +54,26 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getPath() {
         return this.path;
     }
-    
+
     public void setPath(String path) {
         this.path = path;
     }
-    
+
     private String getPath(Group group) {
         String name = "/" + group.getName();
-        
+
         if (group.getParentGroup() != null) {
             name = getPath(group.getParentGroup()) + name;
         }
-        
+
         return name;
     }
 
@@ -81,7 +81,7 @@ public class SimpleGroup extends AbstractIdentityType implements Group {
     public Group getParentGroup() {
         return parentGroup;
     }
-    
+
     @Override
     public void setParentGroup(Group group) {
         this.parentGroup = group;

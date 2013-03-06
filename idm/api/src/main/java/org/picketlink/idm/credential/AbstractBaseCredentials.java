@@ -22,7 +22,7 @@ import org.picketlink.idm.model.Agent;
 
 /**
  * Abstract base class for Credentials
- *  
+ *
  * @author Shane Bryzak
  */
 public abstract class AbstractBaseCredentials implements Credentials {

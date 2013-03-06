@@ -52,9 +52,9 @@ import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
  * <p>
  * Base class that provides some common functionality for {@link IdentityType} types.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public abstract class IdentityTypeHandler<T extends IdentityType> {
 
@@ -78,7 +78,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * Creates a {@link IdentityType} instance using the information from the given Identity Class instance. This method already
      * provides the mapping for the common properties for all {@link IdentityType} types.
      * </p>
-     * 
+     *
      * @param identity
      * @return
      */
@@ -107,7 +107,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * <p>
      * Creates a Identity Class instance using the information from the given {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param fromIdentityType
      * @return
      */
@@ -115,7 +115,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         Object identity = null;
 
         try {
-            identity = getConfig().getIdentityClass().newInstance();            
+            identity = getConfig().getIdentityClass().newInstance();
         } catch (Exception e) {
             throw MESSAGES.instantiationError(getConfig().getIdentityClass().getName(), e);
         }
@@ -136,7 +136,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * Populates the given {@link Object} argument representing a Identity Class (from the config) with the information from the
      * specified {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param toIdentity
      * @param fromIdentityType
      */
@@ -157,7 +157,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * Logic to be executed before removing the given {@link IdentityType}. The <code>identity</code> argument refers to a
      * specific Identity Class that maps to the given {@link IdentityType} instance.
      * </p>
-     * 
+     *
      * @param identity
      * @param identityType
      */
@@ -170,7 +170,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * Returns a {@link List} of {@link Predicate} to be used during the query execution. This method already provides the
      * mapping for the common properties for all {@link IdentityType} types.
      * </p>
-     * 
+     *
      * @param criteria
      * @return
      */
@@ -196,7 +196,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
     /**
      * Return list of {@link Order} instances to be used for sorting during the query execution.
-     * 
+     *
      * @param criteria criteria which encapsulate all the parameters and JPA builder
      * @return list of orders to be used during identity query execution
      */
@@ -237,7 +237,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * Subclasses should override this method to create a specific {@link IdentityType} given the provided Identity Class
      * instance.
      * </p>
-     * 
+     *
      * @param identity
      * @return
      */
@@ -248,7 +248,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * Subclasses should override this method to populate the given Identity Class instance with the specific information for a
      * given {@link IdentityType}.
      * </p>
-     * 
+     *
      * @param toIdentity
      * @param fromIdentityType
      */

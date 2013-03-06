@@ -75,7 +75,7 @@ public class FileDataSource {
     private Map<String, List<FileRelationship>> relationships = new HashMap<String, List<FileRelationship>>();
 
     private boolean initialized;
-    
+
     /**
      * <p>
      * Initializes the working directory.
@@ -96,7 +96,7 @@ public class FileDataSource {
         }
 
         workingDirectoryFile.mkdirs();
-        
+
         LOGGER.fileConfigUsingWorkingDir(workingDirectoryFile.getPath());
     }
 
@@ -119,7 +119,7 @@ public class FileDataSource {
             }
 
             LOGGER.debug("Loaded Relationships");
-            
+
             this.initialized = true;
         }
     }
@@ -138,12 +138,12 @@ public class FileDataSource {
             }
         }
     }
-    
+
     protected void initPartition(String partitionId) {
         FilePartition filePartition = this.partitions.get(partitionId);
-        
+
         LOGGER.debugf("Initializing Partition [%s] with id [%s].", filePartition.getName(), partitionId);
-        
+
         String agentsPath = getWorkingDir() + File.separator + partitionId + File.separator + AGENTS_FILE_NAME;
 
         File agentsFile = createFileIfNotExists(new File(agentsPath));
@@ -157,7 +157,7 @@ public class FileDataSource {
         filePartition.setAgents(agents);
 
         LOGGER.debugf("Loaded Agents for Partition [%s].", filePartition.getName());
-        
+
         String rolesPath = getWorkingDir() + File.separator + partitionId + File.separator + ROLES_FILE_NAME;
 
         File rolesFile = createFileIfNotExists(new File(rolesPath));
@@ -171,7 +171,7 @@ public class FileDataSource {
         filePartition.setRoles(roles);
 
         LOGGER.debugf("Loaded Roles for Partition [%s].", filePartition.getName());
-        
+
         String groupsPath = getWorkingDir() + File.separator + partitionId + File.separator + GROUPS_FILE_NAME;
 
         File groupsFile = createFileIfNotExists(new File(groupsPath));
@@ -185,7 +185,7 @@ public class FileDataSource {
         filePartition.setGroups(groups);
 
         LOGGER.debugf("Loaded Groups for Partition [%s].", filePartition.getName());
-        
+
         String credentialsPath = getWorkingDir() + File.separator + partitionId + File.separator + CREDENTIALS_FILE_NAME;
 
         File credentialsFile = createFileIfNotExists(new File(credentialsPath));
@@ -197,7 +197,7 @@ public class FileDataSource {
         }
 
         filePartition.setCredentials(credentials);
-        
+
         LOGGER.debugf("Loaded Credentials for Partition [%s].", filePartition.getName());
     }
 
@@ -251,7 +251,7 @@ public class FileDataSource {
             throw new IdentityManagementException("Error flushing changes to file system.", e);
         }
     }
-    
+
     protected Map<String, Agent> getAgents(Partition partition) {
         Map<String, FileAgent> fileAgents = getPartition(partition.getId()).getAgents();
 

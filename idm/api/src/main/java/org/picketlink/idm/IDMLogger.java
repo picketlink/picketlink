@@ -36,7 +36,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 @MessageLogger(projectCode = "PLIDM")
 public interface IDMLogger extends BasicLogger {

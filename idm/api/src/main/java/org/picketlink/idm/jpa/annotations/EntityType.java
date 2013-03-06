@@ -19,41 +19,41 @@
 package org.picketlink.idm.jpa.annotations;
 
 /**
- * This enum defines the valid entity types that may be used to store Identity Management state 
- *  
+ * This enum defines the valid entity types that may be used to store Identity Management state
+ *
  * @author Shane Bryzak
  */
 public enum EntityType {
     /**
-     * 
+     *
      */
     IDENTITY_TYPE,
     /**
-     * 
+     *
      */
     IDENTITY_CREDENTIAL,
     /**
-     * 
+     *
      */
     CREDENTIAL_ATTRIBUTE,
     /**
-     * 
+     *
      */
     IDENTITY_ATTRIBUTE,
     /**
-     * 
+     *
      */
     RELATIONSHIP,
     /**
-     * 
+     *
      */
     RELATIONSHIP_IDENTITY,
     /**
-     * 
+     *
      */
     RELATIONSHIP_ATTRIBUTE,
     /**
-     * 
+     *
      */
     PARTITION
 }

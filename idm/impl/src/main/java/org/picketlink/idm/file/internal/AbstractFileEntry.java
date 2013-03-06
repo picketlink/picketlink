@@ -35,12 +35,12 @@ import org.picketlink.idm.IdentityManagementException;
 public abstract class AbstractFileEntry<T> implements Serializable {
 
     private static final long serialVersionUID = -3979114481984415635L;
-    
+
     private String version;
     private String type;
     private Map<String, Serializable> properties = new HashMap<String, Serializable>();
-    
-    private transient T loadedObject; 
+
+    private transient T loadedObject;
 
     protected AbstractFileEntry(String version, T object) {
         if (version == null) {
@@ -52,20 +52,20 @@ public abstract class AbstractFileEntry<T> implements Serializable {
         if (object == null) {
             throw new IdentityManagementException("Could not create a null file entry.");
         }
-        
+
         this.loadedObject = object;
         this.type = this.loadedObject.getClass().getName();
     }
-    
+
     private void writeObject(ObjectOutputStream s) {
         try {
             s.writeObject(this.version);
             s.writeObject(this.type);
 
             doPopulateProperties(this.properties);
-            
+
             s.writeObject(this.properties);
-            
+
             doWriteObject(s);
         } catch (Exception e) {
             throw MESSAGES.marshallingError(e);
@@ -73,7 +73,7 @@ public abstract class AbstractFileEntry<T> implements Serializable {
     }
 
     protected void doWriteObject(ObjectOutputStream s) throws Exception {
-        
+
     }
 
     protected abstract void doPopulateProperties(Map<String, Serializable> properties) throws Exception;
@@ -92,19 +92,19 @@ public abstract class AbstractFileEntry<T> implements Serializable {
     }
 
     protected void doReadObject(ObjectInputStream s) throws Exception {
-        
+
     }
 
     protected abstract T doPopulateEntry(Map<String, Serializable> properties) throws Exception;
-    
+
     protected T getEntry() {
         return this.loadedObject;
     }
-    
+
     public String getType() {
         return this.type;
     }
-    
+
     public String getVersion() {
         return this.version;
     }

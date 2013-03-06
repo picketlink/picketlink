@@ -24,7 +24,7 @@ import java.util.Collection;
 import org.picketlink.idm.query.QueryParameter;
 
 /**
- * 
+ *
  * @author Shane Bryzak
  *
  */
@@ -48,7 +48,7 @@ public interface AttributedType extends Serializable {
     void setId(String id);
 
     /**
-     * Set the specified attribute. This operation will overwrite any previous value. 
+     * Set the specified attribute. This operation will overwrite any previous value.
      *
      * @param name of attribute
      * @param value to be set
@@ -64,7 +64,7 @@ public interface AttributedType extends Serializable {
 
     /**
      * Return the attribute value with the specified name
-     * 
+     *
      * @param name of attribute
      * @return attribute value or null if attribute with given name doesn't exist. If given attribute has many values method
      *         will return first one
@@ -73,11 +73,11 @@ public interface AttributedType extends Serializable {
 
     /**
      * Returns a Map containing all attribute values for this IdentityType instance.
-     * 
+     *
      * @return map of attribute names and their values
      */
     Collection<Attribute<? extends Serializable>> getAttributes();
-    
+
     public class AttributeParameter implements QueryParameter {
         private String name;
         public AttributeParameter(String name) {

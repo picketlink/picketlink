@@ -32,12 +32,12 @@ import org.picketlink.idm.model.AttributedType;
 
 /**
  * @author Pedro Silva
- * 
+ *
  */
 public abstract class AbstractAttributedTypeEntry<T extends AttributedType> extends AbstractFileEntry<T> {
 
     private static final long serialVersionUID = -8312773698663190107L;
-    
+
     private Map<String, Serializable> attributes = new HashMap<String, Serializable>();
 
     protected AbstractAttributedTypeEntry(String version, T object) {
@@ -49,17 +49,17 @@ public abstract class AbstractAttributedTypeEntry<T extends AttributedType> exte
         T attributedType = doCreateInstance(properties);
 
         attributedType.setId(properties.get("id").toString());
-        
+
         if (this.attributes == null) {
             this.attributes = new HashMap<String, Serializable>();
         }
-        
+
         Set<Entry<String, Serializable>> entrySet = this.attributes.entrySet();
-        
+
         for (Entry<String, Serializable> entry : entrySet) {
             attributedType.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
         }
-        
+
         return attributedType;
     }
 
@@ -68,25 +68,25 @@ public abstract class AbstractAttributedTypeEntry<T extends AttributedType> exte
     @Override
     protected void doPopulateProperties(Map<String, Serializable> properties) throws Exception {
         T attributedType = getEntry();
-        
+
         properties.put("id", attributedType.getId());
     }
-    
+
     @Override
     protected void doWriteObject(ObjectOutputStream s) throws Exception {
         super.doWriteObject(s);
-        
+
         T attributedType = getEntry();
-        
+
         Collection<Attribute<? extends Serializable>> typeAttributes = attributedType.getAttributes();
-        
+
         for (Attribute<? extends Serializable> attribute : typeAttributes) {
             this.attributes.put(attribute.getName(), attribute.getValue());
         }
-        
+
         s.writeObject(this.attributes);
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     protected void doReadObject(ObjectInputStream s) throws Exception {

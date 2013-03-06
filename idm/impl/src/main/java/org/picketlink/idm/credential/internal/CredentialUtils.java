@@ -26,7 +26,7 @@ import org.picketlink.idm.spi.CredentialStore;
 
 /**
  * <p>Utility class with helper methods for the Credential API.</p>
- * 
+ *
  * @author Pedro Silva
  *
  */
@@ -36,7 +36,7 @@ public final class CredentialUtils {
      * <p>
      * Checks if the specified {@link CredentialStorage} maps to the current credential.
      * </p>
-     * 
+     *
      * @param credential
      * @return
      */
@@ -61,14 +61,14 @@ public final class CredentialUtils {
 
         return isCurrent;
     }
-    
+
     public static boolean isLastCredentialExpired(Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
         return isCredentialExpired(getCurrentCredential(agent, store, storageClass));
     }
 
     /**
      * <p>Returns the current credential for the given {@link Agent}.</p>
-     * 
+     *
      * @param agent
      * @param store
      * @param storageClass
@@ -86,13 +86,13 @@ public final class CredentialUtils {
                 }
             }
         }
-        
+
         return lastCredential;
     }
-    
+
     /**
      * <p>Checks if the given {@link CredentialStorage} holds an expired credential.</p>
-     * 
+     *
      * @param credentialStorage
      * @return
      */

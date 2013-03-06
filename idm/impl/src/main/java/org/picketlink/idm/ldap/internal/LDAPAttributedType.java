@@ -27,23 +27,22 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.naming.NamingException;
-import javax.naming.directory.DirContext;
 
 import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.model.AttributedType;
 
 /**
  * <p>
- * An adaptor class that provides barebones implementation of the {@link DirContext}.
+ * Base class for LDAP {@link AttributedType} entries.
  * </p>
- * 
+ *
  * @author anil saldhana
  * @since Aug 30, 2012
  */
 public abstract class LDAPAttributedType extends LDAPEntry implements AttributedType {
 
     private static final long serialVersionUID = 7193133057734386770L;
-    
+
     private LDAPCustomAttributes customAttributes;
 
     private String id;
@@ -68,7 +67,7 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
                 }
             }
         }
-        
+
         return this.id;
     }
 
@@ -89,7 +88,7 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
 
         if (getCustomAttributes().getAttributes().containsKey(name)) {
             T value = (T) getCustomAttributes().getAttribute(name);
-            
+
             attribute = new org.picketlink.idm.model.Attribute<T>(name, value);
         }
 
@@ -110,7 +109,7 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
 
         return attribs;
     }
-    
+
     public LDAPCustomAttributes getCustomAttributes() {
         return this.customAttributes;
     }
@@ -118,5 +117,5 @@ public abstract class LDAPAttributedType extends LDAPEntry implements Attributed
     public void setCustomAttributes(LDAPCustomAttributes customAttributes) {
         this.customAttributes = customAttributes;
     }
-    
+
 }

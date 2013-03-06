@@ -57,18 +57,18 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         X509CertificateCredentials certCredentials = (X509CertificateCredentials) credentials;
 
         Agent agent = identityStore.getAgent(certCredentials.getUsername());
-        
+
         certCredentials.setStatus(Status.INVALID);
-        
+
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
             CredentialStore store = (CredentialStore) identityStore;
-            
+
             X509CertificateStorage storage = store.retrieveCurrentCredential(agent, X509CertificateStorage.class);
 
             if (storage != null) {
                 String base64Cert = storage.getBase64Cert();
-                
+
                 byte[] certBytes = Base64.decode(base64Cert);
 
                 try {
@@ -78,7 +78,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
                     X509Cert providedCert = certCredentials.getCertificate();
 
                     if (storedCert.equals(providedCert.getValue())) {
-                        certCredentials.setStatus(Status.VALID); 
+                        certCredentials.setStatus(Status.VALID);
                     }
                 } catch (Exception e) {
                     throw new IdentityManagementException("Error while checking user's certificate.", e);
@@ -97,9 +97,9 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
 
         X509Cert certificate = (X509Cert) credential;
         X509CertificateStorage storage = new X509CertificateStorage((X509Cert) certificate);
-        
+
         CredentialStore store = (CredentialStore) identityStore;
-        
+
         store.storeCredential(agent, storage);
     }
 

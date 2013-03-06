@@ -27,7 +27,7 @@ import java.util.Map;
  * @author Shane Bryzak
  */
 public class EventContext {
-    
+
     private Map<String,Object> context;
 
     public Object getValue(String name) {

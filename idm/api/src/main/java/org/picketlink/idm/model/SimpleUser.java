@@ -31,7 +31,7 @@ public class SimpleUser extends SimpleAgent implements User {
     public SimpleUser() {
         super(null);
     }
-    
+
     public SimpleUser(String loginName) {
         super(loginName);
     }

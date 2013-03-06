@@ -31,14 +31,14 @@ import org.picketlink.idm.spi.IdentityStore;
  */
 public interface CredentialHandler {
     /**
-     * 
+     *
      * @param credentials
      * @param store
      * @return
      */
     void validate(Credentials credentials, IdentityStore<?> identityStore);
     /**
-     * 
+     *
      * @param user
      * @param credential
      * @param store

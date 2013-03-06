@@ -48,7 +48,7 @@ import org.picketlink.idm.query.RelationshipQuery;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class LDAPQuery {
 
@@ -184,9 +184,9 @@ public class LDAPQuery {
                     for (Grant grant : result) {
                         LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(grant.getRole());
                         String entryName = ldapEntry.getBidingName();
-                        
+
                         filter.append("(").append(ldapEntry.getBidingName()).append(")");
-                        
+
                         if (!userCount.containsKey(entryName)) {
                             userCount.put(entryName, 1);
                         } else {
@@ -199,7 +199,7 @@ public class LDAPQuery {
                             "Unsupported type for IdentityType.ROLE_OF QueryParameter. You should specify a Agent or a Group.");
                 }
             }
-            
+
             Set<Entry<String, Integer>> entrySet = userCount.entrySet();
 
             for (Entry<String, Integer> entry : entrySet) {
@@ -212,7 +212,7 @@ public class LDAPQuery {
                 }
             }
         }
-        
+
         if (filter.length() > 0) {
             filter.insert(0, "(|");
             filter.append(")");
@@ -387,7 +387,7 @@ public class LDAPQuery {
      * <p>
      * Returns a filter where only the specified {@link Agent} are member of.
      * </p>
-     * 
+     *
      * @param members
      * @param baseDN
      * @return

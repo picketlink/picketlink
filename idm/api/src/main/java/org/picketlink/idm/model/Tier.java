@@ -21,7 +21,7 @@ package org.picketlink.idm.model;
 /**
  * A hierarchical abstraction representing a partitioned set or subset of services, for which
  * specialized Roles and Groups may be created.
- * 
+ *
  * @author Shane Bryzak
  */
 public class Tier extends AbstractPartition {
@@ -36,7 +36,7 @@ public class Tier extends AbstractPartition {
     public Tier(String name) {
         super(name);
     }
-    
+
     public Tier(String name, String description, Tier parent) {
         this(name);
         this.description = description;
@@ -54,7 +54,7 @@ public class Tier extends AbstractPartition {
     public Tier getParent() {
         return this.parent;
     }
-    
+
     @Override
     public String getKey() {
         return String.format("%s%s", KEY_PREFIX, getName());
@@ -63,5 +63,5 @@ public class Tier extends AbstractPartition {
     public void setParent(Tier parent) {
         this.parent = parent;
     }
-    
+
 }

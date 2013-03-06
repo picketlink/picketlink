@@ -24,7 +24,7 @@ import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
@@ -33,7 +33,7 @@ public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfigurati
     @Override
     public void initConfig() throws SecurityConfigurationException {
         try {
-            this.dataSource.init();            
+            this.dataSource.init();
         } catch (Exception e) {
             throw IDMMessages.MESSAGES.fileConfigFailedToInitializeFilesystem(e);
         }

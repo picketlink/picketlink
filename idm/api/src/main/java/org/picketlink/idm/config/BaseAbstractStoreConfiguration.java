@@ -34,7 +34,7 @@ import org.picketlink.idm.model.Relationship;
 
 /**
  * The base class for store configurations
- * 
+ *
  * @author Shane Bryzak
  */
 public abstract class BaseAbstractStoreConfiguration implements IdentityStoreConfiguration {
@@ -66,19 +66,19 @@ public abstract class BaseAbstractStoreConfiguration implements IdentityStoreCon
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debugf("FeatureSet for %s", this);
             LOGGER.debug("Features [");
-            
+
             for (Entry<FeatureGroup, Set<FeatureOperation>> entry : this.featureSet.getSupportedFeatures().entrySet()) {
                 LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
             }
-            
+
             LOGGER.debug("]");
-            
+
             LOGGER.debug("Relationships [");
-            
+
             for (Entry<Class<? extends Relationship>, Set<FeatureOperation>> entry : this.featureSet.getSupportedRelationships().entrySet()) {
                 LOGGER.debugf("%s.%s", entry.getKey(), entry.getValue());
             }
-            
+
             LOGGER.debug("]");
         }
     }

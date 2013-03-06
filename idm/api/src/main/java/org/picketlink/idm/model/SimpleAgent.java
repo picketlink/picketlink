@@ -20,7 +20,7 @@ package org.picketlink.idm.model;
 
 /**
  * Simple implementation of the Agent interface
- * 
+ *
  * @author Shane Bryzak
  */
 public class SimpleAgent extends AbstractIdentityType implements Agent {
@@ -36,7 +36,7 @@ public class SimpleAgent extends AbstractIdentityType implements Agent {
     public String getLoginName() {
         return loginName;
     }
-    
+
     @Override
     public void setLoginName(String loginName) {
         this.loginName = loginName;

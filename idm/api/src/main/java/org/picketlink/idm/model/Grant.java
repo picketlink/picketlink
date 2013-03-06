@@ -22,15 +22,15 @@ import org.picketlink.idm.model.annotation.RelationshipIdentity;
 import org.picketlink.idm.query.RelationshipQueryParameter;
 
 /**
- * Represents the grant of a Role to an Assignee 
- * 
+ * Represents the grant of a Role to an Assignee
+ *
  * @author Shane Bryzak
  */
 public class Grant extends AbstractAttributedType implements Relationship {
     private static final long serialVersionUID = -200089007240264375L;
 
     public static final RelationshipQueryParameter ASSIGNEE = new RelationshipQueryParameter() {
-        
+
         @Override
         public String getName() {
             return "assignee";
@@ -38,7 +38,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
     };;
 
     public static final RelationshipQueryParameter ROLE = new RelationshipQueryParameter() {
-        
+
         @Override
         public String getName() {
             return "role";
@@ -49,9 +49,9 @@ public class Grant extends AbstractAttributedType implements Relationship {
     private Role role;
 
     public Grant() {
-        
+
     }
-    
+
     public Grant(IdentityType assignee, Role role) {
         this.assignee = assignee;
         this.role = role;
@@ -61,7 +61,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
     public IdentityType getAssignee() {
         return assignee;
     }
-    
+
     public void setAssignee(IdentityType assignee) {
         this.assignee = assignee;
     }
@@ -70,7 +70,7 @@ public class Grant extends AbstractAttributedType implements Relationship {
     public Role getRole() {
         return role;
     }
-    
+
     public void setRole(Role role) {
         this.role = role;
     }

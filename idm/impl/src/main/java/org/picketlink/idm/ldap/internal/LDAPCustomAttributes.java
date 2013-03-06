@@ -26,7 +26,7 @@ import java.util.Set;
 
 /**
  * Attributes of an {@link LDAPUser} that does not map to LDAP managed attributes
- * 
+ *
  * @author anil saldhana
  * @since Sep 7, 2012
  */

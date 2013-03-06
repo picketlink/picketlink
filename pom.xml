@@ -49,6 +49,7 @@
    </properties>
 
    <modules>
+      <module>build-config</module>
       <module>common</module>
       <module>config</module>
       <module>idm</module>

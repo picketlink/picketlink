@@ -24,9 +24,9 @@ import org.picketlink.common.util.Base64;
  * <p>
  * Represents a Digest credential.
  * </p>
- * 
+ *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class Digest {
 

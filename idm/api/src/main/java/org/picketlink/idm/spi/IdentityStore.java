@@ -44,7 +44,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * Sets the configuration and context in which the IdentityStore will execute its operations
-     * 
+     *
      * @param config
      * @param context
      */
@@ -52,14 +52,14 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * Returns the configuration for this IdentityStore instance
-     * 
+     *
      * @return
      */
     T getConfig();
 
     /**
      * Returns the current context for this IdentityStore instance
-     * 
+     *
      * @return
      */
     IdentityStoreInvocationContext getContext();
@@ -68,21 +68,21 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * Persists the specified IdentityType
-     * 
+     *
      * @param identityType
      */
     void add(AttributedType value);
 
     /**
      * Updates the specified IdentityType
-     * 
+     *
      * @param identityType
      */
     void update(AttributedType value);
 
     /**
      * Removes the specified IdentityType
-     * 
+     *
      * @param identityType
      */
     void remove(AttributedType value);
@@ -94,8 +94,8 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
     // User
 
     /**
-     * Returns the User with the specified id value. 
-     * 
+     * Returns the User with the specified id value.
+     *
      * @param ctx
      * @param id
      * @return
@@ -106,7 +106,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * <p>Returns the {@link Group} with the specified path. Eg.: /groupA/groupB/groupC.</p>
-     * 
+     *
      * @param ctx
      * @param groupPath
      * @return
@@ -115,7 +115,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * Returns the Group with the specified name and parent group
-     * 
+     *
      * @param ctx
      * @param name The name of the Group to return
      * @return
@@ -126,7 +126,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * Returns the specified role
-     * 
+     *
      * @param ctx
      * @param name The name of the Role to return
      * @return A Role instance, or null if the Role with the specified name wasn't found
@@ -149,12 +149,12 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * Sets the specified Attribute value for the specified IdentityType
-     * 
+     *
      * @param ctx
      * @param identityType
      * @param attribute
      */
-    void setAttribute(IdentityType identityType, 
+    void setAttribute(IdentityType identityType,
             Attribute<? extends Serializable> attribute);
 
     /**
@@ -168,7 +168,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
 
     /**
      * Removes the specified Attribute value, for the specified IdentityType
-     * 
+     *
      * @param ctx
      * @param identityType
      * @param attributeName
@@ -181,14 +181,14 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * Validates the specified credentials.  Each IdentityStore implementation typically supports
      * a concrete set of Credentials types, and will generally obtain a CredentialHandler instance
      * from the IdentityStoreInvocationContext to process credential validation.
-     * 
+     *
      * @param credentials
      */
     void validateCredentials(Credentials credentials);
 
     /**
      * Updates the specified credential value for the specified Agent.
-     * 
+     *
      * @param agent
      * @param credential
      */

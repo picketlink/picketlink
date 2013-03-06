@@ -51,7 +51,7 @@ public class IDMUtil {
     public static  boolean isAgentType(Class<? extends IdentityType> identityType) {
         return Agent.class.isAssignableFrom(identityType);
     }
-    
+
     public static FeatureGroup getFeatureGroup(IdentityType identityType) {
         if (User.class.isInstance(identityType)) {
             return FeatureGroup.user;

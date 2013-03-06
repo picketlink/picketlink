@@ -37,7 +37,7 @@ public class SimpleRole extends AbstractIdentityType implements Role {
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
@@ -59,8 +59,8 @@ public class SimpleRole extends AbstractIdentityType implements Role {
 
         Role other = (Role) obj;
 
-        // FIXME The Partition should also be taken into account. 
-        return other.getName() != null && this.getName() != null 
+        // FIXME The Partition should also be taken into account.
+        return other.getName() != null && this.getName() != null
                 && other.getName().equals(this.getName());
     }
 }

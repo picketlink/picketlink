@@ -21,17 +21,15 @@ package org.picketlink.idm.config;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.picketlink.idm.IdentityManager;
-
 /**
  * <p>
  * Defines the runtime configuration for Identity Management.
  * </p>
  * <p>
  * You should use this class to provide all necessary configuration for the identity stores that should be supported by the
- * {@link IdentityManager}.
+ * IdentityManager.
  * </p>
- * 
+ *
  * @author Shane Bryzak
  */
 public class IdentityConfiguration {
@@ -42,7 +40,7 @@ public class IdentityConfiguration {
      * <p>
      * Returns all registered {@link IdentityStoreConfiguration} instances.
      * </p>
-     * 
+     *
      * @return
      */
     public List<IdentityStoreConfiguration> getConfiguredStores() {
@@ -53,7 +51,7 @@ public class IdentityConfiguration {
      * <p>
      * Registers a {@link IdentityStoreConfiguration}.
      * </p>
-     * 
+     *
      * @param config
      */
     public void addStoreConfiguration(IdentityStoreConfiguration config) {

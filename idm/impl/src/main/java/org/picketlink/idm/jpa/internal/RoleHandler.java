@@ -38,7 +38,7 @@ import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- * 
+ *
  */
 public class RoleHandler extends IdentityTypeHandler<Role> {
 
@@ -91,7 +91,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
                     criteria.getRoot().get(getConfig().getModelProperty(PropertyType.IDENTITY_NAME).getName()),
                     parameterValues[0]));
         }
-        
+
         parameterValues = criteria.getIdentityQuery().getParameter(Role.ROLE_OF);
 
         if (parameterValues != null) {
