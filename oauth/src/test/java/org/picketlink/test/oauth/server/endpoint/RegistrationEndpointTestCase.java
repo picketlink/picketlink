@@ -41,10 +41,9 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  */
 public class RegistrationEndpointTestCase extends EndpointTestBase {
 
-    /*@Override
-    protected boolean needLDAP() {
-        return true;
-    }*/
+    /*
+     * @Override protected boolean needLDAP() { return true; }
+     */
 
     private String registrationEndpoint = "http://localhost:11080/oauth/register";
 

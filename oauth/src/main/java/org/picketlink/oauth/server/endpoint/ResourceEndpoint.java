@@ -27,13 +27,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.picketlink.oauth.amber.oauth2.as.response.OAuthASResponse;
-import org.picketlink.oauth.amber.oauth2.common.error.OAuthError;
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
 import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
-import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
 import org.picketlink.oauth.amber.oauth2.common.message.types.ParameterStyle;
 import org.picketlink.oauth.amber.oauth2.rs.request.OAuthAccessResourceRequest;
+import org.picketlink.oauth.messages.ErrorResponse;
+import org.picketlink.oauth.messages.ErrorResponse.ErrorResponseCode;
 import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
@@ -55,11 +53,11 @@ public class ResourceEndpoint extends BaseEndpoint {
         OAuthAccessResourceRequest oauthRequest = null;
         try {
             oauthRequest = new OAuthAccessResourceRequest(request, ParameterStyle.BODY);
-        } catch (OAuthProblemException ope) {
-            OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                    .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("accessToken not found")
-                    .buildJSONMessage();
-            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+        } catch (Exception ope) {
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+            errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found");
+            return Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build();
         }
 
         // Get the access token
@@ -70,11 +68,10 @@ public class ResourceEndpoint extends BaseEndpoint {
         if (validateAccessToken) {
             return Response.ok().entity("I am a Resource").build();
         } else {
-            OAuthResponse response = OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                    .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("accessToken not valid")
-                    .buildJSONMessage();
-            return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+            errorResponse.setError(ErrorResponseCode.invalid_client).setErrorDescription("accessToken not found");
+            return Response.status(errorResponse.getStatusCode()).entity(errorResponse.asJSON()).build();
         }
-
     }
 }
