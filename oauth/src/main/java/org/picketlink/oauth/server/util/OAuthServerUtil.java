@@ -281,6 +281,81 @@ public class OAuthServerUtil {
     }
 
     /**
+     * Validate the access token
+     *
+     * @param passedAccessToken
+     * @param identityManager
+     * @return
+     */
+    public static boolean validateAccessToken(String passedAccessToken, IdentityManager identityManager) {
+
+        IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
+        agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("accessToken"), passedAccessToken);
+
+        List<Agent> agents = agentQuery.getResultList();
+        int size = agents.size();
+
+        if (size == 0) {
+            return false;
+        }
+        if (size != 1) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Parse a {@link ResourceAccessRequest} with application/x-www-form-urlencoded
+     *
+     * @param request
+     * @return
+     */
+    public static ResourceAccessRequest parseResourceRequest(HttpServletRequest request) {
+        ResourceAccessRequest resourceAccessRequest = new ResourceAccessRequest();
+        resourceAccessRequest.setAccessToken(request.getParameter(OAuthConstants.ACCESS_TOKEN));
+        return resourceAccessRequest;
+    }
+
+    /**
+     * Parse a {@link RegistrationRequest} coming as application/x-www-form-urlencoded
+     *
+     * @param request
+     * @return
+     */
+    public static RegistrationRequest parseRegistrationRequestWithFORM(HttpServletRequest request) {
+        RegistrationRequest registrationRequest = new RegistrationRequest();
+        registrationRequest.setClientName(request.getParameter(OAuthConstants.CLIENT_NAME));
+        registrationRequest.setClientDescription(request.getParameter(OAuthConstants.CLIENT_DESCRIPTION));
+        registrationRequest.setClient_Icon(request.getParameter(OAuthConstants.CLIENT_ICON));
+        registrationRequest.setClientUrl(request.getParameter(OAuthConstants.CLIENT_URL));
+        registrationRequest.setClientRedirecturl(request.getParameter(OAuthConstants.CLIENT_REDIRECT_URL));
+
+        return registrationRequest;
+    }
+
+    /**
+     * Parse a {@link RegistrationRequest} coming as application/json
+     *
+     * @param request
+     * @return
+     */
+    public static RegistrationRequest parseRegistrationRequestWithJSON(HttpServletRequest request) {
+        // Read JSON from request
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+
+        try {
+            return mapper.readValue(request.getInputStream(), RegistrationRequest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Private Methods
+
+    /**
      * Refresh Token Request
      *
      * @param request
@@ -446,50 +521,6 @@ public class OAuthServerUtil {
         return oauthResponse;
     }
 
-    /**
-     * Validate the access token
-     *
-     * @param passedAccessToken
-     * @param identityManager
-     * @return
-     */
-    public static boolean validateAccessToken(String passedAccessToken, IdentityManager identityManager) {
-
-        IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
-        agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("accessToken"), passedAccessToken);
-
-        List<Agent> agents = agentQuery.getResultList();
-        int size = agents.size();
-
-        if (size == 0) {
-            return false;
-        }
-        if (size != 1) {
-            return false;
-        }
-        return true;
-    }
-
-    public static ResourceAccessRequest parseResourceRequest(HttpServletRequest request) {
-        ResourceAccessRequest resourceAccessRequest = new ResourceAccessRequest();
-        resourceAccessRequest.setAccessToken(request.getParameter(OAuthConstants.ACCESS_TOKEN));
-        return resourceAccessRequest;
-    }
-
-    public static RegistrationRequest parseRegistrationRequest(HttpServletRequest request) {
-        // Read JSON from request
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
-
-        try {
-            return mapper.readValue(request.getInputStream(), RegistrationRequest.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
-
     private static Properties getProperties(ServletContext context) throws IOException {
         Properties properties = new Properties();
         InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
@@ -532,5 +563,4 @@ public class OAuthServerUtil {
 
         return accessTokenRequest;
     }
-
 }

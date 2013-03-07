@@ -109,9 +109,9 @@ public class OAuthWorkflowTestCase extends EndpointTestBase {
         // Now attempt the resource
         String resourceURL = "http://localhost:11080/oauth/resource";
 
-        ResourceClient resourceClient = client.resourceClient(accessToken);
+        ResourceClient resourceClient = client.resourceClient(accessToken).setResourceURL(resourceURL);
 
-        InputStream inputStream = resourceClient.execute(resourceURL);
+        InputStream inputStream = resourceClient.execute();
         String responseBody = OAuthUtils.saveStreamAsString(inputStream);
         assertEquals("I am a Resource", responseBody);
     }
