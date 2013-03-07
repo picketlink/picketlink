@@ -51,13 +51,53 @@ public class RegistrationEndpoint extends BaseEndpoint {
     private static Logger log = Logger.getLogger(RegistrationEndpoint.class.getName());
 
     @POST
+    @Consumes("application/x-www-form-urlencoded")
+    @Produces("application/json")
+    public Response registerAsForm(@Context HttpServletRequest request) {
+        super.setup();
+        try {
+            RegistrationRequest registrationRequest = OAuthServerUtil.parseRegistrationRequestWithFORM(request);
+
+            String clientName = registrationRequest.getClientName();
+            String clientURL = registrationRequest.getClientURL();
+            String clientDescription = registrationRequest.getClientDescription();
+            String clientRedirectURI = registrationRequest.getClientRedirectURI();
+
+            String generatedClientID = generateClientID();
+            String generatedSecret = generateClientSecret();
+
+            // User user = identityManager.createUser(clientName);
+
+            Agent oauthApp = new SimpleAgent(clientName);
+
+            oauthApp.setAttribute(new Attribute<String>("appURL", clientURL));
+            oauthApp.setAttribute(new Attribute<String>("appDesc", clientDescription));
+            oauthApp.setAttribute(new Attribute<String>("redirectURI", clientRedirectURI));
+            oauthApp.setAttribute(new Attribute<String>("clientID", generatedClientID));
+            oauthApp.setAttribute(new Attribute<String>("clientSecret", generatedSecret));
+
+            identityManager.add(oauthApp);
+
+            RegistrationResponse response = new RegistrationResponse();
+            response.setStatusCode(HttpServletResponse.SC_OK);
+            response.setClientID(generatedClientID).setClientSecret(generatedSecret).setExpiresIn(3600L)
+                    .setIssued(getCurrentTime() + "");
+
+            return Response.status(response.getStatusCode()).entity(response.asJSON()).build();
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "OAuth Server Registration Processing:", e);
+            return Response.serverError().build();
+        }
+    }
+
+    @POST
     @Consumes("application/json")
     @Produces("application/json")
     public Response register(@Context HttpServletRequest request) {
         super.setup();
 
         try {
-            RegistrationRequest registrationRequest = OAuthServerUtil.parseRegistrationRequest(request);
+            RegistrationRequest registrationRequest = OAuthServerUtil.parseRegistrationRequestWithJSON(request);
 
             String clientName = registrationRequest.getClientName();
             String clientURL = registrationRequest.getClientURL();
