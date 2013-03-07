@@ -1,16 +1,10 @@
 package org.picketlink.test.permission;
 
 import java.io.File;
-import java.util.List;
 
-import javax.ejb.Stateful;
-import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceContextType;
 
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -19,12 +13,12 @@ import org.jboss.shrinkwrap.api.asset.FileAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.jboss.shrinkwrap.resolver.api.DependencyResolvers;
 import org.jboss.shrinkwrap.resolver.api.maven.MavenDependencyResolver;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
-import org.picketlink.permission.Permission;
 import org.picketlink.permission.PermissionManager;
 import org.picketlink.test.permission.action.FooAction;
 import org.picketlink.test.permission.resource.Resources;
@@ -37,6 +31,7 @@ import org.picketlink.test.permission.schema.Permissions;
  *
  */
 @RunWith(Arquillian.class)
+@Ignore
 public class PermissionManagerTestCase {
     @Inject PermissionManager permissionManager;
     
