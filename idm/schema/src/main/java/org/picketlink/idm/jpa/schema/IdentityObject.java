@@ -74,11 +74,11 @@ public class IdentityObject implements Serializable {
     private boolean enabled;
 
     @IDMProperty(PropertyType.IDENTITY_CREATION_DATE)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
     @IDMProperty(PropertyType.IDENTITY_EXPIRY_DATE)
-    @Temporal(TemporalType.DATE)
+    @Temporal(TemporalType.TIMESTAMP)
     private Date expiryDate;
 
     @ManyToOne
