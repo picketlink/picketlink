@@ -62,7 +62,7 @@ public class AuthorizationEndpointTestCase extends EndpointTestBase {
         RegistrationClient registrationClient = client.registrationClient();
         RegistrationResponse registrationResponse = registrationClient.setLocation(registrationEndpoint).setAppName(appName)
                 .setAppURL(appURL).setAppDescription(appDescription).setAppIcon(appIcon).setAppRedirectURL(appRedirectURL)
-                .build().execute();
+                .build().registerAsJSON();
 
         String clientID = registrationResponse.getClientID();
         assertNotNull(clientID);
