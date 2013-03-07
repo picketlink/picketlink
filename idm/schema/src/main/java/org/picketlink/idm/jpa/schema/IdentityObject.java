@@ -24,6 +24,7 @@ import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
 
 import org.picketlink.idm.jpa.annotations.EntityType;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
@@ -72,9 +73,11 @@ public class IdentityObject implements Serializable {
     private boolean enabled;
 
     @IDMProperty(PropertyType.IDENTITY_CREATION_DATE)
+    @Temporal
     private Date creationDate;
 
     @IDMProperty(PropertyType.IDENTITY_EXPIRY_DATE)
+    @Temporal
     private Date expiryDate;
 
     @ManyToOne
