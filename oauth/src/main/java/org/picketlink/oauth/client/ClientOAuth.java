@@ -44,10 +44,8 @@ import org.picketlink.oauth.messages.ResourceAccessRequest;
  * @since Sep 23, 2012
  */
 public class ClientOAuth {
-
     protected OAuthRequest request;
-
-    // protected OAuthClientRequest request;
+    protected ObjectMapper objectMapper;
 
     /**
      * Create a client for making Authorization Code Requests
@@ -92,8 +90,14 @@ public class ClientOAuth {
 
     private void clear() {
         request = null;
+        objectMapper = null;
     }
 
+    /**
+     * Create a client that can make authorization code grant requests
+     *
+     * @author anil saldhana
+     */
     public class AuthorizationClient {
         private String authorizationEndpoint, clientID, authCodeRedirectURL;
 
@@ -130,13 +134,6 @@ public class ClientOAuth {
                     .setResponseType(OAuthConstants.CODE);
 
             request = authorizationRequest;
-
-            /*
-             *
-             * request = OAuthClientRequest.authorizationLocation(authorizationEndpoint).setClientId(clientID)
-             * .setRedirectURI(authCodeRedirectURL).setResponseType(ResponseType.CODE.toString()).buildQueryMessage();
-             */
-
             return this;
         }
 
@@ -154,10 +151,6 @@ public class ClientOAuth {
                 c.connect();
                 response.setStatusCode(c.getResponseCode());
                 response.setResponseMessage(c.getResponseMessage());
-
-                /*
-                 * response.setResponseCode(c.getResponseCode()); response.setResponseMessage(c.getResponseMessage());
-                 */
             } catch (Exception e) {
                 throw new OAuthClientException(e);
             }
@@ -165,18 +158,11 @@ public class ClientOAuth {
         }
     }
 
-    /*
-     * public class AuthorizationResponse { private int responseCode; private String responseMessage;
+    /**
+     * Create a client that can make access token requests
      *
-     * public int getResponseCode() { return responseCode; }
-     *
-     * public void setResponseCode(int responseCode) { this.responseCode = responseCode; }
-     *
-     * public String getResponseMessage() { return responseMessage; }
-     *
-     * public void setResponseMessage(String responseMessage) { this.responseMessage = responseMessage; } }
+     * @author anil saldhana
      */
-
     public class AccessTokenClient {
         private String tokenEndpoint, authorizationCode, authCodeRedirectURL, clientID, clientSecret;
 
@@ -231,12 +217,6 @@ public class ClientOAuth {
                     .setCode(authorizationCode).setRedirectUri(authCodeRedirectURL).setClientId(clientID);
             request = accessTokenRequest;
 
-            /*
-             * request = OAuthClientRequest.tokenLocation(tokenEndpoint).setGrantType(GrantType.AUTHORIZATION_CODE)
-             * .setCode(authorizationCode).setRedirectURI(authCodeRedirectURL).setClientId(clientID)
-             * .setClientSecret(clientSecret).buildBodyMessage();
-             */
-
             return this;
         }
 
@@ -244,82 +224,26 @@ public class ClientOAuth {
             if (request == null) {
                 throw new OAuthClientException("Request has not been built. Use build() method");
             }
-            InputStream is = accessEndpoint();
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+            AccessTokenRequest accessTokenRequest = (AccessTokenRequest) request;
+
+            String url = accessTokenRequest.getLocation();
+            String body = accessTokenRequest.asQueryParams();
+            InputStream is = executePost(url, body, false);
+
+            ObjectMapper mapper = getObjectMapper();
             try {
                 return mapper.readValue(is, AccessTokenResponse.class);
             } catch (Exception e) {
                 throw new OAuthClientException(e);
             }
-
-            /*
-             * AccessTokenResponse accessTokenResponse = new AccessTokenResponse();
-             *
-             *
-             * accessTokenResponse.s try { OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
-             * OAuthAccessTokenResponse oauthTokenresponse = oAuthClient.accessToken(request); return new
-             * AccessTokenResponse(oauthTokenresponse); } catch (Exception e) { throw new OAuthClientException(e); }
-             */
-        }
-
-        public InputStream accessEndpoint() throws OAuthClientException {
-            AccessTokenRequest accessTokenRequest = (AccessTokenRequest) request;
-
-            String url = accessTokenRequest.getLocation();
-
-            InputStream inputStream = null;
-            try {
-                URL resUrl = new URL(url);
-                URLConnection urlConnection = resUrl.openConnection();
-                if (urlConnection instanceof HttpURLConnection) {
-                    String body = accessTokenRequest.asQueryParams();
-
-                    HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
-                    httpURLConnection.setRequestMethod("POST");
-                    httpURLConnection.setDoOutput(true);
-                    httpURLConnection.setAllowUserInteraction(false);
-                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                    httpURLConnection.setRequestProperty("Content-Length", Integer.toString(body.length()));
-                    OutputStream ost = httpURLConnection.getOutputStream();
-                    PrintWriter pw = new PrintWriter(ost);
-                    pw.print(body);
-                    pw.flush();
-                    pw.close();
-
-                    if (httpURLConnection.getResponseCode() == 400) {
-                        inputStream = httpURLConnection.getErrorStream();
-                    } else {
-                        inputStream = httpURLConnection.getInputStream();
-                    }
-                } else {
-                    throw new RuntimeException("Wrong url conn");
-                }
-            } catch (Exception e) {
-                throw new OAuthClientException(e);
-            }
-            return inputStream;
         }
     }
 
-    /*
-     * public class AccessTokenResponse { private OAuthAccessTokenResponse delegate;
+    /**
+     * Create a client that can make client registration requests
      *
-     * public AccessTokenResponse(OAuthAccessTokenResponse delegate) { this.delegate = delegate; }
-     *
-     * public String getAccessToken() { return delegate.getAccessToken(); }
-     *
-     * public Long getExpiresIn() { return delegate.getExpiresIn(); }
-     *
-     * public String getRefreshToken() { return delegate.getRefreshToken(); }
-     *
-     * public String getScope() { return delegate.getScope(); }
-     *
-     * public CommonOAuthToken getOAuthToken() { CommonOAuthToken token = new CommonOAuthToken(delegate.getOAuthToken()); return
-     * token; } }
+     * @author anil saldhana
      */
-
     public class RegistrationClient {
         String location, appName, appURL, appDescription, appIcon, appRedirectURL;
 
@@ -385,12 +309,6 @@ public class ClientOAuth {
 
             request = registrationRequest;
 
-            /*
-             * request = OAuthClientRegistrationRequest.location(location, OAuthRegistration.Type.PUSH).setName(appName)
-             * .setUrl(appURL).setDescription(appDescription).setIcon(appIcon).setRedirectURL(appRedirectURL)
-             * .buildJSONMessage();
-             */
-
             return this;
         }
 
@@ -398,91 +316,48 @@ public class ClientOAuth {
             if (request == null) {
                 throw new OAuthClientException("Request has not been built. Use build() method");
             }
-            InputStream is = accessEndpoint();
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+
+            RegistrationRequest registrationRequest = (RegistrationRequest) request;
+            String url = registrationRequest.getLocation();
+            String body = registrationRequest.asQueryParams();
+
+            InputStream is = executePost(url, body, false);
+
+            ObjectMapper mapper = getObjectMapper();
             try {
                 return mapper.readValue(is, RegistrationResponse.class);
             } catch (Exception e) {
                 throw new OAuthClientException(e);
             }
-
-            /*
-             * try { OAuthRegistrationClient oauthclient = new OAuthRegistrationClient(new URLConnectionClient());
-             * OAuthClientRegistrationResponse response = oauthclient.clientInfo(request); return new
-             * RegistrationResponse(response); } catch (Exception e) { throw new OAuthClientException(e); }
-             */
         }
 
-        public InputStream accessEndpoint() throws OAuthClientException {
-            RegistrationRequest registrationRequest = (RegistrationRequest) request;
+        public RegistrationResponse registerAsJSON() throws OAuthClientException {
+            if (request == null) {
+                throw new OAuthClientException("Request has not been built. Use build() method");
+            }
 
+            RegistrationRequest registrationRequest = (RegistrationRequest) request;
             String url = registrationRequest.getLocation();
             String body = registrationRequest.asJSON();
 
-            InputStream inputStream = null;
+            InputStream is = executePost(url, body, true);
+
+            ObjectMapper mapper = getObjectMapper();
             try {
-                URL resUrl = new URL(url);
-                URLConnection urlConnection = resUrl.openConnection();
-                if (urlConnection instanceof HttpURLConnection) {
-
-                    HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
-                    httpURLConnection.setRequestMethod("POST");
-                    httpURLConnection.setDoOutput(true);
-                    httpURLConnection.setAllowUserInteraction(false);
-                    httpURLConnection.setRequestProperty("Content-Type", "application/json");
-                    httpURLConnection.setRequestProperty("Content-Length", Integer.toString(body.length()));
-                    OutputStream ost = httpURLConnection.getOutputStream();
-                    PrintWriter pw = new PrintWriter(ost);
-                    pw.print(body);
-                    pw.flush();
-                    pw.close();
-
-                    if (httpURLConnection.getResponseCode() == 400) {
-                        inputStream = httpURLConnection.getErrorStream();
-                    } else {
-                        inputStream = httpURLConnection.getInputStream();
-                    }
-                } else {
-                    throw new RuntimeException("Wrong url conn");
-                }
+                return mapper.readValue(is, RegistrationResponse.class);
             } catch (Exception e) {
                 throw new OAuthClientException(e);
             }
-            return inputStream;
         }
     }
 
-    /*
-     * public class RegistrationResponse { private OAuthClientRegistrationResponse delegate;
+    /**
+     * Create a client that can make access requests for OAuth Resources
      *
-     * public RegistrationResponse(OAuthClientRegistrationResponse delegate) { this.delegate = delegate; }
-     *
-     * public String getClientId() { return delegate.getClientId(); }
-     *
-     * public String getClientSecret() { return delegate.getClientSecret(); }
-     *
-     * public String getIssuedAt() { return delegate.getIssuedAt(); }
-     *
-     * public Long getExpiresIn() { return delegate.getExpiresIn(); } }
+     * @author anil saldhana
      */
-
-    /*
-     * public class CommonOAuthToken { private OAuthToken delegate;
-     *
-     * public CommonOAuthToken(OAuthToken delegate) { this.delegate = delegate; }
-     *
-     * public String getAccessToken() { return delegate.getAccessToken(); }
-     *
-     * public Long getExpiresIn() { return delegate.getExpiresIn(); }
-     *
-     * public String getRefreshToken() { return delegate.getRefreshToken(); }
-     *
-     * public String getScope() { return delegate.getScope(); } }
-     */
-
     public class ResourceClient {
+        private String resourceURL;
 
         public ResourceClient(String token) {
             ResourceAccessRequest resourceAccessRequest = new ResourceAccessRequest();
@@ -490,39 +365,60 @@ public class ClientOAuth {
             request = resourceAccessRequest;
         }
 
-        public InputStream execute(String resourceURL) throws OAuthClientException {
-            ResourceAccessRequest resourceAccessRequest = (ResourceAccessRequest) request;
-            InputStream inputStream = null;
-            try {
-                URL resUrl = new URL(resourceURL);
-                URLConnection urlConnection = resUrl.openConnection();
-                if (urlConnection instanceof HttpURLConnection) {
-                    String body = resourceAccessRequest.asQueryParams();
-
-                    HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
-                    httpURLConnection.setRequestMethod("POST");
-                    httpURLConnection.setDoOutput(true);
-                    httpURLConnection.setAllowUserInteraction(false);
-                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-                    httpURLConnection.setRequestProperty("Content-Length", Integer.toString(body.length()));
-                    OutputStream ost = httpURLConnection.getOutputStream();
-                    PrintWriter pw = new PrintWriter(ost);
-                    pw.print(body);
-                    pw.flush();
-                    pw.close();
-
-                    if (httpURLConnection.getResponseCode() == 400) {
-                        inputStream = httpURLConnection.getErrorStream();
-                    } else {
-                        inputStream = httpURLConnection.getInputStream();
-                    }
-                } else {
-                    throw new RuntimeException("Wrong url conn");
-                }
-            } catch (Exception e) {
-                throw new OAuthClientException(e);
-            }
-            return inputStream;
+        public ResourceClient setResourceURL(String resourceURL) {
+            this.resourceURL = resourceURL;
+            return this;
         }
+
+        public InputStream execute() throws OAuthClientException {
+            ResourceAccessRequest resourceAccessRequest = (ResourceAccessRequest) request;
+            String body = resourceAccessRequest.asQueryParams();
+            return executePost(resourceURL, body, false);
+        }
+    }
+
+    private ObjectMapper getObjectMapper() {
+        if (objectMapper == null) {
+            objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            objectMapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+        }
+        return objectMapper;
+    }
+
+    private InputStream executePost(String endpointURL, String body, boolean isJSON) throws OAuthClientException {
+        InputStream inputStream = null;
+        try {
+            URL resUrl = new URL(endpointURL);
+            URLConnection urlConnection = resUrl.openConnection();
+            if (urlConnection instanceof HttpURLConnection) {
+                HttpURLConnection httpURLConnection = (HttpURLConnection) urlConnection;
+                httpURLConnection.setRequestMethod("POST");
+                httpURLConnection.setDoOutput(true);
+                httpURLConnection.setAllowUserInteraction(false);
+                if (isJSON) {
+                    httpURLConnection.setRequestProperty("Content-Type", "application/json");
+                } else {
+                    httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+                }
+                httpURLConnection.setRequestProperty("Content-Length", Integer.toString(body.length()));
+                OutputStream ost = httpURLConnection.getOutputStream();
+                PrintWriter pw = new PrintWriter(ost);
+                pw.print(body);
+                pw.flush();
+                pw.close();
+
+                if (httpURLConnection.getResponseCode() == 400) {
+                    inputStream = httpURLConnection.getErrorStream();
+                } else {
+                    inputStream = httpURLConnection.getInputStream();
+                }
+            } else {
+                throw new RuntimeException("Wrong url conn");
+            }
+        } catch (Exception e) {
+            throw new OAuthClientException(e);
+        }
+        return inputStream;
     }
 }
