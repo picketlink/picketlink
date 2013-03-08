@@ -115,16 +115,22 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         this.credentialStore = new FileCredentialStore(this);
         this.partitionStore = new FilePartitionStore(this);
 
-        if (this.context.getRealm() == null) {
-            Realm defaultRealm = getRealm(Realm.DEFAULT_REALM);
+        Realm defaultRealm = this.context.getRealm();
+
+        if (defaultRealm == null) {
+            defaultRealm = getRealm(Realm.DEFAULT_REALM);
 
             if (defaultRealm == null) {
                 defaultRealm = new Realm(Realm.DEFAULT_REALM);
                 createPartition(defaultRealm);
             }
-
-            this.context.setRealm(defaultRealm);
         }
+
+        if (!defaultRealm.getName().equals(Realm.DEFAULT_REALM)) {
+            defaultRealm = getRealm(defaultRealm.getName());
+        }
+
+        this.context.setRealm(defaultRealm);
     }
 
     @Override
@@ -1047,11 +1053,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         FilePartition partition = getDataSource().getPartition(storedRole.getPartition().getId());
 
+        removeRelationships(storedRole);
+
         partition.getRoles().remove(storedRole.getName());
 
         getDataSource().flushRoles(partition);
-
-        removeRelationships(storedRole);
 
         getContext().getEventBridge().raiseEvent(new RoleDeletedEvent(role));
     }
@@ -1069,11 +1075,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         FilePartition partition = getDataSource().getPartition(storedGroup.getPartition().getId());
 
+        removeRelationships(storedGroup);
+
         partition.getGroups().remove(storedGroup.getPath());
 
         getDataSource().flushGroups(partition);
-
-        removeRelationships(storedGroup);
 
         getContext().getEventBridge().raiseEvent(new GroupDeletedEvent(group));
     }
@@ -1090,10 +1096,11 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         FilePartition partition = getDataSource().getPartition(storedAgent.getPartition().getId());
 
+        removeRelationships(storedAgent);
+
         partition.getAgents().remove(storedAgent.getLoginName());
 
         getDataSource().flushAgents(partition);
-        removeRelationships(storedAgent);
 
         this.credentialStore.removeCredentials(storedAgent);
 

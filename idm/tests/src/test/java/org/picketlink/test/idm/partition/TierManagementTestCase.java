@@ -32,7 +32,6 @@ import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
-import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
@@ -135,11 +134,8 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Tier parentTier = createApplicationTier();
 
-        Role testingRole = new SimpleRole("testingRole");
+        Role testingRole = createRole("testingRole", parentTier);
         
-        // create the identitytype and associate with the parent tier
-        defaultIdentityManager.forTier(parentTier).add(testingRole);
-
         testingRole = defaultIdentityManager.forTier(parentTier).getRole("testingRole");
         
         assertNotNull(testingRole);
@@ -169,9 +165,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager applicationTierIdentityManager = defaultIdentityManager.forTier(applicationTier);
 
-        Role testingRole = new SimpleRole("testingRole");
-
-        applicationTierIdentityManager.add(testingRole);
+        Role testingRole = createRole("testingRole", applicationTier);
 
         testingRole = applicationTierIdentityManager.getRole(testingRole.getName());
 
@@ -192,9 +186,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager applicationTierIdentityManager = defaultIdentityManager.forTier(applicationTier);
 
-        Role adminRole = new SimpleRole("Administrator");
-
-        applicationTierIdentityManager.add(adminRole);
+        Role adminRole = createRole("Administrator", applicationTier);
 
         adminRole = applicationTierIdentityManager.getRole(adminRole.getName());
 
@@ -204,9 +196,8 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager testingRealmIdentityManager = applicationTierIdentityManager.forRealm(testingRealm);
 
-        User someUser = new SimpleUser("someUser");
+        User someUser = createUser("someUser", testingRealm);
 
-        testingRealmIdentityManager.add(someUser);
         testingRealmIdentityManager.grantRole(someUser, adminRole);
 
         assertTrue(testingRealmIdentityManager.hasRole(someUser, adminRole));
@@ -223,9 +214,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager applicationTierIdentityManager = identityManager.forTier(applicationTier);
 
-        Group testingGroup = new SimpleGroup("testingGroupTier");
-
-        applicationTierIdentityManager.add(testingGroup);
+        Group testingGroup = createGroup("testingGroupTier", null, applicationTier);
 
         testingGroup = applicationTierIdentityManager.getGroup(testingGroup.getName());
 
@@ -244,11 +233,8 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Tier parentTier = createApplicationTier();
 
-        Group testingGroup = new SimpleGroup("testingGroupParentTier");
+        Group testingGroup = createGroup("testingGroupParentTier", null, parentTier);
         
-        // create the identitytype and associate with the parent tier
-        defaultIdentityManager.forTier(parentTier).add(testingGroup);
-
         testingGroup = defaultIdentityManager.forTier(parentTier).getGroup("testingGroupParentTier");
         
         assertNotNull(testingGroup);

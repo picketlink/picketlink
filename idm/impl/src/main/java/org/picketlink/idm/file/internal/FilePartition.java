@@ -19,9 +19,9 @@
 package org.picketlink.idm.file.internal;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Tier;
@@ -36,10 +36,10 @@ public class FilePartition extends AbstractFileEntry<Partition> {
 
     private static final transient String FILE_PARTITION_VERSION = "1";
 
-    private transient Map<String, FileAgent> agents = new HashMap<String, FileAgent>();
-    private transient Map<String, FileRole> roles = new HashMap<String, FileRole>();
-    private transient Map<String, FileGroup> groups = new HashMap<String, FileGroup>();
-    private transient Map<String, Map<String, List<FileCredentialStorage>>> credentials = new HashMap<String, Map<String, List<FileCredentialStorage>>>();
+    private transient Map<String, FileAgent> agents = new ConcurrentHashMap<String, FileAgent>();
+    private transient Map<String, FileRole> roles = new ConcurrentHashMap<String, FileRole>();
+    private transient Map<String, FileGroup> groups = new ConcurrentHashMap<String, FileGroup>();
+    private transient Map<String, Map<String, List<FileCredentialStorage>>> credentials = new ConcurrentHashMap<String, Map<String, List<FileCredentialStorage>>>();
 
     public FilePartition(Partition partition) {
         super(FILE_PARTITION_VERSION, partition);
@@ -131,5 +131,10 @@ public class FilePartition extends AbstractFileEntry<Partition> {
         }
 
         return partition;
+    }
+
+    @Override
+    public String toString() {
+        return getName();
     }
 }

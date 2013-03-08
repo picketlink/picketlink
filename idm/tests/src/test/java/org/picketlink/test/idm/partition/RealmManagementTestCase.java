@@ -151,10 +151,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager defaultIdentityManager = getIdentityManager();
         
-        User realmUser = new SimpleUser("realmUser");
-        
-        // get a IdentityManager instance for the given realm and associate the user with the realm
-        defaultIdentityManager.forRealm(realm).add(realmUser);
+        User realmUser = createUser("realmUser", realm);
         
         realmUser = defaultIdentityManager.forRealm(realm).getUser(realmUser.getLoginName());
         
@@ -182,18 +179,15 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         } catch (Exception e) {
         }
         
-        Realm realm = createRealm();
-        
-        User testingRealmUser = new SimpleUser("commonName");
-        
-        // get a IdentityManager instance for the given realm and associate the user with the realm
-        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
-        
-        testingRealmManager.add(testingRealmUser);
-        
         defaultRealmUser = defaultIdentityManager.getUser(defaultRealmUser.getLoginName());
         
         assertNotNull(defaultRealmUser);
+
+        Realm realm = createRealm();
+        
+        User testingRealmUser = createUser("commonName", realm);
+        
+        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
 
         testingRealmUser = testingRealmManager.getUser(testingRealmUser.getLoginName());
         
@@ -216,18 +210,16 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         } catch (Exception e) {
         }
         
-        Realm realm = createRealm();
-        
-        Role testingRealmRole = new SimpleRole("commonName");
-        
-        // get a IdentityManager instance for the given realm and associate the Role with the realm
-        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
-        
-        testingRealmManager.add(testingRealmRole);
-        
         defaultRealmRole = defaultIdentityManager.getRole(defaultRealmRole.getName());
         
         assertNotNull(defaultRealmRole);
+
+        Realm realm = createRealm();
+        
+        Role testingRealmRole = createRole("commonName", realm);
+        
+        // get a IdentityManager instance for the given realm and associate the Role with the realm
+        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
 
         testingRealmRole = testingRealmManager.getRole(testingRealmRole.getName());
         
@@ -250,18 +242,16 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         } catch (Exception e) {
         }
         
-        Realm realm = createRealm();
-        
-        Group testingRealmGroup = new SimpleGroup("commonName");
-        
-        // get a IdentityManager instance for the given realm and associate the Group with the realm
-        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
-        
-        testingRealmManager.add(testingRealmGroup);
-        
         defaultRealmGroup = defaultIdentityManager.getGroup(defaultRealmGroup.getName());
         
         assertNotNull(defaultRealmGroup);
+
+        Realm realm = createRealm();
+        
+        Group testingRealmGroup = createGroup("commonName", null, realm);
+        
+        // get a IdentityManager instance for the given realm and associate the Group with the realm
+        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
 
         testingRealmGroup = testingRealmManager.getGroup(testingRealmGroup.getName());
         
@@ -275,11 +265,9 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         Realm realm = createRealm();
         
         IdentityManager defaultIdentityManager = getIdentityManager();
-        
-        Role testingRole = new SimpleRole("testingRole");
-        
-        // get a IdentityManager instance for the given realm and associate the role with the current realm
-        defaultIdentityManager.forRealm(realm).add(testingRole);
+
+        // the same as defaultIdentityManager.forRealm(realm).add(testingRole);
+        Role testingRole = createRole("testingRole", realm);
         
         testingRole = defaultIdentityManager.forRealm(realm).getRole(testingRole.getName());
         
@@ -299,10 +287,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         
         IdentityManager defaultIdentityManager = getIdentityManager();
         
-        Group testingGroup = new SimpleGroup("testingRealmGroup");
-        
-        // get a IdentityManager instance for the given realm and associate the group with the current realm
-        defaultIdentityManager.forRealm(realm).add(testingGroup);
+        Group testingGroup = createGroup("testingRealmGroup", null, realm);
         
         testingGroup = defaultIdentityManager.forRealm(realm).getGroup(testingGroup.getName());
         
@@ -344,13 +329,9 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         assertFalse(testingRealmManager.isMember(defaultRealmUser, defaultRealmGroup));
         assertFalse(testingRealmManager.hasGroupRole(defaultRealmUser, defaultRealmRole, defaultRealmGroup));
         
-        User testingRealmUser = new SimpleUser("testingRealmUser");
-        Role testingRealmRole = new SimpleRole("testingRealmRole");
-        Group testingRealmGroup = new SimpleGroup("testingRealmGroup");
-        
-        testingRealmManager.add(testingRealmUser);
-        testingRealmManager.add(testingRealmRole);
-        testingRealmManager.add(testingRealmGroup);
+        User testingRealmUser = createUser("testingRealmUser", realm);
+        Role testingRealmRole = createRole("testingRealmRole", realm);
+        Group testingRealmGroup = createGroup("testingRealmGroup", null, realm);
         
         testingRealmManager.grantRole(testingRealmUser, testingRealmRole);
         testingRealmManager.addToGroup(testingRealmUser, testingRealmGroup);
@@ -372,7 +353,6 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
         assertFalse(defaultIdentityManager.hasGroupRole(defaultRealmUser, testingRealmRole, defaultRealmGroup));
         assertFalse(defaultIdentityManager.hasGroupRole(testingRealmUser, defaultRealmRole, testingRealmGroup));
-
     }
     
     private Realm createRealm() {

@@ -20,7 +20,6 @@ package org.picketlink.idm.file.internal;
 
 import java.util.Comparator;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
@@ -80,7 +79,7 @@ public class FileSortingComparator<T extends IdentityType> implements Comparator
             return o1.getExpirationDate().compareTo(o2.getExpirationDate());
         }
 
-        if (o1 instanceof Agent) {
+        if (Agent.class.isInstance(o1) && Agent.class.isInstance(o2)) {
             Agent a1 = (Agent)o1;
             Agent a2 = (Agent)o2;
             if (queryParameter.equals(Agent.LOGIN_NAME)) {
@@ -98,13 +97,13 @@ public class FileSortingComparator<T extends IdentityType> implements Comparator
                     return u1.getEmail().compareTo(u2.getEmail());
                 }
             }
-        } else if (o1 instanceof Group) {
+        } else if (Group.class.isInstance(o1) && Group.class.isInstance(o2)) {
             Group g1 = (Group)o1;
             Group g2 = (Group)o2;
             if (queryParameter.equals(Group.NAME)) {
                 return g1.getName().compareTo(g2.getName());
             }
-        } else if (o1 instanceof Role) {
+        } else if (Role.class.isInstance(o1) && Role.class.isInstance(o2)) {
             Role r1 = (Role)o1;
             Role r2 = (Role)o2;
             if (queryParameter.equals(Role.NAME)) {
@@ -112,6 +111,6 @@ public class FileSortingComparator<T extends IdentityType> implements Comparator
             }
         }
 
-        throw new IdentityManagementException("Unknown query parameter " + queryParameter + " for comparing objects " + o1 + " and " + o2);
+        return -1;
     }
 }
