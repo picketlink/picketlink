@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -30,8 +29,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.PropertyNamingStrategy;
 import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
@@ -49,21 +52,20 @@ import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
+import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
-import org.picketlink.oauth.amber.oauth2.as.issuer.MD5Generator;
-import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuer;
-import org.picketlink.oauth.amber.oauth2.as.issuer.OAuthIssuerImpl;
-import org.picketlink.oauth.amber.oauth2.as.request.OAuthAuthzRequest;
-import org.picketlink.oauth.amber.oauth2.as.request.OAuthTokenRequest;
-import org.picketlink.oauth.amber.oauth2.as.response.OAuthASResponse;
-import org.picketlink.oauth.amber.oauth2.common.OAuth;
-import org.picketlink.oauth.amber.oauth2.common.error.OAuthError;
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthProblemException;
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
-import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
-import org.picketlink.oauth.amber.oauth2.common.message.types.GrantType;
-import org.picketlink.oauth.amber.oauth2.common.message.types.ResponseType;
+import org.picketlink.oauth.common.OAuthConstants;
+import org.picketlink.oauth.grants.AuthorizationCodeGrant;
+import org.picketlink.oauth.grants.ResourceOwnerPasswordCredentialsGrant;
+import org.picketlink.oauth.grants.ResourceOwnerPasswordCredentialsGrant.PasswordAccessTokenRequest;
+import org.picketlink.oauth.messages.AccessTokenRequest;
+import org.picketlink.oauth.messages.AuthorizationRequest;
+import org.picketlink.oauth.messages.ErrorResponse;
+import org.picketlink.oauth.messages.ErrorResponse.ErrorResponseCode;
+import org.picketlink.oauth.messages.OAuthResponse;
+import org.picketlink.oauth.messages.RegistrationRequest;
+import org.picketlink.oauth.messages.ResourceAccessRequest;
 
 /**
  * Utility
@@ -81,6 +83,7 @@ public class OAuthServerUtil {
      * @return
      * @throws IOException
      */
+    @SuppressWarnings("unchecked")
     public static IdentityManager handleIdentityManager(ServletContext context) throws IOException {
         IdentityManager identityManager = null;
         if (context == null) {
@@ -111,6 +114,12 @@ public class OAuthServerUtil {
                 jpaStoreConfig.setCredentialClass(CredentialObject.class);
                 jpaStoreConfig.setCredentialAttributeClass(CredentialObjectAttribute.class);
                 jpaStoreConfig.setPartitionClass(PartitionObject.class);
+
+                FeatureSet.addFeatureSupport(jpaStoreConfig.getFeatureSet());
+                FeatureSet.addRelationshipSupport(jpaStoreConfig.getFeatureSet());
+                FeatureSet.addRelationshipSupport(jpaStoreConfig.getFeatureSet(), Authorization.class);
+                jpaStoreConfig.getFeatureSet().setSupportsCustomRelationships(true);
+                jpaStoreConfig.getFeatureSet().setSupportsMultiRealm(true);
 
                 identityConfig.addStoreConfiguration(jpaStoreConfig);
 
@@ -156,18 +165,33 @@ public class OAuthServerUtil {
      * @return
      * @throws OAuthSystemException
      */
-    public static OAuthResponse authorizationCodeRequest(HttpServletRequest request, IdentityManager identityManager)
-            throws OAuthSystemException {
-        OAuthAuthzRequest oauthRequest = null;
-        try {
-            oauthRequest = new OAuthAuthzRequest(request);
+    public static OAuthResponse authorizationCodeRequest(HttpServletRequest request, IdentityManager identityManager) {
 
-            String passedClientID = oauthRequest.getClientId();
+        AuthorizationCodeGrant grant = new AuthorizationCodeGrant();
+
+        try {
+            // Let us parse the authorization request
+            AuthorizationRequest authorizationRequest = parseAuthorizationRequest(request);
+            String responseType = authorizationRequest.getResponseType();
+
+            if (responseType.equals(OAuthConstants.CODE) == false) {
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setErrorDescription("response_type should be :code").setError(ErrorResponseCode.invalid_client)
+                        .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+                return errorResponse;
+            }
+
+            grant.setAuthorizationRequest(authorizationRequest);
+
+            String passedClientID = authorizationRequest.getClientId();
 
             if (passedClientID == null) {
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null")
-                        .buildJSONMessage();
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setErrorDescription("client_id is null").setError(ErrorResponseCode.invalid_client)
+                        .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+                return errorResponse;
             }
 
             IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
@@ -176,15 +200,20 @@ public class OAuthServerUtil {
             List<Agent> agents = agentQuery.getResultList();
             if (agents.size() == 0) {
                 log.error(passedClientID + " not found");
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                        .buildJSONMessage();
+
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setErrorDescription("client_id not found").setError(ErrorResponseCode.invalid_client)
+                        .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+                return errorResponse;
             }
             if (agents.size() > 1) {
                 log.error(passedClientID + " multiple found");
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Multiple client_id found")
-                        .buildJSONMessage();
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setErrorDescription("Multiple client_id found").setError(ErrorResponseCode.invalid_client)
+                        .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+                return errorResponse;
             }
 
             Agent clientApp = agents.get(0);
@@ -196,36 +225,35 @@ public class OAuthServerUtil {
             // check if clientid is valid
             if (!clientID.equals(passedClientID)) {
                 log.error(passedClientID + " not found");
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                        .buildJSONMessage();
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setErrorDescription("client_id not found").setError(ErrorResponseCode.invalid_client)
+                        .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+                return errorResponse;
             }
 
-            // build response according to response_type
-            String responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE);
+            OAuthResponse oauthResponse = null;
 
-            OAuthASResponse.OAuthAuthorizationResponseBuilder builder = OAuthASResponse.authorizationResponse(request,
-                    HttpServletResponse.SC_FOUND);
+            String authorizationCode = grant.getValueGenerator().value();
+            grant.setAuthorizationCode(authorizationCode);
 
-            OAuthIssuerImpl oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
-            if (responseType.equals(ResponseType.CODE.toString())) {
-                String authorizationCode = oauthIssuerImpl.authorizationCode();
+            clientApp.setAttribute(new Attribute<String>("authorizationCode", authorizationCode));
+            identityManager.update(clientApp);
 
-                clientApp.setAttribute(new Attribute<String>("authorizationCode", authorizationCode));
-                identityManager.update(clientApp);
+            oauthResponse = grant.authorizationResponse();
+            oauthResponse.setStatusCode(HttpServletResponse.SC_FOUND);
 
-                builder.setCode(authorizationCode);
-            }
+            String redirectURI = authorizationRequest.getRedirectUri();
 
-            String redirectURI = oauthRequest.getParam(OAuth.OAUTH_REDIRECT_URI);
-
-            return builder.location(redirectURI).buildQueryMessage();
+            oauthResponse.setLocation(redirectURI + "?" + oauthResponse.asQueryParams());
+            return oauthResponse;
         } catch (Exception e) {
-            e.printStackTrace();
             log.error("Exception:", e);
-            return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                    .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                    .buildJSONMessage();
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setErrorDescription("client_id not found").setError(ErrorResponseCode.invalid_client)
+                    .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+            return errorResponse;
         }
     }
 
@@ -237,119 +265,19 @@ public class OAuthServerUtil {
      * @return
      * @throws OAuthSystemException
      */
-    public static OAuthResponse tokenRequest(HttpServletRequest request, IdentityManager identityManager)
-            throws OAuthSystemException {
-        OAuthTokenRequest oauthRequest = null;
-
-        try {
-            oauthRequest = new OAuthTokenRequest(request);
-
-            String passedClientID = oauthRequest.getClientId();
-            String passedClientSecret = oauthRequest.getClientSecret();
-            Set<String> scopes = oauthRequest.getScopes();
-
-            if (passedClientID == null) {
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id is null")
-                        .buildJSONMessage();
-            }
-
-            if (passedClientSecret == null) {
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_secret is null")
-                        .buildJSONMessage();
-            }
-
-            IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
-            agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
-
-            List<Agent> agents = agentQuery.getResultList();
-            if (agents.size() == 0) {
-                log.error(passedClientID + " not found");
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                        .buildJSONMessage();
-            }
-            if (agents.size() > 1) {
-                log.error(passedClientID + " multiple found");
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Multiple client_id found")
-                        .buildJSONMessage();
-            }
-
-            Agent clientApp = agents.get(0);
-
-            // Get the values from DB
-            Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
-            String clientID = clientIDAttr.getValue();
-            Attribute<String> authorizationCodeAttr = clientApp.getAttribute("authorizationCode");
-            if (authorizationCodeAttr == null) {
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("authorization code is null")
-                        .buildJSONMessage();
-            }
-            String authorizationCode = authorizationCodeAttr.getValue();
-
-            String username = oauthRequest.getUsername();
-            String password = oauthRequest.getPassword();
-
-            // check if clientid is valid
-            if (!clientID.equals(passedClientID)) {
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("client_id not found")
-                        .buildJSONMessage();
-            }
-
-            // Validate client secret
-            UsernamePasswordCredentials upc = new UsernamePasswordCredentials();
-            upc.setUsername(clientApp.getId());
-            upc.setPassword(new Password(passedClientSecret.toCharArray()));
-
-            try {
-                identityManager.validateCredentials(upc);
-            } catch (SecurityException se) {
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_CLIENT).setErrorDescription("Client secret mismatch")
-                        .buildJSONMessage();
-            }
-
-            // do checking for different grant types
-            if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.AUTHORIZATION_CODE.toString())) {
-                if (!authorizationCode.equals(oauthRequest.getParam(OAuth.OAUTH_CODE))) {
-                    return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                            .setError(OAuthError.TokenResponse.INVALID_GRANT).setErrorDescription("invalid authorization code")
-                            .buildJSONMessage();
-                }
-            } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.PASSWORD.toString())) {
-                UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials();
-                usernamePasswordCredentials.setUsername(username);
-                usernamePasswordCredentials.setPassword(new Password(password.toCharArray()));
-                try {
-                    identityManager.validateCredentials(usernamePasswordCredentials);
-                } catch (Exception e) {
-                    return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                            .setError(OAuthError.TokenResponse.INVALID_GRANT)
-                            .setErrorDescription("invalid username or password").buildJSONMessage();
-                }
-            } else if (oauthRequest.getParam(OAuth.OAUTH_GRANT_TYPE).equals(GrantType.REFRESH_TOKEN.toString())) {
-                return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST)
-                        .setError(OAuthError.TokenResponse.INVALID_GRANT)
-                        .setErrorDescription("Refresh Token not yet supported").buildJSONMessage();
-            }
-
-            OAuthIssuer oauthIssuerImpl = new OAuthIssuerImpl(new MD5Generator());
-            String accessToken = oauthIssuerImpl.accessToken();
-            clientApp.setAttribute(new Attribute<String>("accessToken", accessToken));
-
-            // Let us store the scopes also
-            clientApp.setAttribute(new Attribute<String>("scopes", scopes.toString()));
-            identityManager.update(clientApp);
-
-            return OAuthASResponse.tokenResponse(HttpServletResponse.SC_OK).setAccessToken(accessToken).setExpiresIn("3600")
-                    .buildJSONMessage();
-        } catch (OAuthProblemException e) {
-            return OAuthASResponse.errorResponse(HttpServletResponse.SC_BAD_REQUEST).error(e).buildJSONMessage();
+    public static OAuthResponse tokenRequest(HttpServletRequest request, IdentityManager identityManager) {
+        String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
+        // Authorization Code Grant
+        if (grantType.equals(AuthorizationCodeGrant.GRANT_TYPE)) {
+            return authorizationCodeGrantTypeTokenRequest(request, identityManager);
         }
+        if (grantType.equals(OAuthConstants.PASSWORD)) {
+            return passwordGrantTypeTokenRequest(request, identityManager);
+        }
+        if (grantType.equals(OAuthConstants.REFRESH_TOKEN)) {
+            return refreshTokenRequest(request, identityManager);
+        }
+        return null;
     }
 
     /**
@@ -376,10 +304,263 @@ public class OAuthServerUtil {
         return true;
     }
 
+    /**
+     * Parse a {@link ResourceAccessRequest} with application/x-www-form-urlencoded
+     *
+     * @param request
+     * @return
+     */
+    public static ResourceAccessRequest parseResourceRequest(HttpServletRequest request) {
+        ResourceAccessRequest resourceAccessRequest = new ResourceAccessRequest();
+        resourceAccessRequest.setAccessToken(request.getParameter(OAuthConstants.ACCESS_TOKEN));
+        return resourceAccessRequest;
+    }
+
+    /**
+     * Parse a {@link RegistrationRequest} coming as application/x-www-form-urlencoded
+     *
+     * @param request
+     * @return
+     */
+    public static RegistrationRequest parseRegistrationRequestWithFORM(HttpServletRequest request) {
+        RegistrationRequest registrationRequest = new RegistrationRequest();
+        registrationRequest.setClientName(request.getParameter(OAuthConstants.CLIENT_NAME));
+        registrationRequest.setClientDescription(request.getParameter(OAuthConstants.CLIENT_DESCRIPTION));
+        registrationRequest.setClient_Icon(request.getParameter(OAuthConstants.CLIENT_ICON));
+        registrationRequest.setClientUrl(request.getParameter(OAuthConstants.CLIENT_URL));
+        registrationRequest.setClientRedirecturl(request.getParameter(OAuthConstants.CLIENT_REDIRECT_URL));
+
+        return registrationRequest;
+    }
+
+    /**
+     * Parse a {@link RegistrationRequest} coming as application/json
+     *
+     * @param request
+     * @return
+     */
+    public static RegistrationRequest parseRegistrationRequestWithJSON(HttpServletRequest request) {
+        // Read JSON from request
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES);
+
+        try {
+            return mapper.readValue(request.getInputStream(), RegistrationRequest.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Private Methods
+
+    /**
+     * Refresh Token Request
+     *
+     * @param request
+     * @param identityManager
+     * @return
+     * @throws OAuthSystemException
+     */
+    private static OAuthResponse refreshTokenRequest(HttpServletRequest request, IdentityManager identityManager) {
+
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorDescription("refresh_token not supported").setError(ErrorResponseCode.invalid_client)
+                .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+        return errorResponse;
+    }
+
+    /**
+     * Handle Password Grant Type token request
+     *
+     * @param request
+     * @param identityManager
+     * @return
+     * @throws OAuthSystemException
+     */
+    private static OAuthResponse passwordGrantTypeTokenRequest(HttpServletRequest request, IdentityManager identityManager) {
+
+        OAuthResponse oauthResponse = null;
+
+        ResourceOwnerPasswordCredentialsGrant grant = new ResourceOwnerPasswordCredentialsGrant();
+
+        PasswordAccessTokenRequest accessTokenRequest = parsePasswordAccessTokenRequest(request);
+        grant.setAccessTokenRequest(accessTokenRequest);
+
+        String passedClientID = accessTokenRequest.getClientId();
+        if (passedClientID == null) {
+
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setErrorDescription("client_id is null").setError(ErrorResponseCode.invalid_client)
+                    .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+            return errorResponse;
+        }
+        String username = accessTokenRequest.getUsername();
+        String password = accessTokenRequest.getPassword();
+
+        UsernamePasswordCredentials usernamePasswordCredentials = new UsernamePasswordCredentials();
+        usernamePasswordCredentials.setUsername(username);
+        usernamePasswordCredentials.setPassword(new Password(password.toCharArray()));
+        try {
+            identityManager.validateCredentials(usernamePasswordCredentials);
+        } catch (Exception e) {
+
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setErrorDescription("invalid username or password").setError(ErrorResponseCode.invalid_grant)
+                    .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+            return errorResponse;
+        }
+
+        return oauthResponse;
+    }
+
+    /**
+     * Handle Token Request
+     *
+     * @param request
+     * @param identityManager
+     * @return
+     * @throws OAuthSystemException
+     */
+    private static OAuthResponse authorizationCodeGrantTypeTokenRequest(HttpServletRequest request,
+            IdentityManager identityManager) {
+
+        OAuthResponse oauthResponse = null;
+
+        AuthorizationCodeGrant grant = new AuthorizationCodeGrant();
+
+        AccessTokenRequest accessTokenRequest = parseAccessTokenRequest(request);
+        grant.setAccessTokenRequest(accessTokenRequest);
+
+        String passedClientID = accessTokenRequest.getClientId();
+        if (passedClientID == null) {
+
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setErrorDescription("client_id is null").setError(ErrorResponseCode.invalid_client)
+                    .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+            return errorResponse;
+        }
+
+        IdentityQuery<Agent> agentQuery = identityManager.createIdentityQuery(Agent.class);
+        agentQuery.setParameter(IdentityType.ATTRIBUTE.byName("clientID"), passedClientID);
+
+        List<Agent> agents = agentQuery.getResultList();
+        if (agents.size() == 0) {
+            log.error(passedClientID + " not found");
+
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setErrorDescription("passed client_id not found").setError(ErrorResponseCode.invalid_client)
+                    .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+            return errorResponse;
+        }
+        if (agents.size() > 1) {
+            log.error(passedClientID + " multiple found");
+
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setErrorDescription("passed client_id multiple found").setError(ErrorResponseCode.invalid_client)
+                    .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+            return errorResponse;
+        }
+
+        Agent clientApp = agents.get(0);
+
+        // Get the values from DB
+        Attribute<String> clientIDAttr = clientApp.getAttribute("clientID");
+        String clientID = clientIDAttr.getValue();
+        Attribute<String> authorizationCodeAttr = clientApp.getAttribute("authorizationCode");
+        if (authorizationCodeAttr == null) {
+            log.error("authorization code is null");
+
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setErrorDescription("authorization code null").setError(ErrorResponseCode.invalid_client)
+                    .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+
+            return errorResponse;
+        }
+        String authorizationCode = authorizationCodeAttr.getValue();
+
+        // check if clientid is valid
+        if (!clientID.equals(passedClientID)) {
+
+            log.error("client_id does not match");
+
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setErrorDescription("client_id does not match").setError(ErrorResponseCode.invalid_client)
+                    .setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+            return errorResponse;
+        }
+
+        if (accessTokenRequest.getGrantType().equals(AuthorizationCodeGrant.GRANT_TYPE)) {
+            if (!authorizationCode.equals(accessTokenRequest.getCode())) {
+
+                log.error("authorization_code does not match");
+
+                ErrorResponse errorResponse = new ErrorResponse();
+                errorResponse.setErrorDescription("authorization_code does not match")
+                        .setError(ErrorResponseCode.invalid_grant).setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+                return errorResponse;
+            }
+        }
+
+        String accessToken = grant.getValueGenerator().value();
+        clientApp.setAttribute(new Attribute<String>("accessToken", accessToken));
+        identityManager.update(clientApp);
+
+        grant.setAccessToken(accessToken);
+
+        oauthResponse = grant.accessTokenResponse();
+        oauthResponse.setStatusCode(HttpServletResponse.SC_FOUND);
+
+        return oauthResponse;
+    }
+
     private static Properties getProperties(ServletContext context) throws IOException {
         Properties properties = new Properties();
         InputStream is = context.getResourceAsStream("/WEB-INF/idm.properties");
         properties.load(is);
         return properties;
+    }
+
+    private static AuthorizationRequest parseAuthorizationRequest(HttpServletRequest request) {
+        AuthorizationRequest authorizationRequest = new AuthorizationRequest();
+
+        authorizationRequest.setClientId(request.getParameter(OAuthConstants.CLIENT_ID))
+                .setRedirectUri(request.getParameter(OAuthConstants.REDIRECT_URI))
+                .setResponseType(request.getParameter(OAuthConstants.RESPONSE_TYPE));
+
+        return authorizationRequest;
+    }
+
+    private static AccessTokenRequest parseAccessTokenRequest(HttpServletRequest request) {
+        AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
+
+        accessTokenRequest.setCode(request.getParameter(OAuthConstants.CODE))
+                .setRedirectUri(request.getParameter(OAuthConstants.REDIRECT_URI))
+                .setGrantType(request.getParameter(OAuthConstants.GRANT_TYPE))
+                .setClientId(request.getParameter(OAuthConstants.CLIENT_ID));
+
+        return accessTokenRequest;
+    }
+
+    private static PasswordAccessTokenRequest parsePasswordAccessTokenRequest(HttpServletRequest request) {
+        ResourceOwnerPasswordCredentialsGrant grant = new ResourceOwnerPasswordCredentialsGrant();
+        PasswordAccessTokenRequest accessTokenRequest = grant.new PasswordAccessTokenRequest();
+
+        accessTokenRequest.setPassword(request.getParameter(OAuthConstants.PASSWORD));
+        accessTokenRequest.setUsername(request.getParameter(OAuthConstants.USERNAME));
+
+        accessTokenRequest.setCode(request.getParameter(OAuthConstants.CODE))
+                .setRedirectUri(request.getParameter(OAuthConstants.REDIRECT_URI))
+                .setGrantType(request.getParameter(OAuthConstants.GRANT_TYPE))
+                .setClientId(request.getParameter(OAuthConstants.CLIENT_ID));
+
+        return accessTokenRequest;
     }
 }

@@ -25,13 +25,13 @@ import java.util.Date;
 import java.util.Map;
 
 import org.junit.Test;
-import org.picketlink.oauth.amber.oauth2.common.OAuth;
-import org.picketlink.oauth.amber.oauth2.common.utils.OAuthUtils;
+import org.picketlink.oauth.OAuthUtils;
 import org.picketlink.oauth.client.ClientOAuth;
 import org.picketlink.oauth.client.ClientOAuth.AuthorizationClient;
-import org.picketlink.oauth.client.ClientOAuth.AuthorizationResponse;
 import org.picketlink.oauth.client.ClientOAuth.RegistrationClient;
-import org.picketlink.oauth.client.ClientOAuth.RegistrationResponse;
+import org.picketlink.oauth.common.OAuthConstants;
+import org.picketlink.oauth.messages.AuthorizationResponse;
+import org.picketlink.oauth.messages.RegistrationResponse;
 import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
 
 /**
@@ -42,10 +42,9 @@ import org.picketlink.oauth.server.endpoint.AuthorizationEndpoint;
  */
 public class AuthorizationEndpointTestCase extends EndpointTestBase {
 
-    /*@Override
-    protected boolean needLDAP() {
-        return true;
-    }*/
+    /*
+     * @Override protected boolean needLDAP() { return true; }
+     */
 
     private String registrationEndpoint = "http://localhost:11080/oauth/register";
 
@@ -63,16 +62,16 @@ public class AuthorizationEndpointTestCase extends EndpointTestBase {
         RegistrationClient registrationClient = client.registrationClient();
         RegistrationResponse registrationResponse = registrationClient.setLocation(registrationEndpoint).setAppName(appName)
                 .setAppURL(appURL).setAppDescription(appDescription).setAppIcon(appIcon).setAppRedirectURL(appRedirectURL)
-                .build().execute();
+                .build().registerAsJSON();
 
-        String clientID = registrationResponse.getClientId();
+        String clientID = registrationResponse.getClientID();
         assertNotNull(clientID);
         String clientSecret = registrationResponse.getClientSecret();
         assertNotNull(clientSecret);
         if (registrationResponse.getExpiresIn() != 3600L) {
             fail("expires");
         }
-        long parsedIssuedAt = Long.parseLong(registrationResponse.getIssuedAt());
+        long parsedIssuedAt = Long.parseLong(registrationResponse.getIssued());
         assertTrue(parsedIssuedAt - (new Date()).getTime() < 50L);
 
         String authorizationEndpoint = "http://localhost:11080/oauth/authz";
@@ -91,6 +90,6 @@ public class AuthorizationEndpointTestCase extends EndpointTestBase {
         String subString = msg.substring(index + redirectURL.length() + 1);
         Map<String, Object> map = OAuthUtils.decodeForm(subString);
 
-        assertNotNull(map.get(OAuth.OAUTH_CODE));
+        assertNotNull(map.get(OAuthConstants.CODE));
     }
 }

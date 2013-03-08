@@ -134,15 +134,17 @@ public class FacebookProcessor {
         }
     }
 
-    public Principal getPrincipal(HttpServletRequest request, HttpServletResponse response) { 
+    public Principal getPrincipal(HttpServletRequest request, HttpServletResponse response) {
         Principal facebookPrincipal = handleAuthenticationResponse(request, response);
         if (facebookPrincipal == null)
             return null;
 
+        request.getSession().setAttribute("PRINCIPAL", facebookPrincipal);
+
         return facebookPrincipal;
     }
 
-    protected Principal handleAuthenticationResponse(HttpServletRequest request, HttpServletResponse response) {
+    public Principal handleAuthenticationResponse(HttpServletRequest request, HttpServletResponse response) {
         String error = request.getParameter(OAuthConstants.ERROR_PARAMETER);
         if (error != null) {
             throw new RuntimeException("error:" + error);

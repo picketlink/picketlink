@@ -29,8 +29,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
-import org.picketlink.oauth.amber.oauth2.common.exception.OAuthSystemException;
-import org.picketlink.oauth.amber.oauth2.common.message.OAuthResponse;
+import org.picketlink.oauth.messages.OAuthResponse;
 import org.picketlink.oauth.server.util.OAuthServerUtil;
 
 /**
@@ -53,26 +52,26 @@ public class TokenEndpoint extends BaseEndpoint {
         OAuthResponse response = null;
         try {
             response = OAuthServerUtil.tokenRequest(request, identityManager);
-        } catch (OAuthSystemException e) {
+        } catch (Exception e) {
             log.log(Level.SEVERE, "OAuth Server Token Processing:", e);
             return Response.serverError().build();
         }
-        return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+        return Response.status(response.getStatusCode()).entity(response.asJSON()).build();
     }
 
     @GET
     @Consumes("application/x-www-form-urlencoded")
     @Produces("application/json")
-    public Response authorizeGet(@Context HttpServletRequest request) throws OAuthSystemException {
+    public Response authorizeGet(@Context HttpServletRequest request) {
         super.setup();
 
         OAuthResponse response = null;
         try {
             response = OAuthServerUtil.tokenRequest(request, identityManager);
-        } catch (OAuthSystemException e) {
+        } catch (Exception e) {
             log.log(Level.SEVERE, "OAuth Server Token Processing:", e);
             return Response.serverError().build();
         }
-        return Response.status(response.getResponseStatus()).entity(response.getBody()).build();
+        return Response.status(response.getStatusCode()).entity(response.asJSON()).build();
     }
 }

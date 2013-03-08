@@ -27,7 +27,7 @@
 
     <container qualifier="jbossas-managed-7" default="true">
         <configuration>
-            <property name="javaVmArguments">-client -noverify -Xms64m -Xmx1024m -XX:MaxPermSize=512m</property>
+            <property name="javaVmArguments">-client -noverify -Xms64m -Xmx1024m -XX:MaxPermSize=512m -Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=n</property>
             <property name="outputToConsole">false</property>
             <property name="allowConnectingToRunningServer">true</property>
             <property name="jbossHome">target/jboss-as-7.1.1.Final</property>
