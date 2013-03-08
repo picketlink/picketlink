@@ -18,13 +18,10 @@
 
 package org.picketlink.idm.file.internal;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 
 import org.picketlink.idm.IdentityManagementException;
 
@@ -45,29 +42,18 @@ public final class FileUtils {
     @SuppressWarnings("unchecked")
     public static <T> T readObject(File file) {
         ObjectInputStream ois = null;
-        FileChannel channel = null;
         FileInputStream fis = null;
 
         try {
             fis = new FileInputStream(file);
-            channel = fis.getChannel();
 
-            ByteBuffer buffer = ByteBuffer.allocate(512);
-
-            while (true) {
-                int read = channel.read(buffer);
-
-                if (read == -1) {
-                    break;
-                }
-            }
-
-            ois = new ObjectInputStream(new ByteArrayInputStream(buffer.array()));
+            ois = new ObjectInputStream(fis);
 
             return (T) ois.readObject();
         } catch (IdentityManagementException ime) {
             throw ime;
         } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             try {
                 if (ois != null) {
