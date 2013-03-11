@@ -91,6 +91,24 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         assertEquals(Status.INVALID, badPassword.getStatus());
 
     }
+
+    @Test
+    public void testEmptyPasswordValidation() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        String emptyPassword = null;
+        Password plainTextPassword = new Password(emptyPassword);
+
+        identityManager.updateCredential(user, plainTextPassword, new Date(), null);
+        UsernamePasswordCredentials badUserName = new UsernamePasswordCredentials();
+
+        badUserName.setUsername("Bad" + user.getLoginName());
+        badUserName.setPassword(plainTextPassword);
+
+        identityManager.validateCredentials(badUserName);
+
+        assertEquals(Status.INVALID, badUserName.getStatus());
+    }
     
     @Test
     @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
