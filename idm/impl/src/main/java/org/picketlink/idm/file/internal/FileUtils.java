@@ -53,7 +53,6 @@ public final class FileUtils {
         } catch (IdentityManagementException ime) {
             throw ime;
         } catch (Exception e) {
-            e.printStackTrace();
         } finally {
             try {
                 if (ois != null) {
