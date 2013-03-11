@@ -25,13 +25,13 @@ package org.picketlink.idm.credential;
  */
 public class Password {
 
-    private char[] value;
+    private char[] value = new char[]{};
 
     public Password(char[] value) {
         this.value = value;
     }
     public Password(String str) {
-        this.value = str.toCharArray();
+        this.value = str != null ? str.toCharArray() : value;
     }
 
     public char[] getValue() {
