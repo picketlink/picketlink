@@ -117,15 +117,24 @@
       
       </itemizedlist>
       
-      
     </section>
     
     <section>
       <title>Configuration</title>
       
       <para>
-        The configuration for PicketLink is defined by the <code>org.picketlink.idm.config.IdentityConfiguration</code> class, which
-        essentially just provides a collection of <code>IdentityStoreConfiguration</code> instances:
+        The <code>org.picketlink.idm.IdentityManager</code> interface provides a <code>bootstrap()</code> method which must 
+        be invoked once to configure the <code>IdentityManager</code> before it may be used for any subsequent identity 
+        management operations.
+      </para>
+      
+      <programlisting language="JAVA"><![CDATA[void bootstrap(IdentityConfiguration configuration, 
+               IdentityStoreInvocationContextFactory contextFactory)
+    throws SecurityConfigurationException;]]></programlisting>
+      
+      <para>
+        The first parameter, <code>org.picketlink.idm.config.IdentityConfiguration</code>, is essentially a holder class that defines
+        a collection of <code>IdentityStoreConfiguration</code> instances:
       </para>
       
       <programlisting language="JAVA"><![CDATA[public class IdentityConfiguration {
@@ -160,6 +169,15 @@
           The JPA identity store uses a relational database to store identity state.  The configuration for this identity store
           provides control over which entity beans are used to store identity data.
         </para>
+        
+        <section>
+          <title>Configuring an EntityManager</title>
+          
+          <para>
+            Before the JPA identity store can be used, it must be provided with an <code>EntityManager</code> so that it can
+            connect to a database.  
+          </para>
+        </section>
         
         <section>
           <title>Configuring the Identity class</title>
@@ -783,31 +801,25 @@ public class PartitionObject implements Serializable {
           The LDAP identity store allows an LDAP directory server to be used to provide identity state.
         </para>
       </section>
-
-      
-      <para>
-        Since PicketLink Identity Management is supported in both Java EE and Java SE environments, the configuration guide
-        has been split into the following two separate sections.
-      </para>
       
       <section>
-        <title>Java EE</title>
+        <title>Java EE Environments</title>
         
         <para>
-          In a Java EE environment, configuration is extremely simple and it is very easy to get up and running quickly with a basic
-          IDM configuration.  By default, if no configuration is provided a file-based identity store will be automatically configured
-          to provide basic identity management features backed by the file system.
+          In Java EE 6.0 and higher environments, basic configuration is performed automatically with a set of sensible defaults.
+          During application deployment, PicketLink will scan all deployed entity beans for any beans annotated with 
+          <code>@IDMEntity</code>, and if found will use a configuration based on the <code>JPAIdentityStore</code>.
+          If no entity beans have been configured for identity management and no other configuration is provided,
+          a file-based identity store will be automatically configured to provide basic identity management features 
+          backed by the file system.
         </para>
+
       </section>
       
-      <section>
-        <title>Java SE</title>
-        
-      </section>
     </section>
     
     <section>
-      <title>Getting Started</title>
+      <title>Using the IdentityManager</title>
       
       <para>
         The <code>org.picketlink.idm.IdentityManager</code> interface provides access to the bulk of the IDM features supported by PicketLink.
