@@ -87,6 +87,22 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
     private Class<?> relationshipAttributeClass;
     private Class<?> partitionClass;
 
+    @Override
+    public void initConfig() throws SecurityConfigurationException {
+        if (this.identityClass == null) {
+            throw MESSAGES.jpaConfigIdentityClassNotProvided();
+        }
+
+        if (this.partitionClass == null) {
+            throw MESSAGES.jpaConfigPartitionClassNotProvided();
+        }
+
+        configureIdentity();
+        configurePartitions();
+        configureRelationships();
+        configureCredentials();
+    }
+
     public Class<?> getIdentityClass() {
         return identityClass;
     }
@@ -171,60 +187,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         }
     }
 
-    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass,
-            String... possibleNames) {
-        configureModelProperty(propertyType, targetClass, propertyClass, false, possibleNames);
-    }
-
-    protected void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass,
-            boolean optional, String... possibleNames) {
-        PropertyQuery<Object> query = PropertyQueries.createQuery(targetClass);
-
-        if (propertyType != null) {
-            query.addCriteria(new PropertyTypeCriteria(propertyType));
-        }
-
-        if (propertyClass != null) {
-            query.addCriteria(new TypedPropertyCriteria(propertyClass));
-        }
-
-        List<Property<Object>> props = query.getResultList();
-
-        if (props.size() == 1) {
-            modelProperties.put(propertyType, props.get(0));
-        } else if (props.size() > 1) {
-            throw MESSAGES.jpaConfigAmbiguosPropertyForClass(propertyType.name(), targetClass);
-        } else {
-            if (possibleNames != null && possibleNames.length > 0) {
-                Property<Object> p = findNamedProperty(targetClass, possibleNames);
-
-                if (p != null) {
-                    modelProperties.put(propertyType, p);
-                }
-            }
-
-            if (!optional) {
-                throw new SecurityConfigurationException("Error configuring JPAIdentityStore - no " + propertyType.name()
-                        + " property found in identity class [" + targetClass.getName() + "]");
-            }
-        }
-    }
-
-    protected Property<Object> findNamedProperty(Class<?> targetClass, String... allowedNames) {
-        List<Property<Object>> props = PropertyQueries.createQuery(targetClass)
-                .addCriteria(new TypedPropertyCriteria(String.class)).addCriteria(new NamedPropertyCriteria(allowedNames))
-                .getResultList();
-
-        for (String name : allowedNames) {
-            for (Property<Object> prop : props) {
-                if (name.equals(prop.getName()))
-                    return prop;
-            }
-        }
-
-        return null;
-    }
-
     /**
      * Maps attributes to properties that are spread across the object model
      *
@@ -282,147 +244,6 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
 
     public Map<String, MappedAttribute> getAttributeProperties() {
         return attributeProperties;
-    }
-
-    @Override
-    public void initConfig() throws SecurityConfigurationException {
-        if (this.identityClass == null) {
-            throw MESSAGES.jpaConfigIdentityClassNotProvided();
-        }
-
-        if (this.partitionClass == null) {
-            throw MESSAGES.jpaConfigPartitionClassNotProvided();
-        }
-
-        configureIdentity();
-        configurePartitions();
-        configureRelationships();
-        configureCredentials();
-    }
-
-//    private void configureIdentityTypeHandlers() {
-//        this.identityTypeHandlers.put(getIdentityTypeDiscriminator(User.class), new UserHandler(this));
-//        this.identityTypeHandlers.put(getIdentityTypeDiscriminator(Agent.class), new AgentHandler(this));
-//        this.identityTypeHandlers.put(getIdentityTypeDiscriminator(Role.class), new RoleHandler(this));
-//        this.identityTypeHandlers.put(getIdentityTypeDiscriminator(Group.class), new GroupHandler(this));
-//    }
-
-    private void configureCredentials() {
-        if (this.credentialClass != null && this.credentialAttributeClass != null) {
-            configureModelProperty(PropertyType.CREDENTIAL_TYPE, credentialClass, null);
-            configureModelProperty(PropertyType.CREDENTIAL_VALUE, credentialClass, null);
-            configureModelProperty(PropertyType.CREDENTIAL_IDENTITY, credentialClass, null);
-            configureModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE, credentialClass, null);
-            configureModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE, credentialClass, null);
-
-            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME, credentialAttributeClass, String.class);
-            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, credentialAttributeClass, null);
-            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, credentialAttributeClass, credentialClass);
-        } else {
-            LOGGER.jpaConfigDisablingCredentialFeatures();
-            getFeatureSet().removeFeature(FeatureGroup.credential);
-        }
-    }
-
-    protected void configureIdentity() throws SecurityConfigurationException {
-//        configureIdentityTypeHandlers();
-        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, identityClass, null, "discriminator", "identityType",
-                "identityTypeName", "typeName", "type");
-        configureModelProperty(PropertyType.IDENTITY_ID, identityClass, null, "id", "identifier");
-        configureModelProperty(PropertyType.IDENTITY_NAME, identityClass, null, "name");
-        configureModelProperty(PropertyType.GROUP_PARENT, identityClass, null, "parentGroup", "parent");
-        configureModelProperty(PropertyType.GROUP_PATH, identityClass, null, "groupPath", "path");
-        configureModelProperty(PropertyType.IDENTITY_ENABLED, identityClass, null, "enabled", "active");
-        configureModelProperty(PropertyType.IDENTITY_CREATION_DATE, identityClass, null, false, "created", "creationDate");
-        configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, identityClass, null, false, "expires", "expiryDate");
-        configureModelProperty(PropertyType.IDENTITY_PARTITION, identityClass, null, false, "partition");
-        configureModelProperty(PropertyType.AGENT_LOGIN_NAME, identityClass, null, "loginName", "login");
-        configureUserProperties();
-        configureAttributes();
-    }
-
-    protected void configurePartitions() {
-        if (this.partitionClass != null) {
-            configureModelProperty(PropertyType.PARTITION_ID, partitionClass, null, "id", "id");
-            configureModelProperty(PropertyType.PARTITION_TYPE, partitionClass, null, "type", "partitionType");
-            configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
-            configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");
-        } else {
-            LOGGER.jpaConfigDisablingPartitionFeatures();
-            getFeatureSet().removeFeature(FeatureGroup.realm);
-            getFeatureSet().removeFeature(FeatureGroup.tier);
-        }
-    }
-
-    /**
-     * Scan for various optional user properties, such as first name, last name and e-mail address.
-     *
-     * @throws SecurityConfigurationException
-     */
-    protected void configureUserProperties() throws SecurityConfigurationException {
-        configureModelProperty(PropertyType.USER_FIRST_NAME, identityClass, null, false, "firstName");
-        configureModelProperty(PropertyType.USER_LAST_NAME, identityClass, null, false, "lastName");
-        configureModelProperty(PropertyType.USER_EMAIL, identityClass, null, false, "email");
-    }
-
-    /*
-     * Configures properties for reading and writing identity relationships. As this is an optional feature, the specified
-     * relationshipClass property may be left as null in which case no configuration will occur.
-     */
-    protected void configureRelationships() throws SecurityConfigurationException {
-        if (this.relationshipClass != null && this.relationshipIdentityClass != null && this.relationshipAttributeClass != null) {
-            configureModelProperty(PropertyType.RELATIONSHIP_ID, relationshipClass, null, "id");
-            configureModelProperty(PropertyType.RELATIONSHIP_CLASS, relationshipClass, null, "relationshipClass");
-
-            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID, relationshipIdentityClass, null, "identityObjectId");
-            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, relationshipIdentityClass, null, "identityObject");
-            configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, relationshipIdentityClass, null, "descriptor");
-            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, relationshipIdentityClass,
-                    relationshipClass);
-
-            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME, relationshipAttributeClass, null, "attributeName",
-                    "name");
-            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE, relationshipAttributeClass, null,
-                    "attributeValue", "value");
-            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, relationshipAttributeClass, null);
-        } else {
-            LOGGER.jpaConfigDisablingRelationshipFeatures();
-            getFeatureSet().removeFeature(FeatureGroup.relationship);
-        }
-    }
-
-    /**
-     * Configures the identity store for reading and writing attribute values
-     *
-     * @throws SecurityConfigurationException
-     */
-    protected void configureAttributes() throws SecurityConfigurationException {
-        // If an attribute class has been configured, scan it for attribute properties
-        if (attributeClass == null) {
-            return;
-        }
-
-        configureModelProperty(PropertyType.ATTRIBUTE_IDENTITY, attributeClass, identityClass);
-        configureModelProperty(PropertyType.ATTRIBUTE_NAME, attributeClass, null, "attributeName", "name");
-        configureModelProperty(PropertyType.ATTRIBUTE_TYPE, attributeClass, null, "attributeType", "type");
-        configureModelProperty(PropertyType.ATTRIBUTE_VALUE, attributeClass, null, "attributeValue", "value");
-
-        // Scan for attribute properties in the identity class
-        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
-                .addCriteria(new AnnotatedPropertyCriteria(IDMAttribute.class)).getResultList();
-
-        for (Property<Object> p : props) {
-            String attribName = p.getAnnotatedElement().getAnnotation(IDMAttribute.class).name();
-
-            if (attributeProperties.containsKey(attribName)) {
-                Property<Object> other = attributeProperties.get(attribName).getAttributeProperty();
-
-                throw MESSAGES.jpaConfigMultiplePropertiesForAttribute(attribName, other.getDeclaringClass(),
-                        other.getAnnotatedElement(), p.getDeclaringClass(), p.getAnnotatedElement());
-            }
-
-            attributeProperties.put(attribName, new MappedAttribute(null, p));
-        }
     }
 
     public String getIdentityTypeUser() {
@@ -493,4 +314,174 @@ public class JPAIdentityStoreConfiguration extends BaseAbstractStoreConfiguratio
         return type;
     }
 
+    private void configureCredentials() {
+        if (this.credentialClass != null && this.credentialAttributeClass != null) {
+            configureModelProperty(PropertyType.CREDENTIAL_TYPE, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_VALUE, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_IDENTITY, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_EFFECTIVE_DATE, credentialClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_EXPIRY_DATE, credentialClass, null);
+
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_NAME, credentialAttributeClass, String.class);
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_VALUE, credentialAttributeClass, null);
+            configureModelProperty(PropertyType.CREDENTIAL_ATTRIBUTE_CREDENTIAL, credentialAttributeClass, credentialClass);
+        } else {
+            LOGGER.jpaConfigDisablingCredentialFeatures();
+            getFeatureSet().removeFeature(FeatureGroup.credential);
+        }
+    }
+
+    private void configureIdentity() throws SecurityConfigurationException {
+        configureModelProperty(PropertyType.IDENTITY_DISCRIMINATOR, identityClass, null, "discriminator", "identityType",
+                "identityTypeName", "typeName", "type");
+        configureModelProperty(PropertyType.IDENTITY_ID, identityClass, null, "id", "identifier");
+        configureModelProperty(PropertyType.IDENTITY_NAME, identityClass, null, "name");
+        configureModelProperty(PropertyType.GROUP_PARENT, identityClass, null, "parentGroup", "parent");
+        configureModelProperty(PropertyType.GROUP_PATH, identityClass, null, "groupPath", "path");
+        configureModelProperty(PropertyType.IDENTITY_ENABLED, identityClass, null, "enabled", "active");
+        configureModelProperty(PropertyType.IDENTITY_CREATION_DATE, identityClass, null, false, "created", "creationDate");
+        configureModelProperty(PropertyType.IDENTITY_EXPIRY_DATE, identityClass, null, false, "expires", "expiryDate");
+        configureModelProperty(PropertyType.IDENTITY_PARTITION, identityClass, null, false, "partition");
+        configureModelProperty(PropertyType.AGENT_LOGIN_NAME, identityClass, null, "loginName", "login");
+        configureUserProperties();
+        configureAttributes();
+    }
+
+    private void configurePartitions() {
+        if (this.partitionClass != null) {
+            configureModelProperty(PropertyType.PARTITION_ID, partitionClass, null, "id", "id");
+            configureModelProperty(PropertyType.PARTITION_TYPE, partitionClass, null, "type", "partitionType");
+            configureModelProperty(PropertyType.PARTITION_NAME, partitionClass, null, "name");
+            configureModelProperty(PropertyType.PARTITION_PARENT, partitionClass, null, "parent");
+        } else {
+            LOGGER.jpaConfigDisablingPartitionFeatures();
+            getFeatureSet().removeFeature(FeatureGroup.realm);
+            getFeatureSet().removeFeature(FeatureGroup.tier);
+        }
+    }
+
+    /**
+     * Scan for various optional user properties, such as first name, last name and e-mail address.
+     *
+     * @throws SecurityConfigurationException
+     */
+    private void configureUserProperties() throws SecurityConfigurationException {
+        configureModelProperty(PropertyType.USER_FIRST_NAME, identityClass, null, false, "firstName");
+        configureModelProperty(PropertyType.USER_LAST_NAME, identityClass, null, false, "lastName");
+        configureModelProperty(PropertyType.USER_EMAIL, identityClass, null, false, "email");
+    }
+
+    /*
+     * Configures properties for reading and writing identity relationships. As this is an optional feature, the specified
+     * relationshipClass property may be left as null in which case no configuration will occur.
+     */
+    private void configureRelationships() throws SecurityConfigurationException {
+        if (this.relationshipClass != null && this.relationshipIdentityClass != null && this.relationshipAttributeClass != null) {
+            configureModelProperty(PropertyType.RELATIONSHIP_ID, relationshipClass, null, "id");
+            configureModelProperty(PropertyType.RELATIONSHIP_CLASS, relationshipClass, null, "relationshipClass");
+
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_ID, relationshipIdentityClass, null, "identityObjectId");
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY, relationshipIdentityClass, null, "identityObject");
+            configureModelProperty(PropertyType.RELATIONSHIP_DESCRIPTOR, relationshipIdentityClass, null, "descriptor");
+            configureModelProperty(PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP, relationshipIdentityClass,
+                    relationshipClass);
+
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME, relationshipAttributeClass, null, "attributeName",
+                    "name");
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE, relationshipAttributeClass, null,
+                    "attributeValue", "value");
+            configureModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_RELATIONSHIP, relationshipAttributeClass, null);
+        } else {
+            LOGGER.jpaConfigDisablingRelationshipFeatures();
+            getFeatureSet().removeFeature(FeatureGroup.relationship);
+        }
+    }
+
+    /**
+     * Configures the identity store for reading and writing attribute values
+     *
+     * @throws SecurityConfigurationException
+     */
+    private void configureAttributes() throws SecurityConfigurationException {
+        // If an attribute class has been configured, scan it for attribute properties
+        if (attributeClass == null) {
+            return;
+        }
+
+        configureModelProperty(PropertyType.ATTRIBUTE_IDENTITY, attributeClass, identityClass);
+        configureModelProperty(PropertyType.ATTRIBUTE_NAME, attributeClass, null, "attributeName", "name");
+        configureModelProperty(PropertyType.ATTRIBUTE_TYPE, attributeClass, null, "attributeType", "type");
+        configureModelProperty(PropertyType.ATTRIBUTE_VALUE, attributeClass, null, "attributeValue", "value");
+
+        // Scan for attribute properties in the identity class
+        List<Property<Object>> props = PropertyQueries.createQuery(identityClass)
+                .addCriteria(new AnnotatedPropertyCriteria(IDMAttribute.class)).getResultList();
+
+        for (Property<Object> p : props) {
+            String attribName = p.getAnnotatedElement().getAnnotation(IDMAttribute.class).name();
+
+            if (attributeProperties.containsKey(attribName)) {
+                Property<Object> other = attributeProperties.get(attribName).getAttributeProperty();
+
+                throw MESSAGES.jpaConfigMultiplePropertiesForAttribute(attribName, other.getDeclaringClass(),
+                        other.getAnnotatedElement(), p.getDeclaringClass(), p.getAnnotatedElement());
+            }
+
+            attributeProperties.put(attribName, new MappedAttribute(null, p));
+        }
+    }
+
+    private void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass,
+            String... possibleNames) {
+        configureModelProperty(propertyType, targetClass, propertyClass, false, possibleNames);
+    }
+
+    private void configureModelProperty(PropertyType propertyType, Class<?> targetClass, Class<?> propertyClass,
+            boolean optional, String... possibleNames) {
+        PropertyQuery<Object> query = PropertyQueries.createQuery(targetClass);
+
+        if (propertyType != null) {
+            query.addCriteria(new PropertyTypeCriteria(propertyType));
+        }
+
+        if (propertyClass != null) {
+            query.addCriteria(new TypedPropertyCriteria(propertyClass));
+        }
+
+        List<Property<Object>> props = query.getResultList();
+
+        if (props.size() == 1) {
+            modelProperties.put(propertyType, props.get(0));
+        } else if (props.size() > 1) {
+            throw MESSAGES.jpaConfigAmbiguosPropertyForClass(propertyType.name(), targetClass);
+        } else {
+            if (possibleNames != null && possibleNames.length > 0) {
+                Property<Object> p = findNamedProperty(targetClass, possibleNames);
+
+                if (p != null) {
+                    modelProperties.put(propertyType, p);
+                }
+            }
+
+            if (!optional) {
+                throw new SecurityConfigurationException("Error configuring JPAIdentityStore - no " + propertyType.name()
+                        + " property found in identity class [" + targetClass.getName() + "]");
+            }
+        }
+    }
+
+    private Property<Object> findNamedProperty(Class<?> targetClass, String... allowedNames) {
+        List<Property<Object>> props = PropertyQueries.createQuery(targetClass)
+                .addCriteria(new TypedPropertyCriteria(String.class)).addCriteria(new NamedPropertyCriteria(allowedNames))
+                .getResultList();
+
+        for (String name : allowedNames) {
+            for (Property<Object> prop : props) {
+                if (name.equals(prop.getName()))
+                    return prop;
+            }
+        }
+
+        return null;
+    }
 }

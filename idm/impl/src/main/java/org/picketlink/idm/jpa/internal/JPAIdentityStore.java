@@ -1246,30 +1246,26 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     private void populateIdentityTypeAttributes(IdentityType identityType, Object entity) {
         for (MappedAttribute attrib : getConfig().getAttributeProperties().values()) {
-            if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(entity) == null) {
-                // TODO: need to deal with AttributeType
-            } else {
-                Member member = attrib.getAttributeProperty().getMember();
-                String mappedName = null;
-                Object value = null;
+            Member member = attrib.getAttributeProperty().getMember();
+            String mappedName = null;
+            Object value = null;
 
-                if (member instanceof Field) {
-                    Field field = (Field) member;
-                    IDMAttribute annotation = field.getAnnotation(IDMAttribute.class);
+            if (member instanceof Field) {
+                Field field = (Field) member;
+                IDMAttribute annotation = field.getAnnotation(IDMAttribute.class);
 
-                    field.setAccessible(true);
+                field.setAccessible(true);
 
-                    mappedName = annotation.name();
+                mappedName = annotation.name();
 
-                    try {
-                        value = field.get(entity);
-                    } catch (IllegalAccessException e) {
-                        throw new IdentityManagementException("Could not get value from field [" + field + "].", e);
-                    }
+                try {
+                    value = field.get(entity);
+                } catch (IllegalAccessException e) {
+                    throw new IdentityManagementException("Could not get value from field [" + field + "].", e);
                 }
-
-                identityType.setAttribute(new Attribute<Serializable>(mappedName, (Serializable) value));
             }
+
+            identityType.setAttribute(new Attribute<Serializable>(mappedName, (Serializable) value));
         }
 
         if (getConfig().getAttributeClass() != null) {
@@ -1288,8 +1284,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             Attribute<Serializable> attribute = identityType.getAttribute(attributeName);
 
-            Serializable attribValue = (Serializable) Base64.decodeToObject(attributeValueProperty.getValue(object)
-                    .toString());
+            Serializable attribValue = (Serializable) Base64.decodeToObject(attributeValueProperty.getValue(object).toString());
 
             if (attribute == null) {
                 attribute = new Attribute<Serializable>(attributeName, attribValue);
