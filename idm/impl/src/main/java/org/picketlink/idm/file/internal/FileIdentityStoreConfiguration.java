@@ -18,7 +18,6 @@
 
 package org.picketlink.idm.file.internal;
 
-import org.picketlink.idm.IDMMessages;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 
@@ -28,23 +27,45 @@ import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
  */
 public class FileIdentityStoreConfiguration extends BaseAbstractStoreConfiguration {
 
-    private FileDataSource dataSource = new FileDataSource();
+    private int asyncThreadPool = 5;
+    private boolean asyncWrite = false;
+    private boolean alwaysCreateFiles = true;
+    private String workingDir;
 
     @Override
     public void initConfig() throws SecurityConfigurationException {
-        try {
-            this.dataSource.init();
-        } catch (Exception e) {
-            throw IDMMessages.MESSAGES.fileConfigFailedToInitializeFilesystem(e);
-        }
     }
 
-    public void setDataSource(FileDataSource dataSource) {
-        this.dataSource = dataSource;
+    public String getWorkingDir() {
+        return this.workingDir;
     }
 
-    public FileDataSource getDataSource() {
-        return this.dataSource;
+    public void setWorkingDir(String workingDir) {
+        this.workingDir = workingDir;
+    }
+
+    public boolean isAlwaysCreateFiles() {
+        return this.alwaysCreateFiles;
+    }
+
+    public void setAlwaysCreateFiles(boolean alwaysCreateFiles) {
+        this.alwaysCreateFiles = alwaysCreateFiles;
+    }
+
+    public void setAsyncWrite(boolean asyncWrite) {
+        this.asyncWrite = asyncWrite;
+    }
+
+    public boolean isAsyncWrite() {
+        return this.asyncWrite;
+    }
+
+    public void setAsyncThreadPool(int asyncThreadPool) {
+        this.asyncThreadPool = asyncThreadPool;
+    }
+
+    public int getAsyncThreadPool() {
+        return this.asyncThreadPool;
     }
 
 }

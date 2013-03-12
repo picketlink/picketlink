@@ -107,13 +107,7 @@ public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
     private static IdentityManager createIdentityManager() {
         IdentityConfiguration config = new IdentityConfiguration();
 
-        FileDataSource dataSource = new FileDataSource();
-
-        dataSource.setAlwaysCreateFiles(false);
-        dataSource.setAsyncWrite(true);
-        dataSource.setAsyncThreadPool(50);
-
-        addDefaultConfiguration(config, dataSource);
+        addDefaultConfiguration(config);
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
@@ -122,14 +116,16 @@ public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
         return identityManager;
     }
 
-    private static void addDefaultConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
+    private static void addDefaultConfiguration(IdentityConfiguration config) {
         FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
 
         // add the realms that should be supported by the file store
         configuration.addRealm(Realm.DEFAULT_REALM);
         configuration.addRealm("Testing");
 
-        configuration.setDataSource(dataSource);
+        configuration.setAlwaysCreateFiles(false);
+        configuration.setAsyncWrite(true);
+        configuration.setAsyncThreadPool(50);
 
         FeatureSet.addFeatureSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet());

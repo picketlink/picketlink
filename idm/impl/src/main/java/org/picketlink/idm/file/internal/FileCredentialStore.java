@@ -204,10 +204,6 @@ public class FileCredentialStore implements CredentialStore {
         return this.identityStore.getContext();
     }
 
-    private FileIdentityStoreConfiguration getConfig() {
-        return this.identityStore.getConfig();
-    }
-
     private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition() {
         return getDataSource().getCredentials(getContext().getRealm());
     }
@@ -217,6 +213,6 @@ public class FileCredentialStore implements CredentialStore {
     }
 
     private FileDataSource getDataSource() {
-        return getConfig().getDataSource();
+        return FileDataSource.getInstance();
     }
 }

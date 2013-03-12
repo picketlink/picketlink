@@ -48,8 +48,6 @@ public class FileIdentityStoreConfigurationTestCase extends
     protected FileIdentityStoreConfiguration createMinimalConfiguration() {
         FileIdentityStoreConfiguration fileConfig = new FileIdentityStoreConfiguration();
 
-        fileConfig.setDataSource(new FileDataSource());
-
         FeatureSet.addFeatureSupport(fileConfig.getFeatureSet());
         FeatureSet.addRelationshipSupport(fileConfig.getFeatureSet());
         fileConfig.getFeatureSet().setSupportsCustomRelationships(true);

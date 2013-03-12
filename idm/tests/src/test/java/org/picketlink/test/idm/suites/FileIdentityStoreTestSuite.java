@@ -90,15 +90,11 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
     public IdentityManager createIdentityManager() {
         IdentityConfiguration config = new IdentityConfiguration();
 
-        FileDataSource dataSource = new FileDataSource();
-
-        dataSource.setAlwaysCreateFiles(true);
-        
-        addDefaultConfiguration(config, dataSource);
+        addDefaultConfiguration(config);
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory());
 
         return identityManager;
     }
@@ -111,15 +107,13 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
      * @param config
      * @param dataSource
      */
-    private void addDefaultConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
+    private void addDefaultConfiguration(IdentityConfiguration config) {
         FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
 
         // add the realms that should be supported by the file store
         configuration.addRealm(Realm.DEFAULT_REALM);
         configuration.addRealm("Testing");
         
-        configuration.setDataSource(dataSource);
-
         FeatureSet.addFeatureSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
@@ -137,7 +131,7 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     @Override
     public void onDestroy() {
-
+        FileDataSource.getInstance().close();
     }
 
 }

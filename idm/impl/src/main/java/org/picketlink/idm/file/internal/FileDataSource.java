@@ -51,6 +51,8 @@ import org.picketlink.idm.model.Role;
  */
 public class FileDataSource {
 
+    private static FileDataSource instance;
+
     /**
      * <p>
      * Default value for the thread pool size when <code>asyncWrite</code> is enabled.
@@ -112,6 +114,27 @@ public class FileDataSource {
 
     private ExecutorService executorService;
 
+    private FileDataSource() {
+        // singleton
+    }
+
+    public static FileDataSource getInstance() {
+        if (instance == null) {
+            instance = new FileDataSource();
+        }
+
+        return instance;
+    }
+
+    public void init(FileIdentityStoreConfiguration config) {
+        this.alwaysCreateFiles = config.isAlwaysCreateFiles();
+        this.asyncThreadPool = config.getAsyncThreadPool();
+        this.asyncWrite = config.isAsyncWrite();
+        this.workingDir = config.getWorkingDir();
+
+        init();
+    }
+
     /**
      * <p>
      * Initializes the working directory.
@@ -136,7 +159,7 @@ public class FileDataSource {
         LOGGER.fileConfigUsingWorkingDir(workingDirectoryFile.getPath());
     }
 
-    public void init() {
+    private void init() {
         if (!this.initialized) {
             initWorkingDirectory();
 
@@ -385,6 +408,10 @@ public class FileDataSource {
     }
 
     public String getWorkingDir() {
+        if (this.workingDir == null) {
+            this.workingDir = DEFAULT_WORKING_DIR;
+        }
+
         return this.workingDir;
     }
 
@@ -414,5 +441,13 @@ public class FileDataSource {
 
     public int getAsyncThreadPool() {
         return this.asyncThreadPool;
+    }
+
+    public boolean isInitialized() {
+        return initialized;
+    }
+
+    public void close() {
+        this.initialized = false;
     }
 }

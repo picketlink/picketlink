@@ -30,7 +30,6 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
@@ -83,11 +82,7 @@ public class ReadUsersJMeterTest extends AbstractJavaSamplerClient {
     private static IdentityManager createIdentityManager() {
         IdentityConfiguration config = new IdentityConfiguration();
 
-        FileDataSource dataSource = new FileDataSource();
-
-        dataSource.setAlwaysCreateFiles(false);
-
-        addDefaultConfiguration(config, dataSource);
+        addDefaultConfiguration(config);
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
@@ -96,15 +91,15 @@ public class ReadUsersJMeterTest extends AbstractJavaSamplerClient {
         return identityManager;
     }
 
-    private static void addDefaultConfiguration(IdentityConfiguration config, FileDataSource dataSource) {
+    private static void addDefaultConfiguration(IdentityConfiguration config) {
         FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
 
         // add the realms that should be supported by the file store
         configuration.addRealm(Realm.DEFAULT_REALM);
         configuration.addRealm("Testing");
 
-        configuration.setDataSource(dataSource);
-
+        configuration.setAlwaysCreateFiles(false);
+        
         FeatureSet.addFeatureSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);

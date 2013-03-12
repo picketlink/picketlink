@@ -109,6 +109,12 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
+        FileDataSource dataSource = FileDataSource.getInstance();
+
+        if (!dataSource.isInitialized()) {
+            dataSource.init(config);
+        }
+
         this.config = config;
         this.context = context;
 
@@ -1190,7 +1196,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private FileDataSource getDataSource() {
-        return getConfig().getDataSource();
+        return FileDataSource.getInstance();
     }
 
     private void configurePartition(IdentityType identityType) {
