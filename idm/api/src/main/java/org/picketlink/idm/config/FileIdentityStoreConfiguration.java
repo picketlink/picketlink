@@ -16,10 +16,9 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.file.internal;
+package org.picketlink.idm.config;
 
 import org.picketlink.idm.SecurityConfigurationException;
-import org.picketlink.idm.config.BaseAbstractStoreConfiguration;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>

@@ -25,6 +25,7 @@ import java.io.File;
 import java.util.Collection;
 import java.util.Map;
 
+import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;

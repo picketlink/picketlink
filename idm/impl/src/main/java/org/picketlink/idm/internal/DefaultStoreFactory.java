@@ -23,10 +23,10 @@ import static org.picketlink.idm.IDMMessages.MESSAGES;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
-import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
