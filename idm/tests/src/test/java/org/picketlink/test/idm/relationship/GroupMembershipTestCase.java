@@ -22,6 +22,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.junit.Assert;
@@ -36,6 +37,7 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
  * <p>
@@ -299,6 +301,46 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
         result = query.getResultList();
 
         Assert.assertFalse(result.isEmpty());
+    }
+    
+    @Test
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    public void testLargeAttributeValue() throws Exception {
+        User someUser = createUser();
+        Group someGroup = createGroup();
+
+        GroupMembership groupMembership = new GroupMembership(someUser, someGroup);
+
+        IdentityManager identityManager = getIdentityManager();
+
+        identityManager.add(groupMembership);
+
+        // Create a large array of values
+        Integer[] val = new Integer[1000];
+        for (int i = 0; i < 999; i++) {
+            val[i] = i;
+        }
+        
+        groupMembership.setAttribute(new Attribute<Serializable>("Values", val));
+
+        identityManager.update(groupMembership);
+        
+        RelationshipQuery<GroupMembership> query = identityManager.createRelationshipQuery(GroupMembership.class);
+        
+        query.setParameter(GroupMembership.MEMBER, someUser);
+        query.setParameter(GroupMembership.GROUP, someGroup);
+
+        List<GroupMembership> result = query.getResultList();
+        
+        assertFalse(result.isEmpty());
+        
+        GroupMembership updatedIdentityType = result.get(0);
+
+        Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
+
+        for (int i = 0; i < 999; i++) {
+            assert retrievedVal[i] == i;
+        }
     }
 
     @Test

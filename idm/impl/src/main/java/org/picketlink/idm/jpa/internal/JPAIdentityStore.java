@@ -50,8 +50,8 @@ import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration.MappedAttribute;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
@@ -882,13 +882,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param userAttribute
      */
     private void storeRelationshipAttribute(Object identity, Attribute<? extends Serializable> userAttribute) {
-        Object value = userAttribute.getValue();
-        Object[] values = null;
+        Serializable value = userAttribute.getValue();
+        Serializable[] values = null;
 
         if (value.getClass().isArray()) {
-            values = (Object[]) value;
+            values = (Serializable[]) value;
         } else {
-            values = new Object[] { value };
+            values = new Serializable[] { value };
         }
 
         Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME);
@@ -906,7 +906,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
 
             attributeNameProperty.setValue(newInstance, userAttribute.getName());
-            attributeValueProperty.setValue(newInstance, attribValue);
+            attributeValueProperty.setValue(newInstance, Base64.encodeObject((Serializable) attribValue));
             attributeIdentityProperty.setValue(newInstance, identity);
 
             getEntityManager().persist(newInstance);
@@ -1333,7 +1333,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                             PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE);
 
                     String attribName = (String) attributeNameProperty.getValue(object);
-                    Serializable attribValue = (Serializable) attributeValueProperty.getValue(object);
+                    Serializable attribValue = (Serializable) Base64.decodeToObject(attributeValueProperty.getValue(object).toString()) ;
 
                     List<Property<Serializable>> attributeProperties = PropertyQueries
                             .<Serializable> createQuery(relationshipType.getClass())
@@ -1361,18 +1361,18 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                         } else {
                             // if it is a multi-valued attribute
                             if (identityTypeAttribute.getValue() != null) {
-                                String[] values = null;
+                                Serializable[] values = null;
 
                                 if (identityTypeAttribute.getValue().getClass().isArray()) {
-                                    values = (String[]) identityTypeAttribute.getValue();
+                                    values = (Serializable[]) identityTypeAttribute.getValue();
                                 } else {
-                                    values = new String[1];
-                                    values[0] = identityTypeAttribute.getValue().toString();
+                                    values = (Serializable[]) Array.newInstance(attribValue.getClass(), 1);
+                                    values[0] = identityTypeAttribute.getValue();
                                 }
 
-                                String[] newValues = Arrays.copyOf(values, values.length + 1);
+                                Serializable[] newValues = Arrays.copyOf(values, values.length + 1);
 
-                                newValues[newValues.length - 1] = attribValue.toString();
+                                newValues[newValues.length - 1] = attribValue;
 
                                 identityTypeAttribute.setValue(newValues);
 
@@ -1663,18 +1663,24 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                     Predicate conjunction = builder.conjunction();
 
+                    Serializable[] valuesToSearch = new Serializable[values.length];
+
+                    for (int i = 0; i < values.length; i++) {
+                        valuesToSearch[i] = Base64.encodeObject((Serializable) values[i]);
+                    }
+
                     conjunction.getExpressions().add(
                             builder.equal(fromProject.get(getConfig()
                                     .getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_NAME).getName()), customParameter
                                     .getName()));
                     conjunction.getExpressions().add(
                             (fromProject.get(getConfig().getModelProperty(PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE).getName())
-                                    .in((Object[]) values)));
+                                    .in((Object[]) valuesToSearch)));
 
                     subquery.where(conjunction);
 
                     subquery.groupBy(subquery.getSelection()).having(
-                            builder.equal(builder.count(subquery.getSelection()), values.length));
+                            builder.equal(builder.count(subquery.getSelection()), valuesToSearch.length));
 
                     predicates.add(builder.in(root).value(subquery));
                 }
