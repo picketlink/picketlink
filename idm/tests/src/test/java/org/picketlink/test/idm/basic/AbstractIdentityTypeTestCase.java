@@ -25,9 +25,11 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
@@ -177,6 +179,31 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
         assertEquals("Gum", updatedIdentityType.<String> getAttribute("Question1Answer").getValue());
         assertEquals("What is favorite word?", updatedIdentityType.<String> getAttribute("Question2").getValue());
         assertEquals("Hi", updatedIdentityType.<String> getAttribute("Question2Answer").getValue());
+    }
+
+    @Test
+    public void testLargeAttributeValue() throws Exception {
+        T storedIdentityType = createIdentityType();
+
+        IdentityManager identityManager = getIdentityManager();
+
+        // Create a large array of values
+        Integer[] val = new Integer[1000];
+        for (int i = 0; i < 999; i++) {
+            val[i] = i;
+        }
+
+        storedIdentityType.setAttribute(new Attribute<Integer[]>("Values", val));
+
+        identityManager.update(storedIdentityType);
+
+        T updatedIdentityType = getIdentityType();
+
+        Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
+
+        for (int i = 0; i < 999; i++) {
+            assert retrievedVal[i] == i;
+        }
     }
 
     @Test
