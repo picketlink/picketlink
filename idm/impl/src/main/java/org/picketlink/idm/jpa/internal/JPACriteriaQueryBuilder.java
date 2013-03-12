@@ -28,6 +28,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.IdentityType;
@@ -63,13 +64,13 @@ public class JPACriteriaQueryBuilder {
             predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getName()),
                     discriminator));
 
-            IdentityTypeHandler<?> identityTypeManager = getConfig().getHandler(this.identityQuery.getIdentityType());
+            IdentityTypeHandler<?> identityTypeManager = IdentityTypeHandlerFactory.getHandler(this.identityQuery.getIdentityType());
 
             predicates.addAll(identityTypeManager.getPredicate(this, identityStore));
         } else {
-            IdentityTypeHandler<IdentityType> identityTypeManager = new DefaultIdentityTypeHandler(getConfig());
+            IdentityTypeHandler<IdentityType> identityTypeManager = new DefaultIdentityTypeHandler();
 
-            predicates.addAll(identityTypeManager.getPredicate(this, identityStore));
+            predicates.addAll(identityTypeManager.getPredicate(this, this.identityStore));
         }
 
         return predicates;
@@ -78,12 +79,12 @@ public class JPACriteriaQueryBuilder {
     public List<Order> getOrders() {
         IdentityTypeHandler<?> identityTypeManager;
         if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
-            identityTypeManager = getConfig().getHandler(this.identityQuery.getIdentityType());
+            identityTypeManager = IdentityTypeHandlerFactory.getHandler(this.identityQuery.getIdentityType());
         } else {
-            identityTypeManager = new DefaultIdentityTypeHandler(getConfig());
+            identityTypeManager = new DefaultIdentityTypeHandler();
         }
 
-        return identityTypeManager.getOrders(this);
+        return identityTypeManager.getOrders(this, this.identityStore);
     }
 
     protected CriteriaQuery<?> getCriteria() {
@@ -111,10 +112,6 @@ public class JPACriteriaQueryBuilder {
     }
 
     private class DefaultIdentityTypeHandler extends IdentityTypeHandler<IdentityType> {
-
-        public DefaultIdentityTypeHandler(JPAIdentityStoreConfiguration config) {
-            super(config);
-        }
 
         @Override
         protected IdentityType doCreateIdentityType(Object identity, JPAIdentityStore store) {

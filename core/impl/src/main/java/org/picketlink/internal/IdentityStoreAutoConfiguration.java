@@ -10,9 +10,9 @@ import javax.persistence.Entity;
 
 import org.picketlink.IdentityConfigurationEvent;
 import org.picketlink.idm.config.FeatureSet;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FileIdentityStoreConfiguration;
 import org.picketlink.idm.jpa.annotations.IDMEntity;
-import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration;
 
 /**
  * Automatic configuration builder for JPAIdentityStore

@@ -23,6 +23,7 @@ import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.AgentCreatedEvent;
 import org.picketlink.idm.event.AgentDeletedEvent;
@@ -37,16 +38,16 @@ import org.picketlink.idm.model.SimpleAgent;
  */
 public class AgentHandler extends IdentityTypeHandler<Agent>{
 
-    public AgentHandler(JPAIdentityStoreConfiguration config) {
-        super(config);
-
+    public AgentHandler() {
         getSortParametersMapping().put(Agent.LOGIN_NAME, PropertyType.AGENT_LOGIN_NAME);
     }
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
-        setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
+        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
     }
 
     @Override
@@ -66,7 +67,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
     @Override
     protected Agent doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        String loginName = getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
+        String loginName = store.getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
 
         Agent agent = new SimpleAgent(loginName);
 
@@ -82,7 +83,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
 
         if (parameterValues != null) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
+                    criteria.getRoot().get(store.getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
                     parameterValues[0]));
         }
 

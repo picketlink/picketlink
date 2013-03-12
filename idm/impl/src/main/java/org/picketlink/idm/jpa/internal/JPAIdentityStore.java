@@ -21,6 +21,7 @@ package org.picketlink.idm.jpa.internal;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
@@ -49,7 +50,9 @@ import org.picketlink.common.properties.query.NamedPropertyCriteria;
 import org.picketlink.common.properties.query.PropertyQueries;
 import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration.MappedAttribute;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.internal.DigestCredentialHandler;
 import org.picketlink.idm.credential.internal.PasswordCredentialHandler;
@@ -61,7 +64,6 @@ import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.jpa.annotations.IDMAttribute;
 import org.picketlink.idm.jpa.annotations.PropertyType;
-import org.picketlink.idm.jpa.internal.JPAIdentityStoreConfiguration.MappedAttribute;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.AttributedType;
@@ -149,7 +151,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             IdentityType identityType = (IdentityType) value;
 
-            IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
+            IdentityTypeHandler<IdentityType> handler = IdentityTypeHandlerFactory.getHandler(identityType.getClass());
 
             Object entity = handler.createEntity(identityType, this);
 
@@ -260,7 +262,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             Object entity = lookupIdentityObjectById(identityType.getId());
 
-            IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
+            IdentityTypeHandler<IdentityType> handler = IdentityTypeHandlerFactory.getHandler(identityType.getClass());
 
             handler.populateEntity(entity, identityType, this);
 
@@ -514,7 +516,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public void setAttribute(IdentityType identity, Attribute<? extends Serializable> attribute) {
-        Object value = attribute.getValue();
+        Serializable value = attribute.getValue();
 
         if (value == null) {
             return;
@@ -528,17 +530,17 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         // store a new attribute
         if (storedAttributes.isEmpty()) {
-            Object[] values = null;
+            Serializable[] values = null;
 
             if (value.getClass().isArray()) {
-                values = (Object[]) value;
+                values = (Serializable[]) value;
             } else {
-                values = new Object[] { value };
+                values = new Serializable[] { value };
             }
 
             Object entity = lookupIdentityObjectById(identity.getId());
 
-            for (Object attribValue : values) {
+            for (Serializable attribValue : values) {
                 Object newAttribute = null;
 
                 try {
@@ -548,7 +550,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                 }
 
                 attributeNameProperty.setValue(newAttribute, attribute.getName());
-                attributeValueProperty.setValue(newAttribute, attribValue);
+                attributeValueProperty.setValue(newAttribute, Base64.encodeObject(attribValue));
                 attributeIdentityProperty.setValue(newAttribute, entity);
 
                 getEntityManager().persist(newAttribute);
@@ -568,45 +570,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T extends Serializable> Attribute<T> getAttribute(IdentityType identityType, String attributeName) {
         List<?> attributes = findIdentityTypeAttributes(identityType, attributeName);
 
-        Attribute<T> attribute = null;
+        populateAttributes(identityType, attributes);
 
-        for (Object object : attributes) {
-            Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
-
-            T attribValue = (T) attributeValueProperty.getValue(object);
-
-            if (attribute == null) {
-                attribute = new Attribute<T>(attributeName, attribValue);
-            } else {
-                // if it is a multi-valued attribute
-                if (attribute != null) {
-                    String[] values = null;
-
-                    if (attribute.getValue().getClass().isArray()) {
-                        values = (String[]) attribute.getValue();
-                    } else {
-                        values = new String[1];
-                        values[0] = attribute.getValue().toString();
-                    }
-
-                    String[] newValues = Arrays.copyOf(values, values.length + 1);
-
-                    newValues[newValues.length - 1] = attribValue.toString();
-
-                    attribute.setValue((T) newValues);
-
-                }
-            }
-        }
-
-        identityType.setAttribute(attribute);
-
-        return attribute;
+        return identityType.getAttribute(attributeName);
     }
 
     @Override
@@ -892,13 +862,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      */
     private <T extends IdentityType> T convertToIdentityType(Object entity) {
         String discriminator = getConfig().getModelProperty(PropertyType.IDENTITY_DISCRIMINATOR).getValue(entity).toString();
-        IdentityTypeHandler<? extends IdentityType> identityTypeManager = getConfig().getIdentityTypeStores()
-                .get(discriminator);
+        IdentityTypeHandler<? extends IdentityType> identityTypeManager = IdentityTypeHandlerFactory.getHandler(getConfig()
+                .getIdentityTypeFromDiscriminator(discriminator));
 
         @SuppressWarnings("unchecked")
         T identityType = (T) identityTypeManager.createIdentityType(entity, this);
 
-        populateIdentityTypeAttributes(identityType);
+        populateIdentityTypeAttributes(identityType, entity);
 
         return identityType;
     }
@@ -1274,9 +1244,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param identityType
      * @param entity
      */
-    private void populateIdentityTypeAttributes(IdentityType identityType) {
-        Object entity = lookupIdentityObjectById(identityType.getId());
-
+    private void populateIdentityTypeAttributes(IdentityType identityType, Object entity) {
         for (MappedAttribute attrib : getConfig().getAttributeProperties().values()) {
             if (attrib.getIdentityProperty() != null && attrib.getIdentityProperty().getValue(entity) == null) {
                 // TODO: need to deal with AttributeType
@@ -1305,13 +1273,48 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
 
         if (getConfig().getAttributeClass() != null) {
-            for (Object object : findAllIdentityTypeAttributes(entity)) {
-                Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
+            List<?> attributes = findAllIdentityTypeAttributes(entity);
 
-                String attribName = (String) attributeNameProperty.getValue(object);
+            populateAttributes(identityType, attributes);
+        }
+    }
 
-                identityType.setAttribute(getAttribute(identityType, attribName));
+    private void populateAttributes(IdentityType identityType, List<?> attributes) {
+        for (Object object : attributes) {
+            Property<Object> attributeNameProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_NAME);
+            Property<Object> attributeValueProperty = getConfig().getModelProperty(PropertyType.ATTRIBUTE_VALUE);
+
+            String attributeName = attributeNameProperty.getValue(object).toString();
+
+            Attribute<Serializable> attribute = identityType.getAttribute(attributeName);
+
+            Serializable attribValue = (Serializable) Base64.decodeToObject(attributeValueProperty.getValue(object)
+                    .toString());
+
+            if (attribute == null) {
+                attribute = new Attribute<Serializable>(attributeName, attribValue);
+            } else {
+                // if it is a multi-valued attribute
+                if (attribute != null) {
+                    Serializable[] values = null;
+
+                    if (attribute.getValue().getClass().isArray()) {
+                        values = (Serializable[]) attribute.getValue();
+                    } else {
+                        values = (Serializable[]) Array.newInstance(attribute.getValue().getClass(), 1);
+                        values[0] = attribute.getValue();
+                    }
+
+                    Serializable[] newValues = Arrays.copyOf(values, values.length + 1);
+
+                    newValues[newValues.length - 1] = attribValue;
+
+                    attribute.setValue(newValues);
+
+                }
             }
+
+            identityType.setAttribute(attribute);
         }
     }
 
@@ -1455,7 +1458,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         EntityManager em = getEntityManager();
 
-        IdentityTypeHandler<IdentityType> handler = getConfig().getHandler(identityType.getClass());
+        IdentityTypeHandler<IdentityType> handler = IdentityTypeHandlerFactory.getHandler(identityType.getClass());
 
         handler.remove(entity, identityType, this);
 

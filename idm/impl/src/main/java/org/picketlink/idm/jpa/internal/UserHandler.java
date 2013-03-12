@@ -23,6 +23,7 @@ import java.util.List;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.event.UserCreatedEvent;
 import org.picketlink.idm.event.UserDeletedEvent;
@@ -37,9 +38,7 @@ import org.picketlink.idm.model.User;
  */
 public class UserHandler extends IdentityTypeHandler<User>{
 
-    public UserHandler(JPAIdentityStoreConfiguration config) {
-        super(config);
-
+    public UserHandler() {
         getSortParametersMapping().put(User.LOGIN_NAME, PropertyType.AGENT_LOGIN_NAME);
         getSortParametersMapping().put(User.FIRST_NAME, PropertyType.USER_FIRST_NAME);
         getSortParametersMapping().put(User.LAST_NAME,  PropertyType.USER_LAST_NAME);
@@ -48,12 +47,14 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
     @Override
     protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
-        setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
-        setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
-        setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
-        setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
-        setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
+        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.USER_LAST_NAME, fromUser.getLastName());
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.USER_EMAIL, fromUser.getEmail());
     }
 
     @Override
@@ -75,12 +76,13 @@ public class UserHandler extends IdentityTypeHandler<User>{
     public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = super.getPredicate(criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
+        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(User.LOGIN_NAME);
 
         if (parameterValues != null) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
+                    criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.AGENT_LOGIN_NAME).getName()),
                     parameterValues[0]));
         }
 
@@ -88,7 +90,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
         if (parameterValues != null) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.USER_FIRST_NAME).getName()),
+                    criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.USER_FIRST_NAME).getName()),
                     parameterValues[0]));
         }
 
@@ -96,7 +98,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
         if (parameterValues != null) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.USER_LAST_NAME).getName()),
+                    criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.USER_LAST_NAME).getName()),
                     parameterValues[0]));
         }
 
@@ -104,7 +106,7 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
         if (parameterValues != null) {
             predicates.add(builder.equal(
-                    criteria.getRoot().get(getConfig().getModelProperty(PropertyType.USER_EMAIL).getName()),
+                    criteria.getRoot().get(jpaConfig.getModelProperty(PropertyType.USER_EMAIL).getName()),
                     parameterValues[0]));
         }
 
@@ -113,13 +115,15 @@ public class UserHandler extends IdentityTypeHandler<User>{
 
     @Override
     protected User doCreateIdentityType(Object identity, JPAIdentityStore store) {
-        String loginName = getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
+        JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
+
+        String loginName = jpaConfig.getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
 
         User user = new SimpleUser(loginName);
 
-        user.setFirstName(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_FIRST_NAME));
-        user.setLastName(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_LAST_NAME));
-        user.setEmail(getConfig().getModelPropertyValue(String.class, identity, PropertyType.USER_EMAIL));
+        user.setFirstName(jpaConfig.getModelPropertyValue(String.class, identity, PropertyType.USER_FIRST_NAME));
+        user.setLastName(jpaConfig.getModelPropertyValue(String.class, identity, PropertyType.USER_LAST_NAME));
+        user.setEmail(jpaConfig.getModelPropertyValue(String.class, identity, PropertyType.USER_EMAIL));
 
         return user;
     }
