@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.password.internal;
+package org.picketlink.common.password;
 
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 
@@ -63,7 +63,7 @@ public class SHASaltedPasswordEncoder implements PasswordEncoder {
             byte[] digest = messageDigest.digest(saltPassword(rawPassword, salt).getBytes("UTF-8"));
             encodedPassword = Base64.encodeBytes(digest);
         } catch (UnsupportedEncodingException e) {
-            throw MESSAGES.credentialCouldNotEncodePassword(e);
+            throw IDMMessages.MESSAGES.credentialCouldNotEncodePassword(e);
         }
 
         return encodedPassword;
