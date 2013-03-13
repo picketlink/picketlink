@@ -23,6 +23,7 @@ import static org.picketlink.idm.credential.internal.CredentialUtils.isCredentia
 
 import java.util.Date;
 
+import org.picketlink.common.password.PasswordEncoder;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
@@ -30,7 +31,6 @@ import org.picketlink.idm.credential.UsernamePasswordCredentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
-import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
 import org.picketlink.idm.password.internal.SHASaltedPasswordStorage;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
@@ -72,7 +72,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
                 if (!isCredentialExpired(hash)) {
-                    SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
+                    PasswordEncoder encoder = usernamePassword.getPassword().getEncoder();
                     String encoded = encoder.encodePassword(hash.getSalt(), new String(usernamePassword.getPassword()
                             .getValue()));
 
@@ -97,7 +97,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         Password password = (Password) credential;
 
-        SHASaltedPasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
+        PasswordEncoder encoder = password.getEncoder();
         SHASaltedPasswordStorage hash = new SHASaltedPasswordStorage();
 
         hash.setEncodedHash(encoder.encodePassword(hash.getSalt(), new String(password.getValue())));
