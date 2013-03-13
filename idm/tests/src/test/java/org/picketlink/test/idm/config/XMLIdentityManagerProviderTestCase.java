@@ -40,6 +40,7 @@ import org.picketlink.idm.IdentityManager;
 public class XMLIdentityManagerProviderTestCase {
 
     @Test
+    @Ignore
     public void testParseLdapConfiguration() {
         try {
             IdentityManager identityManager = createIdentityConfiguration("config/embedded-ldap-config.xml");

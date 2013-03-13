@@ -115,18 +115,6 @@ public class FileDataSource {
 
     private ExecutorService executorService;
 
-    private FileDataSource() {
-        // singleton
-    }
-
-    public static FileDataSource getInstance() {
-        if (instance == null) {
-            instance = new FileDataSource();
-        }
-
-        return instance;
-    }
-
     public void init(FileIdentityStoreConfiguration config) {
         this.alwaysCreateFiles = config.isAlwaysCreateFiles();
         this.asyncThreadPool = config.getAsyncThreadPool();

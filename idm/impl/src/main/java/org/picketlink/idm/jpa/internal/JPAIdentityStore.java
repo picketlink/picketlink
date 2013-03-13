@@ -115,22 +115,25 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * The configuration for this instance
      */
     private JPAIdentityStoreConfiguration config;
-
-    /**
-     * The invocation context
-     */
     private IdentityStoreInvocationContext context;
 
+    private boolean initialized;
+
+    private Realm defaultRealm;
+
     public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
-        this.config = config;
-        this.context = context;
+        if (!initialized) {
+            this.config = config;
+            this.context = context;
 
-        if (getRealm(Realm.DEFAULT_REALM) == null) {
-            createDefaultRealm();
-        }
+            this.defaultRealm = getRealm(Realm.DEFAULT_REALM);
 
-        if (this.context.getRealm() == null) {
-            this.context.setRealm(getRealm(Realm.DEFAULT_REALM));
+            if (this.defaultRealm == null) {
+                this.defaultRealm = new Realm(Realm.DEFAULT_REALM);
+                createPartition(this.defaultRealm);
+            }
+
+            this.initialized = true;
         }
     }
 
@@ -141,7 +144,11 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public IdentityStoreInvocationContext getContext() {
-        return context;
+        if (this.context.getRealm() == null) {
+            this.context.setRealm(this.defaultRealm);
+        }
+
+        return this.context;
     }
 
     @Override

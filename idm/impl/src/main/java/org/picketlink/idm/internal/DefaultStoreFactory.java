@@ -26,10 +26,10 @@ import java.util.Map;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
-import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 import org.picketlink.idm.spi.StoreFactory;
@@ -38,17 +38,17 @@ import org.picketlink.idm.spi.StoreFactory;
  * Default StoreFactory implementation. This factory is pre-configured to be able to create instances of the following built-in
  * IdentityStore implementations based on the corresponding IdentityStoreConfiguration:
  *
- * JPAIdentityStore - JPAIdentityStoreConfiguration
- * LDAPIdentityStore - LDAPConfiguration
- * FileBasedIdentityStore - FileIdentityStoreConfiguration
+ * JPAIdentityStore - JPAIdentityStoreConfiguration LDAPIdentityStore - LDAPConfiguration FileBasedIdentityStore -
+ * FileIdentityStoreConfiguration
  *
  *
  * @author Shane Bryzak
  */
 public class DefaultStoreFactory implements StoreFactory {
 
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap =
-            new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
+    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
+
+    private Map<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>> storesCache = new HashMap<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>>();
 
     public DefaultStoreFactory() {
         this.identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
@@ -60,13 +60,21 @@ public class DefaultStoreFactory implements StoreFactory {
     public IdentityStore<?> createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
         for (Class<? extends IdentityStoreConfiguration> cc : this.identityConfigMap.keySet()) {
             if (cc.isInstance(config)) {
-                Class<? extends IdentityStore<?>> identityStoreClass = this.identityConfigMap
-                        .get(cc);
-                try {
-                    return (IdentityStore<?>) identityStoreClass.newInstance();
-                } catch (Exception e) {
-                    throw MESSAGES.instantiationError(identityStoreClass.getName(), e);
+                IdentityStore<?> identityStore = this.storesCache.get(cc);
+
+                if (identityStore == null) {
+                    Class<? extends IdentityStore<?>> identityStoreClass = this.identityConfigMap.get(cc);
+
+                    try {
+                        identityStore = (IdentityStore<?>) identityStoreClass.newInstance();
+                    } catch (Exception e) {
+                        throw MESSAGES.instantiationError(identityStoreClass.getName(), e);
+                    }
+
+                    this.storesCache.put(cc, identityStore);
                 }
+
+                return identityStore;
             }
         }
 

@@ -33,6 +33,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.internal.util.IDMUtil;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Grant;
@@ -504,7 +505,7 @@ public class LDAPQuery {
     }
 
     private LDAPOperationManager getLDAPManager() {
-        return getConfig().getLdapManager();
+        return this.identityStore.getLDAPManager();
     }
 
     public boolean hasRelationshipParameters() {

@@ -25,7 +25,6 @@ import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
-import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
 import org.picketlink.idm.model.Authorization;
@@ -131,7 +130,6 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
     @Override
     public void onDestroy() {
-        FileDataSource.getInstance().close();
     }
 
 }

@@ -213,6 +213,6 @@ public class FileCredentialStore implements CredentialStore {
     }
 
     private FileDataSource getDataSource() {
-        return FileDataSource.getInstance();
+        return this.identityStore.getDataSource();
     }
 }

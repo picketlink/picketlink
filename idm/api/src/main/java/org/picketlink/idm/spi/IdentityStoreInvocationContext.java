@@ -40,6 +40,8 @@ import org.picketlink.idm.model.Tier;
  */
 public class IdentityStoreInvocationContext {
 
+    private static final ThreadLocal<IdentityStoreInvocationContext> contextThreadLocal = new ThreadLocal<IdentityStoreInvocationContext>();
+
     /**
      *
      */
@@ -86,6 +88,18 @@ public class IdentityStoreInvocationContext {
         this.idGenerator = idGenerator;
     }
 
+    public static void set(IdentityStoreInvocationContext context) {
+        contextThreadLocal.set(context);
+    }
+
+    public static void remove() {
+        contextThreadLocal.remove();
+    }
+
+    public static IdentityStoreInvocationContext get() {
+        return contextThreadLocal.get();
+    }
+
     /**
      * Returns a CredentialHandler instance capable of validating a credential of the specified Credentials class, for the
      * specified IdentityStore class
@@ -125,7 +139,13 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public Object getParameter(String paramName) {
-        return parameters.get(paramName);
+        IdentityStoreInvocationContext currentContext = getCurrentContext();
+
+        if (currentContext == this || currentContext == null) {
+            return this.parameters.get(paramName);
+        }
+
+        return currentContext.getParameter(paramName);
     }
 
     /**
@@ -135,7 +155,13 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public boolean isParameterSet(String paramName) {
-        return parameters.containsKey(paramName);
+        IdentityStoreInvocationContext currentContext = getCurrentContext();
+
+        if (currentContext == this || currentContext == null) {
+            return this.parameters.containsKey(paramName);
+        }
+
+        return currentContext.isParameterSet(paramName);
     }
 
     /**
@@ -145,7 +171,13 @@ public class IdentityStoreInvocationContext {
      * @param value
      */
     public void setParameter(String paramName, Object value) {
-        parameters.put(paramName, value);
+        IdentityStoreInvocationContext currentContext = getCurrentContext();
+
+        if (currentContext == this || currentContext == null) {
+            this.parameters.put(paramName, value);
+        }
+
+        currentContext.setParameter(paramName, value);
     }
 
     /**
@@ -170,7 +202,13 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public Realm getRealm() {
-        return this.realm;
+        IdentityStoreInvocationContext currentContext = getCurrentContext();
+
+        if (currentContext == this || currentContext == null) {
+            return this.realm;
+        }
+
+        return currentContext.getRealm();
     }
 
     /**
@@ -179,7 +217,13 @@ public class IdentityStoreInvocationContext {
      * @param realm
      */
     public void setRealm(Realm realm) {
-        this.realm = realm;
+        IdentityStoreInvocationContext currentContext = getCurrentContext();
+
+        if (currentContext == this || currentContext == null) {
+            this.realm = realm;
+        } else {
+            currentContext.setRealm(realm);
+        }
     }
 
     /**
@@ -188,7 +232,13 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public Tier getTier() {
-        return tier;
+        IdentityStoreInvocationContext currentContext = getCurrentContext();
+
+        if (currentContext == this || currentContext == null) {
+            return this.tier;
+        }
+
+        return currentContext.getTier();
     }
 
     /**
@@ -197,7 +247,13 @@ public class IdentityStoreInvocationContext {
      * @param tier
      */
     public void setTier(Tier tier) {
-        this.tier = tier;
+        IdentityStoreInvocationContext currentContext = getCurrentContext();
+
+        if (currentContext == this || currentContext == null) {
+            this.tier = tier;
+        } else {
+            currentContext.setTier(tier);
+        }
     }
 
     /**
@@ -209,10 +265,22 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public Partition getPartition() {
-        Partition partition = getTier();
+        IdentityStoreInvocationContext currentContext = getCurrentContext();
+
+        if (currentContext == this || currentContext == null) {
+            Partition partition = getTier();
+
+            if (partition == null) {
+                partition = getRealm();
+            }
+
+            return partition;
+        }
+
+        Partition partition = getCurrentContext().getTier();
 
         if (partition == null) {
-            partition = getRealm();
+            partition = getCurrentContext().getRealm();
         }
 
         return partition;
@@ -221,4 +289,9 @@ public class IdentityStoreInvocationContext {
     public IdentityManager getIdentityManager() {
         return this.identityManager;
     }
+
+    private IdentityStoreInvocationContext getCurrentContext() {
+        return contextThreadLocal.get();
+    }
+
 }

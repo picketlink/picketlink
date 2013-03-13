@@ -40,6 +40,7 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 
 /**
  * <p>

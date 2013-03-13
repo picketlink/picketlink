@@ -130,7 +130,7 @@ public class FilePartitionStore implements PartitionStore {
     }
 
     private FileDataSource getDataSource() {
-        return FileDataSource.getInstance();
+        return this.identityStore.getDataSource();
     }
 
     private Map<String, FilePartition> getPartitions() {

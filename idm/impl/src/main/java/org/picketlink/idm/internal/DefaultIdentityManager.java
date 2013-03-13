@@ -761,20 +761,51 @@ public class DefaultIdentityManager implements IdentityManager {
         @SuppressWarnings("unchecked")
         final IdentityStore<IdentityStoreConfiguration> store = storeFactory.createIdentityStore(config, ctx);
 
-        this.contextFactory.initContextForStore(ctx, store);
+        final IdentityStoreConfiguration configuration = config;
 
-        store.setup(config, ctx);
+        @SuppressWarnings("unchecked")
+        IdentityStore<IdentityStoreConfiguration> storeProxy = (IdentityStore<IdentityStoreConfiguration>) Proxy
+                .newProxyInstance(store.getClass().getClassLoader(),
+                        new Class<?>[] { IdentityStore.class, PartitionStore.class }, new InvocationHandler() {
 
-        LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation, store, ctx.getPartition());
+                            @Override
+                            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                                try {
+                                    IdentityStoreInvocationContext.set(ctx);
 
-        return store;
+                                    contextFactory.initContextForStore(ctx, store);
+
+                                    store.setup(configuration, ctx);
+
+                                    return method.invoke(store, args);
+                                } catch (Exception e) {
+                                    if (e.getCause() != null) {
+                                        throw e.getCause();
+                                    }
+
+                                    throw e;
+                                } finally {
+                                    IdentityStoreInvocationContext.remove();
+                                }
+
+                            }
+                        });
+
+        LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation,
+                storeProxy, ctx.getPartition());
+
+        return storeProxy;
     }
 
     private IdentityStoreInvocationContext createContext() {
-        IdentityStoreInvocationContext context = this.contextFactory.createContext(this);
+        IdentityStoreInvocationContext context = IdentityStoreInvocationContext.get();
 
-        context.setRealm(currentRealm.get());
-        context.setTier(currentTier.get());
+        if (context == null) {
+            context = this.contextFactory.createContext(this);
+
+            context.setRealm(currentRealm.get());
+            context.setTier(currentTier.get());
+        }
 
         return context;
     }

@@ -27,9 +27,9 @@ import javax.naming.directory.ModificationItem;
 
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.credential.Credentials;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
@@ -67,7 +67,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
             LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(LDAPUser.class, agent.getId());
             char[] password = usernamePassword.getPassword().getValue();
 
-            boolean isValid = ldapIdentityStore.getConfig().getLdapManager().authenticate(ldapUser.getDN(), new String(password));
+            boolean isValid = ldapIdentityStore.getLDAPManager().authenticate(ldapUser.getDN(), new String(password));
 
             if (isValid) {
                 usernamePassword.setStatus(Status.VALID);
@@ -99,7 +99,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
                 mods[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, mod0);
 
-                ldapIdentityStore.getConfig().getLdapManager().modifyAttribute(ldapuser.getDN(), mod0);
+                ldapIdentityStore.getLDAPManager().modifyAttribute(ldapuser.getDN(), mod0);
             } catch (Exception e) {
                 throw new IdentityManagementException("Error updating password.", e);
             }
@@ -122,7 +122,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
             BasicAttribute unicodePwd = new BasicAttribute("unicodePwd", newUnicodePassword);
 
-            store.getConfig().getLdapManager().modifyAttribute(user.getDN(), unicodePwd);
+            store.getLDAPManager().modifyAttribute(user.getDN(), unicodePwd);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

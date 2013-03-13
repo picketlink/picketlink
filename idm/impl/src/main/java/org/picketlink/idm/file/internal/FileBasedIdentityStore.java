@@ -103,41 +103,38 @@ import org.picketlink.idm.spi.PartitionStore;
 public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreConfiguration>, CredentialStore, PartitionStore {
 
     private FileIdentityStoreConfiguration config;
-    private IdentityStoreInvocationContext context;
 
     private FileCredentialStore credentialStore;
     private FilePartitionStore partitionStore;
 
+    private boolean initialized;
+    private FileDataSource fileDataSource;
+    private Realm defaultRealm;
+
+    private IdentityStoreInvocationContext context;
+
     @Override
     public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
-        FileDataSource dataSource = FileDataSource.getInstance();
+        if (!initialized) {
+            this.fileDataSource = new FileDataSource();
 
-        if (!dataSource.isInitialized()) {
-            dataSource.init(config);
-        }
+            this.fileDataSource.init(config);
 
-        this.config = config;
-        this.context = context;
+            this.config = config;
+            this.context = context;
 
-        this.credentialStore = new FileCredentialStore(this);
-        this.partitionStore = new FilePartitionStore(this);
+            this.credentialStore = new FileCredentialStore(this);
+            this.partitionStore = new FilePartitionStore(this);
 
-        Realm defaultRealm = this.context.getRealm();
+            this.defaultRealm = getRealm(Realm.DEFAULT_REALM);
 
-        if (defaultRealm == null) {
-            defaultRealm = getRealm(Realm.DEFAULT_REALM);
-
-            if (defaultRealm == null) {
-                defaultRealm = new Realm(Realm.DEFAULT_REALM);
-                createPartition(defaultRealm);
+            if (this.defaultRealm == null) {
+                this.defaultRealm = new Realm(Realm.DEFAULT_REALM);
+                createPartition(this.defaultRealm);
             }
-        }
 
-        if (!defaultRealm.getName().equals(Realm.DEFAULT_REALM)) {
-            defaultRealm = getRealm(defaultRealm.getName());
+            initialized = true;
         }
-
-        this.context.setRealm(defaultRealm);
     }
 
     @Override
@@ -147,6 +144,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public IdentityStoreInvocationContext getContext() {
+        if (this.context.getRealm() == null) {
+            this.context.setRealm(this.defaultRealm);
+        }
+
         return this.context;
     }
 
@@ -1196,8 +1197,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return getDataSource().getAgents(getContext().getRealm());
     }
 
-    private FileDataSource getDataSource() {
-        return FileDataSource.getInstance();
+    protected FileDataSource getDataSource() {
+        return this.fileDataSource;
     }
 
     private void configurePartition(IdentityType identityType) {

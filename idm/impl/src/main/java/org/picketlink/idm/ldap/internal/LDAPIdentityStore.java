@@ -40,6 +40,8 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.SecurityConfigurationException;
+import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.CredentialHandlers;
@@ -79,13 +81,23 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     private LDAPIdentityStoreConfiguration configuration;
     private IdentityStoreInvocationContext context;
 
+    private boolean initialized;
+
+    private LDAPOperationManager operationManager;
+
     @Override
     public void setup(LDAPIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
-        this.configuration = config;
-        this.context = context;
+        if (!initialized) {
+            this.configuration = config;
+            this.context = context;
 
-        if (this.context.getRealm() == null) {
-            this.context.setRealm(new Realm(Realm.DEFAULT_REALM));
+            try {
+                this.operationManager = new LDAPOperationManager(this.configuration);
+            } catch (NamingException e) {
+                throw new SecurityConfigurationException(e);
+            }
+
+            this.initialized = true;
         }
     }
 
@@ -96,6 +108,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public IdentityStoreInvocationContext getContext() {
+        if (this.context.getRealm() == null) {
+            this.context.setRealm(new Realm(Realm.DEFAULT_REALM));
+        }
+
         return this.context;
     }
 
@@ -1104,8 +1120,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         newIdentityType.setId(ldapIdentityType.getId());
     }
 
-    private LDAPOperationManager getLDAPManager() {
-        return getConfig().getLdapManager();
+    protected LDAPOperationManager getLDAPManager() {
+        return this.operationManager;
     }
 
     /**

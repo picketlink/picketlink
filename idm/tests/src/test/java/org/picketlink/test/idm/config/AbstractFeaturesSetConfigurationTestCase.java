@@ -218,9 +218,13 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         try {
             IdentityManager identityManager = createIdentityManager(config);
 
-            SimpleUser user = new SimpleUser("someUser");
+            User user = identityManager.getUser("someUser");
+            
+            if (user == null) {
+                user = new SimpleUser("someUser");
+                identityManager.add(user);
+            }
 
-            identityManager.add(user);
             identityManager.remove(user);
 
             fail();
