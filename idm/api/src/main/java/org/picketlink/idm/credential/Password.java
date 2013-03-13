@@ -18,6 +18,9 @@
 
 package org.picketlink.idm.credential;
 
+import org.picketlink.common.password.PasswordEncoder;
+import org.picketlink.common.password.SHASaltedPasswordEncoder;
+
 /**
  * Represents a text-based password credential
  *
@@ -26,16 +29,27 @@ package org.picketlink.idm.credential;
 public class Password {
 
     private char[] value = new char[]{};
+    private PasswordEncoder encoder = new SHASaltedPasswordEncoder(512);
 
     public Password(char[] value) {
         this.value = value;
     }
+
+    public Password(char[] value, PasswordEncoder encoder) {
+        this.value = value;
+        this.encoder = encoder;
+    }
+
     public Password(String str) {
         this.value = str != null ? str.toCharArray() : value;
     }
 
     public char[] getValue() {
         return value;
+    }
+
+    public PasswordEncoder getEncoder() {
+        return encoder;
     }
 
     public void clear() {

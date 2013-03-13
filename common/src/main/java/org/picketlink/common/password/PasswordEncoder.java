@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.password;
+package org.picketlink.common.password;
 
 /**
  * <p>

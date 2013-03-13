@@ -16,16 +16,13 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm.password.internal;
+package org.picketlink.common.password;
 
-import static org.picketlink.idm.IDMMessages.MESSAGES;
+import org.picketlink.common.util.Base64;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import org.picketlink.common.util.Base64;
-import org.picketlink.idm.password.PasswordEncoder;
 
 /**
  * <p>
@@ -37,7 +34,6 @@ import org.picketlink.idm.password.PasswordEncoder;
  * </p>
  *
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
  */
 public class SHASaltedPasswordEncoder implements PasswordEncoder {
 
@@ -57,13 +53,13 @@ public class SHASaltedPasswordEncoder implements PasswordEncoder {
     public String encodePassword(String salt, String rawPassword) {
         MessageDigest messageDigest = getMessageDigest();
 
-         String encodedPassword = null;
+        String encodedPassword = null;
 
         try {
             byte[] digest = messageDigest.digest(saltPassword(rawPassword, salt).getBytes("UTF-8"));
             encodedPassword = Base64.encodeBytes(digest);
         } catch (UnsupportedEncodingException e) {
-            throw MESSAGES.credentialCouldNotEncodePassword(e);
+            throw new RuntimeException("Could not encode password");
         }
 
         return encodedPassword;

@@ -25,6 +25,7 @@ import java.util.Date;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.picketlink.common.password.SHASaltedPasswordEncoder;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
@@ -50,6 +51,24 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");
         Password plainTextPassword = new Password("updated_password".toCharArray());
+
+        identityManager.updateCredential(user, plainTextPassword);
+
+        UsernamePasswordCredentials credential = new UsernamePasswordCredentials();
+
+        credential.setUsername(user.getLoginName());
+        credential.setPassword(plainTextPassword);
+
+        identityManager.validateCredentials(credential);
+
+        assertEquals(Status.VALID, credential.getStatus());
+    }
+
+    @Test
+    public void testCustomPasswordEncoderSuccessfulValidation() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User user = createUser("someUser");
+        Password plainTextPassword = new Password("updated_password".toCharArray(), new SHASaltedPasswordEncoder(256));
 
         identityManager.updateCredential(user, plainTextPassword);
 
