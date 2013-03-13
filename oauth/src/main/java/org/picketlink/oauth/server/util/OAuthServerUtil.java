@@ -33,6 +33,22 @@ import org.jboss.logging.Logger;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.config.FeatureSet;
+import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.credential.Password;
+import org.picketlink.idm.credential.UsernamePasswordCredentials;
+import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.jpa.schema.CredentialObject;
+import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
+import org.picketlink.idm.jpa.schema.IdentityObject;
+import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
+import org.picketlink.idm.jpa.schema.PartitionObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
+import org.picketlink.idm.jpa.schema.RelationshipObject;
+import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
+import org.picketlink.idm.ldap.internal.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
@@ -149,7 +165,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     public static OAuthResponse authorizationCodeRequest(HttpServletRequest request, IdentityManager identityManager) {
 
@@ -249,7 +264,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     public static OAuthResponse tokenRequest(HttpServletRequest request, IdentityManager identityManager) {
         String grantType = request.getParameter(OAuthConstants.GRANT_TYPE);
@@ -347,7 +361,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     private static OAuthResponse refreshTokenRequest(HttpServletRequest request, IdentityManager identityManager) {
 
@@ -364,7 +377,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     private static OAuthResponse passwordGrantTypeTokenRequest(HttpServletRequest request, IdentityManager identityManager) {
 
@@ -410,7 +422,6 @@ public class OAuthServerUtil {
      * @param request
      * @param identityManager
      * @return
-     * @throws OAuthSystemException
      */
     private static OAuthResponse authorizationCodeGrantTypeTokenRequest(HttpServletRequest request,
             IdentityManager identityManager) {
