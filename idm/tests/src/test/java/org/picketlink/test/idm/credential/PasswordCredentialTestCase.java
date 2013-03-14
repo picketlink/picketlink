@@ -26,9 +26,9 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.credential.UsernamePasswordCredentials;
-import org.picketlink.idm.credential.Credentials.Status;
 import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
@@ -169,5 +169,35 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
         identityManager.validateCredentials(firstCredential);
 
         Assert.assertEquals(Status.INVALID, firstCredential.getStatus());
+    }
+    
+    @Test
+    public void testUserDeletion() throws Exception {
+        IdentityManager identityManager = getIdentityManager();
+        User john = createUser("john");
+        Password johnPassword = new Password("123".toCharArray());
+
+        identityManager.updateCredential(john, johnPassword);
+
+        UsernamePasswordCredentials johnCredential = new UsernamePasswordCredentials(john.getLoginName(), johnPassword);
+
+        identityManager.validateCredentials(johnCredential);
+
+        assertEquals(Status.VALID, johnCredential.getStatus());
+        
+        User francesco = createUser("francesco");
+        Password francescoPassword = new Password("123".toCharArray());
+
+        identityManager.updateCredential(francesco, francescoPassword);
+
+        UsernamePasswordCredentials francescoCredential = new UsernamePasswordCredentials(francesco.getLoginName(), francescoPassword);
+
+        identityManager.validateCredentials(francescoCredential);
+
+        assertEquals(Status.VALID, francescoCredential.getStatus());
+        
+        identityManager.remove(francesco);
+        
+        identityManager.validateCredentials(johnCredential);
     }
 }

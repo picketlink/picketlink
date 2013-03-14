@@ -136,7 +136,7 @@ public class SecurityContext {
      * @return
      */
     public boolean isParameterSet(String paramName) {
-            return this.parameters.containsKey(paramName);
+        return this.parameters.containsKey(paramName);
     }
 
     /**
@@ -146,7 +146,7 @@ public class SecurityContext {
      * @param value
      */
     public void setParameter(String paramName, Object value) {
-            this.parameters.put(paramName, value);
+        this.parameters.put(paramName, value);
     }
 
     /**
@@ -180,7 +180,8 @@ public class SecurityContext {
      * @return
      */
     public Tier getTier() {
-        return tier;    }
+        return tier;    
+    }
 
     public IdentityManager getIdentityManager() {
         return this.identityManager;

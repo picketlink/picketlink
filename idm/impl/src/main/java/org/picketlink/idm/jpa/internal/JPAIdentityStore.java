@@ -1989,6 +1989,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
                 attributePredicates.add(builder.equal(attributeRoot.get(attributeCredential.getName()), credential));
 
+                attributeCriteria.where(attributePredicates.toArray(new Predicate[attributePredicates.size()]));
+
                 List<?> attributes = em.createQuery(attributeCriteria).getResultList();
 
                 for (Object attribute : attributes) {

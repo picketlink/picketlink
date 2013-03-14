@@ -24,7 +24,6 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 import org.picketlink.annotations.PicketLink;
-import org.picketlink.idm.DefaultIdentityCache;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManager;
@@ -32,6 +31,7 @@ import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdGenerator;
+import org.picketlink.idm.internal.DefaultIdentityCache;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;

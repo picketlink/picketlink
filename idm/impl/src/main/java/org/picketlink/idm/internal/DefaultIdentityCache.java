@@ -16,11 +16,12 @@
  * limitations under the License.
  */
 
-package org.picketlink.idm;
+package org.picketlink.idm.internal;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;

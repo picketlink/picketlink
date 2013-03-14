@@ -17,7 +17,6 @@
  */
 package org.picketlink.idm.internal;
 
-import org.picketlink.idm.DefaultIdentityCache;
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManager;
