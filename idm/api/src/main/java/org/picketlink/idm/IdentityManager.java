@@ -32,7 +32,7 @@ import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.StoreFactory;
 
 /**
@@ -51,7 +51,7 @@ public interface IdentityManager extends Serializable {
      * @param configuration
      * @throws SecurityConfigurationException If some error occurs during the bootstrap.
      */
-    void bootstrap(IdentityConfiguration configuration, IdentityStoreInvocationContextFactory contextFactory)
+    void bootstrap(IdentityConfiguration configuration, SecurityContextFactory contextFactory)
             throws SecurityConfigurationException;
 
     /**

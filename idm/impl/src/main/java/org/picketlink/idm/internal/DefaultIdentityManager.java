@@ -55,8 +55,8 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.SecurityContextFactory;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreFactory;
 
@@ -74,13 +74,13 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private StoreFactory storeFactory = new DefaultStoreFactory();
 
-    private IdentityStoreInvocationContextFactory contextFactory;
+    private SecurityContextFactory contextFactory;
 
     private ThreadLocal<Realm> currentRealm = new ThreadLocal<Realm>();
     private ThreadLocal<Tier> currentTier = new ThreadLocal<Tier>();
 
     @Override
-    public void bootstrap(IdentityConfiguration identityConfig, IdentityStoreInvocationContextFactory contextFactory) {
+    public void bootstrap(IdentityConfiguration identityConfig, SecurityContextFactory contextFactory) {
         if (identityConfig == null) {
             throw MESSAGES.nullArgument("IdentityConfiguration");
         }
@@ -204,7 +204,7 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.nullArgument("IdentityType");
         }
 
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         Partition currentPartition = getCurrentPartition(ctx);
 
@@ -271,7 +271,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void update(IdentityType identityType) {
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         checkIfIdentityTypeExists(identityType, ctx);
 
@@ -294,7 +294,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void remove(IdentityType identityType) {
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         checkIfIdentityTypeExists(identityType, ctx);
 
@@ -343,7 +343,7 @@ public class DefaultIdentityManager implements IdentityManager {
             return null;
         }
 
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         if (lookupIdentityById(Group.class, parent.getId()) == null) {
             throw MESSAGES.groupParentNotFoundWithId(parent.getId(), ctx.getPartition());
@@ -385,7 +385,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void addToGroup(Agent member, Group group) {
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         checkIfIdentityTypeExists(member, ctx);
         checkIfIdentityTypeExists(group, ctx);
@@ -397,7 +397,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void removeFromGroup(Agent member, Group group) {
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         checkIfIdentityTypeExists(member, ctx);
         checkIfIdentityTypeExists(group, ctx);
@@ -430,7 +430,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantGroupRole(IdentityType assignee, Role role, Group group) {
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         checkIfIdentityTypeExists(assignee, ctx);
         checkIfIdentityTypeExists(role, ctx);
@@ -443,7 +443,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeGroupRole(IdentityType assignee, Role role, Group group) {
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         checkIfIdentityTypeExists(assignee, ctx);
         checkIfIdentityTypeExists(role, ctx);
@@ -476,7 +476,7 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.relationshipUnsupportedGrantAssigneeType(identityType);
         }
 
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         checkIfIdentityTypeExists(identityType, ctx);
         checkIfIdentityTypeExists(role, ctx);
@@ -488,7 +488,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        IdentityStoreInvocationContext ctx = createContext();
+        SecurityContext ctx = createContext();
 
         if (Role.class.isInstance(identityType)) {
             throw MESSAGES.relationshipUnsupportedGrantAssigneeType(identityType);
@@ -713,12 +713,12 @@ public class DefaultIdentityManager implements IdentityManager {
         return groupMembership;
     }
 
-    private IdentityStore<?> getContextualStoreForFeature(IdentityStoreInvocationContext ctx, FeatureGroup feature,
+    private IdentityStore<?> getContextualStoreForFeature(SecurityContext ctx, FeatureGroup feature,
             FeatureOperation operation) {
         return getContextualStoreForFeature(ctx, feature, operation, null);
     }
 
-    private IdentityStore<?> getContextualStoreForFeature(final IdentityStoreInvocationContext ctx, FeatureGroup feature,
+    private IdentityStore<?> getContextualStoreForFeature(final SecurityContext ctx, FeatureGroup feature,
             FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
         String realmName = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
 
@@ -771,7 +771,7 @@ public class DefaultIdentityManager implements IdentityManager {
                             @Override
                             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                                 try {
-                                    IdentityStoreInvocationContext.set(ctx);
+                                    SecurityContext.set(ctx);
 
                                     contextFactory.initContextForStore(ctx, store);
 
@@ -785,7 +785,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
                                     throw e;
                                 } finally {
-                                    IdentityStoreInvocationContext.remove();
+                                    SecurityContext.remove();
                                 }
 
                             }
@@ -797,8 +797,8 @@ public class DefaultIdentityManager implements IdentityManager {
         return storeProxy;
     }
 
-    private IdentityStoreInvocationContext createContext() {
-        IdentityStoreInvocationContext context = IdentityStoreInvocationContext.get();
+    private SecurityContext createContext() {
+        SecurityContext context = SecurityContext.get();
 
         if (context == null) {
             context = this.contextFactory.createContext(this);
@@ -810,7 +810,7 @@ public class DefaultIdentityManager implements IdentityManager {
         return context;
     }
 
-    private void checkIfIdentityTypeExists(IdentityType identityType, IdentityStoreInvocationContext ctx) {
+    private void checkIfIdentityTypeExists(IdentityType identityType, SecurityContext ctx) {
         if (identityType == null) {
             throw MESSAGES.nullArgument("IdentityType");
         }
@@ -820,7 +820,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
     }
 
-    private Partition getCurrentPartition(IdentityStoreInvocationContext ctx) {
+    private Partition getCurrentPartition(SecurityContext ctx) {
         Realm realm = ctx.getRealm();
 
         if (realm == null) {

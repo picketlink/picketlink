@@ -89,7 +89,7 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.PartitionStore;
 
 /**
@@ -115,13 +115,13 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * The configuration for this instance
      */
     private JPAIdentityStoreConfiguration config;
-    private IdentityStoreInvocationContext context;
+    private SecurityContext context;
 
     private boolean initialized;
 
     private Realm defaultRealm;
 
-    public void setup(JPAIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
+    public void setup(JPAIdentityStoreConfiguration config, SecurityContext context) {
         if (!initialized) {
             this.config = config;
             this.context = context;
@@ -143,7 +143,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public IdentityStoreInvocationContext getContext() {
+    public SecurityContext getContext() {
         if (this.context.getRealm() == null) {
             this.context.setRealm(this.defaultRealm);
         }

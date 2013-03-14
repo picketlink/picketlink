@@ -25,28 +25,28 @@ import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.SecurityContextFactory;
 
 /**
- * A simple implementation of {@link IdentityStoreInvocationContextFactory} that has no dependencies on JPA
+ * A simple implementation of {@link SecurityContextFactory} that has no dependencies on JPA
  * @author anil saldhana
  * @since Dec 13, 2012
  */
-public class SimpleIdentityStoreInvocationContextFactory implements IdentityStoreInvocationContextFactory {
+public class SimpleIdentityStoreInvocationContextFactory implements SecurityContextFactory {
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory = new DefaultCredentialHandlerFactory();
     private IdentityCache identityCache = new DefaultIdentityCache();
     private IdGenerator idGenerator = new DefaultIdGenerator();
 
     @Override
-    public IdentityStoreInvocationContext createContext(IdentityManager identityManager) {
-        return new IdentityStoreInvocationContext(identityManager, this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator);
+    public SecurityContext createContext(IdentityManager identityManager) {
+        return new SecurityContext(identityManager, this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator);
     }
 
     @SuppressWarnings("rawtypes")
     @Override
-    public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore store) {
+    public void initContextForStore(SecurityContext ctx, IdentityStore store) {
     }
 
 }

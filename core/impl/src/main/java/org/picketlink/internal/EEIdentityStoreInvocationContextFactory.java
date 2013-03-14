@@ -34,8 +34,8 @@ import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.internal.DefaultIdGenerator;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.SecurityContextFactory;
 
 /**
  * 
@@ -43,7 +43,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
  *
  */
 @ApplicationScoped
-public class EEIdentityStoreInvocationContextFactory implements IdentityStoreInvocationContextFactory {
+public class EEIdentityStoreInvocationContextFactory implements SecurityContextFactory {
 
     @Inject @PicketLink Instance<EntityManager> entityManagerInstance;
     
@@ -60,12 +60,12 @@ public class EEIdentityStoreInvocationContextFactory implements IdentityStoreInv
     }
 
     @Override
-    public IdentityStoreInvocationContext createContext(IdentityManager identityManager) {
-        return new IdentityStoreInvocationContext(identityManager, this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator);
+    public SecurityContext createContext(IdentityManager identityManager) {
+        return new SecurityContext(identityManager, this.identityCache, cdiEventBridge, credentialHandlerFactory, idGenerator);
     }
 
     @Override
-    public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore<?> store) {
+    public void initContextForStore(SecurityContext ctx, IdentityStore<?> store) {
         if (store instanceof JPAIdentityStore) {
             if (entityManagerInstance.isUnsatisfied()) {
                 throw new SecurityConfigurationException("To use JPAIdentityStore you must provide an EntityManager producer method " +

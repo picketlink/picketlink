@@ -87,7 +87,7 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.PartitionStore;
 
 /**
@@ -111,10 +111,10 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private FileDataSource fileDataSource;
     private Realm defaultRealm;
 
-    private IdentityStoreInvocationContext context;
+    private SecurityContext context;
 
     @Override
-    public void setup(FileIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
+    public void setup(FileIdentityStoreConfiguration config, SecurityContext context) {
         if (!initialized) {
             this.fileDataSource = new FileDataSource();
 
@@ -143,7 +143,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public IdentityStoreInvocationContext getContext() {
+    public SecurityContext getContext() {
         if (this.context.getRealm() == null) {
             this.context.setRealm(this.defaultRealm);
         }

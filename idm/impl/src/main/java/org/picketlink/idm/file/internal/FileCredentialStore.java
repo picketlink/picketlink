@@ -41,7 +41,7 @@ import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>
@@ -200,7 +200,7 @@ public class FileCredentialStore implements CredentialStore {
         return credentials;
     }
 
-    private IdentityStoreInvocationContext getContext() {
+    private SecurityContext getContext() {
         return this.identityStore.getContext();
     }
 

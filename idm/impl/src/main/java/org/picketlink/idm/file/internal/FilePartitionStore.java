@@ -29,7 +29,7 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.PartitionStore;
 
 /**
@@ -125,7 +125,7 @@ public class FilePartitionStore implements PartitionStore {
         return this.identityStore.getConfig();
     }
 
-    private IdentityStoreInvocationContext getContext() {
+    private SecurityContext getContext() {
         return this.identityStore.getContext();
     }
 

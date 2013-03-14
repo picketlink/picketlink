@@ -31,7 +31,7 @@ import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
 
 /**
@@ -57,7 +57,7 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
-    public IdentityStore<?> createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
+    public IdentityStore<?> createIdentityStore(IdentityStoreConfiguration config, SecurityContext context) {
         for (Class<? extends IdentityStoreConfiguration> cc : this.identityConfigMap.keySet()) {
             if (cc.isInstance(config)) {
                 IdentityStore<?> identityStore = this.storesCache.get(cc);

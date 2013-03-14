@@ -48,7 +48,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      * @param config
      * @param context
      */
-    void setup(T config, IdentityStoreInvocationContext context);
+    void setup(T config, SecurityContext context);
 
     /**
      * Returns the configuration for this IdentityStore instance
@@ -62,7 +62,7 @@ public interface IdentityStore<T extends IdentityStoreConfiguration> {
      *
      * @return
      */
-    IdentityStoreInvocationContext getContext();
+    SecurityContext getContext();
 
     // General
 

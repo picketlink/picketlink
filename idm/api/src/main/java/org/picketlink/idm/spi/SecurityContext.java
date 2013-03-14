@@ -28,19 +28,16 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
-import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
 
 /**
- * Used to pass contextual state to an IdentityStore during an identity management operation.
+ * Stores security related state for one or more identity management operations
  *
  * @author Shane Bryzak
  *
  */
-public class IdentityStoreInvocationContext {
-
-    private static final ThreadLocal<IdentityStoreInvocationContext> contextThreadLocal = new ThreadLocal<IdentityStoreInvocationContext>();
+public class SecurityContext {
 
     /**
      *
@@ -79,25 +76,15 @@ public class IdentityStoreInvocationContext {
 
     private IdentityManager identityManager;
 
-    public IdentityStoreInvocationContext(IdentityManager identityManager, IdentityCache cache, EventBridge eventBridge, CredentialHandlerFactory factory,
-            IdGenerator idGenerator) {
+    public SecurityContext(IdentityManager identityManager, IdentityCache cache, EventBridge eventBridge, CredentialHandlerFactory factory,
+            IdGenerator idGenerator, Realm realm, Tier tier) {
         this.identityManager = identityManager;
         this.cache = cache;
         this.eventBridge = eventBridge;
         this.credentialHandlerFactory = factory;
         this.idGenerator = idGenerator;
-    }
-
-    public static void set(IdentityStoreInvocationContext context) {
-        contextThreadLocal.set(context);
-    }
-
-    public static void remove() {
-        contextThreadLocal.remove();
-    }
-
-    public static IdentityStoreInvocationContext get() {
-        return contextThreadLocal.get();
+        this.realm = realm;
+        this.tier = tier;
     }
 
     /**
@@ -139,13 +126,7 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public Object getParameter(String paramName) {
-        IdentityStoreInvocationContext currentContext = getCurrentContext();
-
-        if (currentContext == this || currentContext == null) {
-            return this.parameters.get(paramName);
-        }
-
-        return currentContext.getParameter(paramName);
+        return this.parameters.get(paramName);
     }
 
     /**
@@ -155,13 +136,7 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public boolean isParameterSet(String paramName) {
-        IdentityStoreInvocationContext currentContext = getCurrentContext();
-
-        if (currentContext == this || currentContext == null) {
             return this.parameters.containsKey(paramName);
-        }
-
-        return currentContext.isParameterSet(paramName);
     }
 
     /**
@@ -171,13 +146,7 @@ public class IdentityStoreInvocationContext {
      * @param value
      */
     public void setParameter(String paramName, Object value) {
-        IdentityStoreInvocationContext currentContext = getCurrentContext();
-
-        if (currentContext == this || currentContext == null) {
             this.parameters.put(paramName, value);
-        }
-
-        currentContext.setParameter(paramName, value);
     }
 
     /**
@@ -202,28 +171,7 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public Realm getRealm() {
-        IdentityStoreInvocationContext currentContext = getCurrentContext();
-
-        if (currentContext == this || currentContext == null) {
-            return this.realm;
-        }
-
-        return currentContext.getRealm();
-    }
-
-    /**
-     * Sets the active Realm for this context
-     *
-     * @param realm
-     */
-    public void setRealm(Realm realm) {
-        IdentityStoreInvocationContext currentContext = getCurrentContext();
-
-        if (currentContext == this || currentContext == null) {
-            this.realm = realm;
-        } else {
-            currentContext.setRealm(realm);
-        }
+        return realm;
     }
 
     /**
@@ -232,66 +180,10 @@ public class IdentityStoreInvocationContext {
      * @return
      */
     public Tier getTier() {
-        IdentityStoreInvocationContext currentContext = getCurrentContext();
-
-        if (currentContext == this || currentContext == null) {
-            return this.tier;
-        }
-
-        return currentContext.getTier();
-    }
-
-    /**
-     * Sets the active Tier for this context
-     *
-     * @param tier
-     */
-    public void setTier(Tier tier) {
-        IdentityStoreInvocationContext currentContext = getCurrentContext();
-
-        if (currentContext == this || currentContext == null) {
-            this.tier = tier;
-        } else {
-            currentContext.setTier(tier);
-        }
-    }
-
-    /**
-     * <p>
-     * Returns the current {@link Partition}. It can be a {@link Realm} or a {@link Tier}. If the {@link Tier} is setted it will
-     * be returned otherwise the {@link Realm}.
-     * </p>
-     *
-     * @return
-     */
-    public Partition getPartition() {
-        IdentityStoreInvocationContext currentContext = getCurrentContext();
-
-        if (currentContext == this || currentContext == null) {
-            Partition partition = getTier();
-
-            if (partition == null) {
-                partition = getRealm();
-            }
-
-            return partition;
-        }
-
-        Partition partition = getCurrentContext().getTier();
-
-        if (partition == null) {
-            partition = getCurrentContext().getRealm();
-        }
-
-        return partition;
-    }
+        return tier;    }
 
     public IdentityManager getIdentityManager() {
         return this.identityManager;
-    }
-
-    private IdentityStoreInvocationContext getCurrentContext() {
-        return contextThreadLocal.get();
     }
 
 }

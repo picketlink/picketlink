@@ -34,7 +34,7 @@ public interface StoreFactory {
      * @param config
      * @return
      */
-    IdentityStore createIdentityStore(IdentityStoreConfiguration config, IdentityStoreInvocationContext context);
+    IdentityStore createIdentityStore(IdentityStoreConfiguration config, SecurityContext context);
 
     /**
      * Maps specific implementations of IdentityStoreConfiguration to a corresponding

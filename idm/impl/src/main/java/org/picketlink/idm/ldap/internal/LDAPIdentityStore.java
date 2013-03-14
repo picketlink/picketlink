@@ -66,7 +66,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * An IdentityStore implementation backed by an LDAP directory
@@ -79,14 +79,14 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContext;
 public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfiguration> {
 
     private LDAPIdentityStoreConfiguration configuration;
-    private IdentityStoreInvocationContext context;
+    private SecurityContext context;
 
     private boolean initialized;
 
     private LDAPOperationManager operationManager;
 
     @Override
-    public void setup(LDAPIdentityStoreConfiguration config, IdentityStoreInvocationContext context) {
+    public void setup(LDAPIdentityStoreConfiguration config, SecurityContext context) {
         if (!initialized) {
             this.configuration = config;
             this.context = context;
@@ -107,7 +107,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @Override
-    public IdentityStoreInvocationContext getContext() {
+    public SecurityContext getContext() {
         if (this.context.getRealm() == null) {
             this.context.setRealm(new Realm(Realm.DEFAULT_REALM));
         }

@@ -30,8 +30,8 @@ import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.IdentityStoreInvocationContext;
-import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
+import org.picketlink.idm.spi.SecurityContext;
+import org.picketlink.idm.spi.SecurityContextFactory;
 
 /**
  * A default implementation of IdentityStoreInvocationContextFactory.
@@ -39,7 +39,7 @@ import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
  * @author Shane Bryzak
  * @author Anil Saldhana
  */
-public class DefaultIdentityStoreInvocationContextFactory implements IdentityStoreInvocationContextFactory {
+public class DefaultIdentityStoreInvocationContextFactory implements SecurityContextFactory {
     private EntityManagerFactory emf;
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory;
@@ -90,12 +90,12 @@ public class DefaultIdentityStoreInvocationContextFactory implements IdentitySto
     }
 
     @Override
-    public IdentityStoreInvocationContext createContext(IdentityManager identityManager) {
-        return new IdentityStoreInvocationContext(identityManager, this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator);
+    public SecurityContext createContext(IdentityManager identityManager) {
+        return new SecurityContext(identityManager, this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator);
     }
 
     @Override
-    public void initContextForStore(IdentityStoreInvocationContext ctx, IdentityStore<?> store) {
+    public void initContextForStore(SecurityContext ctx, IdentityStore<?> store) {
         if (store instanceof JPAIdentityStore) {
             if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
                 ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, getEntityManager());
