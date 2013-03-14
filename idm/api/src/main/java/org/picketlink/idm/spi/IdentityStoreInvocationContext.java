@@ -175,9 +175,9 @@ public class IdentityStoreInvocationContext {
 
         if (currentContext == this || currentContext == null) {
             this.parameters.put(paramName, value);
+        } else {
+            currentContext.setParameter(paramName, value);
         }
-
-        currentContext.setParameter(paramName, value);
     }
 
     /**
