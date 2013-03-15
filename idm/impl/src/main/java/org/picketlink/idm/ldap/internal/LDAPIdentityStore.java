@@ -40,7 +40,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
-import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -94,7 +93,31 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             try {
                 this.operationManager = new LDAPOperationManager(this.configuration);
             } catch (NamingException e) {
-                throw new SecurityConfigurationException(e);
+                throw MESSAGES.ldapCouldNotCreateContext(e);
+            }
+
+            try {
+                this.operationManager.search(this.configuration.getUserDNSuffix(), "(objectClass=initialCheck)");
+            } catch (NamingException e) {
+                throw MESSAGES.ldapCouldNotFindUsersBaseDN(this.configuration.getUserDNSuffix(), e);
+            }
+
+            try {
+                this.operationManager.search(this.configuration.getAgentDNSuffix(), "(objectClass=initialCheck)");
+            } catch (NamingException e) {
+                throw MESSAGES.ldapCouldNotFindAgentsBaseDN(this.configuration.getAgentDNSuffix(), e);
+            }
+
+            try {
+                this.operationManager.search(this.configuration.getRoleDNSuffix(), "(objectClass=initialCheck)");
+            } catch (NamingException e) {
+                throw MESSAGES.ldapCouldNotFindRolesBaseDN(this.configuration.getRoleDNSuffix(), e);
+            }
+
+            try {
+                this.operationManager.search(this.configuration.getGroupDNSuffix(), "(objectClass=initialCheck)");
+            } catch (NamingException e) {
+                throw MESSAGES.ldapCouldNotFindGroupsBaseDN(this.configuration.getGroupDNSuffix(), e);
             }
 
             this.initialized = true;
@@ -902,10 +925,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     LDAPAgent agentEntry = lookupAgent(agent);
 
                     if (agentEntry != null) {
-                        NamingEnumeration<SearchResult> search = getLDAPManager().search(agentEntry.getDN(),
-                                "(&(objectClass=*)(cn=*)(member=*))");
+                        NamingEnumeration<SearchResult> search = null;
 
                         try {
+                            search = getLDAPManager().search(agentEntry.getDN(), "(&(objectClass=*)(cn=*)(member=*))");
+
                             while (search.hasMore()) {
                                 SearchResult next = search.next();
                                 String groupName = (String) next.getAttributes().get(CN).get();
@@ -947,10 +971,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     }
 
                     if (roleEntry != null) {
-                        NamingEnumeration<SearchResult> search = getLDAPManager().search(getConfig().getUserDNSuffix(),
-                                "(&(objectClass=*)(" + CN + EQUAL + "*)(" + MEMBER + EQUAL + roleEntry.getDN() + "))");
+                        NamingEnumeration<SearchResult> search = null;
 
                         try {
+                            search = getLDAPManager().search(getConfig().getUserDNSuffix(),
+                                    "(&(objectClass=*)(" + CN + EQUAL + "*)(" + MEMBER + EQUAL + roleEntry.getDN() + "))");
+
                             while (search.hasMore()) {
                                 SearchResult next = search.next();
                                 String nameInNamespace = next.getNameInNamespace();
@@ -985,9 +1011,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     }
 
                     String filter = "(&(objectClass=*)(" + groupEntry.getBidingName() + ")(" + MEMBER + EQUAL + "*))";
-                    NamingEnumeration<SearchResult> search = getLDAPManager().search(getConfig().getUserDNSuffix(), filter);
+                    NamingEnumeration<SearchResult> search = null;
 
                     try {
+                        search = getLDAPManager().search(getConfig().getUserDNSuffix(), filter);
+
                         while (search.hasMore()) {
                             SearchResult next = search.next();
                             String nameInNamespace = next.getNameInNamespace();
@@ -1030,9 +1058,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     private boolean hasGroupRole(LDAPGroup groupEntry, LDAPRole roleEntry, LDAPAgent agentEntry) {
-        NamingEnumeration<SearchResult> groupRoleAttributes = lookupGroupRoleEntry(agentEntry, groupEntry);
+        NamingEnumeration<SearchResult> groupRoleAttributes = null;
 
         try {
+            groupRoleAttributes = lookupGroupRoleEntry(agentEntry, groupEntry);
+
             if (groupRoleAttributes.hasMore()) {
                 LDAPGroupRole groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
 
@@ -1103,10 +1133,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         getLDAPManager().createSubContext(ldapIdentityType.getDN(), ldapIdentityType.getLDAPAttributes());
         getLDAPManager().rebind(getCustomAttributesDN(ldapIdentityType.getDN()), ldapIdentityType.getCustomAttributes());
 
-        NamingEnumeration<SearchResult> search = getLDAPManager().search(ldapIdentityType.getDnSuffix(),
-                "(&(objectClass=*)(" + ldapIdentityType.getBidingName() + "))");
+        NamingEnumeration<SearchResult> search = null;
 
         try {
+            search = getLDAPManager().search(ldapIdentityType.getDnSuffix(),
+                    "(&(objectClass=*)(" + ldapIdentityType.getBidingName() + "))");
+
             ldapIdentityType.setLDAPAttributes(search.next().getAttributes());
         } catch (NamingException ne) {
             throw MESSAGES.ldapStoreSearchFailed(ne);
@@ -1228,9 +1260,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     private <T extends LDAPIdentityType> T populateIdentityTypeEntry(T identityType) {
         String filter = "(&(objectClass=*)(" + identityType.getBidingName() + ")) ";
 
-        NamingEnumeration<SearchResult> search = getLDAPManager().search(identityType.getDnSuffix(), filter);
+        NamingEnumeration<SearchResult> search = null;
 
         try {
+            search = getLDAPManager().search(identityType.getDnSuffix(), filter);
+
             if (search.hasMore()) {
                 populateLDAPEntry(identityType, search.next());
             } else {
@@ -1466,14 +1500,18 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         LDAPGroup groupEntry = (LDAPGroup) lookupEntryById(groupRole.getGroup());
         LDAPRole roleEntry = (LDAPRole) lookupEntryById(groupRole.getRole());
 
-        LDAPGroupRole groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
-
-        NamingEnumeration<SearchResult> search = getLDAPManager().search(agentEntry.getDN(), groupRoleEntry.getBidingName());
+        NamingEnumeration<SearchResult> search = null;
 
         try {
+            search = lookupGroupRoleEntry(agentEntry, groupEntry);
+
             // if the grouprole entry does not exists create it as a child of the agent entry.
             if (!search.hasMore()) {
+                LDAPGroupRole groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
+
                 getLDAPManager().createSubContext(groupRoleEntry.getDN(), groupRoleEntry.getLDAPAttributes());
+
+                addMember(groupRoleEntry, roleEntry);
             }
         } catch (NamingException e) {
             throw MESSAGES.ldapStoreCouldNotCreateGroupRoleEntry(e);
@@ -1485,8 +1523,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
             }
         }
-
-        addMember(groupRoleEntry, roleEntry);
     }
 
     private void addGroupMembership(GroupMembership groupMembership) {
@@ -1596,9 +1632,11 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         LDAPAgent agentEntry = (LDAPAgent) lookupEntryById(groupRole.getAssignee());
         LDAPRole roleEntry = (LDAPRole) lookupEntryById(groupRole.getRole());
 
-        NamingEnumeration<SearchResult> search = lookupGroupRoleEntry(agentEntry, groupEntry);
+        NamingEnumeration<SearchResult> search = null;
 
         try {
+            search = lookupGroupRoleEntry(agentEntry, groupEntry);
+
             if (search.hasMore()) {
                 LDAPGroupRole groupRoleEntry = new LDAPGroupRole(agentEntry, groupEntry, roleEntry);
 
@@ -1630,7 +1668,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         removeMember(roleEntry, agentEntry);
     }
 
-    private NamingEnumeration<SearchResult> lookupGroupRoleEntry(LDAPAgent agentEntry, LDAPGroup groupEntry) {
+    private NamingEnumeration<SearchResult> lookupGroupRoleEntry(LDAPAgent agentEntry, LDAPGroup groupEntry) throws NamingException {
         return getLDAPManager().search(agentEntry.getDN(), groupEntry.getBidingName());
     }
 

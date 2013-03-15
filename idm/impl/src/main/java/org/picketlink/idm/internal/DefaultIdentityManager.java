@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.picketlink.common.util.StringUtil;
+import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
@@ -778,6 +779,8 @@ public class DefaultIdentityManager implements IdentityManager {
                                     store.setup(configuration, ctx);
 
                                     return method.invoke(store, args);
+                                } catch (IdentityManagementException e) {
+                                    throw e;
                                 } catch (Exception e) {
                                     if (e.getCause() != null) {
                                         throw e.getCause();
