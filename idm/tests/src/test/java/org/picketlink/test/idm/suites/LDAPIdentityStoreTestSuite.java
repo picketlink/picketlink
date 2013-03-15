@@ -69,7 +69,7 @@ import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
 public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     private static final String BASE_DN = "dc=jboss,dc=org";
-    private static final String LDAP_URL = "ldap://localhost:1389";
+    private static final String LDAP_URL = "ldap://localhost:10389";
     private static final String ROLES_DN_SUFFIX = "ou=Roles,dc=jboss,dc=org";
     private static final String GROUP_DN_SUFFIX = "ou=Groups,dc=jboss,dc=org";
     private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
@@ -131,7 +131,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     public static LDAPIdentityStoreConfiguration getConfiguration() {
         LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
 
-        config.setBaseDN(BASE_DN).setBindDN("uid=admin").setBindCredential("secret").setLdapURL(LDAP_URL)
+        config.setBaseDN(BASE_DN).setBindDN("uid=admin,ou=system").setBindCredential("secret").setLdapURL(LDAP_URL)
                 .setUserDNSuffix(USER_DN_SUFFIX).setRoleDNSuffix(ROLES_DN_SUFFIX).setAgentDNSuffix(AGENT_DN_SUFFIX)
                 .setGroupDNSuffix(GROUP_DN_SUFFIX);
 
