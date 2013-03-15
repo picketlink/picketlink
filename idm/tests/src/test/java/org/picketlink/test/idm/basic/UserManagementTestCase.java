@@ -24,11 +24,16 @@ import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Calendar;
 import java.util.Date;
 
 import org.junit.Test;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
@@ -193,6 +198,25 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         
         assertTrue(instanceA.equals(identityManager.getUser(instanceA.getLoginName())));
     }
+    
+    @Test
+    public void testSetCertificateAsAttribute() {
+        User mary = createUser("mary");
+        
+        IdentityManager identityManager = getIdentityManager();
+        
+        X509Certificate certificate = getTestingCertificate("servercert.txt");
+        
+        mary.setAttribute(new Attribute<X509Certificate>("certificate", certificate));
+        
+        identityManager.update(mary);
+        
+        mary = identityManager.getUser(mary.getLoginName());
+        
+        assertNotNull(mary.<X509Certificate>getAttribute("certificate"));
+        assertEquals(certificate, mary.<X509Certificate>getAttribute("certificate").getValue());
+    }
+    
     @Override
     protected User createIdentityType() {
         return createUser("admin");
@@ -203,4 +227,24 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
         return getIdentityManager().getUser("admin");
     }
     
+    private X509Certificate getTestingCertificate(String fromTextFile) {
+        // Certificate
+        InputStream bis = getClass().getClassLoader().getResourceAsStream("cert/" + fromTextFile);
+        X509Certificate cert = null;
+
+        try {
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            cert = (X509Certificate) cf.generateCertificate(bis);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not load testing certificate.", e);
+        } finally {
+            if (bis != null) {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                }
+            }
+        }
+        return cert;
+    }
 }

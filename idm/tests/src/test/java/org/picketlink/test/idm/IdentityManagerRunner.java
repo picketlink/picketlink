@@ -30,7 +30,6 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.picketlink.idm.IdentityManager;
-import org.picketlink.test.idm.basic.UserManagementTestCase;
 
 /**
  * <p>
@@ -38,8 +37,8 @@ import org.picketlink.test.idm.basic.UserManagementTestCase;
  * environment.
  * </p>
  * <p>
- * This runner expects that the test suite have a public static method that returns a {@link TestLifecycle}. The method name
- * should be init. Eg.: public static TestLifecycle init() {...}
+ * This runner expects that the test suite has a public static method that returns a {@link TestLifecycle}. The method name
+ * should me init. Eg.: public static TestLifecycle init() {...}
  * </p>
  * <p>
  * Before each test method (for each test case) the {@link TestLifecycle} onInit method is called to perform some initialization
@@ -60,7 +59,7 @@ public class IdentityManagerRunner extends Suite {
     }
 
     public IdentityManagerRunner(Class<?> klass, RunnerBuilder builder) throws InitializationError {
-        this(klass, new Class<?>[] {UserManagementTestCase.class});
+        super(klass, builder);
     }
 
     public IdentityManagerRunner(RunnerBuilder builder, Class<?> klass, Class<?>[] suiteClasses) throws InitializationError {
@@ -70,7 +69,7 @@ public class IdentityManagerRunner extends Suite {
     protected IdentityManagerRunner(RunnerBuilder builder, Class<?>[] classes) throws InitializationError {
         super(builder, classes);
     }
-    
+
     protected IdentityManagerRunner(Class<?> klass, Class<?>[] suiteClasses) throws InitializationError {
         super(klass, suiteClasses);
     }
