@@ -180,7 +180,7 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
         config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
 
         FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                FeatureGroup.role, FeatureGroup.credential);
+                FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.credential);
 
         return config;
     }

@@ -40,6 +40,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.picketlink.idm.IdentityManagementException;
+import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
@@ -438,93 +439,95 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                     throw MESSAGES.ldapStoreUnknownBaseDNForIdentityType(nameInNamespace);
                 }
 
-                if (identityQuery.getParameters().containsKey(IdentityType.ENABLED)) {
-                    Object[] values = identityQuery.getParameters().get(IdentityType.ENABLED);
-
-                    if (!String.valueOf(ldapEntry.isEnabled()).equals(values[0].toString())) {
-                        continue;
-                    }
-                }
-
-                if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_DATE)
-                        || identityQuery.getParameters().containsKey(IdentityType.EXPIRY_BEFORE)
-                        || identityQuery.getParameters().containsKey(IdentityType.EXPIRY_AFTER)) {
-
-                    if (ldapEntry.getExpirationDate() == null) {
-                        continue;
-                    }
-
-                    if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_DATE)) {
-                        Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_DATE);
-
-                        long storedDateInMillis = ldapEntry.getExpirationDate().getTime();
-                        long providedDateInMillis = ((Date) values[0]).getTime();
-
-                        if (storedDateInMillis != providedDateInMillis) {
-                            continue;
-                        }
-                    }
-
-                    if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_BEFORE)) {
-                        Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_BEFORE);
-
-                        long storedDateInMillis = ldapEntry.getExpirationDate().getTime();
-                        long providedDateInMillis = ((Date) values[0]).getTime();
-
-                        if (storedDateInMillis > providedDateInMillis) {
-                            continue;
-                        }
-                    }
-
-                    if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_AFTER)) {
-                        Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_AFTER);
-
-                        long storedDateInMillis = ldapEntry.getExpirationDate().getTime();
-                        long providedDateInMillis = ((Date) values[0]).getTime();
-
-                        if (storedDateInMillis < providedDateInMillis) {
-                            continue;
-                        }
-                    }
-                }
-
                 boolean match = true;
 
-                Set<Entry<QueryParameter, Object[]>> parameters = identityQuery.getParameters(
-                        IdentityType.AttributeParameter.class).entrySet();
+                if (isCustomAttributesSupported()) {
+                    if (identityQuery.getParameters().containsKey(IdentityType.ENABLED)) {
+                        Object[] values = identityQuery.getParameters().get(IdentityType.ENABLED);
 
-                for (Entry<QueryParameter, Object[]> ldapQueryParameter : parameters) {
-                    QueryParameter queryParameter = ldapQueryParameter.getKey();
-                    Object[] values = ldapQueryParameter.getValue();
+                        if (!String.valueOf(ldapEntry.isEnabled()).equals(values[0].toString())) {
+                            continue;
+                        }
+                    }
 
-                    match = false;
+                    if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_DATE)
+                            || identityQuery.getParameters().containsKey(IdentityType.EXPIRY_BEFORE)
+                            || identityQuery.getParameters().containsKey(IdentityType.EXPIRY_AFTER)) {
 
-                    IdentityType.AttributeParameter customParameter = (IdentityType.AttributeParameter) queryParameter;
-                    Attribute<Serializable> customParameterValue = ldapEntry.getAttribute(customParameter.getName());
+                        if (ldapEntry.getExpirationDate() == null) {
+                            continue;
+                        }
 
-                    if (ldapEntry.getAttribute(customParameter.getName()) != null) {
-                        int count = values.length;
+                        if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_DATE)) {
+                            Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_DATE);
 
-                        for (Object parameterValue : values) {
-                            if (customParameterValue.getValue().getClass().isArray()) {
-                                Object[] customParameterValues = (Object[]) customParameterValue.getValue();
+                            long storedDateInMillis = ldapEntry.getExpirationDate().getTime();
+                            long providedDateInMillis = ((Date) values[0]).getTime();
 
-                                for (Object value : customParameterValues) {
-                                    if (value.equals(parameterValue)) {
-                                        count--;
-                                    }
-                                }
-                            } else {
-                                if (parameterValue.equals(customParameterValue.getValue())) {
-                                    count--;
-                                }
+                            if (storedDateInMillis != providedDateInMillis) {
+                                continue;
                             }
                         }
 
-                        match = count <= 0;
+                        if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_BEFORE)) {
+                            Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_BEFORE);
 
-                        if (!match) {
-                            break;
+                            long storedDateInMillis = ldapEntry.getExpirationDate().getTime();
+                            long providedDateInMillis = ((Date) values[0]).getTime();
+
+                            if (storedDateInMillis > providedDateInMillis) {
+                                continue;
+                            }
+                        }
+
+                        if (identityQuery.getParameters().containsKey(IdentityType.EXPIRY_AFTER)) {
+                            Object[] values = identityQuery.getParameters().get(IdentityType.EXPIRY_AFTER);
+
+                            long storedDateInMillis = ldapEntry.getExpirationDate().getTime();
+                            long providedDateInMillis = ((Date) values[0]).getTime();
+
+                            if (storedDateInMillis < providedDateInMillis) {
+                                continue;
+                            }
+                        }
+                    }
+
+                    Set<Entry<QueryParameter, Object[]>> parameters = identityQuery.getParameters(
+                            IdentityType.AttributeParameter.class).entrySet();
+
+                    for (Entry<QueryParameter, Object[]> ldapQueryParameter : parameters) {
+                        QueryParameter queryParameter = ldapQueryParameter.getKey();
+                        Object[] values = ldapQueryParameter.getValue();
+
+                        match = false;
+
+                        IdentityType.AttributeParameter customParameter = (IdentityType.AttributeParameter) queryParameter;
+                        Attribute<Serializable> customParameterValue = ldapEntry.getAttribute(customParameter.getName());
+
+                        if (ldapEntry.getAttribute(customParameter.getName()) != null) {
+                            int count = values.length;
+
+                            for (Object parameterValue : values) {
+                                if (customParameterValue.getValue().getClass().isArray()) {
+                                    Object[] customParameterValues = (Object[]) customParameterValue.getValue();
+
+                                    for (Object value : customParameterValues) {
+                                        if (value.equals(parameterValue)) {
+                                            count--;
+                                        }
+                                    }
+                                } else {
+                                    if (parameterValue.equals(customParameterValue.getValue())) {
+                                        count--;
+                                    }
+                                }
+                            }
+
+                            match = count <= 0;
+
+                            if (!match) {
+                                break;
+                            }
                         }
                     }
                 }
@@ -1131,7 +1134,10 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         ldapIdentityType.setExpirationDate(newIdentityType.getExpirationDate());
 
         getLDAPManager().createSubContext(ldapIdentityType.getDN(), ldapIdentityType.getLDAPAttributes());
-        getLDAPManager().rebind(getCustomAttributesDN(ldapIdentityType.getDN()), ldapIdentityType.getCustomAttributes());
+
+        if (isCustomAttributesSupported()) {
+            getLDAPManager().rebind(getCustomAttributesDN(ldapIdentityType.getDN()), ldapIdentityType.getCustomAttributes());
+        }
 
         NamingEnumeration<SearchResult> search = null;
 
@@ -1203,17 +1209,20 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     private void populateIdentityType(LDAPIdentityType ldapIdentityType, IdentityType identityType) {
         identityType.setId(ldapIdentityType.getId());
-        identityType.setEnabled(ldapIdentityType.isEnabled());
-        identityType.setCreatedDate(ldapIdentityType.getCreatedDate());
-        identityType.setExpirationDate(ldapIdentityType.getExpirationDate());
         identityType.setPartition(ldapIdentityType.getPartition());
 
-        Set<Entry<String, Serializable>> entrySet = ldapIdentityType.getCustomAttributes().getAttributes().entrySet();
+        if (isCustomAttributesSupported()) {
+            identityType.setEnabled(ldapIdentityType.isEnabled());
+            identityType.setCreatedDate(ldapIdentityType.getCreatedDate());
+            identityType.setExpirationDate(ldapIdentityType.getExpirationDate());
 
-        for (Entry<String, Serializable> entry : entrySet) {
-            if (!entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED)
-                    && !entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                identityType.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
+            Set<Entry<String, Serializable>> entrySet = ldapIdentityType.getCustomAttributes().getAttributes().entrySet();
+
+            for (Entry<String, Serializable> entry : entrySet) {
+                if (!entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED)
+                        && !entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
+                    identityType.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
+                }
             }
         }
     }
@@ -1286,13 +1295,19 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     private <T extends LDAPIdentityType> void populateLDAPEntry(T identityType, SearchResult sr) throws NamingException {
         identityType.setLDAPAttributes(sr.getAttributes());
-        identityType.setCustomAttributes(getCustomAttributes(identityType));
+
+        if (isCustomAttributesSupported()) {
+            identityType.setCustomAttributes(getCustomAttributes(identityType));
+        }
 
         // for now, the store is not supporting partitions. ldap does not provide a good attribute to hold such
         // information.
         // maybe in this case we should mix stores.
         identityType.setPartition(new Realm(Realm.DEFAULT_REALM));
-        identityType.setCustomAttributes(getCustomAttributes(identityType));
+
+        if (isCustomAttributesSupported()) {
+            identityType.setCustomAttributes(getCustomAttributes(identityType));
+        }
     }
 
     /**
@@ -1668,7 +1683,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         removeMember(roleEntry, agentEntry);
     }
 
-    private NamingEnumeration<SearchResult> lookupGroupRoleEntry(LDAPAgent agentEntry, LDAPGroup groupEntry) throws NamingException {
+    private NamingEnumeration<SearchResult> lookupGroupRoleEntry(LDAPAgent agentEntry, LDAPGroup groupEntry)
+            throws NamingException {
         return getLDAPManager().search(agentEntry.getDN(), groupEntry.getBidingName());
     }
 
@@ -1737,4 +1753,9 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
         return null;
     }
+
+    private boolean isCustomAttributesSupported() {
+        return this.configuration.getFeatureSet().supports(FeatureGroup.attribute);
+    }
+
 }

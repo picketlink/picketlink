@@ -38,6 +38,7 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
@@ -75,7 +76,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
     
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByTier() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -287,7 +288,7 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
     }
 
     @Test
-    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class })
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindWithSorting() throws Exception {
         createGroup("someGroup", null);
         // Sleep is needed to avoid same createdDate

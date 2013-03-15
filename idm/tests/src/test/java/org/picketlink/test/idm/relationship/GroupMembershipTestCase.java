@@ -37,6 +37,7 @@ import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
@@ -71,7 +72,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreTestSuite.class)
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testUpdate() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -245,7 +246,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
     }
 
     @Test
-    @ExcludeTestSuite (LDAPIdentityStoreTestSuite.class)
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByAttributes() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();
@@ -304,7 +305,7 @@ public class GroupMembershipTestCase extends AbstractIdentityManagerTestCase {
     }
     
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testLargeAttributeValue() throws Exception {
         User someUser = createUser();
         Group someGroup = createGroup();

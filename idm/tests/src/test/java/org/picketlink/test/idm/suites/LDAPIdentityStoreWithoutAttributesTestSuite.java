@@ -66,7 +66,7 @@ import org.picketlink.test.idm.relationship.UserGroupRoleRelationshipTestCase;
         RoleQueryTestCase.class, GroupQueryTestCase.class, AgentGroupRoleRelationshipTestCase.class,
         AgentGroupsRelationshipTestCase.class, UserGrantRelationshipTestCase.class, AgentGrantRelationshipTestCase.class,
         GroupGrantRelationshipTestCase.class, UserGroupRoleRelationshipTestCase.class, GroupMembershipTestCase.class })
-public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements TestLifecycle {
+public class LDAPIdentityStoreWithoutAttributesTestSuite extends AbstractLDAPTest implements TestLifecycle {
 
     private static final String BASE_DN = "dc=jboss,dc=org";
     private static final String LDAP_URL = "ldap://localhost:10389";
@@ -75,11 +75,11 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
     private static final String USER_DN_SUFFIX = "ou=People,dc=jboss,dc=org";
     private static final String AGENT_DN_SUFFIX = "ou=Agent,dc=jboss,dc=org";
 
-    private static LDAPIdentityStoreTestSuite instance;
+    private static LDAPIdentityStoreWithoutAttributesTestSuite instance;
 
     public static TestLifecycle init() throws Exception {
         if (instance == null) {
-            instance = new LDAPIdentityStoreTestSuite();
+            instance = new LDAPIdentityStoreWithoutAttributesTestSuite();
         }
 
         return instance;
@@ -138,7 +138,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
 
         FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
+                FeatureGroup.role, FeatureGroup.relationship, FeatureGroup.credential);
         config.getFeatureSet().setSupportsCustomRelationships(false);
         config.getFeatureSet().setSupportsMultiRealm(false);
 

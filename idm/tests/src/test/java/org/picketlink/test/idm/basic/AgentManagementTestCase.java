@@ -37,6 +37,8 @@ import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 
 /**
  * <p>
@@ -69,6 +71,7 @@ public class AgentManagementTestCase extends AbstractIdentityTypeTestCase<Agent>
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testUpdate() throws Exception {
         Agent storedAgent = createIdentityType();
 

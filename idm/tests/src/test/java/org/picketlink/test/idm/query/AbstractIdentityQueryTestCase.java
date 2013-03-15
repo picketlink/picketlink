@@ -40,6 +40,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
@@ -71,7 +72,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
     public void testPagination() throws Exception {
         T identityType = null;
         
@@ -154,7 +155,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
     public void testFindByRealm() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
@@ -195,6 +196,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindEnabledAndDisabled() throws Exception {
         T someType = createIdentityType(null, null);
         T someAnotherType = createIdentityType("someAnotherAgent", null);
@@ -287,6 +289,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindExpiryDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -394,6 +397,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindBetweenExpirationDate() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -493,6 +497,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByMultipleParameters() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -545,6 +550,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByDefinedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 
@@ -593,6 +599,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
     }
     
     @Test
+    @ExcludeTestSuite({LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testFindByMultiValuedAttributes() throws Exception {
         T identityType = createIdentityType(null, null);
 

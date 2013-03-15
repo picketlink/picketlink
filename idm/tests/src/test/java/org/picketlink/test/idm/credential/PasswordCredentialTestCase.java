@@ -33,6 +33,7 @@ import org.picketlink.idm.model.User;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
@@ -111,7 +112,7 @@ public class PasswordCredentialTestCase extends AbstractIdentityManagerTestCase 
     }
     
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class, LDAPIdentityStoreWithoutAttributesTestSuite.class})
     public void testExpiration() throws Exception {
         IdentityManager identityManager = getIdentityManager();
         User user = createUser("someUser");

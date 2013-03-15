@@ -37,6 +37,8 @@ import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 
 /**
  * <p>
@@ -79,6 +81,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testUpdate() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
