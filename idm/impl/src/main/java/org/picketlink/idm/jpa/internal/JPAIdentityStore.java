@@ -1713,10 +1713,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return query.getResultList();
     }
 
-    private void createDefaultRealm() {
-        createPartition(new Realm(Realm.DEFAULT_REALM));
-    }
-
     private Realm convertPartitionEntityToRealm(Object partitionObject) {
         Realm realm = null;
 
