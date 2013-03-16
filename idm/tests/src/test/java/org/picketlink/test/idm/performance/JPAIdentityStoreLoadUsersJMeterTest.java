@@ -22,6 +22,10 @@
 
 package org.picketlink.test.idm.performance;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
 import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
@@ -30,39 +34,64 @@ import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.file.internal.FileDataSource;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.model.Authorization;
+import org.picketlink.idm.jpa.schema.CredentialObject;
+import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
+import org.picketlink.idm.jpa.schema.IdentityObject;
+import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
+import org.picketlink.idm.jpa.schema.PartitionObject;
+import org.picketlink.idm.jpa.schema.RelationshipIdentityObject;
+import org.picketlink.idm.jpa.schema.RelationshipObject;
+import org.picketlink.idm.jpa.schema.RelationshipObjectAttribute;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
  * @author Pedro Silva
  * 
  */
-public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
+public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
+    private static EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-identity-store-tests-pu");
     private static IdentityManager identityManager = null;
+    private static final ThreadLocal<EntityManager> entityManager = new ThreadLocal<EntityManager>();
 
     static {
         identityManager = createIdentityManager();
+
+        initializeEntityManager();
+        
+        identityManager.add(new SimpleUser("testingUser"));
+        
+        closeEntityManager();
+    }
+
+    private static void closeEntityManager() {
+        entityManager.get().getTransaction().commit();
+        entityManager.get().close();
+        entityManager.remove();
+    }
+
+    private static void initializeEntityManager() {
+        entityManager.set(emf.createEntityManager());
+        entityManager.get().getTransaction().begin();
     }
 
     @Override
     public Arguments getDefaultParameters() {
         Arguments arguments = new Arguments();
-        
+
         arguments.addArgument("loginName", "Sample User");
-        
+
         return arguments;
     }
-    
+
     @Override
     public void setupTest(JavaSamplerContext context) {
+
     }
 
     @Override
@@ -78,30 +107,32 @@ public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
         boolean success = false;
 
         String loginName = context.getParameter("loginName");
-        
+
         if (loginName == null) {
             loginName = "Sample User";
         }
 
         JMeterVariables vars = JMeterContextService.getContext().getVariables();
-        
+
         vars.put("loginName", loginName);
 
         try {
-            performUserLoadTest(loginName);
-            success = true;
+            initializeEntityManager();
+            
+            SimpleUser user = new SimpleUser(loginName);
+
+            identityManager.add(user);
+
+            success = user.getId() != null && identityManager.getUser(loginName) != null;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             result.sampleEnd();
             result.setSuccessful(success);
+            closeEntityManager();
         }
 
         return result;
-    }
-
-    private void performUserLoadTest(String loginName) {
-        identityManager.add(new SimpleUser(loginName));
     }
 
     private static IdentityManager createIdentityManager() {
@@ -111,26 +142,33 @@ public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory() {
+            @Override
+            public EntityManager getEntityManager() {
+                return entityManager.get();
+            }
+        });
 
         return identityManager;
     }
 
     private static void addDefaultConfiguration(IdentityConfiguration config) {
-        FileIdentityStoreConfiguration configuration = new FileIdentityStoreConfiguration();
+        JPAIdentityStoreConfiguration configuration = new JPAIdentityStoreConfiguration();
 
-        // add the realms that should be supported by the file store
         configuration.addRealm(Realm.DEFAULT_REALM);
         configuration.addRealm("Testing");
 
-        configuration.setAlwaysCreateFiles(false);
-        configuration.setAsyncWrite(true);
-        configuration.setAsyncThreadPool(50);
+        configuration.setIdentityClass(IdentityObject.class);
+        configuration.setAttributeClass(IdentityObjectAttribute.class);
+        configuration.setRelationshipClass(RelationshipObject.class);
+        configuration.setRelationshipIdentityClass(RelationshipIdentityObject.class);
+        configuration.setRelationshipAttributeClass(RelationshipObjectAttribute.class);
+        configuration.setCredentialClass(CredentialObject.class);
+        configuration.setCredentialAttributeClass(CredentialObjectAttribute.class);
+        configuration.setPartitionClass(PartitionObject.class);
 
         FeatureSet.addFeatureSupport(configuration.getFeatureSet());
         FeatureSet.addRelationshipSupport(configuration.getFeatureSet());
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), CustomRelationship.class);
-        FeatureSet.addRelationshipSupport(configuration.getFeatureSet(), Authorization.class);
         configuration.getFeatureSet().setSupportsCustomRelationships(true);
         configuration.getFeatureSet().setSupportsMultiRealm(true);
 
