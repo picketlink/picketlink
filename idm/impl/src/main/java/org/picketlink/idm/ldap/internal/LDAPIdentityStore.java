@@ -39,6 +39,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.picketlink.common.util.Base64;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
@@ -1201,7 +1202,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         Collection<Attribute<? extends Serializable>> updatedAttributes = updatedIdentityType.getAttributes();
 
         for (Attribute<? extends Serializable> attribute : updatedAttributes) {
-            identityTypeEntry.getCustomAttributes().addAttribute(attribute.getName(), attribute.getValue());
+            identityTypeEntry.getCustomAttributes().addAttribute(attribute.getName(), Base64.encodeObject(attribute.getValue()));
         }
 
         getLDAPManager().rebind(getCustomAttributesDN(identityTypeEntry.getDN()), identityTypeEntry.getCustomAttributes());
@@ -1221,7 +1222,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             for (Entry<String, Serializable> entry : entrySet) {
                 if (!entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED)
                         && !entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                    identityType.setAttribute(new Attribute<Serializable>(entry.getKey(), entry.getValue()));
+                    identityType.setAttribute(new Attribute<Serializable>(entry.getKey(), (Serializable) Base64.decodeToObject(entry.getValue().toString())));
                 }
             }
         }

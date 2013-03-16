@@ -200,6 +200,7 @@ public class UserManagementTestCase extends AbstractIdentityTypeTestCase<User> {
     }
     
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testSetCertificateAsAttribute() {
         User mary = createUser("mary");
         

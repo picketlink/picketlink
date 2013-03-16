@@ -22,6 +22,10 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Ignore;
+import org.junit.internal.AssumptionViolatedException;
+import org.junit.internal.runners.model.EachTestNotifier;
+import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -86,11 +90,29 @@ public class IdentityManagerRunner extends Suite {
                 @Override
                 protected void runChild(FrameworkMethod method, RunNotifier notifier) {
                     lifecycle.onInit();
-                    
+
+                    Description description= describeChild(method);
+                    EachTestNotifier eachNotifier = new EachTestNotifier(notifier, description);
+
                     if (!isExcludedSuite(suiteClass, method)) {
-                        super.runChild(method, notifier);    
+                        if (method.getAnnotation(Ignore.class) != null) {
+                            eachNotifier.fireTestIgnored();
+                            return;
+                        }
+
+                        eachNotifier.fireTestStarted();
+                        
+                        try {
+                            methodBlock(method).evaluate();
+                        } catch (AssumptionViolatedException e) {
+                            eachNotifier.addFailedAssumption(e);
+                        } catch (Throwable e) {
+                            eachNotifier.addFailure(e);
+                        } finally {
+                            eachNotifier.fireTestFinished();
+                        }
                     } else {
-                        notifier.fireTestIgnored(getDescription());
+                        eachNotifier.fireTestIgnored();
                     }
                     
                     lifecycle.onDestroy();
