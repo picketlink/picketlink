@@ -17,8 +17,8 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">500</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <stringProp name="ThreadGroup.num_threads">100</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">10</stringProp>
         <longProp name="ThreadGroup.start_time">1362689985000</longProp>
         <longProp name="ThreadGroup.end_time">1362689985000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
@@ -36,7 +36,7 @@
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="classname">org.picketlink.test.idm.performance.LoadUsersJMeterTest</stringProp>
+          <stringProp name="classname">org.picketlink.test.idm.performance.JPAIdentityStoreLoadUsersJMeterTest</stringProp>
         </JavaSampler>
         <hashTree/>
         <ResultCollector guiclass="SummaryReport" testclass="ResultCollector" testname="Summary Report" enabled="true">
