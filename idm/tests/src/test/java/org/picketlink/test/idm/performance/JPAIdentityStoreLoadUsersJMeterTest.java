@@ -62,7 +62,6 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
     static {
         identityManager = createIdentityManager();
 
-<<<<<<< HEAD
         initializeEntityManager();
         
         identityManager.add(new SimpleUser("testingUser"));
@@ -81,22 +80,6 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         entityManager.get().getTransaction().begin();
     }
 
-=======
-        EntityManager currentEntityManager = emf.createEntityManager();
-
-        currentEntityManager.getTransaction().begin();
-
-        entityManager.set(currentEntityManager);
-        
-        identityManager.add(new SimpleUser("testingUser"));
-        
-        EntityManager entityManager2 = entityManager.get();
-        entityManager2.getTransaction().commit();
-        entityManager2.close();
-        entityManager.remove();
-    }
-
->>>>>>> 04dfb4d616b1e15f095eafa750b8ab102be4545e
     @Override
     public Arguments getDefaultParameters() {
         Arguments arguments = new Arguments();
@@ -134,16 +117,8 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         vars.put("loginName", loginName);
 
         try {
-<<<<<<< HEAD
             initializeEntityManager();
-=======
-            EntityManager currentEntityManager = emf.createEntityManager();
 
-            currentEntityManager.getTransaction().begin();
-
-            entityManager.set(currentEntityManager);
->>>>>>> 04dfb4d616b1e15f095eafa750b8ab102be4545e
-            
             SimpleUser user = new SimpleUser(loginName);
 
             identityManager.add(user);
@@ -154,16 +129,7 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
         } finally {
             result.sampleEnd();
             result.setSuccessful(success);
-<<<<<<< HEAD
             closeEntityManager();
-=======
-            EntityManager currentEntityManager = this.entityManager.get();
-
-            currentEntityManager.getTransaction().commit();
-            currentEntityManager.close();
-            
-            entityManager.remove();
->>>>>>> 04dfb4d616b1e15f095eafa750b8ab102be4545e
         }
 
         return result;
