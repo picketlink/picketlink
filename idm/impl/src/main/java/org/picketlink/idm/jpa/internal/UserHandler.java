@@ -31,6 +31,7 @@ import org.picketlink.idm.event.UserUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.SimpleUser;
 import org.picketlink.idm.model.User;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -46,10 +47,10 @@ public class UserHandler extends IdentityTypeHandler<User>{
     }
 
     @Override
-    protected void doPopulateIdentityInstance(Object toIdentity, User fromUser, JPAIdentityStore store) {
+    protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, User fromUser, JPAIdentityStore store) {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
-        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(context.getPartition()), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_ID, fromUser.getId(), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.USER_FIRST_NAME, fromUser.getFirstName());
@@ -73,8 +74,8 @@ public class UserHandler extends IdentityTypeHandler<User>{
     }
 
     @Override
-    public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-        List<Predicate> predicates = super.getPredicate(criteria, store);
+    public List<Predicate> getPredicate(SecurityContext context, JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        List<Predicate> predicates = super.getPredicate(context, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 

@@ -33,6 +33,7 @@ import org.picketlink.idm.event.AbstractBaseEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -55,7 +56,7 @@ public class JPACriteriaQueryBuilder {
         this.root = criteria.from(getConfig().getIdentityClass());
     }
 
-    public List<Predicate> getPredicates() {
+    public List<Predicate> getPredicates(SecurityContext context) {
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         if (!IdentityType.class.equals(getIdentityQuery().getIdentityType())) {
@@ -66,11 +67,11 @@ public class JPACriteriaQueryBuilder {
 
             IdentityTypeHandler<?> identityTypeManager = IdentityTypeHandlerFactory.getHandler(this.identityQuery.getIdentityType());
 
-            predicates.addAll(identityTypeManager.getPredicate(this, identityStore));
+            predicates.addAll(identityTypeManager.getPredicate(context, this, identityStore));
         } else {
             IdentityTypeHandler<IdentityType> identityTypeManager = new DefaultIdentityTypeHandler();
 
-            predicates.addAll(identityTypeManager.getPredicate(this, this.identityStore));
+            predicates.addAll(identityTypeManager.getPredicate(context, this, this.identityStore));
         }
 
         return predicates;
@@ -119,7 +120,7 @@ public class JPACriteriaQueryBuilder {
         }
 
         @Override
-        protected void doPopulateIdentityInstance(Object toIdentity, IdentityType fromIdentityType,
+        protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, IdentityType fromIdentityType,
                                                   JPAIdentityStore store) {
 
         }

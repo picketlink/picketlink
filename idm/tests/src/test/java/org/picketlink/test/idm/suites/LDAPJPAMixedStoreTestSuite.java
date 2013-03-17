@@ -36,7 +36,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.IdentityObject;
 import org.picketlink.idm.jpa.schema.IdentityObjectAttribute;
@@ -139,7 +139,7 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
         config.addStoreConfiguration(getLDAPConfiguration());
 
         IdentityManager identityManager = new DefaultIdentityManager();
-        DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory(emf);
+        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory(emf);
         icf.setEntityManager(entityManager);
         identityManager.bootstrap(config, icf);
 

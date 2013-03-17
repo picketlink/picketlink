@@ -30,7 +30,7 @@ import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
@@ -77,7 +77,7 @@ public class FileIdentityStoreConfigurationTestCase extends
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory();
+        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory();
 
         identityManager.bootstrap(config, icf);
 

@@ -50,6 +50,7 @@ import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>
@@ -112,7 +113,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param fromIdentityType
      * @return
      */
-    public Object createEntity(T fromIdentityType, JPAIdentityStore store) {
+    public Object createEntity(SecurityContext context, T fromIdentityType, JPAIdentityStore store) {
         Object identity = null;
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
@@ -129,7 +130,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         fromIdentityType.setId(newGeneratedId);
 
-        populateEntity(identity, fromIdentityType, store);
+        populateEntity(context, identity, fromIdentityType, store);
 
         return identity;
     }
@@ -143,7 +144,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param toIdentity
      * @param fromIdentityType
      */
-    protected void populateEntity(Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
+    protected void populateEntity(SecurityContext context, Object toIdentity, T fromIdentityType, JPAIdentityStore store) {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         // populate the common properties from IdentityType
@@ -154,7 +155,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_CREATION_DATE, fromIdentityType.getCreatedDate(), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_EXPIRY_DATE, fromIdentityType.getExpirationDate());
 
-        doPopulateIdentityInstance(toIdentity, fromIdentityType, store);
+        doPopulateIdentityInstance(context, toIdentity, fromIdentityType, store);
     }
 
     /**
@@ -179,11 +180,11 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param criteria
      * @return
      */
-    public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+    public List<Predicate> getPredicate(SecurityContext context, JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
         List<Predicate> predicates = new ArrayList<Predicate>();
 
         findById(criteria, predicates, store);
-        findByPartition(criteria, predicates, store);
+        findByPartition(context, criteria, predicates, store);
         findByEnabled(criteria, predicates, store);
         findByCreationDate(criteria, predicates, store);
         findByExpiryDate(criteria, predicates, store);
@@ -210,7 +211,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
         QueryParameter[] orderParameters = criteria.getIdentityQuery().getSortParameters();
 
-        // Use default sorting parameters for each identity Type
+        // Use default sorting parameters for each identity Typestore
         if (orderParameters == null || orderParameters.length == 0) {
             orderParameters = IDMUtil.getDefaultParamsForSorting(criteria.getIdentityQuery().getIdentityType());
         }
@@ -257,7 +258,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param toIdentity
      * @param fromIdentityType
      */
-    protected abstract void doPopulateIdentityInstance(Object toIdentity, T fromIdentityType, JPAIdentityStore store);
+    protected abstract void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, T fromIdentityType, JPAIdentityStore store);
 
     protected abstract AbstractBaseEvent raiseCreatedEvent(T fromIdentityType);
 
@@ -545,7 +546,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         }
     }
 
-    private void findByPartition(JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
+    private void findByPartition(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
         JPAIdentityStoreConfiguration config = store.getConfig();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.PARTITION);
@@ -561,9 +562,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     config.getModelProperty(PropertyType.IDENTITY_PARTITION).getName());
 
             if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
-                List<String> partitionIds = store.getAllowedPartitionIds(store.getCurrentPartition());
+                List<String> partitionIds = store.getAllowedPartitionIds(context.getPartition());
 
-                partitionIds.add(store.getCurrentRealm().getId());
+                partitionIds.add(context.getPartition().getId());
 
                 predicates.add(criteria.getBuilder()
                         .in(joinPartition.get(config.getModelProperty(PropertyType.PARTITION_ID).getName()))

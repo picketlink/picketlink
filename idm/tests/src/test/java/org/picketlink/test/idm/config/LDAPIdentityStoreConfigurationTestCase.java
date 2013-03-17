@@ -39,7 +39,7 @@ import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
@@ -174,7 +174,7 @@ public class LDAPIdentityStoreConfigurationTestCase extends
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        DefaultIdentityStoreInvocationContextFactory icf = new DefaultIdentityStoreInvocationContextFactory();
+        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory();
 
         identityManager.bootstrap(config, icf);
 

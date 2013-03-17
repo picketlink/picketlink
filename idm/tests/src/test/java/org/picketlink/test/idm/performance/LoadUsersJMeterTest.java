@@ -34,7 +34,7 @@ import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.SimpleUser;
@@ -111,7 +111,7 @@ public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
         IdentityManager identityManager = new DefaultIdentityManager();
 
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory(null));
+        identityManager.bootstrap(config, new DefaultSecurityContextFactory(null));
 
         return identityManager;
     }

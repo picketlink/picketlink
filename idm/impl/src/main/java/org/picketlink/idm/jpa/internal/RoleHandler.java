@@ -36,6 +36,7 @@ import org.picketlink.idm.model.Grant;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -48,11 +49,11 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
     }
 
     @Override
-    protected void doPopulateIdentityInstance(Object toIdentity, Role fromRole, JPAIdentityStore store) {
+    protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, Role fromRole, JPAIdentityStore store) {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
-                store.lookupPartitionObject(store.getCurrentPartition()), true);
+                store.lookupPartitionObject(context.getPartition()), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 
@@ -82,8 +83,8 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-        List<Predicate> predicates = super.getPredicate(criteria, store);
+    public List<Predicate> getPredicate(SecurityContext context, JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        List<Predicate> predicates = super.getPredicate(context, criteria, store);
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(Role.NAME);

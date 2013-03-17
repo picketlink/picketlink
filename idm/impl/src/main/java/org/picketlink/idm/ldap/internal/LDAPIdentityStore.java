@@ -108,10 +108,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public SecurityContext getContext() {
-        if (this.context.getRealm() == null) {
-            this.context.setRealm(new Realm(Realm.DEFAULT_REALM));
-        }
-
         return this.context;
     }
 
@@ -120,7 +116,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         if (IdentityType.class.isInstance(attributedType)) {
             IdentityType identityType = (IdentityType) attributedType;
 
-            identityType.setPartition(getContext().getRealm());
+            identityType.setPartition(getContext().getPartition());
 
             if (Agent.class.isInstance(attributedType)) {
                 Agent newAgent = (Agent) attributedType;
@@ -219,8 +215,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             }
 
             getLDAPManager().removeEntryById(baseDN, identityType.getId());
-
-            invalidateCache(identityType);
         } else if (Relationship.class.isInstance(attributedType)) {
             Relationship relationship = (Relationship) attributedType;
 
@@ -242,61 +236,75 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
 
     @Override
     public Agent getAgent(String loginName) {
-        Agent agent = null;
+        if (Realm.class.isInstance(getContext().getPartition())) {
+            Realm realm = (Realm) getContext().getPartition();
 
-        if (loginName != null) {
-            agent = getContext().getCache().lookupAgent(getContext().getRealm(), loginName);
+            Agent agent = null;
 
-            if (agent == null) {
-                LDAPAgent ldapAgent = lookupAgent(loginName);
+            if (loginName != null) {
+                agent = getContext().getCache().lookupAgent(realm, loginName);
 
-                if (ldapAgent == null) {
-                    agent = getUser(loginName);
-                } else {
-                    agent = new SimpleAgent(ldapAgent.getLoginName());
+                if (agent == null) {
+                    LDAPAgent ldapAgent = lookupAgent(loginName);
 
-                    agent.setLoginName(ldapAgent.getLoginName());
+                    if (ldapAgent == null) {
+                        agent = getUser(loginName);
+                    } else {
+                        agent = new SimpleAgent(ldapAgent.getLoginName());
 
-                    populateIdentityType(ldapAgent, agent);
-                }
+                        agent.setLoginName(ldapAgent.getLoginName());
 
-                if (agent != null) {
-                    cacheIdentityType(agent);
+                        populateIdentityType(ldapAgent, agent);
+                    }
+
+                    if (agent != null) {
+                        cacheIdentityType(agent);
+                    }
                 }
             }
+
+            return agent;
+        } else {
+            // FIXME throw proper exception
+            throw new RuntimeException();
         }
 
-        return agent;
     }
 
     @Override
     public User getUser(String loginName) {
-        User user = null;
+        if (Realm.class.isInstance(getContext().getPartition())) {
+            Realm realm = (Realm) getContext().getPartition();
+            User user = null;
 
-        if (loginName != null) {
-            user = getContext().getCache().lookupUser(getContext().getRealm(), loginName);
+            if (loginName != null) {
+                user = getContext().getCache().lookupUser(realm, loginName);
 
-            if (user == null) {
-                LDAPUser ldapUser = lookupUser(loginName);
+                if (user == null) {
+                    LDAPUser ldapUser = lookupUser(loginName);
 
-                if (ldapUser != null) {
-                    user = new SimpleUser(ldapUser.getLoginName());
+                    if (ldapUser != null) {
+                        user = new SimpleUser(ldapUser.getLoginName());
 
-                    user.setLoginName(ldapUser.getLoginName());
-                    user.setFirstName(ldapUser.getFirstName());
-                    user.setLastName(ldapUser.getLastName());
-                    user.setEmail(ldapUser.getEmail());
+                        user.setLoginName(ldapUser.getLoginName());
+                        user.setFirstName(ldapUser.getFirstName());
+                        user.setLastName(ldapUser.getLastName());
+                        user.setEmail(ldapUser.getEmail());
 
-                    populateIdentityType(ldapUser, user);
+                        populateIdentityType(ldapUser, user);
+                    }
+                }
+
+                if (user != null) {
+                    cacheIdentityType(user);
                 }
             }
 
-            if (user != null) {
-                cacheIdentityType(user);
-            }
+            return user;
+        } else {
+            // FIXME throw proper exception
+            throw new RuntimeException();
         }
-
-        return user;
     }
 
     @Override
@@ -1648,14 +1656,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             getContext().getCache().putRole(identityType.getPartition(), (Role) identityType);
         } else if (Group.class.isInstance(identityType)) {
             getContext().getCache().putGroup(identityType.getPartition(), (Group) identityType);
-        }
-    }
-
-    private void invalidateCache(IdentityType identityType) {
-        if (Agent.class.isInstance(identityType)) {
-            getContext().getCache().invalidate(getContext().getRealm(), identityType);
-        } else {
-            getContext().getCache().invalidate(getContext().getPartition(), identityType);
         }
     }
 

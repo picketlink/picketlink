@@ -17,26 +17,16 @@
  */
 package org.picketlink.idm.internal;
 
-import static org.picketlink.idm.IDMLogger.LOGGER;
 import static org.picketlink.idm.IDMMessages.MESSAGES;
 import static org.picketlink.idm.internal.util.IDMUtil.getFeatureGroup;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.picketlink.common.util.StringUtil;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
-import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Grant;
@@ -44,11 +34,8 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
@@ -56,8 +43,6 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
-import org.picketlink.idm.spi.SecurityContextFactory;
-import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.StoreFactory;
 
 /**
@@ -70,132 +55,12 @@ public class DefaultIdentityManager implements IdentityManager {
 
     private static final long serialVersionUID = -2835518073812662628L;
 
-    private Map<String, Set<IdentityStoreConfiguration>> realmStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
+    private SecurityContext context;
+    private StoreFactory storeFactory;
 
-    private StoreFactory storeFactory = new DefaultStoreFactory();
-
-    private SecurityContextFactory contextFactory;
-
-    private ThreadLocal<Realm> currentRealm = new ThreadLocal<Realm>();
-    private ThreadLocal<Tier> currentTier = new ThreadLocal<Tier>();
-
-    @Override
-    public void bootstrap(IdentityConfiguration identityConfig, SecurityContextFactory contextFactory) {
-        if (identityConfig == null) {
-            throw MESSAGES.nullArgument("IdentityConfiguration");
-        }
-
-        if (contextFactory == null) {
-            throw MESSAGES.nullArgument("IdentityStoreInvocationContextFactory");
-        }
-
-        LOGGER.identityManagerBootstrapping();
-
-        for (IdentityStoreConfiguration config : identityConfig.getConfiguredStores()) {
-            LOGGER.identityManagerInitConfigForRealms(config, config.getRealms());
-
-            config.init();
-
-            for (String realm : config.getRealms()) {
-                Set<IdentityStoreConfiguration> configs;
-
-                if (this.realmStores.containsKey(realm)) {
-                    configs = realmStores.get(realm);
-                } else {
-                    configs = new HashSet<IdentityStoreConfiguration>();
-                    this.realmStores.put(realm, configs);
-                }
-
-                configs.add(config);
-            }
-        }
-
-        this.contextFactory = contextFactory;
-    }
-
-    @Override
-    public IdentityManager forRealm(Realm realm) {
-        if (realm != null) {
-            final Realm storedRealm = getRealm(realm.getName());
-
-            if (storedRealm != null) {
-                final DefaultIdentityManager proxied = this;
-                final Tier tier = currentTier.get();
-
-                return (IdentityManager) Proxy.newProxyInstance(this.getClass().getClassLoader(),
-                        new Class[] { IdentityManager.class }, new InvocationHandler() {
-
-                            @Override
-                            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                                Object result = null;
-
-                                try {
-                                    currentRealm.set(storedRealm);
-                                    currentTier.set(tier);
-                                    result = method.invoke(proxied, args);
-                                } catch (Exception e) {
-                                    if (e.getCause() != null) {
-                                        throw e.getCause();
-                                    }
-
-                                    throw e;
-                                } finally {
-                                    currentRealm.remove();
-                                    currentTier.remove();
-                                }
-
-                                return result;
-                            }
-                        });
-            }
-        }
-
-        throw MESSAGES.couldNotCreateContextualIdentityManager(Realm.class);
-    }
-
-    @Override
-    public IdentityManager forTier(Tier tier) {
-        if (tier != null) {
-            final Tier storedTier = getTier(tier.getName());
-
-            if (storedTier != null) {
-                final DefaultIdentityManager proxied = this;
-                final Realm realm = currentRealm.get();
-
-                return (IdentityManager) Proxy.newProxyInstance(this.getClass().getClassLoader(),
-                        new Class[] { IdentityManager.class }, new InvocationHandler() {
-
-                            @Override
-                            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                                Object result = null;
-
-                                try {
-                                    currentRealm.set(realm);
-                                    currentTier.set(storedTier);
-                                    result = method.invoke(proxied, args);
-                                } catch (Exception e) {
-                                    if (e.getCause() != null) {
-                                        throw e.getCause();
-                                    }
-
-                                    throw e;
-                                } finally {
-                                    currentRealm.remove();
-                                    currentTier.remove();
-                                }
-
-                                return result;
-                            }
-                        });
-            }
-        }
-
-        throw MESSAGES.couldNotCreateContextualIdentityManager(Tier.class);
-    }
-
-    @Override
-    public void setIdentityStoreFactory(StoreFactory factory) {
-        this.storeFactory = factory;
+    public DefaultIdentityManager(SecurityContext context, StoreFactory storeFactory) {
+        this.context = context;
+        context.setIdentityManager(this);
     }
 
     @Override
@@ -203,10 +68,6 @@ public class DefaultIdentityManager implements IdentityManager {
         if (identityType == null) {
             throw MESSAGES.nullArgument("IdentityType");
         }
-
-        SecurityContext ctx = createContext();
-
-        Partition currentPartition = getCurrentPartition(ctx);
 
         if (Agent.class.isInstance(identityType)) {
             Agent newAgent = (Agent) identityType;
@@ -217,11 +78,11 @@ public class DefaultIdentityManager implements IdentityManager {
 
             if (User.class.isInstance(newAgent)) {
                 if (getUser(newAgent.getLoginName()) != null) {
-                    throw MESSAGES.identityTypeAlreadyExists(newAgent.getClass(), newAgent.getLoginName(), currentPartition);
+                    throw MESSAGES.identityTypeAlreadyExists(newAgent.getClass(), newAgent.getLoginName(), context.getPartition());
                 }
             } else {
                 if (getAgent(newAgent.getLoginName()) != null) {
-                    throw MESSAGES.identityTypeAlreadyExists(newAgent.getClass(), newAgent.getLoginName(), currentPartition);
+                    throw MESSAGES.identityTypeAlreadyExists(newAgent.getClass(), newAgent.getLoginName(), context.getPartition());
                 }
             }
         } else if (Group.class.isInstance(identityType)) {
@@ -232,12 +93,12 @@ public class DefaultIdentityManager implements IdentityManager {
             }
 
             if (getGroup(newGroup.getPath()) != null) {
-                throw MESSAGES.identityTypeAlreadyExists(newGroup.getClass(), newGroup.getName(), currentPartition);
+                throw MESSAGES.identityTypeAlreadyExists(newGroup.getClass(), newGroup.getName(), context.getPartition());
             }
 
             if (newGroup.getParentGroup() != null) {
                 if (lookupIdentityById(Group.class, newGroup.getParentGroup().getId()) == null) {
-                    throw MESSAGES.groupParentNotFoundWithId(newGroup.getParentGroup().getId(), currentPartition);
+                    throw MESSAGES.groupParentNotFoundWithId(newGroup.getParentGroup().getId(), context.getPartition());
                 }
             }
         } else if (Role.class.isInstance(identityType)) {
@@ -248,12 +109,12 @@ public class DefaultIdentityManager implements IdentityManager {
             }
 
             if (getRole(newRole.getName()) != null) {
-                throw MESSAGES.identityTypeAlreadyExists(newRole.getClass(), newRole.getName(), currentPartition);
+                throw MESSAGES.identityTypeAlreadyExists(newRole.getClass(), newRole.getName(), context.getPartition());
             }
         }
 
         try {
-            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.create).add(identityType);
+            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType), FeatureOperation.create).add(identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeAddFailed(identityType, e);
         }
@@ -262,7 +123,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void add(Relationship relationship) {
         try {
-            getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.create,
+            storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.create,
                     relationship.getClass()).add(relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipAddFailed(relationship, e);
@@ -271,12 +132,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void update(IdentityType identityType) {
-        SecurityContext ctx = createContext();
-
-        checkIfIdentityTypeExists(identityType, ctx);
+        checkIfIdentityTypeExists(identityType, context);
 
         try {
-            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.update).update(identityType);
+            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType), FeatureOperation.update).update(identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -285,7 +144,7 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void update(Relationship relationship) {
         try {
-            getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.update,
+            storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.update,
                     relationship.getClass()).update(relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipUpdateFailed(relationship, e);
@@ -294,12 +153,10 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void remove(IdentityType identityType) {
-        SecurityContext ctx = createContext();
-
-        checkIfIdentityTypeExists(identityType, ctx);
+        checkIfIdentityTypeExists(identityType, context);
 
         try {
-            getContextualStoreForFeature(ctx, getFeatureGroup(identityType), FeatureOperation.delete).remove(identityType);
+            storeFactory.getStoreForFeature(context, getFeatureGroup(identityType), FeatureOperation.delete).remove(identityType);
         } catch (Exception e) {
             throw MESSAGES.identityTypeUpdateFailed(identityType, e);
         }
@@ -312,7 +169,7 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         try {
-            getContextualStoreForFeature(createContext(), FeatureGroup.relationship, FeatureOperation.delete,
+            storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.delete,
                     relationship.getClass()).remove(relationship);
         } catch (Exception e) {
             throw MESSAGES.relationshipRemoveFailed(relationship, e);
@@ -320,12 +177,12 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     public Agent getAgent(String loginName) {
-        return getContextualStoreForFeature(createContext(), FeatureGroup.agent, FeatureOperation.read).getAgent(loginName);
+        return storeFactory.getStoreForFeature(context, FeatureGroup.agent, FeatureOperation.read).getAgent(loginName);
     }
 
     @Override
     public User getUser(String loginName) {
-        return getContextualStoreForFeature(createContext(), FeatureGroup.user, FeatureOperation.read).getUser(loginName);
+        return storeFactory.getStoreForFeature(context, FeatureGroup.user, FeatureOperation.read).getUser(loginName);
     }
 
     @Override
@@ -334,7 +191,7 @@ public class DefaultIdentityManager implements IdentityManager {
             return null;
         }
 
-        return getContextualStoreForFeature(createContext(), FeatureGroup.group, FeatureOperation.read).getGroup(path);
+        return storeFactory.getStoreForFeature(context, FeatureGroup.group, FeatureOperation.read).getGroup(path);
     }
 
     @Override
@@ -343,13 +200,11 @@ public class DefaultIdentityManager implements IdentityManager {
             return null;
         }
 
-        SecurityContext ctx = createContext();
-
         if (lookupIdentityById(Group.class, parent.getId()) == null) {
-            throw MESSAGES.groupParentNotFoundWithId(parent.getId(), ctx.getPartition());
+            throw MESSAGES.groupParentNotFoundWithId(parent.getId(), context.getPartition());
         }
 
-        return getContextualStoreForFeature(ctx, FeatureGroup.group, FeatureOperation.read).getGroup(name, parent);
+        return storeFactory.getStoreForFeature(context, FeatureGroup.group, FeatureOperation.read).getGroup(name, parent);
     }
 
     @Override
@@ -385,10 +240,8 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void addToGroup(Agent member, Group group) {
-        SecurityContext ctx = createContext();
-
-        checkIfIdentityTypeExists(member, ctx);
-        checkIfIdentityTypeExists(group, ctx);
+        checkIfIdentityTypeExists(member, context);
+        checkIfIdentityTypeExists(group, context);
 
         if (getGroupMembership(member, group) == null) {
             add(new GroupMembership(member, group));
@@ -397,18 +250,16 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void removeFromGroup(Agent member, Group group) {
-        SecurityContext ctx = createContext();
+        checkIfIdentityTypeExists(member, context);
+        checkIfIdentityTypeExists(group, context);
 
-        checkIfIdentityTypeExists(member, ctx);
-        checkIfIdentityTypeExists(group, ctx);
-
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.delete, GroupMembership.class).remove(
+        storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.delete, GroupMembership.class).remove(
                 new GroupMembership(member, group));
     }
 
     @Override
     public Role getRole(String name) {
-        return getContextualStoreForFeature(createContext(), FeatureGroup.role, FeatureOperation.read).getRole(name);
+        return storeFactory.getStoreForFeature(context, FeatureGroup.role, FeatureOperation.read).getRole(name);
     }
 
     @Override
@@ -430,11 +281,9 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void grantGroupRole(IdentityType assignee, Role role, Group group) {
-        SecurityContext ctx = createContext();
-
-        checkIfIdentityTypeExists(assignee, ctx);
-        checkIfIdentityTypeExists(role, ctx);
-        checkIfIdentityTypeExists(group, ctx);
+        checkIfIdentityTypeExists(assignee, context);
+        checkIfIdentityTypeExists(role, context);
+        checkIfIdentityTypeExists(group, context);
 
         if (getGroupRole(assignee, role, group) == null) {
             add(new GroupRole(assignee, group, role));
@@ -443,13 +292,11 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeGroupRole(IdentityType assignee, Role role, Group group) {
-        SecurityContext ctx = createContext();
+        checkIfIdentityTypeExists(assignee, context);
+        checkIfIdentityTypeExists(role, context);
+        checkIfIdentityTypeExists(group, context);
 
-        checkIfIdentityTypeExists(assignee, ctx);
-        checkIfIdentityTypeExists(role, ctx);
-        checkIfIdentityTypeExists(group, ctx);
-
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.delete, GroupRole.class).remove(
+        storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.delete, GroupRole.class).remove(
                 new GroupRole(assignee, group, role));
     }
 
@@ -476,10 +323,8 @@ public class DefaultIdentityManager implements IdentityManager {
             throw MESSAGES.relationshipUnsupportedGrantAssigneeType(identityType);
         }
 
-        SecurityContext ctx = createContext();
-
-        checkIfIdentityTypeExists(identityType, ctx);
-        checkIfIdentityTypeExists(role, ctx);
+        checkIfIdentityTypeExists(identityType, context);
+        checkIfIdentityTypeExists(role, context);
 
         if (getGrant(identityType, role) == null) {
             add(new Grant(identityType, role));
@@ -488,22 +333,20 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void revokeRole(IdentityType identityType, Role role) {
-        SecurityContext ctx = createContext();
-
         if (Role.class.isInstance(identityType)) {
             throw MESSAGES.relationshipUnsupportedGrantAssigneeType(identityType);
         }
 
-        checkIfIdentityTypeExists(identityType, ctx);
-        checkIfIdentityTypeExists(role, ctx);
+        checkIfIdentityTypeExists(identityType, context);
+        checkIfIdentityTypeExists(role, context);
 
-        getContextualStoreForFeature(ctx, FeatureGroup.relationship, FeatureOperation.delete, Grant.class).remove(
+        storeFactory.getStoreForFeature(context, FeatureGroup.relationship, FeatureOperation.delete, Grant.class).remove(
                 new Grant(identityType, role));
     }
 
     @Override
     public void validateCredentials(Credentials credentials) {
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.credential,
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential,
                 FeatureOperation.validate);
         store.validateCredentials(credentials);
     }
@@ -515,43 +358,20 @@ public class DefaultIdentityManager implements IdentityManager {
 
     @Override
     public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.credential, FeatureOperation.update);
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.credential, FeatureOperation.update);
         store.updateCredential(agent, credential, effectiveDate, expiryDate);
     }
 
     @Override
     public <T extends IdentityType> IdentityQuery<T> createIdentityQuery(Class<T> identityType) {
-        return new DefaultIdentityQuery<T>(identityType, getContextualStoreForFeature(createContext(), FeatureGroup.user,
+        return new DefaultIdentityQuery<T>(identityType, storeFactory.getStoreForFeature(context, FeatureGroup.user,
                 FeatureOperation.read));
     }
 
     @Override
     public <T extends Relationship> RelationshipQuery<T> createRelationshipQuery(Class<T> relationshipType) {
-        return new DefaultRelationshipQuery<T>(relationshipType, getContextualStoreForFeature(createContext(),
+        return new DefaultRelationshipQuery<T>(relationshipType, storeFactory.getStoreForFeature(context,
                 FeatureGroup.relationship, FeatureOperation.read, relationshipType));
-    }
-
-    @Override
-    public void createRealm(Realm realm) {
-        if (realm == null) {
-            throw MESSAGES.nullArgument("Realm");
-        }
-
-        if (realm.getName() == null) {
-            throw MESSAGES.nullArgument("Realm name");
-        }
-
-        if (Realm.class.isInstance(realm)) {
-            if (getRealm(realm.getName()) != null) {
-                throw MESSAGES.partitionAlreadyExistsWithName(realm.getClass(), realm.getName());
-            }
-        }
-
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.realm, FeatureOperation.create);
-
-        if (store != null) {
-            ((PartitionStore) store).createPartition(realm);
-        }
     }
 
     @Override
@@ -581,97 +401,6 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         return identity;
-    }
-
-    @Override
-    public void removeRealm(Realm realm) {
-        if (realm == null) {
-            throw MESSAGES.nullArgument("Realm");
-        }
-
-        Realm storedRealm = getRealm(realm.getName());
-
-        if (storedRealm == null) {
-            throw MESSAGES.partitionNotFoundWithName(realm.getClass(), realm.getName());
-        }
-
-        IdentityQuery<IdentityType> query = createIdentityQuery(IdentityType.class);
-
-        query.setParameter(IdentityType.PARTITION, storedRealm);
-
-        if (!query.getResultList().isEmpty()) {
-            throw MESSAGES.partitionCouldNotRemoveWithIdentityTypes(storedRealm);
-        }
-
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.realm, FeatureOperation.delete);
-
-        if (store != null) {
-            ((PartitionStore) store).removePartition(realm);
-        }
-    }
-
-    @Override
-    public Realm getRealm(String name) {
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.realm, FeatureOperation.read);
-
-        return store != null ? ((PartitionStore) store).getRealm(name) : null;
-    }
-
-    @Override
-    public void createTier(Tier tier) {
-        if (tier == null) {
-            throw MESSAGES.nullArgument("Tier");
-        }
-
-        if (tier.getName() == null) {
-            throw MESSAGES.nullArgument("Tier name");
-        }
-
-        if (Tier.class.isInstance(tier)) {
-            if (getTier(tier.getName()) != null) {
-                throw MESSAGES.partitionAlreadyExistsWithName(tier.getClass(), tier.getName());
-            }
-        }
-
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.tier, FeatureOperation.create);
-
-        if (store != null) {
-            ((PartitionStore) store).createPartition(tier);
-        }
-    }
-
-    @Override
-    public void removeTier(Tier tier) {
-        if (tier == null) {
-            throw MESSAGES.nullArgument("Tier");
-        }
-
-        Tier storedTier = getTier(tier.getName());
-
-        if (storedTier == null) {
-            throw MESSAGES.partitionNotFoundWithName(tier.getClass(), tier.getName());
-        }
-
-        IdentityQuery<IdentityType> query = createIdentityQuery(IdentityType.class);
-
-        query.setParameter(IdentityType.PARTITION, storedTier);
-
-        if (!query.getResultList().isEmpty()) {
-            throw MESSAGES.partitionCouldNotRemoveWithIdentityTypes(storedTier);
-        }
-
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.tier, FeatureOperation.delete);
-
-        if (store != null) {
-            ((PartitionStore) store).removePartition(tier);
-        }
-    }
-
-    @Override
-    public Tier getTier(String name) {
-        IdentityStore<?> store = getContextualStoreForFeature(createContext(), FeatureGroup.tier, FeatureOperation.read);
-
-        return store != null ? ((PartitionStore) store).getTier(name) : null;
     }
 
     @Override
@@ -713,103 +442,6 @@ public class DefaultIdentityManager implements IdentityManager {
         return groupMembership;
     }
 
-    private IdentityStore<?> getContextualStoreForFeature(SecurityContext ctx, FeatureGroup feature,
-            FeatureOperation operation) {
-        return getContextualStoreForFeature(ctx, feature, operation, null);
-    }
-
-    private IdentityStore<?> getContextualStoreForFeature(final SecurityContext ctx, FeatureGroup feature,
-            FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
-        String realmName = (ctx.getRealm() != null) ? ctx.getRealm().getName() : Realm.DEFAULT_REALM;
-
-        if (!realmStores.containsKey(realmName)) {
-            LOGGER.identityManagerRealmNotConfigured(realmName);
-            throw MESSAGES.storeConfigRealmNotConfigured(realmName);
-        }
-
-        Set<IdentityStoreConfiguration> configs = realmStores.get(realmName);
-
-        IdentityStoreConfiguration config = null;
-        boolean supportedRelationshipClass = true;
-
-        for (IdentityStoreConfiguration cfg : configs) {
-            if (relationshipClass != null) {
-                if (cfg.getFeatureSet().supportsRelationship(relationshipClass)) {
-                    if (cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
-                        config = cfg;
-                        break;
-                    }
-                } else {
-                    supportedRelationshipClass = false;
-                }
-            } else if (cfg.getFeatureSet().supports(feature, operation)) {
-                config = cfg;
-                break;
-            }
-        }
-
-        if (config == null) {
-            LOGGER.identityManagerUnsupportedOperation(feature, operation);
-
-            if (!supportedRelationshipClass) {
-                throw MESSAGES.storeConfigUnsupportedRelationshipType(relationshipClass);
-            } else {
-                throw MESSAGES.storeConfigUnsupportedOperation(feature, operation, feature, operation);
-            }
-        }
-
-        @SuppressWarnings("unchecked")
-        final IdentityStore<IdentityStoreConfiguration> store = storeFactory.createIdentityStore(config, ctx);
-
-        final IdentityStoreConfiguration configuration = config;
-
-        @SuppressWarnings("unchecked")
-        IdentityStore<IdentityStoreConfiguration> storeProxy = (IdentityStore<IdentityStoreConfiguration>) Proxy
-                .newProxyInstance(store.getClass().getClassLoader(),
-                        new Class<?>[] { IdentityStore.class, PartitionStore.class }, new InvocationHandler() {
-
-                            @Override
-                            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                                try {
-                                    SecurityContext.set(ctx);
-
-                                    contextFactory.initContextForStore(ctx, store);
-
-                                    store.setup(configuration, ctx);
-
-                                    return method.invoke(store, args);
-                                } catch (Exception e) {
-                                    if (e.getCause() != null) {
-                                        throw e.getCause();
-                                    }
-
-                                    throw e;
-                                } finally {
-                                    SecurityContext.remove();
-                                }
-
-                            }
-                        });
-
-        LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation,
-                storeProxy, ctx.getPartition());
-
-        return storeProxy;
-    }
-
-    private SecurityContext createContext() {
-        SecurityContext context = SecurityContext.get();
-
-        if (context == null) {
-            context = this.contextFactory.createContext(this);
-
-            context.setRealm(currentRealm.get());
-            context.setTier(currentTier.get());
-        }
-
-        return context;
-    }
-
     private void checkIfIdentityTypeExists(IdentityType identityType, SecurityContext ctx) {
         if (identityType == null) {
             throw MESSAGES.nullArgument("IdentityType");
@@ -818,22 +450,6 @@ public class DefaultIdentityManager implements IdentityManager {
         if (lookupIdentityById(identityType.getClass(), identityType.getId()) == null) {
             throw MESSAGES.attributedTypeNotFoundWithId(identityType.getClass(), identityType.getId(), ctx.getPartition());
         }
-    }
-
-    private Partition getCurrentPartition(SecurityContext ctx) {
-        Realm realm = ctx.getRealm();
-
-        if (realm == null) {
-            realm = new Realm(Realm.DEFAULT_REALM);
-        }
-
-        Partition currentPartition = realm;
-
-        if (ctx.getTier() != null) {
-            currentPartition = ctx.getTier();
-        }
-
-        return currentPartition;
     }
 
     private Grant getGrant(IdentityType identityType, Role role) {

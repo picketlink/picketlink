@@ -28,8 +28,7 @@ import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
-import org.picketlink.idm.model.Realm;
-import org.picketlink.idm.model.Tier;
+import org.picketlink.idm.model.Partition;
 
 /**
  * Stores security related state for one or more identity management operations
@@ -52,12 +51,7 @@ public class SecurityContext {
     /**
      *
      */
-    private Realm realm;
-
-    /**
-     *
-     */
-    private Tier tier;
+    private Partition partition;
 
     /**
      *
@@ -72,19 +66,20 @@ public class SecurityContext {
     /**
      *
      */
-    private Map<String, Object> parameters = new HashMap<String, Object>();
-
     private IdentityManager identityManager;
 
-    public SecurityContext(IdentityManager identityManager, IdentityCache cache, EventBridge eventBridge, CredentialHandlerFactory factory,
-            IdGenerator idGenerator, Realm realm, Tier tier) {
-        this.identityManager = identityManager;
+    /**
+     *
+     */
+    private Map<String, Object> parameters = new HashMap<String, Object>();
+
+    public SecurityContext(IdentityCache cache, EventBridge eventBridge, CredentialHandlerFactory factory,
+            IdGenerator idGenerator, Partition partition) {
         this.cache = cache;
         this.eventBridge = eventBridge;
         this.credentialHandlerFactory = factory;
         this.idGenerator = idGenerator;
-        this.realm = realm;
-        this.tier = tier;
+        this.partition = partition;
     }
 
     /**
@@ -166,25 +161,20 @@ public class SecurityContext {
     }
 
     /**
-     * Return the active Realm for this context
+     * Return the active Partition for this context
      *
      * @return
      */
-    public Realm getRealm() {
-        return realm;
+    public Partition getPartition() {
+        return partition;
     }
 
-    /**
-     * Return the active Tier for this context
-     *
-     * @return
-     */
-    public Tier getTier() {
-        return tier;    
+    public void setIdentityManager(IdentityManager identityManager) {
+        this.identityManager = identityManager;
     }
 
     public IdentityManager getIdentityManager() {
-        return this.identityManager;
+        return identityManager;
     }
 
 }

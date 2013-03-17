@@ -18,39 +18,31 @@
 
 package org.picketlink.idm.internal;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-
 import org.picketlink.idm.IdGenerator;
 import org.picketlink.idm.IdentityCache;
-import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.credential.internal.DefaultCredentialHandlerFactory;
 import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
 import org.picketlink.idm.event.EventBridge;
-import org.picketlink.idm.jpa.internal.JPAIdentityStore;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.SecurityContextFactory;
 
 /**
- * A default implementation of IdentityStoreInvocationContextFactory.
+ * A default implementation of SecurityContextFactory.
  *
  * @author Shane Bryzak
  * @author Anil Saldhana
  */
-public class DefaultIdentityStoreInvocationContextFactory implements SecurityContextFactory {
-    private EntityManagerFactory emf;
+public class DefaultSecurityContextFactory implements SecurityContextFactory {
     private EventBridge eventBridge;
     private CredentialHandlerFactory credentialHandlerFactory;
     private IdentityCache identityCache;
     private IdGenerator idGenerator;
 
-    // FIXME Bad!! we can't do this, this class is multi-threaded!
-    private EntityManager entityManager;
+    public static DefaultSecurityContextFactory DEFAULT = new DefaultSecurityContextFactory();
 
-    public static DefaultIdentityStoreInvocationContextFactory DEFAULT = new DefaultIdentityStoreInvocationContextFactory(null, new DefaultCredentialHandlerFactory());
-
-    public DefaultIdentityStoreInvocationContextFactory(){
+    public DefaultSecurityContextFactory(){
         this.eventBridge = new EventBridge() {
 
             @Override
@@ -58,29 +50,24 @@ public class DefaultIdentityStoreInvocationContextFactory implements SecurityCon
                 // by default do nothing
             }
         };
+
         this.credentialHandlerFactory = new DefaultCredentialHandlerFactory();
-        this.identityCache = new DefaultIdentityCache();
         this.idGenerator = new DefaultIdGenerator();
     }
 
-    public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf){
+    public DefaultSecurityContextFactory(CredentialHandlerFactory chf) {
         this();
-        this.emf = emf;
-    }
-
-    public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf) {
-        this(emf);
         this.credentialHandlerFactory = chf;
     }
 
-    public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf, IdentityCache identityCache) {
-        this(emf, chf);
+    public DefaultSecurityContextFactory(CredentialHandlerFactory chf, IdentityCache identityCache) {
+        this(chf);
         this.identityCache = identityCache;
     }
 
-    public DefaultIdentityStoreInvocationContextFactory(EntityManagerFactory emf, CredentialHandlerFactory chf, IdentityCache identityCache,
+    public DefaultSecurityContextFactory(CredentialHandlerFactory chf, IdentityCache identityCache,
                                                         EventBridge eventBridge, IdGenerator idGenerator) {
-        this(emf, chf, identityCache);
+        this(chf, identityCache);
         this.idGenerator = idGenerator;
 
         if (eventBridge != null) {
@@ -89,28 +76,14 @@ public class DefaultIdentityStoreInvocationContextFactory implements SecurityCon
     }
 
     @Override
-    public SecurityContext createContext(IdentityManager identityManager) {
-        return new SecurityContext(identityManager, this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator);
+    public SecurityContext createContext(Partition partition) {
+        return new SecurityContext(this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator,
+                partition);
     }
 
     @Override
     public void initContextForStore(SecurityContext ctx, IdentityStore<?> store) {
-        if (store instanceof JPAIdentityStore) {
-            if (!ctx.isParameterSet(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER)) {
-                ctx.setParameter(JPAIdentityStore.INVOCATION_CTX_ENTITY_MANAGER, getEntityManager());
-            }
-        }
-    }
 
-    public EntityManager getEntityManager(){
-        if(entityManager == null){
-            entityManager = emf.createEntityManager();
-        }
-        return entityManager;
-    }
-
-    public void setEntityManager(EntityManager em){
-        this.entityManager = em;
     }
 
 }

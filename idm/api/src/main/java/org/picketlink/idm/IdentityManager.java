@@ -20,20 +20,15 @@ package org.picketlink.idm;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.IdentityType;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
-import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.RelationshipQuery;
-import org.picketlink.idm.spi.SecurityContextFactory;
-import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * Manages all Identity Management related operations.
@@ -41,27 +36,6 @@ import org.picketlink.idm.spi.StoreFactory;
  * @author Shane Bryzak
  */
 public interface IdentityManager extends Serializable {
-
-    /**
-     * <p>
-     * This method must be invoked to set up the IdentityManager instance before any identity management operations may be
-     * performed.
-     * </p>
-     *
-     * @param configuration
-     * @throws SecurityConfigurationException If some error occurs during the bootstrap.
-     */
-    void bootstrap(IdentityConfiguration configuration, SecurityContextFactory contextFactory)
-            throws SecurityConfigurationException;
-
-    /**
-     * <p>
-     * Sets the {@link StoreFactory} implementation to be used to create IdentityStore instances.
-     * </p>
-     *
-     * @param factory
-     */
-    void setIdentityStoreFactory(StoreFactory factory);
 
     // Identity CRUD methods
 
@@ -378,107 +352,5 @@ public interface IdentityManager extends Serializable {
     // Attributes
 
     void loadAttribute(IdentityType identityType, String attributeName);
-
-    // Realm
-
-    /**
-     * <p>
-     * Creates a {@link Realm}.
-     * </p>
-     * <p>
-     * Realms are only supported if the underlying {@link IdentityStore} supports partitions.
-     * </p>
-     *
-     * @param realm
-     */
-    void createRealm(Realm realm);
-
-    /**
-     * <p>
-     * Removes a {@link Realm}.
-     * </p>
-     * <p>
-     * Realms are only supported if the underlying {@link IdentityStore} supports partitions.
-     * </p>
-     *
-     * @param realm
-     */
-    void removeRealm(Realm realm);
-
-    /**
-     * <p>
-     * Retrieves a {@link Realm} with the given <code>name</code>.
-     * </p>
-     * <p>
-     * Realms are only supported if the underlying {@link IdentityStore} supports partitions.
-     * </p>
-     *
-     * @param realm
-     */
-    Realm getRealm(String name);
-
-    // Tier
-
-    /**
-     * <p>
-     * Creates a {@link Tier}.
-     * </p>
-     * <p>
-     * Tiers are only supported if the underlying {@link IdentityStore} supports partitions.
-     * </p>
-     *
-     * @param realm
-     */
-    void createTier(Tier tier);
-
-    /**
-     * <p>
-     * Removes a {@link Tier}.
-     * </p>
-     * <p>
-     * Tiers are only supported if the underlying {@link IdentityStore} supports partitions.
-     * </p>
-     *
-     * @param realm
-     */
-    void removeTier(Tier tier);
-
-    /**
-     * <p>
-     * Retrieves a {@link Tier} with the given <code>name</code>.
-     * </p>
-     * <p>
-     * Tiers are only supported if the underlying {@link IdentityStore} supports partitions.
-     * </p>
-     *
-     * @param realm
-     */
-    Tier getTier(String id);
-
-    // Context
-
-    /**
-     * <p>
-     * Returns a contextual {@link IdentityManager} for the given {@link Realm}. All operations invoked on the returned instance
-     * would be done considering the provided {@link Realm}.
-     * </p>
-     *
-     * @param realm
-     * @return A contextual {@link IdentityManager} instances for the given {@link Realm}.
-     * @throws If the provided {@link Realm} does not exists or is not properly configured.
-     */
-    IdentityManager forRealm(Realm realm) throws IdentityManagementException;
-
-    /**
-     * <p>
-     * Returns a contextual {@link IdentityManager} for the given {@link Realm}. All operations invoked on the returned instance
-     * would be done considering the provided {@link Realm}.
-     * </p>
-     *
-     * @param realm
-     * @return A contextual {@link IdentityManager} instances for the given {@link Realm}.
-     * @throws If the provided {@link Realm} does not exists or is not properly configured.
-     */
-    IdentityManager forTier(Tier tier);
 
 }

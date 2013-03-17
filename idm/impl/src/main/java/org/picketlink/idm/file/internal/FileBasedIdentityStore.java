@@ -144,10 +144,6 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public SecurityContext getContext() {
-        if (this.context.getRealm() == null) {
-            this.context.setRealm(this.defaultRealm);
-        }
-
         return this.context;
     }
 
@@ -231,16 +227,21 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
     @Override
     public Agent getAgent(String loginName) {
-        Realm realm = getContext().getRealm();
+        if (Realm.class.isInstance(getContext().getPartition())) {
+            Realm realm = (Realm) getContext().getPartition();
 
-        Agent agent = getAgentsForCurrentRealm().get(loginName);
+            Agent agent = getAgentsForCurrentRealm().get(loginName);
 
-        if (agent != null) {
-            configurePartition(agent);
-            getContext().getCache().putAgent(realm, agent);
+            if (agent != null) {
+                configurePartition(agent);
+                getContext().getCache().putAgent(realm, agent);
+            }
+
+            return agent;
+        } else {
+            // FIXME throw exception
+            throw new RuntimeException();
         }
-
-        return agent;
     }
 
     @Override
@@ -684,17 +685,24 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param user
      */
     private void addUser(User user) {
-        User storedUser = new SimpleUser(user.getLoginName());
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
 
-        storedUser.setFirstName(user.getFirstName());
-        storedUser.setLastName(user.getLastName());
-        storedUser.setEmail(user.getEmail());
-        storedUser.setPartition(getContext().getRealm());
+            User storedUser = new SimpleUser(user.getLoginName());
 
-        updateIdentityType(user, storedUser);
+            storedUser.setFirstName(user.getFirstName());
+            storedUser.setLastName(user.getLastName());
+            storedUser.setEmail(user.getEmail());
+            storedUser.setPartition(realm);
 
-        storeAgent(storedUser);
-        getContext().getEventBridge().raiseEvent(new UserCreatedEvent(storedUser));
+            updateIdentityType(user, storedUser);
+
+            storeAgent(storedUser);
+            getContext().getEventBridge().raiseEvent(new UserCreatedEvent(storedUser));
+        } else {
+            // FIXME throw exception
+            throw new RuntimeException();
+        }
     }
 
     /**
@@ -705,14 +713,22 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param agent
      */
     private void addAgent(Agent agent) {
-        Agent storedAgent = new SimpleAgent(agent.getLoginName());
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
 
-        storedAgent.setPartition(getContext().getRealm());
+            Agent storedAgent = new SimpleAgent(agent.getLoginName());
 
-        updateIdentityType(agent, storedAgent);
+            storedAgent.setPartition(realm);
 
-        storeAgent(storedAgent);
-        getContext().getEventBridge().raiseEvent(new AgentCreatedEvent(storedAgent));
+            updateIdentityType(agent, storedAgent);
+
+            storeAgent(storedAgent);
+            getContext().getEventBridge().raiseEvent(new AgentCreatedEvent(storedAgent));
+
+        } else {
+            // FIXME throw exception
+            throw new RuntimeException();
+        }
     }
 
     private void storeAgent(Agent storedAgent) {
@@ -1194,7 +1210,9 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     private Map<String, Agent> getAgentsForCurrentRealm() {
-        return getDataSource().getAgents(getContext().getRealm());
+        // FIXME check that the active partition *is* a realm
+        //return getDataSource().getAgents(getContext().getRealm());
+        return null;
     }
 
     protected FileDataSource getDataSource() {

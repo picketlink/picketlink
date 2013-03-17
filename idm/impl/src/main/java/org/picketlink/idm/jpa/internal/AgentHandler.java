@@ -31,6 +31,7 @@ import org.picketlink.idm.event.AgentUpdatedEvent;
 import org.picketlink.idm.jpa.annotations.PropertyType;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.SimpleAgent;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -43,11 +44,11 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     }
 
     @Override
-    protected void doPopulateIdentityInstance(Object toIdentity, Agent fromUser, JPAIdentityStore store) {
+    protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, Agent fromUser, JPAIdentityStore store) {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
-        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(store.getCurrentRealm()), true);
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(context.getPartition()), true);
     }
 
     @Override
@@ -75,8 +76,8 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     }
 
     @Override
-    public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-        List<Predicate> predicates = super.getPredicate(criteria, store);
+    public List<Predicate> getPredicate(SecurityContext context, JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        List<Predicate> predicates = super.getPredicate(context, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
 
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(Agent.LOGIN_NAME);

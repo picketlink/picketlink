@@ -40,6 +40,7 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.credential.spi.annotations.Stored;
 import org.picketlink.idm.model.Agent;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.SecurityContext;
 
@@ -205,11 +206,25 @@ public class FileCredentialStore implements CredentialStore {
     }
 
     private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition() {
-        return getDataSource().getCredentials(getContext().getRealm());
+        if (Realm.class.isInstance(getContext().getPartition())) {
+            Realm realm = (Realm) getContext().getPartition();
+
+            return getDataSource().getCredentials(realm);
+        } else {
+            // fIXME throw a proper exception
+            throw new RuntimeException();
+        }
     }
 
     private void flushCredentials() {
-        getDataSource().flushCredentials(getContext().getRealm());
+        if (Realm.class.isInstance(getContext().getPartition())) {
+            Realm realm = (Realm) getContext().getPartition();
+
+            getDataSource().flushCredentials(realm);
+        } else {
+            // fIXME throw a proper exception
+            throw new RuntimeException();
+        }
     }
 
     private FileDataSource getDataSource() {

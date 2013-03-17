@@ -144,10 +144,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public SecurityContext getContext() {
-        if (this.context.getRealm() == null) {
-            this.context.setRealm(this.defaultRealm);
-        }
-
         return this.context;
     }
 
@@ -160,7 +156,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             IdentityTypeHandler<IdentityType> handler = IdentityTypeHandlerFactory.getHandler(identityType.getClass());
 
-            Object entity = handler.createEntity(identityType, this);
+            Object entity = handler.createEntity(getContext(), identityType, this);
 
             EntityManager em = getEntityManager();
 
@@ -271,7 +267,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
             IdentityTypeHandler<IdentityType> handler = IdentityTypeHandlerFactory.getHandler(identityType.getClass());
 
-            handler.populateEntity(entity, identityType, this);
+            handler.populateEntity(getContext(), entity, identityType, this);
 
             updateIdentityTypeAttributes(identityType, entity);
 
@@ -321,30 +317,34 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public User getUser(String loginName) {
-        if (loginName == null) {
-            return null;
-        }
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
 
-        // Check the cache first
-        Realm realm = getContext().getRealm();
-
-        User user = getContext().getCache().lookupUser(realm, loginName);
-
-        // If the cache doesn't have a reference to the User, we have to look up it's identity object
-        // and create a User instance based on it
-        if (user == null) {
-            DefaultIdentityQuery<User> defaultIdentityQuery = new DefaultIdentityQuery<User>(User.class, this);
-
-            defaultIdentityQuery.setParameter(User.LOGIN_NAME, loginName);
-
-            List<User> resultList = defaultIdentityQuery.getResultList();
-
-            if (!resultList.isEmpty()) {
-                user = resultList.get(0);
+            if (loginName == null) {
+                return null;
             }
-        }
 
-        return user;
+            User user = getContext().getCache().lookupUser(realm, loginName);
+
+            // If the cache doesn't have a reference to the User, we have to look up it's identity object
+            // and create a User instance based on it
+            if (user == null) {
+                DefaultIdentityQuery<User> defaultIdentityQuery = new DefaultIdentityQuery<User>(User.class, this);
+
+                defaultIdentityQuery.setParameter(User.LOGIN_NAME, loginName);
+
+                List<User> resultList = defaultIdentityQuery.getResultList();
+
+                if (!resultList.isEmpty()) {
+                    user = resultList.get(0);
+                }
+            }
+
+            return user;
+        } else {
+            // FIXME throw a proper exception
+            throw new RuntimeException();
+        }
     }
 
     @Override
@@ -388,7 +388,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             Object storedParent = lookupIdentityObjectById(parent.getId());
 
             if (storedParent == null) {
-                throw MESSAGES.groupParentNotFoundWithId(parent.getId(), getCurrentPartition());
+                throw MESSAGES.groupParentNotFoundWithId(parent.getId(), context.getPartition());
             }
 
             path = getConfig().getModelProperty(PropertyType.GROUP_PATH).getValue(storedParent) + path;
@@ -427,31 +427,38 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
     @Override
     public Agent getAgent(String loginName) {
-        if (loginName == null) {
-            return null;
-        }
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
 
-        // Check the cache first
-        Realm partition = getContext().getRealm();
-        Agent agent = getContext().getCache().lookupAgent(partition, loginName);
-
-        // If the cache doesn't have a reference to the User, we have to look up it's identity object
-        // and create a User instance based on it
-        if (agent == null) {
-            DefaultIdentityQuery<Agent> defaultIdentityQuery = new DefaultIdentityQuery<Agent>(Agent.class, this);
-
-            defaultIdentityQuery.setParameter(Agent.LOGIN_NAME, loginName);
-
-            List<Agent> resultList = defaultIdentityQuery.getResultList();
-
-            if (!resultList.isEmpty()) {
-                agent = resultList.get(0);
-            } else {
-                agent = getUser(loginName);
+            if (loginName == null) {
+                return null;
             }
-        }
 
-        return agent;
+            // Check the cache first
+
+            Agent agent = null; // = getContext().getCache().lookupAgent(realm, loginName);
+
+            // If the cache doesn't have a reference to the User, we have to look up it's identity object
+            // and create a User instance based on it
+            if (agent == null) {
+                DefaultIdentityQuery<Agent> defaultIdentityQuery = new DefaultIdentityQuery<Agent>(Agent.class, this);
+
+                defaultIdentityQuery.setParameter(Agent.LOGIN_NAME, loginName);
+
+                List<Agent> resultList = defaultIdentityQuery.getResultList();
+
+                if (!resultList.isEmpty()) {
+                    agent = resultList.get(0);
+                } else {
+                    agent = getUser(loginName);
+                }
+            }
+
+            return agent;
+        } else {
+            // FIXME throw proper exception
+            throw new RuntimeException();
+        }
     }
 
     @Override
@@ -468,7 +475,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         JPACriteriaQueryBuilder criteriaBuilder = new JPACriteriaQueryBuilder(this, identityQuery);
 
-        List<Predicate> predicates = criteriaBuilder.getPredicates();
+        List<Predicate> predicates = criteriaBuilder.getPredicates(getContext());
 
         CriteriaQuery<?> criteria = criteriaBuilder.getCriteria();
 
@@ -725,14 +732,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return partition;
     }
 
-    protected Realm getCurrentRealm() {
-        return getContext().getRealm();
-    }
-
-    protected Partition getCurrentPartition() {
-        return getContext().getPartition();
-    }
-
     protected EntityManager getEntityManager() {
         if (!getContext().isParameterSet(INVOCATION_CTX_ENTITY_MANAGER)) {
             throw MESSAGES.jpaStoreCouldNotGetEntityManagerFromStoreContext();
@@ -764,7 +763,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
 
         predicates.add(builder.equal(root.get(getConfig().getModelProperty(PropertyType.IDENTITY_ID).getName()), id));
 
-        List<String> partitionIds = getAllowedPartitionIds(getCurrentPartition());
+        List<String> partitionIds = getAllowedPartitionIds(context.getPartition());
 
         predicates.add(builder.in(join.get(getConfig().getModelProperty(PropertyType.PARTITION_ID).getName())).value(
                 partitionIds));
@@ -774,7 +773,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         List<?> results = em.createQuery(criteria).getResultList();
 
         if (results.isEmpty()) {
-            throw MESSAGES.attributedTypeNotFoundWithId(IdentityType.class, id, getCurrentPartition());
+            throw MESSAGES.attributedTypeNotFoundWithId(IdentityType.class, id, context.getPartition());
         } else {
             return results.get(0);
         }
@@ -787,7 +786,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     protected List<String> getAllowedPartitionIds(Partition currentPartition) {
         List<String> partitionIds = new ArrayList<String>();
 
-        partitionIds.add(getCurrentRealm().getId());
+        partitionIds.add(context.getPartition().getId());
 
         if (currentPartition == null) {
             return partitionIds;
@@ -1109,7 +1108,7 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         List<?> results = em.createQuery(criteria).getResultList();
 
         if (results.isEmpty()) {
-            throw MESSAGES.attributedTypeNotFoundWithId(Relationship.class, id, getCurrentPartition());
+            throw MESSAGES.attributedTypeNotFoundWithId(Relationship.class, id, context.getPartition());
         } else {
             return results.get(0);
         }
@@ -1476,8 +1475,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         em.flush();
 
         IdentityType removedIdentityType = handler.createIdentityType(entity, this);
-
-        invalidateCache(removedIdentityType);
 
         AbstractBaseEvent event = handler.raiseDeletedEvent(identityType);
         event.getContext().setValue(EVENT_CONTEXT_USER_ENTITY, entity);
@@ -2014,12 +2011,6 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         }
     }
 
-    private void invalidateCache(IdentityType identityType) {
-        if (Agent.class.isInstance(identityType)) {
-            getContext().getCache().invalidate(getContext().getRealm(), identityType);
-        } else {
-            getContext().getCache().invalidate(getContext().getPartition(), identityType);
-        }
-    }
+
 
 }

@@ -18,8 +18,7 @@
 
 package org.picketlink.idm.spi;
 
-import org.picketlink.idm.IdentityManager;
-
+import org.picketlink.idm.model.Partition;
 
 /**
  * Factory for creating and initializing IdentityStoreInvocationContext instances
@@ -31,7 +30,7 @@ public interface SecurityContextFactory {
      *
      * @return
      */
-    SecurityContext createContext(IdentityManager identityManager);
+    SecurityContext createContext(Partition partition);
 
     /**
      *

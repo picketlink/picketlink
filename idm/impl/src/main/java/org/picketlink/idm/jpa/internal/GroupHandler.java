@@ -42,6 +42,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -55,11 +56,11 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     }
 
     @Override
-    protected void doPopulateIdentityInstance(Object toIdentity, Group fromGroup, JPAIdentityStore store) {
+    protected void doPopulateIdentityInstance(SecurityContext context, Object toIdentity, Group fromGroup, JPAIdentityStore store) {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
-                store.lookupPartitionObject(store.getCurrentPartition()), true);
+                store.lookupPartitionObject(context.getPartition()), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.GROUP_PATH, fromGroup.getPath(), true);
 
@@ -148,8 +149,8 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
-    public List<Predicate> getPredicate(JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
-        List<Predicate> predicates = super.getPredicate(criteria, store);
+    public List<Predicate> getPredicate(SecurityContext context, JPACriteriaQueryBuilder criteria, JPAIdentityStore store) {
+        List<Predicate> predicates = super.getPredicate(context, criteria, store);
         CriteriaBuilder builder = criteria.getBuilder();
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
