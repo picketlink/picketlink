@@ -254,4 +254,19 @@ public interface IDMMessages {
     @Message(id = 61, value = "No discriminator could be determined for type [%s].")
     SecurityConfigurationException jpaConfigDiscriminatorNotFoundForIdentityType(Class<? extends IdentityType> type);
 
+    @Message(id = 62, value = "Could not create context.")
+    IdentityManagementException ldapCouldNotCreateContext(@Cause Throwable e);
+
+    @Message(id = 63, value = "Could not find Users BaseDN [%s].")
+    IdentityManagementException ldapCouldNotFindUsersBaseDN(String baseDN, @Cause Throwable e);
+
+    @Message(id = 64, value = "Could not find Roles BaseDN [%s].")
+    IdentityManagementException ldapCouldNotFindRolesBaseDN(String baseDN, @Cause Throwable e);
+
+    @Message(id = 65, value = "Could not find Groups BaseDN [%s].")
+    IdentityManagementException ldapCouldNotFindGroupsBaseDN(String baseDN, @Cause Throwable e);
+
+    @Message(id = 66, value = "Could not find Agents BaseDN [%s].")
+    IdentityManagementException ldapCouldNotFindAgentsBaseDN(String baseDN, @Cause Throwable e);
+
 }

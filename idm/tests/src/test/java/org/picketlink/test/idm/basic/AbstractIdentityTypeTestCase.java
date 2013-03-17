@@ -37,6 +37,8 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.model.Attribute;
 import org.picketlink.idm.model.IdentityType;
 import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
+import org.picketlink.test.idm.ExcludeTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 
 /**
  * <p>
@@ -49,6 +51,7 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> extends AbstractIdentityManagerTestCase {
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testDisable() throws Exception {
         T enabledIdentityType = createIdentityType();
 
@@ -98,6 +101,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     protected abstract T getIdentityType();
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testExpiration() throws Exception {
         T validIdentityType = createIdentityType();
 
@@ -116,6 +120,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testSetOneValuedAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -134,6 +139,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testSetMultiValuedAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -159,6 +165,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testSetMultipleAttributes() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -174,6 +181,12 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
 
         T updatedIdentityType = getIdentityType();
 
+        assertNotNull(updatedIdentityType.<String> getAttribute("QuestionTotal"));
+        assertNotNull(updatedIdentityType.<String> getAttribute("Question1"));
+        assertNotNull(updatedIdentityType.<String> getAttribute("Question1Answer"));
+        assertNotNull(updatedIdentityType.<String> getAttribute("Question2"));
+        assertNotNull(updatedIdentityType.<String> getAttribute("Question2Answer"));
+        
         assertEquals("2", updatedIdentityType.<String> getAttribute("QuestionTotal").getValue());
         assertEquals("What is favorite toy?", updatedIdentityType.<String> getAttribute("Question1").getValue());
         assertEquals("Gum", updatedIdentityType.<String> getAttribute("Question1Answer").getValue());
@@ -182,6 +195,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testLargeAttributeValue() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -199,6 +213,8 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
 
         T updatedIdentityType = getIdentityType();
 
+        assertNotNull(updatedIdentityType.<Integer[]>getAttribute("Values"));
+        
         Integer[] retrievedVal = updatedIdentityType.<Integer[]>getAttribute("Values").getValue();
 
         for (int i = 0; i < 999; i++) {
@@ -207,6 +223,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testGetAllAttributes() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -258,6 +275,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testUpdateAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 
@@ -294,6 +312,7 @@ public abstract class AbstractIdentityTypeTestCase<T extends IdentityType> exten
     }
 
     @Test
+    @ExcludeTestSuite (LDAPIdentityStoreWithoutAttributesTestSuite.class)
     public void testRemoveAttribute() throws Exception {
         T storedIdentityType = createIdentityType();
 

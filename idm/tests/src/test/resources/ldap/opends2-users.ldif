@@ -8,6 +8,11 @@ objectclass: top
 objectclass: organizationalUnit
 ou: People
 
+dn: ou=QA,o=plidmtest,dc=example,dc=com
+objectclass: top
+objectclass: organizationalUnit
+ou: QA
+
 dn: ou=Agent,o=plidmtest,dc=example,dc=com
 objectclass: top
 objectclass: organizationalUnit

@@ -32,7 +32,6 @@ import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.file.internal.FileDataSource;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Authorization;
@@ -44,12 +43,18 @@ import org.picketlink.test.idm.relationship.CustomRelationship;
  * @author Pedro Silva
  * 
  */
-public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
+public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClient {
 
     private static IdentityManager identityManager = null;
 
     static {
         identityManager = createIdentityManager();
+        
+        SimpleUser testUser = new SimpleUser("testUser");
+        
+        if (identityManager.getUser(testUser.getLoginName()) == null) {
+            identityManager.add(testUser);            
+        }
     }
 
     @Override
@@ -88,8 +93,11 @@ public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
         vars.put("loginName", loginName);
 
         try {
-            performUserLoadTest(loginName);
-            success = true;
+            SimpleUser user = new SimpleUser(loginName);
+            
+            identityManager.add(user);
+            
+            success = user.getId() != null && identityManager.getUser(loginName) != null;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -98,10 +106,6 @@ public class LoadUsersJMeterTest extends AbstractJavaSamplerClient {
         }
 
         return result;
-    }
-
-    private void performUserLoadTest(String loginName) {
-        identityManager.add(new SimpleUser(loginName));
     }
 
     private static IdentityManager createIdentityManager() {

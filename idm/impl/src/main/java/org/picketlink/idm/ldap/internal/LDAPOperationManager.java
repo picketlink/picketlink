@@ -39,7 +39,6 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 
-import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 
 /**
@@ -69,7 +68,7 @@ public class LDAPOperationManager {
         this.authenticationContext = constructContext();
     }
 
-    private LdapContext constructContext() {
+    private LdapContext constructContext() throws NamingException {
         Properties env = new Properties();
         env.setProperty(Context.INITIAL_CONTEXT_FACTORY, this.config.getFactoryName());
         env.setProperty(Context.SECURITY_AUTHENTICATION, this.config.getAuthType());
@@ -104,13 +103,10 @@ public class LDAPOperationManager {
         for (Object key : keys) {
             env.setProperty((String) key, additionalProperties.getProperty((String) key));
         }
+
         LdapContext context = null;
 
-        try {
-            context = new InitialLdapContext(env, null);
-        } catch (NamingException e) {
-            throw new IdentityManagementException("Error creating LDAP context.", e);
-        }
+        context = new InitialLdapContext(env, null);
 
         return context;
     }
@@ -278,7 +274,7 @@ public class LDAPOperationManager {
     public NamingEnumeration<SearchResult> search(String baseDN, String filter, String[] attributesToReturn,
             SearchControls searchControls) {
 
-        searchControls.setReturningAttributes(new String[] {"*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
+        searchControls.setReturningAttributes(new String[] { "*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP });
 
         try {
             return getContext().search(baseDN, filter, attributesToReturn, searchControls);
@@ -287,18 +283,14 @@ public class LDAPOperationManager {
         }
     }
 
-    public NamingEnumeration<SearchResult> search(String baseDN, String filter) {
-        try {
-            SearchControls cons = new SearchControls();
+    public NamingEnumeration<SearchResult> search(String baseDN, String filter) throws NamingException {
+        SearchControls cons = new SearchControls();
 
-            cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            cons.setReturningObjFlag(true);
-            cons.setReturningAttributes(new String[] {"*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
+        cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        cons.setReturningObjFlag(true);
+        cons.setReturningAttributes(new String[] { "*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP });
 
-            return getContext().search(baseDN, filter, cons);
-        } catch (NamingException e) {
-            throw new RuntimeException(e);
-        }
+        return getContext().search(baseDN, filter, cons);
     }
 
     public NamingEnumeration<SearchResult> lookupById(String baseDN, String id) {
@@ -310,7 +302,7 @@ public class LDAPOperationManager {
             cons.setSearchScope(SearchControls.SUBTREE_SCOPE);
             cons.setReturningObjFlag(false);
             cons.setCountLimit(1);
-            cons.setReturningAttributes(new String[] {"*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP});
+            cons.setReturningAttributes(new String[] { "*", LDAPConstants.ENTRY_UUID, LDAPConstants.CREATE_TIMESTAMP });
 
             return getContext().search(baseDN, filter, cons);
         } catch (NamingException e) {

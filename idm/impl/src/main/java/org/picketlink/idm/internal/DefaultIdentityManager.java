@@ -442,6 +442,7 @@ public class DefaultIdentityManager implements IdentityManager {
         return groupMembership;
     }
 
+
     private void checkIfIdentityTypeExists(IdentityType identityType, SecurityContext ctx) {
         if (identityType == null) {
             throw MESSAGES.nullArgument("IdentityType");

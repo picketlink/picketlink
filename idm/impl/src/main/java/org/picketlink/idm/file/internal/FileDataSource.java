@@ -52,8 +52,6 @@ import org.picketlink.idm.model.Role;
  */
 public class FileDataSource {
 
-    private static FileDataSource instance;
-
     /**
      * <p>
      * Default value for the thread pool size when <code>asyncWrite</code> is enabled.

@@ -25,9 +25,9 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
@@ -138,7 +138,7 @@ public class LDAPIdentityStoreTestSuite extends AbstractLDAPTest implements Test
         config.addGroupMapping("/QA Group", "ou=QA,dc=jboss,dc=org");
 
         FeatureSet.addFeatureSupport(config.getFeatureSet(), FeatureGroup.agent, FeatureGroup.user, FeatureGroup.group,
-                FeatureGroup.role, FeatureGroup.relationship, FeatureGroup.credential);
+                FeatureGroup.role, FeatureGroup.attribute, FeatureGroup.relationship, FeatureGroup.credential);
         config.getFeatureSet().setSupportsCustomRelationships(false);
         config.getFeatureSet().setSupportsMultiRealm(false);
 

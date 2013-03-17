@@ -36,23 +36,24 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.test.idm.ExcludeTestSuite;
 import org.picketlink.test.idm.suites.LDAPIdentityStoreTestSuite;
+import org.picketlink.test.idm.suites.LDAPIdentityStoreWithoutAttributesTestSuite;
 import org.picketlink.test.idm.suites.LDAPJPAMixedStoreTestSuite;
 
 /**
  * <p>
  * Test case for the Query API when retrieving {@link Role} instances.
- *
+ * 
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
- *
+ * 
  */
 public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
-    
+
     @Override
     protected Role createIdentityType(String name, Partition partition) {
         if (name == null) {
             name = "someRole";
         }
-        
+
         return createRole(name, partition);
     }
 
@@ -60,67 +61,68 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
     protected Role getIdentityType() {
         return getIdentityManager().getRole("someRole");
     }
-    
+
     @After
     public void onFinish() {
         IdentityQuery<Role> query = getIdentityManager().createIdentityQuery(Role.class);
-        
+
         List<Role> result = query.getResultList();
-        
+
         for (Role role : result) {
             getIdentityManager().remove(role);
         }
     }
-    
+
     @Test
-    @ExcludeTestSuite ({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+            LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindByTier() throws Exception {
         IdentityManager identityManager = getIdentityManager();
 
         Tier someTier = new Tier("Some Role Tier");
-        
+
         identityManager.createTier(someTier);
 
         Role someRoleRealm = new SimpleRole("someRoleRealm");
-        
+
         identityManager.forTier(someTier).add(someRoleRealm);
-        
+
         IdentityQuery<Role> query = identityManager.forTier(someTier).createIdentityQuery(Role.class);
-        
+
         assertNotNull(someTier);
-        
+
         query.setParameter(Role.PARTITION, someTier);
-        
+
         List<Role> result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertTrue(contains(result, someRoleRealm.getId()));
-        
+
         Tier someAnotherTier = new Tier("Some Another Role Tier");
-        
+
         identityManager.createTier(someAnotherTier);
-        
+
         Role someRoleTestingTier = new SimpleRole("someRoleTestingRealm");
-        
+
         identityManager.forTier(someAnotherTier).add(someRoleTestingTier);
-        
+
         query = identityManager.forTier(someAnotherTier).createIdentityQuery(Role.class);
-        
+
         query.setParameter(Role.PARTITION, someAnotherTier);
-        
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertEquals(1, result.size());
         assertTrue(contains(result, someRoleTestingTier.getId()));
     }
-    
+
     /**
      * <p>
      * Find an {@link Role} by name.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -144,7 +146,7 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
      * <p>
      * Finds all roles for a specific user.
      * </p>
-     *
+     * 
      * @throws Exception
      */
     @Test
@@ -152,66 +154,66 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
         Role someRole = createRole("someRole");
         Role someAnotherRole = createRole("someAnotherRole");
         Role someImportantRole = createRole("someImportantRole");
-        
+
         User user = createUser("someUser");
-        
+
         IdentityManager identityManager = getIdentityManager();
-        
+
         IdentityQuery<Role> query = identityManager.createIdentityQuery(Role.class);
-        
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
-        
+
+        query.setParameter(Role.ROLE_OF, new Object[] { user });
+
         List<Role> result = query.getResultList();
-        
+
         assertFalse(contains(result, someRole.getId()));
         assertFalse(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
-        
+
         identityManager.grantRole(user, someRole);
-        
+
         query = identityManager.createIdentityQuery(Role.class);
-        
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
-        
+
+        query.setParameter(Role.ROLE_OF, new Object[] { user });
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someRole.getId()));
         assertFalse(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
-        
+
         identityManager.grantRole(user, someAnotherRole);
 
         query = identityManager.createIdentityQuery(Role.class);
-        
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
-        
+
+        query.setParameter(Role.ROLE_OF, new Object[] { user });
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someRole.getId()));
         assertTrue(contains(result, someAnotherRole.getId()));
         assertFalse(contains(result, someImportantRole.getId()));
 
         identityManager.grantRole(user, someImportantRole);
-        
+
         query = identityManager.createIdentityQuery(Role.class);
-        
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
-        
+
+        query.setParameter(Role.ROLE_OF, new Object[] { user });
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertTrue(contains(result, someRole.getId()));
         assertTrue(contains(result, someAnotherRole.getId()));
         assertTrue(contains(result, someImportantRole.getId()));
-        
+
         identityManager.revokeRole(user, someRole);
-        
-        query.setParameter(Role.ROLE_OF, new Object[] {user});
-        
+
+        query.setParameter(Role.ROLE_OF, new Object[] { user });
+
         result = query.getResultList();
-        
+
         assertFalse(result.isEmpty());
         assertFalse(contains(result, someRole.getId()));
         assertTrue(contains(result, someAnotherRole.getId()));
@@ -219,7 +221,8 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
     }
 
     @Test
-    @ExcludeTestSuite({LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class})
+    @ExcludeTestSuite({ LDAPIdentityStoreTestSuite.class, LDAPJPAMixedStoreTestSuite.class,
+            LDAPIdentityStoreWithoutAttributesTestSuite.class })
     public void testFindWithSorting() throws Exception {
         createRole("someRole");
         createRole("someAnotherRole");
