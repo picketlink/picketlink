@@ -21,6 +21,8 @@ package org.picketlink.idm.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.picketlink.idm.spi.ContextInitializer;
+
 /**
  * <p>
  * Defines the runtime configuration for Identity Management.
@@ -35,6 +37,8 @@ import java.util.List;
 public class IdentityConfiguration {
 
     private List<IdentityStoreConfiguration> configuredStores = new ArrayList<IdentityStoreConfiguration>();
+
+    private List<ContextInitializer> contextInitializers = new ArrayList<ContextInitializer>();
 
     /**
      * <p>
@@ -56,5 +60,13 @@ public class IdentityConfiguration {
      */
     public void addStoreConfiguration(IdentityStoreConfiguration config) {
         this.configuredStores.add(config);
+    }
+
+    public List<ContextInitializer> getContextInitializers() {
+        return contextInitializers;
+    }
+
+    public void addContextInitializer(ContextInitializer contextInitializer) {
+        this.contextInitializers.add(contextInitializer);
     }
 }

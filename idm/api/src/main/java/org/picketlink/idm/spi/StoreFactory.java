@@ -21,6 +21,7 @@ package org.picketlink.idm.spi;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Relationship;
 
 /**
@@ -48,10 +49,37 @@ public interface StoreFactory {
     void mapIdentityConfiguration(Class<? extends IdentityStoreConfiguration> configClass,
             Class<? extends IdentityStore<?>> storeClass);
 
+    /**
+     * Returns true if the specified feature (and optional relationship class) is supported by the specified
+     * Partition's configuration
+     *
+     * @param partition
+     * @param feature
+     * @param operation
+     * @param relationshipClass
+     * @return
+     */
+    boolean isFeatureSupported(Partition partition, FeatureGroup feature, FeatureOperation operation,
+            Class<? extends Relationship> relationshipClass);
 
+    /**
+     *
+     * @param context
+     * @param feature
+     * @param operation
+     * @return
+     */
     IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
             FeatureOperation operation);
 
+    /**
+     *
+     * @param context
+     * @param feature
+     * @param operation
+     * @param relationshipClass
+     * @return
+     */
     IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
             FeatureOperation operation, Class<? extends Relationship> relationshipClass);
 }

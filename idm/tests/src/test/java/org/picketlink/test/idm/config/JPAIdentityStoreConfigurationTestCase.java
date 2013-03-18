@@ -46,7 +46,7 @@ import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
-import org.picketlink.idm.internal.JPASecurityContextFactory;
+import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -245,12 +245,13 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failPartitionClassNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
+        config.addContextInitializer(new JPAContextInitializer(emf));
 
         JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
 
         jpaConfig.setIdentityClass(IdentityObject.class);
 
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config, new JPASecurityContextFactory(emf));
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
         IdentityManager identityManager = factory.createIdentityManager();
 
         config.addStoreConfiguration(jpaConfig);
@@ -304,7 +305,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
     @Override
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config, new JPASecurityContextFactory(emf));
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
         return factory.createIdentityManager();
     }
 

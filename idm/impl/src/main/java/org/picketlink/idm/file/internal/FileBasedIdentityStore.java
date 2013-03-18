@@ -208,7 +208,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     public Agent getAgent(SecurityContext context, String loginName) {
         if (Realm.class.isInstance(context.getPartition())) {
 
-            Agent agent = getAgentsForCurrentRealm().get(loginName);
+            Agent agent = getAgentsForCurrentRealm(context).get(loginName);
 
             if (agent != null) {
                 configurePartition(agent);
@@ -331,7 +331,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
         if (IdentityType.class.equals(identityTypeClass)) {
             if (partition == null) {
-                entries.addAll(getAgentsForCurrentRealm().values());
+                entries.addAll(getAgentsForCurrentRealm(context).values());
                 entries.addAll(getRolesForCurrentPartition(context).values());
                 entries.addAll(getGroupsForCurrentPartition(context).values());
             } else {
@@ -341,7 +341,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
             }
         } else if (IDMUtil.isAgentType(identityTypeClass)) {
             if (partition == null) {
-                entries = getAgentsForCurrentRealm().values();
+                entries = getAgentsForCurrentRealm(context).values();
             } else {
                 entries = getAgentsForPartition(partition).values();
             }
@@ -1186,10 +1186,14 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return getDataSource().getGroups(context.getPartition());
     }
 
-    private Map<String, Agent> getAgentsForCurrentRealm() {
-        // FIXME check that the active partition *is* a realm
-        //return getDataSource().getAgents(getContext().getRealm());
-        return null;
+    private Map<String, Agent> getAgentsForCurrentRealm(SecurityContext context) {
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
+            return getDataSource().getAgents(realm);
+        } else {
+            // FIXME throw a proper exception
+            throw new RuntimeException();
+        }
     }
 
     protected FileDataSource getDataSource() {

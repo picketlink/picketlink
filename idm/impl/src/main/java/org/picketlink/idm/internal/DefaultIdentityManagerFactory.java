@@ -66,9 +66,18 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
     private synchronized void loadDefaultRealm() {
         if (defaultRealm == null) {
-            defaultRealm = getRealm(Realm.DEFAULT_REALM);
-            if (defaultRealm == null) {
-                defaultRealm = createRealm(Realm.DEFAULT_REALM);
+            // Only attempt to read/create the Realm if one of the configured identity stores support it
+            if (storeFactory.isFeatureSupported(null, FeatureGroup.realm, FeatureOperation.create, null)) {
+                if (defaultRealm == null) {
+                    defaultRealm = getRealm(Realm.DEFAULT_REALM);
+
+                    if (defaultRealm == null) {
+                        defaultRealm = createRealm(Realm.DEFAULT_REALM);
+                    }
+                }
+            } else {
+                // As a last resort create the default realm manually
+                defaultRealm = new Realm(Realm.DEFAULT_REALM);
             }
         }
     }

@@ -36,8 +36,11 @@ import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.ldap.internal.LDAPIdentityStore;
+import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
+import org.picketlink.idm.model.Tier;
+import org.picketlink.idm.spi.ContextInitializer;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.StoreFactory;
@@ -54,14 +57,19 @@ import org.picketlink.idm.spi.StoreFactory;
  * @author Shane Bryzak
  */
 public class DefaultStoreFactory implements StoreFactory {
+    private IdentityConfiguration identityConfig;
 
-    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap = new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
+    private Map<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>> identityConfigMap =
+            new HashMap<Class<? extends IdentityStoreConfiguration>, Class<? extends IdentityStore<?>>>();
 
-    private Map<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>> storesCache = new HashMap<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>>();
+    private Map<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>> storesCache =
+            new HashMap<Class<? extends IdentityStoreConfiguration>, IdentityStore<?>>();
 
     private Map<String, Set<IdentityStoreConfiguration>> realmStores = new HashMap<String, Set<IdentityStoreConfiguration>>();
 
     public DefaultStoreFactory(IdentityConfiguration identityConfig) {
+        this.identityConfig = identityConfig;
+
         this.identityConfigMap.put(JPAIdentityStoreConfiguration.class, JPAIdentityStore.class);
         this.identityConfigMap.put(LDAPIdentityStoreConfiguration.class, LDAPIdentityStore.class);
         this.identityConfigMap.put(FileIdentityStoreConfiguration.class, FileBasedIdentityStore.class);
@@ -120,6 +128,42 @@ public class DefaultStoreFactory implements StoreFactory {
     }
 
     @Override
+    public boolean isFeatureSupported(Partition partition, FeatureGroup feature, FeatureOperation operation,
+            Class<? extends Relationship> relationshipClass) {
+        if (Realm.class.isInstance(partition)) {
+            Realm realm = (Realm) partition;
+
+            return lookupConfigForFeature(realm.getName(), feature, operation, relationshipClass) != null;
+        } else if (Tier.class.isInstance(partition)) {
+            // Tiers not yet supported by configuration
+            return false;
+        } else if (partition == null) {
+            return lookupConfigForFeature(Realm.DEFAULT_REALM, feature, operation, relationshipClass) != null;
+        } else {
+            return false;
+        }
+    }
+
+    private IdentityStoreConfiguration lookupConfigForFeature(String realmName,
+            FeatureGroup feature, FeatureOperation operation, Class<? extends Relationship> relationshipClass) {
+
+        Set<IdentityStoreConfiguration> configs = realmStores.get(realmName);
+
+        for (IdentityStoreConfiguration cfg : configs) {
+            if (relationshipClass != null) {
+                if (cfg.getFeatureSet().supportsRelationship(relationshipClass) &&
+                    cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
+                    return cfg;
+                }
+            } else if (cfg.getFeatureSet().supports(feature, operation)) {
+                return cfg;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
     public IdentityStore<?> getStoreForFeature(SecurityContext context, FeatureGroup feature,
             FeatureOperation operation) {
         return getStoreForFeature(context, feature, operation, null);
@@ -135,31 +179,12 @@ public class DefaultStoreFactory implements StoreFactory {
             throw MESSAGES.storeConfigRealmNotConfigured(realmName);
         }
 
-        Set<IdentityStoreConfiguration> configs = realmStores.get(realmName);
-
-        IdentityStoreConfiguration config = null;
-        boolean supportedRelationshipClass = true;
-
-        for (IdentityStoreConfiguration cfg : configs) {
-            if (relationshipClass != null) {
-                if (cfg.getFeatureSet().supportsRelationship(relationshipClass)) {
-                    if (cfg.getFeatureSet().supportsRelationshipFeature(relationshipClass, operation)) {
-                        config = cfg;
-                        break;
-                    }
-                } else {
-                    supportedRelationshipClass = false;
-                }
-            } else if (cfg.getFeatureSet().supports(feature, operation)) {
-                config = cfg;
-                break;
-            }
-        }
+        IdentityStoreConfiguration config = lookupConfigForFeature(realmName, feature, operation, relationshipClass);
 
         if (config == null) {
             LOGGER.identityManagerUnsupportedOperation(feature, operation);
 
-            if (!supportedRelationshipClass) {
+            if (relationshipClass != null) {
                 throw MESSAGES.storeConfigUnsupportedRelationshipType(relationshipClass);
             } else {
                 throw MESSAGES.storeConfigUnsupportedOperation(feature, operation, feature, operation);
@@ -167,6 +192,9 @@ public class DefaultStoreFactory implements StoreFactory {
         }
 
         final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
+        for (ContextInitializer initializer : identityConfig.getContextInitializers()) {
+            initializer.initContextForStore(context, store);
+        }
 
         LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation,
                 store, context.getPartition());

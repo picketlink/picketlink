@@ -38,7 +38,7 @@ import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
-import org.picketlink.idm.internal.JPASecurityContextFactory;
+import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -138,16 +138,10 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
     private static IdentityManager createIdentityManager() {
         IdentityConfiguration config = new IdentityConfiguration();
-
+        config.addContextInitializer(new JPAContextInitializer(emf));
         addDefaultConfiguration(config);
 
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config,
-                new JPASecurityContextFactory(null) {
-            @Override
-            public EntityManager getEntityManager() {
-                return entityManager.get();
-            }
-        });
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
         return factory.createIdentityManager();
     }
 

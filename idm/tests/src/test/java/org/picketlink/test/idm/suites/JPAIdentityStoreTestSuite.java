@@ -34,7 +34,7 @@ import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
-import org.picketlink.idm.internal.JPASecurityContextFactory;
+import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -122,7 +122,8 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     }
 
     private IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config, new JPASecurityContextFactory(this.emf));
+        config.addContextInitializer(new JPAContextInitializer(this.emf));
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
         return factory.createIdentityManager();
     }
 
