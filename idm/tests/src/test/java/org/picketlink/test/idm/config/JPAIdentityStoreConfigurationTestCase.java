@@ -43,9 +43,7 @@ import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.credential.Password;
-import org.picketlink.idm.internal.DefaultIdentityManager;
 import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
-import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.jpa.internal.JPAContextInitializer;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -95,6 +93,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failFeatureNotSupportedWhenEntityClassesNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
+        config.addContextInitializer(new JPAContextInitializer(emf));
 
         JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
 
@@ -182,6 +181,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failFeatureNotSupportedWhenCredentialClassesNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
+        config.addContextInitializer(new JPAContextInitializer(emf));
 
         JPAIdentityStoreConfiguration jpaConfig = createMinimalConfiguration();
 
@@ -205,6 +205,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
         }
 
         config = new IdentityConfiguration();
+        config.addContextInitializer(new JPAContextInitializer(emf));
 
         jpaConfig = createMinimalConfiguration();
 
@@ -229,6 +230,7 @@ public class JPAIdentityStoreConfigurationTestCase extends
     @Test
     public void failIdentityClassNotProvided() {
         IdentityConfiguration config = new IdentityConfiguration();
+        config.addContextInitializer(new JPAContextInitializer(emf));
 
         config.addStoreConfiguration(new JPAIdentityStoreConfiguration());
 
