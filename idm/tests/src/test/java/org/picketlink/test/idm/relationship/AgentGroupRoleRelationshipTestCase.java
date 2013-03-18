@@ -44,7 +44,15 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
             name = "someAgent";
         }
         
-        return (T) createAgent(name, partition);
+        if (partition != null) {
+            return (T) createAgent(name, partition);
+        } else {
+            return (T) createAgent(name);
+        }
+    }
+    
+    protected T createIdentityType(String name) {
+        return (T) createAgent(name, null);
     }
 
     protected T getIdentityType() {
@@ -60,8 +68,8 @@ public class AgentGroupRoleRelationshipTestCase<T extends Agent> extends Abstrac
      */
     @Test
     public void testGrantGroupRole() throws Exception {
-        T developerAgent = createIdentityType("developerAgent", null);
-        T projectManagerAgent = createIdentityType("projectManagerAgent", null);
+        T developerAgent = createIdentityType("developerAgent");
+        T projectManagerAgent = createIdentityType("projectManagerAgent");
 
         Role managerRole = createRole("Manager");
         Role developerRole = createRole("Developer");

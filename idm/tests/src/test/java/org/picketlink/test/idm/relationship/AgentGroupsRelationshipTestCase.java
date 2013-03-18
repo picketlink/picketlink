@@ -48,6 +48,14 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
         return (T) createAgent(name, partition);
     }
 
+    protected T createIdentityType(String name) {
+        if (name == null) {
+            name = "someAgent";
+        }
+        
+        return (T) createAgent(name);
+    }
+
     protected T getIdentityType() {
         return (T) getIdentityManager().getAgent("someAgent");
     }
@@ -61,8 +69,8 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
      */
     @Test
     public void testAddAgentToGroup() throws Exception {
-        T someAgent = createIdentityType("someAgent", null);
-        Group someGroup = createGroup("someGroup", null);
+        T someAgent = createIdentityType("someAgent");
+        Group someGroup = createGroup("someGroup");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -70,7 +78,7 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
 
         assertTrue(identityManager.isMember(someAgent, someGroup));
 
-        Group someAnotherGroup = createGroup("someAnotherGroup", null);
+        Group someAnotherGroup = createGroup("someAnotherGroup");
 
         assertFalse(identityManager.isMember(someAgent, someAnotherGroup));
 
@@ -88,9 +96,9 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
      */
     @Test
     public void testRemoveAgentFromGroup() throws Exception {
-        T someAgent = createIdentityType("someAgent", null);
-        Group someGroup = createGroup("someGroup", null);
-        Group someAnotherGroup = createGroup("someAnotherGroup", null);
+        T someAgent = createIdentityType("someAgent");
+        Group someGroup = createGroup("someGroup");
+        Group someAnotherGroup = createGroup("someAnotherGroup");
 
         IdentityManager identityManager = getIdentityManager();
 
@@ -118,11 +126,11 @@ public class AgentGroupsRelationshipTestCase<T extends Agent> extends AbstractId
      */
     @Test
     public void testFindAgentGroups() throws Exception {
-        Group someGroup = createGroup("someGroup", null);
-        Group someAnotherGroup = createGroup("someAnotherGroup", null);
-        Group someImportantGroup = createGroup("someImportantGroup", null);
+        Group someGroup = createGroup("someGroup");
+        Group someAnotherGroup = createGroup("someAnotherGroup");
+        Group someImportantGroup = createGroup("someImportantGroup");
         
-        T user = createIdentityType("someAgent", null);
+        T user = createIdentityType("someAgent");
         
         IdentityManager identityManager = getIdentityManager();
         

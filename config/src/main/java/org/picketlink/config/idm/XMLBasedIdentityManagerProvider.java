@@ -19,10 +19,7 @@ package org.picketlink.config.idm;
  */
 
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
 import java.util.Map;
-
-import javax.persistence.EntityManagerFactory;
 
 import org.picketlink.common.exceptions.ParsingException;
 import org.picketlink.common.properties.Property;
@@ -33,21 +30,14 @@ import org.picketlink.common.reflection.Reflections;
 import org.picketlink.config.PicketLinkConfigParser;
 import org.picketlink.config.federation.PicketLinkType;
 import org.picketlink.config.idm.resolver.PropertyResolverMapper;
-import org.picketlink.idm.IdGenerator;
-import org.picketlink.idm.IdentityCache;
 import org.picketlink.idm.IdentityManager;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
-import org.picketlink.idm.credential.spi.CredentialHandlerFactory;
-import org.picketlink.idm.event.EventBridge;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
-import org.picketlink.idm.spi.IdentityStoreInvocationContextFactory;
-import org.picketlink.idm.spi.StoreFactory;
 
 /**
  * Creating IDM runtime from parsed XML configuration
- *
+ * 
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class XMLBasedIdentityManagerProvider {
@@ -68,74 +58,90 @@ public class XMLBasedIdentityManagerProvider {
 
     public IDMType parseIDMType(InputStream inputStream) {
         try {
-            // TODO: Think about subclassing AbstractSAMLConfigurationProvider (if it's going to be decoupled from federation module)
+            // TODO: Think about subclassing AbstractSAMLConfigurationProvider (if it's going to be decoupled from federation
+            // module)
             PicketLinkConfigParser parser = new PicketLinkConfigParser();
-            PicketLinkType plType = (PicketLinkType)parser.parse(inputStream);
+            PicketLinkType plType = (PicketLinkType) parser.parse(inputStream);
             return plType.getIdmType();
         } catch (ParsingException pe) {
             throw new SecurityConfigurationException("Could not parse picketlink configuration", pe);
         }
     }
 
+    // FIXME: update with latest design
     public IdentityManager buildIdentityManager(IDMType idmType) {
-        String identityManagerClass = idmType.getIdentityManagerClass() != null ? idmType.getIdentityManagerClass() : DEFAULT_IDENTITY_MANAGER_CLASS;
-        IdentityManager identityManager = (IdentityManager)instantiateComponent(identityManagerClass);
+        // String identityManagerClass = idmType.getIdentityManagerClass() != null ? idmType.getIdentityManagerClass() :
+        // DEFAULT_IDENTITY_MANAGER_CLASS;
+        // IdentityManager identityManager = (IdentityManager)instantiateComponent(identityManagerClass);
+        //
+        // if (idmType.getStoreFactoryClass() != null) {
+        // StoreFactory storeFactory = (StoreFactory)instantiateComponent(idmType.getStoreFactoryClass());
+        // identityManager.setIdentityStoreFactory(storeFactory);
+        // }
+        //
+        // IdentityStoreInvocationContextFactory invContextFactory =
+        // buildIdentityStoreInvocationContextFactory(idmType.getIdentityStoreInvocationContextFactory());
+        // IdentityConfiguration identityConfiguration = buildIdentityConfiguration(idmType.getIdentityConfigurationType());
+        //
+        // // Bootstrap identity manager
+        // identityManager.bootstrap(identityConfiguration, invContextFactory);
+        //
+        // return identityManager;
 
-        if (idmType.getStoreFactoryClass() != null) {
-            StoreFactory storeFactory = (StoreFactory)instantiateComponent(idmType.getStoreFactoryClass());
-            identityManager.setIdentityStoreFactory(storeFactory);
-        }
-
-        IdentityStoreInvocationContextFactory invContextFactory = buildIdentityStoreInvocationContextFactory(idmType.getIdentityStoreInvocationContextFactory());
-        IdentityConfiguration identityConfiguration = buildIdentityConfiguration(idmType.getIdentityConfigurationType());
-
-        // Bootstrap identity manager
-        identityManager.bootstrap(identityConfiguration, invContextFactory);
-
-        return identityManager;
+        return null;
     }
 
-    protected IdentityStoreInvocationContextFactory buildIdentityStoreInvocationContextFactory(
-            IdentityStoreInvocationContextFactoryType factoryType) {
-        // Default identityStoreInvocationContextFactory if not provided from configuration
-        if (factoryType == null) {
-            return DefaultIdentityStoreInvocationContextFactory.DEFAULT;
-        }
-
-        // Use null as default value for EntityManagerFactory
-        EntityManagerFactory emf = null;
-        if (factoryType.getEntityManagerFactoryClass() != null) {
-            emf = (EntityManagerFactory)instantiateComponent(factoryType.getEntityManagerFactoryClass());
-        }
-
-        // Use null as default value for EventBridge (it's handled in DefaultIdentityStoreInvocationContextFactory to be non null)
-        EventBridge eventBridge = null;
-        if (factoryType.getEventBridgeClass() != null) {
-            eventBridge = (EventBridge)instantiateComponent(factoryType.getEventBridgeClass());
-        }
-
-        // Use default values for rest of the components
-        String identityCacheClass = factoryType.getIdentityCacheClass()!=null ? factoryType.getIdentityCacheClass() : DEFAULT_IDENTITY_CACHE_CLASS;
-        IdentityCache identityCache = (IdentityCache)instantiateComponent(identityCacheClass);
-
-        String idGeneratorClass = factoryType.getIdGeneratorClass()!=null ? factoryType.getIdGeneratorClass() : DEFAULT_ID_GENERATOR_CLASS;
-        IdGenerator idGenerator = (IdGenerator)instantiateComponent(idGeneratorClass);
-
-        String credentialHandlerFactoryClass = factoryType.getCredentialHandlerFactoryClass()!=null ? factoryType.getCredentialHandlerFactoryClass()
-                : DEFAULT_CREDENTIAL_HANDLER_FACTORY_CLASS;
-        CredentialHandlerFactory credHandlerFactory = (CredentialHandlerFactory)instantiateComponent(credentialHandlerFactoryClass);
-
-        try {
-            String identityStoreInvocationContextFactoryClassName = factoryType.getClassName()!=null ? factoryType.getClassName() : DEFAULT_IDENTITY_STORE_INVOCATION_CONTEXT_FACTORY_CLASS;
-            Class<?> identityStoreInvocationContextFactoryClass = Reflections.classForName(identityStoreInvocationContextFactoryClassName, IDM_CLASSLOADER);
-            Constructor<?> invContextFactoryConstructor = Reflections.findDeclaredConstructor(identityStoreInvocationContextFactoryClass,
-                    EntityManagerFactory.class, CredentialHandlerFactory.class, IdentityCache.class, EventBridge.class, IdGenerator.class);
-            return (IdentityStoreInvocationContextFactory)invContextFactoryConstructor.newInstance(emf, credHandlerFactory, identityCache, eventBridge, idGenerator);
-        } catch (Exception e) {
-            throw new SecurityConfigurationException("Exception during creation of identityStoreInvocationContextFactory", e);
-        }
-
-    }
+    // FIXME: update with latest design
+    // protected IdentityStoreInvocationContextFactory buildIdentityStoreInvocationContextFactory(
+    // IdentityStoreInvocationContextFactoryType factoryType) {
+    // // Default identityStoreInvocationContextFactory if not provided from configuration
+    // if (factoryType == null) {
+    // return DefaultIdentityStoreInvocationContextFactory.DEFAULT;
+    // }
+    //
+    // // Use null as default value for EntityManagerFactory
+    // EntityManagerFactory emf = null;
+    // if (factoryType.getEntityManagerFactoryClass() != null) {
+    // emf = (EntityManagerFactory)instantiateComponent(factoryType.getEntityManagerFactoryClass());
+    // }
+    //
+    // // Use null as default value for EventBridge (it's handled in DefaultIdentityStoreInvocationContextFactory to be non
+    // null)
+    // EventBridge eventBridge = null;
+    // if (factoryType.getEventBridgeClass() != null) {
+    // eventBridge = (EventBridge)instantiateComponent(factoryType.getEventBridgeClass());
+    // }
+    //
+    // // Use default values for rest of the components
+    // String identityCacheClass = factoryType.getIdentityCacheClass()!=null ? factoryType.getIdentityCacheClass() :
+    // DEFAULT_IDENTITY_CACHE_CLASS;
+    // IdentityCache identityCache = (IdentityCache)instantiateComponent(identityCacheClass);
+    //
+    // String idGeneratorClass = factoryType.getIdGeneratorClass()!=null ? factoryType.getIdGeneratorClass() :
+    // DEFAULT_ID_GENERATOR_CLASS;
+    // IdGenerator idGenerator = (IdGenerator)instantiateComponent(idGeneratorClass);
+    //
+    // String credentialHandlerFactoryClass = factoryType.getCredentialHandlerFactoryClass()!=null ?
+    // factoryType.getCredentialHandlerFactoryClass()
+    // : DEFAULT_CREDENTIAL_HANDLER_FACTORY_CLASS;
+    // CredentialHandlerFactory credHandlerFactory =
+    // (CredentialHandlerFactory)instantiateComponent(credentialHandlerFactoryClass);
+    //
+    // try {
+    // String identityStoreInvocationContextFactoryClassName = factoryType.getClassName()!=null ? factoryType.getClassName() :
+    // DEFAULT_IDENTITY_STORE_INVOCATION_CONTEXT_FACTORY_CLASS;
+    // Class<?> identityStoreInvocationContextFactoryClass =
+    // Reflections.classForName(identityStoreInvocationContextFactoryClassName, IDM_CLASSLOADER);
+    // Constructor<?> invContextFactoryConstructor =
+    // Reflections.findDeclaredConstructor(identityStoreInvocationContextFactoryClass,
+    // EntityManagerFactory.class, CredentialHandlerFactory.class, IdentityCache.class, EventBridge.class, IdGenerator.class);
+    // return (IdentityStoreInvocationContextFactory)invContextFactoryConstructor.newInstance(emf, credHandlerFactory,
+    // identityCache, eventBridge, idGenerator);
+    // } catch (Exception e) {
+    // throw new SecurityConfigurationException("Exception during creation of identityStoreInvocationContextFactory", e);
+    // }
+    //
+    // }
 
     protected IdentityConfiguration buildIdentityConfiguration(IdentityConfigurationType identityConfigurationType) {
         IdentityConfiguration identityConfig = new IdentityConfiguration();
@@ -145,7 +151,8 @@ public class XMLBasedIdentityManagerProvider {
         }
 
         if (identityConfigurationType.getPartitionStoreConfiguration() != null) {
-            IdentityStoreConfiguration partitionStoreConfig = buildStoreConfiguration(identityConfigurationType.getPartitionStoreConfiguration());
+            IdentityStoreConfiguration partitionStoreConfig = buildStoreConfiguration(identityConfigurationType
+                    .getPartitionStoreConfiguration());
             identityConfig.addStoreConfiguration(partitionStoreConfig);
         }
 
@@ -174,7 +181,8 @@ public class XMLBasedIdentityManagerProvider {
             Object propertyValueFromConfig = props.get(propertyName);
 
             // Create real instance of property from XML configuration
-            Object propertyValue = PropertyResolverMapper.getInstance().resolveProperty(propertyValueFromConfig, property.getJavaClass());
+            Object propertyValue = PropertyResolverMapper.getInstance().resolveProperty(propertyValueFromConfig,
+                    property.getJavaClass());
 
             // Set property to current storeConfiguration
             property.setValue(storeConfig, propertyValue);

@@ -33,12 +33,21 @@ import org.picketlink.idm.model.User;
 public class AgentGrantRelationshipTestCase extends AbstractGrantRelationshipTestCase<Agent> {
 
     @Override
+    protected Agent createIdentityType(String name) {
+        return createIdentityType(name, null);
+    }
+    
+    @Override
     protected User createIdentityType(String name, Partition partition) {
         if (name == null) {
             name = "someAgent";
         }
         
-        return createUser(name, partition);
+        if (partition != null) {
+            return createUser(name, partition);
+        } else {
+            return createUser(name);
+        }
     }
 
     @Override

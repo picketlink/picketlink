@@ -28,7 +28,6 @@ import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
 import org.picketlink.idm.model.SimpleRole;
 import org.picketlink.idm.model.SimpleUser;
-import org.picketlink.idm.model.Tier;
 import org.picketlink.idm.model.User;
 
 /**
@@ -54,7 +53,7 @@ public class AbstractIdentityManagerTestCase {
 
     public IdentityManager getIdentityManager() {
         if (this.identityManager == null) {
-            throw new RuntimeException("Identity Manager is not set.");
+            this.identityManager = getIdentityManagerFactory().createIdentityManager();
         }
         return this.identityManager;
     }
@@ -133,6 +132,11 @@ public class AbstractIdentityManagerTestCase {
 
     private IdentityManager getIdentityManagerForPartition(Partition partition) {
         IdentityManagerFactory factory = getIdentityManagerFactory();
+        
+        if (partition == null) {
+            partition = factory.getRealm(Realm.DEFAULT_REALM);
+        }
+        
         return factory.createIdentityManager(partition);
     }
 

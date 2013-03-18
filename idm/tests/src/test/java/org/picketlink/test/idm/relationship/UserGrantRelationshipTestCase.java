@@ -32,12 +32,21 @@ import org.picketlink.idm.model.User;
 public class UserGrantRelationshipTestCase extends AbstractGrantRelationshipTestCase<User> {
 
     @Override
+    protected User createIdentityType(String name) {
+        return createIdentityType(name, null);
+    }
+    
+    @Override
     protected User createIdentityType(String name, Partition partition) {
         if (name == null) {
             name = "someUser";
         }
         
-        return createUser(name, partition);
+        if (partition != null) {
+            return createUser(name, partition);
+        } else {
+            return createUser(name);
+        }
     }
 
     @Override

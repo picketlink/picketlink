@@ -344,7 +344,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         Realm realm = getIdentityManagerFactory().getRealm(TESTING_REALM_NAME);
 
         if (realm == null) {
-            getIdentityManagerFactory().createRealm(TESTING_REALM_NAME);
+            realm = getIdentityManagerFactory().createRealm(TESTING_REALM_NAME);
         }
 
         return realm;

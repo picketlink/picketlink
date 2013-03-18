@@ -42,6 +42,7 @@ import org.picketlink.test.idm.AbstractIdentityManagerTestCase;
 public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> extends AbstractIdentityManagerTestCase {
     
     protected abstract T createIdentityType(String name, Partition partition);
+    protected abstract T createIdentityType(String name);
 
     protected abstract T getIdentityType();
     
@@ -54,7 +55,7 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
      */
     @Test
     public void testGrantRoleToAgent() throws Exception {
-        T someAgent = createIdentityType("someAgent", null);
+        T someAgent = createIdentityType("someAgent");
         Role someRole = createRole("someRole");
 
         IdentityManager identityManager = getIdentityManager();
@@ -82,7 +83,7 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
      */
     @Test
     public void testRevokeRoleFromAgent() throws Exception {
-        T someAgent = createIdentityType("someAgent", null);
+        T someAgent = createIdentityType("someAgent");
 
         Role someRole = createRole("someRole");
         Role someAnotherRole = createRole("someAnotherRole");
@@ -118,7 +119,7 @@ public abstract class AbstractGrantRelationshipTestCase<T extends IdentityType> 
         Role someAnotherRole = createRole("someAnotherRole");
         Role someImportantRole = createRole("someImportantRole");
         
-        T user = createIdentityType("someAgent", null);
+        T user = createIdentityType("someAgent");
         
         IdentityManager identityManager = getIdentityManager();
         

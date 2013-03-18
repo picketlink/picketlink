@@ -8,9 +8,11 @@ import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FeatureSet.FeatureOperation;
 import org.picketlink.idm.config.IdentityConfiguration;
+import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.model.Partition;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Tier;
+import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.spi.IdentityStore;
 import org.picketlink.idm.spi.PartitionStore;
 import org.picketlink.idm.spi.SecurityContext;
@@ -55,6 +57,8 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
         this.contextFactory = contextFactory;
         this.storeFactory = storeFactory;
+
+        loadDefaultRealm();
     }
 
     private Realm getDefaultRealm() {
@@ -93,8 +97,24 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
     @Override
     public IdentityManager createIdentityManager(Partition partition) {
-        SecurityContext context = contextFactory.createContext(partition);
-        return new DefaultIdentityManager(context, storeFactory);
+        if (partition == null) {
+            throw MESSAGES.nullArgument("Partition");
+        }
+
+        Partition storedPartition = null;
+
+        if (Realm.class.isInstance(partition)) {
+            storedPartition = getRealm(partition.getName());
+        } else if (Tier.class.isInstance(partition)) {
+            storedPartition = getTier(partition.getName());
+        }
+
+        if (storedPartition != null) {
+            SecurityContext context = contextFactory.createContext(partition);
+            return new DefaultIdentityManager(context, storeFactory);
+        } else {
+            throw MESSAGES.partitionNotFoundWithName(partition.getClass(), partition.getName());
+        }
     }
 
     @Override
@@ -141,6 +161,20 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
                 FeatureGroup.realm, FeatureOperation.delete);
 
         if (store != null) {
+            Realm storedRealm = getRealm(realm.getName());
+
+            if (storedRealm == null) {
+                throw MESSAGES.partitionNotFoundWithName(realm.getClass(), realm.getName());
+            }
+
+            IdentityQuery<IdentityType> query = createIdentityManager(storedRealm).createIdentityQuery(IdentityType.class);
+
+            query.setParameter(IdentityType.PARTITION, storedRealm);
+
+            if (!query.getResultList().isEmpty()) {
+                throw MESSAGES.partitionCouldNotRemoveWithIdentityTypes(storedRealm);
+            }
+
             ((PartitionStore) store).removePartition(context, realm);
         }
     }
@@ -194,6 +228,20 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
                 FeatureGroup.tier, FeatureOperation.delete);
 
         if (store != null) {
+            Tier storedTier = getTier(tier.getName());
+
+            if (storedTier == null) {
+                throw MESSAGES.partitionNotFoundWithName(tier.getClass(), tier.getName());
+            }
+
+            IdentityQuery<IdentityType> query = createIdentityManager(storedTier).createIdentityQuery(IdentityType.class);
+
+            query.setParameter(IdentityType.PARTITION, storedTier);
+
+            if (!query.getResultList().isEmpty()) {
+                throw MESSAGES.partitionCouldNotRemoveWithIdentityTypes(storedTier);
+            }
+
             ((PartitionStore) store).removePartition(context, tier);
         }
     }

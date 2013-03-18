@@ -100,8 +100,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testRemoveWithRoles() throws Exception {
         Tier applicationTier = createApplicationTier();
 
-        IdentityManager defaultIdentityManager = getIdentityManager();
-
         IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
 
         Role testingRole = new SimpleRole("testingRole");
@@ -257,13 +255,10 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     }
 
     private Tier createApplicationTier() {
-        IdentityManager identityManager = getIdentityManager();
-
         Tier tier = getIdentityManagerFactory().getTier(APPLICATION_TIER_NAME);
 
         if (tier == null) {
-            tier = new Tier(APPLICATION_TIER_NAME);
-            getIdentityManagerFactory().createTier(APPLICATION_TIER_NAME, null);
+            tier = getIdentityManagerFactory().createTier(APPLICATION_TIER_NAME, null);
         }
 
         return tier;
