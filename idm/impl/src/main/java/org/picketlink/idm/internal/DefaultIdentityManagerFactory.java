@@ -71,7 +71,8 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
     private synchronized void loadDefaultRealm() {
         if (defaultRealm == null) {
             // Only attempt to read/create the Realm if one of the configured identity stores support it
-            if (storeFactory.isFeatureSupported(null, FeatureGroup.realm, FeatureOperation.create, null)) {
+            if (storeFactory.isFeatureSupported(null, FeatureGroup.realm, FeatureOperation.create, null)
+                    && storeFactory.isFeatureSupported(null, FeatureGroup.realm, FeatureOperation.read, null)) {
                 if (defaultRealm == null) {
                     defaultRealm = getRealm(Realm.DEFAULT_REALM);
 
@@ -126,16 +127,15 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
         SecurityContext context = contextFactory.createContext();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
-                FeatureGroup.realm, FeatureOperation.create);
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.realm, FeatureOperation.create);
 
         if (store != null) {
             Realm realm = new Realm(name);
             ((PartitionStore) store).createPartition(context, realm);
             return realm;
         } else {
-            throw MESSAGES.storeConfigUnsupportedOperation(FeatureGroup.realm, FeatureOperation.create,
-                    FeatureGroup.realm, FeatureOperation.create);
+            throw MESSAGES.storeConfigUnsupportedOperation(FeatureGroup.realm, FeatureOperation.create, FeatureGroup.realm,
+                    FeatureOperation.create);
         }
     }
 
@@ -154,11 +154,9 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
             throw MESSAGES.nullArgument("Realm");
         }
 
-
         SecurityContext context = contextFactory.createContext();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
-                FeatureGroup.realm, FeatureOperation.delete);
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.realm, FeatureOperation.delete);
 
         if (store != null) {
             Realm storedRealm = getRealm(realm.getName());
@@ -191,8 +189,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
         SecurityContext context = contextFactory.createContext();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
-                FeatureGroup.tier, FeatureOperation.create);
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.tier, FeatureOperation.create);
 
         if (store != null) {
             Tier tier = new Tier(name, parent);
@@ -201,8 +198,8 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
             return tier;
         } else {
-            throw MESSAGES.storeConfigUnsupportedOperation(FeatureGroup.tier, FeatureOperation.create,
-                    FeatureGroup.tier, FeatureOperation.create);
+            throw MESSAGES.storeConfigUnsupportedOperation(FeatureGroup.tier, FeatureOperation.create, FeatureGroup.tier,
+                    FeatureOperation.create);
         }
     }
 
@@ -210,8 +207,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
     public Tier getTier(String name) {
         SecurityContext context = contextFactory.createContext();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
-                FeatureGroup.tier, FeatureOperation.read);
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.tier, FeatureOperation.read);
 
         return store != null ? ((PartitionStore) store).getTier(context, name) : null;
     }
@@ -224,8 +220,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
         SecurityContext context = contextFactory.createContext();
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
-                FeatureGroup.tier, FeatureOperation.delete);
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.tier, FeatureOperation.delete);
 
         if (store != null) {
             Tier storedTier = getTier(tier.getName());
