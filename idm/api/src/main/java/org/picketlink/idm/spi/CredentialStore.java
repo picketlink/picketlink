@@ -36,7 +36,7 @@ public interface CredentialStore {
      *
      * @param storage
      */
-    void storeCredential(Agent agent, CredentialStorage storage);
+    void storeCredential(SecurityContext context, Agent agent, CredentialStorage storage);
 
     /**
      * Return the currently active credential state of the specified class, for the specified Agent
@@ -44,7 +44,7 @@ public interface CredentialStore {
      * @param storageClass
      * @return
      */
-    <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass);
+    <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, Agent agent, Class<T> storageClass);
 
     /**
      * Returns a List of all credential state of the specified class, for the specified Agent
@@ -53,5 +53,5 @@ public interface CredentialStore {
      * @param storageClass
      * @return
      */
-    <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageClass);
+    <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, Agent agent, Class<T> storageClass);
 }

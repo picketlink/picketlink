@@ -45,15 +45,11 @@ public class FilePartitionStore implements PartitionStore {
 
     public FilePartitionStore(FileBasedIdentityStore identityStore) {
         this.identityStore = identityStore;
-
-        if (getRealm(Realm.DEFAULT_REALM) == null) {
-            createDefaultRealm();
-        }
     }
 
     @Override
-    public void createPartition(Partition partition) {
-        partition.setId(getContext().getIdGenerator().generate());
+    public void createPartition(SecurityContext context, Partition partition) {
+        partition.setId(context.getIdGenerator().generate());
 
         FilePartition filePartition = new FilePartition(partition);
 
@@ -66,7 +62,7 @@ public class FilePartitionStore implements PartitionStore {
     }
 
     @Override
-    public void removePartition(Partition partition) {
+    public void removePartition(SecurityContext context, Partition partition) {
         if (getPartitions().containsKey(partition.getId())) {
             delete(new File(getDataSource().getWorkingDir() + File.separator + partition.getId()));
             getPartitions().remove(partition.getId());
@@ -77,7 +73,7 @@ public class FilePartitionStore implements PartitionStore {
     }
 
     @Override
-    public Realm getRealm(String name) {
+    public Realm getRealm(SecurityContext context, String name) {
         Collection<FilePartition> partitions = getPartitions().values();
         Realm realm = null;
 
@@ -93,12 +89,8 @@ public class FilePartitionStore implements PartitionStore {
         return realm;
     }
 
-    private void createDefaultRealm() {
-        createPartition(new Realm(Realm.DEFAULT_REALM));
-    }
-
     @Override
-    public Tier getTier(String name) {
+    public Tier getTier(SecurityContext context, String name) {
         Collection<FilePartition> partitions = getPartitions().values();
 
         for (FilePartition partition : partitions) {
@@ -109,7 +101,7 @@ public class FilePartitionStore implements PartitionStore {
                     if (tier.getParent() != null) {
                         // during the unmarshalling the parent tier is only a reference to the real entry. We need to load the
                         // real unmarshalled parent entry.
-                        tier.setParent(getTier(tier.getParent().getName()));
+                        tier.setParent(getTier(context, tier.getParent().getName()));
                     }
 
                     return tier;
@@ -118,11 +110,6 @@ public class FilePartitionStore implements PartitionStore {
         }
 
         return null;
-    }
-
-
-    private SecurityContext getContext() {
-        return this.identityStore.getContext();
     }
 
     private FileDataSource getDataSource() {

@@ -36,6 +36,7 @@ import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * This particular implementation supports the validation of {@link X509CertificateCredentials}, and updating {@link X509Cert} credentials.
@@ -47,7 +48,7 @@ import org.picketlink.idm.spi.IdentityStore;
 public class X509CertificateCredentialHandler implements CredentialHandler {
 
     @Override
-    public void validate(Credentials credentials, IdentityStore<?> identityStore) {
+    public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
         validateCredentialStore(identityStore);
 
         if (!X509CertificateCredentials.class.isInstance(credentials)) {
@@ -56,7 +57,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
 
         X509CertificateCredentials certCredentials = (X509CertificateCredentials) credentials;
 
-        Agent agent = identityStore.getAgent(certCredentials.getUsername());
+        Agent agent = identityStore.getAgent(context, certCredentials.getUsername());
 
         certCredentials.setStatus(Status.INVALID);
 
@@ -64,7 +65,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
         if (agent != null) {
             CredentialStore store = (CredentialStore) identityStore;
 
-            X509CertificateStorage storage = store.retrieveCurrentCredential(agent, X509CertificateStorage.class);
+            X509CertificateStorage storage = store.retrieveCurrentCredential(context, agent, X509CertificateStorage.class);
 
             if (storage != null) {
                 String base64Cert = storage.getBase64Cert();
@@ -88,7 +89,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         validateCredentialStore(identityStore);
 
         if (!X509Cert.class.isInstance(credential)) {
@@ -100,7 +101,7 @@ public class X509CertificateCredentialHandler implements CredentialHandler {
 
         CredentialStore store = (CredentialStore) identityStore;
 
-        store.storeCredential(agent, storage);
+        store.storeCredential(context, agent, storage);
     }
 
     private void validateCredentialStore(IdentityStore<?> identityStore) {

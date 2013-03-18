@@ -83,7 +83,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
         if (store != null) {
             Realm realm = new Realm(name);
-            ((PartitionStore) store).createPartition(realm);
+            ((PartitionStore) store).createPartition(contextFactory.createContext(null), realm);
             return realm;
         } else {
             throw MESSAGES.storeConfigUnsupportedOperation(FeatureGroup.realm, FeatureOperation.create,
@@ -96,7 +96,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
         IdentityStore<?> store = storeFactory.getStoreForFeature(contextFactory.createContext(null),
                 FeatureGroup.realm, FeatureOperation.read);
 
-        return store != null ? ((PartitionStore) store).getRealm(name) : null;
+        return store != null ? ((PartitionStore) store).getRealm(contextFactory.createContext(null), name) : null;
     }
 
     @Override
@@ -109,7 +109,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
                 FeatureGroup.realm, FeatureOperation.delete);
 
         if (store != null) {
-            ((PartitionStore) store).removePartition(realm);
+            ((PartitionStore) store).removePartition(contextFactory.createContext(null), realm);
         }
     }
 
@@ -129,7 +129,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
         if (store != null) {
             Tier tier = new Tier(name, parent);
 
-            ((PartitionStore) store).createPartition(tier);
+            ((PartitionStore) store).createPartition(contextFactory.createContext(null), tier);
 
             return tier;
         } else {
@@ -143,7 +143,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
         IdentityStore<?> store = storeFactory.getStoreForFeature(contextFactory.createContext(null),
                 FeatureGroup.tier, FeatureOperation.read);
 
-        return store != null ? ((PartitionStore) store).getTier(name) : null;
+        return store != null ? ((PartitionStore) store).getTier(contextFactory.createContext(null), name) : null;
     }
 
     @Override
@@ -156,7 +156,7 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
                 FeatureGroup.tier, FeatureOperation.delete);
 
         if (store != null) {
-            ((PartitionStore) store).removePartition(tier);
+            ((PartitionStore) store).removePartition(contextFactory.createContext(null), tier);
         }
     }
 

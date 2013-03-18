@@ -167,8 +167,6 @@ public class DefaultStoreFactory implements StoreFactory {
         @SuppressWarnings("unchecked")
         final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
 
-        final IdentityStoreConfiguration configuration = config;
-
         LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation,
                 store, context.getPartition());
 

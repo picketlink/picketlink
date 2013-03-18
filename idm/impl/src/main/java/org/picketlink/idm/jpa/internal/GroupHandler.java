@@ -60,15 +60,15 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
-                store.lookupPartitionObject(context.getPartition()), true);
+                store.lookupPartitionObject(context, context.getPartition()), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromGroup.getName(), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.GROUP_PATH, fromGroup.getPath(), true);
 
         if (fromGroup.getParentGroup() != null) {
-            Object parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
+            Object parentIdentity = store.lookupIdentityObjectById(context, fromGroup.getParentGroup().getId());
 
             if (parentIdentity == null) {
-                parentIdentity = store.lookupIdentityObjectById(fromGroup.getParentGroup().getId());
+                parentIdentity = store.lookupIdentityObjectById(context, fromGroup.getParentGroup().getId());
             }
 
             jpaConfig.setModelPropertyValue(toIdentity, PropertyType.GROUP_PARENT, parentIdentity, true);
@@ -76,8 +76,8 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     }
 
     @Override
-    void remove(Object identity, Group identityType, JPAIdentityStore store) {
-        disassociateChildren(identityType, store);
+    void remove(SecurityContext context, Object identity, Group identityType, JPAIdentityStore store) {
+        disassociateChildren(context, identityType, store);
     }
 
     @Override
@@ -102,8 +102,8 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
      *
      * @param group
      */
-    private void disassociateChildren(Group group, JPAIdentityStore store) {
-        EntityManager em = store.getEntityManager();
+    private void disassociateChildren(SecurityContext context, Group group, JPAIdentityStore store) {
+        EntityManager em = store.getEntityManager(context);
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
@@ -127,7 +127,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
     }
 
     @Override
-    protected Group doCreateIdentityType(Object identity, JPAIdentityStore store) {
+    protected Group doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
         SimpleGroup group = null;
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
@@ -139,7 +139,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
         if (parentInstance != null) {
             String groupPath = jpaConfig.getModelPropertyValue(String.class, parentInstance, PropertyType.GROUP_PATH);
 
-            group = new SimpleGroup(name, store.getGroup(groupPath));
+            group = new SimpleGroup(name, store.getGroup(context, groupPath));
         } else {
             group = new SimpleGroup(name);
         }
@@ -185,7 +185,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
             for (Object object : parameterValues) {
                 if (Agent.class.isInstance(object)) {
                     DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
-                            GroupMembership.class, store);
+                            context, GroupMembership.class, store);
 
                     query.setParameter(GroupMembership.MEMBER, object);
 
@@ -231,7 +231,7 @@ public class GroupHandler extends IdentityTypeHandler<Group> {
                     Group childGroup = (Group) object;
 
                     if (childGroup != null && childGroup.getParentGroup() != null) {
-                        Object childObject = store.lookupIdentityObjectById(childGroup.getId());
+                        Object childObject = store.lookupIdentityObjectById(context, childGroup.getId());
 
                         List<Object> parents = getParentGroups(criteria, store, builder, childObject);
 

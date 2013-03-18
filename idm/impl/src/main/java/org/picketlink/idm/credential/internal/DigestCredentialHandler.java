@@ -39,6 +39,7 @@ import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>
@@ -58,7 +59,7 @@ import org.picketlink.idm.spi.IdentityStore;
 public class DigestCredentialHandler implements CredentialHandler {
 
     @Override
-    public void validate(Credentials credentials, IdentityStore<?> identityStore) {
+    public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
         CredentialStore credentialStore = validateCredentialStore(identityStore);
 
         if (!DigestCredentials.class.isInstance(credentials)) {
@@ -70,10 +71,11 @@ public class DigestCredentialHandler implements CredentialHandler {
         digestCredential.setStatus(Status.INVALID);
 
         Digest digest = digestCredential.getDigest();
-        Agent agent = identityStore.getAgent(digest.getUsername());
+        Agent agent = identityStore.getAgent(context, digest.getUsername());
 
         if (agent != null) {
-            List<DigestCredentialStorage> storages = credentialStore.retrieveCredentials(agent, DigestCredentialStorage.class);
+            List<DigestCredentialStorage> storages = credentialStore.retrieveCredentials(context, agent,
+                    DigestCredentialStorage.class);
             DigestCredentialStorage currentCredential = null;
 
             for (DigestCredentialStorage storage : storages) {
@@ -101,7 +103,7 @@ public class DigestCredentialHandler implements CredentialHandler {
                         digestCredential.setStatus(Status.VALID);
                     }
                 }
-            } else if (isLastCredentialExpired(agent, credentialStore, DigestCredentialStorage.class)) {
+            } else if (isLastCredentialExpired(context, agent, credentialStore, DigestCredentialStorage.class)) {
                 digestCredential.setStatus(Status.EXPIRED);
             }
 
@@ -112,7 +114,7 @@ public class DigestCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         CredentialStore credentialStore = validateCredentialStore(identityStore);
 
         if (!Digest.class.isInstance(credential)) {
@@ -137,7 +139,7 @@ public class DigestCredentialHandler implements CredentialHandler {
         storage.setEffectiveDate(effectiveDate);
         storage.setExpiryDate(expiryDate);
 
-        credentialStore.storeCredential(agent, storage);
+        credentialStore.storeCredential(context, agent, storage);
     }
 
     private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {

@@ -53,7 +53,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION,
-                store.lookupPartitionObject(context.getPartition()), true);
+                store.lookupPartitionObject(context, context.getPartition()), true);
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_NAME, fromRole.getName(), true);
     }
 
@@ -73,7 +73,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
     }
 
     @Override
-    protected Role doCreateIdentityType(Object identity, JPAIdentityStore store) {
+    protected Role doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
         String name = store.getConfig().getModelPropertyValue(String.class, identity, PropertyType.IDENTITY_NAME);
 
         SimpleRole role = new SimpleRole(name);
@@ -99,7 +99,7 @@ public class RoleHandler extends IdentityTypeHandler<Role> {
 
         if (parameterValues != null) {
             for (Object object : parameterValues) {
-                DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, store);
+                DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(context, Grant.class, store);
 
                 query.setParameter(Grant.ASSIGNEE, object);
 

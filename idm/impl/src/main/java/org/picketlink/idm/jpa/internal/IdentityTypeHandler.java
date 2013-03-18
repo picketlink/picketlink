@@ -82,8 +82,8 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param identity
      * @return
      */
-    public T createIdentityType(Object identity, JPAIdentityStore store) {
-        T identityType = doCreateIdentityType(identity, store);
+    public T createIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
+        T identityType = doCreateIdentityType(context, identity, store);
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
@@ -124,7 +124,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
             throw MESSAGES.instantiationError(jpaConfig.getIdentityClass().getName(), e);
         }
 
-        String newGeneratedId = store.getContext().getIdGenerator().generate();
+        String newGeneratedId = context.getIdGenerator().generate();
 
         jpaConfig.setModelPropertyValue(identity, PropertyType.IDENTITY_ID, newGeneratedId, true);
 
@@ -167,7 +167,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param identity
      * @param identityType
      */
-    void remove(Object identity, T identityType, JPAIdentityStore store) {
+    void remove(SecurityContext context, Object identity, T identityType, JPAIdentityStore store) {
 
     }
 
@@ -192,9 +192,9 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
         findByExpiryAfter(criteria, predicates, store);
         findByCreatedBefore(criteria, predicates, store);
         findByExpiryBefore(criteria, predicates, store);
-        findByGroupRole(criteria, predicates, store);
-        findByMemberOf(criteria, predicates, store);
-        findByHasRole(criteria, predicates, store);
+        findByGroupRole(context, criteria, predicates, store);
+        findByMemberOf(context, criteria, predicates, store);
+        findByHasRole(context, criteria, predicates, store);
         findByAttributes(criteria, predicates, store);
 
         return predicates;
@@ -247,7 +247,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
      * @param identity
      * @return
      */
-    protected abstract T doCreateIdentityType(Object identity, JPAIdentityStore store);
+    protected abstract T doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store);
 
     /**
      * <p>
@@ -309,7 +309,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void findByHasRole(JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
+    private void findByHasRole(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_ROLE);
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
@@ -320,7 +320,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                     throw MESSAGES.queryUnsupportedParameterValue("IdentityType.HAS_ROLE", role);
                 }
 
-                DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, store);
+                DefaultRelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(context, Grant.class, store);
 
                 query.setParameter(Grant.ROLE, role);
 
@@ -363,7 +363,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void findByMemberOf(JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
+    private void findByMemberOf(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
         Object[] parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.MEMBER_OF);
 
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
@@ -375,7 +375,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
                 }
 
                 DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
-                        GroupMembership.class, store);
+                        context, GroupMembership.class, store);
 
                 query.setParameter(GroupMembership.GROUP, group);
 
@@ -418,7 +418,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void findByGroupRole(JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
+    private void findByGroupRole(SecurityContext context, JPACriteriaQueryBuilder criteria, List<Predicate> predicates, JPAIdentityStore store) {
         Object[] parameterValues;
         parameterValues = criteria.getIdentityQuery().getParameter(IdentityType.HAS_GROUP_ROLE);
 
@@ -430,7 +430,7 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
                 GroupRole groupRole = (GroupRole) object;
 
-                DefaultRelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, store);
+                DefaultRelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(context, GroupRole.class, store);
 
                 query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
                 query.setParameter(GroupRole.GROUP, groupRole.getGroup());
@@ -556,13 +556,13 @@ public abstract class IdentityTypeHandler<T extends IdentityType> {
 
             predicates.add(criteria.getBuilder().equal(
                     criteria.getRoot().get(config.getModelProperty(PropertyType.IDENTITY_PARTITION).getName()),
-                    store.lookupPartitionObject(partition)));
+                    store.lookupPartitionObject(context, partition)));
         } else {
             Join<Object, Object> joinPartition = criteria.getRoot().join(
                     config.getModelProperty(PropertyType.IDENTITY_PARTITION).getName());
 
             if (criteria.getIdentityQuery().getParameter(IdentityType.PARTITION) == null) {
-                List<String> partitionIds = store.getAllowedPartitionIds(context.getPartition());
+                List<String> partitionIds = store.getAllowedPartitionIds(context, context.getPartition());
 
                 partitionIds.add(context.getPartition().getId());
 

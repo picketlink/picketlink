@@ -34,6 +34,7 @@ import org.picketlink.idm.credential.spi.CredentialHandler;
 import org.picketlink.idm.credential.spi.annotations.SupportsCredentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * This particular implementation supports the validation of UsernamePasswordCredentials, and updating PlainTextPassword credentials.
@@ -47,7 +48,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
     private static final String USER_PASSWORD_ATTRIBUTE = "userpassword";
 
     @Override
-    public void validate(Credentials credentials, IdentityStore<?> identityStore) {
+    public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
         checkIdentityStoreInstance(identityStore);
 
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
@@ -59,12 +60,12 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
 
         usernamePassword.setStatus(Status.INVALID);
 
-        Agent agent = identityStore.getAgent(usernamePassword.getUsername());
+        Agent agent = identityStore.getAgent(context, usernamePassword.getUsername());
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
             LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
-            LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(LDAPUser.class, agent.getId());
+            LDAPUser ldapUser = ldapIdentityStore.lookupEntryById(context, LDAPUser.class, agent.getId());
             char[] password = usernamePassword.getPassword().getValue();
 
             boolean isValid = ldapIdentityStore.getLDAPManager().authenticate(ldapUser.getDN(), new String(password));
@@ -76,7 +77,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         checkIdentityStoreInstance(identityStore);
 
         if (!Password.class.isInstance(credential)) {
@@ -87,7 +88,7 @@ public class LDAPPlainTextPasswordCredentialHandler implements CredentialHandler
         Password password = (Password) credential;
 
         LDAPIdentityStore ldapIdentityStore = (LDAPIdentityStore) identityStore;
-        LDAPUser ldapuser = ldapIdentityStore.lookupEntryById(LDAPUser.class, agent.getId());
+        LDAPUser ldapuser = ldapIdentityStore.lookupEntryById(context, LDAPUser.class, agent.getId());
 
         if (ldapIdentityStore.getConfig().isActiveDirectory()) {
             updateADPassword(ldapuser, new String(password.getValue()), ldapIdentityStore);

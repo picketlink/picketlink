@@ -40,6 +40,7 @@ import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * @author Pedro Silva
@@ -79,7 +80,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchRolesOf(IdentityType identityType) {
+    public boolean matchRolesOf(SecurityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.ROLE_OF);
 
         if (values != null) {
@@ -99,7 +100,7 @@ public class FileIdentityQueryHelper {
 
                 if (agent != null) {
                     for (FileRelationship storedRelationship : new ArrayList<FileRelationship>(relationships)) {
-                        Grant grant = identityStore.convertToRelationship(storedRelationship);
+                        Grant grant = identityStore.convertToRelationship(context, storedRelationship);
 
                         if (grant != null) {
                             if (!grant.getRole().getId().equals(currentRole.getId())) {
@@ -122,7 +123,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchHasMember(IdentityType identityType) {
+    public boolean matchHasMember(SecurityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_MEMBER);
 
         if (values != null) {
@@ -141,7 +142,8 @@ public class FileIdentityQueryHelper {
 
                     Agent agent = (Agent) object;
 
-                    DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(GroupMembership.class, this.identityStore);
+                    DefaultRelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
+                            context, GroupMembership.class, this.identityStore);
 
                     query.setParameter(GroupMembership.MEMBER, agent);
 
@@ -181,7 +183,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchHasGroupRole(IdentityType identityType) {
+    public boolean matchHasGroupRole(SecurityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_GROUP_ROLE);
 
         if (values != null) {
@@ -191,7 +193,8 @@ public class FileIdentityQueryHelper {
                 GroupRole groupRole = (GroupRole) object;
 
                 if (groupRole != null) {
-                    RelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(GroupRole.class, identityStore);
+                    RelationshipQuery<GroupRole> query = new DefaultRelationshipQuery<GroupRole>(context,
+                            GroupRole.class, identityStore);
 
                     query.setParameter(GroupRole.ASSIGNEE, identityType);
                     query.setParameter(GroupRole.GROUP, groupRole.getGroup());
@@ -213,7 +216,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchMemberOf(IdentityType identityType) {
+    public boolean matchMemberOf(SecurityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.MEMBER_OF);
 
         if (values != null) {
@@ -226,7 +229,7 @@ public class FileIdentityQueryHelper {
 
                 if (group != null) {
                     RelationshipQuery<GroupMembership> query = new DefaultRelationshipQuery<GroupMembership>(
-                            GroupMembership.class, identityStore);
+                            context, GroupMembership.class, identityStore);
 
                     query.setParameter(GroupMembership.MEMBER, identityType);
                     query.setParameter(GroupMembership.GROUP, group);
@@ -247,7 +250,7 @@ public class FileIdentityQueryHelper {
         return true;
     }
 
-    public boolean matchHasRole(IdentityType identityType) {
+    public boolean matchHasRole(SecurityContext context, IdentityType identityType) {
         Object[] values = identityQuery.getParameter(IdentityType.HAS_ROLE);
 
         if (values != null) {
@@ -259,7 +262,7 @@ public class FileIdentityQueryHelper {
                 }
 
                 if (role != null) {
-                    RelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(Grant.class, identityStore);
+                    RelationshipQuery<Grant> query = new DefaultRelationshipQuery<Grant>(context, Grant.class, identityStore);
 
                     query.setParameter(Grant.ASSIGNEE, identityType);
                     query.setParameter(Grant.ROLE, role);

@@ -23,6 +23,7 @@ import java.util.Date;
 import org.picketlink.idm.credential.spi.CredentialStorage;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.CredentialStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>Utility class with helper methods for the Credential API.</p>
@@ -62,8 +63,8 @@ public final class CredentialUtils {
         return isCurrent;
     }
 
-    public static boolean isLastCredentialExpired(Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
-        return isCredentialExpired(getCurrentCredential(agent, store, storageClass));
+    public static boolean isLastCredentialExpired(SecurityContext context, Agent agent, CredentialStore store, Class<? extends CredentialStorage> storageClass) {
+        return isCredentialExpired(getCurrentCredential(context, agent, store, storageClass));
     }
 
     /**
@@ -74,12 +75,12 @@ public final class CredentialUtils {
      * @param storageClass
      * @return
      */
-    public static <T extends CredentialStorage> T getCurrentCredential(Agent agent, CredentialStore store,
+    public static <T extends CredentialStorage> T getCurrentCredential(SecurityContext context, Agent agent, CredentialStore store,
             Class<T> storageClass) {
         T lastCredential = null;
         Date actualDate = new Date();
 
-        for (T storedCredential : store.retrieveCredentials(agent, storageClass)) {
+        for (T storedCredential : store.retrieveCredentials(context, agent, storageClass)) {
             if (storedCredential.getEffectiveDate().compareTo(actualDate) <= 0) {
                 if (lastCredential == null || lastCredential.getEffectiveDate().compareTo(storedCredential.getEffectiveDate()) <= 0) {
                     lastCredential = storedCredential;

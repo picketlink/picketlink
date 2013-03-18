@@ -34,6 +34,7 @@ import org.picketlink.idm.password.internal.SHASaltedPasswordEncoder;
 import org.picketlink.idm.password.internal.SHASaltedPasswordStorage;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>
@@ -52,7 +53,7 @@ import org.picketlink.idm.spi.IdentityStore;
 public class PasswordCredentialHandler implements CredentialHandler {
 
     @Override
-    public void validate(Credentials credentials, IdentityStore<?> identityStore) {
+    public void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore) {
         CredentialStore store = validateCredentialStore(identityStore);
 
         if (!UsernamePasswordCredentials.class.isInstance(credentials)) {
@@ -63,11 +64,11 @@ public class PasswordCredentialHandler implements CredentialHandler {
 
         usernamePassword.setStatus(Status.INVALID);
 
-        Agent agent = identityStore.getAgent(usernamePassword.getUsername());
+        Agent agent = identityStore.getAgent(context, usernamePassword.getUsername());
 
         // If the user for the provided username cannot be found we fail validation
         if (agent != null) {
-            SHASaltedPasswordStorage hash = store.retrieveCurrentCredential(agent, SHASaltedPasswordStorage.class);
+            SHASaltedPasswordStorage hash = store.retrieveCurrentCredential(context, agent, SHASaltedPasswordStorage.class);
 
             // If the stored hash is null we automatically fail validation
             if (hash != null) {
@@ -88,7 +89,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
     }
 
     @Override
-    public void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
+    public void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate) {
         CredentialStore store = validateCredentialStore(identityStore);
 
         if (!Password.class.isInstance(credential)) {
@@ -107,7 +108,7 @@ public class PasswordCredentialHandler implements CredentialHandler {
             hash.setExpiryDate(expiryDate);
         }
 
-        store.storeCredential(agent, hash);
+        store.storeCredential(context, agent, hash);
     }
 
     private CredentialStore validateCredentialStore(IdentityStore<?> identityStore) {

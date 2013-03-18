@@ -30,6 +30,7 @@ import org.picketlink.idm.model.IdentityType;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * Default IdentityQuery implementation.
@@ -41,6 +42,7 @@ import org.picketlink.idm.spi.IdentityStore;
 public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQuery<T> {
 
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
+    private SecurityContext context;
     private IdentityStore<?> identityStore;
     private Class<T> identityType;
     private int offset;
@@ -48,7 +50,8 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
     private QueryParameter[] sortParameters;
     private boolean sortAscending = true;
 
-    public DefaultIdentityQuery(Class<T> identityType, IdentityStore<?> identityStore) {
+    public DefaultIdentityQuery(SecurityContext context, Class<T> identityType, IdentityStore<?> identityStore) {
+        this.context = context;
         this.identityStore = identityStore;
         this.identityType = identityType;
     }
@@ -126,7 +129,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
         List<T> result = null;
 
         try {
-            result = this.identityStore.fetchQueryResults(this);
+            result = this.identityStore.fetchQueryResults(context, this);
         } catch (Exception e) {
             throw IDMMessages.MESSAGES.identityTypeQueryFailed(this, e);
         }
@@ -136,7 +139,7 @@ public class DefaultIdentityQuery<T extends IdentityType> implements IdentityQue
 
     @Override
     public int getResultCount() {
-        return this.identityStore.countQueryResults(this);
+        return this.identityStore.countQueryResults(context, this);
     }
 
     @Override

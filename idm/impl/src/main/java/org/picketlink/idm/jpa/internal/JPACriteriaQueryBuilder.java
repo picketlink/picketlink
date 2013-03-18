@@ -47,11 +47,11 @@ public class JPACriteriaQueryBuilder {
     private CriteriaQuery<?> criteria;
     private JPAIdentityStore identityStore;
 
-    public JPACriteriaQueryBuilder(JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
+    public JPACriteriaQueryBuilder(SecurityContext context, JPAIdentityStore identityStore, IdentityQuery<?> identityQuery) {
         this.identityStore = identityStore;
         this.identityQuery = identityQuery;
 
-        this.builder = getEntityManager().getCriteriaBuilder();
+        this.builder = getEntityManager(context).getCriteriaBuilder();
         this.criteria = builder.createQuery(getConfig().getIdentityClass());
         this.root = criteria.from(getConfig().getIdentityClass());
     }
@@ -108,14 +108,14 @@ public class JPACriteriaQueryBuilder {
         return this.identityStore.getConfig();
     }
 
-    private EntityManager getEntityManager() {
-        return this.identityStore.getEntityManager();
+    private EntityManager getEntityManager(SecurityContext context) {
+        return this.identityStore.getEntityManager(context);
     }
 
     private class DefaultIdentityTypeHandler extends IdentityTypeHandler<IdentityType> {
 
         @Override
-        protected IdentityType doCreateIdentityType(Object identity, JPAIdentityStore store) {
+        protected IdentityType doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
             return null;
         }
 

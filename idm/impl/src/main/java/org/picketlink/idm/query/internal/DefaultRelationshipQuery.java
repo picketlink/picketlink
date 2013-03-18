@@ -28,6 +28,7 @@ import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * Default IdentityQuery implementation.
@@ -39,12 +40,14 @@ import org.picketlink.idm.spi.IdentityStore;
 public class DefaultRelationshipQuery<T extends Relationship> implements RelationshipQuery<T> {
 
     private Map<QueryParameter, Object[]> parameters = new LinkedHashMap<QueryParameter, Object[]>();
+    private SecurityContext context;
     private IdentityStore<?> identityStore;
     private Class<T> relationshipType;
     private int offset;
     private int limit;
 
-    public DefaultRelationshipQuery(Class<T> relationshipType, IdentityStore<?> identityStore) {
+    public DefaultRelationshipQuery(SecurityContext context, Class<T> relationshipType, IdentityStore<?> identityStore) {
+        this.context = context;
         this.identityStore = identityStore;
         this.relationshipType = relationshipType;
     }
@@ -85,7 +88,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
         List<T> result = null;
 
         try {
-            result = this.identityStore.fetchQueryResults(this);
+            result = this.identityStore.fetchQueryResults(context, this);
         } catch (Exception e) {
             throw MESSAGES.relationshipQueryFailed(this, e);
         }
@@ -95,7 +98,7 @@ public class DefaultRelationshipQuery<T extends Relationship> implements Relatio
 
     @Override
     public int getResultCount() {
-        return this.identityStore.countQueryResults(this);
+        return this.identityStore.countQueryResults(context, this);
     }
 
     @Override

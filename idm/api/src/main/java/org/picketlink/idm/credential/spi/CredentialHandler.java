@@ -23,6 +23,7 @@ import java.util.Date;
 import org.picketlink.idm.credential.Credentials;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.spi.IdentityStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * Performs credential validation and persists credential state to an IdentityStore.
@@ -36,12 +37,12 @@ public interface CredentialHandler {
      * @param store
      * @return
      */
-    void validate(Credentials credentials, IdentityStore<?> identityStore);
+    void validate(SecurityContext context, Credentials credentials, IdentityStore<?> identityStore);
     /**
      *
      * @param user
      * @param credential
      * @param store
      */
-    void update(Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
+    void update(SecurityContext context, Agent agent, Object credential, IdentityStore<?> identityStore, Date effectiveDate, Date expiryDate);
 }

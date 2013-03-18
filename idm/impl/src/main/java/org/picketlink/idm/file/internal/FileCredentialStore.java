@@ -60,29 +60,29 @@ public class FileCredentialStore implements CredentialStore {
         this.identityStore = identityStore;
     }
 
-    public void validateCredentials(Credentials credentials) {
-        CredentialHandler handler = getContext().getCredentialValidator(credentials.getClass(), this.identityStore);
+    public void validateCredentials(SecurityContext context, Credentials credentials) {
+        CredentialHandler handler = context.getCredentialValidator(credentials.getClass(), this.identityStore);
 
         if (handler == null) {
             throw MESSAGES.credentialHandlerNotFoundForCredentialType(credentials.getClass());
         }
 
-        handler.validate(credentials, this.identityStore);
+        handler.validate(context, credentials, this.identityStore);
     }
 
-    public void updateCredential(Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
-        CredentialHandler handler = getContext().getCredentialUpdater(credential.getClass(), this.identityStore);
+    public void updateCredential(SecurityContext context, Agent agent, Object credential, Date effectiveDate, Date expiryDate) {
+        CredentialHandler handler = context.getCredentialUpdater(credential.getClass(), this.identityStore);
 
         if (handler == null) {
             throw MESSAGES.credentialHandlerNotFoundForCredentialType(credential.getClass());
         }
 
-        handler.update(agent, credential, this.identityStore, effectiveDate, expiryDate);
+        handler.update(context, agent, credential, this.identityStore, effectiveDate, expiryDate);
     }
 
     @Override
-    public void storeCredential(Agent agent, CredentialStorage storage) {
-        List<FileCredentialStorage> credentials = getCredentials(agent, storage.getClass());
+    public void storeCredential(SecurityContext context, Agent agent, CredentialStorage storage) {
+        List<FileCredentialStorage> credentials = getCredentials(context, agent, storage.getClass());
 
         FileCredentialStorage credential = new FileCredentialStorage();
 
@@ -98,19 +98,19 @@ public class FileCredentialStore implements CredentialStore {
         }
 
         credentials.add(credential);
-        flushCredentials();
+        flushCredentials(context);
     }
 
     @Override
-    public <T extends CredentialStorage> T retrieveCurrentCredential(Agent agent, Class<T> storageClass) {
-        return getCurrentCredential(agent, this, storageClass);
+    public <T extends CredentialStorage> T retrieveCurrentCredential(SecurityContext context, Agent agent, Class<T> storageClass) {
+        return getCurrentCredential(context, agent, this, storageClass);
     }
 
     @Override
-    public <T extends CredentialStorage> List<T> retrieveCredentials(Agent agent, Class<T> storageTyper) {
+    public <T extends CredentialStorage> List<T> retrieveCredentials(SecurityContext context, Agent agent, Class<T> storageTyper) {
         ArrayList<T> storedCredentials = new ArrayList<T>();
 
-        List<FileCredentialStorage> credentials = getCredentials(agent, storageTyper);
+        List<FileCredentialStorage> credentials = getCredentials(context, agent, storageTyper);
 
         for (FileCredentialStorage fileCredentialStorage : credentials) {
             storedCredentials.add(convertToCredentialStorage(storageTyper, fileCredentialStorage));
@@ -126,9 +126,9 @@ public class FileCredentialStore implements CredentialStore {
      *
      * @param agent
      */
-    public void removeCredentials(Agent agent) {
-        getCredentialsForCurrentPartition().remove(agent.getLoginName());
-        flushCredentials();
+    public void removeCredentials(SecurityContext context, Agent agent) {
+        getCredentialsForCurrentPartition(context).remove(agent.getLoginName());
+        flushCredentials(context);
     }
 
 
@@ -181,8 +181,8 @@ public class FileCredentialStore implements CredentialStore {
      * @param storageType
      * @return
      */
-    private List<FileCredentialStorage> getCredentials(Agent agent, Class<? extends CredentialStorage> storageType) {
-        Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition().get(
+    private List<FileCredentialStorage> getCredentials(SecurityContext context, Agent agent, Class<? extends CredentialStorage> storageType) {
+        Map<String, List<FileCredentialStorage>> agentCredentials = getCredentialsForCurrentPartition(context).get(
                 agent.getLoginName());
 
         if (agentCredentials == null) {
@@ -196,18 +196,14 @@ public class FileCredentialStore implements CredentialStore {
         }
 
         agentCredentials.put(storageType.getName(), credentials);
-        getCredentialsForCurrentPartition().put(agent.getLoginName(), agentCredentials);
+        getCredentialsForCurrentPartition(context).put(agent.getLoginName(), agentCredentials);
 
         return credentials;
     }
 
-    private SecurityContext getContext() {
-        return this.identityStore.getContext();
-    }
-
-    private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition() {
-        if (Realm.class.isInstance(getContext().getPartition())) {
-            Realm realm = (Realm) getContext().getPartition();
+    private Map<String, Map<String, List<FileCredentialStorage>>> getCredentialsForCurrentPartition(SecurityContext context) {
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
 
             return getDataSource().getCredentials(realm);
         } else {
@@ -216,9 +212,9 @@ public class FileCredentialStore implements CredentialStore {
         }
     }
 
-    private void flushCredentials() {
-        if (Realm.class.isInstance(getContext().getPartition())) {
-            Realm realm = (Realm) getContext().getPartition();
+    private void flushCredentials(SecurityContext context) {
+        if (Realm.class.isInstance(context.getPartition())) {
+            Realm realm = (Realm) context.getPartition();
 
             getDataSource().flushCredentials(realm);
         } else {

@@ -34,26 +34,26 @@ public interface PartitionStore {
      *
      * @param tier
      */
-    void createPartition(Partition partition);
+    void createPartition(SecurityContext context, Partition partition);
 
     /**
      *
      * @param tier
      */
-    void removePartition(Partition partition);
+    void removePartition(SecurityContext context, Partition partition);
 
     /**
      *
      * @param realmName
      * @return
      */
-    Realm getRealm(String realmName);
+    Realm getRealm(SecurityContext context, String realmName);
 
     /**
      *
      * @param tierName
      * @return
      */
-    Tier getTier(String tierName);
+    Tier getTier(SecurityContext context, String tierName);
 
 }

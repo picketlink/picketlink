@@ -46,6 +46,7 @@ import org.picketlink.idm.model.User;
 import org.picketlink.idm.query.IdentityQuery;
 import org.picketlink.idm.query.QueryParameter;
 import org.picketlink.idm.query.RelationshipQuery;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * @author <a href="mailto:psilva@redhat.com">Pedro Silva</a>
@@ -53,13 +54,15 @@ import org.picketlink.idm.query.RelationshipQuery;
  */
 public class LDAPQuery {
 
+    private SecurityContext context;
     private List<LDAPQueryParameter> managedParameters = new ArrayList<LDAPQueryParameter>();
     private Boolean hasCustomAttributes = null;
     private IdentityQuery<?> identityQuery;
     private LDAPIdentityStore identityStore;
     private boolean hasRelationshipParameters;
 
-    public LDAPQuery(IdentityQuery<?> identityQuery, LDAPIdentityStore identityStore) {
+    public LDAPQuery(SecurityContext context, IdentityQuery<?> identityQuery, LDAPIdentityStore identityStore) {
+        this.context = context;
         this.identityQuery = identityQuery;
         this.identityStore = identityStore;
 
@@ -138,7 +141,7 @@ public class LDAPQuery {
                     if (Group.class.isInstance(identityType)) {
                         parentEntriesFilter.append(createMembersFilter(identityType));
                     } else if (Agent.class.isInstance(identityType)) {
-                        RelationshipQuery<GroupMembership> query = this.identityStore.getContext().getIdentityManager()
+                        RelationshipQuery<GroupMembership> query = context.getIdentityManager()
                                 .createRelationshipQuery(GroupMembership.class);
 
                         query.setParameter(GroupMembership.MEMBER, identityType);
@@ -146,7 +149,7 @@ public class LDAPQuery {
                         List<GroupMembership> result = query.getResultList();
 
                         for (GroupMembership groupMembership : result) {
-                            LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(groupMembership.getGroup());
+                            LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, groupMembership.getGroup());
 
                             parentEntriesFilter.append("(").append(ldapEntry.getBidingName()).append(")");
                         }
@@ -175,7 +178,7 @@ public class LDAPQuery {
 
             for (Object user : values) {
                 if (Agent.class.isInstance(user) || Group.class.isInstance(user)) {
-                    RelationshipQuery<Grant> query = this.identityStore.getContext().getIdentityManager()
+                    RelationshipQuery<Grant> query = context.getIdentityManager()
                             .createRelationshipQuery(Grant.class);
 
                     query.setParameter(Grant.ASSIGNEE, user);
@@ -183,7 +186,7 @@ public class LDAPQuery {
                     List<Grant> result = query.getResultList();
 
                     for (Grant grant : result) {
-                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(grant.getRole());
+                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, grant.getRole());
                         String entryName = ldapEntry.getBidingName();
 
                         filter.append("(").append(ldapEntry.getBidingName()).append(")");
@@ -234,7 +237,7 @@ public class LDAPQuery {
                 for (Object group : groupRoles) {
                     GroupRole groupRole = (GroupRole) group;
 
-                    RelationshipQuery<GroupRole> query = this.identityStore.getContext().getIdentityManager()
+                    RelationshipQuery<GroupRole> query = context.getIdentityManager()
                             .createRelationshipQuery(GroupRole.class);
 
                     query.setParameter(GroupRole.ASSIGNEE, groupRole.getAssignee());
@@ -244,7 +247,7 @@ public class LDAPQuery {
                     List<GroupRole> result = query.getResultList();
 
                     for (GroupRole relationship : result) {
-                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(relationship.getAssignee());
+                        LDAPEntry ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, relationship.getAssignee());
 
                         if (ldapEntry == null) {
                             throw new IdentityManagementException("Relationship references a inexistent IdentityType ["
@@ -280,7 +283,7 @@ public class LDAPQuery {
 
             for (Object role : roles) {
                 if (Role.class.isInstance(role)) {
-                    RelationshipQuery<Grant> query = this.identityStore.getContext().getIdentityManager()
+                    RelationshipQuery<Grant> query = context.getIdentityManager()
                             .createRelationshipQuery(Grant.class);
 
                     query.setParameter(Grant.ROLE, role);
@@ -288,7 +291,7 @@ public class LDAPQuery {
                     List<Grant> result = query.getResultList();
 
                     for (Grant grant : result) {
-                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(grant.getAssignee());
+                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(context, grant.getAssignee());
                         String bindDN = ldapAgent.getBidingName();
 
                         filter.append("(").append(bindDN).append(")");
@@ -337,7 +340,7 @@ public class LDAPQuery {
 
             for (Object group : groups) {
                 if (Group.class.isInstance(group)) {
-                    RelationshipQuery<GroupMembership> query = this.identityStore.getContext().getIdentityManager()
+                    RelationshipQuery<GroupMembership> query = context.getIdentityManager()
                             .createRelationshipQuery(GroupMembership.class);
 
                     query.setParameter(GroupMembership.GROUP, group);
@@ -345,7 +348,7 @@ public class LDAPQuery {
                     List<GroupMembership> result = query.getResultList();
 
                     for (GroupMembership groupMembership : result) {
-                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(groupMembership.getMember());
+                        LDAPEntry ldapAgent = (LDAPEntry) this.identityStore.lookupEntryById(context, groupMembership.getMember());
                         String userId = ldapAgent.getBidingName();
 
                         filter.append("(").append(userId).append(")");
@@ -401,7 +404,7 @@ public class LDAPQuery {
             LDAPEntry ldapEntry = null;
 
             try {
-                ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(identityType);
+                ldapEntry = (LDAPEntry) this.identityStore.lookupEntryById(context, identityType);
             } catch (IdentityManagementException ime) {
                 return membersFilter;
             }
@@ -431,8 +434,8 @@ public class LDAPQuery {
 
                     if (isGroupMember) {
                         String id = searchResult.getAttributes().get(LDAPConstants.ENTRY_UUID).get().toString();
-                        LDAPGroup childGroup = this.identityStore.lookupEntryById(LDAPGroup.class, id);
-                        List<Group> parentGroups = this.identityStore.getParentGroups(childGroup);
+                        LDAPGroup childGroup = this.identityStore.lookupEntryById(context, LDAPGroup.class, id);
+                        List<Group> parentGroups = this.identityStore.getParentGroups(context, childGroup);
 
                         for (Group parentGroup : parentGroups) {
                             parentEntriesFilter.append("(").append(CN).append(LDAPConstants.EQUAL)

@@ -48,7 +48,8 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
         JPAIdentityStoreConfiguration jpaConfig = store.getConfig();
 
         jpaConfig.setModelPropertyValue(toIdentity, PropertyType.AGENT_LOGIN_NAME, fromUser.getLoginName(), true);
-        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(context.getPartition()), true);
+        jpaConfig.setModelPropertyValue(toIdentity, PropertyType.IDENTITY_PARTITION, store.lookupPartitionObject(
+                context, context.getPartition()), true);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class AgentHandler extends IdentityTypeHandler<Agent>{
     }
 
     @Override
-    protected Agent doCreateIdentityType(Object identity, JPAIdentityStore store) {
+    protected Agent doCreateIdentityType(SecurityContext context, Object identity, JPAIdentityStore store) {
         String loginName = store.getConfig().getModelProperty(PropertyType.AGENT_LOGIN_NAME).getValue(identity).toString();
 
         Agent agent = new SimpleAgent(loginName);
