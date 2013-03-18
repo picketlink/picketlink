@@ -76,6 +76,11 @@ public class DefaultSecurityContextFactory implements SecurityContextFactory {
     }
 
     @Override
+    public SecurityContext createContext() {
+        return new SecurityContext(this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator, null);
+    }
+
+    @Override
     public SecurityContext createContext(Partition partition) {
         return new SecurityContext(this.identityCache, this.eventBridge, this.credentialHandlerFactory, this.idGenerator,
                 partition);

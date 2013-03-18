@@ -25,9 +25,13 @@ import org.picketlink.idm.spi.StoreFactory;
  */
 public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
+    private static final String DEFAULT_REALM_NAME = "default";
+
     private SecurityContextFactory contextFactory;
 
     private StoreFactory storeFactory;
+
+    private Realm defaultRealm = null;
 
     public DefaultIdentityManagerFactory(IdentityConfiguration identityConfig) {
         this(identityConfig, new DefaultSecurityContextFactory());
@@ -55,14 +59,26 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
         this.storeFactory = storeFactory;
     }
 
+    private Realm getDefaultRealm() {
+        if (defaultRealm == null) {
+            loadDefaultRealm();
+        }
+        return defaultRealm;
+    }
+
+    private synchronized void loadDefaultRealm() {
+        if (defaultRealm == null) {
+            defaultRealm = getRealm(DEFAULT_REALM_NAME);
+        }
+    }
+
     public void setIdentityStoreFactory(StoreFactory factory) {
         this.storeFactory = factory;
     }
 
     @Override
     public IdentityManager createIdentityManager() {
-        // TODO Auto-generated method stub
-        return null;
+        return createIdentityManager(getDefaultRealm());
     }
 
     @Override
@@ -78,12 +94,14 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
             throw MESSAGES.nullArgument("Realm name");
         }
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(contextFactory.createContext(null),
+        SecurityContext context = contextFactory.createContext();
+
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
                 FeatureGroup.realm, FeatureOperation.create);
 
         if (store != null) {
             Realm realm = new Realm(name);
-            ((PartitionStore) store).createPartition(contextFactory.createContext(null), realm);
+            ((PartitionStore) store).createPartition(context, realm);
             return realm;
         } else {
             throw MESSAGES.storeConfigUnsupportedOperation(FeatureGroup.realm, FeatureOperation.create,
@@ -93,10 +111,11 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
     @Override
     public Realm getRealm(String name) {
-        IdentityStore<?> store = storeFactory.getStoreForFeature(contextFactory.createContext(null),
-                FeatureGroup.realm, FeatureOperation.read);
+        SecurityContext context = contextFactory.createContext();
 
-        return store != null ? ((PartitionStore) store).getRealm(contextFactory.createContext(null), name) : null;
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context, FeatureGroup.realm, FeatureOperation.read);
+
+        return store != null ? ((PartitionStore) store).getRealm(context, name) : null;
     }
 
     @Override
@@ -105,11 +124,14 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
             throw MESSAGES.nullArgument("Realm");
         }
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(contextFactory.createContext(null),
+
+        SecurityContext context = contextFactory.createContext();
+
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
                 FeatureGroup.realm, FeatureOperation.delete);
 
         if (store != null) {
-            ((PartitionStore) store).removePartition(contextFactory.createContext(null), realm);
+            ((PartitionStore) store).removePartition(context, realm);
         }
     }
 
@@ -123,13 +145,15 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
             throw MESSAGES.partitionAlreadyExistsWithName(Tier.class, name);
         }
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(contextFactory.createContext(null),
+        SecurityContext context = contextFactory.createContext();
+
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
                 FeatureGroup.tier, FeatureOperation.create);
 
         if (store != null) {
             Tier tier = new Tier(name, parent);
 
-            ((PartitionStore) store).createPartition(contextFactory.createContext(null), tier);
+            ((PartitionStore) store).createPartition(context, tier);
 
             return tier;
         } else {
@@ -140,10 +164,12 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
     @Override
     public Tier getTier(String name) {
-        IdentityStore<?> store = storeFactory.getStoreForFeature(contextFactory.createContext(null),
+        SecurityContext context = contextFactory.createContext();
+
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
                 FeatureGroup.tier, FeatureOperation.read);
 
-        return store != null ? ((PartitionStore) store).getTier(contextFactory.createContext(null), name) : null;
+        return store != null ? ((PartitionStore) store).getTier(context, name) : null;
     }
 
     @Override
@@ -152,11 +178,13 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
             throw MESSAGES.nullArgument("Tier");
         }
 
-        IdentityStore<?> store = storeFactory.getStoreForFeature(contextFactory.createContext(null),
+        SecurityContext context = contextFactory.createContext();
+
+        IdentityStore<?> store = storeFactory.getStoreForFeature(context,
                 FeatureGroup.tier, FeatureOperation.delete);
 
         if (store != null) {
-            ((PartitionStore) store).removePartition(contextFactory.createContext(null), tier);
+            ((PartitionStore) store).removePartition(context, tier);
         }
     }
 

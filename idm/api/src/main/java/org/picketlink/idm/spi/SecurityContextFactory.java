@@ -26,6 +26,13 @@ import org.picketlink.idm.model.Partition;
  * @author Shane Bryzak
  */
 public interface SecurityContextFactory {
+
+    /**
+     *
+     * @return
+     */
+    SecurityContext createContext();
+
     /**
      *
      * @return
