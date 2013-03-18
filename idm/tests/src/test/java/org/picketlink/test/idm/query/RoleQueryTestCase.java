@@ -54,7 +54,11 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
             name = "someRole";
         }
 
-        return createRole(name, partition);
+        if (partition != null) {
+            return createRole(name, partition);
+        } else {
+            return createRole(name);
+        }
     }
 
     @Override

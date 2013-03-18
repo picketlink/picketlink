@@ -56,7 +56,11 @@ public class AgentQueryTestCase<T extends Agent> extends AbstractIdentityQueryTe
             name = "someSimpleAgent";
         }
         
-        return (T) createAgent(name, partition);
+        if (partition != null) {
+            return (T) createAgent(name, partition);            
+        } else {
+            return (T) createAgent(name);
+        }
     }
     
     @Override

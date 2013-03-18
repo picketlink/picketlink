@@ -52,7 +52,11 @@ public class UserQueryTestCase extends AgentQueryTestCase<User> {
             name = "someUser";
         }
         
-        return createUser(name, partition);
+        if (partition != null) {
+            return createUser(name, partition);
+        } else {
+            return createUser(name);
+        }
     }
 
     @Override

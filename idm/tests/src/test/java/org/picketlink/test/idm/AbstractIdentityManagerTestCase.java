@@ -22,7 +22,6 @@ import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;
-import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleAgent;
 import org.picketlink.idm.model.SimpleGroup;
@@ -134,10 +133,10 @@ public class AbstractIdentityManagerTestCase {
         IdentityManagerFactory factory = getIdentityManagerFactory();
         
         if (partition == null) {
-            partition = factory.getRealm(Realm.DEFAULT_REALM);
+            return factory.createIdentityManager();
+        } else {
+            return factory.createIdentityManager(partition);            
         }
-        
-        return factory.createIdentityManager(partition);
     }
 
     protected Agent getAgent(String loginName) {

@@ -212,8 +212,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
             }
 
-            RelationshipQuery<Relationship> query = context.getIdentityManager().createRelationshipQuery(
-                    Relationship.class);
+            RelationshipQuery<Relationship> query = context.getIdentityManager().createRelationshipQuery(Relationship.class);
 
             query.setParameter(Relationship.IDENTITY, identityType);
 
@@ -246,25 +245,19 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     @Override
     public Agent getAgent(SecurityContext context, String loginName) {
         if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
-
             Agent agent = null;
 
             if (loginName != null) {
-                agent = context.getCache().lookupAgent(realm, loginName);
+                LDAPAgent ldapAgent = lookupAgent(loginName);
 
-                if (agent == null) {
-                    LDAPAgent ldapAgent = lookupAgent(loginName);
+                if (ldapAgent == null) {
+                    agent = getUser(context, loginName);
+                } else {
+                    agent = new SimpleAgent(ldapAgent.getLoginName());
 
-                    if (ldapAgent == null) {
-                        agent = getUser(context, loginName);
-                    } else {
-                        agent = new SimpleAgent(ldapAgent.getLoginName());
+                    agent.setLoginName(ldapAgent.getLoginName());
 
-                        agent.setLoginName(ldapAgent.getLoginName());
-
-                        populateIdentityType(ldapAgent, agent);
-                    }
+                    populateIdentityType(ldapAgent, agent);
                 }
             }
 
@@ -283,8 +276,6 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             User user = null;
 
             if (loginName != null) {
-                user = context.getCache().lookupUser(realm, loginName);
-
                 if (user == null) {
                     LDAPUser ldapUser = lookupUser(loginName);
 
@@ -314,7 +305,7 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             return null;
         }
 
-        Group group = null; //getContext().getCache().lookupGroup(getContext().getPartition(), groupPath);
+        Group group = null; // getContext().getCache().lookupGroup(getContext().getPartition(), groupPath);
 
         if (group == null) {
             group = getGroup(groupPath, getGroupBaseDN(groupPath));
@@ -339,16 +330,12 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         Role role = null;
 
         if (name != null) {
-            role = context.getCache().lookupRole(context.getPartition(), name);
+            LDAPRole ldapRole = lookupRole(name);
 
-            if (role == null) {
-                LDAPRole ldapRole = lookupRole(name);
+            if (ldapRole != null) {
+                role = new SimpleRole(ldapRole.getName());
 
-                if (ldapRole != null) {
-                    role = new SimpleRole(ldapRole.getName());
-
-                    populateIdentityType(ldapRole, role);
-                }
+                populateIdentityType(ldapRole, role);
             }
         }
 
@@ -550,8 +537,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             if (IdentityType.class.isInstance(identityParameterValue)) {
                 ldapEntry = lookupEntryById(context, (IdentityType) identityParameterValue);
             } else if (String.class.isInstance(identityParameterValue)) {
-                IdentityQuery<IdentityType> identityQuery = context.getIdentityManager().createIdentityQuery(
-                        IdentityType.class);
+                IdentityQuery<IdentityType> identityQuery = context.getIdentityManager()
+                        .createIdentityQuery(IdentityType.class);
 
                 identityQuery.setParameter(IdentityType.ID, identityParameterValue.toString());
 
@@ -624,8 +611,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
                 }
             } else if (Group.class.isInstance(ldapEntry)) {
                 Group group = (Group) ldapEntry;
-                RelationshipQuery<GroupMembership> groupMembershipQuery = context.getIdentityManager()
-                        .createRelationshipQuery(GroupMembership.class);
+                RelationshipQuery<GroupMembership> groupMembershipQuery = context.getIdentityManager().createRelationshipQuery(
+                        GroupMembership.class);
 
                 groupMembershipQuery.setParameter(GroupMembership.GROUP, group);
 
@@ -1077,7 +1064,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @Override
-    public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType, String attributeName) {
+    public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType,
+            String attributeName) {
         throw MESSAGES.notImplentedYet();
     }
 
@@ -1180,7 +1168,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
         Collection<Attribute<? extends Serializable>> updatedAttributes = updatedIdentityType.getAttributes();
 
         for (Attribute<? extends Serializable> attribute : updatedAttributes) {
-            identityTypeEntry.getCustomAttributes().addAttribute(attribute.getName(), Base64.encodeObject(attribute.getValue()));
+            identityTypeEntry.getCustomAttributes()
+                    .addAttribute(attribute.getName(), Base64.encodeObject(attribute.getValue()));
         }
 
         getLDAPManager().rebind(getCustomAttributesDN(identityTypeEntry.getDN()), identityTypeEntry.getCustomAttributes());
@@ -1200,13 +1189,15 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
             for (Entry<String, Serializable> entry : entrySet) {
                 if (!entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_ENABLED)
                         && !entry.getKey().equals(LDAPConstants.CUSTOM_ATTRIBUTE_EXPIRY_DATE)) {
-                    identityType.setAttribute(new Attribute<Serializable>(entry.getKey(), (Serializable) Base64.decodeToObject(entry.getValue().toString())));
+                    identityType.setAttribute(new Attribute<Serializable>(entry.getKey(), (Serializable) Base64
+                            .decodeToObject(entry.getValue().toString())));
                 }
             }
         }
     }
 
-    protected <T extends LDAPIdentityType> T lookupEntryById(SecurityContext context, Class<T> type, String id) throws IdentityManagementException {
+    protected <T extends LDAPIdentityType> T lookupEntryById(SecurityContext context, Class<T> type, String id)
+            throws IdentityManagementException {
         T identityType = null;
 
         NamingEnumeration<SearchResult> search = getLDAPManager().lookupById(getConfig().getBaseDN(), id);
@@ -1539,7 +1530,8 @@ public class LDAPIdentityStore implements IdentityStore<LDAPIdentityStoreConfigu
     }
 
     @SuppressWarnings("unchecked")
-    protected <T extends IdentityType> T lookupEntryById(SecurityContext context, T identityType) throws IdentityManagementException {
+    protected <T extends IdentityType> T lookupEntryById(SecurityContext context, T identityType)
+            throws IdentityManagementException {
         T identityTypeEntry = null;
 
         if (Agent.class.isInstance(identityType)) {

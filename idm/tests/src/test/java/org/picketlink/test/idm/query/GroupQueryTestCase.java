@@ -56,7 +56,11 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
             name = "someGroup";
         }
         
-        return createGroup(name, null, partition);
+        if (partition != null) {
+            return createGroup(name, null, partition);
+        } else {
+            return createGroup(name, null);
+        }
     }
 
     @Override
