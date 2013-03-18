@@ -28,8 +28,6 @@ public class Tier extends AbstractPartition {
 
     private static final long serialVersionUID = 7797059334915537276L;
 
-    public static final String KEY_PREFIX = "TIER://";
-
     private String description;
     private Tier parent;
 
@@ -43,8 +41,8 @@ public class Tier extends AbstractPartition {
         this.parent = parent;
     }
 
-    public Tier(String name, Tier applicationTier) {
-        this(name, null, applicationTier);
+    public Tier(String name, Tier parent) {
+        this(name, null, parent);
     }
 
     public String getDescription() {
@@ -53,11 +51,6 @@ public class Tier extends AbstractPartition {
 
     public Tier getParent() {
         return this.parent;
-    }
-
-    @Override
-    public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, getName());
     }
 
     public void setParent(Tier parent) {
