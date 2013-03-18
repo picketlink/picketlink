@@ -102,20 +102,8 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
             throw MESSAGES.nullArgument("Partition");
         }
 
-        Partition storedPartition = null;
-
-        if (Realm.class.isInstance(partition)) {
-            storedPartition = getRealm(partition.getName());
-        } else if (Tier.class.isInstance(partition)) {
-            storedPartition = getTier(partition.getName());
-        }
-
-        if (storedPartition != null) {
-            SecurityContext context = contextFactory.createContext(partition);
-            return new DefaultIdentityManager(context, storeFactory);
-        } else {
-            throw MESSAGES.partitionNotFoundWithName(partition.getClass(), partition.getName());
-        }
+        SecurityContext context = contextFactory.createContext(partition);
+        return new DefaultIdentityManager(context, storeFactory);
     }
 
     @Override
