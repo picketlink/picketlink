@@ -310,5 +310,10 @@ public class JPAIdentityStoreConfigurationTestCase extends
         IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
         return factory.createIdentityManager();
     }
+    
+    @Override
+    protected void addContextInitializers(IdentityConfiguration config) {
+        config.addContextInitializer(new JPAContextInitializer(emf));
+    }
 
 }

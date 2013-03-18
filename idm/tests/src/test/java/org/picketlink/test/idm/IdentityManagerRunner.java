@@ -34,6 +34,7 @@ import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 
 /**
  * <p>
@@ -139,6 +140,11 @@ public class IdentityManagerRunner extends Suite {
                                 new Class[] { IdentityManager.class });
 
                         identityManagerSetter.invoke(createTest, lifecycle.createIdentityManager());
+
+                        Method identityManagerFactorySetter = createTest.getClass().getMethod("setIdentityManagerFactory", 
+                                new Class[] { IdentityManagerFactory.class });
+
+                        identityManagerFactorySetter.invoke(createTest, lifecycle.createIdentityManagerFactory());
                     } catch (Exception e) {
                         throw e;
                     }

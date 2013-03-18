@@ -100,6 +100,15 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
         return identityManager;
     }
 
+    @Override
+    public IdentityManagerFactory createIdentityManagerFactory() {
+        IdentityConfiguration config = new IdentityConfiguration();
+
+        addDefaultConfiguration(config);
+
+        return new DefaultIdentityManagerFactory(config);
+    }
+
     /**
      * <p>
      * Configure a specific {@link FileIdentityStoreConfiguration} for the Realm.DEFAULT_REALM.

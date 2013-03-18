@@ -59,6 +59,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void testMinimalConfigurationForIdentityTypeOperations() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T jpaConfig = createMinimalConfiguration();
 
@@ -82,6 +83,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void testMinimalConfigurationForRelationships() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T jpaConfig = createMinimalConfiguration();
 
@@ -127,6 +129,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void testMinimalConfigurationForCredentials() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T jpaConfig = createMinimalConfiguration();
 
@@ -154,6 +157,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedUserRead() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -178,6 +182,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedUserCreate() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -208,6 +213,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedUserDelete() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -246,6 +252,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRoleRead() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -270,6 +277,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRoleCreate() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -300,6 +308,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRoleDelete() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -330,6 +339,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedGroupRead() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -354,6 +364,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedGroupCreate() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -385,6 +396,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedGroupDelete() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -418,6 +430,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRelationshipRead() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -442,6 +455,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRelationshipCreate() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -480,6 +494,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedCustomRelationship() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -519,6 +534,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
         }
 
         config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         storeConfig = createMinimalConfiguration();
 
@@ -549,6 +565,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedRelationshipDelete() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -591,6 +608,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedCredentialUpdate() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -620,6 +638,7 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
     @Test
     public void failFeatureNotSupportedCredentialValidate() {
         IdentityConfiguration config = new IdentityConfiguration();
+        addContextInitializers(config);
 
         T storeConfig = createMinimalConfiguration();
 
@@ -653,6 +672,8 @@ public abstract class AbstractFeaturesSetConfigurationTestCase<T extends Identit
             fail();
         }
     }
+
+    protected void addContextInitializers(IdentityConfiguration config) {}
 
     protected abstract T createMinimalConfiguration();
 

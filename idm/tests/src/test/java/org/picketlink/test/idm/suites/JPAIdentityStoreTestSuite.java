@@ -117,8 +117,17 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
         IdentityConfiguration config = new IdentityConfiguration();
 
         config.addStoreConfiguration(getDefaultConfiguration());
-        
+
         return createIdentityManager(config);
+    }
+
+    @Override
+    public IdentityManagerFactory createIdentityManagerFactory() {
+        IdentityConfiguration config = new IdentityConfiguration();
+        config.addContextInitializer(new JPAContextInitializer(emf));
+        config.addStoreConfiguration(getDefaultConfiguration());
+
+        return new DefaultIdentityManagerFactory(config);
     }
 
     private IdentityManager createIdentityManager(IdentityConfiguration config) {

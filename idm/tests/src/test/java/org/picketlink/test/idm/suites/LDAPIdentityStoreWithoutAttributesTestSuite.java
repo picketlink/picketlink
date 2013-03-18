@@ -126,6 +126,14 @@ public class LDAPIdentityStoreWithoutAttributesTestSuite extends AbstractLDAPTes
         IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
         return factory.createIdentityManager();
     }
+    
+    @Override
+    public IdentityManagerFactory createIdentityManagerFactory() {
+        IdentityConfiguration config = new IdentityConfiguration();
+        config.addStoreConfiguration(getConfiguration());
+
+        return new DefaultIdentityManagerFactory(config);
+    }
 
     public static LDAPIdentityStoreConfiguration getConfiguration() {
         LDAPIdentityStoreConfiguration config = new LDAPIdentityStoreConfiguration();
