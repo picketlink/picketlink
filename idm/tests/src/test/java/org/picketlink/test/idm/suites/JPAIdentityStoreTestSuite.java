@@ -25,13 +25,16 @@ import javax.persistence.Persistence;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
+import org.picketlink.idm.internal.JPASecurityContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
@@ -119,15 +122,8 @@ public class JPAIdentityStoreTestSuite implements TestLifecycle {
     }
 
     private IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManager identityManager = new DefaultIdentityManager();
-        
-        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory(this.emf);
-        
-        icf.setEntityManager(this.entityManager);
-        
-        identityManager.bootstrap(config, icf);
-        
-        return identityManager;
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config, new JPASecurityContextFactory(this.emf));
+        return factory.createIdentityManager();
     }
 
     /**

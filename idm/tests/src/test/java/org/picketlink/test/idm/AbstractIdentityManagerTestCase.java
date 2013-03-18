@@ -18,6 +18,7 @@
 package org.picketlink.test.idm;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.model.Agent;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Partition;
@@ -40,13 +41,26 @@ import org.picketlink.idm.model.User;
  */
 public class AbstractIdentityManagerTestCase {
 
+    private IdentityManagerFactory identityManagerFactory;
+
     private IdentityManager identityManager;
+
+    public IdentityManagerFactory getIdentityManagerFactory() {
+        if (identityManagerFactory == null) {
+            throw new RuntimeException("Identity Manager Factory is not set.");
+        }
+        return this.identityManagerFactory;
+    }
 
     public IdentityManager getIdentityManager() {
         if (this.identityManager == null) {
             throw new RuntimeException("Identity Manager is not set.");
         }
         return this.identityManager;
+    }
+
+    public void setIdentityManagerFactory(IdentityManagerFactory factory) {
+        this.identityManagerFactory = factory;
     }
 
     public void setIdentityManager(IdentityManager identityManager) {
@@ -118,18 +132,8 @@ public class AbstractIdentityManagerTestCase {
     }
 
     private IdentityManager getIdentityManagerForPartition(Partition partition) {
-        IdentityManager identityManager = getIdentityManager();
-
-        if (partition != null) {
-            if (Realm.class.isInstance(partition)) {
-                identityManager = identityManager.forRealm((Realm) partition);
-            } else if (Tier.class.isInstance(partition)) {
-                identityManager = identityManager.forTier((Tier) partition);
-            } else {
-                throw new IllegalArgumentException("Unexpected partition type.");
-            }
-        }
-        return identityManager;
+        IdentityManagerFactory factory = getIdentityManagerFactory();
+        return factory.createIdentityManager(partition);
     }
 
     protected Agent getAgent(String loginName) {

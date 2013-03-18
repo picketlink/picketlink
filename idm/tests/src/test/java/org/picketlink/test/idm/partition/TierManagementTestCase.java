@@ -56,7 +56,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Tier testingTier = createTestingTier();
 
-        testingTier = identityManager.getTier(testingTier.getName());
+        testingTier = getIdentityManagerFactory().getTier(testingTier.getName());
 
         assertNotNull(testingTier);
         assertEquals(TESTING_TIER_NAME, testingTier.getName());
@@ -69,11 +69,11 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Tier applicationTier = createApplicationTier();
 
-        applicationTier = identityManager.getTier(applicationTier.getName());
+        applicationTier = getIdentityManagerFactory().getTier(applicationTier.getName());
 
         Tier serviceTier = createServicesTier(applicationTier);
 
-        serviceTier = identityManager.getTier(serviceTier.getName());
+        serviceTier = getIdentityManagerFactory().getTier(serviceTier.getName());
 
         assertNotNull(serviceTier);
         assertEquals(SERVICES_TIER_NAME, serviceTier.getName());
@@ -89,9 +89,9 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         assertNotNull(testingTier);
 
-        identityManager.removeTier(testingTier);
+        getIdentityManagerFactory().removeTier(testingTier);
 
-        testingTier = identityManager.getTier(testingTier.getName());
+        testingTier = getIdentityManagerFactory().getTier(testingTier.getName());
 
         assertNull(testingTier);
     }
@@ -102,14 +102,14 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager defaultIdentityManager = getIdentityManager();
 
-        IdentityManager applicationTierIdentityManager = defaultIdentityManager.forTier(applicationTier);
+        IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
 
         Role testingRole = new SimpleRole("testingRole");
 
         // should throw an exception because the current tier has IdentityTypes associated.
         applicationTierIdentityManager.add(testingRole);
 
-        defaultIdentityManager.removeTier(applicationTier);
+        getIdentityManagerFactory().removeTier(applicationTier);
     }
 
     @Test(expected = IdentityManagementException.class)
@@ -118,14 +118,14 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         IdentityManager defaultIdentityManager = getIdentityManager();
 
-        IdentityManager applicationTierIdentityManager = defaultIdentityManager.forTier(applicationTier);
+        IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
 
         Group testingGroup = new SimpleGroup("testingGroup");
 
         // should throw an exception because the current tier has IdentityTypes associated.
         applicationTierIdentityManager.add(testingGroup);
 
-        defaultIdentityManager.removeTier(applicationTier);
+        getIdentityManagerFactory().removeTier(applicationTier);
     }
 
     @Test
@@ -136,7 +136,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Role testingRole = createRole("testingRole", parentTier);
         
-        testingRole = defaultIdentityManager.forTier(parentTier).getRole("testingRole");
+        testingRole = getIdentityManagerFactory().createIdentityManager(parentTier).getRole("testingRole");
         
         assertNotNull(testingRole);
         
@@ -144,7 +144,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         Tier servicesTier = createServicesTier(null);
         
         // the identitytype is not visible to the servicesTier 
-        testingRole = defaultIdentityManager.forTier(servicesTier).getRole("testingRole");
+        testingRole = getIdentityManagerFactory().createIdentityManager(servicesTier).getRole("testingRole");
         
         assertNull(testingRole);
         
@@ -152,7 +152,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         servicesTier = createServicesTier(parentTier);
         
         // the identitytype is now visible to the servicesTier
-        testingRole = defaultIdentityManager.forTier(servicesTier).getRole("testingRole");
+        testingRole = getIdentityManagerFactory().createIdentityManager(servicesTier).getRole("testingRole");
         
         assertNotNull(testingRole);
     }
@@ -163,7 +163,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Tier applicationTier = createApplicationTier();
 
-        IdentityManager applicationTierIdentityManager = defaultIdentityManager.forTier(applicationTier);
+        IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
 
         Role testingRole = createRole("testingRole", applicationTier);
 
@@ -184,7 +184,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Tier applicationTier = createApplicationTier();
 
-        IdentityManager applicationTierIdentityManager = defaultIdentityManager.forTier(applicationTier);
+        IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
 
         Role adminRole = createRole("Administrator", applicationTier);
 
@@ -194,7 +194,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Realm testingRealm = createRealm();
 
-        IdentityManager testingRealmIdentityManager = applicationTierIdentityManager.forRealm(testingRealm);
+        IdentityManager testingRealmIdentityManager = getIdentityManagerFactory().createIdentityManager(testingRealm);
 
         User someUser = createUser("someUser", testingRealm);
 
@@ -212,7 +212,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Tier applicationTier = createApplicationTier();
 
-        IdentityManager applicationTierIdentityManager = identityManager.forTier(applicationTier);
+        IdentityManager applicationTierIdentityManager = getIdentityManagerFactory().createIdentityManager(applicationTier);
 
         Group testingGroup = createGroup("testingGroupTier", null, applicationTier);
 
@@ -235,7 +235,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Group testingGroup = createGroup("testingGroupParentTier", null, parentTier);
         
-        testingGroup = defaultIdentityManager.forTier(parentTier).getGroup("testingGroupParentTier");
+        testingGroup = getIdentityManagerFactory().createIdentityManager(parentTier).getGroup("testingGroupParentTier");
         
         assertNotNull(testingGroup);
         
@@ -243,7 +243,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         Tier servicesTier = createServicesTier(null);
         
         // the identitytype is not visible to the servicesTier 
-        testingGroup = defaultIdentityManager.forTier(servicesTier).getGroup("testingGroupParentTier");
+        testingGroup = getIdentityManagerFactory().createIdentityManager(servicesTier).getGroup("testingGroupParentTier");
         
         assertNull(testingGroup);
         
@@ -251,7 +251,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
         servicesTier = createServicesTier(parentTier);
         
         // the identitytype is now visible to the servicesTier
-        testingGroup = defaultIdentityManager.forTier(servicesTier).getGroup("testingGroupParentTier");
+        testingGroup = getIdentityManagerFactory().createIdentityManager(servicesTier).getGroup("testingGroupParentTier");
         
         assertNotNull(testingGroup);
     }
@@ -259,11 +259,11 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     private Tier createApplicationTier() {
         IdentityManager identityManager = getIdentityManager();
 
-        Tier tier = identityManager.getTier(APPLICATION_TIER_NAME);
+        Tier tier = getIdentityManagerFactory().getTier(APPLICATION_TIER_NAME);
 
         if (tier == null) {
             tier = new Tier(APPLICATION_TIER_NAME);
-            identityManager.createTier(tier);
+            getIdentityManagerFactory().createTier(APPLICATION_TIER_NAME, null);
         }
 
         return tier;
@@ -272,11 +272,11 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     private Tier createTestingTier() {
         IdentityManager identityManager = getIdentityManager();
 
-        Tier tier = identityManager.getTier(TESTING_TIER_NAME);
+        Tier tier = getIdentityManagerFactory().getTier(TESTING_TIER_NAME);
 
         if (tier == null) {
             tier = new Tier(TESTING_TIER_NAME);
-            identityManager.createTier(tier);
+            getIdentityManagerFactory().createTier(TESTING_TIER_NAME, null);
         }
 
         return tier;
@@ -285,10 +285,10 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     private Tier createServicesTier(Tier parentTier) {
         IdentityManager identityManager = getIdentityManager();
 
-        Tier serviceTier = identityManager.getTier(SERVICES_TIER_NAME);
+        Tier serviceTier = getIdentityManagerFactory().getTier(SERVICES_TIER_NAME);
 
         if (serviceTier != null) {
-            identityManager.removeTier(serviceTier);
+            getIdentityManagerFactory().removeTier(serviceTier);
         }
 
         if (parentTier != null) {
@@ -297,7 +297,7 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
             serviceTier = new Tier(SERVICES_TIER_NAME);
         }
 
-        identityManager.createTier(serviceTier);
+        getIdentityManagerFactory().createTier(SERVICES_TIER_NAME, null);
 
         return serviceTier;
     }
@@ -305,11 +305,11 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
     private Realm createRealm() {
         IdentityManager identityManager = getIdentityManager();
 
-        Realm realm = identityManager.getRealm("Testing");
+        Realm realm = getIdentityManagerFactory().getRealm("Testing");
 
         if (realm == null) {
             realm = new Realm("Testing");
-            identityManager.createRealm(realm);
+            getIdentityManagerFactory().createRealm("Testing");
         }
 
         return realm;

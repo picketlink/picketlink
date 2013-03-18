@@ -51,48 +51,39 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     public void testCreate() throws Exception {
         Realm realm = createRealm();
 
-        IdentityManager defaultIdentityManager = getIdentityManager();
-        
-        realm = defaultIdentityManager.getRealm(realm.getName());
-        
+        realm = getIdentityManagerFactory().getRealm(realm.getName());
+
         assertNotNull(realm);
         assertEquals(TESTING_REALM_NAME, realm.getName());
         assertEquals(Realm.KEY_PREFIX + TESTING_REALM_NAME, realm.getKey());
     }
-    
+
     @Test
     public void testGetDefaultRealm() throws Exception {
-        IdentityManager defaultIdentityManager = getIdentityManager();
-        
-        Realm defaultRealm = defaultIdentityManager.getRealm(Realm.DEFAULT_REALM);
-        
+        Realm defaultRealm = getIdentityManagerFactory().getRealm(Realm.DEFAULT_REALM);
+
         assertNotNull(defaultRealm);
         assertEquals(Realm.DEFAULT_REALM, defaultRealm.getName());
     }
     
     @Test (expected=IdentityManagementException.class)
     public void testCreateWithNullArgument() throws Exception {
-        IdentityManager defaultIdentityManager = getIdentityManager();
-        
-        defaultIdentityManager.createRealm(null);
+        getIdentityManagerFactory().createRealm(null);
     }
-    
+
     @Test (expected=IdentityManagementException.class)
     public void testCreateWithNullName() throws Exception {
-        IdentityManager defaultIdentityManager = getIdentityManager();
-        
-        defaultIdentityManager.createRealm(new Realm(null));
+
+        getIdentityManagerFactory().createRealm(null);
     }
 
     @Test
     public void testRemove() throws Exception {
         Realm realm = createRealm();
         
-        IdentityManager defaultIdentityManager = getIdentityManager();
+        getIdentityManagerFactory().removeRealm(realm);
         
-        defaultIdentityManager.removeRealm(realm);
-        
-        realm = defaultIdentityManager.getRealm(realm.getName());
+        realm = getIdentityManagerFactory().getRealm(realm.getName());
         
         assertNull(realm);
     }
@@ -100,49 +91,42 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     @Test (expected=IdentityManagementException.class)
     public void testRemoveWithUsers() throws Exception {
         Realm realm = createRealm();
-        
-        IdentityManager defaultIdentityManager = getIdentityManager();
-        
-        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+
+        IdentityManager testingIdentityManager = getIdentityManagerFactory().createIdentityManager(realm);
         
         User testingUser = new SimpleUser("testingUser");
         
         // should throw an exception because the current realm has IdentityTypes associated.
         testingIdentityManager.add(testingUser);
         
-        defaultIdentityManager.removeRealm(realm);
+        getIdentityManagerFactory().removeRealm(realm);
     }
 
     @Test (expected=IdentityManagementException.class)
     public void testRemoveWithRoles() throws Exception {
         Realm realm = createRealm();
-        
-        IdentityManager defaultIdentityManager = getIdentityManager();
-        
-        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+        IdentityManager testingIdentityManager = getIdentityManagerFactory().createIdentityManager(realm);
         
         Role testingRole = new SimpleRole("testingRole");
         
         // should throw an exception because the current realm has IdentityTypes associated.
         testingIdentityManager.add(testingRole);
         
-        defaultIdentityManager.removeRealm(realm);
+        getIdentityManagerFactory().removeRealm(realm);
     }
     
     @Test (expected=IdentityManagementException.class)
     public void testRemoveWithGroups() throws Exception {
         Realm realm = createRealm();
-        
-        IdentityManager defaultIdentityManager = getIdentityManager();
-        
-        IdentityManager testingIdentityManager = defaultIdentityManager.forRealm(realm);
+
+        IdentityManager testingIdentityManager = getIdentityManagerFactory().createIdentityManager(realm);
         
         Group testingGroup = new SimpleGroup("testingGroup");
         
         // should throw an exception because the current realm has IdentityTypes associated.
         testingIdentityManager.add(testingGroup);
         
-        defaultIdentityManager.removeRealm(realm);
+        getIdentityManagerFactory().removeRealm(realm);
     }
 
     @Test
@@ -153,7 +137,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         
         User realmUser = createUser("realmUser", realm);
         
-        realmUser = defaultIdentityManager.forRealm(realm).getUser(realmUser.getLoginName());
+        realmUser = getIdentityManagerFactory().createIdentityManager(realm).getUser(realmUser.getLoginName());
         
         assertNotNull(realmUser);
         assertNotNull(realmUser.getPartition());
@@ -187,7 +171,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         
         User testingRealmUser = createUser("commonName", realm);
         
-        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
+        IdentityManager testingRealmManager = getIdentityManagerFactory().createIdentityManager(realm);
 
         testingRealmUser = testingRealmManager.getUser(testingRealmUser.getLoginName());
         
@@ -219,7 +203,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         Role testingRealmRole = createRole("commonName", realm);
         
         // get a IdentityManager instance for the given realm and associate the Role with the realm
-        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
+        IdentityManager testingRealmManager = getIdentityManagerFactory().createIdentityManager(realm);
 
         testingRealmRole = testingRealmManager.getRole(testingRealmRole.getName());
         
@@ -251,7 +235,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         Group testingRealmGroup = createGroup("commonName", null, realm);
         
         // get a IdentityManager instance for the given realm and associate the Group with the realm
-        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
+        IdentityManager testingRealmManager = getIdentityManagerFactory().createIdentityManager(realm);
 
         testingRealmGroup = testingRealmManager.getGroup(testingRealmGroup.getName());
         
@@ -269,7 +253,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         // the same as defaultIdentityManager.forRealm(realm).add(testingRole);
         Role testingRole = createRole("testingRole", realm);
         
-        testingRole = defaultIdentityManager.forRealm(realm).getRole(testingRole.getName());
+        testingRole = getIdentityManagerFactory().createIdentityManager(realm).getRole(testingRole.getName());
         
         assertNotNull(testingRole);
         assertNotNull(testingRole.getPartition());
@@ -289,7 +273,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         
         Group testingGroup = createGroup("testingRealmGroup", null, realm);
         
-        testingGroup = defaultIdentityManager.forRealm(realm).getGroup(testingGroup.getName());
+        testingGroup = getIdentityManagerFactory().createIdentityManager(realm).getGroup(testingGroup.getName());
         
         assertNotNull(testingGroup);
         assertNotNull(testingGroup.getPartition());
@@ -323,7 +307,7 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
         Realm realm = createRealm();
         
-        IdentityManager testingRealmManager = defaultIdentityManager.forRealm(realm);
+        IdentityManager testingRealmManager = getIdentityManagerFactory().createIdentityManager(realm);
         
         assertFalse(testingRealmManager.hasRole(defaultRealmUser, defaultRealmRole));
         assertFalse(testingRealmManager.isMember(defaultRealmUser, defaultRealmGroup));
@@ -357,13 +341,12 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
     
     private Realm createRealm() {
         IdentityManager identityManager = getIdentityManager();
-        Realm realm = identityManager.getRealm(TESTING_REALM_NAME);
-        
+        Realm realm = getIdentityManagerFactory().getRealm(TESTING_REALM_NAME);
+
         if (realm == null) {
-            realm = new Realm(TESTING_REALM_NAME);
-            identityManager.createRealm(realm);
+            getIdentityManagerFactory().createRealm(TESTING_REALM_NAME);
         }
-        
+
         return realm;
     }
 

@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
@@ -39,6 +40,7 @@ import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.SimpleRole;
@@ -172,13 +174,8 @@ public class LDAPIdentityStoreConfigurationTestCase extends
 
     @Override
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManager identityManager = new DefaultIdentityManager();
-
-        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory();
-
-        identityManager.bootstrap(config, icf);
-
-        return identityManager;
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
+        return factory.createIdentityManager();
     }
 
 }

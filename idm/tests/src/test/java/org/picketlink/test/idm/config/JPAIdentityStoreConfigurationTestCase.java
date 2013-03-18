@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
@@ -43,7 +44,9 @@ import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.OperationNotSupportedException;
 import org.picketlink.idm.credential.Password;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
+import org.picketlink.idm.internal.JPASecurityContextFactory;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -66,8 +69,7 @@ import org.picketlink.test.idm.relationship.CustomRelationship;
  * <p>
  * Test case for the {@link JPAIdentityStoreConfiguration}.
  * </p>
- * 
- * @author Pedro Silva
+ *  * @author Pedro Silva
  * 
  */
 public class JPAIdentityStoreConfigurationTestCase extends
@@ -246,7 +248,15 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
         JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
 
-        jpaConfig.setIdentityClass(IdentityObject.class);
+        jpaConfig.setIdentityClass(IdentityObject.class);        
+        IdentityManager identityManager = new DefaultIdentityManager();
+
+        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory(emf);
+
+        icf.setEntityManager(this.entityManager);
+
+        identityManager.bootstrap(config, icf);
+
 
         config.addStoreConfiguration(jpaConfig);
 
@@ -299,15 +309,8 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
     @Override
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManager identityManager = new DefaultIdentityManager();
-
-        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory(emf);
-
-        icf.setEntityManager(this.entityManager);
-
-        identityManager.bootstrap(config, icf);
-
-        return identityManager;
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config, new JPASecurityContextFactory(emf));
+        return factory.createIdentityManager();
     }
 
 }

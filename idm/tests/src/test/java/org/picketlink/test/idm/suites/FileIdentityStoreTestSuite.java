@@ -21,11 +21,13 @@ package org.picketlink.test.idm.suites;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.file.internal.FileBasedIdentityStore;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
@@ -91,9 +93,9 @@ public class FileIdentityStoreTestSuite implements TestLifecycle {
 
         addDefaultConfiguration(config);
 
-        IdentityManager identityManager = new DefaultIdentityManager();
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
 
-        identityManager.bootstrap(config, new DefaultSecurityContextFactory());
+        IdentityManager identityManager = factory.createIdentityManager();
 
         return identityManager;
     }

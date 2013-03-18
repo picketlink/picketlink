@@ -23,14 +23,13 @@
 package org.picketlink.test.idm.config;
 
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet;
-import org.picketlink.idm.config.FileIdentityStoreConfiguration;
-import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
+import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
-import org.picketlink.idm.file.internal.FileDataSource;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultSecurityContextFactory;
+import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.test.idm.relationship.CustomRelationship;
 
 /**
@@ -57,10 +56,10 @@ public class FileIdentityStoreConfigurationTestCase extends
         FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.user);
         FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.role);
         FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.group);
-        
+
         // enable relationship features. this enables the default/built-in relationship classes
         FeatureSet.addFeatureSupport(fileConfig.getFeatureSet(), FeatureGroup.relationship);
-        
+
         // to enable custom relationship classes we need to set this flag.
         fileConfig.getFeatureSet().setSupportsCustomRelationships(true);
         
@@ -75,13 +74,8 @@ public class FileIdentityStoreConfigurationTestCase extends
 
     @Override
     protected IdentityManager createIdentityManager(IdentityConfiguration config) {
-        IdentityManager identityManager = new DefaultIdentityManager();
-
-        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory();
-
-        identityManager.bootstrap(config, icf);
-
-        return identityManager;
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
+        return factory.createIdentityManager();
     }
 
 }
