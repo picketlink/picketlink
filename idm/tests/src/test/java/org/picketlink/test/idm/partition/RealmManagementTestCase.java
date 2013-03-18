@@ -28,6 +28,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.picketlink.idm.IdentityManagementException;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.SecurityConfigurationException;
 import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Role;
@@ -70,9 +71,15 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
         getIdentityManagerFactory().createRealm(null);
     }
 
+    @Test (expected=SecurityConfigurationException.class)
+    public void testUseNonExistentRealm() throws Exception {
+        IdentityManager identityManager = getIdentityManagerFactory().createIdentityManager(new Realm("Testing"));
+        
+        identityManager.add(new SimpleUser("mary"));
+    }
+
     @Test (expected=IdentityManagementException.class)
     public void testCreateWithNullName() throws Exception {
-
         getIdentityManagerFactory().createRealm(null);
     }
 
