@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 import org.picketbox.test.ldap.AbstractLDAPTest;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FeatureSet.FeatureGroup;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
@@ -36,6 +37,7 @@ import org.picketlink.idm.config.IdentityStoreConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
 import org.picketlink.idm.config.LDAPIdentityStoreConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.jpa.internal.JPAIdentityStore;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -138,12 +140,8 @@ public class LDAPJPAMixedStoreTestSuite extends AbstractLDAPTest implements Test
         config.addStoreConfiguration(getJPAConfiguration());
         config.addStoreConfiguration(getLDAPConfiguration());
 
-        IdentityManager identityManager = new DefaultIdentityManager();
-        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory(emf);
-        icf.setEntityManager(entityManager);
-        identityManager.bootstrap(config, icf);
-
-        return identityManager;
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
+        return factory.createIdentityManager();
     }
 
     /**

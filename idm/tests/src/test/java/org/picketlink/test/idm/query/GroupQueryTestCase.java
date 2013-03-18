@@ -82,13 +82,13 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
 
         Tier someTier = new Tier("Some Group Tier");
         
-        identityManager.createTier(someTier);
+        getIdentityManagerFactory().createTier("Some Group Tier", null);
 
         Group someGroupTier = new SimpleGroup("someGroupTier");
         
-        identityManager.forTier(someTier).add(someGroupTier);
+        getIdentityManagerFactory().createIdentityManager(someTier).add(someGroupTier);
         
-        IdentityQuery<Group> query = identityManager.forTier(someTier).createIdentityQuery(Group.class);
+        IdentityQuery<Group> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(Group.class);
         
         assertNotNull(someTier);
         
@@ -102,13 +102,13 @@ public class GroupQueryTestCase extends AbstractIdentityQueryTestCase<Group> {
         
         Tier someAnotherTier = new Tier("Some Another Group Tier");
         
-        identityManager.createTier(someAnotherTier);
+        getIdentityManagerFactory().createTier("Some Another Group Tier", null);
         
         Group someGroupTestingTier = new SimpleGroup("someGroupTestingRealm");
         
-        identityManager.forTier(someAnotherTier).add(someGroupTestingTier);
+        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someGroupTestingTier);
         
-        query = identityManager.forTier(someAnotherTier).createIdentityQuery(Group.class);
+        query = getIdentityManagerFactory().createIdentityManager(someAnotherTier).createIdentityQuery(Group.class);
         
         query.setParameter(Group.PARTITION, someAnotherTier);
         

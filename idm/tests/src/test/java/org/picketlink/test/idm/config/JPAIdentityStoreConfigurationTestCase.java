@@ -248,15 +248,10 @@ public class JPAIdentityStoreConfigurationTestCase extends
 
         JPAIdentityStoreConfiguration jpaConfig = new JPAIdentityStoreConfiguration();
 
-        jpaConfig.setIdentityClass(IdentityObject.class);        
-        IdentityManager identityManager = new DefaultIdentityManager();
+        jpaConfig.setIdentityClass(IdentityObject.class);
 
-        DefaultSecurityContextFactory icf = new DefaultSecurityContextFactory(emf);
-
-        icf.setEntityManager(this.entityManager);
-
-        identityManager.bootstrap(config, icf);
-
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config, new JPASecurityContextFactory(emf));
+        IdentityManager identityManager = factory.createIdentityManager();
 
         config.addStoreConfiguration(jpaConfig);
 

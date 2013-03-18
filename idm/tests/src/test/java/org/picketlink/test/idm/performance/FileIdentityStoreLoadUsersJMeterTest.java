@@ -29,10 +29,12 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.FileIdentityStoreConfiguration;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.internal.DefaultIdentityManager;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
 import org.picketlink.idm.internal.DefaultSecurityContextFactory;
 import org.picketlink.idm.model.Authorization;
 import org.picketlink.idm.model.Realm;
@@ -113,11 +115,8 @@ public class FileIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerCli
 
         addDefaultConfiguration(config);
 
-        IdentityManager identityManager = new DefaultIdentityManager();
-
-        identityManager.bootstrap(config, new DefaultSecurityContextFactory(null));
-
-        return identityManager;
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config);
+        return factory.createIdentityManager();
     }
 
     private static void addDefaultConfiguration(IdentityConfiguration config) {

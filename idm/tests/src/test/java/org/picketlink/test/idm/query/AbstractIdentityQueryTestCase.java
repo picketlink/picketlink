@@ -163,7 +163,7 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
 
         IdentityQuery<T> query = identityManager.createIdentityQuery((Class<T>) someTypeDefaultRealm.getClass());
 
-        Realm defaultRealm = identityManager.getRealm(Realm.DEFAULT_REALM);
+        Realm defaultRealm = getIdentityManagerFactory().getRealm(Realm.DEFAULT_REALM);
 
         assertNotNull(defaultRealm);
 
@@ -175,16 +175,17 @@ public abstract class AbstractIdentityQueryTestCase<T extends IdentityType> exte
         assertEquals(1, result.size());
         assertEquals(someTypeDefaultRealm.getId(), result.get(0).getId());
 
-        Realm testingRealm = identityManager.getRealm("Testing");
+        Realm testingRealm = getIdentityManagerFactory().getRealm("Testing");
 
         if (testingRealm == null) {
             testingRealm = new Realm("Testing");
-            identityManager.createRealm(testingRealm);
+            getIdentityManagerFactory().createRealm("Testing");
         }
 
         T someAnotherTypeTestingRealm = createIdentityType("someAnotherType", testingRealm);
 
-        query = identityManager.forRealm(testingRealm).createIdentityQuery((Class<T>) someTypeDefaultRealm.getClass());
+        query = getIdentityManagerFactory().createIdentityManager(testingRealm).
+                createIdentityQuery((Class<T>) someTypeDefaultRealm.getClass());
 
         query.setParameter(Agent.PARTITION, testingRealm);
 

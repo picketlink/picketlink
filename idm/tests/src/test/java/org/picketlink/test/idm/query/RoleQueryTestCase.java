@@ -81,13 +81,13 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 
         Tier someTier = new Tier("Some Role Tier");
 
-        identityManager.createTier(someTier);
+        getIdentityManagerFactory().createTier("Some Role Tier", null);
 
         Role someRoleRealm = new SimpleRole("someRoleRealm");
 
-        identityManager.forTier(someTier).add(someRoleRealm);
+        getIdentityManagerFactory().createIdentityManager(someTier).add(someRoleRealm);
 
-        IdentityQuery<Role> query = identityManager.forTier(someTier).createIdentityQuery(Role.class);
+        IdentityQuery<Role> query = getIdentityManagerFactory().createIdentityManager(someTier).createIdentityQuery(Role.class);
 
         assertNotNull(someTier);
 
@@ -101,13 +101,13 @@ public class RoleQueryTestCase extends AbstractIdentityQueryTestCase<Role> {
 
         Tier someAnotherTier = new Tier("Some Another Role Tier");
 
-        identityManager.createTier(someAnotherTier);
+        getIdentityManagerFactory().createTier("Some Another Role Tier", null);
 
         Role someRoleTestingTier = new SimpleRole("someRoleTestingRealm");
 
-        identityManager.forTier(someAnotherTier).add(someRoleTestingTier);
+        getIdentityManagerFactory().createIdentityManager(someAnotherTier).add(someRoleTestingTier);
 
-        query = identityManager.forTier(someAnotherTier).createIdentityQuery(Role.class);
+        query = getIdentityManagerFactory().createIdentityManager(someAnotherTier).createIdentityQuery(Role.class);
 
         query.setParameter(Role.PARTITION, someAnotherTier);
 

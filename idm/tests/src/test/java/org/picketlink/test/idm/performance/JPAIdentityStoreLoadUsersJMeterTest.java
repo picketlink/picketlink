@@ -33,11 +33,12 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.picketlink.idm.IdentityManager;
+import org.picketlink.idm.IdentityManagerFactory;
 import org.picketlink.idm.config.FeatureSet;
 import org.picketlink.idm.config.IdentityConfiguration;
 import org.picketlink.idm.config.JPAIdentityStoreConfiguration;
-import org.picketlink.idm.internal.DefaultIdentityManager;
-import org.picketlink.idm.internal.DefaultIdentityStoreInvocationContextFactory;
+import org.picketlink.idm.internal.DefaultIdentityManagerFactory;
+import org.picketlink.idm.internal.JPASecurityContextFactory;
 import org.picketlink.idm.jpa.schema.CredentialObject;
 import org.picketlink.idm.jpa.schema.CredentialObjectAttribute;
 import org.picketlink.idm.jpa.schema.IdentityObject;
@@ -140,16 +141,14 @@ public class JPAIdentityStoreLoadUsersJMeterTest extends AbstractJavaSamplerClie
 
         addDefaultConfiguration(config);
 
-        IdentityManager identityManager = new DefaultIdentityManager();
-
-        identityManager.bootstrap(config, new DefaultIdentityStoreInvocationContextFactory() {
+        IdentityManagerFactory factory = new DefaultIdentityManagerFactory(config,
+                new JPASecurityContextFactory(null) {
             @Override
             public EntityManager getEntityManager() {
                 return entityManager.get();
             }
         });
-
-        return identityManager;
+        return factory.createIdentityManager();
     }
 
     private static void addDefaultConfiguration(IdentityConfiguration config) {
