@@ -29,7 +29,6 @@ import org.picketlink.idm.model.Relationship;
  * @author Shane Bryzak
  *
  */
-@SuppressWarnings("rawtypes")
 public interface StoreFactory {
     /**
      * Creates an instance of an IdentityStore using the provided configuration
@@ -37,7 +36,7 @@ public interface StoreFactory {
      * @param config
      * @return
      */
-    IdentityStore createIdentityStore(IdentityStoreConfiguration config, SecurityContext context);
+    <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, SecurityContext context);
 
     /**
      * Maps specific implementations of IdentityStoreConfiguration to a corresponding

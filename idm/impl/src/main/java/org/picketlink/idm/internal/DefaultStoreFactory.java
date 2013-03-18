@@ -86,17 +86,19 @@ public class DefaultStoreFactory implements StoreFactory {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public IdentityStore<?> createIdentityStore(IdentityStoreConfiguration config, SecurityContext context) {
+    public <T extends IdentityStoreConfiguration> IdentityStore<T> createIdentityStore(T config, SecurityContext context) {
         for (Class<? extends IdentityStoreConfiguration> cc : this.identityConfigMap.keySet()) {
             if (cc.isInstance(config)) {
-                IdentityStore<?> identityStore = this.storesCache.get(cc);
+                IdentityStore<T> identityStore = (IdentityStore<T>) this.storesCache.get(cc);
 
                 if (identityStore == null) {
                     Class<? extends IdentityStore<?>> identityStoreClass = this.identityConfigMap.get(cc);
 
                     try {
-                        identityStore = (IdentityStore<?>) identityStoreClass.newInstance();
+                        identityStore = (IdentityStore<T>) identityStoreClass.newInstance();
+                        identityStore.setup(config);
                     } catch (Exception e) {
                         throw MESSAGES.instantiationError(identityStoreClass.getName(), e);
                     }
@@ -164,7 +166,6 @@ public class DefaultStoreFactory implements StoreFactory {
             }
         }
 
-        @SuppressWarnings("unchecked")
         final IdentityStore<? extends IdentityStoreConfiguration> store = createIdentityStore(config, context);
 
         LOGGER.debugf("Performing operation [%s.%s] on IdentityStore [%s] using Partition [%s]", feature, operation,

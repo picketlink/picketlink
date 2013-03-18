@@ -25,8 +25,6 @@ import org.picketlink.idm.spi.StoreFactory;
  */
 public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
-    private static final String DEFAULT_REALM_NAME = "default";
-
     private SecurityContextFactory contextFactory;
 
     private StoreFactory storeFactory;
@@ -68,7 +66,10 @@ public class DefaultIdentityManagerFactory implements IdentityManagerFactory {
 
     private synchronized void loadDefaultRealm() {
         if (defaultRealm == null) {
-            defaultRealm = getRealm(DEFAULT_REALM_NAME);
+            defaultRealm = getRealm(Realm.DEFAULT_REALM);
+            if (defaultRealm == null) {
+                defaultRealm = createRealm(Realm.DEFAULT_REALM);
+            }
         }
     }
 

@@ -60,6 +60,7 @@ public class DefaultIdentityManager implements IdentityManager {
 
     public DefaultIdentityManager(SecurityContext context, StoreFactory storeFactory) {
         this.context = context;
+        this.storeFactory = storeFactory;
         context.setIdentityManager(this);
     }
 

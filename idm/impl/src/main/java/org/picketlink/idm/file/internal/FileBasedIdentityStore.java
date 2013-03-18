@@ -107,23 +107,18 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     private FileCredentialStore credentialStore;
     private FilePartitionStore partitionStore;
 
-    private boolean initialized;
     private FileDataSource fileDataSource;
 
     @Override
     public void setup(FileIdentityStoreConfiguration config) {
-        if (!initialized) {
-            this.fileDataSource = new FileDataSource();
+        this.fileDataSource = new FileDataSource();
 
-            this.fileDataSource.init(config);
+        this.fileDataSource.init(config);
 
-            this.config = config;
+        this.config = config;
 
-            this.credentialStore = new FileCredentialStore(this);
-            this.partitionStore = new FilePartitionStore(this);
-
-            initialized = true;
-        }
+        this.credentialStore = new FileCredentialStore(this);
+        this.partitionStore = new FilePartitionStore(this);
     }
 
     @Override
