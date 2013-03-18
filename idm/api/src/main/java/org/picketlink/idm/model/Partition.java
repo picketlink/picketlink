@@ -32,8 +32,6 @@ public interface Partition extends Serializable {
 
     String getName();
 
-    String getKey();
-
     String getId();
 
     void setId(String id);

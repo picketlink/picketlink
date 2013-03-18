@@ -29,15 +29,8 @@ public class Realm extends AbstractPartition {
 
     public static final String DEFAULT_REALM = "default";
 
-    public static final String KEY_PREFIX = "REALM://";
-
     public Realm(String name) {
         super(name);
-    }
-
-    @Override
-    public String getKey() {
-        return String.format("%s%s", KEY_PREFIX, getName());
     }
 
 }
