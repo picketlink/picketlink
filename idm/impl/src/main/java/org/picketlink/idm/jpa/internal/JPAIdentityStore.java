@@ -89,8 +89,8 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.PartitionStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * Implementation of IdentityStore that stores its state in a relational database. This is a lightweight object that is
@@ -294,26 +294,20 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public User getUser(SecurityContext context, String loginName) {
         if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
-
             if (loginName == null) {
                 return null;
             }
 
-            User user = null; //context.getCache().lookupUser(realm, loginName);
+            DefaultIdentityQuery<User> defaultIdentityQuery = new DefaultIdentityQuery<User>(context, User.class, this);
 
-            // If the cache doesn't have a reference to the User, we have to look up it's identity object
-            // and create a User instance based on it
-            if (user == null) {
-                DefaultIdentityQuery<User> defaultIdentityQuery = new DefaultIdentityQuery<User>(context, User.class, this);
+            defaultIdentityQuery.setParameter(User.LOGIN_NAME, loginName);
 
-                defaultIdentityQuery.setParameter(User.LOGIN_NAME, loginName);
+            List<User> resultList = defaultIdentityQuery.getResultList();
 
-                List<User> resultList = defaultIdentityQuery.getResultList();
+            User user = null;
 
-                if (!resultList.isEmpty()) {
-                    user = resultList.get(0);
-                }
+            if (!resultList.isEmpty()) {
+                user = resultList.get(0);
             }
 
             return user;
@@ -333,20 +327,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             groupPath = "/" + groupPath;
         }
 
-        // Check the cache first
-        Partition partition = context.getPartition();
-        Group group = context.getCache().lookupGroup(partition, groupPath);
+        DefaultIdentityQuery<Group> defaultIdentityQuery = new DefaultIdentityQuery<Group>(context, Group.class, this);
 
-        if (group == null) {
-            DefaultIdentityQuery<Group> defaultIdentityQuery = new DefaultIdentityQuery<Group>(context, Group.class, this);
+        defaultIdentityQuery.setParameter(Group.PATH, groupPath);
 
-            defaultIdentityQuery.setParameter(Group.PATH, groupPath);
+        List<Group> resultList = defaultIdentityQuery.getResultList();
 
-            List<Group> resultList = defaultIdentityQuery.getResultList();
+        Group group = null;
 
-            if (!resultList.isEmpty()) {
-                group = resultList.get(0);
-            }
+        if (!resultList.isEmpty()) {
+            group = resultList.get(0);
         }
 
         return group;
@@ -379,22 +369,16 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             return null;
         }
 
-        // Check the cache first
-        Partition partition = context.getPartition();
-        Role role = context.getCache().lookupRole(partition, name);
+        DefaultIdentityQuery<Role> defaultIdentityQuery = new DefaultIdentityQuery<Role>(context, Role.class, this);
 
-        // If the cache doesn't have a reference to the Role, we have to look up it's identity object
-        // and create a Role instance based on it
-        if (role == null) {
-            DefaultIdentityQuery<Role> defaultIdentityQuery = new DefaultIdentityQuery<Role>(context, Role.class, this);
+        defaultIdentityQuery.setParameter(Role.NAME, name);
 
-            defaultIdentityQuery.setParameter(Role.NAME, name);
+        List<Role> resultList = defaultIdentityQuery.getResultList();
 
-            List<Role> resultList = defaultIdentityQuery.getResultList();
+        Role role = null;
 
-            if (!resultList.isEmpty()) {
-                role = resultList.get(0);
-            }
+        if (!resultList.isEmpty()) {
+            role = resultList.get(0);
         }
 
         return role;
@@ -404,30 +388,22 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     @Override
     public Agent getAgent(SecurityContext context, String loginName) {
         if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
-
             if (loginName == null) {
                 return null;
             }
 
-            // Check the cache first
+            DefaultIdentityQuery<Agent> defaultIdentityQuery = new DefaultIdentityQuery<Agent>(context, Agent.class, this);
 
-            Agent agent = null; // = getContext().getCache().lookupAgent(realm, loginName);
+            defaultIdentityQuery.setParameter(Agent.LOGIN_NAME, loginName);
 
-            // If the cache doesn't have a reference to the User, we have to look up it's identity object
-            // and create a User instance based on it
-            if (agent == null) {
-                DefaultIdentityQuery<Agent> defaultIdentityQuery = new DefaultIdentityQuery<Agent>(context, Agent.class, this);
+            List<Agent> resultList = defaultIdentityQuery.getResultList();
 
-                defaultIdentityQuery.setParameter(Agent.LOGIN_NAME, loginName);
+            Agent agent = null;
 
-                List<Agent> resultList = defaultIdentityQuery.getResultList();
-
-                if (!resultList.isEmpty()) {
-                    agent = resultList.get(0);
-                } else {
-                    agent = getUser(context, loginName);
-                }
+            if (!resultList.isEmpty()) {
+                agent = resultList.get(0);
+            } else {
+                agent = getUser(context, loginName);
             }
 
             return agent;
@@ -559,7 +535,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @Override
-    public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType, String attributeName) {
+    public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType,
+            String attributeName) {
         List<?> attributes = findIdentityTypeAttributes(context, identityType, attributeName);
 
         populateAttributes(identityType, attributes);
@@ -861,7 +838,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param identity
      * @param userAttribute
      */
-    private void storeRelationshipAttribute(SecurityContext context, Object identity, Attribute<? extends Serializable> userAttribute) {
+    private void storeRelationshipAttribute(SecurityContext context, Object identity,
+            Attribute<? extends Serializable> userAttribute) {
         Serializable value = userAttribute.getValue();
         Serializable[] values = null;
 
@@ -978,7 +956,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
      * @param attribute
      * @return
      */
-    private List<?> findRelationshipAttributes(SecurityContext context, Relationship relationship, Attribute<? extends Serializable> attribute) {
+    private List<?> findRelationshipAttributes(SecurityContext context, Relationship relationship,
+            Attribute<? extends Serializable> attribute) {
         Property<Object> attributeIdentityProperty = getConfig().getModelProperty(
                 PropertyType.RELATIONSHIP_IDENTITY_RELATIONSHIP);
 
@@ -1099,8 +1078,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         // First we build a list of all the relationships that the specified identity
         // is participating in
         if (getConfig().getRelationshipClass() != null) {
-            List<?> relationshipsToRemove = findIdentityTypeRelationships(context, getConfig().getModelPropertyValue(String.class,
-                    entity, PropertyType.IDENTITY_ID));
+            List<?> relationshipsToRemove = findIdentityTypeRelationships(context,
+                    getConfig().getModelPropertyValue(String.class, entity, PropertyType.IDENTITY_ID));
 
             // Now that we have the list, we can iterate through and remove the records
             for (Object relationship : relationshipsToRemove) {
@@ -1313,7 +1292,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
                             PropertyType.RELATIONSHIP_ATTRIBUTE_VALUE);
 
                     String attribName = (String) attributeNameProperty.getValue(object);
-                    Serializable attribValue = (Serializable) Base64.decodeToObject(attributeValueProperty.getValue(object).toString()) ;
+                    Serializable attribValue = (Serializable) Base64.decodeToObject(attributeValueProperty.getValue(object)
+                            .toString());
 
                     List<Property<Serializable>> attributeProperties = PropertyQueries
                             .<Serializable> createQuery(relationshipType.getClass())
@@ -1542,7 +1522,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query, boolean matchExactGroup) {
+    private <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query,
+            boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
 
         EntityManager em = getEntityManager(context);
@@ -1788,7 +1769,8 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
         return tier;
     }
 
-    private <T extends CredentialStorage> T convertToCredentialStorage(SecurityContext context, Object instance, Class<T> storageClass) {
+    private <T extends CredentialStorage> T convertToCredentialStorage(SecurityContext context, Object instance,
+            Class<T> storageClass) {
         T storage = null;
 
         if (instance != null) {
@@ -1968,6 +1950,5 @@ public class JPAIdentityStore implements IdentityStore<JPAIdentityStoreConfigura
             }
         }
     }
-
 
 }
