@@ -55,7 +55,6 @@ public class RealmManagementTestCase extends AbstractIdentityManagerTestCase {
 
         assertNotNull(realm);
         assertEquals(TESTING_REALM_NAME, realm.getName());
-        assertEquals(Realm.KEY_PREFIX + TESTING_REALM_NAME, realm.getKey());
     }
 
     @Test

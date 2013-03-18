@@ -60,7 +60,6 @@ public class TierManagementTestCase extends AbstractIdentityManagerTestCase {
 
         assertNotNull(testingTier);
         assertEquals(TESTING_TIER_NAME, testingTier.getName());
-        assertEquals(Tier.KEY_PREFIX + TESTING_TIER_NAME, testingTier.getKey());
     }
 
     @Test
