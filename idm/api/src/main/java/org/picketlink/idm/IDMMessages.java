@@ -269,4 +269,7 @@ public interface IDMMessages {
     @Message(id = 66, value = "Could not find Agents BaseDN [%s].")
     IdentityManagementException ldapCouldNotFindAgentsBaseDN(String baseDN, @Cause Throwable e);
 
+    @Message(id = 67, value = "Agents can only be stored and managed from a Realm. Current partition is [%s].")
+    IdentityManagementException partitionInvalidTypeForAgents(Class<? extends Partition> partitionType);
+
 }

@@ -34,6 +34,7 @@ import org.picketlink.idm.model.Group;
 import org.picketlink.idm.model.GroupMembership;
 import org.picketlink.idm.model.GroupRole;
 import org.picketlink.idm.model.IdentityType;
+import org.picketlink.idm.model.Realm;
 import org.picketlink.idm.model.Relationship;
 import org.picketlink.idm.model.Role;
 import org.picketlink.idm.model.User;
@@ -71,6 +72,10 @@ public class DefaultIdentityManager implements IdentityManager {
         }
 
         if (Agent.class.isInstance(identityType)) {
+            if (!Realm.class.isInstance(context.getPartition())) {
+                throw MESSAGES.partitionInvalidTypeForAgents(context.getPartition().getClass());
+            }
+
             Agent newAgent = (Agent) identityType;
 
             if (StringUtil.isNullOrEmpty(newAgent.getLoginName())) {
@@ -136,6 +141,12 @@ public class DefaultIdentityManager implements IdentityManager {
     public void update(IdentityType identityType) {
         checkIfIdentityTypeExists(identityType, context);
 
+        if (Agent.class.isInstance(this.context.getPartition())) {
+            if (!Realm.class.isInstance(context.getPartition())) {
+                throw MESSAGES.partitionInvalidTypeForAgents(context.getPartition().getClass());
+            }
+        }
+
         try {
             storeFactory.getStoreForFeature(context, getFeatureGroup(identityType),
                     FeatureOperation.update).update(context, identityType);
@@ -157,6 +168,10 @@ public class DefaultIdentityManager implements IdentityManager {
     @Override
     public void remove(IdentityType identityType) {
         checkIfIdentityTypeExists(identityType, context);
+
+        if (!Realm.class.isInstance(context.getPartition())) {
+            throw MESSAGES.partitionInvalidTypeForAgents(context.getPartition().getClass());
+        }
 
         try {
             storeFactory.getStoreForFeature(context, getFeatureGroup(identityType),
@@ -181,11 +196,19 @@ public class DefaultIdentityManager implements IdentityManager {
     }
 
     public Agent getAgent(String loginName) {
+        if (!Realm.class.isInstance(context.getPartition())) {
+            throw MESSAGES.partitionInvalidTypeForAgents(context.getPartition().getClass());
+        }
+
         return storeFactory.getStoreForFeature(context, FeatureGroup.agent, FeatureOperation.read).getAgent(context, loginName);
     }
 
     @Override
     public User getUser(String loginName) {
+        if (!Realm.class.isInstance(context.getPartition())) {
+            throw MESSAGES.partitionInvalidTypeForAgents(context.getPartition().getClass());
+        }
+
         return storeFactory.getStoreForFeature(context, FeatureGroup.user, FeatureOperation.read).getUser(context, loginName);
     }
 

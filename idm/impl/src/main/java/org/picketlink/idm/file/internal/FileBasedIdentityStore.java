@@ -87,8 +87,8 @@ import org.picketlink.idm.query.internal.DefaultIdentityQuery;
 import org.picketlink.idm.query.internal.DefaultRelationshipQuery;
 import org.picketlink.idm.spi.CredentialStore;
 import org.picketlink.idm.spi.IdentityStore;
-import org.picketlink.idm.spi.SecurityContext;
 import org.picketlink.idm.spi.PartitionStore;
+import org.picketlink.idm.spi.SecurityContext;
 
 /**
  * <p>
@@ -290,7 +290,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @Override
-    public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType, String attributeName) {
+    public <T extends Serializable> Attribute<T> getAttribute(SecurityContext context, IdentityType identityType,
+            String attributeName) {
         throw MESSAGES.notImplentedYet();
     }
 
@@ -580,7 +581,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
                 .addCriteria(new AnnotatedPropertyCriteria(RelationshipIdentity.class)).getResultList();
 
         for (Property<IdentityType> annotatedProperty : relationshipIdentityTypes) {
-            IdentityType identityType = lookupIdentityTypeById(context, fileRelationship.getIdentityTypeId(annotatedProperty.getName()));
+            IdentityType identityType = lookupIdentityTypeById(context,
+                    fileRelationship.getIdentityTypeId(annotatedProperty.getName()));
 
             if (identityType == null) {
                 return null;
@@ -690,22 +692,16 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
      * @param agent
      */
     private void addAgent(SecurityContext context, Agent agent) {
-        if (Realm.class.isInstance(context.getPartition())) {
-            Realm realm = (Realm) context.getPartition();
+        Realm realm = (Realm) context.getPartition();
 
-            Agent storedAgent = new SimpleAgent(agent.getLoginName());
+        Agent storedAgent = new SimpleAgent(agent.getLoginName());
 
-            storedAgent.setPartition(realm);
+        storedAgent.setPartition(realm);
 
-            updateIdentityType(agent, storedAgent);
+        updateIdentityType(agent, storedAgent);
 
-            storeAgent(storedAgent);
-            context.getEventBridge().raiseEvent(new AgentCreatedEvent(storedAgent));
-
-        } else {
-            // FIXME throw exception
-            throw new RuntimeException();
-        }
+        storeAgent(storedAgent);
+        context.getEventBridge().raiseEvent(new AgentCreatedEvent(storedAgent));
     }
 
     private void storeAgent(Agent storedAgent) {
@@ -1209,7 +1205,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query, boolean matchExactGroup) {
+    private <T extends Relationship> List<T> fetchQueryResults(SecurityContext context, RelationshipQuery<T> query,
+            boolean matchExactGroup) {
         List<T> result = new ArrayList<T>();
         Class<T> relationshipType = query.getRelationshipType();
         List<FileRelationship> relationships = new ArrayList<FileRelationship>();
@@ -1261,7 +1258,8 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
 
                         if (queryParameter instanceof RelationshipQueryParameter) {
                             RelationshipQueryParameter identityTypeParameter = (RelationshipQueryParameter) queryParameter;
-                            match = matchIdentityType(context, storedRelationship, query, identityTypeParameter, matchExactGroup);
+                            match = matchIdentityType(context, storedRelationship, query, identityTypeParameter,
+                                    matchExactGroup);
                         }
 
                         if (AttributedType.AttributeParameter.class.isInstance(queryParameter) && values != null) {
@@ -1313,8 +1311,7 @@ public class FileBasedIdentityStore implements IdentityStore<FileIdentityStoreCo
         return result;
     }
 
-    private boolean matchIdentityType(SecurityContext context, FileRelationship storedRelationship,
-            RelationshipQuery<?> query,
+    private boolean matchIdentityType(SecurityContext context, FileRelationship storedRelationship, RelationshipQuery<?> query,
             RelationshipQueryParameter identityTypeParameter, boolean matchExactGroup) {
         Object[] values = query.getParameter(identityTypeParameter);
         int valuesMathCount = values.length;
